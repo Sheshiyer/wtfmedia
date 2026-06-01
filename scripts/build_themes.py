@@ -28,7 +28,7 @@ OUT = ROOT / "web" / "src" / "data" / "connections.json"
 CHAT_MODEL = "meta/llama-3.3-70b-instruct"
 CHAT_URL = "https://integrate.api.nvidia.com/v1/chat/completions"
 THRESHOLD = 8           # themes spread less than entities; configurable
-EMERGING_MIN = 4
+EMERGING_MIN = 4        # show finer themes appearing in 4+ episodes
 ACRONYMS = {"Ai": "AI", "Ml": "ML", "Ev": "EV", "Us": "US", "Uk": "UK",
             "Ceo": "CEO", "Vc": "VC", "Ipo": "IPO", "Llm": "LLM", "Ar": "AR", "Vr": "VR"}
 
@@ -103,9 +103,12 @@ EXTRACT_SYS = (
 )
 
 CLUSTER_SYS = (
-    "You merge a list of themes mined from many podcast episodes into canonical "
-    "themes. Combine paraphrases/synonyms of the same idea into one clear label "
-    "(Title Case, 2-5 words). Keep the assigned category. Return STRICT JSON: "
+    "You normalize a list of themes mined from many podcast episodes. Merge ONLY "
+    "near-identical paraphrases (e.g. 'long term thinking' + 'thinking long term'). "
+    "PRESERVE genuinely distinct ideas as SEPARATE nodes; do not over-merge "
+    "different themes into one broad bucket. Aim for roughly 30-45 canonical nodes "
+    "so the map stays specific and useful. Use a clear Title Case label (2-5 words) "
+    "and keep the assigned category. Return STRICT JSON: "
     "{\"nodes\":[{\"label\":\"AI Safety\",\"category\":\"AI & Technology\","
     "\"variants\":[\"ai safety and alignment\",\"alignment risk\"]}]}."
 )
@@ -151,11 +154,11 @@ print(f"[themes] {len(raw_theme_eps)} raw themes; clustering…", file=sys.stder
 
 # 2) cluster/canonicalize (shortlist the ones seen in >=2 episodes + singletons capped)
 ranked = sorted(raw_theme_eps.items(), key=lambda kv: len(kv[1]), reverse=True)
-shortlist = [(display[k], len(v), raw_cat[k]) for k, v in ranked][:200]
+shortlist = [(display[k], len(v), raw_cat[k]) for k, v in ranked][:260]
 cluster = chat_json(key, CLUSTER_SYS,
     "Themes (label : episodes : category):\n" +
     "\n".join(f"{lbl} : {n} : {cat}" for lbl, n, cat in shortlist),
-    max_tokens=4000)
+    max_tokens=7000)
 clean = cluster.get("nodes", [])
 print(f"[themes] clustered to {len(clean)} canonical nodes", file=sys.stderr)
 
