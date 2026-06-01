@@ -1,0 +1,5426 @@
+Today is for any young Indian boy or girl,
+under the age of 25,
+who wants to start
+a consumer electronic brand.
+Start? Okay, ready?
+All right.
+Hi, guys, thank you for coming home
+and doing this.
+I think Carl had to travel
+from further, further away.
+-Mm-hmm.
+-Amit and Rahul live closer in Delhi.
+So maybe we start
+by speaking about ourselves,
+giving my audience an intro of who we are,
+how we got to be where we are.
+Rahul is already a friend of mine,
+so I know a lot about him.
+But maybe we start with Carl.
+Sure. I'm happy to be here.
+It took a while for us to schedule it
+back and forth, but we're finally here.
+So I'm Carl.
+I'm one of the co-founders of a company
+called Nothing.
+But ever since I can remember,
+I was always a tech fan.
+I grew up in Stockholm, in Sweden.
+I remember, my parents got me
+the first iPod.
+And I was only like 12 at the time.
+And the first-generation iPod
+was very complicated,
+because, I don't know
+if you guys remember,
+-it had the FireWire connection.
+-[Rahul] Right.
+I had a PC.
+It didn't have the FireWire connection.
+So I had to buy...
+First, I got the iPod, I didn't know.
+-I couldn't connect it to the PC.
+-Right.
+Then I had to buy a PCI card for FireWire,
+install that, to even be able
+to connect the iPod.
+And back then, there was no iTunes,
+so it was RealPlayer to manage the music.
+Well, anyway, that product
+got me really hooked on technology.
+The scroll wheel was really cool,
+and managing the music library,
+fixing all the ID3 tags for each song,
+getting the album arts perfect.
+And a couple of years later,
+I was probably...
+So I think I was the first to get the iPod
+in my entire school.
+So I was a cool kid among the nerds
+in the beginning.
+Where was the school, Carl?
+That was in Stockholm.
+What year are we talking about?
+iPod. When was the iPod?
+2001?
+Yeah. You're 36 today, right?
+Yeah, I'm 35... turning 36.
+So when I was 12, I got the iPod.
+Really excited about that product.
+Then I got the first iPhone
+through a friend in the US,
+because the iPhone
+was only exclusive with AT&T.
+So I had a friend buy it for me,
+and then we had to pay
+a $450 cancellation fee on the contract,
+and then got it shipped,
+and then jailbroke it,
+and installed my own SIM card.
+So I was the first among all my friends
+to get the iPhone.
+But I think those two products
+were super formative for me.
+I guess the third thing
+that happened was...
+Then I got the iPad.
+I forgot which year,
+but the first year the iPad came out.
+And I don't know if you guys remember,
+it used to have a skeuomorphic UI.
+So, basically, the UI tried to mimic
+how things look like in real life.
+And when you swipe from the bottom,
+there was a control panel.
+And it was like metallic.
+So you had like a volume knob
+that was brushed metal.
+But when you tilted the iPad,
+the light source of the graphic
+also changed.
+So, I'm like, "Oh, my God,
+like, if Apple thinks about
+every little detail like this...
+I can trust them on like...
+They've figured everything out."
+So those three moments made me a big fan
+of this industry and of Apple.
+Do you still feel that way about Apple?
+No, it's a very different company now.
+When did it change?
+I think the change has been gradual.
+I think the two CEOs have had
+a very different approach
+to running the company.
+I mean, the stock price doesn't lie.
+I think Tim Cook has done a great job
+on the shareholder value creation side.
+But when it just comes to inspiring
+a young guy or a young person
+to take a career in tech, I think
+the old Apple was way better at that.
+So really inspired by those products.
+And then, I was chronically online
+as a kid.
+My parents were busy.
+They were always at work,
+but I got a laptop computer,
+and I got fibre Internet
+at a very young age
+because the infrastructure
+was pretty well developed in Sweden.
+-At 12, you had...
+-Fibre.
+-And phone, access to phone.
+-I had a Nokia 3210.
+-At 12 years old.
+-Yeah.
+So then fast forward to later,
+so I had the Internet.
+Started making friends online
+'cause I felt like the friends around me,
+they only saw a very small part
+of the world.
+Whereas online,
+you can connect with anybody.
+So I made a very good friend.
+We were chatting on MSN Messenger
+every single day
+about how to make money online.
+We were both writing blogs
+and making websites and all that stuff.
+And then, he then became
+the youngest founder
+to get into Y Combinator.
+And he's, like, two years younger than me.
+-Wow.
+-I was very jealous when he got in.
+He was probably 17 or something.
+And so that was also my plan.
+So after uni,
+I'm going to apply for Y Combinator.
+So it was a different time,
+when consumer Internet
+was still very, like, booming
+with Facebook and all that.
+What's really working for Y Combinator?
+We're trying to start something like that
+called WTFund,
+which is a non-dilutive grant programme
+where we don't take equities.
+It's not too much like Y Combinator,
+but a different version of it.
+Why have they been so successful?
+I don't know. I haven't thought about it.
+When I was young,
+I just wanted to go there,
+because I thought that was the place
+you had to go
+if you wanted to become
+a Silicon Valley founder.
+They made a lot of... They've been
+a kingmaker in the industry, I think.
+I'm sure they have some
+unique way of figuring out
+who's a good fit in terms of founders.
+And then they have their brand.
+And then they prepare
+the founders for, like...
+the subsequent funding rounds
+in a pretty smart way.
+Like, even when I'm raising money,
+sometimes, I reference
+the Y Combinator docs,
+like, the guides for how to raise money.
+Do you think it's network
+or access to capital?
+The capital is very little, actually.
+-Half a million.
+-Yeah. It was even less before.
+And they take a lot of stake
+for that money.
+But I think it's a branding thing.
+Like, once you have that brand
+on your resume,
+your next round will be a lot easier.
+And your next, next round
+will be a lot easier.
+And they do have good content to teach.
+Maybe that's their user acquisition.
+Right?
+Having good content to teach young people
+why you should start a company,
+how you should start a company.
+And then once they're ready,
+they inbound to YC.
+Okay. And then?
+So I was planning to go to YC,
+and then I was playing a lot of games.
+A lot of League of Legends at that time.
+-It wasn't very...
+-Games as in, like, video games?
+-Yeah, like online computer games.
+-Online games.
+So I was a bit lazy,
+so I didn't write my application.
+But then I got a phone call from the CEO
+of Meizu back then.
+He's like, "Hey,
+we want to become more international.
+Do you want to help?"
+So I had like two options.
+Either I have to write
+my application for YC,
+or I can go to China to join Meizu.
+I took the path of least resistance
+and didn't finish my university.
+I moved to Hong Kong in 2011.
+-For Meizu?
+-For Meizu.
+Just for the...
+Meizu was the Apple of China at that time.
+They were the first one
+to come up with a phone. Yeah.
+-The first Chinese smartphone.
+-Yes, it was Meizu.
+They made really great MP3 players before.
+That's when I got to know the company.
+And then, yeah, to be a part
+of the beginning of something interesting,
+that's why I moved.
+And also out of laziness,
+to not have to write the thesis
+for university
+and the application for YC.
+And the reason why he reached out to me
+was because,
+after I discovered their products in 2006,
+I made an online fan community
+about that company.
+And it got quite big.
+We got to like 70,000 users, members.
+We were updating, like, people
+on the new firmware updates
+and customisation, and all that stuff.
+And then I think he saw something in that
+and decided to call.
+So the founder of Meizu
+called you himself?
+-The CEO.
+-Yeah?
+-The professional CEO.
+-Wow.
+Okay. And you were in Nokia
+for three months?
+Yeah, that was before that.
+Just for like a summer internship.
+Right. And after Meizu?
+So I didn't stay that long.
+I think I stayed, like, a year.
+I left because I quickly realised
+that it was a family business.
+So the key positions
+were all family members.
+And it's hard to build a very big company
+like that, I think.
+Was the professional CEO a family member?
+He wasn't.
+But imagine how hard it was for him
+to do his work.
+But head of finance,
+head of international.
+It's probably not gonna work.
+So I started applying for jobs.
+I applied for Xiaomi.
+I applied for OPPO.
+I applied for another company
+that's no longer here, called Smartisan.
+Yeah, yeah.
+Smartisan had that... They had that...
+This is a Bangalore-based startup, right?
+No, no, no. This is based out of Beijing.
+Yeah, back in the day.
+With their Hammer UI and all that.
+-Is it?
+-Mm-hmm.
+Yeah.
+-Yeah, they did some good design.
+-[Rahul] Yeah.
+The Smartisan guy never responded to me.
+I interviewed at Xiaomi and OPPO.
+And to be honest, I think back then,
+Xiaomi was a rocket ship.
+Like, venture-backed.
+I think Sequoia and a bunch of
+really well-known VCs were backing them.
+-DST and all of them. Yeah.
+-DST.
+So I was actually quite intimidated
+by the people I met there.
+Like, everybody that interviewed with me
+at Xiaomi felt very aggressive,
+like, results-oriented, very smart.
+Whereas when I interviewed with OPPO,
+I felt more like a traditional
+manufacturing culture.
+So selfishly,
+I thought that if I joined this
+less aggressive culture, I can shine more.
+Did you get a job at Xiaomi as well?
+I dropped out of the interview process
+after we made an agreement
+with OPPO at that time.
+Yeah, so then OPPO also saw
+the rise of Xiaomi.
+Because Xiaomi was selling phones online,
+they were the first
+to do that in the world.
+And they could undercut other people
+because the distribution cost
+was a lot lower.
+So OPPO was also trying to find a strategy
+to hedge against the rise of Xiaomi.
+So they created a new brand
+called OnePlus.
+It was supposed to be online,
+by leveraging the supply chain
+that OPPO had built.
+Because Xiaomi was
+still building their supply chain,
+they didn't have those advantages.
+Is OnePlus still a part of OPPO?
+Yeah, yeah, yeah.
+So then, I had just joined.
+And I was like, "Hey, I can't just join
+and then you start a new company.
+Like, I want to be a part
+of the new company."
+But then I was told that the new company
+is not for international,
+it's just for China.
+To fight Xiaomi in China.
+But I kind of made the case
+that it doesn't hurt, right?
+Like, if I can run international,
+it's all free money.
+Like, you guys can still focus on China,
+and everything else is just extra
+on top of that.
+So that's how I, in the beginning,
+got the opportunity.
+I was only 24 to run international.
+Were you more a marketing person
+at this point
+or were you more
+the technical person at this point?
+I was more marketing, I think.
+I was kind of like a...
+'Cause ever since I was 12
+when I got that computer,
+I started making websites.
+And then I built traffic,
+sold advertising.
+So like just...
+I had a deep desire to make money
+when I was young.
+So more like business/marketing,
+just trying to make it work, hustling.
+So that's kind of what we did.
+After one year,
+after launching the product at OnePlus,
+China did $100 million in revenue.
+International did $200 million.
+China lost money,
+international made money.
+And then we decided to pivot
+the entire company
+to be more focused on international.
+'Cause the competition in China
+was too high.
+-Yeah.
+-So that was the OnePlus journey.
+Spent seven years at OnePlus.
+Very grateful because I was just a kid.
+Like, being able to participate
+in such a high CapEx industry
+without needing to use my own money.
+I didn't have money.
+So, very grateful
+for all those opportunities.
+Allowing me to fail
+with a lot of crazy ideas
+and learning from those.
+Ultimately, it's kind
+of like a CPG strategy
+where we buy components
+from different suppliers,
+we package the components,
+and we have a unique position
+in the market,
+design, brand, and sell the product.
+I had done that for seven years.
+I didn't feel like
+that's what I wanted to do my entire life.
+I want to not only implement
+other people's technology,
+I also want the opportunity to eventually
+impact how people use technology.
+So I knew I had to go independent.
+So I left in 2020, in September.
+And on my birthday,
+that was like a birthday gift for myself.
+And started this new company
+called Nothing.
+It's been four and a half years.
+We underestimated the difficulty
+in building this, but we're still around.
+So, very grateful to still have
+opportunities to build a company.
+But it was a bit tougher than we expected.
+Are you branding your phone
+by keeping it there?
+Yeah, it's free exposure. [chuckles]
+It has a very distinctive back, right?
+Yeah, so that's our entire thing.
+We...
+It's a very mature industry,
+and it's very hard to compete
+because everybody is at very high scale.
+So they have a lot of advantages.
+We're not reinventing the category.
+It was invented a long time ago
+by somebody else.
+So, for us, it's all about carving out
+a small position in the market first.
+We don't have to have everybody love us.
+It's okay if 90% of people don't care
+about us or hate us
+as long as we get a niche group
+of consumers who really love us.
+That works in our industry
+because it's so big.
+Maybe it doesn't work
+for smaller categories.
+So, for us, we chose to differentiate
+through design
+because it was the fastest way
+to differentiate.
+If we picked technology,
+it would take years to play out.
+It's a lot of investment, a lot of years.
+We also didn't want to reinvent
+the product category.
+Like, if we have crazy ideas
+on a new gadget,
+we might spend years
+on trying to build it.
+And then if we launch it,
+you only have one chance.
+If people don't like it, you're screwed.
+Yeah, so we start with hardware design,
+then we move to software design.
+Now we're investing more and more
+into the OS itself, into AI.
+So I think, for us, it's about building
+differentiation and modes over time.
+But in a gradual way.
+Don't move too fast because then
+you might, kind of, fall off the horse.
+So, for a company
+headquartered in Sweden...
+-UK.
+-UK.
+The trade war will affect you how?
+Tariffs?
+So, now, the most direct way is...
+Trump had new tariffs
+for manufacturing from China.
+So we manufacture the earbuds in China.
+And that's like a 20% hit on our...
+-[Amit] Import.
+-...business plans for the US market.
+So now we need to look
+at alternative sources of manufacturing
+like India, like Vietnam,
+where it makes the most sense.
+It's the first time where, you know,
+every night, 10pm, I go on CNN.com.
+See. He must have woken up.
+What is the new news?
+And then go to sleep.
+But it won't affect you as much
+if you're getting stuff from China
+and selling in India, right?
+No, it's not about that getting from...
+See, because the supply chain right now
+is there in China.
+And then all the manufacturing now
+is coming to India.
+But it's not about China,
+it's about India also.
+Because, you know, reciprocal tariffs
+and all those sort of things.
+But I would assume it would hurt you most
+if you're selling something in the US.
+Certainly, yes.
+But now we're talking about
+the whole industry, you know, per se.
+So, you know,
+if you see the reciprocal tariff,
+even on mobile phones.
+It's, you know, it's 16.5%.
+Right?
+So if anything coming into India,
+there is a duty of 16.5%.
+Going to US as of now is 0%.
+So reciprocal means...
+At some level, doesn't it sound fair?
+Like, I'm just...
+I have no affinity to America.
+And I'm the biggest proponent
+of India built for India,
+supporting Indian product.
+But, if tomorrow
+I was selling to country X, Y, Z.
+And I was selling them something
+and they were charging me 30% duty on it,
+if I was buying something from them,
+I would assume the same duty should apply.
+Yeah, I think so.
+Like, inherently, it's logical, no?
+-Yeah, but I have a different view.
+-Yeah.
+See, it's not binary.
+It's not, you know-- It depends:
+How do you want to bring up your country?
+What are your policies, for example?
+We've been discussing about China a lot.
+In China, way back, they decided
+that they are not going to allow
+the foreign companies.
+Foreign companies can only come with JVs
+because they want to build
+their champions.
+But then, how can they do that,
++but sell to other countries
+at the scale that they are selling
+and creating these deficits?
+No, but they created that scale, right?
+So, see, if you see examples
+how great countries are built.
+It's all about the companies
+that, you know...
+If you have great companies,
+the country will prosper.
+And the United States
+is the biggest example.
+Same thing, you know,
+China worked on that way back.
+And so, if Mercedes-Benz
+have to, you know...
+they want to sell and they say,
+"Do a joint venture with our company."
+Everyone, Hyundai, or...
+all of them in the automobile.
+Softwares... Never allowed Google,
+Microsoft, you know, all those players.
+They build their own companies,
+and they...
+We all know about that.
+So, if it was like what we are discussing
+that yes, sitting across the table,
+okay, if you do this, I do this.
+Then all these things-- Then Google
+would have been there probably...
+Or Amazon would have been there.
+I don't think so whether
+they will be having an Alibaba or not
+or whether there was this Baidu,
+you know, all those players
+would have been existing or not.
+But I'm making the presumption
+that classical economic theory suggests
+that free markets are the fastest way
+to improve quality and get competitive.
+Like, I do see your point.
+I remember reading somewhere in history
+that back in the day
+when UK was not doing well,
+they shut off from the world,
+isolated their domestic industry
+pre-industrial revolution
+and they didn't allow foreign products
+for a while
+to help their internal industry to grow
+to a point where it can be competitive.
+So maybe there's a point to that.
+But when I look at it very simplistically,
+if Nikhil is selling something
+and Rahul is selling something,
+if each time Rahul is selling something,
+there is a certain additional tax
+outside of the cost of growth produced
+in Rahul's margin,
+the same should apply to Nikhil as well.
+Certainly. So as I said, likewise,
+it sounds very, it's simple, it's logical.
+But, you know,
+when you're building your countries,
+you know, the whole narrative
+changes in that.
+And that's how all these FTA treaties
+are being worked out.
+-[Nikhil] Yeah.
+-Yeah.
+They've supported the ecosystem also
+in a big way,
+if you look at all Chinese companies.
+I mean, all, like-- You're talking about
+Internet companies,
+they never allowed US companies
+to come in.
+In fact, there is no Uber also there.
+Amazon also had to sell out
+their business there.
+I mean, somehow
+they're protected for the Indian--
+their Chinese companies to grow, actually.
+That's how, I mean,
+that's how their whole strategy,
+you know, has been worked out.
+So, today, we talk
+about semiconductors here.
+They started working
+on semiconductors 20 years back.
+-[Carl] Yeah.
+-And now the results are coming.
+They're like 3,200 companies
+working on semiconductors.
+Most patents are being filed there. So...
+Carl, can I ask you another question?
+Mm-hmm.
+For a kid who moved from China to the US
+with two PhD parents,
+and a deep desire to make money
+while young,
+where does that come from?
+I'm sure there's some childhood trauma,
+but I've never explored that path
+to understand more.
+What do you suspect it could be?
+I think just being... not fitting in,
+the feeling of not fitting in,
+you know, like...
+But you're a young, good-looking guy.
+Why not fitting in?
+'Cause I grew up in white societies
+as a minority.
+Racist? Back then?
+I think it's not, like, explicitly racist,
+but it's like, you're just
+not the same, right?
+Like, I could tell.
+I think there's something to do with that.
+US more so or Sweden?
+-I think both.
+-Is that all?
+Childhood?
+I think childhood trauma
+is a big part of it,
+but I haven't gone to a therapist
+to unpack all of that.
+There's also, I think, a fear of death.
+You know, I remember
+when I was very young,
+I was very angry at my parents
+for giving birth to me.
+Because now I have to die,
+and that's terrible.
+"Why did you do this?"
+-This is at what age?
+-Eight, I think.
+So there's like this fear.
+And my best answer is, like,
+this is going to be a journey.
+Life is a journey.
+I got the conclusion
+from the movie Life of Pi.
+[Rahul] Mm-hmm.
+The kid is on a boat,
+meets a lot of animals,
+but actually it didn't happen.
+Just made it up
+to make the journey more pleasant.
+So it's all about the journey,
+and I think by doing something ambitious,
+doing something different,
+the journey will be a lot more fun.
+So that's also a driver, I think.
+Do you feel like nothing has meaning?
+Are you nihilistic,
+stoic in your thinking?
+I think the journey has meaning,
+but I don't think
+there's much beyond death.
+Well, thank you.
+Rahul, would you like to go next?
+Tell us about your life.
+Start from the beginning, from Delhi.
+-You know...
+-I know, but they don't know.
+So, yeah, I grew up in Delhi.
+Born in a middle class family,
+father was a school teacher,
+mother was a housewife.
+Youngest kid in the family.
+Growing up, just wanted to do something.
+Nobody was doing business in my family.
+Because, you know, all...
+But I don't know how I picked up that,
+but that I will always do something
+of my own.
+This was probably when I was...
+maybe, if I remember,
+around 10 years or 12 years,
+I just wanted to do something of my own.
+And I was pretty clear
+that I will not work for anybody else.
+Despite knowing that there is no capital.
+Why?
+No... A school teacher,
+how much capital will you have?
+No, why will you not work for anyone else?
+Because I just thought that
+I want to do something different in life,
+in terms of something meaningful.
+I am not saying impact,
+because, at that time,
+it was not about impact,
+it was about survival.
+You said this to me personally
+at different points.
+Even when I sat with you
+and had the fund raise,
+dilution conversation.
+You always said, we won't raise X,
+because control will go away.
+Or we will have somebody else
+we are answerable to.
+Why did you never want to work
+for anyone else?
+And why do you never
+want to give up control
+or your position in that ecosystem?
+Yeah, so I think we will break up
+in these two parts.
+First, not work for anyone,
+because I wanted, as I said,
+to do something different,
+something big, something meaningful.
+And I...
+-Jai, get me some coffee, please.
+-Yes, sir.
+I remember this conversation
+with my friends at that time,
+and we used to go and play in parks,
+that I will do something of my own.
+And they would also ask the same question.
+But I think there was a deep desire
+in terms of wanted to...
+wanted to be known for something.
+Why?
+This is the problem with him.
+No, but...
+So why?
+Maybe because when I was growing up,
+I saw, you know...
+how people were and how things were
+going on in terms of whatever access.
+So because we were having
+very limited access to things.
+So you are 50 now.
+Your formative years were '90s?
+-When India was opening up?
+-Yeah.
+Yeah. You know, end of, let's say...
+you can say...
+When I started working, it was 2000, yeah.
+Right. What did you see then
+which made you want to do these things?
+So first, you know, I just told my dad...
+he said, "What do you want to do?"
+I said, "I just want to do
+something of my own."
+-He said, "What?"
+-I said, "I have no idea.
+But buy me a computer."
+Because all my friends, whether they were
+doing civil or mechanical or electronics,
+everybody was going in software.
+So I said I want to do
+something in software.
+[Nikhil] Mm-hmm.
+And bought that computer.
+And I clearly remember
+when I bought that computer,
+I had no idea about computers
+at that time.
+Windows came,
+and Windows was there at that time.
+So I went to the guy
+who was selling the computer.
+He said, "What computer do you want?"
+I said, "It should have lot of icons
+on the screen."
+It used to have shortcuts, actually.
+I never knew about that.
+I said, "It should have lot of icons
+on the screen."
+And that's how...
+So he laughed at me.
+"He has no idea."
+He gave me.
+And then I bought a book.
+"Learn VB in 21 days."
+-Visual Basic.
+-Visual Basic, yeah.
+I wrote a program in three days.
+Hello world, this, that.
+I thought, "Okay, I know programming now."
+My friend came, he saw the book.
+He said, "You've done this?"
+I said, "Yeah, I made a program."
+He said, "Can I take this?"
+I said, "Yeah, take it."
+So he took that book away.
+That guy later became my partner.
+So the story...
+And he is a core techie guy.
+Coding only.
+So I tell him
+you become a coder because of me.
+So, by virtue of buying that computer,
+that decision,
+we started working on...
+So I started looking for opportunities
+in software.
+That, what can I do in software.
+2000 was like the software bust time, no?
+Yeah, the dot-com.
+So, this is like '99 or so.
+You started Micromax in 2000.
+No, actually 1998.
+1998, with the three friends.
+-Four friends.
+-[Nikhil] Four friends.
+Started with three, fourth came
+from US and then joined here.
+Then started, you know,
+working on software,
+just worked on a lot of SAP.
+That went down.
+Then started working on e-commerce,
+that Y2K problems and all that.
+So, at that time, I was in US.
+So I was the BD guy,
+doing marketing and sales,
+and rest of the other guys were
+doing the coding and everything.
+So, at that time,
+we wrote a lot of B2B engines
+for e-commerce and doing all that.
+So, you know, that was the time
+when Sun Microsystems was there,
+and it was like we had the dot in dot-com.
+And then that market went down,
+and then we realised
+that it is a very fast-moving market,
+and you have to, you know,
+constantly change yourself
+very quickly to be relevant.
+We moved on to embedded technology,
+started working
+with University of Irvine, California.
+They had an R&D centre on embedded.
+We started working together.
+And, at that time, Nokia, in India,
+was looking
+for a machine-to-machine partner, M2M.
+HCL was their partner
+for their mobile phones,
+and they were looking for someone
+for a machine-to-machine.
+And we got introduced.
+And they said,
+"Would you like to do something?"
+You know, we used to write device drivers,
+doing, you know, work on
+a lot of different architectures.
+ARM, PowerPC and all that.
+Said okay, started doing that.
+And then, one fine day,
+I was just sitting with one of the guys
+from Nokia, Finland.
+And he showed me a product.
+I said, "What is this?"
+He said, "This is one of the products
+wherein if you put a SIM card in this,
+you can connect a telephone
+along with this,
+and it will replace the landline."
+So I said, "Good.
+So why did you make this product?"
+He said, "In Finland, you know,
+because there are a lot of snow
+and everything,
+you can't lay the copper wire...
+the telephone.
+So you can put a SIM card in this
+and connect a phone
+and then you have a landline,
+because this phone is going to be fixed,
+nobody's going to take it."
+He said, "Can you do something with this?"
+I said, "India, how much would this...
+we don't have market
+for something like this."
+So I took that product from him.
+I said, "Okay, let me just play."
+And we found an opportunity and I went
+back to him the next day and said,
+we would like to power
+the payphone machines.
+Yes.
+So we went to Airtel and all those guys...
+and all the GSM players,
+said, we can power payphones
+with one SIM card.
+At that time, payphone in India
+was only MTNL and BSNL,
+government companies laying down the wire.
+You mean the STD centre?
+STD centre, STD meets.
+So they said, "Okay, how can you do that?"
+We said, "This is, you know,
+with that phone,"
+because we were writing device drivers
+and everything,
+we took that machine,
+change the code and everything,
+put our software, attach the landline,
+and say, you put a SIM card,
+and you can work.
+They said, good.
+And then it was also a solution,
+good solution for corporates,
+because corporates, if they want to have
+a connection straight away,
+you can just, you know, integrate it
+with the EPABX systems and all.
+So it worked for them.
+And from a small Delhi-based company,
+we started growing to all the states
+and started supporting all the carriers.
+Airtel, that time, it was Hutch
+and Idea and all.
+We started supplying to them.
+The business was started doing
+reasonably okay.
+From three, four crore rupees annually,
+we started doing around 100 crore rupees.
+-And, you know, very quickly we scaled up.
+-What year was this?
+This, I think 2003.
+Hundred crore then
+is like thousand crore now.
+More.
+A lot more.
+So we were happy.
+We thought that okay, we have arrived,
+something is happening.
+So that business was doing well.
+So one day I got a call
+from this Finnish guy.
+I remember his name, Henry.
+So Henry said, "Rahul, can we meet?"
+I said, "Absolutely."
+Said, "Why?"
+He said, "I have good news
+and bad news for you."
+I said, "Tell me what?"
+He said, "No, come over to my home."
+Went to his home.
+He said, "What do you like to listen?"
+I said, "Tell me the bad news first."
+He said, "Bad news is that
+Nokia, we have sold
+the whole machine-to-machine business."
+What year was this?
+It's 2003.
+2003, 2004.
+Back then they were killing it, right?
+Nokia was the market leader?
+Number 1 to number 10 was Nokia.
+Then started 11, 12, 13. Yeah.
+So I said, "What is the good news?"
+He said, "Good news is that
+as Nokia, now we are coming
+into car accessories business.
+We want you to distribute
+our car accessories."
+So those car accessories, you know,
+they had speakers.
+You could put in those,
+that lighter socket.
+-[Nikhil] Mm-hmm.
+-Oh.
+And connect the wire with your Nokia phone
+and then while you are driving,
+the speaker, you know, you can talk.
+A pretty interesting solution.
+They had a speaker
+you can put in your seat
+and the mic and, you know,
+the speakers will come like this.
+So all those sort of...
+So I said, "No, we are not interested
+in the accessories business."
+So the technology was there with us
+completely because we developed...
+So we made our own box,
+our fixed wireless terminal.
+Stamped Micromax on top of it
+and went back to Airtel.
+We said, "Nokia is no more,
+this is Micromax.
+Would you like to use it?"
+Same terminal.
+All of those guys, Airtel and Vodafone,
+they used to know me from Nokia.
+In their phone also, my phone number
+was saved as "Rahul Nokia".
+So they said, "Okay."
+Up north there is a shrine, Vaishno Devi,
+they said, "You install it there."
+Because it works 24 hours, the pay phone,
+you know, it works 24 hours.
+-In "Vaishnav" Devi?
+-Vaishno Devi.
+Yeah? I have been there,
+that walk where you are climbing the hill
+and there are STD booths
+on that path, right?
+Yes, yes.
+So we installed our machines there.
+First machines in Vaishno Devi?
+-Yes.
+-How come?
+Because that's what Airtel said,
+that, you know, if you install--
+Because the traffic is so high,
+that if it works there,
+if it can take the load,
+then it will work anywhere.
+We said, "Okay."
+We installed it there, 20 days.
+The revenue from...
+Because see, for the operators,
+it was a killer product
+because their ARPU from one SIM card,
+multiple people are using one SIM card,
+the ARPU is massive.
+Thousands of rupees from one SIM card.
+With an individual, it's...
+Versus what did they have before that?
+Nothing.
+There were STD booths before that, right?
+MTNL... powered by MTNL and BSNL.
+Hmm.
+To run an...
+You know, to install an STD booth
+where there was no MTNL, BSNL line,
+where there was only...
+if there was a GSM signal coming in,
+you can power that.
+And so then they gave us a contract.
+This is pre
+"people having cell phones", right?
+Significantly pre.
+No, cell phones were there at that time.
+In 2005-06, they were pretty much there.
+Yeah, the cell phones were there.
+No smartphones,
+all the feature phones were there.
+So, you are saying the difference was
+it got cheaper?
+Yeah, it was difficult to get.
+So, you have to apply to MTNL,
+get a license and then, you know, install.
+-Painful that time.
+-[Rahul] Right.
+The government.
+The government thing and then,
+you know, they will come,
+and if there was no line...
+Imagine if there is no...
+If it is a village.
+See, they have to lay down the whole line.
+It was a costly affair and time-taking.
+And for us, if there is a signal coming,
+we will say, about five minutes,
+we will install it.
+So, that business started doing quite well
+and then we became a de facto number one
+on GSM fixed wireless terminal phones
+in India.
+And started operating offices pan-India,
+became a pan-India player,
+service network and everything.
+So, we learnt a lot there.
+Applying, you know, sale tax numbers
+and everything,
+you know, like the whole...
+how the business works.
+This is till 2006.
+2000, yeah. 2006-07.
+Mm.
+One fine day, I got a call
+from a senior guy from Airtel.
+He said, "Oh, there is a problem
+in a machine.
+Can you go and check it?"
+That, by that time, you know,
+our business grew
+to like 400 crores per annum.
+So, we were doing, like...
+Did you have liquidity?
+Did you take out money from the business?
+No, we were just keeping the money.
+But I still... I just remember
+that time BMW came to India.
+I bought a BMW 3 Series
+and thought, "Yes, this is it."
+In 2006.
+So, that time, then my...
+That was the first time
+when my parents realised
+that our son is doing something.
+Because otherwise, they used to ask me,
+"Son, what are you doing?"
+I said, "Fixed wireless terminals
+and all that..."
+Yeah, so coming back to the story,
+so that guy called me.
+So, I said, he said,
+"It's in Bengal somewhere,
+why don't you go and check?"
+I said, "I'll send some engineer."
+He said,
+"No, it's a senior-level escalation,
+can you go yourself?" I said, "Okay."
+Took a plane, landed in Kolkata,
+took a cab,
+five hours drive near Bangladesh border.
+Saw, this all, Krishnanagar,
+Nadia and all...
+Just saw the problem, fixed it
+and then in the evening coming back...
+to catch a flight
+in late night in Kolkata.
+In mid, I saw, it's a village
+where there was no electricity.
+But there was an Airtel ISD PCO booth.
+So, I asked my cab driver, I said,
+"Bhaiya, can you stop the car?"
+I went inside the booth.
+And, because I knew
+that if it is an Airtel,
+must be using our equipment.
+So, I said, "There is no electricity
+in the village,
+how are you running this booth?"
+He showed me a big truck battery there.
+He said, "Sir, you draw power from here."
+I said, "Fine."
+We were not making phones those days,
+I was having a Nokia phone.
+There was no signal in my phone.
+I said, "There is no signal in my phone,
+how are you drawing the signals?"
+He showed me a big 20 dB gain antenna,
+mounted on a pole on his terrace.
+Typical Indian jugaad.
+He said,
+"Sir, the signal comes from here."
+I got more intrigued. I said, "Fine,
+there is no electricity,
+how do you charge the battery?"
+He said, "Eleven kilometres away
+there is a village,
+there is electricity.
+In the night, when I shut down
+my shutter, I go there,
+charge in the night
+and then come back in the morning."
+I said, "How much money do you make?"
+He said, "Around, let's say,
+4,000 rupees a month."
+Now, 4,000 rupees a month in a village,
+there is no electricity,
+no entertainment, no TV, is big.
+Then I was travelling
+in the interiors of Bihar,
+and I saw people charging,
+you know, asking 25 rupees or 40 rupees
+to charge your phone.
+Because at those days there were
+different pins for different phones.
+I remember, yeah.
+Different for Motorola
+and different for Nokia,
+those round pins and all...
+before everything standardised.
+I said, "Why is this?"
+He said, "Because there is no electricity
+at home, people come, pay and charge."
+It's very expensive, right?
+-For a charge.
+-Yeah. At that time it is very much.
+But see, those days
+mobile phones were not common like this
+because the call was not free.
+Today, probably you are paying for data.
+You know, that time the call
+was expensive.
+I went back, sat with our guys,
+worked a lot on the GSM technology.
+I said, "Guys,
+why don't you make a mobile phone?"
+What year was this?
+This is 2007.
+So, the first reaction from everyone
+internally was, "Are you crazy?
+Who is going to fight these Nokias
+and Samsungs and Motorolas in the world?"
+And they said,
+"Why do you want to do that?
+I mean, we are doing so well.
+You are driving a BMW 3 Series,
+so why do you want
+to disturb the apple cart?
+Why?
+I said, "No, I think, you know, the food
+is being cooked in different countries.
+We need a flavour in India.
+You know, it's somewhere in Finland
+or in Korea, but we need Indian flavours."
+Anyway, so fought a lot internally.
+And then they said...
+Fought with your co-founders,
+your partners.
+Yes, yes, yes.
+They said, "Okay, 10,000 phones you make.
+If it works, it's fine,
+otherwise our business is doing well."
+So, this is like casino money
+they gave me.
+They said, "You go and play, if it works,
+it's okay. Otherwise you pay."
+How much money was there?
+10,000 phones,
+even if a phone was 2,000 rupees,
+you multiply, it was what?
+-Twenty crores?
+-Yeah, all that, yeah.
+I said, okay.
+So, we sat with the team and said,
+"Guys, let's make a phone
+with long battery life,
+one month of battery backup,
+because of all these experiences."
+And...
+And that's how
+the first Micromax phone came.
+And the tagline for the phone
+was "Mobile ka Baap."
+Because the standby time was 30 days.
+Since we worked a lot.
+Now, herein, my philosophy is that
+whatever you are doing in life,
+nothing goes waste.
+Whatever we were, you know, I'm just,
+you know, scrambling my whole story here.
+But in between,
+we worked a lot on SIM card,
+with Schlumberger and all those guys
+for one, two years.
+Nothing came out of it.
+Nothing came out of all those things.
+But all those things we implemented
+when we were making phones.
+So, normal phones take
+seven to eight milliamperes,
+you know, per second as power.
+We worked on embedded,
+we made it two to three milliamperes
+per second.
+And that's how we created
+the same form factor.
+At that time,
+the battery was 700, 600 mAh.
+We put some 1,800 mAh,
+2,000 mAh that time.
+Same form factor.
+Made a phone
+and then went to the distributors.
+Now, the real problem started from there.
+Because all the distributors were like,
+all big distributors.
+Like, even the Delhi distributor of Nokia
+was bigger than us.
+We were doing pan-India business,
+fixed wireless and all, but...
+Because Nokia was so successful.
+So, we said, "Now we make mobile phones,
+why don't you distribute?"
+And globally, it was only, you know,
+all those four, five
+international brand names.
+There was no local brand doing anything
+in the world at that time.
+Even if it was there, they were not like
+very, very successful brands.
+So, they just offered us a cup of coffee
+and said, "Good friends, but sorry."
+We were not able to find a distributor
+after making the phone.
+In 2000?
+'07, '08 now. This is '08.
+And so, we went back to...
+After a lot of...
+there is no distributor, how do we...
+So, we went back to our fixed wireless.
+-Did you already make the inventory?
+-Huh?
+-Did you already make the inventory?
+-Yeah, already it was with us.
+And we went back to our distributors
+of fixed wireless terminals,
+payphone guys, who were selling payphones.
+We said, "Now, we have this.
+Would you like to sell this?"
+He said, "Sir, give it to us, keep it,
+if it sells, we will see."
+Because they were not
+the mobile phone guys.
+We gave the phones to them.
+Ten days, the phones were sold out.
+Why? Because of the differentiation.
+There was nothing like that in the market.
+-Battery was the differentiation.
+-Yes.
+Which you learnt from travelling
+to remote places.
+Yes.
+And the form factor was nice,
+it was not bulky,
+so we didn't try to change much
+on the form factor and all.
+The repeat order started coming in.
+That's the same--
+And then everything went crazy.
+Things blew up, right?
+-Things blew up.
+-I remember seeing Micromax everywhere.
+Yeah, then things became crazy.
+And you started marketing like mad
+at this point, right?
+No, so then we sat and said,
+"Okay, what is it that we want to do?
+And how do we want to do it?"
+Because there could be
+a lot of distractions.
+So, and we were still learning
+at that stage,
+it's not that we perfected,
+we were still learning.
+So, one day I saw my cook
+using three SIM cards.
+This is the time
+when all the new operators got license,
+and everybody was selling
+new schemes every day.
+Uninor and all the new guys came in.
+So, I said,
+"Why are you using three SIM cards?"
+He said, "Sir, one for local calling."
+I said, "Fine. Second SIM card?"
+He said, "To call my native village."
+I said, "Third SIM card?"
+He said, "Incoming is free,
+so I am not throwing it away."
+I went back to our guys and said,
+"Guys, why don't we make a phone
+with a dual SIM card?"
+They said, "No, two phones
+only rich people can afford."
+I said, "That's not the consumer truth.
+These are the guys
+who are using two phones.
+So, can we make
+in a single phone, you know,
+simultaneously talking on the GSM signal?"
+So, with one single baseband,
+we created the dual SIM phone that time.
+And I still remember,
+I showcased it at one distributor meet,
+and everybody stood
+and clapped, and they said, "Sir..."
+That was the time when we realised
+that we have to find the gaps
+in the market.
+It's very interesting.
+You are finding your gaps
+from your driver, your maid,
+from going to villages.
+Everyday life.
+It's like you are learning that,
+you are just observing
+and then, you know, finding those gaps.
+Do you see any gaps today?
+Multiple.
+Name one, top of the list.
+I can go on and on,
+but these are all different,
+different ideas.
+I went crazy, I will tell you, you know,
+in that in terms of finding gaps.
+So, we said, okay, we want to make a...
+So, that's how we made first phone
+for girls with Swarovski.
+At that time,
+the phones for girls in India
+was only by Dolce & Gabbana, by Motorola.
+Now, how many people can afford
+a Dolce & Gabbana in this country?
+So, we made a phone,
+you know, with Swarovski.
+Now, again, these very interesting
+consumer stories here.
+We launched that phone
+because our team insisted,
+"No, this is Swarovski,
+it has to be expensive."
+And after a lot of, you know...
+I said, "No, just make it in the reach of,
+let's say, common people."
+We priced at 5,000 rupees at that time.
+Is that the way in India?
+I remember watching an interview of yours
+when I was researching for today.
+When you were talking
+about the form factor on your phone,
+you said-- What was his name?
+-Jesper?
+-[Carl] Yeah.
+He said that whenever
+you look a product...
+at a product for two seconds
+and look away and you have to draw it,
+you should have
+that one distinctive design element.
+That's a very different school of thought
+from the more utilitarian school
+of thought here, right?
+Is this what works for India
+and that works for the affluent?
+No, see, this is a time
+when there were only feature phones,
+-there were no smartphones.
+-[Nikhil] Right.
+So, how do you differentiate
+feature phones?
+Right.
+I think we're at a stage in the industry
+where it's hyper-competitive.
+-Yes.
+-Every user need has been fully explored.
+Now, it is all evolved, like in laptops,
+it's already at the ceiling.
+-How will you... You can't reinvent.
+-Right.
+This was a time
+when everything was evolving.
+[Nikhil] Right.
+We're at a different maturity stage
+of the industry, I think.
+-[Rahul] Yes, yes.
+-Right. Right.
+The phone was also a dream
+when you came in.
+Nobody had phones that time.
+2008, by then, a lot of people had phones.
+Yeah, but the penetration was not high
+because the GSM rates
+and everything was quite expensive.
+How big did it get in terms of numbers?
+From selling 10,000 phones a month,
+we were selling three million phones
+a month.
+How big was the overall market
+at that time?
+Total market less than 100 million
+in India.
+Put together, less than that.
+So, you were selling
+3% of the total market a month.
+-No, no, no.
+-[Amit] 20%?
+[Rahul] No, no, no.
+-[Carl] A third?
+-No, no, no.
+When we were doing three million,
+at that time, our market share
+was around 25%, plus, plus.
+That's crazy.
+You were sponsoring cricket,
+you were sponsoring everything
+back then, right?
+Yes, so our big bet
+was on cricket and music.
+Because that's what the youth was into.
+And you said, a blanket on whatever is...
+Yeah. And that worked also.
+-And this stayed for a while?
+-Yeah.
+For a couple of years?
+-Yeah.
+-This crazy growth trajectory?
+Yes.
+Interestingly, we come back
+to our tariff questions,
+the tariff conversation
+we were having earlier,
+because that kind of
+was the problem, right?
+The Chinese competition
+which came into India post.
+Yes, so that was a time...
+And again, I will answer a couple
+of other questions
+which you were asking about
+why you wanted to and all.
+So there were a lot of learnings also
+in between.
+So for example, when Meizu
+was raising the round with Alibaba,
+we were deep down
+with Alibaba at that time.
+Yeah. Raising the round and...
+-So our paths have been intertwined.
+-Yes, and a pretty big one.
+At that time, we were raising, what,
+around 800 million dollars
+around at that time.
+This is in 2000...
+'14 and secondary, most of it.
+-Wow!
+-[laughter]
+So it was because the business
+was throwing so much of cash.
+-Right.
+-Yeah, so we said we don't need money,
+but, you know, at that time,
+everybody wanted to connect.
+-You know, I remember...
+-You could buy a few more BMWs.
+Few more than few more.
+[laughter]
+So this was going well.
+And then we realised that...
+So we didn't take that money.
+We said, "Okay, no,
+we are doing quite well."
+We said, "We already have so much of..."
+Bad decision in hindsight?
+So we thought that, you know,
+if we have taken care of the Finnish
+and the Koreans at that time--
+Later on, because that time we never knew,
+but in 2016-17, you know,
+that was the time
+when the, you know, the Chinese brands
+started coming in.
+So we thought, you know,
+we have taken care of them.
+So we can, you know,
+we'll take care of this also.
+It's okay. We'll go head on.
+But, you know, that was
+a very, very different game.
+Because, you know, when the Chinese came,
+they came up with so much of gunpowder.
+And you never know that
+where the gunpowder is coming from.
+And whether there is an end to it or not.
+Do you think the government
+subsidised them to come in that manner?
+-Their government?
+-[Rahul] So... Yes.
+So there, as I said,
+you never know, because, you know,
+there were so many schemes
+which were running there.
+And not only the central level scheme,
+but also the state level scheme.
+The companies were funded
+by the states also.
+So...
+So we said, okay, we'll see.
+And then we started fighting.
+It was a price, you know,
+price battle started going on.
+You know, when the Xiaomis of the world
+started coming in and then the...
+So before that, we were fighting,
+let's say, with the Samsungs
+and the Motos
+or the Sony Ericssons of the world.
+Doing pretty well.
+And then you start...
+suddenly you start having a competition
+wherein if you are selling, let's say,
+at 100 rupees,
+somebody comes and says,
+hey, I'm 90 rupees.
+[Nikhil] And if you say 80,
+they'll say 70.
+[Rahul] They'll say 70.
+So that's how it's a race to the bottom.
+And then suddenly
+they were burning a lot of money.
+-But can I ask a structural question?
+-Yes. Yes.
+While it seems like a race to the bottom,
+because of the scale of manufacturing
+they have,
+is the cost of production in China
+inherently so much lower
+that at 80 rupees you can't make money,
+but at 70 rupees they can?
+So that's, yeah, that's true,
+because it's the whole supply chain
+which is, you know,
+which is established there.
+So probably what we were discussing.
+That if their BOM is 100, your BOM is 120.
+But you would also be importing
+that time or manufacturing?
+No. So, see, we established
+our first plant in India in 2010.
+-So you started early.
+-Way before Make In India started.
+So, but the components
+was coming from there, right?
+And at that time, all these brands
+what we see right now,
+they were not there.
+So they started coming in, for example,
+all the brands were there in DVD players
+or MP3 players, and then they started
+coming on that.
+And then the price war started.
+And so, and we also went into it.
+But somehow with the whole supply chain
+and everything, then you slowly,
+you know, access to all these things
+started getting restricted.
+So, for example,
+why Micromax became successful?
+Because in this...
+in the industry where we are in,
+you are already, you know,
+you're looking for a differentiation.
+For example, if I was designing a phone,
+my question to myself was:
+Why will I buy,
+or somebody will buy this phone?
+What is different in this one? Why?
+Why...
+Why somebody will not buy another phone?
+So, you know, that's how
+the differentiators were coming in.
+And differentiator
+was not only on the feature,
+but also on who's going to come up
+with the latest chipset first.
+Who's going to come up with--
+If there is a 50 megapixel camera,
+who's the first guy coming up
+with a 50 megapixel camera?
+If there was a fast charging coming,
+who's the first guy
+to come up with fast charging?
+And the distributors used to look at,
+you know, look at us that,
+okay, they will come up
+with something new every quarter and...
+So when that access
+started getting stopped?
+Government stopped the access?
+No, no, it's not the government, you know,
+because the scale shifted somewhere else.
+Right.
+And they preferred supplying
+to their own companies than to you?
+Right. And so the numbers and everything,
+because their numbers
+started growing up in...
+Because China itself
+became a very big market
+and the scale was, you know, became big.
+Because, you know,
+there are a lot of theories about...
+about Micromax in the market.
+This happened, that happened.
+Everybody can come up with their own.
+Yeah. What is the theory...
+the most popular one?
+No, I keep on hearing different one.
+Oh, they went, you know,
+into luxury segment
+or there was no R&D. You know, all this.
+But I don't know
+how many people know, we...
+When Nokia got sold, we had the...
+You know, we took all the top Nokia,
+they had the gold, you know, division.
+We got all gold guys from Nokia
+and doing the R&D at that time.
+But whatever this was happening,
+all this, you know, coming from China,
+it was a global phenomenon.
+So it was not only that we were affected.
+All the other, let's say,
+there were other brands
+in Turkey or in Malaysia,
+other places,
+you know, everybody got affected.
+And I think in 2019 odd or so,
+we realised that, you know,
+you can burn money,
+but you know, you can burn money
+till the point you know
+that I'm going to win the game.
+Right.
+But if the other person is having
+an unlimited supplies,
+like a bottomless pit.
+A bit like today, no?
+All the loss-making startups in India,
+all competing downwards.
+Yeah.
+And see, and we build Micromax,
+let's say, from day one, making money
+and doing that, you know,
+never raised any capital.
+Slowly, slowly, you know, build it
+and whatever, you know, we raised.
+Said no to $800 million in 2014.
+-So if you ask me in hindsight that.
+-You should have taken it.
+Yeah, because see, that time we never knew
+that you had to create a war chest.
+[Nikhil] Yeah.
+You create a war chest
+and say, "Okay, now let's, you know--"
+Biggest bull run in Indian equity markets.
+Imagine you put that in equity.
+2014 to today.
+Yeah. So, you know, with $800 million,
+you sit on the casino table
+and say, okay, now play.
+-Yeah.
+-[Carl] Yeah.
+Yeah, so, and then after...
+Yeah, in 2009,
+then we realised that, you know,
+either we'll, you know,
+if we keep on burning with this space,
+we will get finished.
+We'll get completely burned out.
+We will not have any capital left.
+So we said,
+"Okay, let's stop burning money.
+And wait for your turn.
+And start focusing on manufacturing."
+And that's how
+we started building more factories
+in 19, 20, 21, and now.
+And that's how we, you know,
+pivoted on the manufacturing game.
+And the whole idea is that unless
+and until you have access to supply chain.
+For example, if today I have to make
+a triple screen fold...
+I don't have access to the screen.
+So how do you come up with the latest?
+-When you say access to supply chain...
+-Yes.
+...you're talking about
+the company in China that gives--
+That makes the screen. Okay?
+That makes the display.
+But the other bigger company there,
+for example, let's say Huawei,
+has a triple screen.
+Huawei has already blocked that
+and said, "Okay, for one year
+you can't give to anybody else.
+Because I am promising you
+this much of volume."
+So, Nikhil,
+how it happens is all partners,
+like supply chain partners,
+screen, battery, or processor,
+they work with bigger brands,
+and everybody has an alpha customer
+on their list.
+Let's say Huawei would be
+the alpha customer on the list.
+So every first technology
+would go to Huawei.
+He will block the capacity,
+and when it is over, it will come to us.
+New technology means all resources
+they will depute to Huawei.
+And then it will come to the market,
+and Huawei will take the first leg
+of new product, which is launching,
+which goes for chipsets,
+screens, sensor, across.
+But we will never be able to make that
+on our own.
+For anybody wanting to start
+a consumer electronic company,
+you can't make that triple-fold screen
+that this supply chain vendor
+is making for Huawei.
+No, if you are, like, a "startup" startup,
+it is too hard to make.
+It requires a lot of money and probably--
+[Amit] He might be making it.
+-It's at a later stage.
+-He can answer.
+-Yes, later stage.
+-It's at a later stage.
+So if you look at Apple's strategy now,
+they feel like they're bleeding
+too much margin to their suppliers.
+-[Amit] Yeah.
+-So they're doing vertical integration.
+So they are developing
+their own technology,
+their own screen,
+their own whatever processor.
+I thought they're outsourcing more
+to Foxconn and--
+-For manufacturing.
+-It's only for EMS.
+-What is EMS?
+-Assembling.
+-You would attempt better.
+-Just for assembling?
+-Really?
+-[Rahul] Yes.
+So Apple used to be
+a consumer-focused company, right?
+So in the start, they were very small.
+They were competing against IBM,
+and, like, big PC companies.
+So they targeted a niche consumer,
+the creative consumer.
+And they positioned the personal computer
+as a bicycle for the mind.
+So if you have an idea,
+you can use your Apple computer
+to manifest that idea.
+In the '90s,
+they started acquiring software companies
+to then create their own suite
+of content creation tools
+like iMovie, GarageBand.
+It's all to cater to the creative, right?
+Beautiful industrial design,
+great software that helps you
+take your ideas into reality.
+After some time,
+they really captured the creatives.
+-Like, they had a partnership with Adobe.
+-Yeah.
+Adobe worked better on Apple computers.
+So once they got the creatives,
+the brand became really cool.
+So normal people,
+they also wanted to feel creative.
+So therefore,
+"I buy Apples 'cause I'm a creative."
+But then...
+So they won the consumer battle.
+And then to keep growing the share price,
+they needed to take the value
+back from their suppliers
+'cause they had outsourced
+a lot of the components.
+So in the recent ten years,
+it's been a vertical integration strategy.
+Now they do their own processors.
+Actually, what we talked about before,
+they get the TSMC latest...
+There you need allocation.
+Yeah, they get the first batch
+before everybody else.
+They get the latest technology from TSMC
+for Apple silicon.
+Now they're doing a mini...
+Is it mini-LED or micro-LED?
+They have their own display technology.
+It's deployed on the Apple Watch already.
+The mini-LED.
+[Carl] Mini-LED.
+So it's very hard
+for anyone to compete, right?
+It's a very tough industry.
+And everybody who is an incumbent today
+has been around for 30, 40, 50, 100 years?
+Apple is, like, 50, I think. 50-ish.
+-Samsung is older.
+-Yeah.
+But Samsung's smartphone business
+should be similar, maybe 25 years.
+The Chinese brand, maybe 15 years.
+So every ten years, the cards will flip.
+[Rahul] Yeah, so I think
+this is a very interesting thing...
+if you're talking about competing,
+or nobody can come up.
+-We came up at that time.
+-[Nikhil] Yeah.
+Defying the odds, you know.
+Globally there was, you know, no brand,
+like a local brand who came and became...
+Like, we were top ten in the world,
+and that's how it was going.
+I still feel that can happen. Right?
+But we never realised that governments
+have to, you know, play a role in it.
+Because at that time we never thought
+about the governments and the countries.
+Now we realise about countries,
+governments, and everything.
+-What should the government do?
+-Yeah.
+For example,
+you take our automobile industry in India.
+I think we have done a great job there.
+All the Hondas and Suzukis came initially,
+did joint ventures
+with the Indian companies.
+Created a lot of ecosystem
+of supply chain.
+-You see all the component players.
+-Yeah.
+Right?
+And now if you see
+our automobile industry,
+we are supplying to the world now.
+We are a very mature industry
+in automobile.
+And if the same thing were true
+for mobile phones,
+what happened to Micromax
+would not have happened.
+Maybe, you know,
+the world order would have been different
+in terms of the brands.
+-Right.
+-Yeah.
+So, any industry, you need to see
+that you want to make local champions.
+So for example,
+today in the worldly order,
+imagine if there are two, three
+local champions coming out of India
+who can make a global impact.
+I think it would be great for the country.
+[Nikhil] But if we...
+There's a flip side to that argument
+that if we become protectionist
+of local industry...
+do we continue to get foreign money
+into the country?
+So I'm not saying that you stop.
+I'm saying you allow collaborations.
+Collaborations where you need to learn.
+-Collaborations with technology transfer.
+-[Rahul] Absolutely.
+-IP transfer.
+-Yes.
+Work on IP transfer, and then you learn.
+So in four, five years, you will learn.
+Right? See, I said,
+"Auto happened, you know, at that time."
+Now today you have all the local companies
+ruling the roost.
+Similarly, you learn here,
+five years, six years.
+So, a lot of people ask me,
+"Okay, can you do this?
+Can you make a, you know,
+very complex phone?"
+We said,
+"Yes, we can make a very complex phone.
+But maybe it will take five years,
+six years in India to do that.
+But with collaboration,
+I can start learning right away.
+And then can do it very, very quickly."
+And how much did this three million phones
+a number fall to
+when things went bad at Micromax?
+No, no, it totally started coming.
+Every year it started coming up,
+we started losing.
+At that time,
+all the Indian brands were more than 50%
+of the Indian market share.
+-Right. Right.
+-Which completely got decimated.
+What was the low for Micromax
+as a company?
+Which year was the low?
+I think that time in 2019, 2020,
+in terms of the brand--
+-Just before COVID.
+-Yeah.
+-We said, "Okay, no more..."
+-And then COVID could not have been fun.
+[laughter]
+-Right?
+-Yeah.
+When you go from a peak to a low,
+what is the one lesson that we can learn
+from your experience
+that you have learnt already?
+Today, our manufacturing is bigger than,
+you know,
+the revenue is way more bigger
+than what we used to do in our brand.
+Which probably
+not most of the people will know.
+But we are doing way more better
+than what we used to do earlier.
+No, I know the Micromax comebacks.
+No, I know. But I am coming.
+So, in between, you know,
+you are trying multiple things.
+I think what has worked for us,
+you know, we later realised that,
+stick to your core.
+What did you realise is your core?
+So my core was to remain with tech.
+So, for example,
+I'll not start a real estate company.
+Real estate is doing good, go there.
+Or something else is doing good, go there.
+Or something.
+So this thing was already there.
+The whole manufacturing,
+the factories what we created,
+you know, for Micromax, was already there.
+So why don't we build on that?
+And start doing for others.
+That helped, and that's how we...
+So at Micromax time,
+we were having probably
+one or two factories.
+Now, we have four large factories,
+fifth coming up, and then--
+You just acquired a new factory as well.
+And now you are scaling.
+Do you feel like you are stronger
+the second time around
+than you were in the beginning?
+Less oblivious, more aware.
+Like, I feel like
+once somebody is scarred,
+the next time they're a little bit
+more differentiated in their approach.
+This weekend I was thinking that.
+-Believe me.
+-In Goa?
+Yeah. [chuckles]
+I was thinking about that.
+About something I used to do earlier.
+And then I again thought,
+"I am still doing the same thing."
+Which is?
+Taking big bets, going risky, and all.
+Like, you know, once you start doing,
+I said, "Okay, no, no, no more, no more.
+Stick, stick to your, you know..."
+-But--
+-Risk is intoxicating, no?
+It is.
+While you are taking it?
+Yeah.
+-It gives you a high?
+-Yeah.
+And believe that, "Okay, no, no, no,
+this is something I think you can do,
+you can crack it."
+And then you go for it.
+And because it has worked earlier,
+then you start thinking.
+Then you know every time
+it is going to work,
+which is not the case.
+So, yes, while, you know,
+we are doing this, I am more aware.
+But the core is that, nah?
+So once your core is that,
+you will want to take bigger bets,
+thinking that,
+"Okay, nothing happened earlier.
+You know, you came out of it, see?"
+So I think that's the DNA.
+As long as the bets don't go wrong,
+they always get bigger,
+-organically.
+-Yeah.
+If you had to bet money
+on some entrepreneur today,
+wouldn't you pick somebody
+who has screwed up a couple of times
+versus somebody
+who is doing it for the first time?
+Screwed up a couple of times,
+but eventually made it.
+-Yeah, that is important.
+-[Nikhil] Yeah.
+Yeah.
+If eventually made it,
+then, yeah, that's fine.
+I feel like this prophecy is true
+for all life.
+I like people
+who are a little bit screwed up
+in all domains.
+When I meet a man
+and I don't know what his vice is,
+I assume the worst.
+I'd rather know, "Okay, this is my friend,
+he is [bleep] up like this, I am aware.
+I am [bleep] up like that, he is aware."
+This friendship is good.
+When somebody comes to me
+and projects the idealistic mask,
+then I worry.
+Because we are all the same
+at the core of it, you know.
+We are all inherently flawed as people.
+-100%.
+-[Nikhil] Yeah.
+Yeah.
+But thank you for that.
+[laughter]
+All right, Mr. Amit, you're next.
+-Tell us.
+-I think--
+I'm very interested in your story
+'cause both of their stories--
+-Him, I know firsthand.
+-Yeah.
+And his, I have read a bit.
+But your story is not so much out there.
+So I come from a small town,
+Bikaner, Rajasthan.
+And typical middle-class family.
+Father used to work with bank.
+Which bank?
+State Bank of Bikaner & Jaipur,
+if you would have heard of.
+SBBJ.
+Later on they got merged with SBI.
+And Grandfather was an advocate.
+So typical middle class.
+And when you're in a small town,
+the only dream is you become a doctor
+or an engineer.
+But I think I was not geared up for that.
+I was a very mischievous kid.
+Academically not very strong.
+I mean, 60, 70% scorer at that time...
+where people were, I think, 80, 85, or...
+I was the eldest one in the family.
+No, no. He's fit.
+-[Rahul] Yeah?
+-And he went to NIFT.
+-NIFT ones are the cool ones.
+-Yeah.
+I have some colleagues who are from there.
+Sometimes, over-smart.
+Right?
+[laughter]
+Fashion college.
+Yeah, it's like
+where all the cool kids go.
+So anyways--
+See, his shirt has
+a very differentiated colour.
+It's not white, right?
+[chuckles] It's not white.
+[Nikhil] What colour is it?
+Somewhere off-white, beige-ish.
+So I went...
+My parents wanted me to become a doctor.
+And actually,
+I was pushed towards that career
+because in small towns,
+I think those were the two choice.
+And apparently went to Kota also
+for PMT preparation.
+Medical test at that time
+for crash course.
+But eventually realised
+that I think I can't do that.
+And fortunately what happened that...
+My father was very, you know, bold
+that he wanted to get out of Bikaner
+and move to a bigger city.
+And he moved to Kanpur, actually.
+He got posted there.
+And when he moved there,
+I realised that it's just not this
+as a career.
+There are people who are securing
+80%, 85% marks
+and going to Delhi for B.Com.
+So I realised that Mass Com is a course.
+B.Com is a course.
+Arts people are doing because of passion.
+And well-familied, good-educated kids.
+Then I realised that
+medical I don't want to do.
+I enjoyed maths, physics,
+those kind of subjects
+where I don't need to mug up.
+And definitely a small-town kid
+going to a bigger city,
+so you get a little bit buoyed away
+by what's happening there.
+I realised that.
+Then parents said, "Do an IIT."
+Then I realised it's too late for me
+to do an IIT now.
+Otherwise you'll ask me
+to bunk for three years.
+And I think it's '98, '99.
+And eventually, after graduation,
+started preparing for competitive exams.
+And formally landed into NIFT.
+So I think NIFT Hyderabad
+was a real-life learning for me.
+First time hostel. Getting out of home.
+And I was into fashion management,
+not design.
+But maybe all the peers were design guys.
+And again,
+Dad took a loan for me to go to college.
+So I had always limitation
+that I should not be spending more.
+And then my friends
+had higher pocket money.
+So I think my entrepreneurship stint
+started from there.
+Tell me things about yourself
+that I can't Google.
+Or watch in another interview of yours.
+'Cause that's boring. I don't wanna know.
+I mean... notorious kid, definitely.
+And, I mean, I always had hunger
+to do something different.
+And in college, like I said,
+I used to look for alternate sources.
+I was again, let's say there was...
+high-tech city was all call centres
+if you look into it.
+Hyderabad that time.
+Convergys and all.
+So I thought of maybe doing a job
+at a call centre.
+Maybe pick some project at Convergys.
+Not Convergys, maybe, Infosys was there.
+Went to ISP to pitch something.
+And maybe just started picking up
+some projects at our college only,
+where, you know,
+there was a fest happening,
+"Could you bundle the T-shirts?"
+So I think my first entrepreneurship time
+happened from there on.
+I started making
+a little bit of pocket money from there.
+But I was always insecure in life
+that I'll not get the job.
+Otherwise I was like...
+So you've finished college,
+and what did you do first?
+When did you finish college?
+So I finished college in 2004.
+And I got placed
+in the manufacturing setup,
+Orient Craft, if you would know.
+Based out of Gurgaon.
+So that is one of the largest export house
+out of India.
+I thought I would not get
+a better job than this.
+So I stayed there.
+And I worked
+for three and a half years there.
+It was typically merchandising.
+And two years I did merchandising,
+I found it very boring.
+And I thought of leaving the job
+that time because...
+If you would know, merchandising is...
+buyers say you something
+and then you copy paste.
+I used to work for Ann Taylor, Gap,
+all those brands.
+And then I started giving interviews
+actually everywhere outside.
+I went to Barista.
+"Can I do job in marketing?"
+Coffee Day was big. There was...
+I went to Air Deccan for an interview
+to apply for marketing.
+I was fed up of my career that time.
+Ironically, three people
+who have proficiency in marketing
+are running consumer electronic companies.
+So maybe that's a prerequisite.
+We could catch
+the market pulse well, actually.
+And maybe I didn't get a job
+anywhere outside.
+And I started taking on
+all special projects at the company.
+What all the pain problems of the company,
+I could take that.
+-And you worked with your brother?
+-No, no, no.
+So my brother is ten years younger to me.
+So he came in maybe... ten years ago.
+Twenty-five.
+For 15, 16, he came in.
+-So I was--
+-So he's 28.
+So we are talking about 2005 to 2008.
+He is 28 years old.
+No, he's 35. 34, 35.
+You're 38.
+No, I am 43.
+-You're 43.
+-Yeah, yeah. I'm 43.
+So anyways, I worked there
+for three and a half years
+and then started picking up.
+You look very good, yeah, for 43.
+[Amit] Trying to.
+Working with young founders,
+you have to stay true to that.
+Anyways, so I worked
+for three and a half years.
+They moved me to...
+I saw a huge gap
+in the international product development.
+I picked up that piece,
+and that's my journey started.
+I moved to Hong Kong for the first time.
+And I think it was 2007 era
+where I saw global brands were there.
+And whenever I used to travel,
+people used to ask me,
+"Go and buy this thing for me,
+that thing for me."
+I used to import
+a lot of BlackBerrys from there.
+I think it was BlackBerry time.
+So I used to buy and trade off
+for 1,000, 2,000 bucks
+and sell it in India in my office.
+-It was like jailbreak phones.
+-[Rahul] Yeah.
+So every time I used to go buy ten phones
+and bring it here.
+And eventually I realised
+that I'm solving a bigger problem,
+not electronics, but textile.
+Let me do it myself.
+And I started my first business in 2007,
+which was fashion accessory,
+textile merchandising, basically.
+Buying house, quasi concept.
+And I had 60,000 bucks in my pocket.
+And again, how could you do a business
+with 60,000 bucks?
+So I started it in '7,
+based out of Hong Kong.
+And I think that's where my journey
+with H&M started.
+H&M was my first customer.
+I worked with them very closely
+with the design team.
+So that's how I realised, man,
+there are brands
+which are built at centre.
+So India was, I think, fashion...
+Big Bazaar time that time.
+It was Micromax and Big Bazaar
+which were at the bottom.
+And H&M was right at the centre.
+Not cheap, not luxury,
+but selling to the... to the world.
+Uniqlo, H&M.
+And that's how, I think,
+my roots got levelled
+at good-quality product
+at an affordable price.
+Not the cheapest, not the expensive.
+I did that business
+for seven and a half years,
+eight years, travelling a lot.
+And then Gaurav, my cousin, actually,
+he was 21,
+he became commercial pilot, I think,
+Air Deccan time or Kingfisher
+or Jet Airways, something tanked.
+No job.
+And he asked me
+to get an iPhone that time.
+It was just launched.
+And I said, "Are you mad?"
+[Nikhil] What year?
+I think '14.
+-What time iPhone--
+-[Carl] The first one?
+-Yeah.
+-2007 or '8?
+-'8.
+-2007, '8.
+So I think he asked me to get
+the iPhone 3 sometime.
+So I got an iPhone 3 for him,
+and I said, "Are you mad?"
+It is 25,000 bucks.
+And I got a jailbreak phone
+from Hong Kong for him.
+And I got a phone for him.
+He said,
+"Then I need to buy a cover for this."
+And there were no covers for that phone.
+And that's how our journey started.
+He said, "Let me get...
+I have a problem,
+can you solve it for me?"
+If I have a problem,
+my other friend should have a problem.
+So we started mobile accessories
+that time.
+In which year?
+I think 2014, '15.
+I think Xiaomi came to India that time.
+We launched iPhone covers, we flopped.
+All stocks are at home.
+-Under the name Noise?
+-Yeah, it's under the name Noise.
+So the company started in 2014.
+'14, '15, we started doing
+mobile accessories as a side job.
+He was, as a hobby, doing it.
+I was doing my business, what I was doing.
+And then, iPhone, we had a huge failure,
+because the market would be, what, .5%?
+We were the only few customers
+buying iPhone.
+And then we flipped to Xiaomi.
+He was doing a side project,
+and that's how our journey kicked in.
+And then what happened?
+The business started becoming very big.
+The phone, all Chinese guys came in.
+The business started becoming very big.
+You sold accessories
+for the Chinese phones?
+Yeah, we sold accessories.
+Because, see, please understand,
+we couldn't do tech.
+I was coming from a fashion background.
+I just knew designs.
+And mobile cover is just an accessory.
+I mean, it's like a T-shirt.
+It's such a simple product.
+You get it, you print it.
+We had a small setup also
+manufacturing in a factory
+where we used to ship
+thousands of cases every day.
+And then we realised that this market
+is getting super commoditised.
+And then when did Noise blow up?
+-I think--
+-COVID?
+No, no, no, not COVID.
+I think we started picking up in '19.
+I'll tell you the trajectory,
+what happened in between.
+So we were doing cases, which was fine.
+And we realised that the pricings
+are going down.
+I mean, we started selling for 500 bucks,
+and eventually it landed to 150.
+And 150, whatever case you sell,
+you can't make a big company.
+So we were growing,
+but we were some 100 crore
+revenue company.
+Then we thought of starting doing
+different categories.
+We launched, everybody said marketplaces,
+Flipkarts of the universe.
+"Why don't you do headphones,
+neckbands, or whatever categories?"
+We did that, we failed.
+There was no differentiation.
+There was no differentiation.
+And then, out of interest,
+we realised what categories to pick.
+So our thesis was clear,
+we'll not fight the big boys.
+Like, Sony was selling wired earphones,
+or Philips.
+I said, "Why would somebody buy us?"
+Till that time, we were cheaper,
+and you can't be cheaper.
+Till that time, you cut cost.
+And we were searching for smartwatch
+for ourselves that time in '19 something.
+I don't remember that time.
+And only Fitbit was available
+for 20,000 grands.
+Fitbit Blaze or something.
+We got a refurb watch for 10,000.
+We realised,
+"Is this a gap in the market?"
+And that's how we started doing watches.
+The market was two million units
+that time.
+Maybe two million in a year.
+Nobody was doing watches.
+We started,
+then it picked up in three, four years.
+And COVID, it picked up.
+So I think there was a tipping point of--
+So, watch was the tipping point?
+Watch was the tipping point for us.
+Because you were able
+to buy refurbished for cheaper and--
+No, no, no.
+We bought refurbished for ourselves.
+But then we realised
+that there is a market which exists.
+"Can we do in our brand where we could do
+a 5,000, 8,000 rupees watch,
+which is affordable
+to a mid-level consumer?"
+Good part, Gaurav was 25 that time.
+So he had that young taste.
+He never wanted to buy cheap.
+And he never wanted to buy
+the most expensive one.
+And all India market
+was Chinese knockoffs.
+So that was the desire to build.
+Can we use something for ourselves
+and gift it to friends, family?
+And today you are more known for earbuds?
+No, no. We are not known for...
+We are less known for earbuds.
+We are dominant share for watches.
+Watches is more tough category.
+How much is your share now?
+We would be north of 25%
+for last three, four years.
+So watches are more complicated.
+How big is the market?
+-Close to a billion dollar market revenue.
+-Wow.
+So how much are you selling now, Noise,
+in terms of revenues?
+We would be... Watches we would have
+close to 10, 14% of the revenue share.
+[Nikhil] So about 100, 140 million?
+[Amit] Close to 100 million of revenue.
+[Nikhil] And the rest of the products
+in Noise?
+Are audio devices.
+So as of now, we were very clear
+that we have limited capital.
+We bootstrapped the business.
+So we couldn't go very widthwise.
+We never had the--
+Have you raised money now?
+Last year,
+we raised a strategic investment
+from Bose Corporation.
+And now how big is the business,
+revenue-wise?
+We would be somewhere sitting...
+150, 200 million, that kind of revenue.
+Hundred in watches
+and fifty to two hundred in others.
+And we were very clear,
+we'll go deeper in the category
+because we never had capital
+to experiment multiple ways.
+Crazy, huh? Super impressive.
+To have been able to bootstrap
+to that scale, right?
+I didn't know that.
+I thought you guys had raised the venture.
+No, we didn't.
+I think it became a blessing for us
+because, first, we never had to dress up
+our company for any external benefit.
+Like today,
+sometimes investors says chase GMV,
+second day they say chase market share,
+and sometimes profit.
+So we were in that luxury
+of taking our decisions,
+which were right for the business
+in long run.
+So having less set of people,
+having less products,
+go deeper in the categories
+where you are in.
+-Nikhil, this is what the difference is.
+-[Nikhil] Yeah.
+These are the real businesses,
+because, see, if you see all old,
+you know, businesses,
+they were all coming
+from their own capital
+or having access only to the banks,
+you know,
+and taking the debt from the banks
+and doing those things.
+It was not, like,
+raising an insane amount of capital
+and say, "Okay, you go
+and experiment with somebody else."
+-Yeah, yeah, yeah.
+-Right?
+So...
+-I think, yeah, these are the examples.
+-No, no, crazy impressive.
+I like pushing people
+to see how they defend themselves.
+Yeah. [chuckles]
+I'm trying to figure out how to push Amit.
+-Yeah.
+-Okay, so...
+what is today for?
+Today is for any young Indian boy or girl,
+under the age of 25,
+who wants to start
+a consumer electronic brand.
+It could be cell phone,
+it could be TV, it could be speaker,
+it could be earphone,
+it could be smartwatch.
+We want to, like, plot a road map
+of what they need to look at,
+how to identify the opportunity,
+which vendor to go to,
+how to test the product,
+and how to finally take it to market.
+We'll go into
+do you sell on quick commerce,
+do you sell on Amazon,
+do you sell through physical distribution?
+So the first thing we thought we might do
+is establish market size.
+How big is the consumer electronic market,
+A, in the world, B, in India?
+How fast is it growing there,
+and how fast is it growing here?
+Should I start with smartphones?
+Yeah.
+Smartphones globally
+is about 1.2 billion units every year.
+In India it's 120 to 140 million annually,
+depending on what number you look at.
+So if you assume that the ASP is $300,
+then 1.2 billion,
+that's over $300 billion,
+just on the hardware side.
+ASP is...
+-Average selling price.
+-Average selling price.
+Very different in India
+compared to the rest of the world?
+Yeah. Every country is different
+depending on the market dynamics.
+-Per capita as well.
+-Yeah.
+Where is the sweet spot?
+If I want to start making
+a cell phone today,
+where would I price it?
+Personally, I don't think
+there is any more opportunity.
+Oh, man, I wouldn't recommend
+any of my friends
+to go into this business right now.
+The market is very, very tough
+to compete in.
+But you need to understand
+that what exactly,
+if you want to make that,
+what exactly are you trying to solve?
+Are you trying to, let's say,
+make a luxury brand,
+or are you going to make a mass brand?
+Basis is that you need to figure out
+your TAM.
+That what is the market
+I'm going to address.
+And basis is that you can define,
+"Okay, this is that, you know,"
+then you can find the sweet spot.
+Because otherwise the category is like,
+if you see mobile phones,
+iPhone is $1,000.
+And then your, you know,
+the average selling price,
+as he said, is right,
+between, you know, $250 to $300 in India.
+So maybe let me break it
+for India market perspective
+so that at least viewers
+could understand it well.
+In a category like truly wireless,
+for an example,
+the India market
+would be like 60 million units.
+In a category like?
+Audio devices, for an example, like this.
+This market
+would be like 60 million devices,
+which is six crores.
+Yeah.
+-And 90% of this--
+-And value-wise?
+Around a billion dollar market value.
+Can you just tell me
+for India specifically?
+Yeah. Yeah.
+How much is smartphone, how much is TV,
+how much is earphone, how much is watch?
+So, like this...
+Phones would be
+about $150 million, phones?
+One-fifty million devices in India,
+am I right?
+One-fifty million smartphones,
+and let's say still there are like around
+50, 60 million feature phones.
+Feature phones.
+So on a broad level,
+India has a penetration
+of 600 million smartphone users
+in the country.
+That's the right base to look at it.
+Sixty crore people use smartphones,
+is that right?
+-More or less.
+-Yeah. More or less.
+I think you gotta look at the annual,
+like, 120, 140 number.
+[Nikhil] They broadly say that 72 billion
+is the consumer electronic market
+in India.
+-[Carl] How much?
+-Seventy-two billion.
+Per year.
+Total consumer electronics?
+USD or INR?
+No, billion dollar he is talking about.
+In that they say cell phones,
+smart plus feature is 50 billion.
+Very true. I think large market
+would be smartphones only.
+-[Nikhil] Right?
+-[Carl] Yeah.
+So in all the consumer electronics
+in India,
+because you make TVs and everything else,
+and you make earphones
+and watch and all that,
+where is the opportunity?
+For me, say I am a 20-year-old kid
+who has managed to raise some money
+from somewhere,
+and I want to compete in this space.
+Where is the opportunity?
+Tell me anything,
+tell me wired earphone, tell me...
+No, so first of all,
+I think anybody who wanna enter a space,
+first of all, everybody should enter
+to a space which is growing
+and has a larger time.
+There is no point to enter to a space
+which doesn't grow
+or doesn't have a future.
+For an example,
+it's not large enough because--
+You are saying first you make a box of--
+I mean, if the segment is big and growing,
+then it's a point to go
+because if you're a 2% player also,
+you will be a sizable company.
+Let's say if you go in a market
+which is 1,000 crore overall revenue,
+you become 5% also,
+you would be a 50 crore company.
+-It doesn't make sense.
+-Which one is growing?
+The fastest.
+No, so, okay, in our space,
+let me take you through top-down,
+you might understand.
+Let's say in this case,
+this is a 60 million-odd devices
+we sell in a year,
+which is six crores.
+And interestingly,
+90% devices get sold below $25,
+which is sub 2,000 rupees.
+You're talking about Bluetooth earphones?
+Bluetooth earphones.
+And that is 60% of the market revenue.
+Which is what 5,000 crore is like,
+this market.
+And $25 to $75, which is medium segment,
+entry-mid premium,
+that is close to 7%...
+and would be 15% of the market.
+And then it is all $150 plus,
+majority Apple,
+1% market share, and then...
+[Nikhil] So are you saying
+it's a good market?
+If I want to start,
+say I have raised one million dollars.
+Should I start a earphone, earpod company?
+So I personally think technology works
+in a very different way.
+It's not like fashion,
+where you just create a product
+and sell it at any price point.
+Technology you need an access to partners
+we were talking about,
+a lot of proprietary things.
+So I think it's a very tough space
+for somebody to enter.
+Yes, somebody want to enter into sub $20,
+yes, they can.
+But that's the race to bottom.
+And 20 to 50, which is a sweet spot,
+like a 1,000 or 1,500 crore market,
+it's tough,
+and bigger brands are sitting there.
+And when you say partner,
+everybody's partner is China?
+No, no, it's not about those partners.
+We have partners.
+So one is partners
+who are giving us chipsets,
+but then you need to have
+your own app teams,
+you need to have your own algorithms
+we were talking about.
+So those expertise is also needed.
+-Mainly supply chain.
+-Supply chain. Yeah.
+For us, we have US partners,
+Chinese partners, Japanese, Korean.
+Yes, it's very international.
+So how do I... Say I have an idea
+to start an earpod company,
+how do I connect with these partners?
+I'm a newbie, I have no track record.
+You have not worked in this industry?
+-I've not worked in this industry.
+-Completely coming from outside?
+I personally think, Nikhil,
+it's really tough until and unless
+you're getting to a segment
+which is fairly new
+and not being cracked by all of us.
+I mean, a niche space.
+But, see,
+you guys started recently, right?
+-You started--
+-I'll give you one example.
+So I did OnePlus,
+so I'm relatively known
+in the industry, right?
+In the electronics industry.
+And when we started this new company,
+Nothing, we wanted to make phones.
+Nobody wanted to make phones for us.
+They said,
+"Hey, look at the past ten years.
+So many startups have come and failed,
+and why are you different?
+You raise money. They also raise money.
+You have experience.
+They also have experience.
+We're not gonna make a phone for you.
+Like, go away."
+And then we're like,
+"Okay, we can't make a phone.
+Maybe we can make earbuds first
+to prove ourselves,
+to prove the skills of our team."
+We go to the earbud factories,
+and they also tell us to go away.
+They're like, "Hey, just go on Amazon.
+There's 2,000, 3,000 earbuds brands.
+Who are you? What's your differentiation?
+What's your strategy?
+How much money have you raised?
+Go away."
+We were shocked.
+We thought we had some reputation
+in the industry
+that some of the factories
+wanna work with us.
+So what changed? How did you do it?
+We went to the worst factory.
+Like, the factory,
+if they didn't take us on as a client,
+they would go out of business immediately.
+In China?
+In China,
+because they were on the blacklist
+of a lot of other people
+for quality issues.
+And how did you find this factory?
+One of my co-founders, I think he...
+yeah, he knew some of the salespeople
+in the supply chain
+and found this factory.
+But this was a factory
+that had been put on the blacklist
+'cause of quality issues.
+But we had no other choice.
+Nobody wanted to work for us.
+That's where we started.
+That's true for all of us.
+We had to start work with factories
+which were less known.
+People don't want to work
+because bigger factories
+don't want to touch you also.
+They are saying we are happy
+making Apple, Boses of the universe,
+and we don't want to--
+But how do, I as a 20-year-old,
+find this factory?
+Like, you had somebody.
+I think you can't. Like, they won't--
+What if I just go to China
+and look for them?
+There is no reason for them to engage.
+Like...
+Nikhil, these are the large businesses,
+for example,
+if you see the size in terms of value,
+automobile and mobile phone
+will be similar.
+-In terms of value.
+-Very right.
+So if I reach out to one of you guys,
+if I happen to know you,
+and ask that you connect me to a factory,
+is that the way to do it?
+If we connect also to the factories,
+factories has no motivation
+to work with you
+because everybody works with MOQ,
+certain processes.
+-[Carl] Yeah.
+-They find you working with...
+I would need to pitch who you are.
+I will go to this founder of the factory.
+"Hey, I have a friend
+who wants to talk to you.
+This is this person's background
+and credentials.
+Can I make the intro or not?"
+So...
+So I have a recent example
+going on right now.
+So right now we have this technology
+of making connected glasses.
+Right.
+Because we feel that's the future,
+that's where buyers are going to move.
+We are trying to find out
+who are the right brands
+who can do these glasses
+and established brands
+in the glasses space,
+right now who exist,
+pitching it to them that, "Hey, look--"
+Like Meta glasses?
+-Exactly same.
+-[Nikhil] Right.
+Exactly same.
+Actually, with Meta, along with Meta.
+When you say along with Meta--
+Meta, the operating system,
+for example, the whole AI is from Meta.
+So, for example, they have done
+the same partnership with Luxottica,
+-Ray-Ban, similar.
+-[Nikhil] Right. Right.
+Do you guys think
+there is an opportunity there?
+The form is changing,
+and it moves from cell phone
+to something else?
+No, I think, interestingly,
+our industry is evolving every decade.
+So, like, nobody thought that Nokia
+could be disrupted, for an example.
+So any of our devices could be disrupted,
+and form factors are definitely changing.
+People are working aggressively
+on glasses.
+So that is one form factor to look into.
+But like he said,
+it's a game of people who have...
+For glasses,
+I think all mobility is working.
+Entire mobile brands in the world
+are working towards that.
+So it becomes very difficult
+for a young company to still compete.
+Glasses, you can do.
+Glasses, you can do.
+[Amit] You got one...
+one gap.
+No, there is. Because, see,
+look at the glasses industry.
+Last year, Meta, with Luxottica,
+and these are public numbers,
+they sold two million glasses,
+two million.
+And the number what is being projected
+in the next four years
+is around 30 million.
+That's a CAGR of, let's say,
+more than 43, 45% on an annual basis.
+Right?
+And... since we have been working on that,
+so the tech is...
+So earlier the glasses came
+with only speaker here.
+-Yeah, yeah.
+-Right?
+-Old. Yeah, yeah.
+-Yeah?
+Gen 2, there was a camera.
+Yeah.
+And let's say Gen 3
+with this whole AI engine coming in there.
+Gen 4, you have a heads-up display.
+Correct.
+Now once you have a heads-up display,
+then whatever, for example,
+is going on my cell phone,
+I have a display here.
+On the frame?
+No, no, not on the frame.
+It is a heads-up display
+like you have in your cars.
+You are projecting onto a wall.
+No, no, not on the wall.
+-Just like in a car speedometer.
+-Yeah, yeah.
+It is a heads-up display. You can see.
+So here I can see.
+So today, for example, if it is in,
+let's say, black and white,
+tomorrow it will be all coloured.
+It will evolve.
+And then, for example,
+if you are watching your Instagram Reels,
+you are just flicking it.
+Just sitting,
+and then you are not taking out your phone
+because rest of...
+See, in your phone, you have a display,
+you have speaker, mic, and a camera.
+All things are solved.
+Then why do you need
+to take out your phone?
+Do you think that will be the future
+of form?
+Cell phone will move to glasses?
+See, nobody can just firmly say that,
+"Okay, this is..."
+Although, for example, Zuckerberg has said
+that this is going to be.
+But he said the Oculus
+and all of those things
+were the form as well for a long time,
+which didn't play out, right?
+[Rahul] You're correct.
+So, as I said, see, it is nothing right,
+nothing wrong.
+You have to go out in the market
+and test it out.
+-Hmm.
+-[Rahul] Right?
+But looking at the tech right now,
+what exactly is it going to solve?
+I think I've seen
+all the new glasses coming up.
+I seriously feel that this will be
+the form factor to watch out for.
+-[Nikhil] Right.
+-[Rahul] Yes.
+So if somebody new watching this
+wants to get into the industry,
+this is the industry.
+-Right.
+-I have a different approach.
+If somebody was young and watching this
+and wanting to get
+into consumer electronics,
+I would urge them
+to first become a content creator.
+Bang on!
+-Marketing.
+-Because the barrier to entry is very low.
+Everybody can do it.
+And that is the arbitrage opportunity now.
+Like, the millennials
+and the older people,
+they're gonna have a harder time to learn
+the latest algorithms, latest trends.
+100%.
+If you do the content well, like MrBeast,
+now you can do anything.
+You can make chocolates,
+you can make a TV show on Amazon.
+When you have the traffic,
+you have leverage to sell any product.
+Then when I do the intro to the factory,
+they will, "That's MrBeast, of course."
+He's just some random kid,
+it's impossible.
+But I feel there are very niche spaces
+which are coming up
+which none of us are solving
+as bigger companies.
+When you look at our space,
+this product...
+hearing aids, is a decent space.
+But right now it's like 150,000,
+1,50,000 rupees or $2,000,
+there is a hearing aid, it looks ugly.
+I see industry working in a space
+which is over-the-counter hearing aids,
+way affordable, looking better.
+That is one market.
+And when you look at our category,
+wearables,
+I see now penetration has happened
+in wearables.
+Like, as parents, we have used, Rahul.
+Now the problem is we have aging parents.
+We need a device for them
+which could monitor their health.
+And more importantly,
+we live in urban cities, we have kids.
+And you won't believe, I get a message
+from five people every day,
+"Do you have a kid's watch?"
+Because none of us
+are looking at this space,
+the space stands at zero.
+You're saying for kids
+and senior monitoring?
+I mean, we have two spaces,
+because, see, first market--
+But can't an Apple Watch do that?
+Apple Watch does it,
+but it's 50,000 rupees.
+Will India price point get solved
+with 50,000 bucks?
+India would need a watch for a parent,
+maybe at eight to ten thousand rupees.
+Not a 50,000, 100%.
+So coming up to his point of hearing aids.
+Again, anybody watching,
+there's a space to disrupt.
+Because all the hearing aids, if you see,
+are, like, one lakh rupees,
+two lakh rupees,
+-close to three lakh rupees.
+-Two lakh rupees.
+I, you know,
+went to buy for my dad to a doctor.
+It's 1.5 lakh rupees, hearing aid.
+And I said, "You have a better one?"
+He said, "Yeah, it's two lakh rupees."
+I said, "What is the difference?"
+"Software difference."
+On phone.
+With this, we give you three more
+extra features which you can unlock.
+-It's very uncompetitive market.
+-Yeah.
+I said, "Why?"
+He said, "No, no, with these features,
+you'll be able to understand
+if the voice is coming
+from behind or front, all these things."
+Then I went into
+why these hearing aids are expensive.
+Because back then,
+putting something in a small form factor
+was expensive.
+Was expensive at that time.
+But not today.
+I think, no,
+it's not about this also, Rahul.
+So cost would be cheaper for
+the manufacturer who is selling it brand.
+But it's just about only one or two brands
+doing that business,
+selling at maybe 80%, 90% gross margin.
+-There is one company I'm just forgetting.
+-They have the majority market share.
+They have all the three big brands
+-in the world.
+-Yeah, yeah, yeah.
+-Hearing aids?
+-Yeah.
+There is one company
+who has bought out all others.
+Three to four big brands in the world.
+Is it a big market?
+It's a narrow, not big.
+-But--
+-Is there another advice?
+Pick narrow markets
+where the large incumbents
+are not going after?
+-Yes, if you're passionate about it.
+-[Amit] Yeah.
+Passion has to keep you going.
+Explain, like, why would I be passionate
+about hearing aids?
+That's what I mean.
+If you are not passionate
+about a business you're starting,
+like, businesses are tough.
+There are some good days
+and a lot of terrible days.
+So if you are not really in love
+with what you are doing,
+it's hard to persevere
+when it gets really difficult.
+But can I be passionate
+about hearing aids?
+Some people are passionate about it.
+Some people are, by the way.
+They are trying to solve real problems.
+No, we are.
+If somebody wants to do it, you know,
+crack the code, go out of it.
+So, for example, you are saying
+you want to introduce someone and all.
+I mean, we can introduce to them
+all the chipset players,
+you know, all whatever.
+Because nobody is there in that space
+that's available for somebody to take on.
+And we are ready to fund them.
+100%.
+Think I am not interviewing you guys.
+Think I am a 20-year-old boy
+sitting in a room.
+I have had the great opportunity
+of sitting with three of you.
+I have a million dollars.
+I want to build something
+in consumer electronics.
+I live in Bangalore, in India.
+So you three have a conversation,
+and I will try and learn along the way.
+And intervene once in a while.
+What else?
+We have already given the cards,
+for example.
+You know, the glasses, hearing aids.
+-[Nikhil] What else?
+-What not-- I'll be very clear.
+If somebody is trying to go
+to a commodity market, it's no-go.
+It's a race to bottom.
+There is no winning there.
+What is a commodity?
+I mean, let's say somebody says,
+"I want to do a earbud
+which is 1,500 bucks."
+No go.
+How will you win?
+I mean, what's your right to win
+when there's overcrowded market?
+And when large players are there.
+I am a content creator.
+I have distribution.
+Let's add that.
+I'll tell you, content creator
+also has a shelf threshold of,
+let's say,
+whatever million followers they have.
+They could reach to 5,000 units,
+10,000 units, not beyond that.
+Did somebody, a content creator,
+recently sell a watch, and he sold a lot?
+-Yeah.
+-What was his name?
+Shlok, nah?
+Anarc. Layers.
+-Yeah.
+-Shlok.
+-Yeah, yeah, yeah.
+-Tech Burner.
+So they did it, but if you look into it--
+What if the kid is ten times
+or hundred times bigger than Tech Burner?
+MrBeast has done that.
+But I'm just saying.
+Tech is very different.
+Tech, they failed because the product
+was not up to the mark.
+They were new in the town.
+See, it's not like selling T-shirt.
+You can just stitch it and sell it.
+And there is no tech to it.
+A same factory makes a 300-rupees T-shirt
+and a 30,000-rupees T-shirt also.
+Tech is not like that.
+But if you're outsourcing the tech,
+the production,
+if you're going to a co-packer almost--
+No, it's not like this business.
+So, like all of us,
+we choose what components to get into.
+That will get into it.
+It's a super customised business.
+Some of the software layers
+are being customised
+at our level in our teams.
+Some are outsourced.
+-Am I right, Carl?
+-Yes.
+And then we design a product,
+and then it comes out.
+It's like a CPU.
+It's just not you buy from it.
+You choose specific components,
+run software on it, develop software.
+It's not that easy.
+That's why companies are failing.
+So I had the same idea
+before trying this business.
+There's a bunch of factories.
+They all know how to make it.
+We just go and order and then pay them.
+It shows up. Done.
+That can't be further away from the truth.
+Like, these factories, sure,
+they have the common models
+that you can buy off the shelf.
+-But everybody can buy those.
+-[Amit] Yeah.
+And they don't have the best engineers.
+Like, the best engineers,
+they're not gonna work for a factory.
+They're gonna work for Apple
+or Samsung or, like, a brand, right?
+So they don't have good engineering.
+So what is happening in China,
+and what is happening at Apple?
+Explain the engineering process.
+We just were discussing
+when we went on a break.
+About the camera.
+-Yeah.
+-Yeah.
+Yeah, camera is a great example.
+Like, if you wanna create...
+There are so many fields
+within these products, right?
+There is a radio antenna,
+there is industrial design,
+there is camera, there is software.
+It's like so many different things.
+Everything requires a lot of investment
+and time and energy to do it well.
+So I think maybe taking a step back.
+One piece of advice
+is to really also respect
+whatever new thing you're doing.
+Like, "Okay, now we are making earbuds.
+Let's learn about how to make earbuds,
+how everything works.
+Well, now we're doing camera tuning.
+Let's really learn about how that works."
+So we just have a very simplistic view
+and outsource it to other people.
+If we don't even know
+what the underlying principles are,
+it's gonna be very bad.
+So just for camera,
+we've been struggling with camera.
+This year, it got a lot better.
+It's not that we are not smart enough.
+But the camera
+is a very hardcore resource investment.
+The way it works is you make the phone
+recognise the scene.
+The scene could be
+two people sitting here.
+It could be nighttime. It could be city.
+Fruits.
+Fruits. The more scenes you can define,
+the better your pictures will be.
+The more you can define,
+then each scene will have its own tuning.
+The team will tune it differently
+depending on the scene
+to make it as beautiful as possible
+for this specific scene.
+So if I have a big team,
+I can define a lot of different scenes.
+So then there's a very high likelihood
+that the phone will tune it
+in a way that's nice.
+If I have a small team,
+I can only define a few scenes.
+So if I only have a few scenes,
+then I'll miss a lot of the long-tail
+potential use cases for the camera.
+And customers are not gonna be happy.
+Yeah, I think identifying gaps,
+and as I said,
+you know, in terms of passion,
+you were saying.
+So still so many categories are there.
+Example.
+Let's take example of Dyson.
+Can you disrupt?
+Bang on.
+So if you look at India as a market,
+there is no Dyson.
+It's just Dyson,
+which is like 40,000 bucks,
+and there is Bajaj to buy.
+No. So there is a company
+called SharkNinja.
+The number one in USA.
+-[Amit] There.
+-Disrupted as in completely.
+By Dyson, do you mean vacuum cleaner,
+hair blower--
+Home. Home. Home.
+You see, if you look at it,
+there is no young brand in home.
+Look at the customer.
+Our parents grew up buying Bajaj.
+We aspire to buy Dyson,
+but Dyson is too expensive.
+So look at that 25 to 35 age group,
+what they would buy.
+So, for example,
+if I have to use an analogy,
+-if Dyson is the Mercedes-Benz...
+-[Amit] Yeah. No, Toyota is there.
+Yeah, a Toyota, a Honda, or a Hyundai.
+We have Maruti.
+So Maruti is Bajaj?
+I mean, those kind of companies, yeah.
+So, you know, these are the segments.
+So you have to really identify those gaps
+and say, "Yes. Is there a market?"
+And I think, go for it.
+And if you have a passion and all,
+you will figure out a way,
+you know, find out the right people.
+Maybe take a step-by-step approach.
+Instead of starting your own company,
+work for somebody else,
+-like me.
+-Learn it.
+If there are so many mistakes you can make
+in our industry,
+if I did not do it, like, once before,
+the chances of failure
+would have been way higher.
+It's, like, eight to nine months
+of a cycle when you're committed.
+And when you're committed,
+you are committed
+with few million dollars.
+You cannot get out.
+Carl, you have said the easiest way
+to differentiate is design.
+In a bunch of interviews.
+Can't I look at the same devices,
+but relook design altogether?
+And do what design?
+Like, relook
+my design philosophy altogether.
+Why do earbuds have to look like this?
+What if I change
+the form factor completely?
+Then there is PMF risk.
+What is PMF risk?
+Product-market fit risk.
+So if you look at our products,
+that product and this product,
+design is different,
+but actually there is very low PMF risk
+because these are products
+that consumers already know how to use,
+what to use it for.
+They already buy a lot of them
+every single year.
+If you deviate too much
+from the current product definition,
+then you have to take care of the risk.
+And then it's a question
+of whether the risk versus the reward
+could potentially be worth it.
+But there's no way to test it?
+You can test it, you can do a mock-up,
+you can even use AI to generate a picture
+and then go and speak to people.
+But I think besides mock-up,
+it is all about functionality, usage,
+so that also plays a bigger role.
+So I think we don't want to change
+people behaviours the way they are doing.
+Little changes--
+It is a different business strategy.
+I think we're
+in the fast follower strategy
+or late mover strategy.
+Explain.
+So we're coming into an industry
+that already got created by other people,
+and we're just trying to carve out
+our space within a big industry,
+a billion-units-a-year industry
+that was created by other people.
+So then we do not take the risk.
+We come into a very mature category,
+and then we can differentiate
+through design.
+But if you're creating something new,
+like, back in the day, drones were new,
+or now electric vehicles are new,
+or robotics,
+then you do not have to differentiate
+on the product
+because the technology is fresh enough
+as a differentiator.
+But then you have the execution risk
+on the technology and also the PMF risk
+on whether consumers will wanna adopt
+this product or not.
+I personally think late mover
+is easier for me.
+That requires a different way of thinking,
+more survival-focused,
+more capability-building,
+more long-term thinking.
+Whereas the technology approach
+is more like, you have one shot.
+If it works, it works.
+If it does not work,
+you gotta start over again.
+-So just asking Carl on...
+-[Nikhil] Yeah, yeah.
+So, Carl, on the phones, for example,
+where do you think...
+some disruption can happen?
+I think the disruption can happen
+on the OS side.
+I think the hardware side is very hard
+to differentiate on
+because all these suppliers that we have,
+they're all very concentrated,
+and they're very strong,
+and they're investing
+in their product road map,
+upgrading their batteries and processors
+incrementally every year.
+Like, we cannot really differentiate.
+And as a supplier,
+you wanna sell to everybody, right?
+But if the form factors are changing now,
+foldable phones are coming in,
+don't you think if we can bring the cost
+by innovation of the foldable phones down,
+it will have a mass adoption?
+Because relatively,
+it's a game-changing thing
+because from a single screen,
+you're going to a bigger screen.
+-Yeah.
+-Or maybe a triple screen.
+That's also not up to us, right?
+'Cause the screen manufacturer
+is the real decision maker
+for that product.
+It's not us.
+Also, just to add onto it,
+the screen manufacturer is also booked,
+and he also wants to take advantage of it
+because he knows after three years,
+there's gonna be the same price
+as a normal screen.
+So he will also not reduce the price.
+And you wanna go with the biggest vendor
+instead of a startup like us.
+So I think for us,
+our biggest opportunity to differentiate
+in our next phase
+-is through the OS.
+-OS.
+I think the next differentiation
+for all of us
+would be through software only.
+But aren't you using one of two softwares
+which are in the market
+and operating your devices on that?
+[Amit] So we...
+So phones is a different universe.
+They're Android or iOS.
+But in our case,
+we work on open RTOS operating system,
+where we build our operating system there.
+-Right.
+-And what I mean is,
+more softwares would come in like,
+"Could I fine-tune my audio
+based on my hearing capabilities
+of my ear?"
+Like, Apple is doing it now.
+It's pure software.
+"Or could I have AI capabilities in this
+so that I could interact it?"
+A lot of companies are working
+on a friend kind of a concept.
+So it's all software,
+what I see is happening.
+And the same is gonna happen on the...
+Today we're based on Android,
+but I see some disruption opportunities
+to become the next Android.
+Like?
+I think there's a couple of trends, right?
+The one trend is...
+if you look at the current big OSes,
+iOS and Android,
+they're very successful already.
+Android has three billion-plus users.
+iOS has one billion-plus users.
+So they can't really
+change the product that much.
+If you change the product,
+a lot of people are gonna be confused.
+They have too many users.
+And it's very profitable.
+They're making a lot of money
+on the software and the services.
+I don't know the number for India,
+but in the US,
+Apple makes $100 per year
+on each iPhone user,
+just on non-hardware stuff.
+It's a very high margin.
+It's very profitable. Very big.
+Now the disruption moment is with GenAI
+-and large language models.
+-[Amit] Correct.
+If you look at the recent news
+around Apple,
+they announced Apple Intelligence at WWDC.
+And still today, almost a year later,
+-there's nothing...
+-Still the same.
+...nothing there to use.
+Now they are reshuffling
+their management team.
+And this is like four years after ChatGPT.
+It took a long time to implement this.
+So I think, one,
+they're too big and too successful.
+So then the question is, like,
+how do you disrupt?
+Like, what is their biggest moat?
+I think, at least for smartphones,
+their biggest moat
+is their developer ecosystem, right?
+If today we launch our own OS
+based on Android or a fork of Android,
+we don't have any apps on the phone,
+no app store, no apps,
+nobody is gonna buy the product.
+Like, I wanna use my apps.
+But again, if you look at AI,
+there's a disruption moment
+for app development
+because now with AI coding tools,
+you just need to write what app you want,
+and then it shows up.
+In the future, you can just speak
+what app you want into the phone,
+and that app shows up.
+So then that gives
+a smaller company like us
+the ability to compete with iOS,
+which has, I don't know,
+a million, two million apps already.
+But we can empower every normal person
+to also be an app developer.
+If you have an idea,
+you just speak your idea into the product.
+Therefore, we can also quickly develop
+our ecosystem of developers and apps.
+So I think that's the main opportunity
+that I see,
+that a younger, more nimble company
+can navigate a changing world way quicker.
+And the big moment that's enabling
+all of this is the advancements in AI.
+How else can AI present opportunities
+if I were to want to build something
+in consumer electronics as a 25-year-old?
+It's kind of like the personal computer.
+The example of it enables you
+to manifest your creativity into reality.
+The personal computer allows you to go
+to Photoshop, GarageBand, iMovie.
+Now, creating stuff is easier than ever.
+Like, we talked about creating apps.
+You can create graphics,
+create advertising,
+create content,
+create product design, code.
+It's really, in one way, lowering the bar
+to creativity being manifested.
+[Rahul] I think that is one segment
+which will...
+Again, a great idea,
+you know, for all the youngsters.
+For AI, in terms of training the models,
+you know,
+we all see that you will need
+these many GPUs,
+you know, hundreds of GPUs,
+thousands of GPUs,
+to train all your models and all.
+I think all those things,
+you know, will change.
+There will be a time
+where you will be able to train
+the largest of the models
+using one single server.
+You will not need a farm of servers.
+We have seen a trailer
+in form of DeepSeek already.
+And I think very soon we'll...
+What, you know, it implies
+is that how it is going to change.
+This means that the access to technology
+will be massified.
+Right now, it is with only a few people
+who are working on these LLMs.
+For example, running 405 billion tokens,
+or now the new model
+is 788 billion tokens,
+which only big server farms can do.
+But, once there is a technology
+wherein within a single server
+you'll be able to--
+You can run your models.
+I think, then all the youngsters,
+and they are way more creative,
+they will be able to come up with,
+for example, an operating system.
+They can just come up with an OS
+and then...
+and figure it out.
+Maybe then find a MrBeast and say,
+"Okay, hey, I have this."
+And then, so...
+But, there will be numerous opportunities
+coming out of that once it is massified.
+One trend that I see in the market
+is the youth of today does not want to buy
+from the corporations of yesterday.
+I feel like things like Louis Vuitton,
+Gucci are not cool today
+like they might have been ten years ago.
+Everybody wants streetwear,
+the new independent brand--
+Look at how you are dressed, for example.
+Do you think there is a play there?
+If I start a consumer electronic company
+where I will use the narrative
+of not a corporation?
+[Carl] I think there is an opportunity,
+but I think you would first need to start
+in a different category.
+Like, make a fashion brand,
+make that successful.
+Then you have the credibility
+to go to the consumer
+electronics suppliers
+to get them to want to work with you.
+'Cause they have seen so many...
+These guys have seen so many failures
+and so many pitches.
+They are very pragmatic.
+That is an interesting idea.
+So, you are saying
+start an independent design-themed brand,
+start elsewhere,
+succeed and then transition into this?
+You have to have volume.
+That is the core of the consumer
+electronics industry.
+To be able to work with these suppliers
+you need to show the numbers
+that they can believe in.
+So, look at our case.
+We did not come from electronics
+or consumer electronics background.
+So, in my wildest dream
+I could have never thought of
+working in a space which is led by
+mobility brands or other brands.
+So, we started with mobile accessories.
+It's like...
+I still say it is a T-shirt business.
+It is just simple cases.
+You just print designs
+and designs are a character.
+And we started understanding the user,
+consumer pattern,
+and knowing and started building volumes.
+Our partners saw a confidence in us, like,
+"They are doing good volumes.
+We could test something with them."
+So, maybe our entry also
+was not on day one here.
+We learnt consumer from a basic business.
+But, by the way,
+I have a very fundamental question
+which I have realised as a founder.
+What is the segment of the market
+you want to chase?
+Like, what customer you want to...
+I am asking you that question.
+I don't have data like you have.
+No, it is not about what I want.
+It is about what you want to build.
+I'll tell you for an example,
+the game what he is doing.
+He is saying,
+I'll not fight the cheapest in the market,
+like, he is not doing the Xiaomi play.
+But what he is doing,
+he is in the mid segment,
+which is super painful,
+which needs time.
+His gestation would be...
+Success will not be short term.
+He would have a patience of
+three-to-four-year capital to build it.
+And then he--
+There are chances he might see
+and might not see success.
+So, as founders or whosoever,
+young people want to start,
+they need to be very clear
+what segment they are trying to build.
+Because different segment--
+When you talk about design--
+What, if I come to you with a blank slate,
+what segment
+would you recommend I build in?
+No, if you ask me,
+I would say don't go for the mass.
+Mass is important,
+but have some brand aspiration,
+have your identity,
+have your brand uniqueness.
+No point to fight for a commodity,
+that's a race to bottom.
+You sell for $20,
+somebody else will sell for 15, 12, 11.
+Have your own community,
+one narrow cohort of users
+who you are selling,
+and that community should be
+your evangelist there.
+And that always happens at
+somewhere little above, not to the basics.
+You are not solving basics
+of anyone right now.
+How does India build the supply chain?
+Great.
+So, it's a process.
+So, the process is that
+you start with initially...
+to start with EMS.
+EMS is?
+EMS is the electronic manufacturing
+services that you start the EMS process.
+Then you start getting the design
+out there in country.
+Then after design, you start working on
+the supply chain, the component ecosystem.
+Right? So, this is...
+This all is a process one-by-one.
+If I am 25 and I want to start
+a component company,
+I've raised a little bit of money,
+put up a factory.
+How will I ever compete
+with somebody in China
+who's manufacturing millions of units?
+So, you can do that.
+So, there is so much of material
+which goes inside.
+For example, a glue on a glue machine,
+on SMT, it's a glue.
+That glue--
+So, I just found out that that glue,
+the particular glue
+is still coming from China.
+We can-- Why can't we make that here?
+And I studied, I said why the chemical
+companies can make that glue out there.
+You can do that.
+Probably there is--
+Maybe somebody has to find out
+and get into that.
+I know someone, you know, who said, "Okay,
+after finishing my engineering,
+what should I do and all?"
+And then went on search
+that what India is importing a lot
+and he found out
+all the coin's material...
+Right? For the coins, currency coins,
+the material, we still import.
+He started making that,
+he started supplying that.
+So, you just...
+Is that an opportunity for me?
+I think US will, in the tariff world,
+not buy from China like they once did.
+Components is a huge opportunity.
+So, for example, now India is projecting
+a market of 500 billion dollars by 2030.
+It's a huge market.
+60% of that is components.
+And we are also incentivised to use
+the locally manufactured components.
+If manufacturing is coming here,
+100% components will come here,
+like batteries...
+-That's an opportunity, too.
+-100%.
+Like, I want to make money,
+I'm 25, in this industry.
+-Component is part of--
+-EMS is a...
+I think next ten years is EMS. So...
+And the component PLI scheme is coming.
+Maybe by the time this podcast is out,
+the scheme will be announced.
+How do I go about starting that?
+Let's say an EMS company,
+an EMS manufacturer.
+Great. So, take a mobile phone,
+get into each and every component.
+There are so many. There are--
+So, in a mobile phone, there are,
+let's say, 700-800 components.
+Maybe in his phone, maybe it will be more.
+iPhone will be way more, right?
+Get into that.
+How do I find that out?
+Like, I want to know...
+I'm assuming US, China
+are going to hate each other
+for some time more.
+Apple phones are made in the US.
+They can't buy that particular product
+that they have been, from China anymore.
+How do I figure out what that component is
+and then how to build it?
+Just tear it down.
+Nikhil, these days,
+it is actually simpler.
+You know, you go on ChatGPT.
+There are so many sites on the Internet
+where you could just see
+tear down of every phone.
+Tear down, you can find out
+what are the components
+and then you find out, okay,
+how many components are there in India.
+Go on the export list, import list
+that what all are getting in the country.
+Right? What is the volume? What is the--
+These days, you can get access
+to all the customs data easily.
+[Amit] Yeah.
+So, huge opportunity.
+You should also work at EMS to get some...
+industry knowledge.
+-Experience. Yeah.
+-[Carl] Experience.
+There is somebody working with him
+for a year.
+He would know everything
+where this opportunity lies.
+How big is the incentive
+for someone like Carl?
+Say, you are selling Nothing phones
+in India.
+You source from me in Bangalore
+versus a Chinese component manufacturer.
+Is the incentive enough
+to warrant the change in price?
+So, right now, we have to pay
+duties on components
+that are sourced
+from other countries like China.
+So the more we can source locally,
+the more we can lower
+the prices of our product
+to then be more competitive on the market.
+So, we are very incentivised.
+And if we are able to tap into PLI,
+and I think the PLI regulation
+will also be more and more requiring
+of the brands to source locally.
+And they will raise the bar
+every single year.
+We are very incentivised
+to source locally.
+As a business, we just need to make
+the best decision for our shareholders.
+So, till now you have told me,
+go to ChatGPT, figure out...
+No, no, just...
+Just as I said, these days,
+there are a lot of avenues
+where you can go and find out
+multiple sort of information.
+Right. So, I figure out one component
+which is going into
+US cell phone manufacturer
+which is coming from China.
+And then I go about figuring if that
+raw material is available in India.
+I identify that there is.
+What do I do next
+to set up a factory which makes it?
+Okay, let's take an example.
+Carl, can I use your phone?
+Let's say this is a USB socket.
+[Nikhil] Yeah.
+This USB socket is
+the most abused component here
+because, let's say a million times
+you are going to...
+Right? So, this means to say that
+this will require
+a special sort of material.
+Study that material.
+Where that material is available?
+Who is manufacturing it?
+At what cost?
+And absolutely go to the root of that.
+And then see what are the...
+If you can go and visit these factories
+by tapping someone,
+getting into a network--
+These factories in China?
+Wherever. Wherever. If possible.
+See, and then understand the standards.
+See, why this is not happening?
+Why I gave you a glue example?
+Because people said,
+"No, India can't make that."
+Why can't we make that?
+We are fantastic in chemical--
+Our chemical industry,
+our pharmaceutical industry,
+they are doing brilliantly well.
+Probably there is maybe,
+there is not awareness of that,
+or the volumes and everything,
+but I think if we are going to go,
+let's say from 100 billion
+to 500 billion dollars,
+it's a massive opportunity.
+Similarly here.
+What else can be done?
+Like, see, the outcome of this is we want,
+even if it's five kids who start...
+solving for the supply chain problem
+dependency that we are talking about,
+if that is the go-to action that happens
+because of the time we have spent today,
+I think we can all say today was worth it.
+Also, like, we spoke--
+And I think we will need
+5,000 of those kids
+because it's a huge universe.
+And we don't have it here.
+We have to bring it in.
+[Nikhil] Yeah.
+And, by the way, brands like us
+are desperately looking for people
+to do it for us.
+I mean, it's our need also.
+What is the biggest need?
+Say two things that you want me--
+Let's say for us, for an example,
+in watches we do,
+the largest component is the screen.
+The screen is like $5 or something.
+And if I import, there is a 15% duty,
+which means every screen
+I am paying, what?
+One and a half-- Close to $1.
+If you say, make it in India,
+it's a huge volume.
+It's maybe half a million,
+one million screens a month.
+What is the margin in screen business?
+I'm sure if we cost arbitrage,
+if you look at it,
+it still makes 10% or 7%.
+It's just one SKU,
+you have to keep producing.
+Oh, you know the smartphone screens
+from China,
+those companies are losing money
+to sell the screens.
+Because they have policies that subsidise
+the creation of that industry.
+So, at least for the smartphone screens,
+it's very hard for...
+So you're saying our import duty has to be
+higher than their subsidy, at the least?
+At the least, if-- Yeah. Yeah.
+So, one is import duty,
+and second, of course,
+the PLI schemes coming on components
+will incentivise
+to use more Make In India.
+Any advice to the government,
+because I'm sure
+somebody will be watching.
+How should the PLI scheme be structured
+for components?
+It's already structured.
+It's just going to be announced
+in two-three days.
+-He would be a part of it.
+-[Rahul] So...
+It's a good scheme.
+Yes, it's a good scheme.
+It's a good scheme.
+But see, the larger point here is...
+that you have to ensure
+that locally-made products
+make more sense for anybody who wants to,
+you know, who's selling,
+let's say, in India.
+I'm not even talking about export.
+If Carl wants to buy a,
+let's say, a middle frame,
+he should be able to source it locally
+and it should be cheaper for him,
+not because he's forced
+because of a regulation.
+It should also make sense economically
+for him to do that.
+And that, in today's world,
+because of scale,
+it can only happen with custom duty
+or the tariff.
+So, tariff-- No--
+-Depending on the component.
+-Yes.
+I think plastic
+should be very easy, right?
+-To replicate here.
+-Yes.
+Plastic, and second, as I said,
+the government incentive schemes.
+Because, you know,
+if you see how China was built,
+because of
+all the government schemes only.
+And why their exports went up
+because their export schemes are,
+like, massive.
+You three continue talking.
+Like, I'm a 25-year-old.
+I'm trying to learn from three stalwarts
+of our consumer electronic industry.
+I want to make money. End goal.
+The biggest moneymaker is, like...
+The industries with fewer competitors,
+right? Like NVIDIA.
+If you look at the NVIDIA share price,
+it's insane.
+Taking a huge example.
+But even for our industry, like,
+I think the chipset makers,
+their margins are way higher
+than the EMS factories, right?
+NVIDIA, I don't know, is it 40--
+Qualcomm is 40, 60--
+They're 45%, I think,
+they just declared, yeah.
+[Carl] 45% gross margin.
+But Foxconn is, I think, 10%. So...
+Like, eventually we also have to move
+upmarket, right,
+into, like, more and more difficult,
+lower competition areas of the stack.
+Yes, but, Carl, again,
+Nikhil's point is that how do we inspire
+the young generation out here
+to start doing something?
+You know, how do they spot opportunities?
+Yeah.
+So, as I said, if you tear down the phone,
+what are the easiest five things,
+ten things you can just pick up and say,
+"Hey, this I can do.
+That is a little-- Is not that complex."
+By the way, you know, he's right.
+You know, so making these mechanics,
+for example,
+precision mechanics is not that easy.
+We still, you know, a lot of things
+are getting imported,
+even on precision mechanics.
+-Yeah?
+-[Rahul] Yeah.
+But once there are
+a lot of incentives and all,
+we have ample people here
+who can take a shot at that.
+I'm curious to hear, like,
+how does the next Qualcomm...
+Like, if a kid is watching this,
+like, say, 30 years later,
+they've created Qualcomm,
+the next Qualcomm.
+Like, how does that path happen?
+So, you know, Carl, you just straight away
+talking about a moonshot.
+But instead of a Qualcomm, one Qualcomm,
+I'm saying, can we make, for example,
+if I have to take an example
+of automobile,
+let's say, in terms of components,
+can we make 300 or 500 Mindas here?
+Minda is a good example, you know.
+-Auto is all making money.
+-[Rahul] Yeah.
+-Makes sense.
+-Yeah.
+I think that's a very large opportunity,
+knocking on our door.
+How much money would I need to start
+a factory around, say, the USB port?
+I think it will be very less, right?
+[Amit] For USB port.
+It's not easy.
+-You would know it the best.
+-[Rahul] Yeah, it's a...
+You know, Molly and all,
+they are like specialised Europeans
+who are working on this.
+But again, it was just an example.
+But once you go inside, Nikhil,
+as I said, you can find out...
+For example, inside there is a...
+You have battery.
+On battery to dissipate the heat,
+you need some mechanism
+to dissipate the heat.
+You need a graphene,
+small film of graphene,
+which you can put,
+which can dissipate the heat.
+You can make it here.
+It will go in every phone.
+So, I am not saying straight away
+you go and target,
+okay, I am going to make the next
+Sony camera or something like that.
+And the PLI scheme
+will incentivise all of this?
+So, as of now,
+they have structured it for,
+let's say,
+components which are high in value,
+let's say, which cover 70% to 75%
+of the mobile phone.
+These are all B2B businesses then.
+I mean, everybody has
+a different inclination
+towards what they want to build.
+No, anything is fine.
+I just want to build something
+in this space
+where I can actually make money.
+Is there financing available?
+Let's say, I figure out a certain product
+which is under PLI that I start building.
+But I don't have too much initial capital.
+How does one go around
+getting that initial funding?
+If I come up with a business plan
+and come to somebody like Rahul,
+will you give it?
+Yes, if I see that your product works,
+working as per the standards, and then...
+Would a bank give it?
+I think yes.
+But, of course, banks work on collaterals.
+I don't have collateral.
+There are a few banks who might,
+you know...
+Is there some startup scheme,
+some government subsidy,
+where I can get the initial capital?
+Yes, you can. There are multiple schemes.
+Again, yeah. Very good point.
+There are so many schemes
+which people are not even aware of.
+For example, for MSME sector,
+you know,
+from Invest India, from Startup India,
+there are multiple schemes going on
+which people are not even aware of.
+I am not aware. How do I find out?
+You will have to make this much effort.
+Then you need to go after that
+and find out
+how many schemes are available
+and then one by one...
+Which one applies to me.
+Yes. For example,
+there is a PLI everybody knows,
+but there is a DLI,
+which is design-led incentive
+for the chipsets and all.
+You should know that.
+There is a grant for that.
+You need to show your designs.
+Government, you know, they will come,
+inspect and see what you are doing
+and then you can do that.
+For a right idea, you will knock on
+100 doors, one door will open.
+But you need-- You need to knock.
+You just can't say, okay...
+As you also said,
+either a bank will come up
+or a VC will come up
+or a government scheme will come up.
+Something will come up for a right idea.
+I was reading this thing.
+Somebody had sent me an email
+saying semiconductors,
+something drastic is happening in India.
+Is that a possibility?
+"Drastic" means?
+Like, so the backstory goes
+that at one point,
+India was really focused
+on semiconductors.
+There was one particular factory
+which burned down.
+But in the last 20 years,
+we have been left behind
+or 30 years we have been left behind,
+and they are restarting the effort...
+to manufacture
+more semiconductors in India.
+Is that possible?
+With TSMC and all of that?
+The whole world is relying on them, right?
+You mean like start a new TSMC
+or get TSMC to...
+Like both semiconductor design
+and manufacturing. Can I--
+-So you can't create a TSMC...
+-[Nikhil] Can you compete?
+I think it comes down to, like,
+the depth of the thing, right?
+Like how many millimetre...
+So we are working in one of the companies
+on semiconductors.
+And what you're referring is,
+there was one fab in India,
+only one fab which was in Mohali,
+government owned, long back...
+[Nikhil] Yes.
+Doing probably, you know,
+100 nanometres or something like that.
+Today TSMC is doing two nanometres.
+Two-three, correct.
+So, of course, I mean,
+you can't catch up with two nanometre.
+Even, see, China started their
+semiconductor programme 20 years back.
+They are still not able
+to compete on that.
+But it is very, very important.
+All four of us, like, 15 years back or so,
+have you ever thought that
+semiconductor will be more valuable
+or important than oil?
+Not even a thought came across to my mind.
+Back then.
+But if you see today, it is.
+And I am assuming the same thing.
+I am assuming US, China continue to fight.
+And Taiwan becomes...
+I don't know,
+maybe our friend in that fight
+or maybe not our friend.
+If our supply chain gets disrupted
+where we can't get those
+2mm semiconductors,
+what does India do then?
+It is a tough question because,
+you know, it is divided in multiple parts.
+So it is not only about two nanometres.
+Two nanometre is only one segment.
+Then you have--
+So, government is saying, you start with,
+let's say 35 nanometres right now,
+is good enough.
+Because you have to start coming slowly
+one by one. Right?
+So even that, you know,
+if we can start at 35,
+because those are larger components,
+which can go into you know, other things.
+You know, refrigerators, TVs,
+vacuums, cars and all.
+And then slowly, slowly you start coming
+in for the ITs and the mobile phones.
+But at least we start attacking the,
+you know, the 35, 40 nanometres,
+25 nanometres, start attacking that.
+So that is the opportunity.
+I mean, straight away, you know,
+you can't leapfrog.
+As I said, China has put
+billions and billions of dollars
+and still they are not able
+to achieve that.
+And there are--
+Again, it's a country play.
+A company can't build something like this.
+Country, you know, has to come into it.
+For example, to do a,
+let's say,
+anything less than 10 nanometres,
+you need to have lithography.
+What is that?
+It's a machine. It's a technology.
+That technology is right now
+with Holland, Netherlands.
+There is a company...
+This company name is...
+-ASML.
+-ASML.
+No competitors.
+So, ASML has those machines.
+You need to have access to that.
+In those machines, the software
+actually is coming from the United States.
+So it's a-- It's all a--
+Because it's a game where you need to
+work on this technology
+and need to stabilise the technology.
+So the government has to come
+and play into that.
+So, it's way more deeper
+than what we feel. Because, you know--
+But, you know,
+semiconductor is a vast range.
+It's not only that, only doing a TSMC,
+because when we talk about semiconductors,
+you know, we always talk about TSMC.
+Memory.
+Why can't India have its own memory?
+Can we design our own?
+Let's, for example, in your IT,
+there is Gen 4, there is Gen 5,
+now there is Gen 6.
+Why can't India come up with,
+I'm talking about, let's say,
+Gen 8 or Gen 9?
+End of the day, you have to have that.
+So these are all opportunities--
+I'll ask you a question
+on top of your question only.
+Why is it not happening?
+Because in India,
+we were good in services.
+So we were--
+Our services sector was doing good.
+So people said, okay,
+let's build on the services business.
+So if you see all these Gen 4, 5,
+half of their manpower
+will be sitting in Bangalore and Hyderabad
+and designing for the other bigger brands
+who are somewhere in US
+or other countries.
+But not for us.
+Because A, we were not having
+those government programmes earlier.
+They were not, right--
+Not focused on creating
+something like that.
+So, where the buck was going was,
+okay, services is an easy business,
+let's go there.
+Half of the people working on those
+technologies will be from India.
+He was talking about Qualcomm or MTK,
+their biggest R&D centres are in India.
+-Mm?
+-Yes.
+So the focus--
+But now we have, you know,
+with the current government,
+all the new schemes coming in,
+people are becoming more aware of that.
+See, today we are discussing
+about semiconductors.
+Otherwise, if it was a consumer brand
+or electronics and that,
+why will we be discussing
+about semiconductors?
+Because now, all of us,
+because of the policies and everything,
+and whatever happened,
+we are more aware of that.
+You are doing a bunch of
+very new things, right?
+Like with television, operating software.
+There is one company
+that we are both part of.
+-Around television, as well.
+-Yeah.
+What's happening in that world?
+Would you like to tell us?
+No, that's more on the aggregation,
+because the way we consume content
+is completely changing.
+Can you tell us your thesis around that?
+Thesis is that, you know,
+you buy a product,
+and then you start getting multiple apps,
+and then you start paying different apps.
+Then your user experience is then,
+that whatever recommendation
+one is showing something else,
+the other is showing us
+some different recommendation,
+third is showing something else.
+Why can't I have an experience
+wherein I switch on my TV,
+and then I don't have to go in any app?
+There is one user interface,
+and all the apps are stitched into that.
+You just type in your,
+let's say, username.
+Let's say nikhil@gmail.com,
+and then everything from your Netflix
+to your Zee to your Sony,
+as per your choice and recommendation,
+everything starts coming on one screen.
+You're not going in an app.
+That's one area-- Because again,
+it's an evolving space.
+And then you bundle it
+along with the hardware piece,
+wherein you move on a SaaS model.
+How do you...
+I'm pretty interested
+in this business model,
+because as a content platform,
+you don't want to be unbundled, right?
+You want your own app,
+your own user experience.
+Yes.
+How do you get their stuff?
+Like, it's not in their incentive
+to unbundle their content.
+Like, you're saying,
+how do you get access to that content?
+Yeah, for instance, Netflix.
+If I'm Netflix, and you say,
+you just want to take the content...
+Apart from Netflix,
+you take some other example,
+because that's
+a different animal altogether.
+-Hotstar.
+-Let's say Hotstar, yeah.
+So, I have my own app,
+I have my own users,
+I don't want to give you my content,
+because then I lose
+my competitive advantage.
+Then my content becomes a commodity
+on your platform.
+So, I mean, the platform,
+the content, the platforms,
+they will try and hedge
+against this, right?
+So, if there are like, say, 25 apps,
+which are the most widely used apps
+out there,
+and out of 25, 90% of the apps,
+you're able to get inside the app
+and get the permission for recommendation
+and everything.
+And then, you know,
+put it on your screen for the user.
+I think it's acceptable.
+-So, for them, it's like incremental.
+-Yes.
+If I don't work with you,
+I won't make this money.
+Might as well make the money.
+-Because they also need distribution.
+-Yeah.
+So, then you have a few big ones
+that are harder to negotiate with.
+They will come with scale.
+So, once you achieve scale,
+they will say, "All right."
+-"We also want this."
+-I get it.
+It's a bit like
+cell phone and app store, right?
+Yeah.
+So, when there's a new OS
+on the cell phone,
+the big app makers
+are not going to adopt, right?
+They're going to wait for the distribution
+to come first.
+So, I think it's about that adoption.
+Yeah.
+But when you bundle,
+I think it gets cheaper.
+Yeah.
+Why don't you guys speak
+like I'm not in the room
+and there are no cameras?
+Yeah, isn't... We're trying to.
+[laughter]
+Carl, what opportunity exists
+in the consumer market besides phones?
+What do I want to have exist?
+No. I mean,
+what are the opportunities which--
+Oh, what opportunities exist?
+Not for the large players.
+I'm only thinking about, like,
+very big categories all the time.
+I'm thinking about, like,
+EVs and robotics stuff.
+But I agree, like, if you're young,
+you have to start with something
+more simple.
+[Nikhil] What is China like?
+What else do you think we can learn
+as a country from them?
+I don't spend a lot of time
+thinking about policy.
+But I do think the PLI is set up...
+You probably know more
+about PLI than me, but...
+We are very keen to be a part
+of the next generation PLI scheme.
+I think if India wants to develop
+its own smartphone ecosystem,
+starting from the factory,
+EMS side is very good.
+That's already happening.
+Incentivising foreign and domestic players
+to build here.
+It's already happening.
+I think to reach the next stage,
+it can't just be
+manufacturing and exports.
+Because ultimately,
+that's not the highest value add.
+The next stage will be to design
+and engineer here as well.
+So, what is the next stage policy
+after the goal of PLI
+has been accomplished?
+What is the next stage plan? I'm not sure.
+I'm just starting to spend more time
+and learn more about this.
+So, I think, to your question that,
+what can we do?
+If you see what they have done
+in last 25 years,
+in terms of
+all the government policies, so...
+We are discussing about incentivising,
+that is one.
+That is one incentive.
+But rest of the other enablers,
+for example, the whole supply chain
+in terms of materials and everything,
+they have worked
+a lot deeper on that segment.
+In terms of logistics,
+they have created logistics parks
+to enable that.
+Today, if we are talking about,
+for example, now we have,
+let's say, iPhones going and exporting
+and doing all this sort of things.
+The way we are expanding,
+you will need two full, bigger, you know,
+large aircrafts every week
+to ferry the product from here to Chicago.
+We need to have that.
+We need to, you know, build bigger ports,
+wherein you can reduce the time.
+Because they have taken all that measures,
+not only in one segment,
+because we talk only about this,
+but every segment,
+they have done with all those policies.
+I think consumer electronics
+is a very expensive
+and difficult thing
+for somebody without experience.
+-All of a sudden going--
+-Experience is key, I believe.
+Without that you can't do.
+In fact, you can't do also,
+I personally think.
+[Nikhil] You're making dessert?
+-Yeah--
+-[Amit] Doing is expensive only.
+I mean, you will 100% make mistakes.
+I think we found a couple of themes,
+you know, where people could start.
+Something more focused,
+something more niche,
+lower risk, lower capex.
+Start from there, evolve from there.
+It could be on the consumer side,
+with clothing or accessories.
+It could be on the supply chain side
+with parts of the stack
+that are easier to make.
+And then just evolve from there.
+It could be on the distribution side
+with content creation
+as a means of distributing information.
+But, Rahul, what is your thought?
+We have seen all brands across the globe
+coming to India in consumer electronics.
+Hardly there are brands who have gone out.
+-To have gone?
+-To have gone outside India.
+-Indian brands?
+-Yeah, Indian brands.
+Forget Southeast Asian countries
+for a while.
+But none of the brands have gone outside
+our home turf and played a game there.
+Do you think world needs
+some new age brands?
+I have solid thesis for that.
+So, I personally think
+India as a country...
+I mean we all work with scarcity mindset.
+So, what has happened that,
+what a US or an European entrepreneur
+would try to solve a problem
+by throwing a dollar.
+A dollar is 90 rupees for us.
+So, what I'm trying to say,
+for us every penny counts.
+And for something
+what they are producing for $100,
+a similar great quality product,
+Indian entrepreneur could build for,
+let's say 30-40% cheaper than them.
+We have captive consumption.
+Entrepreneurs now are very smart,
+they are very evolved,
+travelled, done across.
+Why can't we take that arbitrage
+and take these brands to the globe?
+I mean, we are good at marketing
+by the way, Indian entrepreneur.
+Software, we are good at.
+Hardware, we can learn from our peers.
+Why can't Indian brands--
+Why can't we build brands
+who are based out of India
+and move to global scale?
+There are no brands existing everywhere,
+there are old traditional brands.
+-It's starting now, right?
+-Yeah.
+With you guys.
+[Amit] So,
+that's what we are trying to do.
+We believe that
+it is a right platform for us.
+We have gained decent experience
+and international markets
+we could do justice.
+But I'm generally talking.
+We need more brands. One brand can't do.
+I mean, I have seen we all buying
+international brands.
+Are you talking about-- You want me
+to answer in consumer electronics?
+I am talking about consumer electronics,
+specifically, yeah.
+In consumer electronics,
+you can go into those markets
+where your products are relevant.
+-Bang on.
+-[Rahul] Okay?
+So, for example, in Indian demographics,
+whatever products you are making,
+you are going to take the same product
+because you have scale and you go there.
+So, that's what I am saying. So, when...
+I mean, I want to cater to a market
+which is, let's say, mid.
+Because I don't want a cheapest product.
+-Which is fine. So--
+-[Amit] Indian demographic.
+So, those products you have taken into
+those similar categories and similar...
+-you know, geographies.
+-[Amit] Yeah.
+-That you can do.
+-[Amit] Yeah.
+Southeast Asia, all other, you know,
+so, for example, all the SAARC countries,
+then this side, Russia, Eastern Europe.
+These are fantastic markets.
+-[Amit] Yeah.
+-Right?
+Then second, if you are saying
+that you want to hit the upper deck.
+I am just staying middle.
+See, upper, I am very clear.
+Let Sony, Samsung play the game
+what they are playing, or Apple.
+We don't want to touch them.
+The consumers are very loyal.
+They have an ecosystem.
+They have advantages
+of whatever they could, so...
+You already have a scale in India.
+And then when you are going outside,
+you know, you go with that.
+Same scale and cater to that.
+Create one or two more brands.
+And use--
+Leverage the scale what you have.
+And, you know,
+you can attack the markets--
+No, that's what I am saying, we can do it.
+-India need those brands.
+-Yes.
+We are just no more
+about basic necessity brand,
+where we are just solving for features.
+And you'll be surprised, I'll tell you,
+Rahul, where I'm coming from,
+When we-- We just launched in Dubai
+in Virgin stores.
+Traditionally, Indian brands would have
+gone and launched a $20 product.
+We launched ourselves
+at $75 to $100 pricing.
+And we're getting a great response.
+I mean, look at the kind of response
+people are giving
+for a decent-price-point products.
+-Again, innovation is one.
+-100%.
+Innovation is needed.
+You can't enter a commodity space.
+Innovation and then you can have--
+Create different brands for,
+you know, different needs.
+One brand can't serve all, that's true.
+[Rahul] Look at...
+Here you have OPPO, then you have OnePlus,
+then you have Realme.
+Under one umbrella only.
+-We have two brands.
+-[Rahul] Yeah.
+He has to come up with CMF because...
+-We need the scale.
+-Yeah.
+The scale, 100% is needed.
+I think you can build mid-market
+with the scale.
+-Yeah.
+-Otherwise, nobody gonna support you.
+Yeah.
+But I think it's--
+The Indian economy
+has got into a point in time
+where there's entrepreneurs
+with a skill-set to go global.
+And it's already the language advantage,
+the language and culture advantage.
+-It's easier to do marketing.
+-[Amit] Yeah.
+Right? It's easier to do US or Europe.
+But on the product definition side,
+it's easier to go to
+more similar markets first.
+There will be more risk going into...
+You need product market fit,
+which I am aligned.
+You go to-- Like, we also are going
+to similar markets,
+which are easy acceptance.
+And then try to go in territory--
+I respect all territories.
+So, I mean, let's say US,
+these are all tough markets.
+It's easy to go and break there.
+So, I would like to go small there,
+do little trials, fail, and then take on.
+Yeah. So, they are, as I said,
+going to SAARC countries,
+going to, you know,
+Russia, Eastern Europe,
+which are all, you know, great markets
+for you to do your trials and all.
+And then also tweak.
+We should start, like, a hub.
+Like, start a place
+where we fund young entrepreneurs
+to build some of the stuff we spoke about.
+100%
+Right? Like, get some land,
+give them the resources.
+You guys all have the know-how.
+Like, start one place where people can--
+Like, an incubator of sorts,
+with real estate.
+And it's easier to do. On...
+And it could be anything.
+You know, you can--
+If somebody comes up with an idea
+with a diaper,
+which will have some connectivity,
+which tells that it is wet or not
+or whatever.
+Same tech you could be using,
+let's say, in the ring.
+I just found out a tech
+where my daughter--
+My wife wanted to monitor
+my daughter about fever.
+And you can't measure
+every time for a kid.
+So, there was a socks she could wear
+when she was six months or a year.
+It could track the sleep,
+the temperature and everything. So...
+These are micro-niche markets,
+but yeah, innovations are there.
+What's the deal with these rings
+that you are wearing?
+Why are they growing so much?
+Why is everybody buying them?
+So, I think market moves
+in different form factors.
+And market need newness.
+This form factor, like watches,
+are maybe mass-adoption phase,
+whatever phase you want to call.
+Rings are a new category, early adopters.
+And people are getting
+more health conscious, also.
+So, they are pairing it
+with their watches, by the way.
+They are not a replacement for a watch.
+Is that an opportunity,
+health-related consumer electronics?
+You guys seeing any trends there?
+So, I wear a WHOOP on my feet.
+So, what I have realised,
+I am into, I mean...
+I am little bit into this space,
+so I understand it.
+So, consumer is saying it's good to have.
+Meaning, I want a fitness device,
+but I will not track fitness.
+I mean, you would see a guy
+wearing a WHOOP-- I was talking--
+and eating a McDonald's burger
+and a cola and a 100 kilos.
+So, it's just visual cues to tell people
+that I belong to this universe
+where I know.
+I want to know what I am,
+but they are not cautious.
+I think they are little bit aware of it,
+but not that--
+India is a market, internationally, yes.
+People are more and more health conscious.
+Preventive healthcare is...
+-You know that patch which measures--
+-CGM.
+-Insulin spikes.
+-Yeah.
+I have always been thinking
+that at some point
+an Apple Watch can start doing that.
+Do you think that's an opportunity,
+if your watch has a CGM monitor in it?
+So, if you look at use cases,
+so I think these devices--
+Okay, diabetic is a very big used case,
+this problem.
+And this doesn't work, by the way.
+Nobody uses it.
+For us, we have used for wellness,
+but diabetic patient also doesn't use it.
+It is 5,000 bucks, it's too expensive.
+And nobody wants to break it every time.
+So, we feel wearable gonna divert
+towards health side,
+like we were talking about.
+Health is a segment.
+Thirty-five plus,
+you start getting those problems.
+Apple is 100% working on it.
+But Apple will only come when it becomes
+really solid, mainstream, proven,
+because it's health.
+Is there no opportunity unique to India?
+What do we want in health
+that other people don't want?
+No, I think, no.
+This is a good space
+if somebody is working on it.
+Honestly,
+I would like to invest in a space
+where people are working on CGM.
+So, Apple is working.
+Samsung has a huge R&D centre
+in Bangalore,
+where they are working on
+blood pressure and CGM on device,
+where it's non-invasive.
+So, I think in two-three years time
+we will see it there.
+I believe in health.
+Health has PMF in consumer electronics.
+And another field that has PMF
+is children's education.
+Parents are always willing to invest
+in the future of their kids.
+What would that look like?
+We have a common friend
+who is building this company
+called SuperLearn, where--
+He is trying to build a tablet
+which costs $150,
+where you can't, like,
+really browse the net
+and go to YouTube and Netflix,
+but replace your school bag
+with that device.
+You mean learning like that? Do you think
+something like that could work?
+That could work.
+It could also be, like,
+some form of smartwatch for kids,
+for learning, maybe with an AI companion.
+It could also just be a teddy bear.
+That's there, no? The toy is there.
+Miko-- Miko is doing good.
+I just know that it's a space
+where people want to spend money
+and are not price sensitive.
+So, you-- Wherever you are spending,
+you will spend for your parents,
+you will spend for your kids.
+And your health.
+And health.
+What do you guys think of Elon Musk
+in Neuralink?
+I like the thesis.
+It's trying to make the communication
+more efficient.
+Efficiency is always beneficial
+to humanity.
+But maybe there are other ways
+to get to higher efficiency.
+I don't know how long it will take
+for that to really work for mass market.
+Do you think people will be willing
+to do that?
+Like, put something in your body,
+not on your body?
+If the benefits are there, I think so.
+But currently...
+I don't think the benefits are there.
+Just dovetailing into his question.
+Wherein, these days,
+people are talking more about organic.
+They don't want to take
+unnecessary medicines and...
+I mean, for somebody who is disabled,
+then they get a lot of benefit
+from using that product today.
+But at what point
+does it become beneficial
+for a normal person to use that? And why?
+I think there is still some time to go.
+Wouldn't you suddenly become
+so much smarter
+if you have something in your head
+which is telling you everything?
+You can almost have that already now
+if you have earbuds with ChatGPT.
+You can speak to ChatGPT voice.
+-With the AI glass also coming.
+-[Carl] Yeah.
+You are sitting in front of this.
+This is the setup. This is happening--
+That's way easier to adopt
+than operating something into your body.
+What happens to the world? Like...
+If intelligence is on call,
+traditional intelligence is on call
+or information is on call,
+we still have to differentiate.
+How do we do that?
+I think most people are going to...
+I think 80% of the population
+will just chill
+and receive income from the government.
+And a small group of people
+will leverage the new technologies
+to push society and humanity forward.
+Like universal basic income.
+Yeah. I think that will happen for sure.
+Yeah?
+I think you can't replace, you know,
+emotional quotient out of that.
+You know, that's what makes
+all of us unique.
+All of us--
+You give us the same piece of information
+to all four of us,
+all four of us will behave differently
+and will have different actions.
+I think that is something which...
+you can't take away.
+Do you think?
+A little bit agree on this.
+Basic, I think 80% of the jobs
+will be done,
+for 20% you would still need human...
+The productivity will increase so much.
+But I think he is also right
+that we all will become more lazy.
+Like, kids today
+don't need to use their brain.
+They will be doing everything on...
+You need to be very self-motivated,
+but those people
+can really leverage the technology
+to create so much more productivity.
+I wonder if a kid will think tomorrow
+if I can just regurgitate a book
+from my device at any point,
+then why read the book?
+That's how I was thinking
+when I was in school.
+-Like, I can just Google the information.
+-[Amit] Yeah.
+Why should I memorise this?
+Okay. Last part.
+I want each of you guys to give one advice
+to me, the 25-year-old,
+having watched this today.
+Tomorrow morning I want to wake up
+and figure out what to build.
+One piece of advice.
+Would you like to go first?
+I think if somebody needs to
+plan something in this space
+or whatever space, I think,
+definitely a thorough research is needed.
+I mean, why you're going in, and--
+I think you need to have that fuel
+or patience also to build it.
+That passion we are talking about
+and do pick up a narrow niche
+instead of going too broad.
+I mean, pick up a smaller subset
+of whatever problem you want to solve.
+Go double down and then move on.
+Definitely there are going to be
+failures, learnings--
+But I would term them as learnings
+and you keep pivoting with that.
+So that would be one thing.
+I would say be really sure
+that you want to do something.
+It's not always fun.
+I think most people
+should not be entrepreneurs.
+Most people have a much higher
+quality of life doing other things,
+specialising in a tech field
+or working for somebody else.
+Very inspiring advice
+to wannabe entrepreneurs, Carl,
+I must say.
+It's better to say it now, right,
+rather than finding out down the line?
+[Rahul] He is scaring us.
+Just be really sure.
+I think, like, it needs to come from
+a deep passion around something
+because it's going to be hard.
+There will be euphoric days,
+but there will also be terrible days.
+Like, lack of sleep for weeks. Like--
+I mean, we've all
+been through that probably.
+Why are you going to keep pushing forward
+when you face those difficulties?
+I think you've got to be sure
+that this is what you really want to do,
+that you're passionate about it.
+I believe in the potential
+of every individual person.
+Like, if you really want to
+accomplish something, you can.
+But there's a cost associated with it.
+And I think for most people,
+the cost is not worth it.
+Rahul?
+My only advice will be
+show me your five friends.
+Because...
+if you have to build a successful company,
+then you have to keep a good company.
+So, if you have--
+And you will become like that.
+So, if you have a good company
+of people, who are like-minded,
+then even if you have, you know,
+there's certain qualities
+and things which you don't possess,
+you can, you know...
+A, rely, learn, and do,
+and, you know, come up with...
+come out of various difficulties.
+So, basically you will become, like,
+whatever your company is.
+So, if your company is, like,
+there are guys who are doing other things,
+you will eventually, you will go that way.
+But if you have
+five people reading biology,
+you will certainly go down that path.
+Even if you are not--
+You don't want to learn,
+you say, "No, I am not a bio person,
+I am a physics person."
+But, at least, you are doing physics.
+You are not just doing anything else.
+So, just keep a cohort of those people...
+and I think you will--
+A lot of things will get resolved.
+Fair.
+My fleeting thought,
+I am quite excited
+about this component incubator.
+I would say let's each of us
+put in a little bit of money,
+not care too much about the upside,
+and try and get not too many.
+I think we should find four kids,
+support them in building
+a component company
+with time, money and all of that.
+And maybe other people can learn
+from what we have done and replicate.
+And I hope we are successful.
+But, thank you to each one of you
+for flying into my home and doing this.
+Very kind and I will reach out to you
+for different kinds of advice
+at different points of time,
+and also to help all the young
+wannabe entrepreneurs in India.
+But, thank you.
+No, no. Thank you so much.
+Thanks for the great food.
+-[Amit] Good food.
+-[Rahul] Loved it.
+Thank you guys.
+Like a high protein...
+It's protein powder,
+yoghurt, and dark chocolate.
+-Very nice.
+-Yeah. It's all, like, really clean food.
+Did you guys have fun? Was that okay?
+-[Amit] Yeah, yeah.
+-It was superb.

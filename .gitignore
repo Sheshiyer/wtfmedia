@@ -1,0 +1,20 @@
+# python / data
+data/
+__pycache__/
+*.pyc
+.venv/
+
+# node / next (web app has its own .gitignore too)
+node_modules/
+.next/
+out/
+
+# internal planning — never publish
+PRD.md
+
+# vercel + env + os
+.vercel/
+.env
+.env*.local
+*.log
+.DS_Store

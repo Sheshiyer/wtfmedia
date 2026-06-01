@@ -1,0 +1,1767 @@
+[music]
+>> How many times have you Is it your
+How many times
+>> Fifth. Fifth. Fifth time.
+>> Yeah. But I'm never for podcast, always
+for my fintech company. Of course. Yeah.
+Are you in India? We are. Yeah. We have
+I think it's between 10 and 15. I think
+it's 14 people now. If they have we
+count the new people that are joining or
+joined.
+>> In which city?
+Mostly Bengaluru and few close to
+Mumbai. I'm from Bengaluru. Oh, are you
+Do you Are you based there or you are uh
+>> Partly based there.
+Where's [music] the other part? Uh
+Mumbai and Goa. Okay.
+>> [music]
+>> What do you think the opportunity is?
+What can one build in voice
+that can be [music] a big profitable
+business tomorrow?
+>> [music]
+[music]
+>> You're based out of which city now,
+Matti? From London. Right. From London.
+Do you know Carl, the Nothing guy? Yeah.
+Yeah. Yeah. Yeah. Of course.
+>> We invested in his. Oh, no way. Yeah.
+>> I'm a tiny investor, too. Really? Yeah.
+What do you think?
+Well, I You know, it's so hard to
+innovate in hardware, and Carl is one of
+the very few that is actually doing both
+innovating and got to good scale, um
+which is so hard. Um
+and I think he he's like thinking around
+design and how there will be a
+combination of the native devices and
+maybe they'll take slightly different
+forms. I think there's a a great chance
+for for Nothing. What do you think? Uh
+So, we engaged recently, actually. We
+got on their cap table.
+I like Carl. I like Carl a lot. I feel
+like it's a new guy who's trying
+something new.
+Uh the sales look great. Uh I think they
+went from 500 mil last year to about 900
+mil this year.
+Uh but it's such a tough space, right?
+Hardware? So tough.
+But it's you know, I I'm also excited.
+You know, maybe that's a little bit
+biased, but he he can lead with a voice
+in many ways. You know, the the Nothing
+headphones I think are are very
+And they are actually one of the first
+ones to start integrating like AI
+assisted part of the of the experience.
+So you could speak with the headphones,
+you could personalize music.
+>> out yet, [clears throat] right?
+They're testing few things in alpha, but
+if they if they
+um you know, if they move quickly, I
+think this could be like the first
+truly AI native device [clears throat]
+that's kind of with you around you.
+Um and I mean that opens so many
+opportunities. I'm frequently speaking
+with Carl of uh um
+how like in the ideal future you could
+potentially speak any language and it
+automatically gets real-time translated
+to any other language around you. So you
+can communicate and and travel travel
+around. Yeah. Um break down the language
+barriers, but the main part that's going
+to be blocking it is going to be the
+hardware or like what's the what's the
+device to make this possible even if the
+technology exists. And if Carl does well
+with Nothing, Nothing could be the
+device that actually makes and breaks
+that where everybody can can have a
+device. I hope it is. Like after this
+I'm actually going to London. I'm going
+to see Carl. Their design studio is
+there, right? Seen the
+uh
+the earbuds, the previous version, but
+if it's able to translate without a
+latency issue and if it's able to you
+you know that device you wear like a
+pendant? What is it called? The the one
+that's uh they folded the or the There's
+there's like a few, but uh
+there was the Humane, I think. But that
+didn't doesn't, I think, this was
+acquired.
+But there's Yeah, there's like re- re-
+re-transcribe or something like that.
+The one that like takes notes and
+summarizes afterwards. Yeah. If the ear
+pod could do all of that, like his ear
+buds, if they do that, they translate,
+they do a bunch of other things, the
+thing Nothing also has going for it, I
+think, is it's cool
+because a young person runs the company.
+So, hopefully they do well. And they are
+trying some different things. I also I
+would like that, you know, pendant, this
+is maybe slightly slightly off topic,
+but um
+frequently, I mean, as a company now, we
+will attend a lot of events. We'll have
+a lot of people in those events.
+And of course, after the events, we are
+now trying to figure out how to
+take a lot of the follow-ups, action
+points. So, we created a little voice
+agent that you can speak with and um and
+capture out of the feedback. Um so, that
+already kind of helped shorten the loop,
+so you don't have to manually input
+everything after the meeting. You can
+speak with the voice agent. But the
+ideal version, assuming people opt in
+and this is the the kind of safe
+environment, would be to have a pendant.
+You go to a meeting. Everybody knows
+that the notes will be transcribed and
+then you can engage in those events in
+the conversations. And then straight
+after at the end of the day, you get
+what happened, what are the follow-ups.
+Um we are we are working with now this
+one startup that I hope will um
+will do it in a good way where
+we could deploy it in our in our next
+summit where everybody across across the
+team could
+of course, with the knowledge of the
+participants, take the notes, not need
+to worry about all the notes afterwards.
+I think, how amazing would that be?
+Yeah, what is it called, the startup? I
+don't know if I can say their name yet
+because they are like they are in a
+stealth mode and they want to announce
+it and you know, we are trying to figure
+out a partnership, but but there are
+like a few companies that, you know, the
+the the form factor does matter. Like
+you don't want the pendant to be too
+big. And then you want it, of course, to
+have uh
+uh pretty pretty good support Um of
+course battery and
+and
+and and and I I like feels like it
+should exist. Yeah.
+Everyone I speak to in AI and I've
+interviewed a bunch of them largely in
+the valley. It's refreshing that you're
+in a different region.
+They all say voice could be next. Voice
+is likely next. Voice is
+a natural way to communicate that we are
+accustomed to
+>> [snorts]
+>> but nobody seems to have cracked it yet.
+Do you think the medium of interacting
+with tech will move from hardware which
+does feel unnatural to hold a thing in
+your hand and like type into it with
+your fingers?
+How does that transition from
+that kind of hardware to voice happen?
+Yeah, the
+you know, like as as we think about the
+future
+100%
+voice will be a big interface and big
+way of how we interact with the
+technology around us. That's the sweet
+thing about 11 Labs mission. It's to
+transform how we interact with
+technology around
+holistically and whether that's you
+know, calling into customer support,
+whether that's how you will learn at
+school and how you'll deliver education
+all the way through to how you interact
+with the robots or devices around you in
+the future.
+And to your last part like
+I think the most exciting part of that
+is like how could you have the
+technology kind of fold into the
+background phone goes back into the
+pocket and you kind of immerse yourself
+in the in the in the in the world around
+you.
+So, I think there's like to make this
+possible
+there's at least three things that need
+to happen. One is of course the
+foundational technology and research. It
+needs to get to the level where where
+you feel like you're interacting with a
+voice of the level of of of a human.
+It's it's you can interact you can
+interrupt it. It has the right emotions,
+intonation, and it's quick.
+Um it has the high intelligence. And I
+think the current model is is good for
+set of
+um set of use cases. It's not yet like a
+full human level.
+Um so that's the kind of the first
+component that needs to change on the on
+like that needs to be true. Otherwise,
+people will not want to have
+voice agents everywhere around you.
+Um like you have Jarvis in Iron Man and
+this kind of level of quality. That's
+ideally where you kind of get to
+where it's both great voice and and and
+kind of gets all the knowledge and gets
+all that combination. So that's the
+first thing. So the voice voice quality
+and interaction needs to be great. Um
+second, and that goes a little bit to to
+the challenges of deploying that in
+different in different settings is it's
+of course important that the voice is
+good, but it's also important that it
+has the knowledge access.
+Um
+and as like we think about the the the
+the development in the future, as we
+think about our role in our development,
+increasingly,
+there's a um important combination of of
+allowing customers allowing users to
+bring that knowledge in an easy way.
+Whether that's the integrations with
+their with their systems, whether that's
+figuring out how you can deploy um the
+voice agent in in WhatsApp and different
+devices that customers or people will
+interact with. Um but ultimately, like
+how do you bring all the knowledge
+ahead? How do you have the memory of
+things that that happened in the past?
+Whether that's what you what you are
+interested in, what you know, um if you
+are a a business customer, taking the
+CRM data and pulling that in so you have
+all that information. So that'll be my
+second one. So that's the the second and
+third one uh which we kind of started
+the conversation from is the is the form
+factor, which I don't think is has been
+figured out. Like
+now we have all the components for voice
+agent to be there and understand you.
+How do you deploy it? My take is
+it's like, you know, frequently the
+conversation is is it glasses? Is it
+phone?
+Uh uh, is it headphones? And it's
+probably the
+the the kind of the
+uh,
+the least interesting one, but I think
+it will be a combination of of of the
+four factors. Some people will
+definitely prefer glasses, some people
+will prefer the headphones. In the
+future, maybe Neuralink's version of
+that part where you kind of start and
+you always have voice agent available to
+you. Um, I'm excited for the headphones,
+but not the headphones that um,
+that are in ear, but effectively the
+ones that are behind the ear. Right.
+>> Um, where you still get the same voice
+experience.
+Um, and now there's set of innovations
+to try to effectively detect your
+without you actually saying the spoken
+word, detecting your mouth movements.
+So, you could theoretically imagine
+speaking with a voice agent without
+vocalizing it out loud and having that
+support.
+Um, so like if I wear
+like as a user, so from personal
+perspective, I would be most likely to
+adopt the headphones in the future. Mhm.
+Um, and then I do think it most likely
+will be the most natural form factor
+given it's already one of the one of the
+key devices. Um,
+and that kind of shifts that that
+interface, you know, in the future.
+>> headphones with a phone in your pocket.
+Yes.
+>> And probably a sum, you know, because
+you also need the capture of the
+information. That's where that kind of
+the knowledge part will come start
+coming in.
+I I do think there will be some version
+of a of a pendant or a wrist band that
+you will that you will carry to just
+capture more.
+>> do that?
+They could, but then you have you you
+have limited set of information. Like
+you don't have the same um,
+like say over time you will want
+something about the movement or
+something about how you
+um,
+how you capture uh, different
+perspective and I think that's where
+that will be that will be viable.
+Do you have Can you wager a guess on
+what
+uh, Jony Ive and Sam are building?
+In terms of device?
+Uh, the um,
+I heard few few guesses. I would love to
+ask you the same question. What's your
+guess?
+>> I asked Sam actually.
+What did he say? He didn't say. Okay.
+>> [laughter]
+>> Yeah, my guess my guess would be
+Huh, I don't know. What if you were
+maybe maybe maybe if you were guessing
+from what you know, what's what's your
+guess? On Sam and Johnny I guess?
+>> Yes.
+I feel like
+for revenue and
+to really scale because human behavior
+is so accustomed to using a device in
+your hand.
+Uh
+I think that's where scale scale lies
+initially. So, I wouldn't be surprised
+if it's a phone looking device with a UI
+which is
+not natively
+Android or anything that already exists,
+but something which is
+a lot more different with a partner with
+a buddy device maybe which is like a
+pendant or something like that.
+Because they don't have a hardware play.
+I feel like
+for AI at some point it will become
+relevant that
+hardware comes pre-installed and with a
+software which is AI first and to be in
+hardware for all of these AI companies
+will become increasingly relevant. Hence
+actually the nothing bet because I
+always thought a AI company will come in
+and uh buy them out at some point.
+They can still I it's it's still
+possible.
+It's it feels but it but in general like
+I think Open AI has a I think good path
+to building like a personal assistant
+that's next to you. Mhm. So, it will
+need to be some device that you carry of
+course every every every day. Um,
+I do think voice will be a big part for
+that strategy as well. Mhm. Um, I I I
+from what I see and hear, they will be
+ramping out the voice efforts. So, that
+will be good good competition for us to
+see where their quality keeps keeps the
+head of us at this today. So, that will
+be good good test. It must worry you,
+right? Like I always wonder about Open
+All these people
+use the backbone of Open AI and they
+build something.
+And then
+given enough time, Open AI sees it and
+then they want to build the same thing
+themselves.
+They seem to have done that in a couple
+of places.
+Um
+when I talk to friends of mine in
+the agentic layer of AI or people who
+have built great applications on top of
+her model,
+uh they all seem to be scared of what
+happens to these large language models
+when they come after the end product.
+Are you worried about that?
+You know, like in a
+in in our case, we are of course
+continuously looking what it like Open
+AI, Google, incredible teams. And
+probably like us we think about the
+space that the the biggest potentials of
+of of of effectively competing with 11
+Labs. As you think about the company and
+then we started it in 2022, like the
+approach from the beginning was doing
+both the research and the product. So,
+doing the foundational model work for
+for audio and then building product
+around it. And we think both are
+important. Um and like what define the
+company where we today
+of course don't depend on Open AI for
+for for voice and and we can stay ahead
+and build models that are both great in
+English, great internationally, great
+across Indian languages, great across
+European languages. And
+um and that's both for generating speech
+with text-to-speech, understanding
+speech with speech-to-text. And um and
+that's important. I think like over the
+next
+two, three years,
+there's still so much you can do in
+voice. And like we spoke about how you
+make it more fluid and interactive, I
+think that still can be cracked in a
+better way. So, of course worries us
+whether we continue being ahead, but
+it's also a good motivation. We have my
+my co-founder is one of the smartest
+people. You've been able to assemble an
+incredible research team and um and they
+keep crashing it. So,
+I think they will they will they will
+continue proving that we can be ahead
+but then 100% [snorts]
+you know we cannot just rely on research
+we need to have more um both defense
+points but also
+how we deliver value effectively to the
+customers so it's kind of independent of
+the research work and here from our
+perspective we have kind of two main
+things one is um we have a creative
+platform offering and then an agents
+platform offering creative platform is
+helping with narrations voiceovers
+localization um
+from individuals so from creators um
+podcasters um news articles uh through
+to some media entertainment companies
+like Star and then on agents we help
+automate voice agents and in in in
+customer experience training education
+so um a Misha would be a great example
+Can you can you describe to us what 11
+Labs does overall like in a
+in a simplified manner that anybody
+could understand?
+We built foundational
+audio AI technology so we built models
+to make speech sound incredible and
+speech be understood um and then we
+built products on top of that research
+that help you create voice agents that
+can elevate your customer experience
+that can um elevate um
+and train people internally or
+externally
+and then we help on the creative side
+with customers uh um um um and how they
+can communicate with with the user base
+So 15% of your business is creator and
+50% is enterprise in a way That's right
+And see I'm a creator how do I use 11
+Labs?
+The um
+let's take this podcast as an example
+>> Yeah
+the
+you know after after we we we we we
+finalize our conversation something
+might have not been recorded you want to
+add a line you can
+post process that with 11 Labs make sure
+that we effectively recreate my voice we
+smooth in that line out. Mhm That's the
+very simple part. Then let's take a
+second step. You want to take this
+podcast and you want to localize it
+outside of English, you want to bring it
+to Spanish or French or Hindi.
+And here
+you go to our interface and you can
+both automatically dub the entire
+podcast and then go for any corrections
+that you need. So when we did a podcast
+um
+with between Lex Friedman and Prime
+Minister Narendra Modi that was
+effectively going through that workflow.
+>> Did you dub that? Yeah. Mhm. And that
+was like going through that human on the
+loop making sure the corrections are
+there and that was like a both like an
+like an incredible very long
+conversation incredible test of the of
+the software. But then you can enjoy
+that in number of other languages.
+>> How much does it cost? Say for example,
+how much did Lex and our Prime Minister,
+how much did it cost to dub?
+You know, this one was harder. It in in
+in general like if you just wanted to
+automatically dub then like an hour
+podcast will be few dollars up to few
+dollars. Mhm. Um but with with any
+conversation like like the one of the
+Prime Minister, we did employ a wider
+set of of people that would actually
+check every translation. Um
+uh mostly with working with the Lex team
+and the other side of the team to to
+make sure that the content is preserved
+like we we we know it's like the whole
+caliber of the conversation where every
+word matters. So that was like a
+maybe a more unique on that side. Like
+we have this use case. We want to dub
+all the content we make into like
+regional languages
+but we've been struggling with solutions
+really.
+Uh
+more than the cost of it, I feel like
+the
+emotion behind what is being said is
+always lost and everything sounds a bit
+robotic. How do you change that? I've
+not tried 11 labs. Then perfect. It's
+like I'm also here to
+to to to show you. No, I think I think
+that's like one of the big parts that I
+think we we now can bring to the to the
+equation that was lost. Like how do you
+both preserve the voice, preserve
+intonation, preserve emotion. Um and the
+way you know we do it today is we we of
+course detect your speech. We then
+uh detect the speakers. We we translate
+it. But then the moment we generate a
+speech it actually captures the
+contextual information from the previous
+response.
+And um and tries to recreate that in the
+in the new target language. Effectively
+our model
+the way we've we created that for the
+localization use case
+has been trying to match
+pairs of languages that that that we
+have and how would you deliver that in a
+in a professional setting and how you
+can reapply that in the in the automatic
+dub. Um so I think it works really well.
+Um the the the hard things is like you
+know of course when you have like
+amplitude of emotions like laughter,
+scream and you then shift the ordering
+of the sentence then it's hard. But I
+think it works.
+>> for example when Matty is smiling while
+you're saying a certain thing. Matty is
+the right way to say it? Yeah yeah yeah
+yeah yeah yeah. Uh
+when you smile when you say a certain
+thing in English
+isn't it hard to take that emotion into
+Hindi for example?
+The um
+no it's um you know it's it's not easy
+100%. Um and then there's like kind of
+two of like there's the present and the
+future and the current way you would
+still translate it.
+You would of course dub it. I think you
+can preserve the emotion but of course
+my movement of my lips when I smile well
+you that
+depending on the language structure
+um it might be in a different part of
+the sentence. So like maybe an easy
+example is German. From English to
+German, German usually have noun at the
+end. So like yes, that will exactly
+happen. You will like smile at a
+different part than than the
+conversation. You can do some tricks
+to to try to to to to to um to still
+smooth in out. Um, but yes, there will
+be some discrepancy. So, that's that's
+in present can still work. In the
+future, you know, and and there are some
+limitations of the current delivery
+softwares, you'll likely do a lip
+animation to a lip re-animation to move
+the lips
+tiny bit to apply to where where you
+would smile in that part of the
+sentence. So, I think that will happen
+100%. I hope this happens this year. Is
+that something you would do?
+We would want to do it. I think like as
+we think about anything that can can
+amplify the audio experience, we want to
+bring that into our our our our flow.
+So, on that creative side, like today if
+you were to localize, hopefully in the
+next few months you will be able to
+animate lips straight away as well.
+Could a tiny company be built just
+around this? Just around
+changing how the lip moves when
+something is being dubbed?
+It could. There's There's actually quite
+a set of companies that are like
+crushing it and going very quickly. You
+know, of course I think this is an entry
+point, not the end point. They will
+likely try to to add more of that
+functionality, but but but 100%. You
+know, it's like and the the Of course
+now we speak about the static part, but
+the moment you start moving into the
+real-time part, those tiny companies now
+can be huge companies. And that's kind
+of like,
+you know, we spoke about the creative
+side. If you think about the
+the the agent side, and I think there
+are some use cases here for for for for
+both the lip animation and even for for
+for your for you. Mhm.
+Uh uh
+I have a I have a one idea for you.
+Um, so, you know, we spoke about the
+creative side. On the agent side,
+effectively what we do is is is allow
+you to create a voice experience, bring
+any knowledge that that that you want
+inside of that experience, um,
+and um and then deploy that in in in
+different settings. Um while monitoring
+evaluating how it performs.
+I don't know if you're familiar with
+MasterClass. Yeah. So, MasterClass works
+with us where they would recreate
+um and work with people like Gordon
+Ramsay to create AI Gordon Ramsay to
+teaches you how to cook while you cook.
+Uh the top FBI negotiation negotiator
+Chris Voss is part of the ecosystem. You
+can negotiate and learn negotiating by
+negotiating with Chris Voss. So, you
+could do your Masterclass based on a lot
+of your existing content and existing
+work that you already did and and and
+and spoke about wrote about and actually
+create a
+um an AI that you can speak with and
+learn about bootstrapping a $3 billion
+company uh and uh and and how to achieve
+that kind of impact and scale and break
+up
+>> would that agent sit? How would somebody
+find him?
+You know,
+we work with all types of customers um
+but if you are an individual, you
+probably would start your own company.
+Mhm. Like we actually have 500 companies
+that build voice uh voice agent
+variations just in India. Mhm. And then
+uh now I think over 10,000 across across
+the world that that usually they would
+create their own website or website
+delivery. But the the most common now
+that's kind of shifting is um
+is you you have a phone number that you
+call and then the voice agent answers.
+So, um Do you think there's a market for
+that if there's an agentic version of
+myself
+which has
+learned from everything I have ever
+said, all the stupid things, and it
+speaks like me,
+do you think somebody will
+seek it out to interact with it?
+I think it So, quick answer is yes. Mhm.
+Um I don't think it's you know, like it
+replaces the experience, but
+there's um
+there's like how do you go deeply into
+the subject that interests you and
+that's what your agent would allow. Like
+I have few questions. This is what I
+know. This is what I don't know. You've
+you have that kind of wider set of
+knowledge that you the delivered over
+the years. How do you deliver that
+efficiently? You can you can you can
+grab to the specific parts that I'm
+interested in. And um and I think that
+would be too would be valuable. But then
+of course at some point there's like,
+okay, now I actually want to speak with
+the real person to go deeper because
+that wasn't in a knowledge base or
+wasn't um it wasn't something that that
+I could ask about. So, I think they kind
+of
+shifts the part of um of the
+conversation but not the entirety of the
+conversation.
+You know, it's
+I don't know if it's exactly the same
+but um
+on the business side we we one of the
+the I I like many startups mentioned
+this use case. I don't think it's like
+fully AI automatable but AI SDR version
+of like learning about the product,
+learning about the use case, learning
+about the the company. Um and we've seen
+this um play out in in few cases
+where here too
+the best way to deploy AI SDRs is is
+more as a augmentation of the flow where
+you can let's say you you have a
+website. Um you want to capture the
+sales leads.
+Um the sales leads come through. They
+usually will leave their details in the
+form.
+And now instead of replacing the whole
+experience you can add effectively a
+voice agent saying, "Hey, do you want to
+accelerate your
+application um
+um by by speaking with a voice agent?"
+And then you can you can go ahead and
+and and click through.
+Uh
+and then
+you are more willing
+and um um uh um so so we've done exactly
+that flow for 11 Labs. And then what you
+notice is that both it improves the
+number of people that are keen to leave
+things in a form but second, they
+actually leave a lot more details. And
+then the moment they go to the next
+conversation, they know much more about
+the product, they are more ready. We can
+go after um and and with those customers
+much quicker.
+Um so similarly as you think about your
+kind of delivery of knowledge, I do
+think this would both
+make people more excited about about
+about learning and going deeper. But
+then the second time you have the
+conversation, I think the quality of
+questions will be better. We actually
+did it with um a company in India called
+TVS Motor. Yeah. Uh and they they've
+done exactly that flow, and it improved
+both sides. It improved the customer
+satisfaction and improved the sales uh
+uh lead qualification. So, it's like
+both sides were happy. Right. We were
+doing a bit of research on the market
+size of
+voice overall. The dubbing is a small
+market, right? It said less than a
+billion going up to 3 billion in the
+next decade.
+You know, dubbing is it's like
+the interactive use case is the biggest
+markets. I mean, that's everywhere from,
+you know, from media education through
+And that could be a really big market in
+the next 5 years.
+>> That's Yes, that I think that will shift
+everything.
+>> So, a lot of the audience that we speak
+to are young want-to-be entrepreneurs.
+What do you think the opportunity is?
+What can one build in voice
+that can be a big profitable business
+tomorrow?
+From my perspective, the the most clear
+entry point is combining a domain
+expertise in one of the
+one of the domains that you you know
+well or you want to know well and learn
+quickly. Um and it can be a domain where
+where there's like no innovation, and
+these are like almost the best ones. Can
+you give me an example?
+Automotive industry, health care. I
+mean, it's like uh truly I think it's
+like the more traditional domain the
+likely more lagging it is with the
+innovation. Um where we are seeing
+already entrepreneurs building for
+automotive industry of use cases. Um but
+effectively here, you know, whether it's
+um
+uh how is like
+from the simplest case of how you
+innovate on customer experience to like
+what does the in-car experience look
+like in the future?
+So much opportunity to figure out how do
+you deliver the right knowledge, how do
+you write the right interaction, and how
+you deploy it. But can I build a company
+just around that? Yes.
+Yes. And it's like, you know, like
+>> Let's take the example of a car company,
+say BMW. What What do I build that they
+will pay me enough for that I can have a
+company invoice?
+You would start probably with something
+that's top of mind and and something
+that is easy to deploy. So, here
+you would start with customer experience
+side. So, just being able to help
+as people call in, how do they get the
+best service? Understanding everything
+about BMW in this case, how they
+understand about how the car works. You
+You spend a lot of time on bringing that
+into the equation.
+So, that's kind of the first layer.
+Then
+in car experience is like pretty
+open-ended, but
+how do you create an interactive radio
+inside of the car that people can can
+interact with um across all the time?
+And here, too, you need to figure out
+>> [snorts]
+>> what type of languages might BMW might
+be interested in, how do you create the
+right voices to make sure the users in
+those regions are excited and happy.
+Um
+What type of experience will BMW
+actually need? So, there's a lot of
+actually deployment work that would come
+in.
+And then, [snorts] as you build all
+those steps, you need to figure out,
+"Okay, if you are to build like a a big
+company, not only how I build it once
+for BMW, but how I abstract it away to
+to be able to replicate that into the
+other car companies." Um
+So, you need to capture some of those
+knowledge elements back into into into
+other into other car uh parts.
+Automotive industry is a is a good
+example where I like haven't seen as
+much yet because it's it's harder with
+some of the on-device requirements. Like
+some that already got are getting
+disrupted are e-commerce, health care,
+financial services. Like health care is
+a easy example where you just need so
+much specific domain knowledge to be
+able to to cater to that. Both the data
+is very different.
+So,
+capturing all the all the medicine
+names,
+all the flows that might need to happen
+for the patients that you interact with
+to make sure that they get the right
+experience,
+that's like it's hard. And then you need
+to go to the hospitals, speak with the
+hospitals on how that to deploy that,
+whether it's in the operating space or
+whether it's in the in the in the in the
+in the support space outside of the
+in-hospital operation. So,
+that's that's the one that's actually
+already pretty pretty heavily going
+across.
+E-commerce, I mean, recently you had IPO
+of Meesho that that you work with,
+incredible company. What do you do for
+Meesho?
+So, we help automate their customer
+customer experience customer support.
+So, they have now 60,000 calls coming in
+to to to ask about the products, ask
+about the shipping, refund, and and and
+the Indian English, and and we help we
+create a voice agent that you can
+interact with. But, a very cool thing
+with Meesho is that now, you know, so
+the support is there. Like, what's the
+future of e-commerce? Could you have an
+AI concierge the moment you go into the
+website that you open a website, you
+have a voice agent that tells you about
+the products available, you tell it what
+you're looking for, then shows you
+different products, you decide which
+ones you are interested in, and then you
+order that. Like,
+having an assistant as part of
+experience would be would be incredible.
+So, here too, like I think in e-commerce
+going slightly deeper on like
+what type of e-commerce similar. I think
+I think companies
+combining the domain knowledge and and
+and building quickly the the voice
+agents will will will be huge. Actually,
+you should help us build a agent of our
+own. Could be fun as a project.
+What would be the agent?
+Like, we'll feed in all the things we
+have said up until now, and have
+somebody
+talk to people who are lonely and just
+see how the project goes.
+>> [laughter]
+>> Just as a fun project. I speak to AI
+agent all the time. I think the
+a big use case in the world tomorrow
+will be to solve for loneliness.
+You know, for intimacy.
+It's I I like I think voice
+I agree. I think that will be a big part
+there. It's going to be a big balance of
+figuring out how it's like not you know,
+you you you you kind of
+help with the virtual side, but I kind
+of try to bring people into the real
+world, too, which is which will be at
+like an important balance. Like the one
+the most exciting one for me is
+education. Like how will the
+education like could you have a personal
+tutor across subjects for everyone? Like
+I love Richard Feynman. Could I have
+Richard Feynman
+teach me physics? And uh and
+um
+uh and like kind of both the style of
+delivery so cool like he's kind of
+combining the knowledge and the and the
+laughter. And then I have it up take I'm
+I'm learning maths and I'm I'm I can ask
+any question to to to Richard. That'll
+be That'll be amazing. What's even more
+interesting is if I have a device in my
+ear
+which
+negates the need for me to
+have to regurgitate any kind of
+information. What happens to education?
+Then I don't need to learn or remember
+much of what traditional education needs
+for me to remember.
+Yeah, you almost like
+I don't know how um
+how how [clears throat] you would see
+this, but like the way I think back at
+at at at kind of my education like I I
+kind of I I rarely use any of the formal
+background in mathematics. I almost
+never use that knowledge, but like the
+the most valuable part was kind of
+learning how to learn. So, I hope
+there's like still that component that
+education brings. And then of course the
+second part of education it's going to
+be like almost the opposite of tech,
+which is how do you learn how to how to
+be with other people, how you like
+be social. So, like what you have like I
+feel in the future of education they'll
+have like percentage of the time which
+is like fully dedicated to learning with
+AI and tools, and then percentage of the
+time where there's like no tech and no
+no um no um
+no technology, just like speaking with
+other people, being close to them,
+figuring out that part. The percentage
+of both will be interesting. Like, with
+AI, can I now be more efficient so I
+just need like 20 30% of the on the
+former and 70% on the latter uh or or or
+or no versus yeah, versus like a fully
+augmented version throughout.
+As somebody not in the Valley,
+uh my day job is an investor.
+What do you think of
+you've raised a lot of money yourself, I
+think like 300 400 million dollars. Your
+company is worth a few billions today.
+What do you think
+of AI valuations in the Valley today?
+These huge
+uh companies with
+a revenue number that doesn't
+historically warrant the market cap
+numbers that they have.
+Do you feel like there's a bubble
+brewing there?
+And did you say you you invest in the
+companies not in Silicon Valley or you
+said did you invest in companies in
+Silicon Valley? Some in Silicon Valley,
+but largely companies out of uh India.
+That's what I thought. And And first of
+all, I think that's great. I I think
+similarly as we think
+uh like it's
+so cool to see more companies and and
+and India like we care so much about
+companies brewing and I'm from Poland
+and Poland in in in UK, of course. Um
+so, and and like as you think about our
+team today, most of the recent
+engineering is from Europe and they are
+like some of the most motivated
+passionate people about the space. So,
+like, hopefully a lot more of that
+innovation comes across
+from from Asia, from Europe,
+internationally for the global
+companies.
+Um
+>> [snorts]
+>> I think the the valuations in Silicon
+Valley
+you know, like
+I don't think that the the bubble is
+brewing. I think there's like what what
+I think is a very different part as I
+compared to to to other cycles. I think
+there's a clear value, clear revenue
+numbers for a lot of the the companies.
+I do, you know, there are some pockets
+where I'm like a little bit skeptic of
+like does it make sense, you know, not
+to just like to maybe give a concrete
+example is all the like GPU providers um
+that are built on top of Nvidia that
+like help you get uh
+an effectively inference um uh um a
+capacity. Like I'm a little bit skeptic
+on some of valuations there, but you
+know, like for a lot of others it's very
+clear it's like high risk high reward
+type thing. Um
+So, I understand the debates, but they
+are probably higher risk and higher
+higher reward. I do think AI is is in
+this in this in this trickier space
+where um where if you win, you can win
+in a in a significant way in a
+significant impactful way. If like you
+will work with a lot of the customers
+around the world if you are a good
+company. Um so, I kind of understand why
+like in the early stages of the
+companies, companies get such a high
+valuation.
+I mean, you you I'm sure you are
+referring also to a lot of the research
+companies being formed. Here here I it's
+like almost the way I kind of see it is
+there's like
+um
+like research is still so incredibly
+important and will be that um
+that that like that multiple still makes
+sense. Like you you those people like if
+they
+invent one incredible thing, it it's
+already worth it. Um
+Well, but I hope I hope companies around
+the world will get the same valuations
+soon. And if we like if they build
+globally, they should. Yeah.
+The way I'm looking at it with all the
+geopolitical stuff going on,
+if I were to wager a guess, I would
+think
+at some point in the future, we will all
+live in a more multipolar world where we
+individually countries go down the path
+of Russia and China where
+most large countries have their
+versions, their own little version
+of these products which have global
+reach today.
+So, different countries will have their
+own social media, they'll have their own
+voice companies, they'll have their own
+uh
+uh
+most interactions with technology, even
+their own data centers. A country's
+data, I think, will sit in that country.
+So, I feel like when that happens in the
+world, these companies which have large
+scale today, like, you know, take a
+WhatsApp, which is a chatting service,
+I don't think it is a unique enough of a
+product that can't be disrupted or I
+will make the switch from a WhatsApp to
+another chatting service
+given a very small incentive.
+I think the
+the reasons for Indians to use WhatsApp
+might go away uh
+when
+the world becomes more geopolitically
+confused, and I feel like it's going in
+that direction. Don't you think that
+let's take WhatsApp, there's like a
+network effect of just so many users
+already using WhatsApp where
+it's just it's just convenience of being
+on the same platform.
+I would have thought that, but when I
+look at what's happening in China and
+Russia and they have their own versions,
+it seems to be just fine.
+Uh and also, in a way, when
+there is evidence of
+these global tools being weaponized by
+governments in one way or another,
+uh I think the world will be a lot more
+skeptical in using a product just for
+the network benefit.
+You know what I mean? I do I don't know
+what you mean, although I do I do
+disagree. I think it's
+I partly disagree. I like I agree, data
+residency, yes, 100% should be in a in a
+specific countries. Also agree that like
+the the the the
+Sorry. The product shape will will like
+kind of evolve.
+So like every country will use their own
+own proprietary data to create their
+variations of the product. But my like
+you know, I don't know if that's
+optimist or or like the the the the kind
+of the value part, but I do think
+there's like a global component of of a
+lot of infrastructure or software still
+being international. Like let's take
+building foundational AI models.
+I think the the the kind of the the base
+will be pre-trained by
+few companies in the world just given
+the resources required. They'll be open
+source.
+Um um um of course offerings in that in
+that bucket.
+But then
+probably as I think about a government
+space or companies in other sectors,
+they will use those to fine-tune it
+based on their data. And it's still huge
+advantages,
+uh but just uh just not like entirely
+built into independently.
+Um on the product that's a very like I
+mean interesting interesting that you
+think
+I I can see like how creating software
+is becoming so easy that you could like
+imagine creating that on the on the fly
+everywhere.
+I just I just think the network effect
+of having people on the same place
+is compounding in many ways.
+Um
+Like almost like I I see now like as I
+think about um
+Uh [clears throat] it's not the same,
+but in in our case we have a voice
+marketplace in 11 Labs where people
+create a voice. They can We authenticate
+it, then we can share it, and then the
+moment that the AI voice is used, you
+earn money.
+Now we have 10,000 voices created this
+way.
+Um
+and we paid back over $11 million
+coincidentally back to that community.
+Um
+and it really helps. We have like so
+much styles, accents, and it's uh you
+know, of course you could replicate at
+scale, but you won't have that same
+community mechanism of paying back and
+making sure people can trust that
+software. So I do think there's some
+element of trust
+um
+uh uh
+that that is embedded. So, maybe network
+and trust. But, you know, I guess what
+you are saying partly is with what
+happens with the geopolitics side is
+like the trust element may be broken and
+you kind of need the alternative for It
+seems to be breaking, right? I hope I
+hope it's you know, it's a temporary
+glitch, but it's like more like
+it's not um it's not going down. It's
+more like sine x times x curve when it's
+continuing going up and and and and it's
+yeah, it's it's just like a little bit
+of a correction. Yeah. I mean, I watched
+a bunch of these people speak over the
+last week and
+you know, even when they walk out of the
+room, it could be the European
+leadership or the American leadership,
+people don't look happy. People look
+like they're angrier than
+they were last year, for example, or the
+year before. Every year people are
+progressively angrier
+and it seems like
+they're voicing it for the first time.
+You know, people walk out and speak in
+their own languages. Most of it you
+can't understand, but you can see the
+expression on their face in a way, I
+think.
+I do think people became more authentic
+in the like like last year too last year
+too. Maybe it's like you know, a version
+of like there's just so much AI content
+and and things that like you need to be
+authentic to to to to like break through
+that noise of AI. But, um I feel you
+know,
+and and less on the politics side or
+geopolitics side because I agree that's
+like that has definitely influenced the
+emotions.
+Um and I'm probably a little bit too
+much in that bubble of of AI and tech,
+but huge huge positivity compared to
+last year or two of like shift from
+how about how much of the risk it possi-
+like um how much of the risk AI can
+mean, but increasingly into also how
+much opportunity AI can can give.
+Um
+but of course, it's such a such a tricky
+week of geopolitics this week, so. I
+think if no one's contesting that
+productivity will go up in societies. I
+think everybody's aligned to that.
+Uh
+the only question is should you be
+People with most risk capital will have
+the best models by virtue of how much
+money they pump into those models.
+But
+if these large model companies are going
+to cannibalize
+the end product if you build on top of
+them, I think
+for a young entrepreneur, it's important
+not to be short-sighted and
+kind of like diversify and hedge what
+they build on top of.
+Uh not
+it's not a it's not the right analogy,
+but not end up in a world where
+an Android or an Apple can charge you
+20% fee to live on that platform, but
+use more open-sourced versions and
+diversify that risk I think is important
+today.
+I agree that like, you know, you need to
+take a like a longer-term view and
+it's like the the the starting point
+cannot prevent you from being in that in
+that in that long-term. So, you know, if
+you if you if you can accelerate your
+value delivery by building on any of the
+platforms, it's fine.
+But
+if if there if you think, you know, as
+an entrepreneur, if you think that any
+of those platforms might take over your
+space in the next
+few years,
+um then yeah, then you need to be
+Because these platforms have to make
+money somewhere tomorrow. I saw OpenAI
+is experimenting with ads for the first
+time, but
+to justify those valuations and to stop
+burning money, they have to make money.
+They do, but it's like almost the you
+know, the
+um
+like Google will have so much advantage
+by potentially running longer with all
+the infrastructure and not doing ads in
+the same way. Yeah. Um so, we'll be
+we'll be Yeah, I'd say it's it'll be an
+interesting one. But I I like you know
+like I I I see a company built on top of
+a lamps voice visual. I think that the
+domain the domain combination like if
+you know domain extremely well, then the
+AI model this you know gives you a good
+starting point but then integrations
+with the system the legacy systems of
+how you deliver that telephony
+the how you bring the notch that will
+take so much time then like building the
+trust with evaluations monitoring that
+will take a lot of time. Um so I think
+there's like so much opportunity for
+entrepreneurs to just take
+any of those models
+go deep into domain and combine both
+best of both.
+We've been flirting with the idea of
+building a social media platform in
+India.
+How do you think
+>> With the Zerodha or separately?
+Separately. Uh
+Zerodha is more like fintech asset
+management broking. Uh But you can do
+like a super app effectively as you know
+it's a You know super apps have never
+worked in India. A lot of people have
+tried it. Actually outside of China
+they've not worked anywhere, right?
+Really. Yeah, I I say I'm wondering
+whether in
+uh yeah Do you think that has something
+to do with
+>> You know I have an example where it did
+work which is like
+an interesting one.
+Uh oh yeah the the um in Ukraine they
+have a super app which I think is
+brilliant. Um
+Uh uh uh
+Also we have a pleasure of working with
+with their government uh and where they
+are trying to create the first digital
+government but that that that they have
+a Diia app. It's effectively a citizen
+support app where you can ask about the
+the benefits programs employment
+programs the the the different different
+the um
+things that are happening in India um
+and that's how it started. So like
+effectively an app that every citizen
+can have. Uh of course the passport
+information um
+visa information etc. that you can
+travel and ID yourself with. But then
+they have multiple um ministries
+and the way they operate. Um so they
+have multiple ministries where
+you have tech resources
+embedded in those ministries. So,
+foreign affairs will have a few
+engineers working there.
+Internal affairs will have that.
+Education and its ministry will have
+that. And now those people
+try to
+figure out how to automate part of of of
+of the government work and then then
+bring it back to the digital
+transformation ministry.
+Um, which is responsible for the citizen
+support app. And now what has started
+happening is that it started adding
+modules across the entire government.
+So, now you can have health care
+information.
+Now you can have education where you
+have personalized content
+for you based on things that you know.
+And and I thought it was brilliant. It's
+and what we do with them is now help
+bring the voice into the equation so you
+can communicate and call a lot of that
+or you could learn by speaking. Uh, but
+you literally have the all the modules
+deployed across the government services.
+And I I thought it was brilliant for two
+reasons. One is like that you embed
+those resources like in a AI world it
+feels so right. That's that's that's
+like as I think about young
+entrepreneurs building the companies
+like you want of course engineering
+talent but you want the engineering
+talent and and sales and go to market
+and and and and and and and finance and
+and like all divisions because it can
+help get smarter. Um,
+so that I like it for that and two,
+despite everything that's happening
+there, they are actually can
+truly from everybody worked with leading
+the way of like the one of the best apps
+that that I've seen. In places like
+India,
+uh, there's the David and Goliath
+problem. When you're David, everybody
+loves you when you're starting
+something.
+When you become a Goliath of a company,
+inherently people dislike large
+corporations
+in a in a strange way. It's like almost
+everywhere a little bit.
+>> Yeah, yeah. Even in America I think
+there's a little bit of anti-incumbency
+and a rebel inside everyone and hence I
+don't think a super app works in places
+like that. Why did you want to start a
+social media?
+Uh
+I believe social media is broken today.
+Uh we were looking at data from a bunch
+of people that
+the really young people, 16 to 20,
+uh take Snapchat for example. They might
+be spending
+They might be logging into Snapchat the
+same number of times, but the amount of
+time they're spending on it is
+significantly lower.
+If you take Instagram, there's
+become almost no organic content. Like
+Matty will not post a picture of his,
+you know, I don't know you having a
+drink on a weekend, nor will I, or nor
+will anybody, none of my friends.
+It seems to be a place where brands are
+showcasing different things and
+influencers are
+trying to sell one thing or the other,
+either
+consciously or subconsciously.
+Uh
+To have an app which
+is not governed by an algorithm
+which kind of insinuates and
+incentivizes
+a reaction in you by triggering uh hate
+or uh
+uh emotion that I don't think is
+conducive in the long term, I think is
+useful. Also, I don't like the fact that
+a foreign nation controls the algorithm
+that defines the
+mood, nature, and evolution of the youth
+of my country.
+And in the incentive side, do you have a
+take of how like how you change the
+incentives to get people to post the
+organic side? Uh
+I think we're thinking of a very like
+very tight funnel on the top where we
+control who enters the app, like
+incumbent social media probably has
+bots engaging with you and trolls
+engaging with you, and I don't know how
+much of it is organic and how much of it
+is not.
+But,
+the idea is to have a place where real
+people can connect with real people,
+speak about real things without
+I don't think anybody can take out bias
+all together, but with significantly
+lower bias, and a place which is safe to
+have discourse. You know, I I might
+agree with you on something, I might
+disagree with you on something, but I
+don't think there is a place or
+ecosystem today where you can have that
+conversation. So, we hope to kind of
+create it. But, I'd love you know,
+advice from you.
+Broad thoughts on what should a new
+social media have?
+Also, how voice
+plays a part in whatever the newer
+version of social media is.
+I First of all, I think you're you're
+not like the aspiration or the idea like
+I mean
+I I agree with I like
+I hope even the current social media
+platforms will get there, too. Like you
+you know, like I think there's a clear
+aspiration for them to have like a
+little bit more of the positive
+sentiment rather than kind of the the
+the the the fear driving the the the the
+algorithm. And I I don't know if you
+know, like I don't know how this will
+get figured out yet, but there's
+definitely this element of like
+authenticity being now the
+the way to go. Like nobody wants to read
+like a corporate, you know, like
+manicured press release statements, and
+I think that's that's great. So, if I
+were designing social media, it's like
+how do I get more of of of that part
+would be a like one of the key elements.
+Um
+I'm thinking through through both the
+the kind of the voice aspect, and um
+Um do you know Airchat, by the way? Do
+you see Do you have you seen Airchat? I
+have seen Airchat, yes. They're trying
+to build like a social media based on
+voice and podcasts.
+>> Mhm.
+We do have that moat that we already
+have
+Like I think our podcast is very like
+entrepreneur heavy. We try and tell
+people how to A start a company and then
+we try and help them on the path of
+starting a company. We have a grant, we
+give them some money, we
+try and build a network for them to go
+out and build.
+Um
+so it can be pivoted
+around
+a podcast not just of mine, but of a
+bunch of people who have the same
+outcome in mind.
+So maybe you know I kind of starting the
+kind of opposite way on the on the voice
+side first. Like I could imagine the
+whole interface very being very
+different where you you kind of
+the same way you would imagine Alexa or
+Siri delivering you the knowledge or
+some version of of Jarvis where like you
+wake up, you want to learn what happens
+on the social media and and it kind of
+summarizes things that are interesting
+to you and you can ask questions, go
+deeper. Like for me that would be like
+part one where social media comes with
+like embedded assistant that kind of
+keeps you up to date on what's happening
+and you can engage with that. Where
+where I could like oh leave a comment
+here or hey engage with this part or
+respond to this person and you could you
+could like imagine both responses both
+being text or voice directly. So that
+that would be like a first like a very
+shift into like the static timeline view
+into more of like interactive companion
+view.
+Um so that would be one component of
+this.
+Two.
+Yeah I'm I'm kind of I'm hesitating
+because I'm thinking like how would I
+incentivize the people and that's the
+tricky part, but like
+I do think that you know if you were
+if you record a video message from you
+like that's that's great. Second to that
+you record audio message, image, then
+text. So if you could have
+a voice as part of that would be great.
+Simple version of that on social media
+could be like you know you write a you
+write a post or you write a an essay and
+I can listen to that in your voice and
+and and and enjoy it, but
+that that kind of part of how I can
+leave the messages and comment
+across would be another another big one.
+Free, which is both on language level
+but on the voice level, making it
+straight international, translated and
+and and and and enjoyed across languages
+would be would be another one.
+But look, I think it's a very tricky
+tricky one in terms of like the
+incentive side. Like how do you shift
+that?
+You you know, you're probably more
+familiar given given
+given your work of like
+tokenized based or or like incentive
+monetary incentive base approaches.
+I'm not I I like
+I I can see this working but I'm not a
+big fan. I don't like this like kind of
+transactional approach. Like it should
+not be that. Ideally, you're like
+engaged because you're interested rather
+than because
+you think it can give you like the
+monetary reward. Like it should be a
+secondary versus primary effect. Um
+I think you know, like that that what
+what's shown to be working I I think the
+verification side I would keep the
+verification side. I think it's valuable
+for people to know that the the other
+side is is a
+a real person.
+And then over time there'll be a a
+question of how you verify for for human
+part. I think that's going to be another
+big topic, but I would
+I would have that. If I was creating
+social media, I would bring that as a
+big part of the equation.
+Um
+Yeah, I'm still thinking about the
+incentive part. Like how how would I
+incentivize the positivity versus the
+negativity and that's uh
+that's that's that's you know, like
+almost the world got at some places
+calibrated this way where negativity
+gets more attention and like how do you
+shift that? Is it It doesn't even have
+to be positivity. It could be
+neutrality.
+Positivity like you know, like like but
+then
+um
+Like if you're going to trigger a
+emotion, like say
+the emotion could be greed, the emotion
+could be to pontificate. By being here,
+you sound smarter. This is a bunch of
+people who are trying to feed curiosity.
+Uh there's a bunch of things other
+emotions that you can play with which
+are
+more
+on the right if the curve is left being
+negativity and right being positivity.
+You're more towards the right. No, I
+agree. It's it's it's you know, like I
+think the the key thing is you want to
+avoid kind of the algorithm just
+rewarding what gives the the highest
+uh knee-jerk reaction.
+>> Correct. Um and and it's like it's like
+if you could have a platform that like
+inspires curiosity and and like learning
+or like different points of view in a
+way that doesn't lead to just like two
+sides screaming at each other.
+Incredible. Yeah. I mean
+>> Maybe we Maybe we can work on this
+together. You can take care of the voice
+part.
+>> it. Let's do it. It's I feel like it's
+like it's you know, there's no yet
+there's no product in the space on the
+consumer side that has like AI enabled
+in the right way. So in the
+it's like
+there's no way I social product today.
+Maybe we'll catch up in London. We'll do
+a con call. I'll add my team and we can
+ideate. They have some ideas as well.
+Or in India. Yeah, yeah. You're coming
+in Feb, right?
+>> Exactly. And just two weeks. Yeah. Okay.
+Thank you so much Matti for doing this.
+I think we're out of time.
+>> [music]
+>> Thank you all for this much. We'll catch
+up soon. Let's catch up soon and let's
+thanks uh it's amazing to see how you
+support the ecosystem. So hopefully
+hopefully we can do that too and and and
+thanks [music] so much. Thank you.
+>> [music]
+>> How long are you there for? For a week.
+Yeah. Do you have time? Yeah. To travel?
+Yeah. I I'm I'm I'm going to be between
+Bangalore and Mumbai mostly, but happy
+to go I'll take you to Goa for a day or
+two if you have time.
+>> [music]
+>> What's in What's What is that What do
+you have offices in Goa? No, I have a
+house in Goa which is a lot of fun and I
+have dogs in Goa.
+>> [laughter]
+>> It's a It's like a
+beach town which is very relaxing.
+Amazing.
+>> [music]
+>> Yeah, we planned it. Thank you.
+>> Yeah. Yeah, I think If you're in London,
+let me know. I'll take you to I don't
+have dogs, but
+>> [laughter]
+>> I'll take you to cool place. Cool.
+>> [music]

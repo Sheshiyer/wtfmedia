@@ -1,0 +1,2863 @@
+[music]
+Let me know when you guys can start.
+[music]
+Ready?
+[music]
+>> Would you leave your kids with your
+humanoid?
+>> We're not there today. Like I would not
+let my like robot roam free for hours
+and weeks right now with [music] my
+young kids. Everybody talks about China
+is so far ahead in robotics. [music] Why
+is that? Yeah. I just don't believe
+this.
+[music]
+[music]
+[snorts]
+Hi Brett. Lovely to meet you. Uh what's
+behind you? Maybe we can start there.
+>> Hey. Yeah. Um so I'm I'm at Figure
+Offices. Uh we design humanoid robots.
+So these are robots that kind of like
+like kind of like move around the world
+like humans. Legs, arms, hands. Um
+behind me is our first generation
+robots, second and third generation uh
+humanoid robots here at Figure.
+>> Okay. So tell us a bit about yourself,
+Brett. Where did you begin? Where were
+you born? How did you come to build a
+humanoid?
+>> Yeah. Um so I was born in the Midwest
+here. uh in in the US on a third
+generation farm. Actually, [laughter]
+we um farmed corn and soybeans. Um and
+then basically since like middle school
+and high school, I started working on
+technology businesses and mostly in
+software. Uh and that led to basically
+[clears throat] basically now 20 years
+building tech companies. Um I spent
+about 10 years in software.
+uh ended up starting a company in 2012
+called Vetery and it was an it was an AI
+marketplace for recruiting. The goal was
+to basically help uh candidates find
+jobs and employers find great talent and
+that that whole process is extremely
+broken and hard. I ended up selling
+better uh for a little over 100 million
+in 2017 to the Deco Group is just like
+the largest recruiting company in the
+world. After that, I I really want to
+get into hardware. So, I started a
+company called Archer Aviation
+uh in 2018. And what we do is we build
+electric aircraft, electric vertical
+takeoff and landing aircraft. So, it's
+kind of like a takes off kind of like a
+helicopter. So, you can [clears throat]
+like put them in cities and it flies a
+little bit like a like an airplane. And
+it's full fully electric powertrain.
+And the goal is to basically help move
+traffic that's like, you know, in cities
+and move into the air so folks can get
+around a lot easier.
+And yeah, basically designed five
+generations of aircraft
+so far at Archer. Our current aircraft
+is Midnight is a piloted four passenger
+aircraft that we're we're flying now.
+Trying to get that certified in the US
+airspace with FAA. Ended up taking that
+company public about four years ago,
+five years ago. And then yeah, three
+three years ago I started Figure. So we
+we design we we we design and
+manufacture humanoid robots. And the
+goal the goal here at Figure is to be
+able to do everything a human can in the
+physical world.
+>> I have an investment in a company here
+in India which does electric taxis
+called aviation. How far are we really?
+Traffic is a big problem in India and
+you know I don't know how different
+Archer is cuz I've not seen enough about
+it but it's the typical electric taxi
+160 kilometers range on a charge meant
+to take off from hotels the the helipads
+on top of a hotel get to the airport.
+How far are we from a world where this
+could be more pragmatic? This is
+something that will be used by people. I
+mean we have aircraft today that are are
+that are flying fully piloted. Like you
+you have a couple components here. The
+the first is you you have to be in the
+right decade to make sure the
+technologies are all feasible to make
+this really happen. This is a really
+hard technology. Most of the problems
+and challenges here happen because we
+have a um there's probably like a 30x
+difference in energy density between
+like traditional fossil fuel say
+kerosene that you might find in an
+aircraft in an electric aircraft. um
+like what we find in batteries. There
+was the problem of just like building
+the technology and really making it
+viable. I I think we've shown at Archer
+that that is like fully possible today.
+I mean we we fly basically every week.
+Um our full scale aircraft at this point
+fully electric similar concept of
+operations we'd want to do in market. Uh
+at this point it's largely like a safety
+and certification and policy like
+basically like what's gating this is
+certification. uh in most countries it's
+it's governed federally where you need
+like um you know in Europe it's YASA
+here in the US it's FAA you need you
+need like basically a certification
+level at the at the federal level uh
+that then unblocks your ability to take
+passengers and make it ubiquitous uh so
+at this point like largely missing
+certification you then have like
+manufacturing and scale needed um but
+but the technology is certainly here so
+I I think within the next like 5 years
+we'll be taking passengers like paying
+passengers around in in airspaces here
+in the world on electric aircraft like
+this.
+>> And if that's true for America, do you
+think that will be the way forward?
+Do you think that replace human
+driven taxis in the near future?
+>> I don't think it replaces all like human
+driven taxis. I think it just takes a a
+large portion of what's like the tra
+like the basically the folks that are
+taking transportation today that might
+be going that might be spending like
+half an hour hour and a half in traffic
+which is sizable in some places like LA
+it's like almost 10% of like all the all
+the travel in the mornings and after
+work it's just a much better quality of
+life if we're not sitting in traffic all
+day
+>> would it also change short hall flights
+like say between San Francisco and LA
+for example which is 1 hour
+>> like my view is like all aircraft like
+all all aviation like all air transport
+will move electric here and I think
+hopefully in our lifetime uh it it's
+starting out with like very short range
+uh flights mostly because of like a a
+specific battery energy density issue we
+we have like um if you had to compare
+like a battery versus like what's in a
+like in an aircraft like say kerosene
+that there's basically roughly a 30x
+difference like in in like net energy in
+those two systems. So you you basically
+have an issue where like you can
+basically just go like 30x like like
+like less far. And then with with
+traditional with with with with EV tall
+aircraft, you're taking off vertically.
+You're using a considerable amount of
+power doing that versus like I say an
+aircraft that might be going from San
+Francisco to LA that might be taking off
+conventionally. But we're starting with
+like you know we're starting now with
+like these short uh these kind of
+shorter flights helping them um
+basically like move move passengers
+around. it it'll then happen regionally
+and then it'll happen at much larger
+like long longer distances. Uh the
+technologies needed to go like kind of
+like much longer distances are very
+different than what we're designing here
+today at Archer with EV tall aircraft to
+to get to like you know those level
+distances where you need to kind of like
+city to city traveling at distances
+you're going to have to redesign a
+different types of aircraft system to do
+that in my mind. [clears throat]
+>> Will that happen though? Do you think
+>> it'll happen for sure? Yeah, for sure
+it'll happen. So, if you could bet on
+a train, a car, a traditional plane, or
+a EV flying vehicle going between San
+Francisco and LA, you would bet on a
+flying electric vehicle.
+>> Electric gets you like I mean like we
+can design like some of the safest forms
+of transportation in the world, like
+flying in the air. Um, I mean, flying
+today, we're like is the safest form of
+transportation we take as humans. there
+will be like a large portion of folks
+that will travel between those cities
+like this in the air. I think there will
+also be a large portion of that that
+also travels uh on the ground whether
+it's train or tunnel or car where there
+there's so many humans now and so many
+humans are just moving into cities. So
+you just have like a real issue where
+like the infrastructure is not just like
+able to support this at this moment,
+>> right?
+>> And how did you transition from Archer
+to figure AI? Could you tell us about
+that?
+Well, I think like one thing that's
+interesting at Archer is like the
+aircraft is basically like a flying
+robot. And if you think about what we do
+at Figure Build Robots, you need uh you
+know, you need batteries and motors and
+embedded systems, uh uh like sensors,
+control software, uh a lot of the same
+kind of uh ingredients needed to kind of
+build like kind of any robot just in in
+general. So, you know, having built up
+Archer over the years, like got really
+familiar with those key kind of areas
+and um uh and integrating hardware and
+software together just overall. I mean,
+for me as an entrepreneur like working
+in hardware, I think like the humanoid
+robotics like or solving like general
+purpose humanoids is like the ultimate
+meta problem. Uh I think the end state
+for most things done in the physical
+world is done through a humanoid robot.
+At this point, I think we we will see
+billions of humanoids on the planet um
+in our in like our lifetime and they
+will do everything for us from things at
+home like doing the laundry, washing
+dishes, uh unpacking groceries,
+uh cleaning up the house to we will see
+billions in the commercial workforce in
+um areas of like [clears throat]
+logistics and manufacturing and
+healthcare. Our core thesis here is that
+the world was designed for humans like
+we've we as humans designed it for
+ourselves. Uh so everything we
+everything you do we do all day is is
+designed for the way we look and feel
+and the whole world was for it. Even you
+know we're drinking coffees and teas
+right like with the cups that we hold
+and the the door that we like exit from
+here and the stairs and all the tools we
+use were all designed for our our um
+basically for our the human form. So our
+belief here is that the humanoid is like
+the ultimate like general purpose
+machine. And so what we have here is we
+have a a deep focus on designing like
+really incredible hardware systems. Uh
+at figure here we design basically the
+entire hardware and software stack on
+the robot almost entirely ourselves at
+this point. So that goes down to like
+the motors and battery systems uh all
+the electronics wiring um kinematics and
+structures um and in and sensors. Uh and
+then two is we we spend a large amount
+of time on the AI side. This is just
+like an incredibly hard problem. If you
+think about like the humanoid robot, the
+ones you see behind me, every robot has
+about 40 different joints roughly on the
+robot. And um a joint has like a motor
+that can spin roughly 360°.
+So the amount of um the amount of
+positions the body can be in is equal to
+like um 360 to the^ of 40.
+And so that means that uh there's more
+potential states a robot can be in than
+atoms in a universe, which is like
+always crazy to think about, but it's
+like much more. So you you can't solve
+this with code. You have to use advanced
+AI like neural nets to be able to make
+this really work well. So we spend like
+a a large fraction of our time outside
+of hardware on just like how do we get
+neural networks to control the robot and
+do the things we we would need to do
+like like real stuff that humans would
+do. Um, we're about three and a half
+years old now. We've shipped now three
+generations of humanoid robots and we've
+been able to demonstrate that humanoids
+can do like useful humanlike work now
+fully autonomously and and in most cases
+like with neural nets all the way down
+the stack.
+>> I thought of this recently. U I didn't
+realize how close we were to humanoids
+being in the actual world. And when I
+thought about that, I'm like, "Wow, I
+should have really
+looked this up earlier, researched it
+more because it feels very, I don't
+know, dystopian or utopian to picture a
+world where I have something that looks
+like me walking around my house,
+probably sitting in my office and in the
+car sitting behind beside me." It It's
+kind of a weird feeling to get your head
+around. Maybe because I'm not used to it
+and I will get used to it soon. Yeah, I
+think like it just feels like such a
+sci-fi movie a bit. Like when you see
+these things working, it feels just so
+like uh it almost feels like it's not
+possible to go do and make it work. We
+have them walking around here in the
+office and it's just like still not like
+used to it. Just like it looks
+incredible like seeing robots out and
+about just like walking all day and
+doing stuff.
+>> Does it feel scary, Brett?
+>> Not to us. No, we feel really energized
+being around the robots and and seeing
+it. Not not scary. I mean, we we built
+them like we really understand the
+limitations and uh we've inherently
+tried to intrinsically design the the
+hardware for safety and also the the
+whole system for safety. So, not scary
+to us. Like we're we're around them all
+day. We've we've made them. We've
+birthed them. Like, you know, we we
+bought them here. So, it just like it's
+something really special about it where
+it doesn't feel like it's poss
+I think the robots we have like are
+working really well. And to see that
+happening, you're like, "Oh man, just
+give us five or 10 more years. What
+would that really look like?" It feels
+like it's just too soon for the world a
+bit. Um and um but but it's all
+happening now. Like we're really
+spending a lot of time trying to build
+like true general purposeness, like be
+able to talk to a robot and have it do
+most useful things you'd want it to do.
+That's like a really hard problem like
+um it's a it's like largely a software
+and AI problem at this point uh for us
+to go solve but we can do it like if you
+we like we announced um you know
+recently figure 3 our our third
+generation robot which is right right
+behind me and we we we like we put out a
+bunch of content about how the robot's
+doing a bunch of stuff in homes and even
+in like the more like workforce and the
+robot is doing all those tasks like it's
+doing all the manipulation for all those
+tasks um and actions all through a
+neural network and we did maybe you know
+a dozen dozen and a half or so use cases
+there and under like in a few weeks with
+neural nets at places the robots's never
+seen you know before a month before that
+and I just like that that's the
+ingredient you really need to scale at
+really like like large levels like you
+need like neural nets on humanoid
+hardware and we're seeing that now so it
+it just shows us how like how close we
+are I don't it's not something we'll
+solve in a month but it's certainly not
+something that's 10 years away at this
+Can we start with you breaking down a
+robot, Brett? What's inside? Uh, I think
+the first thing you could maybe start
+with is vision cuz I did a little bit of
+research on vision and how a robot is
+seeing and how it has
+spatial intelligence in a way, but would
+love to hear from you like I can see the
+robot behind you. What's in it? Yeah,
+let me start with like the basics of the
+robot and build up to to to this in
+terms of vision. Um, vision is kind of
+like higher level in the stack, but low
+level on the robot. Uh, it's basically a
+bunch of motors and we have like roughly
+40 of them on the robot. Uh, we call
+them actuators, but they're like similar
+electric motors that we would see out in
+the world today. We have a bunch more
+sensors and transmission and other
+things in the in there that make it much
+more complicated. But you can think of
+every joint as having an electric motor
+inside of it that is getting commands
+from a central computer and like what
+like how to output torque or how how to
+basically move joint positions. Um that
+is powered by a battery battery system
+like basically a traditional like
+lithium ion battery pack that you might
+see electric car or electric aircraft.
+>> And where does the battery sit?
+>> Yeah, it's right here in the middle of
+the torso in the chest. Um, so we have
+basically like bunch of motors. We have
+a battery system in the torso and then
+we have a computer uh both a CPU for
+compute and we have a GPU for inference
+for our AI models sitting in the torso
+next to the battery system.
+>> And how much of the compute happens
+physically on the robot and how much
+happens outside of the robot?
+>> Today all of our compute happens all on
+the robot. So we do everything on board.
+>> Will that change tomorrow?
+>> Some of the compute will start moving
+more and more offboard. uh there there's
+naturally some compute that needs to be
+done here on board. We need to run uh a
+decent amount of the neural nets at uh
+kind of like basically a couple hundred
+hertz like a couple hundred times a
+second. There's no way you're going to
+be able to do that fully offboard. The
+robot uh would just be too slow. We you
+can you can generally offboard you can
+maybe get a uh you know you can maybe
+get two to 10 hertz or something like
+that. uh you know you generally can
+communicate a few times a second but we
+we need like 200 times a second minimum
+on board the robot. So we have a lot of
+like onboard compute today sits on the
+robot to tell it how to move its motors
+and limbs really fast speeds. You got to
+think like every little time second the
+robot's n is repositioning its entire
+body to balance. It's repositioning its
+hand and fingers maybe heads moving to
+start seeing something better. And it's
+doing that closed loop, meaning like uh
+based on where the hand's going and what
+the task is going, the robot's
+re-evaluating what to go do. And it's
+doing that uh you know a couple hundred
+times a second. So we have a naturally a
+lot of compute here. We will offboard uh
+we we can offboard more and more of the
+kind of bigger brain thinking stuff over
+time into the into the cloud. Um, but
+today we do it all on board mostly
+because we don't need a uh we don't have
+to worry about having a network
+connection like you don't need Wi-Fi or
+5G in this case and we can operate at
+really fast speeds and we know we can do
+the work like a human you know well I
+guess some humans can't can't work
+without a phone or network but like you
+know humans really can do stuff without
+like a a real internet connection and
+that's a similar how you think about a
+robot too. It' be a bummer if the Wi-Fi
+went out and the robot can't do anything
+uh anymore. So our computer lives in on
+board. Uh we have a ton of wiring, a ton
+of distributed like electronics. Uh and
+then we have a bunch of sensors inside
+the motors and the rest of the robot to
+understand how to balance and feel
+forces and track positions. So um like
+traditional robots that you see out in
+the world today, if you put your hand
+harder and harder on the table and keep
+pushing while while not moving, the
+robots really can't really understand
+what's really happening. Our our robot
+can feel that force like a human could.
+uh we have we have basically torque
+tracking and force feedback in every
+joint across the whole robot and that's
+really important to help balance and we
+have to touch the world and go out there
+and grab things. So we really we need to
+understand those forces. That's also a
+tricky sensor to integrate into the
+robot uh here internally and have we
+have cameras. So we see in pixel space
+on this current generation we have I
+think eight cameras. We have uh one on
+each palm and the uh uh of the of the
+hands and then we have them in the head
+the rest. So we can kind of see around
+ourselves. Uh so the robot sees through
+a camera. uh that camera can update, you
+know, like pretty quickly and that feeds
+into an onboard computer that then
+ultimately tells what the motors what
+what to do. So that's, you know, roughly
+what's really happening. So the uh the
+robot's reasoning in pixel space. It's
+it's going around like a self-driving
+car. We don't we don't have LAR, so like
+a camera based self-driving car, and
+we're like we're reasoning through the
+world uh based on that to do work. I'm
+no expert at this but if one were to say
+the mod's law is starting to fail where
+the number of transistors you can put on
+a chipset will not
+uh increase at the pace that we have
+seen they won't continue to double
+longterm to increase
+compute on board
+is that possible to have enough compute
+on board to make the robot never need to
+connect to a network per se
+>> yeah we we run fully on board today in
+commercial settings uh every every day
+right now. So without a network. So we
+one of our we have a commercial customer
+here in the US we've now been running
+with for over 5 months now every day. Um
+we we we put this out publicly. It's
+with BMW. That's a fully on board uh
+onboard system that's doing all the
+reasoning on board of what the robot
+should do. What what you're seeing in
+the world is um
+you know compute even if more law slows
+down compute's getting better. So you'll
+be able to put put more on compute over
+time than you have before. So our
+current figure 3 robot has like more
+compute like better compute than we had
+in previous generations. Uh second thing
+is like AI models that we're putting on
+are getting smarter and uh like it's
+weird AI models are one times getting
+bigger. Uh and uh but also also some of
+the the smaller models are getting
+smarter and and better. Um so that's
+also in our advantage meaning we can
+take um kind of bigger like reasoning
+models that traditionally have been you
+know maybe a trillion parameters or
+whatever billions of parameters. uh
+these these can be quantized now into
+like some smaller models that we can run
+on board that are also smarter than they
+were previously a year or two ago. So we
+have models getting smaller and smarter
+and we have compute getting better. So
+those trends in general are are in our
+favor and today we're running robots are
+fully on board so we don't have to wait
+for like a oh let's hope compute catches
+up or models get you know some some
+point in space. Um
+we we can do it all today. So uh like we
+really we really today have a path where
+you know fully on board we can run
+robots daily now in in commercial
+operations. The big bottleneck for us is
+we're
+we're trying to solve like general
+robotics here at Figure. And that for me
+for us means like putting a robot into
+like an a home it's never been in before
+and just through like a speech prompt
+like a like a voice prompt. Like ask it
+to do something like this could be like
+I'm going to be gone all day. Make sure
+my laundry is done before I get home.
+And you want that task done and done
+correctly over like a very long time
+horizon.
+If I were to think every task the the
+ingredient or the input is energy like
+me as a human I can eat a sandwich and I
+can do x amount because I can convert
+that into that I can convert the energy
+of that sandwich into something. Do you
+think the robot or the humanoid ever
+gets to that point where it becomes more
+efficient than a human in utilizing
+energy or creating energy
+>> today? we're like far like like less
+efficient than a human. Um humans are
+like are like the we are like extremely
+efficient. Um
+like our you know biological neural nets
+are really efficient. The way how much
+energy or how much power we use to exert
+like walking and movements and things
+are and even just sitting here idle is
+much better than we get on the robot
+today. Um I see no reason over time like
+you know we're seeing power drop now
+across our robot systems like you know
+um there's there's there's a bunch of
+work that we're doing now there's like
+there's like the computational work to
+get more efficient and then there's like
+the mechanical work to get more
+efficient uh overall that we're look
+looking at both of those two are like
+we're getting improvements on year to
+year like our robot to robot um I think
+we will approach we see a path like
+approaching humanlike kind energy
+consumption. Uh it's going to be really
+hard. Like you're you're talking to us
+now in the early days of this like we're
+like, you know, it's like way more like
+16 years ago. It's like it's it's early.
+It's just now happening. We there's a
+lot of stuff on our road map that we're
+like, "Oh man, we got to go like solve,
+you know, manufacturing at scale, all
+these different things." And uh reducing
+power uh footprint is is is certainly
+one of them. I wouldn't say it's a
+blocker today. Like we can like we can
+do work in a lot of cases almost the
+whole day depending on what the task
+looks like. um in and if it's not that
+if it's you know a task that has a lot
+of locomotion and movements we can do
+kind of like human shifts in terms of
+time span
+>> is that the ultimate test like if a
+robot were to have general intelligence
+with the same amount of energy it should
+be able to do not more of one task but
+more of any task a human can do.
+>> Yeah. I think like ultimately yeah like
+we would like maybe judge this on how
+much watts it really took to do these
+like like uh like like longer horizon
+tasks. I think the near-term thing is
+like if you got a robot in your home and
+you speak and you voice prompt it like
+what percentage of those things can they
+do fully and in like a human and learn
+from those mistakes. Like we make a lot
+of we do a lot of planning like doing
+laundry it's like okay well uh like
+where is the laundry baskets or what is
+the laundry other than the rooms like
+which rooms? Okay, this room upstairs or
+downstairs and you have to do a bunch of
+like like really quick like probably
+subconscious planning that's happening
+and then we got to go off and like
+actually, you know, uh almost like
+serially uh complete those tasks.
+There's a lot of like local failures
+that are happening. You go to a room and
+there's a laundry basket there. What do
+you do? Like a a robot's got to be able
+to reason through that whole thing from
+A to Z. And then in some cases could
+like for laundry could take hours. Like
+the ultimate test right now is like can
+we get a humanoid robot to do those type
+of things? And we we've seen that in
+like LLMs. We've seen like a like a a
+robustness to like almost like humanlike
+intelligence that we're like we're
+tapping into. And we're trying to do
+that now in robotics. Like how do we how
+do we get this like this machine to
+reason about the world like like a have
+like um common human common sense. And
+um I think that would just be like a
+that'll be incred when we hit that.
+You're going to have a robot in your
+home and you're going to be doing this
+and it's just going to be incredible.
+And then from there, yeah, getting to
+more efficient systems. Um, getting the
+cost down. I I think you're going to
+spend a lot of time with the robots,
+like as like almost like a companion.
+Like they're going to be in your home.
+They're going to be with your kids.
+They're going to be they're going to
+know everything. Like they're going to
+have like almost like this infinite
+context window for memory. Like I think
+you're going to like talk to it and it's
+going to know if you like it's
+emotionally from an EQ perspective. It's
+going to know if you've had a tough day
+from just the sound of your voice and
+when you come home. And uh I I think um
+there's a really important like
+>> do you program do you program EQ through
+how do you teach a robot to have EQ?
+Does it measure your voice every day and
+you have to like give it data as to this
+day I was feeling a certain way? It
+learns like that. the best like AI like
+you know um [clears throat] call like
+native audio voice reasoning models
+today
+can do a decent job at like really
+understanding EQ well I would say it's
+like it hasn't done as well with like I
+think IQ has been a big focus for like
+the whole space now of like information
+retrieval for voice models and things
+but uh there's a real path to getting
+voice models to like really high Q a
+high IQ and um that could be like really
+understanding your tone and your
+emotional state when talking. Uh these
+are like fully solvable things. Uh it's
+in the world model. It's in the data
+sets and it's uh a matter of like
+accurately training new like AI like
+voice and reasoning models to be able to
+understand this well and do well at
+this. But this is a this is a solvable
+thing. We we we were spending time on
+here internally. I would say in the next
+year or two, you will have like voice
+like AI models that you're talking to,
+whether it's on a phone or it could be
+through a robot or whatever that you
+really won't be able to tell if it's a
+human or machine anymore.
+>> And going back to the robot, you said
+there are 40 joints, 40 motors, eight
+cameras. The torso has the GPU and the
+battery. What else is in it?
+>> We have an order of like a thousand
+parts. So, it's like it's not just like
+a uh as in Petros is like here are those
+things.
+>> What's in the head?
+>> Um the head has like cameras. We have
+like like the normal network connections
+you would want like 5G, Wi-Fi,
+Bluetooth. Uh we have in figure three,
+we have three screens. We have a front
+screen like an OLED LED. We have like
+two side screens. We can like I'll talk
+about that. We have a we have a speaker
+and mic a new speaker and mic system
+that's like really actually really good
+for figure 3. So, we're spending a lot
+more time as like speaking to the
+robots. I I think um like like just
+voice is going to be the natural UI into
+the robot. Like you're not like maybe
+you have an app on your phone or
+whatever, but like voice is how you're
+going to communicate most of the time
+through the robot. Um and if you're not
+with it, you'll text it. like the like
+like that is going to be such an
+important part of the ecosystem here for
+>> is that the new form factor for AI
+overall to communicate with AI cuz a lot
+of people have been extrapolating what
+could be the next form factor after a
+cell phone. Do you think it would be
+something voice related? How does a man
+communicate with a computer tomorrow?
+Yeah, my view is that like voice is the
+natural like UI into artificial super
+intelligence here in general whether
+it's like a digital systems or physical
+systems and voice is going to play
+extremely important role in all of this.
+I think you will have both language
+devices like almost like next generation
+like kind of like iPhone level products
+and I think you will have humanoids and
+I think they will beworked really well
+together. Whenever I say this to my
+friends, they ask me, "If you're sitting
+in a meeting, you can't speak."
+>> Yeah.
+>> To interact with your device, but you
+can pull up a phone.
+>> Yeah. The the reality is like the
+there's a couple things like as we think
+about like the next frontier of devices
+and and stuff. Uh the first is like
+speech is just not good enough today.
+Like our voice models are not good
+enough today for us to really understand
+how this could be like ubiquitous and
+it's like the main UI. They're just like
+they're they're B. They need to be A+.
+They're not good enough in in a lot of
+areas. you they talk over you, you can't
+interject the sometimes the IQ gets
+collapsed in training and it's just not
+very intelligent and when tool calling
+there's a bunch of random issues but
+that is going to get really good over
+the next 12 to 18 months we will see in
+12 to 18 months voice models approaching
+human touring tests and that's not just
+from an IQ perspective and information
+retrieval it's it's EQ as well as we
+just talked about naturalness um so I I
+think I think um that's one two is like
+the the models today just don't have
+enough context
+We're missing like the like when we're
+like going out in the world and we're
+talking today like all this it's being
+missed like the the models don't
+understand this. What it's forcing us to
+do is it's making us go to like a
+computer and type it type in prompts and
+ask it things and tell it like hey I'm
+like I have this thing and please help
+me here. But if you had like all this
+information like you had like a limited
+uh memory uh and retrieval of all this
+information we're having all all
+throughout the day every day uh these AI
+systems would need like very little
+understanding of what what is like
+currently in context or like what you
+need to do right now to help you. My
+view is like the next generation of
+stuff is basically language devices and
+humanoid robots and that that is like
+that'll go extremely far in my mind.
+Will they replace the traditional phone
+or computer?
+>> Yes. Every phone and computer was built
+preAI.
+The they the all the hardware we have
+today in the world needs to be
+completely rebuilt from scratch. Think
+about it like this. We have like
+humanlike intelligence in like the
+digital format now and we we are
+communicating with this through like
+really old pre-AII devices. there's zero
+chance or very low chance that they're
+they were somehow built specifically
+well enough for this new technology. Um
+in my mind there's it's it's not they're
+not optimized well enough for this. So
+you need a whole new class of devices
+and um robotics is a part of this story
+to basically be able to um take this
+like what's happening right now is we
+have like this massive AI overhang where
+AI models are able to do incredible
+things uh and like I would call it like
+the tech community like we have like
+humanoid robots doing incredible things
+with AI. We have like I can ask you know
+computer using agents to do crazy things
+now on computers without any human
+involvement and then most of the world
+is using AI systems for information
+retrieval like a Google search and it's
+mostly a constraint on hardware at this
+point.
+>> So this is a digression Brett but I was
+investing in a hardware company recently
+called nothing the phone company
+and give me some advice. I was playing
+off this thesis that a lot of the large
+language models are getting very
+democratized and the world will end up
+at a point where they're all a commodity
+and they're very similar to each other
+and hardware will be the new
+differentiation. Does that kind of make
+sense?
+>> It's a huge differentiator today cuz
+like people are like a lot of folks are
+just scared of building hardware. So you
+have like a lot less folks just even
+spending time on it and then hardware is
+just like so much harder to go build
+than software. So you have like a bunch
+of like this like collapsing uh
+conversion funnel of folks that like who
+are spending time on it that really
+knows what they do and then most people
+work on hardware build crappy hardware.
+So you have like you have a problem
+where like there's just not a lot of
+good hardware in the world and a lot
+have failed trying to do this and um you
+know at this at some point you will buy
+a robot because of what it can do from a
+safety and cost and performance like you
+want a robot that can't just come in and
+just do one thing in your home. You want
+to do everything and be fully general
+purpose. And then you want to getting
+better and learning. That's a data
+that's a data problem. So the more data
+we're feeding into the system, the
+smarter it's going to get and less
+mistakes it's going to make. You want
+like a you don't want like the dumb
+robot in your home. You really want a
+smart robot in your home. And everybody
+does, right? You don't want the dumb
+employee at work. You really want the
+like the fastest logistics robot or like
+the you know the highest performing
+manufacturing robot. So at some point
+the mode becomes like what can the robot
+capabilities look like? That's a data
+problem in some ways and you need the
+hardware and AI systems to do that. You
+need the models and you need the AI and
+the in the robots but ultimately becomes
+data. I think same with those devices
+you were talking through like at some
+point these models will know everything
+about you. It's almost like a really
+good executive assistant. A really good
+executive assistant like just is really
+high performance but like if you swap
+that person out and get a new person the
+next day it's like it's back to zero and
+it's really hard to get off the ground
+and start working. So I think data is
+going to be incredibly important. Um
+today we're not capturing most of that
+throughout the day. So there's a huge
+opportunity to really capture this in my
+mind. If you do compute on board and
+you're competing with say a large
+language model which is doing compute in
+a data center for example or anywhere
+will that
+integrated with a piece of hardware
+maybe not humanoid but any kind of
+hardware
+not be smarter than a humanoid
+>> the onboard model you mean versus like
+the offboard model.
+>> Yeah,
+>> we can run offboard models today. This
+is not a problem. like we we've actually
+done offboard models. So we we have one
+thing we have in the robot like on GPUs.
+We have a we have a B we have an LLM on
+the robot.
+>> We have a vision language model very
+similar to what we would like all use
+today um out and about in the world. We
+use that for like semantic reasoning. We
+use it um to really understand
+[clears throat] the world around us. And
+um if we can find a better model off
+board we we will use that. like there's
+no technology um blocker for us using
+like a trillion parameter model in the
+cloud if that makes sense.
+>> But do you think that's the way forward?
+Is that where you would be 5 years from
+now? Offboard.
+>> I think you will certainly have offboard
+reasoning. I think you will have I think
+you'll have both. I think you'll have
+offboard like a big brain offboard that
+you need to talk to that can do very
+complex um maybe planning and reasoning.
+You'll have on board something that can
+move like much faster and much more
+reliable. And then you even have smaller
+even smaller models living on board call
+we call it the S1 level like system one
+level that are doing like very fast um
+kind of like like really quick closed
+loop motor control.
+>> If I were to buy a robot and all of the
+compute and memory is on board. Isn't
+there a certain amount of learning
+beyond which it can't learn anymore
+because it's gapped to capacity?
+>> There's an area of like fleet learning
+here that's really important. We are
+taking data from all the robots and we
+are consolidating that out to like our
+our servers here at Figure and we're
+training on that. And what we're seeing
+now is we're seeing like incredible
+transfer from other robot data that's
+helping the current robot do better
+>> which is like which is unbelievable.
+Like moving packages and like logistics
+line is somehow helping us fold laundry.
+It's like the numbers.
+>> I watched that video by the way. It was
+really nice. Very very interesting.
+>> Yeah. Thanks. I mean like that type of
+stuff is helping like other tasks and
+it's just like that's kind of crazy,
+right? Like the only technology we've
+ever seen that work in is like is is
+like is deep learning and it's working
+and we saw that with LMS a bit. So I
+think um that's one and two is you
+really want the robot as it's making
+mistakes in the real world understanding
+and learning from that um like having a
+reward for it. So like you really want
+if the robot's like you know screwing a
+cap on top of a bottle and it's messing
+up. You really wanted to understand how
+to get better at that over time. It's
+what humans are do through trial and
+error kind of like selfplay. And so you
+have like an aspect of like fleet
+learning that you really want the robot
+to learn from. And two is you want the
+robot to get better as it's doing like
+tasks locally um over time. The thing I
+keep taking away from more and more is
+um the the near-term thing we're seeing
+that's been just absolutely astounding
+is we've been able to take one model,
+put all data into it and see all tasks
+get better. And you know we like like
+basically like really strong transfer
+and that's um that's like really
+important here for general purposeness.
+We really want the robots to do a vast
+amount of things and we want the we want
+the fleet to continue to learn from it.
+The good news is like um I don't know if
+you have kids but I have like three
+kids. They all like um they all kind of
+need to like learn on their own like
+learn to walk and like learn to do their
+own thing. You can't like tell them how
+to do it. They have to kind of like
+learn through like trial and error.
+That's not how humanoids learn. Like
+once one robot knows how to do like
+logistics, that's the same neural
+networks we can put to every single
+robot in the fleet and they can all do
+it. And so you have this weird scaling
+law here for humanoids where once like
+one robot knows how to do it, every
+robot in the fleet, if you have millions
+millions of robots to that point would
+be able to really understand how to do
+that task is going to make scaling just
+absolutely insane once we kind of figure
+out how to like uh like really run this
+flywheel of data acquisition flywheel
+and loop and training loop. uh really
+quick. Uh it's it's going to be able to
+like robots are going to wake up every
+day and and know how to do new tasks in
+the world.
+>> Could one argue that because you're
+generating the data to learn from? I
+would say it's synthetic data in a
+manner will never compare with data in
+the text form or you know data I can
+scrape off the web. It has significantly
+more data points if I were to teach a
+model on language versus here the robot
+doing something and learning from it.
+>> Are you trying to make the point that
+like learning from like text? Basically,
+you're saying like text is so much more
+dense than like
+>> maybe like Yeah. You know, I think they
+all serve like a little bit different
+purposes. There's a lot more data out in
+the physical world than there is in the
+internet. We've kind of like um we've
+like tapped out all the kind of tokens
+on the internet at this point. So, um,
+we think like being able to explore the
+physical world is like extremely
+important for like overall intelligence.
+Um, there's like, you know, there's a
+thought process here we can go through
+of like if if we're actually not able to
+like change our environment a bit as
+humans, like can you really achieve like
+real real intelligence? Um, and uh, so
+we think we think like touching the
+world and interacting with the world is
+like extremely important on the path to
+like artificial super intelligence for
+humanity. And it's like a it's it's a
+very large data set uh that we need to
+go out and collect. Um I think the as it
+relates to the the like text
+pre-training that we've seen in the
+world that I think that's going to be
+extremely important for semantic
+reasoning and almost like this like like
+like langu like like language condition
+bridge into the human world. Uh we're
+able now to talk to the robot and say I
+I was I was in the lab last week. We're
+we're just like, you know, we're
+collecting data from humans navigating
+different types of apartments and homes.
+We're taking that we're training like a
+navigation model, basically a model that
+we can tell the robot, walk to this
+place in this apartment. And um was in
+the lab and I basically asked the robot
+to walk to the oven and there was a
+table and stuff and chairs in the way.
+And I just like, you know, told it it
+walked all the way around the chairs,
+walked to the oven. It was perfect. And
+then I went I went to the back and
+grabbed like a a very large ladder. It
+was like this big orange ladder. and I I
+put it inside the apartment and I
+positioned the robot away from it behind
+a table and asked the robot to navigate
+to the the ladder and this ladder is
+like fully out of distribution. It's
+never seen a ladder before in its whole
+life. But like you know like a like a
+textbased LM or VLM has seen a ladder
+you know you could ask like you could
+ask like a like a like a like a a
+language bot like hey is this a ladder
+or not? They be like that's a ladder.
+It's an orange ladder. So like the
+semantic reason is there but the robot
+has like the LLM has like no idea how to
+tell the body and joints how to move to
+to approach the ladder and get there.
+And um I watched the robot at that point
+just like walk fully to the ladder which
+was like really incredible. I think
+there's like a natural part of the
+[clears throat]
+this this this part for us of going to
+sol rob robotics that like the semantic
+reasoning we're getting from like
+pre-trained language models is is is
+like um vital to basically being able to
+pull this off. And I think there's
+another piece which is like how do we
+actually interact and touch the world
+which I think is another piece of like
+of raw intelligence that's needed for
+humanity. And I think the the goal for
+us is to be able to kind of bridge those
+two worlds and uh basically build the
+right world model so the robot can like
+navigate the world effectively in the
+physical world which is like much more
+higher dimensional than the than the
+internet or text.
+>> And you spoke about kids Brett. Would
+you leave your kids with your humanoid?
+And also this whole companion concept,
+how important
+is it that the robot doesn't look
+menacing or does not look scary? Does
+the robot of tomorrow have does your
+humanoid of tomorrow have facial
+expressions and stuff like that? Um, so
+actually I've had a robot in my house
+now for like a few months and um, you
+know, my my kids have been there, but we
+like we monitor the robot. So we're not
+like we're not like uh we're like we
+have somebody with the robot like we're
+not letting the kids go up and hug it.
+We're like we're just doing tasks. We're
+trying to understand real robot
+performance. True safety for me is like
+having a robot that I've we've designed
+in my home with my kids. We have young
+kids and like fully autonomously and
+we're not we're not there today. Like I
+would not let my like robot roam free
+for hours and weeks right now with my
+young kids. There's a there's a certain
+track record of safety and performance
+that we like I would want to see
+internally before like doing that. I
+think that's just like a really high
+watermark for me uh of trying to get
+there and we're pushing like every day
+to try to achieve this. Um and then I
+think like you you touched on a few
+things on the design side. It's funny
+like it's almost like does this like end
+at Westworld is what you're trying to
+ask like maybe like um
+and it certainly seems possible to go
+build this like you've seen like I've
+seen like um robots with like you know
+real like humanlike faces and
+expressions and um like really good I
+would say um our view right now is that
+we are trying to go out and do useful
+work. We're not trying to fool another
+human that we're a human from like a
+entertainment perspective or maybe
+companion perspective. Uh so we've not
+designed the robot with like facial
+expressions and like uh facial features
+and things like this. We've designed the
+robot to be like basically a tool for
+humanity. Um there's another question is
+like do we approach Westworld or not
+which I think is um I don't know I like
+in some way I'm like really inspired and
+want to try to push there but we're also
+like on a little different track here at
+Figure today. I think we definitely
+don't want to like design a robot that
+is like uh scary or aggressive or any
+way, but we also don't want to like try
+to like put like googly eyes on it and
+make it and fool you that it's like a
+kid toy and it's not. And um if you go
+back and look at the early Whimos, it
+was like had the big googly eyes and I I
+just like I um I quite despise that like
+design language. It's almost like um
+this is a very complex and sophisticated
+technology and you're trying to put like
+googly eyes on it to fool everybody that
+it's like it's like a it's a toy. So I
+think our approach is
+>> have you seen those toys like Moxy and
+stuff like that which
+>> those are small those are small things.
+I mean, our our robot's like
+>> like uh over 5 foot. It's like, you
+know, over 100 pounds. Like, it's like
+it's uh it's a real thing. And I I think
+if we were to start putting like googly
+eyes on it and like bright colors and
+stuff and make it feel like a toy, I
+think it would do a disservice to uh you
+know, our customers in the world. I
+think this is we need to we need to
+purchase like a a very high-end
+technology uh which it is and uh we want
+to market it, we want to design for
+that. We don't want to make it scary,
+but we don't also don't want to make it
+feel like it's a, you know, it's it's
+not a kids toy. So, I think we're trying
+to figure out how to like like basically
+marry that design language here
+internally. It's it's tough. We're
+getting better at it. As you're seeing
+the robots behind me, like it's
+radically changing. Like the robot over
+here is like made of all metal and
+silver and uh wires hanging out. This is
+figure two here. Um and then over here
+is figure three. So, like, you know,
+we're seeing like radical advancements
+in the design uh like industrial design
+for figure robots. I think I think that
+will continue. I think you'll see us
+approaching what we think is our ideal
+design state. Um so we we'll see. We're
+also in the early endings of figuring
+out what user feedback looks like and
+where to go. So we don't have like all
+the answers for this. Uh so it's like
+you know I guess question for you. Do we
+do we approach Westworld or do we stay
+on the current track? What's your view?
+>> I think Westworld.
+>> Okay. Westworld. Cool.
+>> Yeah. Cuz why not, right? I think
+>> Why not? Yeah, let's do it.
+>> Yeah.
+>> Yeah. Somebody will do it.
+>> Yeah, that'll for sure happen. Um it's
+possible which I think that would be
+pretty crazy. We um I think if you put
+like a I think even our robots now if
+you put like a wig on it and put a
+jacket on it and it was like standing
+like you know with with the back to you.
+I think you would sometimes maybe like
+say is that a human or not? So um
+because it's walking around and doing
+it's grabbing like you know water or
+coffee at the office or things like
+that. You'd be like um so I think
+there's no reason that we couldn't
+approach Westworld.
+>> I'm sure there's no reason why we
+couldn't my we couldn't put my face or
+your face on it either at some point.
+We're already doing my voice. Like I can
+like talk to the robot and say go to the
+breath voice and then it goes to the
+breath voice and talks to me with my
+voice. It's uh
+>> it's a crazy thought. Imagine losing
+someone close to you,
+say a parent or something like that and
+creating a robot which looks just like
+him, speaks like him and has his
+memories which are in this particular
+robot
+programmed in that that seems like
+Westworld plus. It's just starting, you
+know, we're like we're like we're a few
+years into it now. And I think over the
+next 10 or 20 years, it's just going to
+be um it's going to be a sci-fi future,
+which is gonna be really fun.
+>> So Brett, I I speak to a few AI people
+in the valley, like
+a lot of the really popular ones. Do you
+think a lot of them are
+speaking about dystopia or a dystopian
+world in a manner to create regulation
+so they have a regulatory mode in place
+so other people can't compete so easily?
+>> Do you think they're talking dystopian a
+lot right now? Is that your view?
+>> I would say it's divided half I would
+say 60% dystopian 40% utopian. But I
+sometimes question if the dystopian
+narrative is beneficial to them if a
+regulation were to come out and not have
+many others compete with the incumbent
+leaders.
+>> I think it's a little hard. I think my
+like inner circle of folks that I spend
+time with in the office and things are
+so highly optimistic on the future of
+what this can do. Like too much
+pessimism is a little bit of a poison.
+So we have like an aggressive optimism
+here at the office and a value for at
+the company. We like my whole inner
+circle of like folks that I spend my
+time with even outside of the company
+and stuff are just so optimistic on like
+a positive future that we want to live
+in. I think it's the first step is just
+trying to think about like what is that
+positive future and trying to approach
+that. Like I don't have any interest of
+spending like most of my material life
+on a company that's going to ultimately
+help it be worse. Uh that would make any
+sense. So I I think I think this is all
+headed to like a really good spot. I
+think there's obviously some chance like
+these things could go bad which is
+always the case in all technology and
+things that we're doing in the world. I
+think that probability is non zero. I
+think we got to be very very thoughtful
+about making sure we don't approach that
+or if we are approaching it like
+safeguards in place and also then uh
+painting the picture of what like a
+positive future for humanity will look
+like and approach that like you know
+asatomically approach that as fast as
+possible. So for me like I don't know
+humanoid robots for me we look at this
+we're like this is going to be
+incredible. We don't want to do, you
+know, we want to like help the world in
+so many ways. And it's gonna be like who
+wants to do dishes? I and do like I I
+woke up this morning and was like
+helping to put away dishes in the dish.
+I was like because my kids were eating
+like breakfast like I don't want to do
+that anymore. It's terrible. And um I
+don't think anybody really wants to do
+that kind of stuff. So I think that
+stuff is going to be really critical. I
+think the AI systems that we're seeing
+today and like advanced reasoning models
+and are going to be like extremely
+beneficial for the world. Uh net net net
+positive and um I don't know. I'm
+rooting for that for that future. So,
+I'm heading down like that track, but I
+certainly understand uh there's a
+there's a good amount of folks sitting
+sitting there just like I would say
+scared and maybe rooting against that.
+>> Brett, you didn't cover eyesight. I I I
+tried to read up about eyesight and I
+watched a bunch of people talk about it,
+but I couldn't understand it. How does
+eyesight work?
+>> Yeah. So, we basically it's super
+simple. Our input to the model is like
+the the robot eyesight. Um what what the
+user is prompting or speaking and then
+the joint states like where the joints
+are like where the robots's at in in
+time. So like if you take like a sliver
+of time stamp, you'll get a you'll get a
+you'll get an image which is coming from
+a video frame. you'll get the the
+prompts like what's the prompt like go
+do dishes or whatever walk to the ladder
+and this case I said before uh and then
+what's this current state of the robot
+like that's the input state
+>> and then the output is basically like uh
+the action space of the robot is uh
+sending out uh targeted commands uh for
+for in joints like where where do I
+position my body to go do and that's
+running like really that loop is running
+really fast so the robot just like
+literally sees what the human see like
+from the head
+>> for for me to understand in a simpler
+manner. You're not saying it's like a
+Whimo, which is more radar and LAR, but
+like a te Tesla self-driving car, which
+is more cameras.
+>> Yeah, exactly. So, we almost like if you
+think if you put like a VR headset on
+and you can like see the world through a
+headset, that's what the robot sees. And
+like very very similar. We have like two
+cameras on the face and they just like
+point out and they're going to see it.
+We um in our launch video for Figure
+Three, we have like when we started
+doing the laundry, when it grabs one of
+the pods, it's it's actually the video
+coming from the robot head and it's just
+like it looks like you put a camera like
+a GoPro on somebody's head and they're
+like they're moving around the world.
+That's what the robot sees. And so it
+just sees like you know kind of like
+sees uh egocentric video uh similar if
+you had a GoPro in your head. It hands
+it has a prompt of what to do. has a
+goal in mind like a behavior and then it
+knows its state and then it sees what it
+needs to do. So in a lot of ways it's
+like visual servoing it scale. If it
+needs to grab the cup it sees a cup
+needs to grab the cup as a command. It
+knows its state where my hand positions
+at head, torso, body and then it sees
+its hand as released to the to the cup
+and it just needs like you know it needs
+to approach this and it's almost like
+building like a closed loop planner on
+how to go do that. That's what the
+neural net's doing. It's outputting
+commands of where to position the body
+to go achieve this target. And it's
+doing this over like you know thousands
+and thousands of demonstrations of
+humans of you know doing this doing this
+exact work or similar work and then
+we're we're using that for training. So
+um our training set is like human data.
+So we use humans for navigation and
+manipulation. We're like um you know
+humans are wearing uh we have humans
+like basically doing this work. We're
+recording this information and we're
+training Helix which is our neural
+network internally to be able to do this
+on the robot.
+>> What has changed Brett? Like maybe a
+year or so ago I had Yan Lakun who's one
+of you know he he worked on the initial
+AI projects and is quite a authority on
+it. He came and explained to me how a
+transformer was created uh how the a how
+the generative AI models came about. I'm
+I'm quite an idiot and I couldn't
+understand all of it. But what has
+changed in the world that is allowing
+for a humanoid to be built today that
+could not have been done 5 years ago?
+Well, one is like deep learning just
+works. And I think that's extremely
+important part of this. You're able to
+take very complex things like a complex
+robot with high degrees of freedom we
+talked about earlier. We're able to
+output actions out of it using deep
+learning models. That's a that's a thing
+that like didn't exist five years ago to
+really make happen. Didn't exist the
+right way for us to make happen. Uh but
+also like the hardware like we have like
+really good inference compute and
+training compute now to really make this
+really happen. People don't talk about
+this a lot but the hardware has really
+gotten good. Um if you go back and like
+watch like old, you know, humanoids like
+10 years ago, a lot of them were
+hydraulic systems. They weren't even
+electric. They were like leaking oils.
+They're extremely dangerous on humans.
+Uh they're very big and bulky, sometimes
+loud.
+>> Yeah. Yeah. I was I was watching this
+Boston uh Dynamics founder speak about
+how he still loves hydraulics because of
+how much power output he's able to get
+out of.
+>> Yes. Yes. You like you weren't able to
+get enough power out of these systems 10
+years ago. Uh the power density torque
+density wasn't really high enough. So
+you had to choose some other technology
+which was hydraulic system at the time.
+We've now had torque density and power
+density of actuators and battery systems
+get good enough where you can run like
+fully electric systems instead of
+hydraulic systems. And that makes the
+robot smaller, lighter weight, quieter,
+faster. Uh like it can run the run times
+longer. It's just like a better it's
+like the it's where you want to go when
+you go into market. You you don't want
+to bring to market a hydraulic system.
+There's also like local sensors on on
+the robot cameras, torque sensing, other
+things that like we've spent a lot of
+time on like they were kind of some of
+these were like do or die projects
+internally last 3 years that we've
+advanced internally ourselves that we
+think are probably state-of-the-art.
+like nobody else in the world has done
+systems like this that has allowed us to
+to run neural nets on the back end. So I
+think like I think hardware is one. So
+like electric hardware I would say
+specifically and then I would say the
+deep learning and algorithms and compute
+around there have been fundamental
+breakthroughs that weren't possible 10
+years ago
+>> in a way. Would you also say the big
+change has been a humanoid can today
+leverage prior knowledge in a manner
+that it could not?
+>> 100%. Like it has semantic grounding. Uh
+it has memory. Uh it has like a language
+condition so humans can tell it like to
+do something like grab the coffee cup on
+the table, put it down. It knows exactly
+what that really means like from a
+human. Doesn't need like a translator to
+the robot world. It automatically
+understands that. nose is the coffee cup
+that I talked about from from like a
+language like a language prompt or a
+voice prompt. So, um all of that you
+stitch it all together like wow it looks
+like it's possible now to make this
+happen. And it looks like general
+robotics is like actually possible
+today, you know, not yet working 10
+hours a day in my home, but it does work
+in my home in some cases for like these
+like individual stuff. It's hardest.
+Like we can do laundry. Like if you
+think about the things you would need to
+see to make general purpose robots work,
+the hardest thing in that book is doing
+like high rate manipulation of
+deformable objects like like laundry,
+towels, like things like this, like
+folding a towel for instance that like
+constantly moves. You grab it. It's not
+like um it's not rigid. is it's just
+like a really hard problem to solve. It
+could be like an unlimited amount of
+variations a towel can be in. We have
+neural networks that can do that now.
+And that that for me felt like the last
+chapter of the book. It's like we can
+fold towels that neural nanom humanoid
+that we have solved in robotics. The the
+screwed up thing is that we've actually
+already solved we already know how to do
+that. We can fold laundry and there's
+other things in the ecosystem that we're
+working on now to get that working fully
+end to end. So it's like it can work for
+hours like that without any human
+intervention. Some of these chapters now
+the book are filling out, some are left
+open now and we're just like we're
+trying to fill the whole whole book out
+in in in some way. But like the the
+stuff that you would have asked me 3
+years ago if we were doing this podcast
+when we first started, I would have said
+like here's all the laundry I need to go
+fold and we can do that. I'd be like
+we've solved general robotics like we're
+there. So in some aspect uh we've like
+solved some hard parts but we still have
+a lot like a lot more to go. But we we
+see it now. We see like a little light
+in the tunnel to go do this. And what
+comes out of that tunnel is like a robot
+I can put in your home that can do 10
+hours or 20 hours of work a day and do
+the things you don't want to do all day
+long.
+>> What's happening with the others in your
+industry, Brad? Like I've looked at
+physical intelligence. They seem more
+like they're building the software more
+than the hardware. Neogama, Boston
+Dynamics, Tesla. Who's doing what, which
+is very cool. I'm going to play the
+video of your robot doing the
+segregation of the packages, but what
+are the others doing, which is quite
+cool? I don't know. It's kind of been
+interesting. I feel like some of the
+older generation of robotics companies
+in the space the last like 3 years have
+have um in some way kind of collapsed.
+Groups I've like, you know, 10 years ago
+I would watch and and look up to I think
+have just like have kind of like
+somewhat faded away. I think it's been
+this emergence of like new new companies
+now in the space that are like I think
+that are quite interesting overall. The
+the thing that's been most interesting
+for me is like everybody's trying to
+make some sort of bet. There's a lot of
+like you know in like China you're
+seeing like a lot of just hardware only
+bets like they're they're just building
+hardware. They're selling it. Uh they're
+generally not working on hands. They're
+generally not working on AI systems that
+much but they're not there's there's no
+like full stack solution. It's like
+here's like you know you can go to
+Unitry and buy a robot hardware today.
+It's like go go go buy it and then you
+it's up to you to go make it work. It's
+like there's not much you can really do
+with it today. And then on the opposite
+side, there's folks that are just
+working on pure AI, like no hardware.
+And you mentioned some of these here
+that like don't care about the hardware,
+care about the AI systems. In our mind,
+you really can't choose one or the
+other. You have to just like you have to
+go down a road where you you do the
+hardware, you do it incredibly well. Um
+you do the AI, you also do it incredibly
+well. And then you put it all together
+really well. like the companies that can
+do really well are are going to do both
+really well and what they're going to
+output is a robot that can do useful
+work like autonomously like what you
+want to see is um a demonstration of a
+robot doing something that's like not
+teleyop or um like coded and what you're
+seeing now in the world is like I would
+say most major competitor to us at this
+point are putting out most of their
+content and updates teleopt from a human
+and I think it's like perhaps some of
+the most deceiving things I've ever seen
+It's like uh if I was driving a
+self-driving car, if a self-driving car
+pulled up next to us and we found out
+there was some guy from Tennessee
+driving it, we'd both be like, "That's
+uh that's not what I thought this would
+look like."
+>> Can I push you a bit on Elon? The way to
+review Tesla's stock as a multiple of
+earning to the price the stock trades
+at. Suddenly, the humanoid is starting
+to form a part of how one would evaluate
+the stock. What are they trying to
+build?
+>> I don't know what they're trying to
+build. They're building a humanoid. I
+don't um know anything more than you
+know what's public. Um like internally
+here, we kind of like put like little
+bit of horse blinders on in terms of
+like our focus to what we're doing. Um
+you know, we're kind of reasoning from
+the from the ground up of like what we
+should really do. We don't really pay
+too much attention to like what the
+competitors are doing. I think that
+would have been I think that would have
+ended uh pretty badly last three years
+if we did. I think like for instance
+like a lot of groups in the space don't
+work on like highdimensional hands and
+we made a big bet internally like we're
+going to go all in on hands make them
+over time they'll be complex and they'll
+be extremely important for high high
+dextrous manipulation
+Tesla should be really great at this
+like uh so I'm rooting for them to do
+well
+>> right what do you suspect will be the
+first problem a humanoid figure three
+will solve or figure four five or
+whatever first real world problem.
+>> Since April, we've had Figure 2 in our
+first commercial customer working every
+day uh every workday at the client for
+10 hours a day. It's it's doing a real
+task uh like on on the real production
+line helping to help build cars. This is
+not like a high volume. So, we're like
+we're but but but the point is like
+we're learning how to operationalize
+robots. We're learning how to get robots
+to run every single day. Like how does
+it work autonomously? Is there any human
+interventions? Is there hardware
+failures? Like are there software
+failures? Like how do we make it better
+going forward? And I we've got now like
+close to 6 months of like real world
+data. We think maybe the one of the
+first in the world to have done this of
+a robot running every single day in the
+in the commercial workforce in like
+really tough environments. It's not like
+it's easy. That's been good. I think for
+figure 3, we're making a much bigger
+push now into the home than ever before.
+So um we think the home
+>> I thought you were focusing on factories
+and auto plants and stuff like that and
+companies like Neoama were focusing more
+on the home.
+>> We've made a big big push uh starting
+last 6 months into the home here and
+we're making an even larger push on
+figure 3 into the home. Figure three.
+>> You think that'll happen first? Home
+because a factory will not probably need
+the humanoid form factor cuz the factory
+can be
+>> rebuilt or remodeled
+>> to support
+>> I don't believe that thesis. No. Like
+you go into the factories, they don't
+you could rebuild a factory from scratch
+green field and then you'd still have
+tough time removing all the humans. It's
+like uh you see you see some of the most
+automated manufacturing and logistics
+companies in the world and they're like
+they're heavy human. They're heavy
+human. I think here to build like
+millions of robots in the world. Our
+view is that the humanoid is is the
+right path to go make that really
+happen. Uh listen, I think three years
+ago you would like we're on this call.
+Three years ago, I would have said like
+the the home is um such a harder problem
+in the commercial workforce because it's
+much more variable. Like both of our
+homes will be different. But going to
+another home, it'll be different. Like
+different toasters, different
+appliances, everything. So, so you need
+like real common sense reasoning in the
+home that you might not necessarily need
+to ship into like say a manufacturing
+logistics company day one.
+We we've like um so our view is like
+shipping into the commercial workforce
+buyer buy our time to solve the home.
+Our my view on this is completely
+flipped last year. I think the home is
+near-term. I think a home is solvable.
+Um I think we're basically data bound at
+this point. So, we launched a program
+two weeks ago called Project Go Big, and
+we're trying to go build the largest
+kind of like internet scale pre-training
+set for robotics in the world. We're
+trying to build basic data to teach the
+robot how to do things uh across various
+tasks in the home. Every week now, we're
+collecting data in different new homes
+and apartment buildings here in the US,
+and we're using that for training Helix.
+I think we this next 12 months I think
+we'll probably build the biggest robot
+pre-training set in the world to go make
+this happen. Um it's like LLMs in some
+way. We're just we're just data bound
+and then the more data we're seeing the
+better the models are getting. So in in
+our you know in our side we really can't
+scrape the internet for robot data like
+LLMs can. We have to go generate it. And
+the good news is a humanoid is like like
+a human. So we can like capture this
+from human data. Uh we've already been
+in my home last like two to three months
+uh in like alpha testing. Um we've we've
+we've showed some of the results last
+week of like what robots can do in homes
+with like you know in those cases those
+tasks are all done through Helix. You
+know we will do more of that over the
+next 12 months and we will also spend
+time shipping robots commercially. We
+think it's nice to get outdoors and get
+robots out to the real world that's
+really messy and learn how the robots
+are behave. It's in a huge huge benefit
+for us.
+>> Whenever I speak to people in the US, uh
+I've been spending a fair amount of time
+there this year. Everybody talks about
+China is so far ahead in robotics. Why
+is that? Is that manufacturing at scale?
+What are they doing that others can pick
+up on?
+>> Yeah, I just don't believe this. There's
+a lot of chatter like about this
+constantly. Like I look at like kind of
+manufacturing 2.0 0 and robotics 2.0. I
+I'm interested in like the new
+generation of manufacturing, the new
+generation of robotics going out. And
+when you start looking at that space,
+the US and particularly figure is ahead
+of every single Chinese system like
+company I've I've seen globally of what
+I know publicly in terms of capabilities
+like watch the robot do advanced things
+with neural nets autonomously over long
+horizons.
+And the answer is like there's really
+nobody else in the world even close to
+what we're doing there. Um there is a
+ton of manufacturing capacity in China
+but the problems right now are not
+solving manufacturing and this problem
+solved. The problem right now is solving
+a general purpose humanoid robot. Once
+you solve that then it becomes a data
+and manufacturing constraint. But we are
+in a race to solve general purpose
+robots. We are not in a race against
+China and manufacturing robots right
+now. And
+it doesn't matter if China makes a
+million humanoid robots tomorrow. They
+just don't work very well [laughter] to
+be frank. And um maybe they will in the
+future, but what I've seen today is
+they're they're very far from even where
+we're at figure. And I know the work
+they need to go do to get to where we're
+at. And I know the work we need to go do
+to do general purpose work. It's not
+going to happen tomorrow. It's not going
+to happen next month. There's a there's
+a large like 14 peaks we have to go
+climb to go get there. So then then once
+we transition from there, we then go
+have to make a lot of robots um and and
+get good at manufacturing. What the
+manufacturing looks like here looks like
+consumer electronics manufacturing. And
+I think when people think about
+manufacturing get scared of it, they get
+scared at automotive manufacturing.
+Automotive manufacturing is
+[clears throat]
+uh like the most complex systems I've
+ever seen in my entire life all put
+together to manufacture cars. It's it's
+like hundreds of times harder than
+manufacturing consum like we manufacture
+consum a lot by hand in the world and we
+ship billion phones whatever it is and
+it making cars is extremely tough.
+Making humanoids is not a car. It's a
+consumer electronics. You can hold every
+partner hand. You could theoretically
+build millions of these by hand. Uh we
+won't but you can. So the constraint for
+me is not like if we were sitting here
+today and trying to invent the next like
+AI device or next phone like small
+phone. We wouldn't say like well the
+hard part is going to be making a lot of
+them. We would say getting the AI
+systems and the hardware designed and
+you know engineered and prototype. It's
+probably the harder parts. Making them
+is like you know we don't sit here and
+say like you're going to die
+[clears throat] making like consumer
+electronics products. Like everybody's
+going to be able to make it. I think
+humano is a similar way. I think you can
+manufacture these. We're doing them now.
+I think I think manufacturing is hard
+but less hard than automotive and I do
+not think it's whoever has the most
+manufacturing capacity wins this game
+right now. I think it's whoever has the
+best general purposeness and that's just
+at the hardware design layer and the AI
+layer and the overall integration of
+those systems to do useful work. So
+right now America's winning this I think
+globally. Um our goal is to beat China
+at this. We're working seven days a week
+here to go do that. Um, and like you
+know, at the end of the day, I'm like
+prohuman, so I hope like wherever
+happens, like we um, we go out and like
+build incredible things for humanity and
+make it really work. But I think it's
+been a mischaracterization that like,
+oh, China's got this capacity. Oh,
+China's got this head start and it's
+hard to keep up. That's completely wrong
+in my mind.
+>> I read somewhere that you decided to
+move away from the incumbent
+hyperscalers, the models like you had a
+partnership with OpenAI which stopped in
+2025. Why is that?
+>> The short answer is we like we open a I
+led my series B. We we generally were
+working on some kind of advanced models
+with them for maybe a year or two years
+year or so about a year and um figure
+ultimately chose to kind of uh leave
+them and go in our own direction. The
+the summary is that we were just way
+better at this stuff internally.
+We were good at getting models designed
+and and embedded on the system and
+running on robot and working. We were
+just really good at it and I think we've
+been good at it and we viewed the the
+right path was just be able to do it
+ourselves. Most of the advancements we
+made during that period of time were all
+done internally. Um and we just felt the
+better path for us internally would
+would be to design a system or AI
+systems ourselves which which we've been
+doing basically since the start. It also
+became difficult for us like even you
+know we have a really large AI team here
+and they're like some of the best AI
+robotics uh folks in the world. It also
+became hard like hiring people when we
+had a partnership like that where folks
+felt like we were outsourcing our AI
+which we weren't doing and we were
+actually doing all of it mostly
+ourselves internally and just like for
+many reasons it became like this is not
+the right path for for us to go down.
+The path for figure is to go alone and
+do an extremely good job uh bringing it
+here internally and understanding the
+models really well down to the substrate
+levels and then be able to put it on
+embedded systems and make it really
+work. And it's it's not just like
+sitting in a room like training models
+and like throwing it over the over a
+fence and making it really work. It's
+it's you got to really it's this is
+hardware. You got to be able to sit
+there with the robot and get it to work.
+And that that is just like a uh it's a
+lot of trial and error. It's a lot of
+evaluations. Um, it's a lot of hard
+work, but at the end [clears throat] of
+the day, the buck stops with being on
+robot and making that stuff work. And
+the team here is just the best in the
+world at being able to do this. They I
+mean, they're from from deep mind at
+like some of the best places in AI and
+they're they're sitting here with the
+robots. They're sitting here with a GPU
+cluster and training models and we're
+doing that daily now and evaluating
+whether it looks well like really good.
+I I I sit here and watch us do
+generally anywhere between like five and
+20 evaluations of new models every
+single day.
+And like we've been doing that now for a
+year and a half, two years. Like every
+day we're testing new things and trying
+to a hill climb. That that's kind of led
+to the results you've seen today. And
+then what you haven't seen is like the
+next generation of results that we're
+working on in here internally. And um I
+I just can't wait to show those as well.
+>> Brett, so my primary job is that of a
+investor, stock market investor, public
+market investor.
+When I look at the world of AI, if I
+were to extrapolate and say world output
+is about a 100red trillion and let's say
+half of that comes from services of one
+kind or another. So say 50 trillion in
+services
+for the amount of money that has gone
+into AI, we haven't seen the revenue
+from AI
+commensurate with that. When does that
+change and how does that trickle down
+into humanoids? Will it be the same or
+similar for many years?
+>> I mean my my view is this will take some
+time but like AI systems will just eat
+everything [laughter]
+software ate the world prior to this and
+AI will eat software in the rest of the
+world and it it'll it'll take some time.
+It's hard to kind of take these existing
+habits and things that are embedded in a
+society and and radically transform them
+over like a very short period of time.
+But over like 5, 10, 15, 20 years, I I
+think things will radically transform.
+My my view is that there's going to be a
+generational company to be built that
+will be able to put ultimately billions
+of robots on the planet that will build
+like the largest company we've ever seen
+in the world by by a long shot. And it's
+driven from like the metrics you said
+like you know I think it's like a little
+under half of GDP is like human labor.
+It's not just like getting to the point
+where like okay you have the biggest
+market in the world now which is like
+human labor and you're like you can
+basically build a human a mechanical
+human. How many like cheap humans that
+work 20 hours a day would you want if
+they're like extremely affordable and
+and they can do humanlike performance
+and they're like you know oneten the
+cost of a human or whatever it would be
+over time like a limited right as long
+as I can keep putting more humans like
+more mechanical humans in and they keep
+giving me ROI output you'll just keep
+feeding them into the economy and GDP in
+in a lot of ways is like a kind of this
+byproduct of like human productivity and
+we even measure GDP on a per capita like
+per human perspective is how we measure
+GDP
+So if the denominator there per capita
+or per human is like per synthetic human
+or per humanoid I think you have like
+this unbounded effect to GDP that
+it's not just like okay the biggest TAM
+in the world but that that TAM could
+like grow like by many factors here in
+the future. So I think um it will take
+time because we can't just like snap our
+fingers and like appear we just talked
+about manufacturing but we can't snap
+our fingers and make 100 million robots
+but I think through our lifetime we will
+be able to build billions of robots and
+get them out to the world and they will
+ultimately start building their own
+robots from themselves. What will emerge
+on the humanoid side will be the largest
+company in the world by far and then on
+the AI side you think AI is just going
+to eat everything. [laughter]
+an advice to an investor who is looking
+at the various AI companies. Let's say
+OpenAI, Anthropic,
+Alphabet, all of these big incumbent
+players in the space. If you had $1 to
+invest, where would you put it and why?
+>> Is it private or public or both?
+>> Either either.
+>> Personally, I put all my money in my
+companies. Like I I don't make public
+investments. I put it all in here. So, I
+would tell you biasly put them into my
+companies. [clears throat] But um
+listen, I'm a big believer in um
+kind of like growth investing, investing
+things I really think I believe in. I
+I'd be at the frontier for me of deep
+tech. Uh I think it's a
+>> And which company is that?
+>> It's just like deep tech would be like I
+I work in deep tech. I I mean Archer and
+Cover and Figure my companies that I've
+started are deep tech companies and
+they're like at the frontier of like
+really hard things look possible and if
+solved I think could be like radically
+important for a lifetime. But could you
+pick a company which isn't one of yours
+like from the ecosystem
+>> you know like the the new age LLMs I
+think those will go really far the open
+AI and anthropics and um I love you know
+what SpaceX is doing and Tesla I think
+these groups I think these are like you
+know I think I you know I'm in the Bay
+Area so Whimo is a good example like the
+Whimos are everywhere here it's like one
+of the best product experience I've ever
+had
+>> Whimo would be on my list like these
+these will be like generational
+companies uh they're certainly on the
+back to be like generational industries
+and then finding the right players
+inside of those that are like willing to
+to to play, you know, play hard for a
+long period of time and win. I think
+these are like uh areas that I would be
+like going all in on. I'm spending my
+life going all in on some of these and I
+think that's like I always like think
+it's important to be excited about what
+you're like say investing or spending
+your time in. Um so I'm a more believer
+of like kind of those areas than
+anything else. don't want to pick one.
+>> I mean, listen, I would probably pick
+Whimo uh as my as my pick. I think I you
+know, I think it's like a 50 billion
+market cap. Uh super underrated. Like I
+think if you haven't experienced it in a
+Whimo, you wouldn't really quite
+understand.
+>> I have. I have. I've used it quite a bit
+in the valley.
+>> Yeah. What was your experience?
+>> Incredible. This one particular time, I
+was at a traffic signal in a Whimo and
+there was a fire truck coming behind me.
+And my VHO actually broke the signal,
+did this maneuver, went to the right,
+and allowed the truck to pass. It was
+incredible that a self-driving car could
+do that.
+>> The conventional wisdom says this is
+like not possible. If you go out and
+like talk to a lot of people, it's like,
+you know, self-driving is not quite
+here. And then you like ride away,
+you're like, oh man, it's been here.
+It's here right now. And it's
+unbelievable. And it's going to keep
+getting better and better. And I I think
+of that for my kids, too. My kids are
+young. I don't I don't want them to
+drive. Driving's too dangerous. I have
+some close friends that are senior
+Weimo. Like I think Whimo would be a
+great I think the market cap is
+reasonable. I think they've really
+proven their operational readiness to be
+able to make it work. I think there's a
+long ways to go now to scale that out to
+like a global fleet of like millions of
+cars. I think the recipe is really there
+of like how to go do it and the
+learnings are definitely there. I think
+the stack will evolve on the sensors and
+models and stuff over time to be more
+scalable. And they've I think they've
+been at it for like 16 years now. So
+it's like it's like almost like where
+did this come from? They've there's been
+people there working for 16 years on
+this problem. And that's also like I
+think really uh inspiring to see folks
+like really playing for the long game
+and delivering a product that's like
+super complex. Like they they have the
+complexity we have, but they don't. But
+then they have the safety thing of being
+able to not hit the road unless you know
+for sure you can make the right
+decisions at like fast speeds. And you
+know when we're walking at a, you know,
+max a meter a second, we don't really
+have those same safety conditions that a
+car would have in those cases. So it
+makes it even harder in terms of
+complexity that they have than we would
+have here. So being able to see that
+level of complexity I think is just
+astounding.
+>> So Brett my community is largely Indian
+origin entrepreneurs across the world
+who are looking to build something.
+If I were to extrapolate that humanoids
+have the biggest use case in societies
+with say a declining demographic
+dividend or really high labor cost for
+countries like India where the cost of
+labor is still quite low compared to say
+America for example
+and if I were to be a bit more candid
+the access to risk capital is
+significantly lower here. What do we
+build? What does my community build in
+the humanoid space?
+>> What I can relate to on my side is like
+I I grew up on a farm, came from very
+humble beginnings, had uh
+no to negative money most of my life.
+And um I think a couple pieces of advice
+I have just for folks in general is like
+I have I have a big thesis on just like
+just going for it. Like I've spent I
+spent a decent amount of my career as
+even an entrepreneur like derisking into
+areas where I felt like are possible.
+um especially in software that were like
+um you know like weren't like the really
+big big ideas and I think with you know
+Archer and Cover and Figure now and
+stuff I'm working on these are like
+these are big ideas and I could really
+get the go for it. I've learned a lot
+from that experience. I've learned that
+a few things. One is I think um when
+you're going for these big ideas they
+generally have like bigger markets like
+bigger TAMs and I think investors like
+to fund bigger harder things that have
+like bigger outcomes. They just like
+like that binary like riskreward. So I
+think you just access the capital. I
+think it's generally easier when you're
+working on harder things that can have
+bigger outcomes than working on smaller
+things like a a calendar app or whatever
+it would look like. Um I think the
+second thing is people from an employee
+base that want to work for you. You need
+to hire like really good people. They
+want to work for the really hard
+problems. They also don't want to work
+for a calendar app. They want to work
+for like a hard really important problem
+for the world. Um and then I think like
+the motivation and dopamine levels of
+folks that working on these things is
+also harder. And it's generally not like
+10 50 times harder. if you're like we're
+working on stuff that's probably like
+multiple times harder, but the reward if
+it pays off in terms of like is is like
+is like tens of folds higher. So, one
+thing I would say is like just try to go
+for it. And I know that also depends on
+access to capital and the cost of that
+and talent and everything else. I I
+understand that, but like I have a you
+know my life I just like just just try
+to go for it. I think that's one. Uh two
+is um the humanoid space like it needs
+enormous help. We need help on compute
+and training. We need help on data
+collection significantly over time. Um,
+we need help on components. Like the one
+thing I've really realized is three
+years ago, I thought there was a more
+more of a mature supply chain. We can go
+out and get motors and cameras and
+sensors. Like the world has tons of like
+tens of thousands of different types of
+motors like and what we found is we've
+had to like none of them are very good
+when you bring them in and you start
+looking at it like the best motor we had
+or actuator was like twice as big as we
+needed it to be and twice as heavy.
+We're like, "Oh man, what are we going
+to do?" We talked to the vendor. They're
+like, "This is what we got. if you want
+to redesign it takes like two years and
+maybe we'll get it, maybe we won't. Uh,
+and I was like, oh man, we got we got to
+go do this ourselves. There's a huge
+area of supply chain that needs it needs
+help on. Um, we need help on go to
+market activities as well over time. Um,
+you know, I think what's been maybe more
+challenging with humanoids is that we've
+had to vertically integrate almost
+everything now, which also makes it
+tough for like community folks trying to
+help out. Um, like you can't build on
+top of the humanoid similar to what you
+can build on top of with LLMs today. um
+and use them like an API. So we are
+literally designing the full stack. They
+can go in your home and do everything um
+down to like the AI models and the
+middleware operating system, the
+firmware, the embedded software, all the
+hardware. So it makes it a little bit
+more challenging for us to pop up and be
+like, "Yep, we'll use you." But there
+are opportunities uh today for this
+stuff. Um
+>> and how do we find how do we find these?
+>> I think one thing I have uh you just got
+to talk to the right folks in the
+industry and then you got to start
+building stuff. You just got to go for
+it. Like the like one thing I always see
+for entrepreneurs is they have a hard
+time like there's a lot of like stiction
+like a lot of inertia to get started.
+Just go build some stuff. Like go out
+there with a little budget. Go build a
+little website. Go out there and like
+cold call your way through it. Like you
+got to get out there and just start
+trying some stuff. I think this trial
+and error period is like extremely
+important. It's like a shark swimming.
+If like you stop, you die as an
+entrepreneur. So you need you got to
+keep just going and you'll need to go do
+some trial and error. You go talk to
+everybody in the space. There's a bunch
+of conferences for humanoids and uh like
+like embodied AI. Uh you got to get into
+that network and understand their pain
+points, understand where like where the
+business is headed, what things the
+those companies might need and then you
+got to start just making inroads into
+them. And you got to start like building
+and showing value. Like for us like we
+have like we have like o over a billion
+dollars of cash. If there are things and
+problems in our landscape, we will go
+fund it and we will bring people in and
+go solve those. So like um if somebody
+approached us, hey Brett or Figure,
+whatever, we've done these things.
+Here's how we can really help. We we we
+trial and test those like frequently and
+see how can that could work. I think
+it's just a lot of hustle and um if
+you're out there and you're listening to
+this, like just just go just like start
+going, start building. Uh you can do a
+lot on like a small budget and make some
+traction and that's how this all starts.
+And then you learn a lot from there and
+then you ask a bunch of questions, you
+get feedback and you keep going and make
+that recursively better.
+>> I'm going to digress and ask you a
+question.
+I've been exploring the idea of building
+a social media
+app out of India because I think the
+incumbent players in social media have
+gotten boring for the lack of a better
+word. Any advice on what I could build
+around social media? I feel like I still
+don't have a platform that I really love
+even here. Um I feel like there's like
+certain aspects I can go to certain
+places. I can go to like LinkedIn and do
+some stuff professionally. You got
+Instagram, you got X. Like I think they
+all have like very different um
+experiences and ways to deliver content.
+And I feel like the world really hasn't
+figured out what the right platform is
+there yet. Um, I think there's something
+to probably do with like an AI native
+like social networking platform that
+could be like like I think really
+important and I don't quite live in that
+world to understand that well enough.
+But I think there's
+I I would I would start with an AI first
+native experience and I think there's a
+there there are some gaps in what
+certain platforms are able to deliver
+today and also what the kind kind of
+content I want to consume and give out
+that I think um I think they can give
+rise to a new experience for folks. And
+I think I think we also need it like
+we're like
+>> I'm burnt out like I don't use Facebook.
+I don't really you know in LinkedIn it's
+[clears throat] just like don't use
+these things. I just we need we need
+something new and fresh. And there's a
+there's a there's a way to do that.
+There's a way to get like the multi-
+modality of maybe what I get across some
+of these other platforms into one
+experience.
+>> Any advice on who I should hire for
+something like this? Brett,
+>> I've always um I think my con like the
+conventional wisdom of everything is to
+go out and hire somebody like really
+experienced that makes you feel really
+good from a really good background
+that's at a successful company. And I
+found like that playbook is just
+complete crap. Like throw that right out
+the door. And like uh even now like
+figures got into a point where like we
+have these big shots like knocking on
+our door wanting to come work here now
+and they're like big companies whatever
+else and it's just like not the right
+like if you look at every like
+generational company it's not like they
+went out and picked out like the VP here
+and the VP here and the VP here and put
+them together. It's like the opposite of
+what Meta like Meta is doing that right
+now right look at their uh Meta super
+intelligence lab. It's like you're
+putting like 15 Tom Bradies together and
+making that work. It's going to it's
+just immediately going to it's going to
+immediately collapse. Like it's not
+going to work. And I think um my view is
+you just need to find the core axiom of
+what I look for here for talent is
+people that really care.
+And I can't I can't find any better way
+to describe it than caring. They care a
+lot about whatever you know you're
+trying to hire somebody to do this. They
+obviously have the technical background
+to go do it. But even if you don't quite
+have the perfect technical background,
+if you have like a high aperture for
+learning, you're going to go out and
+figure out how to do that. You're going
+to learn to code or learn to vibe code
+or whatever whatever you need to go do.
+So I I have a big thesis on trying to
+find folks early stage that really care
+and that for me it means like a lot of
+shot on goals means like getting myself
+out there talking about what I'm doing
+and trying to find like this big net
+cast this wide net of folks that want to
+come in here and work with me on this
+like really important project or
+whatever it is and I think for you here
+it's like uh finding folks that would
+really care about this problem of trying
+to [clears throat] build this like next
+generation social networking app in
+India that's like native AI first and I
+think the first step is like casting a
+wide net telling everybody you're doing
+it. I don't think there's really any
+secrets in tech. I think people like
+hold those close to your chest or they
+used to. I used to and it just doesn't
+matter anymore. Like a lot of it's on
+just raw execution and ability to
+deliver product that really works well
+and most people can't execute and most
+people can't deliver good product. So
+there really are no secrets. So um my
+view is to try to find somebody that
+deeply cares.
+>> Do you think it could be voice first?
+>> I'm like extremely bullish on voice
+models.
+I I'm doing work on some of this work
+right now and I think for both like the
+digital AI front like it's funny like
+we're doing like the physical AI thing I
+figure where like we're trying to do
+everything a human can in the physical
+world and like you know I've also been
+working on uh something that is also
+helping out with the digital side of
+this and all roads lead to full autonomy
+of AI agents whether it's like through a
+robot or through like a digital systems
+and the the UI to that in my mind is is
+is voice like really good voice and and
+we just don't have like really good
+voice today, but it's it's getting
+better. Like the line's like getting
+better over time and it's it's like the
+gap's like narrowing of where we need to
+go. I think we're like 12 months away
+from like really good voice that can
+make an experience like you're talking
+about work. But we need it. And if not,
+you don't have like a high tolerance for
+like a voice that you can't interrupt or
+make some mistakes like you just like
+it's just not a it's a it's immediately
+a bad experience. But I think for your
+thing, we're like I think we're it's a
+2026 event for you of getting voices
+voice like voice models like native AI
+like probably half duplex models like
+extremely good. I think there could be a
+very significant voice aspect of this.
+And I also think about voice and
+generative AI like rendering as a as a
+real differentiator to what's really
+happening today and like kind of like
+1.0 social social uh social media
+networks. I would be starting to play
+around with a couple different of these
+avenues and starting to prototype them
+within a week. I would want to see if
+you can use an off-the-shelf TTS for
+voice. Uh start hooking up like a a mock
+network together and start basically
+parallel pathing a couple of these like
+user journeys of what this could look
+like. And I would say it'd be nice if
+you could check in with me in a week and
+we could like start demoing these and
+checking and testing them out. The only
+way through this for you is like to be
+able to rapidly prototype very different
+type of ideas and feel the experience of
+what that looks like and trying to close
+the gap on what you think that
+experience should should look like.
+>> Yeah. I'm going to hit you up after this
+and seek some help on this.
+>> I want to be your first user so I get
+like a really great user and I can
+always say I was the first user on your
+platform. [laughter]
+>> No, I'd love that. Last question for
+you, Brett. Beyond
+this utopian future when the humanoids
+are doing most of what humans can do
+today from a work lens or from even a
+home lens what happens to the world what
+happens to socialism what happens to
+capitalism what happens to labor what
+happens to a job and getting a salary
+>> I think there's a few things that happen
+one is we are building autonomous I feel
+like autonomous agents like synthetic
+humans whether digitally or physically
+they will do everything behind a
+computer a human can and they will also
+do everything in the physical world
+through a humanoid that you would want
+to go do. If if that's true, which I
+think is very high likelihood in the
+future, the prices of goods and services
+are will slowly start collapsing
+basically atomically approaching zero.
+Yeah, you'll just have like
+an abundance of goods and services. Like
+if you had like a robot farmer like all
+it would need is like the price of the
+land and then energy and if energy
+generated on site with solar and
+stationary battery then you basically
+have like the rental cost of the robot
+and land and it just be like it like
+that would be the only real costs and I
+think the robot cost will like really
+dramatically reduce. You'll have this
+dramatic reduction here over the next
+like five years as we approach higher
+volume manufacturing and then you'll
+have another step down once robots can
+fully build robots in the loop together
+and you remove all human labor from the
+whole manufacturing process. So I think
+you have that period of time that
+happens. I think that'll you'll be able
+to afford anything anything you need in
+the world that humans can do today.
+You'll have synthetic you know agents
+that will be out there to do that for
+you.
+>> What happens then? I think there's a
+part of society that lacks purpose for
+what they do. Like myself, like what do
+I do if like synthetic human can do
+everything I can do just as good? I I
+spend my whole life career doing stuff
+that I think is valuable that I, you
+know, like a computer can do just as
+well. Uh and then there's another aspect
+of us like freeing us up from all the
+stuff we do all day. Like we have, you
+know, we work 40, 50, 60 years of our
+life. [clears throat]
+We work at home all day long doing
+laundry and dish. I I feel like I'm
+cleaning up the kids toys like con
+constantly like just like like you know
+just like I feel like I'm working well
+I'm I want to spend time with my kids
+but I'm like kids are getting breakfast
+and I'm like feeding getting them
+breakfast or getting stuff out of the
+dishwasher. I don't want to be doing
+that. I don't want to be talking to
+them. You know I'm driving them to
+school. Like I just like I can't I have
+to focus on the street. You know what I
+mean? Like there's just like all this
+stuff we're doing that we're not really
+realizing is just like and then I'm
+holding all these things in my head and
+planning like how to book something or
+go travel or send a wire. Like I just
+want systems to go all into this for us.
+I think it's quite freeing. I think when
+one one aspect we lose purpose, another
+aspect is extremely freeing and another
+aspect it's like you'll be able to
+afford anything in the world. And the
+funny thing is like the weird thing is
+we're going to see that this in our
+lifetime now. I grew up on a farm,
+right? Like it's just we're seeing
+things advance like you know my my
+grandfather didn't grow up around
+electricity in the early years. Like
+it's just like we're seeing things
+advance radically. I think it's going to
+be a net net great. Uh it's just going
+to be radically different 20 years from
+now. One could argue that humans didn't
+have purpose to begin with. We just
+deceived ourselves into thinking we had
+purpose.
+>> 100%. I mean, is it purpose like working
+like 18 hours a day every single day?
+You know what I mean? These are the
+things I I don't know. I mean, it's
+really I happen to like love what I do.
+So, I feel like I have purpose or uh and
+hope it hope it's hope it's purposeful
+at some point in line like over time.
+>> Do you love what you do or do you like
+the byproduct of what you do? I love the
+byproduct of what I do, which helps me
+get dopamine and a feeling for like what
+I do every day in the office. So, I
+really love being able to ship great
+product out. Nothing makes me happier to
+see a robot working for five months on
+out in the real world. That's awesome.
+It's like it's like but I need I need I
+want millions of that. You know what I
+mean? So, but my days are hard. My days
+like all the I I have like this um
+problem funnel like every problem
+funnels right to me and I'm working on
+problems all day. I have this like joke
+when I'm telling people when I get to
+meet them like tell me good news. I've
+had a bad day and it's just like they
+they never have good news because like
+things that are going well I don't spend
+time on. So, but I'm working on problem
+fixing things. I'm doing things at a CEO
+level that are needed to unblock the
+critical path for the company. So, I
+just work on problems all day. I I work
+like
+sun up to sun down. I'm generally in the
+office every night. Uh so, like no, my
+days are very hard, exhausting.
+Uh, I'm tired. And um, no, they're like
+they're they're extremely difficult and
+not fun on the surface, but like the the
+byproduct of this is we get to create
+general purpose humanoid robots here.
+[clears throat]
+>> Is that dopamine from
+a place of ego where nobody's building
+humanoids yet and you're the first
+people doing it, so you get a dopamine
+hit. Tomorrow, if everybody were
+building a robot, it might not be the
+same.
+Yeah, I think it'd really suck not
+winning.
+Um, we want to go build something great.
+We want to go win. And I think that's
+really important. Like we don't want to
+I don't want to lose. Like losing is
+like is uh terrible. Like we we don't
+want to make bad decisions. Like there's
+all this like there's all this like
+things in the in the ballot so value
+like failing. It's okay. It's like it's
+not okay. I don't want to fail. Like I I
+don't like that way of thinking. like we
+failed all the time and we make mistakes
+all the time, but we don't want to make
+those mistakes. I'd rather not make and
+not have failed and succeeded. Like so I
+happen to make better decisions
+sometimes after I fail, but like that's
+not the goal. The goal is to go win. Um
+I would say short term, yeah, it's
+great. It's great to go win, but like
+even now like this is a 10, 20, 30 year
+journey. There is the winner will emerge
+10 years from now, 5 years from now. You
+know what I mean? Like not not now. So
+like whether we're like one or five or
+two right now, none of this matters. So
+like what matters is shipping a product
+at scale that can generate the data to
+increase intelligence and reduce cost.
+That's that's who wins in my mind. Like
+who's the first through a million robots
+in market? That's a big marker that will
+help determine like the leader. So I
+think that for me like um even though I
+think we've been successful to date, we
+don't not feel in any way like we're
+winning or I've won here. I think we we
+want to go really win it and that's
+going to take five t more years of
+beyond of more extreme like seven a week
+work that we're doing. So um but we're
+in it we're in it for the long haul. We
+started this company knowing it's going
+to be a multi-deade thing and uh we're
+we're just fortunate to be here and I
+think we're most fortunate I'm most
+fortunate as a founder being here. You
+know, my advice to entrepreneurs is
+always like always be within the right
+decade. And it was unclear when I
+started this company. I was like, I'm
+going to go do this for like 20 30 years
+beyond if like humanoids were going to
+happen this fast. And it happens to be
+that it's happening this fast now. And
+it's a race now to go solve general
+purpose robots. So I I feel fortunate to
+be in a place where we have over a
+billion of cash. We have great
+commercial customers. Robots are working
+with neural nets. Figure 3 is I think
+it's the best human in the world. It's
+great. We have a great team. Team is
+like by far and away the best asset we
+have at the whole company. So, we have
+all the ingredients now to like pull off
+what that we started as a dream. And I I
+think we feel fortunate about that.
+>> Thank you, Brett. Thank you for doing
+this. This was fun. I'll uh be down in
+the valley in November. And I'd love to
+come check them out in person.
+>> Come by and like give me a part of the
+network, social network here early, too.
+>> Yeah, 100%. We'll connect after this.
+Thank you, Brett. [music] Cheers. All
+right. Bye. Bye.

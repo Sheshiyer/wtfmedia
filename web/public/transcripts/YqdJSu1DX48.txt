@@ -1,0 +1,1838 @@
+[music]
+Are we good?
+Ready guys? Should we start?
+You have done so many interviews now.
+No. Feel so intimidated.
+There is so much information around the
+India stack uh that is so relevant to a
+young person who wants to be an [music]
+entrepreneur in India. Hopefully by the
+end of it we can learn from you what
+should be built on top of the India
+stack and what is the opportunity today
+from the lens of capitalism.
+Hi Nandan thank you for doing this.
+My pleasure nik. Uh I don't think many
+people know but I end up meeting Nandan
+most often in his house or when he's
+traveling to one of 100 different
+countries that he goes to every year.
+That's right.
+Uh so where are you going next Nand in
+your travels? Where are
+this month is a slow month in the sense
+I'm going to be right here in uh uh uh
+Bangalore and in India but I'm going
+next month uh to Basil. I'm going to
+London. all around this
+technology broadly that you're involved
+with most of
+this I basically have two hats I have a
+a public hat which is really the bulk of
+what I do
+which is enabling digital public
+infrastructure
+mhm
+you know Aadhaar UPI that kind of stuff
+and now we are trying to make that go
+global so part of this is the
+globalization of this DPI concept and
+then I have a private sector at as the
+chairman of Infosys and few investments.
+So some of my travel is that or if I go
+on a vacation I just work for a couple
+of days. So
+I watched a bunch of your interviews.
+Why would you do that
+over the last 48 hours?
+Seem to be a sucker for punishment.
+[laughter]
+I feel like I know Nandan the person in
+private. I I have never heard you speak
+at length publicly in that way. I've
+heard you speak at your house when you
+host dinners and all of that. So, it was
+actually intriguing and there is so much
+information around the India stack uh
+that is so relevant to a young person
+who wants to be an entrepreneur in
+India. So, we thought we'll focus today
+on that.
+Sure.
+Uh so, I'm going to play the part of a
+20-year-old who knows nothing about the
+India stack. I'll start the journey from
+the very beginning and hopefully by the
+end of it we can learn from you what
+should be built on top of the India
+stack and what is the opportunity today
+from the lens of capitalism what can me
+a 20-year-old start to make money out of
+it on top of the India stack in any way
+if we were to begin with emphasis uh is
+that where you would say the the journey
+began in that manner where you saw scale
+incrementally.
+Yeah, I think Infosys was a great uh
+learning journey in scale.
+Mhm.
+Uh you know, Infosys was founded in 1981
+under the leadership of uh Mr. Naran
+Morti and I was one of the co-founders.
+Mhm.
+You're my favorite co-founder. I know a
+bunch of them.
+Okay. I mean, [laughter]
+well, anyway, so I uh so I was part of
+that journey for a long time.
+And I learned a little bit about scale.
+Now that's enterprise scale and
+population scale is a completely
+different ballgame. So enterprise scale
+how to think how to sort of look at what
+the future can be and sort of drive
+something towards that future. And then
+uh uh that's how I you know I was till
+2009 I was very much in Infosys and then
+I got this offer to join the government
+and lead the Aadhaar project. Infosys
+was the start of the IT boom in India,
+right? And also Bangalore became what it
+is today.
+Yeah. I think you can think of Infosys
+as the original uh startup,
+right?
+U you know we we came we moved to
+Bangalore in 1983
+from
+from Bombay. Initially we were in
+Bombay, Punea in that belt and uh we've
+been there ever since and I think yeah
+we I mean Bangalore has had a series of
+technology curves a hardware software
+internet you know so many things have
+happened but yeah we were part of that
+wave and I think uh we played a big role
+in establishing
+uh Bangalore as you know a tech city
+uh and also I think even today I meet so
+many people who are entrepreneurs
+who said they at Infosys,
+right?
+So I think it also creat spawned so many
+other people.
+What worked for in Infosys in a world
+where the incumbent large business
+houses were typically family businesses
+or uh I wouldn't like to say crony
+capitalism but some kind of a political
+element involved in a business that
+scaled. What set Infasis apart at that
+point of time?
+I think the group of founders were very
+uh
+uh synergistic. We all had different
+strengths. Mi was our leader. Uh we had
+common values. We wanted to build for
+the long term. We were marathon runners.
+We're not sprinters. We built for the
+long term.
+We had a vision of creating a globally
+respected company of having very high
+standards of uh corporate governance. So
+there whole set of values, Infosys
+values which are deep in everyone and
+that I think uh sort of gave the fuel to
+make it happen. You have to have a
+vision, you have to have passion about
+something, you know, we had all that.
+And you moved from emphasis, you retired
+first and then Aadhaar came your way.
+No, what happened was in 2009 in 2008
+I wrote a book called imagining India.
+Mhm.
+So sort of projecting how India could be
+in in the framework of ideas.
+Mhm.
+Why ideas matter and stuff like that.
+And among the ideas in that book was you
+know digital ID and so on.
+Mhm.
+So at the same time the government was
+planning a digital ID program.
+Mhm.
+And uh they had got cabinet approval for
+that project
+and uh I was uh had a chance to take up
+that role. So and then my Infosys
+co-founders were very kind and said yeah
+you can go and do some national service.
+So that's how I ended up in Delhi in
+July of 2009
+to build India's digital program ID
+program
+and before Infosys Nandan you were in uh
+Bombay before that?
+Yeah I I'm I was born in Bangalore in
+that sense I'm an original Bangaloreian
+I was born in Mani Villas Hospital in
+Bangalore.
+Mhm. And my father worked in a textile
+mill in uh Magni Road right in
+[clears throat] India.
+Yeah. And uh then the you know the mill
+sector got into difficulties. So he he
+had to leave and he thought his job
+would be very uh uh wouldn't be in a
+fixed place that so he I got sent to
+Dharawa to be in my uncle's house. So my
+uncle was very kind. He took me in and
+uh I stayed there for 5 years
+and then went to school in Dharawad
+college also and then I went to IIT
+Bombay
+and then from ID Bombay I joined a
+company which then we're all working
+together and then Infosys was set up
+and you met Rohini in college. I I
+remember you guys mentioned
+I met Rohini because she was in uh
+Eelfinston College
+right
+I was in IIT.
+Yeah.
+And she described you as this badass
+person who did something when she
+narrated the story. No, no. What
+happened was I uh we had a quiz
+competition.
+So I was representing IIT in the quiz
+and the quiz was in Eston College and
+obviously we won the quiz.
+So I think she
+Why obviously you won the
+I mean we had that uh belief that we
+could we're good at this stuff. So uh
+that's how I met her.
+That's way back in 77.
+She's the more outspoken of the two of
+you, right?
+No, she's uh more spontaneous. She's
+more uh
+uh I would say more u emotional or
+mercurial or whatever.
+I'm more sedate. I'm I'm the boring
+type.
+And she says what she's thinking right
+away impulsively.
+Yeah. Yeah.
+She's obsessive about climate in
+particular. Right.
+Environment is a big
+theme for her part of a philanthropy.
+She's the biggest probably environment
+philanthropist in India. Uh
+do you agree and resonate with that
+belief?
+Oh yeah, absolutely. I mean I'm not that
+involved
+but she but I completely agree with what
+she's doing.
+Okay. So if we were to start the India
+stag journey I'm going to write it down
+because I'm learning with everybody
+who's going to watch this. Uh so Aadhaar
+first thing first. So the government
+asked you to build a digital ID. No, the
+government asked me to build a unique
+ID.
+A unique ID.
+There was no digital in it. I made it
+digital,
+right?
+Because I said in 2009, if you're going
+to build an ID, it has to be a digital
+ID.
+Okay?
+It has to be online. It has to be
+verifiable online with real time and all
+that stuff.
+So those were the value ad that my team
+and I did was how do we execute this
+using a digital first way. Hm. So in
+2009, what was the benchmark you set for
+yourself while starting the Aadhaar
+project? Who were you looking at? Who
+had done well with a unique idea? Who
+had done?
+Nobody had done it. So it was a it was a
+brand new idea.
+Is social security in America a similar
+concept? The number
+social security America came in 1936,
+right?
+Before technology and in fact the first
+use of mainframes was that. So
+mainframes were used because there was
+SSN. So SSN was a number but it was a
+paperbased number.
+Just tell us full forms of all of this
+because
+yeah so SSN is social security number
+which which the US did because what
+happened that what happened then was
+that Franklin Roosevelt
+during the uh you know the the 30s after
+the whole uh economic crisis in the US
+they came out with a scheme where people
+could get benefits in their old age
+Mhm. if they worked and then they had to
+then keep track of a person throughout
+the age right because they would
+contribute while they were working and
+they would get their benefits when they
+retired so that's how the needed to have
+a number that's how the SSN came about
+is that the main purpose which with with
+which government's ID unique IDs benefit
+transfer is that the main
+no benefits transfer is a big part of
+that
+uh in in our case in the Indian case
+there were two drivers one was efficient
+benefits transfer
+because
+since 2000 India has built more and more
+of a welfare uh programs
+which which meant you send money to
+people.
+Mhm.
+And they had to have a solid robust way
+of doing it.
+So one part of this was to make benefit
+transfer more efficient
+and therefore make you know government
+targeting more efficient for benefits.
+The second thing was an equally
+important driver which was that most
+people didn't have IDs.
+Mhm.
+Because in in many societies like in the
+west 98% of births are in a hospital
+and they get a birth certificate when
+they are born.
+Right.
+So that becomes the root document from
+which you can then get other documents.
+In India, births were not happening in a
+hospital. They were happening at home.
+They were happening in a village.
+So half the babies born in some states
+didn't have a birth certificate.
+Mhm. So which was fine as long as you
+lived in a particular area.
+Mhm.
+But if you started moving around, you
+know, migrating going to the big city to
+enter a car bus or to get a job or if
+the policeman stopped you on the road,
+you had to show some ID
+and most people didn't have an ID.
+So that was a very fundamental
+impediment for their progress. So
+inclusion of people into the formal
+system with an ID
+and making benefits transfer more
+efficient were the government drivers of
+this initiative.
+Right.
+And did the market play a large role in
+this process?
+No. What we we were looking at how do
+you create digital infrastructure
+on which market or private innovation
+could be done.
+Right? So and we call this as public
+rails and private innovation.
+This is broadly DPI.
+Yeah. So the but I mean the ideas
+evolved but it was actually uh you know
+constructed on concepts like I not on
+the internet. If you look at the
+internet, internet was funded by the US
+government,
+right?
+But on top of that, you had all these
+startup companies that came up, right?
+Similarly, GPS,
+right,
+was again created by the US Department
+of Defense, but on top of that, we had,
+you know, Uber and all these things, Ola
+and so on, maps.
+Mhm. So the notion that if you create a
+digital public infrastructure at
+population scale
+and open it up with application
+programming interfaces so anybody can
+build applications then it'll unleash
+innovation
+right
+so that was the philosophy of the design
+of Aadhaar and subsequently UPI as a API
+architecture which everybody could use
+and then whether it's a startup or a
+large company they could then build you
+know useful applications on top of it.
+Right. And when you started on the
+Aadhaar project, this was 2009.
+Yeah.
+How long did it take?
+Well, I I was in the government for
+about 4 and a half years
+and I had made a commitment that
+I would deliver 600 million people with
+Aadhaar by the time I
+quit and I did that. So when I
+stepped down, I had you know 600 million
+people had an ID.
+Mhm. And then of course it continued
+with the new government and now 1.3
+billion people have the ID.
+So after Aadhaar came
+EKYC and E sign on top of it.
+Yeah. No Aadhaar was an ID that just
+said nickel is nickel
+right. And this happened between 2009
+and 13.
+Yeah. And
+scaled up to 600 million.
+Okay.
+And with an online authentication. So
+you could go somewhere put your finger
+and verify that nickel is nickel. You
+say my number is 1 2 3 and the system
+would confirm that it is that. So we
+call that as online authentication.
+Okay.
+And then everyone's ID had a KY had the
+name and address and date of birth and
+all that.
+Mhm.
+That was considered sufficient KYC to
+open a bank account, get a mobile
+connection or buy a
+what does Aadhaar have? Name, date of
+birth, mobile number, address,
+sex, email ID and phone number.
+It is quite simple but
+it it was unique. A person could have
+only one number which was the design was
+how to make it unique
+right
+so then using the additional information
+in Aadhaar you could do a KYC
+and then the regulators agreed that this
+KYC was adequate to get a bank account
+or a mobile connection or buy a mutual
+fund or whatever.
+How did that work? How did you convince
+the regulator to accept Aadhaar as a
+Yeah. So we had to first work with the
+government of India under the you know
+many acts.
+Mhm.
+Uh because at that time uh you know
+prevention of money laundering act and
+there was lot lots of things happening.
+So we had to get it approved as a KYC in
+general. Then we had to work with each
+regulator.
+So we to work with the RBI to get them
+to accept it for banks.
+We have to work with DOT and TI for
+mobile phones. IRDA for insurance. Sebi
+for capital market. So we had to work
+with each regulator and we got all of
+them to accept it.
+And how much time did that take?
+That took maybe uh it took several years
+two three years. But important thing was
+that the
+growth of that category happened at
+different times. For example,
+the use of Aadhaar KYC in banking
+happened after 2016.
+Mhm. or 2015 rather 2015 when Prime
+Minister Modi wanted to do the
+uh Jandhan Yojana program which was to
+give bank accounts to everybody
+right
+and that was a big push from the
+government to issue bank accounts to
+everyone and Aadhaar KYC accelerated
+that because you could do a KYC
+Mhm.
+immediately and get a bank account.
+You mentioned somewhere that it brought
+down the time taken to give people bank
+accounts by from 47 years to 9 years.
+Yeah. So on the normal GDP if you had
+looked at it will taken 46 years to get
+to the level of banking penetration that
+we did in 9 years because you
+accelerated with digital technology.
+EKYC was the reason for that.
+Huh?
+EKYC was the main reason for that.
+I mean no I mean the there was political
+push, government push, customer demand,
+you know banks had to execute. So a lot
+of things went into it at time but
+the techni technological capability of
+doing a KYC you know online on the fly
+within 2 minutes
+reduced your transaction time and cost
+right
+so it is an enabler same thing happened
+with mobile connections so
+we launched other KYC in say 2012 13 but
+it's only when Jio got launched in 2016
+that they used Aadhaar KYC to enroll a
+million customers a day. Wow.
+Yeah.
+Because uh they wanted to get to 100
+million customers in 6 months.
+The only way to do that was to use
+Aadhaar KYC. So they used it and the
+rest was history so to speak. So they
+popularized the use of Aadhaar KYC in
+mobile industry.
+So Jandan did it in banking.
+Reliance Gio did in mobile and of course
+Zerodha did in capital market. So you
+guys used it together.
+We are big beneficiaries of EKYC. And
+did eine happen at similar time?
+Yeah, e-ign happened in 2015 when Ramsey
+Sharma who was my DG at when I was the
+chairman of UI, he became the IT
+secretary.
+Mhm.
+So he launched e- sign and digil locker
+and all these other capabilities.
+They came together. Eign and dig locker.
+Yeah, they came No they came. Yeah 2015
+they were launched at different time
+they became Yeah. But I would say they
+launched at the same time. So let's say
+digil locker is a wallet for government
+ids.
+No, it's a it's a general purpose
+omnibus wallet for all documents in a
+secure way.
+Right.
+Which you can keep on your phone or on
+the cloud.
+Mhm.
+And you can keep your driver's license,
+your Aadhaar card, your driver uh you
+know your PAN card, but it can be used
+by private guys too.
+How did you describe that general
+purpose?
+Is a general purpose document wallet,
+secure document wallet which can be in
+the phone or on the cloud.
+Mhm. which then you can keep all kinds
+of doc you can keep your high school
+graduations uh details you can keep your
+marks card it's not it can be any
+document so now there are billions of
+documents in this thing more than uh
+and what did people use e-ign for
+e-ign was to do digital signatures so
+you know to for example if you buy a
+property and you have to sign you can do
+a digital signature or if you signing a
+contract you can use digital signatures.
+So,
+and you couldn't do this up until now
+because you didn't have a unique ID and
+you could not authorize the unique ID to
+sign. But now you could.
+Yeah. Yeah. A number of things. Yeah.
+But effectively that
+so EKYC came in 201213, Eign in 2015 and
+Digilocker in 16.
+No, they both came in 2015.
+2015.
+But the big year was 2016.
+[clears throat]
+What what happened in 2016?
+It was a remarkable year for our digital
+transformation. First
+on April 4th, 2016,
+India reached 1 billion Aadhas.
+That was a landmark achievement.
+April 11, 2016,
+India launched UPI.
+Mhm.
+Completely independent uh coincidence.
+Mhm.
+September 5th, 2016,
+Reliance Jio was launched. Mhm.
+November 8th, 2016
+demonetization happened.
+Mhm.
+And December 29th, 2016, the prime
+minister launched the Behim application.
+Mhm.
+So in one year
+everything changed.
+Why do you add Reliance Jio to this list
+as a
+Because it transformed India's mobile
+industry. They launched
+Mhm. uh very low cost uh low lowest data
+rates in the world.
+Voice was free that created huge demand
+for uh smartphones. So smartphone prices
+fell.
+Mhm.
+You can see the data they're very clear.
+In 2016 onwards we saw the boom in data.
+Now before that we had a voice economy.
+Mhm.
+Prejo. We had a what are called as
+minute factories
+right? very cheap voice calls and you
+know but they didn't have data or they
+had data but not it was expensive
+what Jio did was completely collapse the
+price of data by creating a you know
+world-class 4G network
+Mhm. and made voice free. So it changed
+the whole economics and demand
+perception of telecom in India. It's a
+huge achievement.
+And what did beh do?
+Beam essentially popularized
+online payments because
+behi
+launched by the prime minister, built by
+NPCI
+and it for the first time
+NPCI is
+NPCI is the National Payment Corporation
+of India which runs India's payment
+systems. It's a it's a amazing
+organization.
+Mhm.
+So, NPCI launched Beh.
+Mhm.
+And then, of course, everybody was came
+in. You had Google Pay, Phone Pay, PTM,
+all that. And then, of course, today UPI
+does 14.4 billion transactions
+in a month. Can you explain the
+difference between a beam kind of
+transaction and a UPI transaction?
+A beam is a particular app.
+So I it's a consu consumer app on my
+phone on which I can initiate a payment.
+Mhm.
+UPI is unified payment interface which
+is the underlying protocol
+which makes the payment happen between
+two apps and two different bank
+accounts.
+Can you like break that down for me?
+What do you mean by protocol? I heard a
+bunch of I read a bunch of the stuff
+you've written as well where you use the
+word protocol a lot.
+Yeah.
+What is a protocol?
+Protocol is just a way of describing
+the packet of exchange of a transaction.
+Mhm.
+So UPI protocol is uh for
+so you're saying exchanging of
+information let's say I have ABC I want
+to tell you you want to tell me def that
+exchange is called a protocol. No, the
+exchange is done through a protocol
+which is a way of describing if if you
+look at the internet, the internet has a
+protocol TCP IP
+which described how data moves on the
+internet.
+Mh.
+So UPI protocol is a protocol that
+describes how payments payment values
+move in a payment network
+and that enables dissimilar
+organizations to talk to each other for
+that category of activity.
+What do you mean by dissimilar
+organizations? like two banks
+and two mobile apps. So example I am on
+behalf
+of India.
+Mhm.
+You're using phone pay or Google pay and
+you are in HDFC bank.
+Mhm.
+I can pay you in real time. You know why
+is that? Because the protocol everybody
+talks the same. It's like there's a
+language of that that business of
+payments. Would I be right in saying if
+UPI is the protocol that transfers value
+from one store to another and its first
+representation is INR and the first
+store is a bank account. That same
+protocol can be used for other things.
+Yeah, it's a it can be a multicurrency
+protocol.
+It can be for wallets, bank accounts.
+Tomorrow it can be used for CBDC.
+Mhm.
+So you can once you have that basic uh
+infrastructure on that you can add
+different types of uh accounts. So UPI
+will work as seamlessly for let's say
+remittances coming into India.
+No, that requires a little more work.
+For example, India UP NPCI of India
+under the uh ages of the RBI and
+Singapore under the ages of uh mass
+which is their central bank.
+Mhm. uh they have built a connection
+between UPI and Singapore's fast pay or
+whatever it's called
+that now I can transfer money from my
+bank account in a Singapore bank to
+somebody in India convert it for from
+Singapore dollars to Indian rupees yeah
+but you have to build those
+bridges so it's a bit cumbersome because
+you have to go to each country
+Mhm. and the two countries have to come
+out with the rules. That's why
+so would you say that bridge is like a
+translation between two protocols?
+Yeah. But it's also about things like uh
+you know fraud, prevention of money
+laundering, capital account
+convertability, a number of issues in
+when you do a cross country, right? I
+mean India for example, Indians can't
+transfer more than $250,000 a year LRS
+and so on. So whereas Singaporeans have
+capital account convertability. So how
+do you match the different rules of the
+two countries?
+Mhm. uh that a lot of the work goes in
+that
+right
+so tell us more about UPI because it
+seems like it's this thing that changed
+the entire ecosystem so you said it's a
+protocol INR representation store was
+one bank account to another bank account
+why did it scale in the manner that it
+did what did it provide that a
+traditional bank accountto bank account
+transfer did not
+well at that time there was before UPI
+there was no way for two people to make
+a payment to each other.
+I mean, if I sit with you, how do I send
+you money? There was there was no there
+was no way to do it.
+What if I go [clears throat] to my bank
+and do they used to have that net
+transfer and all
+Yeah. And you can do net banking and all
+that's all very you know you go there do
+something it's here I can just tap on my
+phone and send you money and the
+convenience real time ease of use and
+convenience was a different league. Now
+UPI was conceived in 2013.
+Mhm. And uh in 2015
+I became an adviser to NPCI on
+innovation and public policy
+and NPCI built it. Uh it took 3 years to
+build it and launched it on I said on
+May 11, 2016
+and it was you know designed by NPCI
+DASBY and others and Prammod on the
+architecture side Dr. Pmodma was also
+the Aadhaar architect. So all these
+people got together and designed this
+amazing very high volume, very low cost,
+highly scalable payment infrastructure.
+So it made sending money as easy as
+sending an email.
+Mhm.
+Or sending a WhatsApp message.
+Is that because now each person had a
+unique ID per se on
+No, you could have multiple. The UPI was
+actually more sophisticated in the sense
+that you could have a UPI ID.
+Mhm.
+So uh it could it could connect to a
+it's called a you know virtual ID. It
+can connect to a bank account. Uh you
+could use a account number. You could
+use a mobile number as the address. You
+could use a virtual name as the address.
+So nil at some access bank or something.
+So we all these possibilities are there.
+So it just made it easy to use.
+Mhm.
+And real time. So and then two big
+things happened, right? So
+demonetization gave the first
+boost to digital payments because people
+had to make payments and you know cash
+was not there and then the pandemic also
+people didn't want to hand over money
+they rather you know point to a QR code
+and send money so both these two
+tailwinds also drove the and of course
+the ease of use and the amazing benefits
+people got from it
+right so DPI journey let's say started
+in 2009 when you started Ed building
+Aadhaar by 2013 you had largely solved
+for online authentication.
+Yeah. Already up and running
+and benefit transfer via Aadhaar in a
+way.
+Yeah.
+2013 EKYC came about. 2015 e- sign also
+happened with digil locker and 2016 you
+had these inflection points of
+demonetization
+geo launch UPI beh being launched
+and a reaching 1 billion
+and a reaching
+at scale
+at scale
+you say this a lot whenever you talk
+about a problem you mention the word you
+mention the word population scale a lot
+like in every interview I would have
+heard you say it two three times That's
+why you shouldn't watch my interviews.
+[laughter]
+Why does that word matter so much to
+you? Why does everything you build?
+Because if you want to move the needle
+and if you want to use digital
+technology to move the needle, you can
+only do it if you reach everyone.
+You know, when you build a private
+company,
+you build for
+5 10 million people, 15 million people,
+the top people, rich people, whatever.
+Mhm.
+But in building a society scale
+transformation, you to reach everyone
+and India has a billion plus people. So
+you have to think how do you do things
+in a way that everybody can participate.
+How does everybody participate? So we
+have to give adha to everyone. We have
+to make bank accounts for everyone,
+mobile connections for everyone, you
+know, DBT for everyone. So the moment
+you want to do it for everyone
+Mhm. If you want inclusion to happen,
+you have to think at population scale.
+They say when most people get very rich
+very fast, they sometimes
+hate themsel and think the world is a
+terrible place and feel the world is
+unfair. Uh you get rich when they get
+very rich.
+Why is that?
+Psychology says that I think it's a
+partly impostor complex, partly
+something. They feel that it's unfair
+that they got so much whereas the rest
+of the world doesn't have.
+Oh okay.
+Post the success of Infosys.
+What drove you on this journey and is
+that why population scale matters? No,
+because at Infosys I had done a set of
+things
+but when I got a chance to do Aadhaar
+I I genuinely believed that
+digital technology used properly
+can make a big difference to lives of
+people. So I had that belief
+and it's there in my book 2008.
+So that and then I got a chance to
+practice those beliefs right I mean you
+know it's not it's all you can have an
+idea
+but somebody said okay fine great idea
+now go and do it right so it's a very
+different thing so I got a chance to get
+it done and then I realized that
+actually we have to do a number of
+things so the last 15 years we have
+built different uh parts of this
+infrastructure and I think it's made a
+difference because it's made it more
+inclusive everybody is in the system
+it's helped to formalize
+is driving economic growth. You know,
+all the all of that is happening because
+we have this way of thinking about
+digital infrastructure,
+right?
+And beyond 2016 when these inflection
+points happened, what came in 2017 18
+when did account when did account
+aggregation come about? Actually
+interestingly account aggregation the
+first conversation also happened in 2016
+because we if you look at the digilock
+architecture
+it was all about how documents could be
+stored exchanged and so on. So it was
+really a data exchange in in some way
+right and then we wanted to implement
+that in uh different areas
+and we had a architecture defined for
+that and it so happened that the reserve
+bank of India had come out with a idea
+of account aggregator to for aggregating
+data.
+Can you explain what is account
+aggregation?
+So account aggregation is I as a
+consumer let's say I'm a financial
+consumer.
+Mhm. Is it mainly for financial?
+No, it can be used for anything but
+finance is the most obvious use case. So
+if I want to create a bal personal
+balance sheet of all my assets and
+liabilities,
+right?
+I have to get a bank statement from all
+my banks.
+Mhm.
+I have to get uh detail of all my mutual
+fund assets,
+my insurance policies, my pension funds,
+my, you know, NPA, my EPFO,
+and bring all that together and
+construct my personal balance sheet.
+Mhm.
+But how do you do that? So you each of
+them has to give that data to you. So
+you need again a architecture protocol
+to say go to my bank get my bank
+statement go to my mutual fund get my
+mutual fund details whatever. So that
+ability to for individuals to construct
+their balance sheet out of all the
+various data is what account aggregation
+is but it has many uses. So one use of
+account
+so if I have to summarize account
+aggregation should I say it's a
+repository of one's financial data? No,
+it's not a repository. It's just an
+exchange.
+The data resides where it is.
+It's a realtime system. So, let's say I
+want a loan.
+M
+I go to my account aggregator who who's
+working on my behalf.
+Mhm.
+And the many of them I go to them
+and the account aggregator is not
+holding on to the data.
+No, they they don't touch the data,
+right?
+They only they're a conduit.
+So, I go to my account aggregator and
+say I get my bank statement from bank X.
+M
+so it's a realtime request from me via
+the econ bank bank gives my statement
+for the last 6 months transactions or
+whatever
+then I say go to GST system and get my
+and they give you that data without
+being able to read the data
+yeah they encrypt it and give it
+right
+no they can read it because it's from
+the the bank knows what the data is
+but the account aggregator does not
+so when it comes to the account
+aggregator is encrypted and signed in a
+way that they can't peak into it
+right
+so they have to give it as is to
+wherever you want to send it,
+right?
+Whatever you start from a source
+and give it to a destination. The source
+is called financial information
+provider,
+right?
+So, a bank or a mutual fund.
+The destination is a financial
+information user,
+right?
+The guy who will use this data.
+So, if it's a loan as an example, I'll
+go to my bank, get my bank statement.
+I may get two, three bank statements
+from two, three, three different banks.
+I may uh get uh my income tax returns
+from the income tax system saying look
+I've filed my returns and paid TDS so
+that data
+and I'll give all this to a lender
+and then the lender looks at that data
+and says yes this guy is eligible for a
+you know loan.
+Mhm.
+And all this is happening in real time
+digitally.
+Mhm.
+Same thing for a business. A business
+can also get its bank statement, GST
+returns,
+give it to a lender and lender gives a
+loan.
+So it's actually enabling reducing
+friction for financial activities,
+right? And this was conceived in 2016.
+Yeah.
+And it's it got implemented when?
+O over the last uh uh seven, you know,
+seven years,
+right?
+And uh uh it's been rolled out. It's
+it's scaling up now. There's a group
+called Sahamati which is orchestrating
+this whole thing
+and hopefully Sahhati will become an SRO
+self-regulatory organization
+all the banks have tied up many lenders
+are using it
+so but also it's you not just lending is
+just one activity lending is the bulk of
+it today
+but personal finance management people
+are building apps other people are
+building capital market apps so it's
+it's again Sebi is you know completely
+on board RBI so it's it's A it's a
+moment to transform financial services,
+right? What comes next in the India's
+India stack DPI journey after account
+aggregation.
+Well, a couple of other things
+which happened was the fast tag system.
+Mhm.
+Which I had designed in 2010.
+Mhm.
+And that was to give everybody a every
+vehicle an ID. So just like Aadhaar gave
+every individual an ID,
+fast tag essentially gives every vehicle
+an ID which is connected to a a value
+instrument, a wallet or a bank account.
+Mhm.
+And that streamlined the movement of
+vehicles on highways.
+Mhm.
+And today that does 2.5 billion
+transactions a year.
+Will it get to the point soon where you
+don't have to stop?
+Yeah. I mean you don't you have to slow
+down
+because it takes time for the RFID tag
+to be read but it's pretty efficient I
+mean compared
+if you want to make it completely
+without stopping maybe you have to use a
+different uh technology but this was
+good it reduced from
+people waiting for hours to you know
+seconds so it's not bad
+correct so fast
+fast also platform so fast was a
+platform where a vehicle could make a
+digital payment on the fly Right.
+So the first use case of that was
+electronic uh I mean uh toll tolls
+but can also be used for congestion
+charges
+right
+or for parking. There are now startups
+that use it for parking
+right
+so it's again a platform thinking
+applied to um vehicles.
+I also wrote down IPO applications
+online tax collection online remittances
+SIP plans startups
+digital IDs digital rights. Oh no for
+example ASBA which is when you apply for
+an IPO
+you reserve some money for the IPO the
+money is deducted from your account only
+if you get allocation in the IPO
+right
+that was completely made with the uh UPI
+and now half the transactions IPO are on
+the mobile phone UPI asar transactions
+that made IPOs so much easier to do.
+Mhm.
+And now they're doing IPOs for secondary
+markets. So I can buy I can do it. So I
+think all uh I'm using UPI for secondary
+instance and then the whole you know
+over time Indian
+everything goes to real time
+right
+so you know T t T T T T T T T T T T T T
+T T T T T T T T T T T T T T T T T T T T
+T T T T T T T plus2 trading, T+1, T plus
+Z trading on the capital market side,
+real time bank account transfers, real
+time like for example today when Indians
+file income tax the refunds come in a
+matter of days,
+right?
+Nowhere else you have this kind of
+stuff,
+right? So now me as a 20-year-old or 25
+year old figured out the India stack
+journey broadly what do I build today
+that is your innovation
+but give me some suggestions
+I mean look
+let's say I'm able to raise 1 cr rupees
+from somebody you give
+yeah and what do we build on top of any
+of this today which is like lowhanging
+fruit opportunities
+well you know it's up to people I mean I
+Look, I when I see the companies that
+use this,
+I I see idea that I I would never have
+thought of. You know, the other day I I
+met a company from
+Lucknau,
+which is helping
+roads roadside, you know, these street
+vendors to get supplies. So, they're
+like a B2B company that provides
+all the supplies. For example, if I'm
+running a small stall, food stall, I
+make
+omelets or masal dosa or whatever.
+Earlier the guy and then many of them,
+right? All of earlier those guys would
+get up at 3:00 in the morning and go to
+the market and buy eggs and bread and
+you know spend 3 4 hours buying stuff,
+vegetables, whatever. Now these guys
+built a app for them to order and it's
+delivered to the cart and they pay with
+UPI. M
+so this could not have been possible
+before that. So suddenly that guy saves
+three or four hours a day and then he
+can spend he can have a longer day and
+he can have higher production
+and that's that can that thousands of uh
+street vendors are using this. So just I
+mean who thought about this right or or
+there's like jar for example which does
+daily savings
+you know every day it takes a little bit
+of money from your account.
+Do you think that's a good idea? Yeah,
+why not? It was invented by syndicate
+bank
+as you are aware.
+There are there are examples of similar
+companies in the west which round up.
+Yeah, but not on this uh you can't
+it doesn't do it on this scale. See in
+India the pygmid deposit
+was invented by syndicate bank
+in the 1920s.
+So they had this pymid deposit
+collectors
+who would go to everybody's house every
+day and take five rupees and accumulate
+in the bank account. Mhm.
+So it was invented here 100 years later.
+We completely digital version of that.
+They they do 22 transactions per month
+per user. That's a hell of a lot.
+So So the fact is that in India you can
+now build a system where I can set up a
+autopay and deduct 5 rupees a day from
+my account and save it in a bank account
+or save it in a gold loan or whatever
+they do.
+That is a remarkable way to bring
+everybody in. No. H
+what is feed and the beckin protocol?
+Yeah. So what happened was
+we were uh thinking about how to
+three of you right?
+Yeah. So so we had worked on UPI right
+so PMO myself
+we had all worked on UPI and we saw how
+a well-designed UPI protocol
+could unbundle payments
+and suddenly everything changed. M
+so we said if you can unbundle
+transactions
+then you can create new business models
+where different people can talk to each
+other.
+Explain what you mean by unbundle.
+See let's take e-commerce
+right? How does e-commerce work today?
+I go to a some platform. I get an app
+from that platform. I look up some
+product on that app.
+Mhm. from one of the suppliers listed on
+that platform who has gone through the
+checks of that platform. Then I order
+something
+and then their delivery agent delivers
+it to my house.
+That's how that's a integrated
+e-commerce.
+However this but suppose you take this
+e-commerce transaction and unbundle it
+say and this is like UPI thinking right
+up also it's not everything my account
+your account my it's all different. So
+on my app I can place an order from any
+supplier listed on the ODC grid.
+Mhm.
+And I can use any delivery agent to have
+a delivered home.
+Would you say is something built? Is
+beckon a protocol on which ODC?
+Beckon is a protocol which is a general
+purpose protocol.
+Explain what that means.
+It can be used for many applications. It
+can be used for anything. It's a
+transaction protocol. It's it's a way to
+do transactions to buy things. M and Fed
+at Fed came up
+is a is a nonprofit which stewards this
+protocol
+this protocol is an open source
+so
+just explain protocol in another way
+right so everybody understands
+yeah so it's again going back to
+what are the rules what is the language
+of a transaction between two parties I
+need a way to describe that
+so UPI described as I explained earlier
+a payment transaction between two
+parties
+you're talking about the rules of the
+language
+rules the actual yeah actual what are
+the things in it
+m
+the you know the structure of it what
+what are the fields and stuff like that
+so when you say beckin is a protocol you
+mean it's a bunch of rules
+of the language beckon in a way
+no it's a bunch of rules for
+transactional stuff for people to buy
+and sell things
+and it can be used in commerce
+soc
+uses beckon as underlying protocol
+and today does 12 billion transactions a
+a month.
+M
+it's used in mobility with Namayatri
+which does 50,000 transactions a a day
+where people are ordering auto shas
+again
+you know it's a different model than an
+aggregator because you pay directly to
+the taxi auto guy.
+Mhm.
+And it's being used in energy. We
+building something called unified energy
+interface.
+So people can buy and sell electricity.
+So any anywhere that you have to buy and
+sell things between different people
+Mhm. in a consistent way.
+Mhm.
+Beckon is the way to do it. Beckon is a
+way to do it.
+So if I want to build something on top
+of beckon, how do I go about it?
+Well, you have to choose where you want
+to do it. Do you want to do it in
+commerce, mobility, financial services?
+You have to choose.
+Let's say mobility. Let's say I want to
+build something using the transaction
+protocol beckon a financial uh uh
+something for like transport.
+No, this is what Namayatri has done,
+right? Namayatri has built a platform
+where I can
+find an auto on Namayatri exactly like I
+do it on my other platforms. But when
+that auto comes to me, I I bilaterally
+make a transaction and pay the auto
+autoria.
+Mhm.
+And I pay 100%.
+Mhm.
+And I pay immediately.
+M
+and the So this is a different from
+being an aggregator which is sitting
+between you and the auto. It's it's just
+a it's more of a discovery place.
+And the way the platform makes money is
+that autoria driver pays a daily SAS fee
+to use the platform.
+So it's a different business model.
+When you say he pays a daily SAS fee,
+what do you mean?
+He pays the company 25 rupees a day
+to use that platform to get customers
+unlimited customers for the day. So
+unlike in the other previous model if I
+pay 100 rupees then maybe 30 rupees goes
+to the platform in between.
+In this model if I pay 100 rupees 100
+rupees goes to the driver of the auto.
+So me if I'm a business called namayatri
+ordc I build on top of beckin this
+transaction protocol as service and then
+I charge a SAS fee to the end user who
+uses it.
+Yeah. Does that
+work in reducing the monopolies and
+duopolies which exist in
+it will it'll open up the markets and
+create more opportunities. I mean so
+right
+it's the the full scale of what you're
+saying what can guys do that guys can
+disrupt many industries using this
+approach which you could not do earlier
+and you're going to start seeing that I
+mean I'm seeing some early signs see the
+first use of these protocols was to
+mimic what already happening right
+so Amayatri already does what
+aggregate mobility aggregators do orc
+does what e-commerce guys do. So they
+they but now energy was a new idea that
+you could now have a way to transact
+energy like charging stations. I can go
+to a charging station and buy
+electricity through UI or tomorrow
+somebody may say I'll do a
+beckonbased version of quick commerce
+where instead of my investing in dark
+stores
+I will use the retailers in my
+neighborhood
+right
+and I'll provide a quick commerce
+capability
+is that a good business idea
+I don't know I'm just you're asking me
+ideas no I don't know you tell I'm not
+you're the guy who's investing
+what do you think of AI. I've heard you
+speak of AI in a manner where
+uh you firmly believe that large
+language models and building a model is
+going to be commoditized.
+It's already commodized.
+Yeah. And nobody should spend energy on
+that but you speak a lot for the Indian
+language and the nuance of it and
+building rappers on top of these models
+to cater to that. Uh can you elaborate
+on that? What do you think?
+Yeah. So there's a couple of two three
+different points here. One is
+large language models in my view will
+become a commodity. They are already
+becoming a commodity.
+The drivers for the western guys to
+spend billions of dollars is essentially
+because they're in a competitive
+land grab situation.
+Mhm.
+So they all have to invest because not
+to invest is
+dangerous for them. So they collectively
+are investing $200 billion a year buying
+all you know chips putting data centers
+a all that but they have to do it
+because if they don't do it they'll fall
+behind. So that's they have a compulsion
+to do it but the good news for us is all
+that is going to lower the cost and
+access to AI over time. It's already
+happening and then open source AI is
+coming. People like Meta have just
+launched Llama 3 and uh so and they're
+going to give it away free. So I think
+this building a LLM is a Mug's game for
+us
+and it's it's great for somebody there
+but not for us. Our job is to leverage
+all this technology in a very lowcost
+way to deliver value to our people.
+Can you give us a couple of use cases?
+Yeah. So and India language is the use
+case which we have taken as the one of
+the top priorities because India
+there are 22 official languages. There
+are 300
+or 400 many more thousands of languages
+dialects this that and if you really go
+back to population scale as we talked
+about it how does everybody interact
+with a computer
+to use a keyboard you need to know
+English even to use a touchcreen you can
+do visually but you can't read
+but if you can speak to the computer and
+if you can speak in your language of
+choice your mother tongue then suddenly
+you can access the entire knowledge in
+the system.
+M
+so the it's a dramatic increase in
+access.
+So if a farmer in a village in you know
+up can speak in Hindi to the computer
+and the computer can go and get some
+information on
+planting techniques to him and tell him
+in real time back suddenly we have made
+the world's knowledge accessible to that
+farmer in his or her language.
+So that's why AI is useful to bridge
+this gap of communication. So that's why
+language AI is important for India. I
+mean AI is going to be like electricity
+is everywhere. So everything will have
+some AI component in. We are I'm we
+looking at how we can use this stuff to
+make people's lives better,
+right? Do you think voice will be big? I
+remember like when we were doing broking
+10 years ago or 15 years ago, there were
+systems where you could say by voice,
+buy particular stock, x quantity, y
+quantity, all of that.
+It never really took off. But do you
+think voice controlled automation is a
+big use case in the near future? Well,
+if you don't know how else to access, I
+mean if you may have a choice by either
+saying buy X stock for Y rupees or by
+keying in buy X talk for Y rupees. So
+you have a choice. But the guy who can't
+read or write the only way is by
+talking. No right. So Nandan growing up
+whenever I thought of artificial
+intelligence AI per se
+maybe I was wrong in thinking of AI as
+AGI but I thought it's when somebody
+else can think for me
+whichever model I've kind of used a
+little bit of it doesn't feel like
+somebody is thinking for me it feels
+like somebody's executing better what
+I'm thinking.
+Do you think it's right to call what we
+have today AI? Whatever those guys got
+together some 60 years back and called
+it AI. Now we can debate whether they're
+right name or wrong name
+but I firmly believe what you said which
+is this stuff is going to make our
+ability to do things better. M
+certainly [clears throat] not a
+replacement for what human beings can
+do.
+And in terms of all this money being
+spent like I track the American markets
+and I look at how much money these guys
+are spending
+100 billion across
+but the revenue from AI is far lower
+than the capacity that people are
+building and to a large extent one can
+assume this capacity will become it'll
+depreciate very quickly in value over
+the next 5 years. So do you think we are
+in bubble territory because the money
+going in is significantly higher than
+the revenue coming out?
+No. At some point if the returns don't
+happen and markets may choose to
+correct. I'm not a markets guy so I
+don't know about that. You decide that.
+But you have to look at the incentives
+for these guys.
+Mhm.
+They can't afford not to do it.
+So they would rather spend $50 billion a
+year each of them
+then not spend $50 billion maybe save
+$50 billion from they make lot of
+profits but if there's a big platform
+shift in 5 years and they don't have it
+then they're out of the game permanently
+right so the cost of not doing it is
+higher than the cost of doing it
+so you think like that
+you're making a lot of investments in AI
+companies right I once got tanoj in your
+house and I asked him tell me all that
+you guys are doing
+no we do
+most of this is philanthropic I mean I I
+fund
+AF for Bharat at IIT Madras the mostly
+philanthropic
+but are you seeing anyone in India do
+anything relevant you can tell me India
+and outside of India which are the
+companies which are doing the coolest
+things in AI which have the biggest use
+case
+no I think uh there are many I mean uh
+there's a company called Sarwam which is
+doing AI stuff
+is doing with cru I I haven't I don't
+I'm not really interested in the company
+so much.
+My interest is how do we use this stuff
+at population scale low cost
+to make a difference in education or
+health or farming or whatever.
+So what is the fintet? Sedhart has been
+talking about this for years. I think he
+told me first about this 2 years ago or
+3 years ago. What is the fintet and why
+is it so interesting as a evolution of
+whatever we have today? Well, in some
+sense, Finet brings together the
+the traditional the mainstream financial
+system that we have
+and marries
+it to the possibilities that
+cryptographic techniques have taught us.
+you know the concept of uh blockchains,
+the fact that everything is on one you
+know uh chain uh immutability of data
+and so on. So there very some very
+powerful ideas that the cryptography has
+brought in.
+What is fintetate? What is cryptography?
+Cryptography is you know the the fact
+that you used uh uh all this u
+technology to
+make things immutable in the sense you
+can
+if you create if you look at a
+blockchain everybody can see the same
+thing and every change made is also
+visible to everybody. So it's a it gives
+you the tools to create instead of
+having a reconciliation between you all
+of us that act as a public
+reconciliation of whatever it is some
+transactions.
+So that's what is used by the
+cryptocurrency guys. So let's separate
+cryptography or crypto technology from
+cryptocurrency.
+So that capability of immutability of
+creating chains was used to create
+bitcoin and ether and all these things.
+Basically everybody can see and verify
+the transactions
+without any in the old world or in the
+current traditional world you know
+there's a custodian there's a settlement
+guy there's a regulator all the they the
+crypto cryptocurrency guys came from
+this saying that we don't need
+authority so when if you don't have
+authority how do you resolve things
+we'll use software to resolve it that's
+the broad broad theory right so but
+there's lot of good very technology
+there but that has gone into its own
+issues because when you start building
+financial system that are not part of
+authority
+Mhm.
+then you end up with all the uh you know
+costs of that you know money laundering
+and terrorist financing and all that
+stuff and we saw what happened to many
+of these crypto guys. Can't that be
+scammed? Like whenever I looked at the
+crypto world, if I were to think
+regulation is everybody viewing
+transactions verified either by proof of
+work or proof of stake or even proof of
+time. Uh if the chain in itself is not
+large enough, can't it be easily
+uh scammed or conned into going in a
+certain direction? I
+I don't know enough to answer that. But
+they took a technology
+But on top of that they layered currency
+and they layered ideology.
+So they said we'll create our own
+currency.
+Mhm.
+And they created some 15,000. Everybody
+creates some coins,
+ICOs and all that.
+And they said we don't want authority.
+We we don't trust the state. So we'll do
+it through software.
+So that got them into all their issues.
+So what we have done is we said look we
+should separate all this. There's some
+great technology here which we can use
+for
+high volume lowc cost transactions
+and if we can somehow bring that high
+volume low cost transaction capability
+to the current world by a common way of
+doing it then suddenly we can take our
+mainstream world and turbocharge it.
+That's ex exact ex what fet does. So fet
+allows you to essentially airdrop
+like a modern engine into the existing
+system
+which is interoperable in
+which is interoperable. So if it's in
+the banking system then I can take a
+bank deposit and following certain rules
+I can tokenize it
+and then I can trade the tokens like
+very fast
+and then when I want the deposit back I
+can un convert it back to a deposit. M
+so the ability to take different kinds
+of assets convert them to tokens then
+use a high speed engine to transact and
+then untokenize them at the end
+is a common thing whether it's a bond or
+a stock or whatever
+so that ability in a nutshell is what
+the internet does it it's a architecture
+to do that
+right and when it's implemented if it's
+implemented what will be the first use
+cases of it
+that depends I mean uh if it's in
+capital markets
+uh it could be uh you know a new types
+of ETFs
+right
+you know which which allow you to do uh
+which allow you to create consumer
+products
+which are different bundles of things
+but you can trade them very fast
+within banking it could be tokenized
+deposits it could be uh enabling uh
+private assets to be you know
+collateralized
+I mean we don't know exactly where this
+will go because we have given a a
+framework
+and uh different sectors and different
+countries and different entrepreneurs
+and different regulators will identify
+different use cases. The the interesting
+thing is this goes back to our thinking
+that if you unlock something
+Mhm.
+then innovation will flourish because
+you defined the rules of the game. So
+that's what we're doing.
+Yeah. I'm going to ask you some
+questions like really fast answer
+questions. What do you think of CBD?
+Where is it at? What is the future? CBDC
+is is a central bank you know sort of
+currency but CBDC ultimately will be one
+more category in the internet
+right
+so you need users I think the big use of
+CBDC actually is in wholesale
+so when you do crosscountry transactions
+you can do settlement much faster if you
+both use CBDC's so then today's
+settlement complexities go away
+capital account convertability do you
+think India will change is it good that
+we are in the like you mentioned the LRS
+cap and all of that will that go away
+I mean again it's not my decision but
+but I I believe the trend is it'll go
+away in my view it'll get more and more
+liberalized because India will get lots
+and lots of dollars already get $ 108
+billion of remittances that will go to
+say 200 billion we'll get FDI we'll get
+and outflow is maybe 20 billion
+is 20 billion in inflow is you know 100
+billion just remittance forget about
+other things
+so sooner or later the system will have
+to liberalize. So, but the way they'll
+do it is a little bit progressively.
+So, they'll take the LRS cap up
+or NRIs per year now they can take a
+million out they'll change. So, they'll
+keep on the edges liberalizing it in my
+view over the next 20 years whether
+it'll be full countability or is not my
+decision. It's a political decision.
+But you think more will come in and then
+go out if it
+a high growth economy. The FDI will
+come, FI will come, remittances will
+come. Mhm.
+So
+in crypto what's your opinion on the
+crypto world?
+I I think uh the crypto world is has lot
+of issues uh and uh now we seeing the
+cost of that. So I think that's where
+the fet is important because internet
+essentially brings all the technology
+advantages of crypto world into the
+mainstream economy.
+Overregulation underregulation what's
+happening in India today?
+It depends. Yes, I mean I think uh some
+markets are well regulated, some maybe
+under, some over. I mean there's no
+nowhere in the world there's one perfect
+answer for that.
+Where do you think we're leaning on?
+Which side total?
+I think we are on on par with I I I
+really don't know about overall
+regulation but certainly on digital
+regulation I think we are on par better
+than most people.
+Socialism versus capitalism. I mean, I'm
+a believer in markets and capitalism,
+but I also believe society must define
+rules for competition and innovation.
+And last words to a 20-year-old me
+starting work tomorrow with 1 cr that I
+borrowed from someone. What do I do?
+I think uh I have never seen so much
+opportunity. I think the ability for
+young people today to create successful
+companies has never been higher.
+But I'm confused with too much
+opportunity. I want you to tell me one.
+No, that is you have to I mean you you
+have to there's something called the
+tyranny of choice.
+You know there's so many things to
+choose from. You go to a supermarket
+there's 17 varieties of you know cheese
+or something then you get lost.
+So half of life is doing deciding what
+not to do.
+So you chip away and
+you know remove stuff from your
+thing and focus on a few things but the
+opportunity is huge. Mhm.
+sector-wise any particular opinion like
+right now we're hearing a lot of defense
+is big, energy transition is big like I
+personally have been researching what to
+do in energy transition for a year. Uh
+any outlook on that sector or any
+insight that
+energy transition is huge. It's going to
+involve trillions of dollars. But where
+do investors make money in the private
+markets is not clear because energy
+transition is a big capital game, right?
+I mean building massive uh solar plants
+or stuff like so we have to figure out
+see there's two there's big energy and
+little energy big energy is the grid
+little energy is thousands of homes
+having batteries and rooftop solar
+so the opportunity is actually in in
+this little energy where there's lots of
+players and how do you make that
+efficient how do you create markets
+there
+right yeah that's it thank you Nandan
+thank you so much for taking the time to
+do this
+thanks NL
+I hope you didn't get bored Not at all.
+Very very exciting.
+Okay. Super. Thanks, guys.
+Boss now. Okay. I want to go. [laughter]
+How long was it?
+15. That's
+okay. I used to shoot it for 8 hours.
+Yeah.
+Shoot for 70 hours.
+I know.

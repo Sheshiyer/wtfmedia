@@ -1,0 +1,4746 @@
+How you guys see different sectors
+evolving? Where can me as either a
+investor or somebody looking to start my
+career as a young man or woman have
+enough tailwinds that it makes sense to
+spend the next decade in?
+[Music]
+Ready?
+[Music]
+Yeah. Yeah. It's done.
+[Music]
+So maybe we start with small
+introductions, maybe two minutes on who
+you are, how you got to be where you
+are, and what you're doing now. Would
+you like to go first?
+>> Sure. Um you know I I started well
+depending on how far back you want to
+go. I was I was from India.
+>> Why DD?
+>> Why DD? My real name is Debbar Hodas. In
+the city of Kolkata that's not as
+uncommon a name as you'd think. But even
+in the city of Kolkata where I'm where
+I'm from, nobody could say that name. So
+very quickly in high school we had to
+call me something else and my initials
+are DD. But then they didn't solve the
+problem because then you have to explain
+what my name actually is anyway. And so
+then I just came up with the moniker DD
+in not DD the Dexter's sister. Um and so
+I spelled it a little bit differently
+and that's that's what stuck. So that
+stuck in high school and it's been DD
+ever since.
+>> So what did you study? When did you come
+here what do you do now?
+>> Awesome. So 2011 uh got to America for
+the second time. I was here as a kid for
+a bit. Um I went to Cornell. I studied
+computer science. I did my undergrad and
+my my masters. Uh first job was Meta in
+New York. did that for a year. Then went
+to Google in New York, traveled a little
+bit. So spent some time in Israel,
+Bangalore. Uh and then I was on the
+founding team of a company called Glean,
+which is a GCbacked company as well and
+spent a good four years there. Towards
+the end of my time at Gleen, I went from
+doing engineering to managing to uh
+running their AI product line.
+>> What did Glean do?
+>> Uh Glean started as an enterprise search
+business. Um happy to dive into what
+that means. Um and then it evolved into
+generally an enterprise assistant and
+knowledge finding tool for bigger
+companies to figure out hey like answers
+to questions like what do I do for on
+boarding or what is our holiday policy
+or even very specific questions about
+what does this person do at the company
+and how can I find this doc all of that
+stuff um clean is now like a $7 billion
+company it's done fairly well so far
+after four years there I decided to try
+something else I' my friends would joke
+I in a span two years I went from
+engineering, management, product and
+then venture. Um, but I was just looking
+for something fun to do and so I joined
+Menllo about a year and a half ago and
+uh I'm at Menllo right now.
+>> And what does Menllo look at
+specifically?
+>> So you know Menllo let me to give a
+background is been around for quite a
+bit of time. It's a 48-year-old fund. Um
+we are now investing out of a $ 1.5
+billion fund but we have like about 7
+billion under management. Our focus
+right now is, you know, our maybe
+landmark investment today is we're big
+investors in anthropic. Um, but our
+focus right now and my focus at least is
+seed and series A uh deals for AI, SAS,
+infra sort of all over now. Nowadays,
+everything is a bit of AI.
+>> Um, but the entire fund does everything
+up to like a series B and sometimes C's
+and D's as well.
+>> So,
+>> right. Uh we also do have a good biotech
+practice and a consumer practice and the
+rest of the stuff we do is primarily
+like software adjacent.
+>> What is the anthropic story? Can you
+summarize for us?
+>> Oh my god. What is the story? Um
+the anthropic story was and may I'm
+probably not the best person to tell
+this story but a few people left OpenAI
+wanted to do um a foundational model
+company somewhat differently and they
+built a and both of them hadn't figured
+out a business and now Anthropic has
+sort of built a model that eventually
+became very good at coding and it got a
+a ton of recognition for that and then
+it sort of now Anthropic I would say is
+a company that's you know trying to
+solve AGI but they believe the route
+there is through reasoning coding and
+things like this um they very distinctly
+do not really do much outside of
+texttoext models um so less audio stuff
+um things like that and that's really
+their primary focus and in terms of a
+business they just serve enterprise
+customers primarily they do have a
+consumer app but that's not not really
+the the prime business.
+>> Thank you. Would you like to go next?
+>> Sure. Um, I'm Nikon. I I moved to the
+States half my life ago. Nico and I were
+just chatting about it 17 years ago. I
+went to Urbana Champagne to do
+electrical engineering and computer
+science. Uh, and then I moved to the Bay
+13 years ago, which when you meet, I
+don't know what happens to both of you.
+When you meet new people in their 20s
+come here, I feel like a boomer. It's
+like feel like legitimately feel old.
+They're like, "When did you move here?"
+13 years ago. and they're like look at
+me and they'll start eye rolling
+>> like 3 weeks ago.
+>> Exactly. Um and then yeah I was an
+operator for 11 years. I started u my
+career at LinkedIn. I spent two years
+there and then quickly got the startup
+bug. Um did four startups backtoback
+where I was the first PM at a few of
+them. I joined a company called Hall
+which did enterprise communication. I
+joined and one week later Slack launched
+which was a tough one year but uh heard
+that one.
+>> Huh. Yeah. Yeah. It was I picked the as
+as venture capitalists say you picked
+the right area but the wrong horse.
+>> You guys had a great URL back then,
+right? Whole.com.
+>> We still have.com. Yeah.
+>> Amazing.
+>> Yeah. Uh a class bought the company,
+didn't want to go back to a large
+company and then I joined a company
+called ship uh that did first pile
+parcel delivery. I got really enamored
+by the physical world. This was peak
+Uber days. Uber was crushing. Um spent
+two years there. really loved enjoyed
+like you know how do you build end toend
+products iOS web but with a large
+operations angle um and then my best
+friend worked at open door which is a
+real estate company he said why don't
+you come join the team there
+>> can you tell us a bit about open door we
+were discussing earlier but it's
+interesting
+>> yeah it's it's in the news right now
+because it's become a meme stock that's
+like growing really well but um I still
+fundamentally believe in the mission so
+I think unlike Like other countries in
+the world where a transaction cost for
+buying or selling a home is 1% or lower,
+in the US it's 6%. Which means when
+you're trying to sell a home, agents
+take 6% of the commission. And that's
+crazy. Residential real estate is the
+second largest asset class in this
+country. And there's a 6% tax doing
+that, which is just mindboggling to me
+as like uh someone looking at the space.
+And so the company was founded by four
+founders uh Keith Boy, Eric, uh JD, and
+Ian. And their model was we will buy
+your home unseen. So every home that's
+bought and sold in the country is on a
+register called the MLS. And so using
+machine learning, they said, "Hey, we
+could figure out what the true value of
+this home is." So, you enter an address,
+answer a few questions, and we give you
+an allcash offer to buy the home in one
+minute, which is very different than you
+having to stage your home and list your
+home and pay an agent a transaction fee.
+In one minute, you get that fee. So,
+>> and Open Door held the inventory. They
+owned it.
+>> Open door held the inventory. So, yeah,
+we would buy the home,
+>> we would refurbish it, and then we would
+buy from the buyer perspective, you
+could enter any home anytime you want,
+and you can buy the home all online, all
+transaction. It was a great journey. I
+like you know some of my formative
+learnings came from there. Uh spent four
+years there had to like you know saw the
+company 2020 had to fire 35% of the
+company and we went IPO 6 months later.
+Yes. Craziest six months of my career.
+Um but then I only like doing early
+stage so I joined a company called meter
+which does networking hardware.
+>> I'm meeting him tomorrow.
+>> I know.
+>> Yeah.
+>> Yeah. He's
+>> he's Yeah. He's amazing. I I wish I get
+the opportunity to back people like him.
+GC did a big round there as well I
+think.
+>> Yeah, recently. Yeah.
+>> Yeah. Um yeah, it's an 10 year overnight
+success story. Company's been around for
+10 years.
+>> Two brothers.
+>> Tell us a bit about meter.
+>> Yeah. So, similar to open door where you
+know there's so much friction in the
+home buying and selling journey. Today,
+if you want to equip a space like this
+for internet, it takes six different
+entities to do it. There's the internet
+service provider, there's a hardware
+maker, there's a cabling installer,
+there's like, you know, other things you
+have to do. Uh, and then you have to
+maintain the networks over time. And
+imagine doing that for like a 10,000
+square ft, 100,000 square feet space.
+And so companies have to pay capex.
+You're paying tens of thousands of
+dollars in hardware up front and you get
+nothing on day zero. So meters
+completely transformed the model where
+um you pay nothing upfront. All the
+hardware is meters and you just pay per
+month per square feet uh and they take
+care of all the hassle and also the
+maintenance. So you just like point to a
+space and meter takes care of
+everything. I did 10 10 years of
+startups by then. And so um I I was just
+looking to figure out a way how can I
+help founder in the plural rather than
+founder singular. Um and I wasn't sure
+if I want to do investing and so I was
+very lucky that the coastal ventures
+team and the node especially were very
+kind to have me there for a year. Uh I
+was very open. I don't know anything
+about investing. I've done angel
+investing but that's very different. Uh
+spent a year there and really enjoyed
+it. The team is exceptional. I can only
+say good things. Uh but decided I only
+wanted to be part of a small fund. Um
+only doing seed in series A. Each
+investment is like you know very few
+investments a year like I have a more
+concentrated strategy and so I just
+joined a new fund called FPV ventures
+about a couple of months ago.
+>> How big is the fund?
+>> Uh fund is about five it's a fund too.
+It's $525 million. Um we primarily we'll
+focus on series A but we'll do some seed
+and series B depending on the when we
+meet founders.
+>> Right.
+>> And is there like a sector focus?
+>> No very generalist and that's what
+attracted me towards the fund. Our fund
+one has everything from biotech, quantum
+computing, AI chip design to consumer
+fintech.
+>> Very much the the FPV stands for
+founders point of view and we mostly
+care about the founder and the team that
+we meet.
+>> Nice. And how old are you, Niko?
+>> I'm 34.
+>> And DD is 32.
+>> 32.
+>> You're married?
+>> I'm married. I have two kids.
+>> And DD?
+>> Not yet.
+>> Okay, Nico, you're
+>> New Yorker state of mind. Yeah,
+>> hopefully soon. I have people watching
+this eligible bachelor. Thank you.
+>> You live in New York?
+>> I used to live in New York. Now, now I'm
+here.
+>> Yeah,
+>> New York is probably a better city to be
+single.
+>> It is not probable. It is 100% a better
+city.
+>> What are you going to do about that,
+>> Nico? How old are you?
+>> Um, I'm 40.
+>> Okay.
+>> So, I'm a little bit older. Yeah.
+>> Yeah. Tell us about yourself.
+>> But I spent all of my time with uh
+technical young founders,
+>> right? like my real passion is to obsess
+with technical founders who are building
+products for themselves. Um I'm
+originally from Greece, made in Greece,
+grew up between Greece and the UK. I've
+been in this uh part of the world
+Silicon Valley since 2009 when the app
+store was about one year old. Got lucky
+upon graduating from Stanford to join um
+Journal Catalyst. Uh spent the bulk of
+the previous 15 years there. uh and have
+been mostly investing in first-time
+founders who have bold ideas. They're
+the customers of their own products from
+all over the world. Uh I split time
+between here and New York.
+>> And is there a sector that you look at?
+>> I I used to look more into consumer
+stuff, but then what happened is um over
+the last few years made it hard, you
+know, turn towards very young founders,
+Jenzers,
+>> right? uh and a lot of them have been AI
+curious and most of the interesting ones
+the last few years were like enterprisey
+>> right
+>> so honestly I wouldn't care less about
+the sector for me it's like if you're as
+smart as you sound at like 16 19 23 25
+how much smarter can you be in 5 years
+>> because the idea will change the product
+will change the market will evolve and
+what do I know preed or seed my own you
+know perspective on the product or the
+market I'm not That's smart.
+>> Is that also NRA's team? Do you work
+with Neroj?
+>> Uh Nirroj uh joined uh us with uh the
+venture highway team a couple of years
+ago. You have worked with N of course.
+>> Yeah. Hund and NRA are really good
+friends of mine.
+>> Awesome. Yeah.
+>> We end up hanging out a lot also because
+they have the India connection.
+>> Absolutely. Yeah.
+>> Great people.
+>> Great people.
+So what I was looking forward today is
+we seem to be at some kind of a
+crossroad where the rate of change seems
+to have got gone up in the world around
+us.
+I allocate money uh I have I don't know
+what I would call it private equity
+venture capital uh whatever the term
+might be and I've been in the US for a
+large part of the last 2 months trying
+to get allocation to different companies
+here. So I'll share with you which those
+companies are along the way and maybe we
+can debate them together and if it's the
+right valuation or not. But more
+importantly, I want to arrive at
+how you guys see different sectors
+evolving. Not today, but 10 years from
+now. Where can me as either an investor
+or somebody looking to start my career
+as a young man or woman have enough
+tailwinds that it makes sense to spend
+the next decade in? Yeah. Interesting
+exercise.
+Sounds fabulous.
+>> Sounds great.
+>> Okay. So, should we start with
+maybe I'll go one by one and ask you
+guys to name one sector that you should
+absolutely stay away from as a investor
+or as somebody starting up for the next
+decade. Let's start with DD.
+>> Wow, you put me on the spot. Um,
+you know, it's this is a hard question
+to answer because I have such a venture
+lens on this and you know, when you
+invest as a venture capital fund, there
+are certain attributes of a business
+you're always looking at and you need a
+certain return profile for this
+investment to make sense. Um, so
+typically sectors that are really tough
+to invest in are, you know, very high
+capex sectors. And it's not to say that
+those businesses are not good
+businesses. They're phenomenal
+businesses in some cases, but it's just
+not, it does not have the return profile
+that most venture investors want. And
+there are exceptions to that and there
+are certain ways it can be very
+different. Um, but broadly I would say
+it's it's hard to disentangle myself
+from from that bias. Like usually when
+you're buying up like I don't know
+you're buying up tons of real estate
+that's I mean open door is a separate
+story but then it's it's a tough uh
+thing to invest in for example as a as a
+venture capitalist. So
+>> forget the venture lens.
+>> Okay.
+>> Just as a investor or somebody starting
+a job in an industry which do you think
+has the most headwind in the next 10
+years? like somebody emails you from a
+particular industry, you'll be like,
+"Okay, I'm not going to open this even."
+>> I mean, I don't I don't think I have a
+very strong bent against any particular
+industry. I'm trying to say like all
+industries are actually pretty
+important. Um there are some that are
+maybe falling now, but it's impossible
+to know how how they would do in in 10
+years, right? Like you like I'll give
+you an example. Maybe it's probably not
+really going to answer your question,
+but if you take something like
+manufacturing, which is a pretty
+traditional industry, which may not have
+much takers in in the venture community,
+there are some fantastic manufacturing
+businesses that are going to be built um
+especially in the next 10 years that
+have a whole other set of interesting
+problems to solve like how do you solve
+um a labor problem? Um how do you
+manufacture in certain countries? If can
+you even do that? what does tariffs mean
+for manufacturing in different places in
+the world? So I I think there's
+interesting businesses in all sectors.
+It's really hard and I don't know if I'm
+curious actually what you guys think is
+often when you you you have to have an
+open mind as an investor to hear out the
+idea in a certain sector because often
+it's from the places you least expect it
+that an interesting idea shows up. So
+you don't have a sector bias really?
+>> Not really. Like I can hit you with some
+of the pathy lines of like oh who knows
+what's going to happen to software
+engineering but like it's it's not
+really a bias against a sector. It's
+just so hard to tell in the in the
+future what's going to happen. Nikon.
+>> Yeah, I don't think I think to I think
+some
+some industries don't have the
+exponential rate of progress that you
+need to be a venture capital like when
+like a business that can attract venture
+capital and so I think those you have to
+realize like venture capital is like an
+accelerator.
+>> I think we should not fixate upon the
+term venture capital or
+>> but then I don't think I think every
+industry is very interesting. Let's say
+let's say you have a h 100 bucks, $100.
+>> Yeah.
+>> Where would you put it? It's a very
+binary outcome. And where would you not
+put it?
+>> I think anything that is not technology
+like forward, I would not put it. But
+that's my bias because I've been an
+engineer. I've been here 17 years. But
+does that mean that you can't make money
+off a traditional like my dad's a
+textile in textile industry. He's doing
+really well. Like you know, but would I
+put $100? Would I put a dollar there?
+like it's they're probably not because I
+just don't understand that business
+really well. Uh and he's surrounded by
+like mills and other like you know those
+all traditional businesses with very
+little technology. They're still all
+printing money. Uh but it's it's this is
+the bias. It's like this is why we can't
+I can't disassociate venture capital or
+technology from the way I view the world
+because that's what I understand. You
+put me in a traditional business, put me
+in dad's business, I will like, you
+know, bankrupt the business the next day
+because I don't get the whole But I do
+think like
+>> are tariffs helping your dad?
+>> No, I mean it doesn't hurt. Most of his
+customers are Indian. Most of the mills
+are in India, so it doesn't really
+affect him at all. Um, but I think from
+a so I think for me it's very hard to
+disassociate technology or venture
+capital from like how I would invest
+because that's what I do and that's how
+like how I view the world. But to to D's
+point actually AI has actually made most
+industries that were uninvestable
+suddenly investable because for example
+like any industry that's collecting
+large amounts of data was like you know
+prior prior like you would wouldn't
+invest in them because you would like oh
+there's no clear way for you to
+understand this data no clear way to
+take action on this data. Now that's
+become an actual like asset because now
+you can either fine-tune models or you
+can actually do something interesting
+with them uh that that suddenly unlocks
+unlocks um value out of those and 2021
+interest rates spiked up a lot and chat
+GPT launched at the end of 2021. It was
+the literal perfect intersection because
+when interest rates rised up everybody's
+costs went up. Everybody's cost went up
+means everybody wants efficiency.
+Everybody wants efficiency. What is the
+only boat that is lifting like you know
+what is the only tide that's lifting all
+boats it's AI so factories are now
+asking and coming and begging for
+solutions that never used to happen
+before long sales cycles nobody wanted
+to invest there agriculture people were
+like you know traditional industry
+nobody wants to touch like what's the
+tailwind there and so all of those
+industries that felt a little bit
+archaic a little bit that hey nobody
+wants to touch suddenly the buyers
+waking up saying hey I'm want a solution
+and So people are rising to the occasion
+and building things and I actually push
+I mean I'm on the opposite spectrum of
+DD high capex is actually okay because
+there's ways to finance it and we're
+finally finding a way that everything is
+getting cheaper. Robotics is a good
+prime example of that. Um but I don't
+think capex is the big problem anymore.
+It's just like can you find a tailwind
+in that industry and that's what makes
+it good for venture capital.
+>> It's very hard to like dissect the two.
+I wouldn't know. I don't know what I
+would do without technology.
+>> So interest rates going down now will
+have the opposite effect.
+>> I don't think we're going to go back to
+zer and era anytime soon. So interest
+rates might go down like 50 bips or but
+it doesn't change the outcome that much.
+The genie is unlocked once you get used
+to high efficiency. Why would you do?
+And then if you look at what Gen Z wants
+to do now, they don't want to work as a
+dishwasher in a in a restaurant. They
+want to be the next influencer or build
+the next business. How are you going to
+replace that labor? Technology is the
+only way you can do that. Whether it's
+factory workers, whether it's back
+office workers, whether it's, you know,
+dishwasher, this is the only way that
+you can do it. And that's great because
+suddenly that area that was not
+investable before has suddenly become
+because everyone's a buyer is knocking
+on your door asking for it.
+>> Interesting, Nico. So, uh, as an
+investor, uh, early stage investor, I
+would just, you know, like, uh, avoid
+anything that's super super super hot.
+It's like it's an early investor. Like,
+if it's like something that everyone is
+going after, if it's an idea that's
+getting tried now 100 times, it's
+probably too late. You know, as a very
+early investor, um, of course, the
+founders matter the most as we all have
+agreed here uh, already. So if you think
+you know this is the founder or the team
+that are going to defy the odds are
+going to outexecute everyone else in a
+very capital intensive labor intensive
+you know business go for it but
+otherwise you know anything that at the
+very early stage or 10 companies uh
+going after it it's probably uh too late
+in today's universe I would avoid you
+know like doing anything in China as
+somebody who is US-based that's not a
+controversial statement 10 years from
+today a lot might happen and you know I
+love my chance.
+>> And Nico, what is too hot today that
+everybody's going after?
+>> Do you want to give some ideas? There's
+so many.
+>> Reinforcement learning.
+>> Okay. Reinforcement learning
+environments is a hot space.
+Reinforcement learning as a service is a
+hot space.
+>> How How about some uh AI codegen tools?
+>> AI codegen is
+>> app builders. App builders. Yep.
+>> Receptionists.
+>> AI receptionists.
+multiple applications of voice for you
+know the same sort of 10 things are are
+pretty hot. I mean, it's honestly
+amazing, you know, when you open up your
+email as a venture capitalist or like,
+you know, your ex or any other inboxes
+you have, like honestly nine out of 10
+um inbound requests you receive, they
+all sound the same. Like, so if you're
+trying to do something is to break the
+pattern of like everything sounding the
+same and try to find something that's
+like, huh, maybe this is different.
+Of course, it's hard to decide yes or no
+to take a meeting without knowing uh the
+founders. That's where you know being
+throws matter or like founders that
+don't have a resume
+uh could be the ones that could thread
+the middle because a lot of the very
+young founders if they're like 16 18 23
+they might not even be on LinkedIn
+because Gen Z is not on LinkedIn or if
+you go there have bunchs of random
+internships and some of my favorite you
+know social media posts that I love
+saying uh are like uh the Nvidia CEOs
+where before Nvidia you know he goes
+>> Denny's
+and you see some of these and you're
+like yes how can I find one of those
+people you know
+>> right
+>> which are some of the popular companies
+which are doing the things you said AI
+codegen reinforcement learning
+AI receptionist
+name some names
+>> I mean there are anthropic doing AI
+codegen but they're pretty good at it
+>> um
+>> there's also cursor right
+>> biased
+>> there's also cursor
+>> cursor cursor is also AI codegen of
+course. So these are both fairly
+successful companies at at least so far.
+What else did we talk about? Um
+>> AI
+receptionist voiced applications for the
+same
+>> I mean there's I can't even remember
+some of these names but I mean it's not
+trivial to find a hot space. I mean you
+just have to if you go on like say the
+YC um list I mean you're going to find
+every year has some patterns and um and
+I guess what Nikos is saying that you
+know those patterns are maybe the the
+hot ones I don't want to put words in
+your
+>> what's the pattern this year
+>> um
+>> cursor for something
+>> cursor for
+>> so there was a funny tweet the other day
+that said Y combinator stands for Y
+cursor you know the C YC stands for
+cursor Cuz if you went to like the demo
+day or like the company directory over
+there and type cursor, it could be
+cursor for property management, cursor
+for investors, blah blah blah.
+>> The the one crazy space I've seen in the
+last year is just like the AI scribes
+for healthcare companies.
+>> Mhm. Typically when you see you see like
+one move ahead of the pack and you know
+others are just doing you look at the AI
+scribe market there's at least eight
+companies I know all doing doubledigit
+million dollars in ARR all started
+within the last few years and all
+growing double digit month over month
+which is crazy like you just don't see a
+market like that to give on the voice
+side this is like someone just like you
+know transcribing your notes
+>> this is like a pro right you're talking
+about something you should you should
+look at.
+>> No, I'm just saying you asked like what
+are the hot markets? I'm just saying
+there are hot markets but sometimes as
+VCs we
+>> look away at a hot market because the
+markets but the markets so large that
+they can be six players all growing like
+crazy. So it's still like a market I
+wouldn't look at now because I feel it's
+too late. But as an early stage
+investor, but it's crazy that even
+though there are these markets where
+there's too many players playing,
+there's an example of one where you have
+like many many players all doing very
+well.
+>> If you could each identify a trend in AI
+that is changing that somebody who is
+unaware like me does not know,
+uh what would you say?
+one nuanced trend that is changing in
+AI.
+>> Well, there's there's a couple I could
+say. Well, I don't know. Hard to guess
+what you may or may not know, but
+>> imagine nothing.
+>> Well, one is like talk of the town is um
+how much Zach wants to pay people. Um so
+the
+some people call it like engineers being
+athletes of today, which is interesting.
+Um it's not really tech tech focused,
+but it is a theme. The second I would
+say is um you know we've run out of
+public data um and you know we talked
+about RL in a different context earlier
+but you know reinforcement learning has
+been the primary technique
+for with which models get better over
+time and acquiring data to do good
+reinforcement learning is quite
+different than how you would acquire
+data otherwise. So that is another
+trend. So when everybody runs out of
+data, they create synthetic and keep
+improving the models.
+>> It's not exactly like that. I mean in
+reinforcement learning you basically
+want an environment where there is
+certain rewards you can get. Sometimes
+they're extremely verifiable rewards in
+which case it' be RLVR. Sometimes
+they're more nuanced where it's like
+text like how do you verify that? But
+there are you can use an LLM as a judge
+to verify that. So there's various kinds
+of rewards but it's you know one way to
+think about it is yes you are generating
+an environment where there's rewards and
+you're making the model become better at
+that task in a similar way that you
+would do for example when Google did
+Alph Go and you train an AI to learn a
+game you have a reward which is winning
+the game and then you figure out the
+steps in the middle um so it's not
+really synthetic data um per se that is
+also used but it's a different uh step
+but that's that's what I meant by
+reinforcement learning. Um let's see
+what else. Number three I think is not
+talked about enough is um China which is
+you know the the the the narratives
+around China are interesting um because
+most people in America I feel don't want
+to even recognize how good these models
+can be with perhaps far less capital
+expenditure. Right? Like they're they're
+not spending that much for talent.
+They're not spending that much in even
+GPU resources. They don't have the
+latest cutting edge GPU resources yet
+somehow they're able to come up with
+models that are not perhaps the best of
+the best but they're quite good. Um
+they're frontier as as you as you say
+and so those are some those are just
+some
+>> Nico would you like to add
+>> Did you mention eval?
+>> I did not mention
+>> explain what it is. So uh when let's say
+you know you're an attorney or you're a
+doctor and then there is an AI or
+consultant and there is a AI model that
+is trying to uh replicate some of the
+day-to-day tasks that you do there are
+always um some corner cases some
+exceptions that the model by itself even
+after you train it you know with all the
+uh world's data uh that's available out
+there won't get to Uh so when um you
+recruit a consultant or uh the doctor uh
+to take a look at it uh they could come
+up you know with some of the uh
+exceptions and further you know refine
+uh that model and I think that's a very
+big market opportunity that's opening up
+uh right now and will be going on you
+know for a long time because you can
+bring in uh entire new professions
+um and model them that you couldn't do
+you know as well today and it's just
+coding basically.
+>> Mhm.
+>> I think the recent news that uh
+everybody was jumping on was that you
+know OpenAI won the IMO gold and then
+Deep Mind also did that as well. I think
+that was interesting. But I think a lot
+of people missed in the details was um
+OpenAI also had this competition where
+they just barely came second where they
+had a single model running for 10 hours
+straight where no direction whatsoever
+and it was able to reason figure out
+plan go ahead 10 steps back but for 10
+hours straight it was able to do
+something and I think that just like
+blew my mind that shows like what the
+future capability ilities will be where
+we're no longer like you know we already
+even if you stop all AI development
+today these models are already
+phenomenally good to think and reason
+and give us interesting solutions for a
+long period of time and that's like
+mind-blowing to me that we've already
+reached here and everybody's kind of
+just like whoopdilah kind of like
+walking away next and so imagine you can
+throw these models at like problems for
+10 hours straight like you know whether
+It's the bare minimum of doing research
+on Diddy's every tweet on Twitter to
+like studying
+thousand technical papers by the best
+researchers and trying to find hidden
+connections between them. Um, and it's
+that I think that's mind-blowing. I
+think this was not the case even two
+years ago. That's why agents AI agents
+sucked is because they couldn't reason.
+They couldn't understand. And in two
+years just with the models getting
+better all of these things are now
+unlocked where you know whether it's
+research on the biotech space to like
+you know astronomy like we'll be able to
+find new stars. I think we we haven't
+even touched the frontier what these
+models can do and I think we're only
+limited by like compute energy and like
+essentially data which I think continue
+to be the three modes that kind of
+continue along from perspective.
+>> Anything else? I I I just I think we
+just you you know I think the everybody
+talks about AGI and ASI as this like one
+moment. I think my hot take would be
+like AGI is kind of already here but
+like humans like when we take a Whimo
+ride we the first time it's mind-blowing
+to us and then the next time you're just
+kind of like on your phone checking
+Twitter. I think we're already there
+with these models today. But these
+models are smarter than most humans
+already. Uh and we've kind of just been
+like whatever and kind of like walked
+away. And I think this is why it's going
+to be a continuous spectrum where we
+will claim Asia is not here maybe 10
+years from now but it's already kind of
+here in my in the not theoretical
+definition maybe but in a capabilities
+perspective it's already better.
+>> Yeah. And I think another area that's uh
+becoming critically important is like
+what is the data set and the models that
+we can use to uh recreate the physical
+world. So, in a world where we can have
+a lot of the robots that would do a
+bunch of the manual labor that it's hard
+to hire people for because they don't
+want to or it's expensive. Um, how do
+you get to the 59s that you described?
+Um, and you know, there are not that
+many companies to use the example of uh
+autonomous vehicles that have been
+taking photos, videos and other input of
+the offline world like uh way more
+Tesla. There are few companies. So where
+else you know can you find other sources
+of such data either real world data or
+synthetic data on the jeep that's
+labeled and easily readily to use. Uh
+this is a very important space and has
+applications that
+uh can be in defense tech and all sorts
+of robotics. Yeah. So many many you know
+this embodied intell intelligence space
+how you feed them with data is going to
+be one of the most amazing ones to
+do business in the next few years.
+>> Do you think there's a use case in India
+for that
+>> uh for for specifically what Nico said?
+>> Yeah.
+>> Oh. Oh yeah that's a that's a
+complicated one. In terms of like use
+case in India how do you mean like will
+self-driving cars make it to India or
+will they
+>> say a robot has to make a sandwich?
+Yeah.
+>> Does it have to train on some visual
+data that will be a job for someone
+else?
+>> The the training part
+>> um it depends. There's a couple of
+different ways that people do it.
+There's this whole technique called sim
+to real where you know you try to
+simulate it as much as you can but then
+it's impossible to simulate the physical
+world. And so then you typically get
+other sources of data and yes there are
+some as as far as I understand maybe
+maybe you know more there are labelers
+that will label this data in in various
+companies and those labelers can be
+sometimes in India sometimes elsewhere.
+Yeah,
+>> in Philippines like I mean that's was
+scale's biggest market like there are
+towns where it's almost like it's like
+night and day difference right but there
+are towns where it's like light all
+night and the entire team there is
+working on some version of labeling now
+it could be labeling text image video um
+last year I've talked to many startups
+where they are basically building things
+that they give to workers in countries
+where labor is on the cheaper side where
+They're doing everyday tasks and
+collecting that data and then feeding it
+to the model. It just makes sense. It's
+like, you know, how BPOS's exist in
+these countries. The new BPOS are these
+labelers who will be basically getting
+data that these large language model
+companies need to help make the models
+better. It's just the next natural
+transition. Yeah, I think in many parts
+of the developing world where labor is
+really cheap, um it might be harder to
+see some of these applications uh very
+quickly um because the economics might
+not make sense. And then the real
+bottleneck for having robots, you know,
+company us uh for our daily tasks is
+that we need to make them. So if you
+think about you know the supply chain
+and everything required to make a
+gajillion of them we might have AGI
+first you know before uh robots actually
+start attacking us and taking over the
+means of production and the future you
+know might be bright you know for them
+but not as much for the human race.
+>> Just wanted to throw this out there
+because I get a lot of people telling me
+you know who are not as intimately
+familiar with AI telling me oh this is
+just pattern matching this is just the
+internet yada yada yada. If you look up
+this paper called alpha evolve from deep
+mind, it is literally a paper where
+there are these simple math problems
+that everybody can understand which is
+know hexagon packing. You have a
+hexagon. How many of 1 2 3 4 5 6 up to n
+hexagons can you fit and how big is the
+surrounding hexagon? How small can you
+get the hexagon and pack all of this
+stuff in? and Alpha Evolve has made
+novel solutions on this problem that you
+know that haven't been improved upon in
+20 30 years. So just to be clear like AI
+is very much pushing the frontiers of of
+human knowledge just in bits and pieces
+today and we're going to see more of it.
+But I just wanted to throw that one out
+there. But
+>> what else do you think is changing? Like
+if you had to predict think of me as I
+am an idiot cuz I know nothing about
+this but
+>> you're not an idiot. I'm asking you to
+like prophesize five years ahead and
+paint a picture of the world for me.
+>> One thing I think about probably I don't
+know how much you guys think about it
+but one thing I think about that is not
+talked about in this regard and maybe 5
+years is a bit short for this probably
+10 to 15 is um is just birth rate
+decline. I think that's a very real
+problem. Um, I know it is also a funny
+problem because there's all these sorts
+of reasons why it's happening, but it's
+especially stark in even if you go as
+far as like South Korea, you know, in
+two generations that country may be like
+a tenth or less of the population it is
+today. Um, it it's really bad and
+>> but that has anything to do with AI.
+>> It has a lot to do with the economy and
+it has a lot to do with AI. I mean,
+>> I mean, this is I'd love to explore this
+with all of you guys. It's not a very
+well-formed thought, and I'm not an
+expert in this by any means, but a lot
+of economic growth is
+subtly tied in with the growth of the
+population, the growth of consumption
+overall. I mean, AI is no good unless
+you have somebody using something at the
+other end. Um, like transactions have to
+be done for economic value, for everyone
+to be prosperous. And so if we see a
+world where there's this rapid decline
+in population, what does that mean for
+the economy? What does that mean for
+like clothing stores? Are you going to
+be able to sell clothing anymore or are
+you going to sell much less? Like what
+happens to the stock of that business?
+So I I don't know. I think that's a less
+explored problem, but it's going to be a
+slow burn, but it's something that, you
+know, has
+>> transactions have to go up for
+productivity to go up. What if the value
+of the transaction goes up?
+>> It's possible. Um I I think the amount
+that productivity there's like an
+economic definition I guess and then
+just the general definition to go up to
+counteract this effect is I think
+somewhat unrealistic but again I'm not
+an economist so I don't know
+>> and how does AI
+exaggerate birth rate decline?
+>> I don't think necessarily has anything
+to do with AI. I think there there is um
+>> there's a very clear chart like
+essentially 2009 it started declining
+and we all know what launched in 2009
+just the iPhone. So it's not AI as much
+as like our addiction to just digital
+media and phones in general like and AI
+>> people having less kids because of
+iPhones. I mean there's no you can't
+directly you can't directly point to it
+right there's no research that is that
+clear but it is like 2009 across the
+world and it's because like we're just
+becoming more and more dependent on a
+digital our our emotional needs are
+being satisfied by more on the digital
+side whether it's like you know us
+watching YouTube shorts versus going to
+a bar to like date someone and I think
+AI will accelerate this problem for sure
+like again I I I I do think we
+we're confiding more in chat GPT than we
+talk to like our closest humans
+including like our own partners and I I
+do think that that has happened and
+there's no there's nowhere that you can
+ever draw a direct line but the the
+trend is clear starting when the mobile
+phone came out young people now have
+less sex because they're addicted uh to
+their phone um and you know they don't
+even know how to interact with another
+human especially in in the in the
+postcoid world, you could see it with
+younger people who missed out on school
+for like a year or two and they were
+having a hard time uh interacting with
+other people in the offline world. Um so
+when you have you know less sex or you
+end up having it much later in life and
+you get a lot of the dopamine from
+digital experiences, what does it mean
+you know for like the fertility rate?
+What does it mean for a lot of the vice
+powered industries
+uh in a world where in the US and the
+west you know you have ompic doing
+really well what does that mean for
+suppressing other vices beyond just like
+you know excessive you know eating so
+that stuff is like very interesting but
+just think about like the second order
+effects that are very hard to imagine
+because for example you know like to go
+back to tech with AVs right if AVs are
+everywhere what does it mean you know
+for the economy around gas patient or
+Costco or like you know anyone who's
+supplying stuff to parking lots. I have
+no idea you know uh there might be in
+this country amazing businesses you know
+that are supplying um products and
+services to the subverticals. Um yeah
+the rate is dramatically accelerating.
+For the first time there is a new form
+of intelligence that uh is going to be
+on par or over time superior to a lot of
+the stuff that we as humans you know can
+do. So, you know, if you can borrow
+ideas from the world of sci-fi, what
+does that mean? Does it mean that we're
+going to somehow fade in the background?
+We're going to be like the same way that
+we have pets or cats and dogs right now.
+AI will love us uh and will feed us. The
+AI will assume the means of production.
+We'll have universal basic income. We'll
+be happy. Maybe we'll start having more
+sex. I don't know. Maybe the NBA will
+have uh 10,000 teams. Maybe everyone
+will be a supermodel, do sports, or
+become a poet. But then all the
+important decisions around running the
+world, allocating resources, this new
+form of intelligence is going to make
+the decisions take over and you know
+it's going to be the new species that uh
+writes the history books. Who knows?
+>> It's a bit like a democracy and
+a smarter benevalent maybe benevalent
+dictator on top.
+>> Yeah. Is it important that we are making
+the decisions if something smarter is
+more capable?
+>> There are a lot of uh questions that you
+know this question uh raises here right
+one of the good news is that AI is still
+today powered with electricity. So if
+we're happy one plug it and we're good
+right because the battery technology is
+not that sophisticated you know and
+enduring yet. Um but yeah it does matter
+a lot you know who are the creators of
+these super powerful pieces of so
+foreign systems because if they
+themselves you know are all made of the
+same cloth and they have group think
+they won't be able to cover a lot of the
+um different uh voices that humans from
+all over the planet and different
+backgrounds might have. Uh and
+unfortunately, you know, for the world,
+tech is moving really quickly. Policy
+cannot catch up. Like in like the
+hardest thing honestly that we face
+right now is even if you're like a PhD
+in AI working for one of the foundation
+uh model companies, you can't keep up
+with the pace. This is the single
+hardest thing. So imagine being, you
+know, like a policy maker or somebody
+who thinks about that stuff all day
+long. Um, how do you keep up?
+And you know, the tech is improving in
+the background. This this is really
+tricky.
+>> Do you personally believe the world will
+get there where we become like cats and
+dogs in the background?
+>> I don't want to live in that world. But
+is there a scenario that this might
+happen? Yes, there is a scenario that
+this might happen. But I think I have
+the more optimistic take which is like
+see since the industrial revolution
+humans have just known to increase
+efficiency. It's like singular like you
+know
+>> now it makes sense that you worked at
+Kla Ventures.
+>> So every year productivity is going up
+what like couple of percent. And even
+the internet you know like
+>> but the point being is like we've always
+found a way to do more. Jobs have come
+and gone. Typewriters used to be a thing
+no longer a thing. Pace is accelerating
+but the pace has always been
+accelerating. Maybe it's just an
+exponential curve and that's why we're
+feeling the we're on we're on the roller
+coaster like on the edge and that's why
+we're feeling it. But I think I believe
+like in an abundant future where like
+like you know I believe actually like
+we'll have more time to do more
+leisureful activities like the workday
+might go down from 12 hours a day to 6
+hours a day and that means we have more
+time for like art and music and
+entertainment and I don't know like
+spending time with like our loved ones.
+That's my take on the situ that's like
+the abundant scenario.
+>> It's already happening today like if you
+take way more, right? Before you were
+behind the steering wheel.
+>> Now you are reading you know did this to
+some
+>> but this also happened 2,000 years ago.
+Say Greek society not everybody had to
+work because they were doing so well.
+>> Yeah.
+>> Philosophy was a thing where people sat
+and spend their lives philosophizing
+what they should believe in what they
+should not believe in. Maybe the world
+goes there. Nope.
+>> It will. Yeah, there will be 10,000
+teams in the NBA. As I said, we're all
+going to be philosophers and poets.
+Maybe we'll have a lot more sex and we
+can leave like uh our own version of
+Brian Johnson. It will live for like
+2,000 years. Might very well happen.
+Yeah,
+>> I'm a bit more apprehensive on the
+abundance situation because I think the
+abundance narrative necess will always
+be certain people with less resources
+and as long as you have less resources,
+you will want more resources. And so the
+abundance mindset I think is a luxury of
+a few and there is no way you can
+convince somebody who grows up from a I
+don't know povertystricken family in
+India you can convince
+>> before you go ahead
+>> does abundance hit proportionately
+proportionately to the modes of
+capitalism when there is abundance
+>> absolutely that's what history has time
+and again told us if you read my
+favorite book capital in the 21st
+century by thus picity every time there
+is growth and development meant
+inequality increases. I don't think
+there's very many situations where
+that's not the case.
+>> But he makes a case for that donut
+economics, right? Like the marginal
+utility of money beyond a point.
+>> Yes.
+>> Goes down.
+>> That's correct. Um and but that despite
+that I mean I think still think we have
+a very far gap to fill before you know
+the entirety of society is above the
+point where the marginal amount of money
+means nothing. I mean we see it in a in
+in a little bit right? There are people
+who I mean I think about this all the
+time, right?
+>> But also think about this. You were just
+saying fertility rates are dropping such
+that countries in two generations will
+have onetenth the number of people they
+have. So that changes everything too,
+right?
+>> Yeah.
+>> Yeah. But let's talk about that. What if
+we have the artificial womb? I just had,
+you know, a baby through a surrogate.
+I'm in my early 40s. My wife is in her
+early 40s. Honestly, it's amazing.
+>> I I think we need to make having kids
+cool again. Yes,
+>> it's not as much about the incentives,
+but it's more about the narrative. Like,
+so if we're old to become a lot more
+religious,
+>> this perhaps would mean that you would
+get married, you know, earlier, this
+would probably mean that um for the
+religion to propagate, uh you would
+have, you know, more kids earlier.
+>> Yeah. So one of the reasons for example
+why in Latin America the fertility rates
+decline in some of the stas in the world
+is because Catholicism in many of these
+countries uh is not as cool as it used
+to be in previous you know decades.
+>> So would you bet on religion making a
+comeback because it ought to
+>> I think it is making a comeback.
+>> Yeah. And part of the reason is uh after
+like uh 15 years uh being stuck on a
+small screen and after you know 20 years
+of going to Equinox Bars boot camp or
+whatever you know these institutions are
+for you depending on where you live
+you're trying to find other places that
+have a meaning. By the way there might
+be an AI religion that gets formed.
+>> Mhm. uh who knows uh that is going to
+fulfill the emotional needs that uh some
+humans might have but yeah I do think
+religion is making
+>> I think it's all about a search for
+meaning that's where like I go back on
+the abundant side it's like search for
+meaning eventually ends up coming with
+people and the byproducts of people not
+from a kites perspective but whatever we
+end up doing and I think if
+going back to the poverty side like I
+think we live we're in a place where
+more people die of like calorie surplus
+than negative. I think that's now that's
+why like OAMPic is doing so well like
+obesity is the number one killer rather
+than I know that's not what you were
+trying to say but I think going back to
+that point we already live in an
+abundant future but I don't think and
+the income disparity I agree with that
+is my number one fear that but I don't
+know what the solution there is because
+UBI experiment has been tried and it'll
+be interesting to see as that gap goes
+bigger what happens. Yeah, I actually
+agree with mo all of your points. I I my
+only difference is the search for
+meaning in the Maslo's hierarchy of need
+is after a couple of other things and
+it's not always just about it's it's
+about
+>> I think humans own perception of status.
+>> Sure.
+>> And where they are
+>> um and like you know obviously the food
+in America is not as much of a problem
+is not but yeah that's kind of but I
+think we do agree I think just separate
+>> Yeah.
+Okay. So, we spoke about
+Huh? What are you saying? Say it out
+loud.
+>> Sorry. No. Every time a self-driving
+>> That's okay. It'll sound natural.
+>> Only only in San Francisco.
+>> Remind me remind me of the spy.
+>> It's the wayos are going to detect the
+niclad podcast.
+>> Everywhere.
+>> We were just talking about
+>> there's a Netflix series called The Spy.
+Yeah,
+>> it's about uh is
+>> you can keep rolling around in Iran,
+>> Syria.
+>> In Syria,
+>> Damascus
+>> and the way he gets found out is like
+he's talking on this frequency
+uh with a particular frequency and they
+have these cars that are just driving by
+and they catch him on that frequency.
+So, it very much reminded me of the you
+know whimos passing by causing our
+frequency loss.
+>> Imagine what must be happening to spy
+technology in all this, right? Oh my
+god. That's crazy.
+>> Everything is watched and heard in
+perpetuity almost. I'm guessing
+I
+>> mean we weapons technology with AI is
+also, you know, not it's a very
+investable asset and people are
+investing in it and some some crazy
+things come out of it.
+>> I think we should all assume that we're
+living our lives in public now.
+>> Mhm. And it's a little bit hard to say
+that u if you're somebody you know in
+your like 40s or older
+but uh pretty much you know every second
+or third building now on the street has
+some cameras installed.
+>> Y
+>> everyone has a phone with a camera. You
+have a city with self-driving cars.
+cameras like with all these sensors
+um you're living life in public and then
+every anything you ever say uh online
+uh in theory you know somebody can truck
+it. So imaging being uh somebody who is
+in uh elementary school right now
+by the moment you started using
+computers if you created you know your
+account like on the iPad but now you're
+using Chad GPD to help you with your
+homework and you can share your feed
+links everything you know is getting
+tracked. I mean parents are putting
+their newborn on Instagram. That's like,
+you know, your digital identity is
+already being published without your
+choice.
+>> Without your choice.
+>> Yeah. Now it's just like the moment you
+push a digital device in any age's hand
+is gone.
+>> What do you guys do for your kids? Do
+you have plans to put them on Instagram?
+>> I haven't used Instagram in four years.
+So
+>> I think one of the thoughts I have which
+is like a hopefully positive thought is
+you know by the time uh my kid is going
+to be a teenager the iPhone won't really
+exist in its current shape and form. So
+like one of the things that I'm amazed
+by that could be a predecessor, you
+know, to this argument I just made
+coming true is when you have really
+young uh kids interacting with
+technology, they do so with their hands
+or with voice and then you put them in
+front of a laptop, they see the keyboard
+and they freeze like what am I supposed
+to do with this thing? you know cuz so
+far I've been talking to my uh iPad or
+you know my dad is you know like iPhone
+so I think you know if we're to project
+uh with new software and new AI first
+hardware how we could interact with
+technology
+uh the small screen might not be as
+addictive you know we might actually
+have it in our brain
+>> do you think that could become a
+business in itself uh no tech no devices
+disconnected
+real estate project around you.
+>> It is already business. So like people
+here around San Francisco they would go
+for like 3 4 day silent retreats or we
+don't use technology to find themselves
+to clean you know their their souls.
+It's already business and it's going to
+become more and more of a bigger trend.
+I mean for some time and uh first half
+of the previous decade uh Burning Man
+was that now sadly no Starlink destroyed
+it that aspect of it but you know this
+was a part of what Burning Man uh served
+to the technology of that era
+>> India has Basina which is similar right
+>> yeah sorry
+>> no sci-fi books I I exclusively only
+read sci-fi it's a perfect picture on
+the future I think it's snow crash was
+the book where they basically had these
+bars where you go in and like everything
+electronic is turned off and it felt to
+people very unnatural and weird because
+they don't have everything in their
+brain recording or intelligent an extra
+intelligence layer and that's the future
+people will do to feel human again like
+you know
+>> snow crash is an old sci-fi book what
+are the books of today's saying if
+you're reading them
+>> um there's I mean I only read like older
+books. Like the newer books obviously
+like Blake Crouch is excellent. Like I
+highly recommend reading everything he
+writes. Um but like it's like reading
+the older books is fun because it shows
+you 20 years in the future. Now people
+are using like AI as the base and
+building on top of that. U but threebody
+problem is like my absolute favorite.
+I've read it.
+>> What does the threebody problem talk
+about?
+Uh
+it talks about just like everything from
+interstellar space to how like humanity
+travels to different places. I won't do
+it any justice like trying to explain
+the core fundamental science things. But
+I highly recommend reading it and
+there's if you don't want to read it
+just watch the Netflix series which is a
+poor adaptation but I know people like
+video more than reading nowadays. So
+>> uh it's unbelievably good. It has
+touched a lot of pieces on
+society, culture, governance,
+inter like you know interstellar space
+to just like even human emotions. It's
+like very very very well done.
+>> You brought up an interesting point you
+know like people have an easier time
+watching video instead of reading
+because now we're constantly distracted
+and the push notifications of technology
+are so addictive uh and we want to get
+our dopamine heat. So like going back to
+what you were discussing before, you
+know, there are these offline retreats,
+but there are also some applications out
+there like Clear Space and Opal and
+others that help you have like a digital
+detox on your phone.
+>> They're all growing
+>> and all of them are growing. Yeah.
+>> So this is like, you know, speaking uh
+it's like evidence that consumers are
+voting with their dollars to block the
+most addictive um products out there,
+most often social media products. And
+there is even a new class of like
+consumer hardware startups that are
+creating versions of dumb phones with
+some core utilities because one would
+argue if you cannot call Uber or Whimo
+>> that's a problem. If you cannot you know
+uh text your loved one that's a problem
+but do you really need to have all the
+different messaging apps or social media
+apps on your phone? Probably not. for
+the sake of playing devil's advocate
+because as much as I love your guys'
+argument, I want to buy that. On the
+other hand, like um I was looking at the
+stat for how much YouTube is watched in
+the world. And if you do the numbers,
+the final result I got was 2% of all
+human waking hours is on YouTube. That's
+an insane amount. Um and look, I'm there
+some assumptions, so maybe 1%. So I mean
+that's rising too. So I think I I still
+worry about it because sure some people
+are detoxing but it's like a vice is a
+vice. I mean you can stop some people
+from gambling but there's a reason the
+laws prohibit it. It's because people
+are drawn to vices. I was in India for 2
+weeks and I mean I've seen the rise of
+geo and cheap data everywhere in like
+and I come once a year for 2 weeks and
+it's crazy. It's like, you know, the
+security guy at 3:00 a.m. in the morning
+is watching like a YouTube video which
+like, you know, and it's like probably
+terrible for his eyes and like it's like
+I didn't see anybody like Yeah, it's
+like everywhere because it's so cheap.
+Data's proliferated. So, I mean, I don't
+I think the genie is out. I think it's
+kind of one of those like we live very
+privileged lives being in the Bay Area.
+We can be like, "Oh, we need to do
+digital detox and people are like still
+making money and all of those things
+from
+>> You realize we're making a YouTube video
+right now."
+>> I know.
+That's This is YouTube education
+section, right? That's a good part of
+YouTube. It's like having salmon and
+broccoli. Great. It's not like
+McDonald's.
+>> What do you think happens to
+matchmaking?
+>> Dating apps.
+>> What happens to dating apps?
+>> Yeah.
+>> Uh
+>> we just met one yesterday. That's why
+I'm asking.
+>> Which one?
+>> Niche.
+>> Oh, Nandi. Yeah. Nice. Uh
+>> they will evolve because they do.
+probably it will be a continuation of
+some of these, you know, AI products
+that know everything about you and they
+know everything about a lot of other
+people that might be a good fit for you.
+uh and they could be able to make um
+curated intros and could be able to
+handle the beginning of the conversation
+so that you get to the actual you know
+like date because today's uh AI apps in
+the west they're more like entertainment
+products than actual dating apps.
+>> Yeah. I think you get the dopamine from
+matching not from dating.
+>> Right. So it's something like 30% of
+people who are in the swipe left and
+right they've never been on a date.
+>> Yeah. And then these products were built
+for like a different generation where
+you know people were not as gender fluid
+and for example you know if I'm like um
+somebody who is on the younger side and
+is by just having like a straight
+profile on Tinder doesn't serve me uh as
+well. Then the other thing that's going
+on unfortunately is there's a lot of um
+data discrimination that's happening on
+the dating apps. So something like 8 to
+10% of the guys get 80% of the dates.
+This is really bad news for humanity.
+And this speaks to
+a need that's in the background like a
+demand for something uh new. So like for
+example, if you're a guy and you're not
+getting any dates uh on any of the
+popular online dating apps, the best
+thing you can do is delete it from your
+phone, sign up with a new location.
+Ideally, you input a location next to an
+airport cuz over there there are a lot
+of people coming in and out and the
+algorithm gets rerouted, you know,
+again. So, like I think the future of
+online dating um is going to be part of
+what people are using like GPT to do
+their homework. It's like anyone who's
+young now and they're just addicted to
+that behavior, they would expect a
+similar kind of experience for other
+parts of life. I I think I believe like
+we'll all have digital twins like it
+just makes sense like you know we
+already do in chat GPT and the memory
+layer like we're inputting so much of
+our information in there and so I think
+dating just evolves very similarly where
+you know why swipe left or right where
+if you're digital twin is able to just
+figure out from this ocean of other
+digital twins who's the best match for
+you they do the early conversations and
+then you just get to meet them and you
+just trust the algorithm to do the
+curation. Today in Tinder, you're just
+filling out a profile that has stale
+data. But imagine if you could take your
+deepest, darkest, like all the things
+that you put in chat GPT today to do the
+matching for you. It'll be far more
+effective because it does all the
+matching and it's like, okay, then you
+have a slider. It's like how different
+do you want them? Or if you have three
+different dates, it's like, you know,
+one's like truly a magic eightball and
+one's like ideally matched to who you
+are. But is it an industry that you
+would bet on?
+>> You would want to allocate money behind
+it.
+>> There's a there's one of the dating apps
+in our and Menalist portfolio is like
+Rya which is was a good investment. Um
+but generally
+dating apps today are uh you'd have to
+have something unique for it to be a
+good bet. I think you know Nico probably
+knows more you guys both are more
+consumer investors than I am. I mean
+with consumer it's just really tough to
+bet on these things unless you see some
+element of traction already. Like you
+need to know that it works but correct
+me if I'm wrong.
+>> And Facebook as a dating product in the
+early days. So would you invest in the
+next Facebook that's going to look very
+different than it? Yes, you would.
+>> Uh what is the single best uh dating
+product today if you're a very
+successful person? probably Instagram
+because over there you know you can
+slide into other famous people beautiful
+people's DMs and they would reply back
+at you. Um but over time you know these
+things will evolve and then I think
+there's something to be said about
+offline experiences around dating um
+becoming a lot more um desirable for
+people like in a world where like you
+know the online experiences are very
+addictive and uh we have them in
+abundance what becomes cars the very
+awesome cool offline experiences.
+So anyone who has the means would want
+to be part of that.
+>> So somebody's building a dating app they
+should solve not just for meeting
+someone but also for the date.
+>> Absolutely. Yeah. So I I work with one
+team called 222. They're in New York.
+>> How do you spell that?
+>> 222.
+Is the website. And what those folks are
+doing uh something very simple. You're a
+newcomer to New York City or to LA or
+San Francisco. you want to meet others,
+um you can go and do a cooking class
+together or you can go and have like
+dinner, you and two other friends of
+yours and seven strangers and then
+alongside 97 other people, you can go to
+a bar uh and people pay uh their
+subscribers to to that and it's growing
+really really quickly.
+>> So the future of dating apps will be
+more offline than online.
+>> Yeah. And less swiping. I think that
+paradigm has come to run its course.
+>> Okay. So, we've established humans could
+become like cats and dogs.
+Religion will do well. Maybe a new AI
+religion.
+Fertility rates
+will drop and that rate might
+exaggerate. We also said matchmaking
+will change. Digital twin, offline,
+Instagram is where a lot of people date
+today. We said socialism and capitalism
+will move closer to center.
+>> I don't know. I think that one will I I
+plead the fifth.
+>> I think more capitalism.
+>> You know, I visited um I visited South
+Korea this past Christmas.
+>> Yeah.
+>> And uh I went to like a viewpoint where
+you can see the closest town of North
+Korea in the demilitarized zone and it
+was striking to see the difference. It
+was one of these clear days because
+normally there's a lot of pollution you
+cannot see. So I could see the streets
+of that town and in the 30 minutes I was
+at that coffee shop I didn't see a
+single car and it was like a shock
+>> because I was like whoa you know we're
+just like two three uh miles away and
+here there is stuff happening and over
+there you know poor people who happen to
+be born there not because of their own
+valition and they're stuck in the ice
+ages instead of uh economic growth.
+So like there are certain places where
+you can compare and contrast you know
+the different systems uh sadly still
+>> we also said offthegrid businesses will
+do well digital detox with passa kind of
+stuff video over reading will continue
+to grow video will continue to get
+shorter
+>> you want a dopamine spike sooner
+>> I mean capitalism I think will always
+reward whatever hacks your brain to give
+you reward immediately in dopamine and
+that mean that's why there was shift to
+shorter video. It's an easier hack for
+the brain. What if though we have like
+brain implants and you know there are
+going to be ways to hug people's brains
+or a new form of digital drugs will be
+invented you know
+>> like neural link
+>> yeah neural link it's one of the
+companies that are building the brain
+implants right but like you historically
+you know we've liked images more than
+text we've like video more than images
+we've like short video more than like
+long form video but I'm saying if most
+people you know many people have brain
+implants there will be new say they'd
+like and uh
+>> would you get one if somebody were to
+tell you here Nikico is a brain implant
+which will increase your IQ by 40%.
+I'm sure there could be a reason for me
+to do it. You know, by that time I might
+have some cognitive decline, right? And
+I won't like that or
+>> no like optional like some you're okay
+and somebody offers it to you.
+>> If you had said to me a few years ago
+you could speak all of the world's
+languages with a brain implant, it would
+be like sign me up.
+>> Now unfortunately or fortunately some of
+these you know like Raybun smart glasses
+you know are getting there. So this
+might not be the use case that gets me
+but you know there's if you can have
+like cognitive superpowers why not or if
+I could have a part in my head at all
+times or there's a monologue going on in
+my head you know at all times like
+thinking too many things if that you
+know implant can help me pacify it great
+>> what do you think happens to
+urbanization do we all still want to be
+in densely populated cities
+>> I think so because this has been the AC
+since the very beginning of humanity
+like we tend to
+uh be more and more densities. It's
+great for uh we're all social animals.
+It's great for the planet. It's great
+for
+>> true. Wouldn't we be one block of people
+in every country or one block of densely
+populated people? Why do we have states?
+Why do different states have different
+cities?
+Because the world has been around for
+long enough. But but in many uh
+countries now which is you know
+countries was a new idea from the 19th
+century
+>> um in many countries you see certain
+cities where you have like you know 20
+30 40 50% of the population you know
+>> but not 100
+>> not 100% no unless it's a very small one
+like Singapore right
+>> but think of a country like the US if
+that was the prevailing trend there
+would be one block either on the west
+coast or east coast where everybody
+Nobody would live.
+>> I think natural resources matter,
+energy, there's a lot of other factors
+also.
+>> Climate change, climate change, climate
+matters, terrain matters, the economy,
+yeah,
+>> economy matters. Like it just doesn't
+>> people choose to leave and go somewhere
+else. So I don't think it's that simple.
+>> Would you bet on urbanization to
+continue with Niko as well?
+>> 100%. Yeah. I also think but I think I
+think it'll it'll continue but then as
+the income disparity grows the real
+estate grows uh sorry as we get more and
+more things in digital world like real
+estate actually becomes far more
+expensive
+>> why
+>> because that's the only asset people can
+hold on to
+>> that's a real blockchain man
+>> yeah it's a supply constrained asset
+>> it's a supply conrained asset but if
+there are onetenth the number of people
+and there's infinite land in the world I
+don't think there'll be one the number
+of Oh,
+>> the cycle of decline, does it ever go
+up? We don't know, right?
+>> I think it does, but it it has happened.
+I mean, declines in civilizational
+population have happened in the past for
+mostly war
+>> um and other other sorts of reasons.
+Famine, disease,
+>> but this time it's not that.
+>> This time it's not that. I think that
+part humans generally fix themselves. Um
+so I'm optimistic. But
+>> going back to the digital detox side,
+right? like you know like
+>> what if you know we all live you know
+like uh 120 years right
+>> which is believable for folks who are
+now you know like getting born or
+they're like 10 15 years old so if that
+happens
+>> the population decline is not going to
+be as quick as you know uh we might
+think it is
+>> and you know normally for the population
+to grow it depends really on the number
+of fertile women and how many years they
+have that they're fertile. So that's a
+constraint that nature or God, you know,
+gave to us. So what if, you know, you
+could like 3x the number of fertile
+years that we have today or we could
+have artificial wombs.
+>> But we all want to live longer,
+>> right?
+>> I think most people um if they believe
+in a better uh future for themselves,
+they want to live longer. Most people
+would say yes.
+>> And this believing in a better future
+tomorrow is a very recent phenomenon.
+Before the industrial revolution, if you
+asked anybody, how do you think you will
+be 5 years from now? Most people thought
+they would be worse off. This is new
+that we've seen growth for as long as we
+have in some form or another.
+>> It is new. Yeah.
+>> So, longevity and wellness as a
+business. Good place to be.
+>> Great place to be. In any country,
+>> this is the first time you've said great
+this evening.
+>> Yeah. Thank you.
+>> Yeah. Right.
+That's my co-pilot right now.
+>> What do you think?
+>> Um, I think long longer term great
+places to to be and to to invest in.
+>> I think biotech is taking a lot of
+interesting strides in terms of drug
+discovery. So,
+>> how do we solve a bunch of the diseases
+that cause early death I think is really
+important. There's a lot of
+>> cool work going on there. longevity. I
+think it's a slower burn. So, you know,
+I'm optimistic but on a slightly longer
+time horizon. Um,
+>> hence the name, right?
+>> I guess so. I guess so. Um, and then I
+So, I I am a very optimistic about
+biotech
+o overall. Well, I think the artificial
+womb thing is interesting for sure, but
+I think it does cause into it calls into
+question some concerns around, you know,
+how many kids will one person be able to
+have because then it becomes a, you
+know, purchasable asset. Can you have
+thousand kids if you can just artificial
+womb them? Maybe some people might want
+to do that.
+>> Well, religion has sold for that. It
+becomes uneconomic, you know, according
+to most religions to have many kids. At
+the extreme ends though, I think that we
+could see some interesting things happen
+there.
+>> We need robots to help uh raise them
+too.
+>> That too that
+>> this would be probably more expensive.
+>> Um
+>> or you would need a lot more space and
+>> since real estate is becoming more
+expensive, that's a real limitation.
+>> Do you think real estate will continue
+to become more expensive? Do you believe
+in that finite supply? One of the issues
+that we have in the western world is
+that the productivity in the
+construction industry has been
+stagnating or certain decades going
+down. So unless we fix that uh
+unfortunately you know in most places
+real estate will continue to become more
+expensive
+>> right? So we were doing this exercise
+see at the end of the day we are all
+capital allocators right all four of us
+in one way or another maybe on the
+venture side the private equity side
+whatever. So we were trying to arrive at
+what statements hold the most value for
+us. Uh from a rate of change is
+increasing world is changing 10 years
+from now which industry would have grown
+the fastest I'm going to share the
+statements one by one and maybe we can
+all opine disagree agree them.
+The first one I'll say is Indian
+families with rising income, reducing
+family size will invest in premium
+education.
+Outcome focused education will take
+preference. What do you guys think?
+>> Agree.
+In only this particular I think in
+general that will happen.
+>> Yeah. I'm just saying Indian because we
+were sitting in India doing this
+exercise.
+>> Nico,
+>> do you think everybody will spend more
+on education?
+No. Uh but certain cultures like in
+India or in South Korea or where I come
+from in in Greece, uh they absolutely do
+because they see this as a viable path
+>> to uh improving their chances of their
+offsprings doing well. In the US, the
+average person does not care about
+spending money on their kids' education.
+My kid is bad at math, the teacher is
+bad.
+>> That's changing.
+>> Why is that culturally?
+It's a immigrant nation and everybody
+has become successful in the recent
+past. So didn't they distinguish
+the successful from the unsuccessful
+also through the lens of education.
+>> Who is they like all
+>> the American people
+>> even you know you forget when you made
+it to the top often you forget
+and uh for a lot of folks um this is not
+priority number one. If you're like an
+immigrant yourself or you're somebody
+affluent, you of course do care a lot
+about it.
+>> Yeah. Every society in the past that has
+achieved pinnacle status has always
+shifted to arts and culture as their way
+to to spend time whether it's sports or
+something else. And in America it's a
+very sportsoriented culture more than it
+is an educationoriented culture like you
+said. I I don't know too many you know.
+>> Can I ask you guys to give it a rating 1
+to 10? Uh this one.
+>> Yeah.
+>> The the Indian education one.
+>> Uh eight or nine.
+>> Okay.
+Same.
+>> I'm like a 10 for like you come from
+like a country that's on the up and up.
+Yeah.
+>> Okay. Nikon.
+>> Outcome focused education. Yeah. It will
+be the it is the future. Nine.
+>> Okay.
+Secondary markets for private companies
+will become a big thing.
+>> 10. Again,
+these are moments in time, right?
+Because there are moments when um
+regulators and the incentives are
+aligning for public markets to be open
+and to welcome companies at a much
+earlier stage. There are other moments
+that this is not the case. So at the
+moment, you know, we're uh living in
+during a time where a lot of the value
+um is captured by private investors on
+the way up. Like you now see quite a few
+companies that are worth hundred billion
+dollar plus whereas back in the day, you
+know, this was not the case. Like when
+Facebook went public and was valued on
+day one over hundred billion dollars, I
+think they were the first ones ever, you
+know, to do that in 2012.
+And could you also argue that tomorrow a
+lot more really large companies will
+want to avoid or circumvent
+taking retail money because they'll have
+to be overregulated if they do.
+>> If indeed you know they have to be
+overregulated and they have a choice
+because they can get funding from other
+places. Yeah, they might avoid. But if
+we bring down the regulatory constraints
+or capital from other sources becomes
+more scarce, this could be an option.
+For me, you know, as somebody who lives
+in the US, it's actually sad that the
+retail investor, the pension funds, the
+low fees, um, ETFs, uh, cannot have
+access to some of these wealth, you
+know, sooner rather than later.
+>> It's sad, 100%, but I don't think it's
+changing anytime soon. Right.
+At the moment it looks like it's not
+going to change anytime. Yes.
+>> Yeah. It's like eight or nine. There's
+access. I think if you think about like
+imbalance in the future or disparity
+like access becomes the primary thing
+that only a few people have and that's
+the sad aspect
+>> and will be gatekeep.
+And I think that's the that's the sad
+aspect. But do I see it changing anytime
+soon? No. incentives are just not
+aligned.
+>> Do you guys want to rate the statement,
+Nico?
+Secondary market, secondary markets,
+market places like
+>> they're going to be strong forever
+>> for the next 10 years.
+>> Yeah, I think it's a five. Yeah,
+>> five.
+>> Yeah,
+>> it's a 10. I don't I don't see it
+changing.
+>> Nico,
+>> let's split the middle. Take seven. I
+think I don't I think it'll change. I
+think it'll change in the end start of
+next decade.
+The world will be older and sicker.
+Wellness, hospitalization, longevity,
+great sectors to be in.
+>> I think they're two different statements
+in my opinion.
+>> Explain.
+>> I don't think you
+I don't believe the world will be older
+and sicker.
+>> Why not? I mean we're constantly impro I
+think first I believe like as kind of DD
+mentioned like biotech is the
+application area where I do believe us
+discovering new things will be the most
+like literally one sector where we
+discover the most things where AI will
+be useful it's biotech and I think that
+will help transform
+most of the common diseases why we die I
+mean ompic is already doing with obesity
+which is a huge factor so I do will live
+longer
+and like healthier
+but I do think that will take investment
+>> longer and longer and that is agreed
+world will be older if you live longer
+world will be older
+>> yeah so that's why so older no and not
+sicker yeah and then average like you
+think about median happiness years let's
+put it like in a like philosophical way
+>> no I'm more thinking how many people are
+sick at one point of time cuz money can
+be made by treating them
+>> I I mean,
+>> you want to answer?
+>> Yeah,
+>> I I I was going to be pretty strong on
+this one. I mean, just again, this is a
+side effect of birth rate decline. So,
+as birth rates decline, the demographic
+imbalance will switch to having more
+older people. Um, I think you Yeah,
+you're right. I mean, you have to debate
+the baseline of what sicker means. But,
+you know,
+>> that's what I was thinking.
+>> Generally, if you're talking about the
+world being sicker because there are
+more older people and older people are
+generally sicker. Yeah, I mean that is
+that is factual
+>> also we've just come out of co
+>> after many many decades we had something
+like that maybe there will be more
+>> perhaps but even without that I would
+say the world is older people get sicker
+people will be older therefore people
+will be sicker and then longevity
+wellness and all of that very important
+stuff
+>> also because of how connected we are
+right now when something transmissible
+comes about next we'll all get it much
+faster than we did historically that's
+why I say sicker
+>> like I was sitting with somebody from
+Mona last week and they were saying we
+got really close with bird flu but the
+world has gotten to a point where if I
+have something which is moderately
+infectious the odds of the last person
+in the world not catching it are low
+today
+>> but I think we'll be able to come up
+with an antidote faster and distribute
+it faster also I think that's the
+corollary that I don't think we get like
+would have been much worse without mRNA
+a lot of these things that didn't exist
+like 10 15 years ago and I think that
+pace is only going to accelerate. So I'm
+that's what I was trying to like
+understand. I think the acceleration of
+us making things better.
+>> Yeah. Let me put it more specifically. I
+think the ambiguity goes away in 2035.
+I'm reviewing the portfolio that is
+being invested in today. Will the
+business of treating sick people have
+done well by then? I think we're rating
+that.
+I mean in the US it's already what 19%
+of US GDP goes in healthare so
+>> that number will go up
+>> 100%.
+>> Yeah that
+>> the number will go up does it mean it's
+a good business
+>> yes exactly
+>> TBD because like if you are like in
+healthcare services or um you run
+hospital stuff most of them are not
+great businesses.
+However, you know, if you find ways to
+bend the coast curve, oh my god,
+amazing. All the trends are on your
+side.
+>> I suspect there are better businesses
+outside of the US because the US has a
+problem which is very unique to itself.
+>> Right. That's right.
+>> Like the multiples of hospital companies
+in India like a 100 tanthrop
+especially if you've been able to build
+a brand around it. Do you like to rate
+this Nikico older sicker world?
+I think older uh yes seeker I it's a
+definition thing but like you know is
+this market going to become much bigger
+between now and 2035 yes it's like a
+nine you know
+>> nine
+>> yeah eight
+>> senior living this is something we
+invested in funnily enough
+me and Hmon did this deal together we
+did a couple in senior living. Were you
+part of that?
+>> I'm aware of it, but I was not part of
+it. No.
+>> Yeah.
+>> Yeah.
+>> Thoughts? The world will be older.
+Senior living, affluent senior living.
+>> Well, some of the fastest growing cities
+in the US are the villages in Florida.
+>> Mhm. So if there's something to be said,
+you know, about that model expanding to
+other countries,
+um I think, you know, this one has like
+very awesome long-term, you know,
+prospects and especially in the
+developing world as like people become
+um more affluent, their kids are fewer,
+they don't live with them, but they move
+for economic opportunity in other parts
+of the country or other parts of the
+world.
+um you need as you uage to be close to
+other elderly people andor um
+individuals who are going to be able to
+help you. This particular deal we did
+together is a company called Primus. And
+the data he was showing us is if a
+70-year-old man or woman is at his
+facility, which is a very affluent like
+high-end senior living facility,
+the quality of life and
+the longevity of their life goes up by a
+significant premium because they have
+community.
+>> That's right. and and he showed me this
+really crazy research. Like when my dad
+was sick, I got him a nurse. So then he
+didn't have to do anything. He didn't
+have to move. Somebody was doing
+everything for him. That's the worst
+thing you can do for your parent. Uh
+it's very counterintuitive but I think
+just that community the having to play
+with someone having some competition
+being organized playing memory games
+walking all of that with like like aged
+people changes everything.
+>> Absolutely. Yeah. So if you read about
+uh blue zones which are like the
+different parts of the world where they
+have the highest percentage of people
+who are 100 years old plus
+>> uh the
+shared trait that they all um have to uh
+demonstrate is community. Yeah.
+>> So like in Okinawa and Japan and Nicaria
+and Greece and like you know other parts
+you're somebody you know who's like 100
+years old your kids might be dead or
+incapacitated but because every day you
+know in your village you're socializing
+and you feel like you have
+responsibilities this is what keeps you
+going.
+>> We rated this highly in India even
+though there is such a big societal
+stigma about
+>> senior living. I think the misconception
+one has is at a certain point with your
+parent, you're almost being selfish by
+keeping them at home with you versus
+allowing them to make more choices of
+their own.
+>> Right.
+>> Yeah. It's a hard thing especially in
+India to overcome. I don't know how it's
+in Greece but
+>> same but you know because in Greece
+again you know the uh standard of living
+went up and then the cost of living cost
+of labor also you know went up. What
+saved um a lot of families was like
+Eastern European um labor talent that
+visited the country and stayed there as
+illegal immigrants and then got
+legalized. But in the beginning, you
+know, if you had your kid, your uh
+elderly parents sent to like
+senior living facility, everyone would
+look down on you. So the preferred
+choice was to have
+>> somebody from Georgia or Romania, you
+know, do they work for you? But then you
+realized all the stuff that you
+mentioned, you know, that
+>> your dad or mom wouldn't interact with
+anyone else. The cognitive decline would
+be uh faster. So now, you know, after
+like 30 years of doing what I said, uh
+some of the uh much better senior
+living, you know, businesses uh are
+looked up more nicely or favorably.
+You guys want to comment on senior
+living?
+>> What do you send your parents?
+>> Um, it's a tough one. Um, I would there
+is some bias against it as as you said,
+but you know, maybe that decision will
+change over time. I think it depends on
+what they want to do as well. Um, I I I
+do think in in my particular case, I'm
+lucky that they have a good community
+already at home, so that does solve a
+bunch of the problems, but you know, who
+knows how this goes. Um but generally on
+your question you know in the US very
+much um in the rest of the world
+slightly less u just because there's
+different dynamics social inter
+intercultural dynamics in different
+parts of the world there is also taboo
+and things like that so I I'm not as
+sure but in America high
+>> yeah I think it's not a question of like
+me sending our parents like my parents
+luckily my parents and my grandparents
+live together And I think that's nice
+like from a community standpoint
+>> and that's very rare. Not many people
+have that.
+>> Yeah, we're very lucky that everybody
+likes each other.
+>> Um but it's not a question of me sending
+my parents or not. It's a question of
+like
+>> them choosing what to do. It's like at
+the end of the day we all we're three
+brothers. We all live in separate
+houses. They live in their own house and
+what they what do they want to do?
+>> I think it makes sense. It's like I've I
+I think both from a community standpoint
+but from a as labor gets more expensive
+like economies of scale standpoint as
+well. It just makes sense for more
+people of the same stage in life to live
+together.
+>> Would you guys like to read the
+statement Nico senior living?
+>> I'm like a nine.
+>> Eight.
+Yeah. Nine.
+>> Like unless there are like infectious
+diseases like COVID, you know.
+>> Yeah. Yeah,
+>> senior living facilities are going to do
+really well.
+>> Yeah. No, some of these like one of them
+with Primus, their plan is to have golf
+carts and you drive around inside the
+community. It's by a lake. It it's not
+like living in polluted Bombay or
+>> it makes a huge difference like just the
+air quality alone changes so much
+>> which air quality is one of the biggest
+killers.
+>> Yeah. and and like in the world and like
+one of the reason why people are having
+like liver failures is because of the
+air pollution you know where they live.
+It's like yeah that's one of the biggest
+you know risk factors um or like health
+risk factors for life in the world. So
+any technology that's helping alleviate
+air pollution or making you know
+gasoline cars and other such things you
+know less prevalent will do really well.
+The next one is content.
+The theory we were discussing is with
+search being disrupted in the manner
+that it is and people let's assume use
+Google a lot lesser or any kind of
+search platform that is throwing up ads
+and if anyone wants to build a brand
+social media might exist in some form
+but Google ads and the likes of that
+will not work to to be able to build a
+brand you have to be able to hold
+attention
+one way or another through some form of
+content and video is working right now.
+So
+the alpha between a brand that does well
+and a brand that doesn't do well content
+is going to be the biggest
+differentiator
+thoughts.
+>> That's the premise.
+>> Yeah,
+>> I very much agree with that. And like
+for every generation if you know how to
+speak whatever you know the medium where
+content gets viewed um is fluently you
+can do really well. So, for example,
+there is, you know, that uh Spanish uh
+olive oil gratia. I forget what it is,
+you know, that became like a $70 million
+plus, you know, business in a couple of
+years just because they know how to
+appeal to young people or like are you
+today hacker? Do you know how to speak
+uh X? Will do well. Are you a young
+consumer uh founder who knows how to
+speak Tik Tok? You will do well.
+>> Yeah. And you know in a few years will
+be s something else. I don't know what
+that it will be but whoever knows how to
+play that game well this is golden but
+tensson is all you need.
+>> I think DD is doing well at that.
+>> Absolutely. You're doing pretty well
+yourself. Absolutely.
+>> What are you going to pivot into with
+all this attention that you have?
+>> I don't do content for you know any
+practical purpose. Uh which is why I've
+never went into things like video.
+>> It's like saying I don't make money for
+any practical purpose.
+>> Uh no no it's not it's not the same.
+It's it's like I you know everyone's
+presumably got an education with some
+goal of making having some job. There's
+other reasons to do it but having
+something but I genuinely don't think I
+ever did anything online to get an
+audience or to have money or to have
+anything. Otherwise, I I mean, what I
+would tell people is like, yeah, if you
+want to do content just for that
+purpose, then you would there's always
+easier ways to do it. You do humor, you
+do um hot topics, you do very debatable,
+questionable things. And I mean, some
+would argue I have done some of that,
+but not much.
+>> I think that kind of content gives you a
+different kind of attention. The kind of
+content you're creating gives you
+trust,
+>> relevancy,
+>> relevance in a way, trust. When I first
+started, one of my first kinds of things
+I would post about is just immigration.
+And the only reason I would do it is
+because I f found myself telling all my
+friends the same thing over and over
+again. So I'm like, let me just write it
+down and then you can go read that. And
+so I I don't see it as a for me at
+least, it was never meant to be a a
+business. But to the statement, I mean,
+Nico definitely knows about this trend,
+but there's so many of these like 16,
+17, 18 year old kids who out of nowhere,
+they come up with an app,
+>> but I think they're being brilliant. I
+was doing a call with Sam Alman, and he
+told me the same thing. I was like,
+"What should young people do?" He said,
+"Most of them look like they want to be
+influencers, but I think they have the
+best idea ever."
+>> Being influencers was the best idea ever
+>> by creating content. cuz you're
+capturing attention
+and if the attention can age I don't
+mean tenure in the sense of it becomes
+old but as you grow older if your
+viewers grow with you in age as well uh
+you keep their attention for a long time
+like look at Taylor Swift it's insane
+right
+>> look she could soon be the richest
+person in the world I wouldn't be
+surprised
+>> and but then I what I was going to say
+on the app one was it's not even them
+trying to be influencers. It's them
+actually figuring out how to do their
+own marketing strategy at a almost
+nothing cost, right? They what they will
+do is they'll pay off people to they'll
+pay off other people to make Discord uh
+sorry on Discord to make Tik Tok videos
+and then have like some commissionbased
+um agreement and then these apps are
+making millions and millions of dollars
+of money of revenue and they're sitting
+at home in their in their parents'
+garage going like okay well I made all
+this money and I spent nothing. So, I
+think it's not them being influencers,
+it's them figuring out how to tap in to
+the ecosystem to get distribution for
+the thing that they've built because
+what they identify, at least the
+examples I'm talking about, what they
+identified is all of these apps look the
+same. The only thing that matters is
+distribution. So, let me go to the app
+store, figure out all the apps that are
+basically commodity, make my own, and
+then figure out distribution. That's my
+money.
+>> Storytelling matters, right?
+>> Storytelling matters.
+>> Like, we're all suckers for amazing
+stories. So whoever knows how to tell a
+story in a very compelling way and get a
+lot of attention for it because they
+speak the language of where wherever
+stories get shared that that moment in
+time. This is super powerful.
+>> I'll take the other side. I think
+there's in the last 3 years there's been
+almost too much attention on attention.
+While I agree content helps you grab
+attention and attention spans are
+declining. I think there's too much
+empty calories like I mean same audience
+>> look at it more from the lens of let's
+say Nikon tomorrow is starting a
+chocolate brand or a t-shirt brand or
+any kind most of an economy is
+consumption right 60 70% of money spent
+in the US is on QSR restaurants
+>> say you start
+>> a fast food restaurant in America how do
+you find your audience if not for
+content
+>> so my my push there is like it's there's
+two legs to a stool. There's too much
+attention on attention. Just like can
+you get people in the door?
+>> But what is your way? Let's say Nikun
+tomorrow starts selling some version of
+McDonald's.
+>> The best way is to have the best
+product. It's like
+>> even then how are you discovered?
+>> Like how traditionally everything has
+been discovered which is word of mouth.
+Like I think there is still power in
+that like you know I'll give you a good
+example like you know Swati's restaurant
+in Ahmedabad. It's in Bombay.
+>> Swati snacks. Yeah. same food. I go
+there every year and eat. It's always
+full and they've spent zero dollars in
+marketing forever. Even in today's day
+and age where there's a million
+restaurants, that restaurant is full
+every day by 5:30 p.m. or 9:00 p.m. And
+because the product is still phenomenal,
+>> but what are the odds of that? For every
+Swati that succeeded,
+>> I don't think I think that's why I said
+there's two legs to a stool. I think
+there's far too much attention on
+attention, especially in today's
+economy. Everybody wants a Twitter viral
+launch video, but the product sucks and
+I don't think that lasts. Like you look
+at the churn number, right? I mean,
+>> the product has to be good regardless.
+>> No, but that is changed. Nowadays,
+there's so much attention and attention
+that people are discounting building a
+good product where like you know, kind
+of di in a white labelled world where
+you just have to build an okay product
+and this distribution matters. I think
+that will peter out in the long run.
+Won't the quality of with increased
+productivity by virtue of AI, won't the
+quality of a product get democratized to
+a large extent?
+>> I don't know. I think it's the 10%
+problem. The last mile problem will
+forever be there. This is why Jirro
+still builds the same sushi 80 years
+later and like, you know, kind of
+continues to do that. I think I I do
+believe this is why I'm thinking the
+opposite. I think there's too much
+attention and attention. I do think you
+need eyeballs, right? like there's
+nobody comes to the restaurant and
+what's the point of building a
+restaurant but I think the product needs
+to be phenomenal in this AI age
+otherwise it's just slop like that's
+what happens like you know when one Tik
+Tok trend goes viral 20 people copy it
+and 20 people copy the same app there is
+no differentiation and then you build a
+little bit of value but the only
+compounding value is retention can you
+build a retentive product where people
+come back and that only comes with
+quality
+>> think of some products that come to mind
+that have done really well Let mass
+scale today.
+What do you buy often that you think is
+a spectacular product from a
+differentiation lens
+>> digital physical like
+>> Apple?
+>> You buy iPhones. Yeah.
+>> Yes. Yeah.
+>> Is that because of the product or is
+that because of
+>> it's competing advantages, right? Like
+it's there's no attention. What does
+Apple spend money on? They spend money
+on ads
+>> comparatively compared to their gross
+margin profile. Their marketing spend is
+very low.
+>> Yeah. I'm not disagreeing with you at
+all. I mean this is obviously I think
+kind of obviously true that you can't
+you need retention and you need
+>> but that's changing though. Last year
+more than ever I have felt this changing
+>> and that you think people don't focus on
+>> Yeah. Like you look at Mr. Beast
+Fastables. The only reason it sells is
+because attention,
+>> but the product I've had it. It's
+horrible.
+>> Horrible for the kids. It's horrible for
+like
+>> Why did you try it?
+>> Why? Because I was just curious.
+>> Yeah.
+>> But again, it's two legs to the same
+stool. I'm just saying there's far too
+much attention on one end.
+>> Yeah. I think I'm focusing more on
+discoverability.
+>> Yeah.
+>> Cuz you get to that point and then comes
+the question of retention.
+>> Yeah. I mean you need attention because
+now in a sea of the same how do you
+differentiate yourself? Content will
+always be the differentiator one way or
+the other but I don't I think it's going
+to be a revolving door if you don't
+focus enough on the product. The
+pendulum is swung on the other side is
+what I'm trying to argue where I think
+it can go back to like we need both
+can't have one or the other. I'm looking
+at the last five year bucket as the
+bucket of performance marketing where
+you gave Google money to show your
+product in different places and you play
+paid for the number of clicks and I'm
+looking at what is the next transition
+from that.
+>> Yeah, I mean discoverability especially
+like consumer it's all Tik Tok because
+it's the only free channel left but if
+you build something that grabs attention
+you get a lot of attention. Everything
+else has become paytoplay.
+>> Yeah. Should we rate this content?
+Importance of content in building a
+business. Nico
+>> for anything that's like you know
+consumerf facing or presumerf facing
+discoverability it's like a it's a 10
+>> yeah um without without that caveat and
+I would say like eight or nine fairly
+important um not the only thing
+>> say seven
+>> important but not the only thing that's
+needed. Do you guys see a world where
+David is winning against Goliath? People
+don't want to buy from corporations, but
+they want to buy from individual brands.
+>> Yeah. I mean,
+>> we're in the business of backing Davids.
+We're in the
+>> Yeah. I think this is happening more and
+more with offline experiences.
+>> Where you want to like in the universe
+of like tourism, right? You want to have
+the bespoke uh local artisal guide or
+like the
+>> hotel uh that has its own story or go to
+the restaurant that's mom and pop, you
+know?
+>> Do you feel like this happened because
+the last 10 20 years? We bought we
+bought products behind a corporation cuz
+trust was so deficit in society that we
+didn't know what went into it. Today we
+care less about trust and we are buying
+artisal handmade. We are buying into
+individuality again and is that a trend
+that's here to stay?
+I
+>> I do like how you framed it and it
+depends on the society that uh you live
+in and your economic participant. I
+would also add that um very often you
+don't want to be uh buying the same
+brands that your parents were buying. It
+might be the case for detergent but to
+go to the same you know hotel chain that
+they went it's not as cool for you. So
+like every generation has its own cool
+uh brands experiences that they resonate
+with and a lot of the large corporations
+at least you know in the in the west
+have had like they've lost a lot of
+their brand equity with the youth.
+>> I mean generally the question of David
+versus Goliath you you always not I mean
+not in every situation but Davids are a
+great bet to to make because Goliaths
+are usually bigger businesses. They have
+established practices. They lose their
+eye on the ball. They're focused on
+managing things at scale. Sometimes
+reducing cost. So not maybe not just the
+hotel example, but even for many other
+cases, most businesses do not have any
+systemic effects of scale um that can't
+be disrupted in other ways. So yeah, in
+many cases, I would definitely bet
+against on the David versus the Goliath.
+Of course, there are other cases where
+that is not a good bet, but
+yeah, older businesses will get
+disrupted generally for most industries.
+>> My good thoughts.
+>> Yeah, it's a cycle of life will
+continue. You know, big big gets too
+big, too horizontal, not enough depth,
+small has that. And then from a
+consumption perspective, I think people
+will continue to stay away, which means
+they want the new thing. They want to
+differentiate themselves and that will
+continue to want them to do whatever
+version of artisal that might be.
+>> Perfect. Want to rate this? I just have
+like four more and then we I'll tell you
+how much you rated which one and which
+is probably a good sector to focus on
+for the next decade. David versus
+Goliath. Nikon,
+>> the 10 is pro David and zero is pro
+Goliath. Correct.
+>> Nico,
+>> I'm like an an eight.
+Um I would say a seven because there are
+some places where scale definitely
+matters but in many cases they don't.
+>> One good example is in tech.
+>> Mhm.
+>> Where you see something like six seven
+companies that created the bulk of the
+market cap if that's a way to measure it
+um over everyone else the last you know
+30 years. So I had this thesis two years
+ago that by virtue of cost per mile or
+kilometer, most vehicles will become
+EV
+or hydrogen focused in a very short
+period of time. So I I spent 2 years
+investing in everything from electric
+scooters, electric buses, trucks, even a
+flying electric taxi company.
+When I look back at it now, a lot of
+these bets did play off, but the
+adoption to EV seems to be slowing down
+and subsidies are being taken away, not
+just in the US, but also in countries
+like India and other places. What do you
+think is the future there for 2035
+adoption of electric vehicles and
+hydrogen versus IC? I think it's for
+somebody to buy a vehicle in let let's
+pick a neutral country right that's not
+the US it's not China like but one in
+Latin America or like a smaller you know
+country in Europe the consideration you
+know would be what is the cost how often
+you know would I need to maintain it
+what's the cost of ownership
+um and you actually do see that a number
+of the Chinese car manufure uctors that
+make EVs that here in the US you don't
+see on the street are actually winning.
+>> They're far ahead
+>> because the price and the total cost of
+ownership is pretty awesome. So when I
+visited you know different you know such
+countries over the last few um over the
+last year like in Colombia or like in
+Portugal or like in uh Greece I was
+seeing car make brands that I had never
+seen before. Then I was googling them
+and they're like massive.
+So do I think this is a trend that uh
+will continue? Uh yes, I do think it's a
+trend that will continue. Might not be
+everywhere but in a lot of you know
+countries because people want to have a
+car. It's a means for them to unlock
+more productivity and get to work and
+make more money. Um I do think this is a
+trend that's not going to stop. I'll
+give you the number. In India, if you
+buy a EV scooter, it costs about $2,000.
+>> If you buy a IC scooter, it costs you
+about $1,000.
+>> But if you ride the scooter for 40
+kilometers a day,
+>> on a EV scooter, you save $500 a year
+cost of running and much easier to
+maintain cuz the number of parts are
+exponentially lesser.
+But still adoption is not that high.
+Why? Why do you think adoption numbers
+have slowed as much as they have in the
+US? Can it just be because the Chinese
+are making spectacular EVs which are
+years ahead of them and they don't want
+to even compete in that market anymore?
+What is it? Why did the subsidies go
+away even?
+>> I don't think you can buy any of the
+Chinese EV cars here, right?
+>> No, you can't.
+>> That's the biggest issue. If if we were
+to truly operate like a free market, I
+think they would be doing really well.
+>> The same in India, like you can't buy
+Chinese vehicles, but are Americans not
+buying American EVs because they can't
+buy Chinese EVs?
+>> It's just a cost thing.
+>> Well, on to what Nico said. It's cost
+and convenience. There's not enough
+chargers and it costs too much. If the
+cheapest car was an EV, everyone would
+buy an EV.
+>> Do you think that'll change in the next
+10 years?
+What percentage of cars on the road in
+10 years will be EVs
+>> in America? I think it'll change and
+that's primarily because of Tesla.
+That's the only car company that moves
+fast. And so if that's the only car
+company that is allowed to operate, then
+yeah, then they will figure out how to
+get the cost down one way or the other.
+>> Do you say 100% of cars will be EV in 10
+years?
+>> I don't know 100%. But I would say like
+it would a majority of cars will be EV
+in 10 years in my mind. A good proxy
+would be like what percent of cars that
+are getting sold today are EV, right?
+And this could kind of tell you how the
+future might look like and
+>> around 20 20% sub 20%.
+>> I I I don't know but um so yeah if that
+number is accelerating and the
+>> it's it was accelerating but the pace of
+acceleration has slowed down.
+>> Yeah. So part of it is the incentives
+part of it is the economic cycle. So
+whenever there is a slowdown in the
+economy, the used car uh market is doing
+much better than the new car market or
+like you know when we had the disruption
+with covid in the supply chain, new cars
+became more expensive and harder you
+know to uh buy because uh you would have
+to wait for longer. So there these
+factors too, but do I think that like
+EVs
+um anywhere in the world are going to be
+the majority of cars over the next 10 to
+15 years? Yes, I do think so. Yeah,
+>> I think we dramatically overestimate how
+fast people will adopt new things and
+cars are a big asset in the country.
+It's like saying America will build 10
+million homes. We won't. It's just
+harder. And US especially from a market
+perspective used car market is massive
+always has been way boom or bust and you
+won't it's very hard to just change it
+like new cars will be built but uh
+they're far more expensive and so I
+actually think without the incentives
+>> in 10 years one could argue they won't
+be m more expensive they' probably be
+cheaper they'll likely be cheaper
+>> this is where like if the free market
+depends on where you're sourcing it from
+if you does it have to be USmade then no
+can you still source from free market if
+free market existed I would be very pro
+and I I I have two EV cars at home just
+to be clear like I would be very pro
+like oh we'd see 10% of the market be EV
+otherwise it'll be a slow trickle till
+these cars go out of
+>> another vector to to consider perhaps is
+in places where we have a lot of
+autonomous vehicles adoption if indeed
+the total cost of operation or like an
+autonomous vehicle is you got to be EV
+first
+>> or Then you know that's another market
+that's going to be growing very quickly,
+right?
+>> Want to rate it, Nico?
+>> Yeah, I think I'm like a seven, you
+know, or an eight. Yeah, seven. Seven.
+>> Seven to the statement that by 2035,
+majority of cars will be EV.
+>> Yeah.
+In America?
+>> No. Worldwide?
+>> Oh, seven.
+Probably less. I mean that it's like it
+depends on like China, India, Nigeria,
+Brazil, right? Like Indonesia.
+>> Yeah, I think those countries will adapt
+faster because of efficiency, the amount
+of energy lost between generation and
+endpoint usage is lower in EVs
+>> and people will adopt there because the
+cost to travel per mile will be lower.
+>> Yeah. And what what if I would say to
+you not in India but in China huge air
+pollution problem. The Chinese
+government says, "Hey guys, from now on
+you want to buy like a gasoline car, no
+problem. It's going to be like 50% more
+expensive."
+>> The same is happening already like in
+India many cities are saying that if
+you're bringing a truck into the city,
+if it's not EV, it's not allowed.
+>> Oh, there you go. So that's again
+another vector that pushes demand even
+further. Right.
+>> But then why only seven?
+Um because I'm not as fluent in the in
+in the exact numbers and it depends on
+like these four or five big very
+populous countries. Right.
+>> Right. Right.
+>> I think if it's new cars like how what
+percent is new or new cars in 2035?
+Yeah. That'd be like a seven.
+>> Oh, it's for new cars. I was thinking
+like total
+>> let's let's say for new cars.
+>> Oh then like yeah like nine you know.
+Yes.
+>> Same.
+>> Yeah.
+>> Yeah. like because I was thinking you
+know the average uh lifetime of a car in
+a bunch of countries like you know 12
+years I was trying to do that math.
+>> Yeah the VC math in your head
+>> nine as well I think eight primarily
+because I think especially in the US
+like with the conservative government
+like oil and gas is not going anywhere.
+It'll take a long time for us to like
+move like from a politics perspective,
+EV force is not going to be very popular
+for the next six years.
+>> But from a cost perspective,
+the cost of everything else compared to
+fossil is falling so quickly.
+>> But the problem is batteries again, it's
+like American choice. Like you know,
+it's like I can go fill up my petrol
+pump wherever I want. I can go to a gas
+station. I can kind of like have this. I
+don't want to wait for 45 minutes.
+convenience is battery technology is not
+evolving fast enough.
+>> Like we I'll give you an example. We
+invested in this electric truck company
+which has interchangeable batteries like
+battery swap. The largest company which
+does battery swap in the world is called
+Sani in China.
+So these trucks drive with two batteries
+at a time.
+>> Yeah. They go to something which is as
+small as one container box and the
+batteries are swapped in the same amount
+of time that it would take for you to
+stop at a gas station and fill fuel.
+>> Yeah.
+>> Each battery gives you a range of 700
+kilometers.
+>> So two batteries together let you drive
+1,400 km.
+>> India end to end let's say is I don't
+know 4,000 5,000 kilometers.
+What that means is the number of petrol
+stations that you require in itself come
+down exponentially. You probably only
+need 50 container size stations across
+the country to get these trucks to go
+across the length and breadth of the
+country.
+>> I think the model is changing
+significantly
+even for a country as broad and wide as
+India.
+Yeah, I think replacement as you
+mentioned like eight is the I won't be a
+10 because it'll still be choice and
+people will ch it takes a while to flow
+in like even today I disagree with like
+charging stations are good enough like
+every in America infrastructure is
+already there people are still voting to
+not buy EV cars even though they're cost
+appropriate because it just takes time
+for people to change
+>> right okay point number eight of 10
+beauty as a category
+beauty products
+>> 10.
+>> Yeah.
+>> Same.
+>> Yeah.
+>> Yeah. And beauty and content are are are
+in line with each other. I mean,
+>> look who are the wealthiest, you know,
+like people outside of tech. Anyone
+who's in beauty and luxury.
+>> Yeah. Luxury. That's luxury.
+>> Beauty and luxury.
+>> Yeah.
+>> Luxury also.
+>> No. No. I was saying who are the besides
+>> wealthiest you know like uh individuals
+or families outside of technology anyone
+who's in beauty or in luxury goods
+>> should I just add them and make them one
+beauty luxury
+>> and then like if we want to take a
+glimpse into the future we would go into
+uh South Korea where indeed they have
+one of the lowest fertility rates in the
+world but they're massive exporters of
+culture and over there if you're a And
+there is a
+more than 50% chance that you use beauty
+products every single day.
+>> Yeah.
+>> So like again, you know, this guy's
+population, you know, will shrink. But
+if everyone was like 80 years old, looks
+like a 50-year-old. That's a good trade
+for most people.
+>> And the surgeries in South Korea,
+>> we've been what to build in beauty.
+We're trying to come up with something.
+Any ideas what could work as a product
+category
+>> in beauty?
+>> Yeah. Now
+>> like beauty gives you confidence, right?
+>> No, but if I want to build a brand in
+beauty like we have a team which does a
+lot of consumer brands that we run not
+just invest in. If we build for beauty
+what what do you think could work in
+today's taste cycle?
+>> Can you help me eliminate my wrinkles?
+>> Right.
+>> I would pay for that. I think could you
+make Box, you know, uh 90% cheaper, I
+would pay for that,
+>> right? Anti-aging,
+>> anything anti-aging that's more easily
+to get to and cheaper. Yeah, I think
+make for men to make it more accessible
+and cooler with content, you could do
+that.
+>> Yeah,
+>> you could do that, too.
+>> I have the opposite take. I think I
+would build like a very high-end
+luxurious
+brand for like the top 10% of Indian
+males.
+>> For Indian males,
+>> you're talking about India, right?
+>> No, not necessarily across.
+>> Yeah, I I' I'd take the opposite route,
+which is like I'd take if take hard
+problems like anti-aging.
+>> I'm guessing you fall into the top 10%.
+So, would you buy?
+>> Yeah.
+>> What would you buy?
+>> What? Whatever
+>> you buy like makeup. Uh I think this is
+where like also the other aspect of it's
+like invisible like what what is
+invisible today.
+>> Is there like an invisible foundation
+that makes me look 5 years younger?
+Sure.
+>> You would?
+>> Yeah. Would
+>> I know nothing about beauty? But I I
+mean I think there's all of these things
+are credible. Um I think there is a gap
+in male beauty but I think women are
+obviously the primary consumers of
+beauty products. So there's a lot you
+can do there. Um I just I know nothing
+about it.
+>> I mean look into Olympic. You know, most
+people take it.
+>> It is beauty
+>> every week
+>> because they don't want to ever be on a
+diet.
+>> Like I know a lot of
+>> people like us.
+>> Yeah.
+>> Or in their 30s or 40s.
+>> They never had any, you know, issues
+with their weight,
+>> but they don't want to be on diet. They
+want to eat everything. They take us on
+because it's a beauty product.
+>> Yeah. I'm guessing longevity and
+wellness, you guys will rank highly as
+well.
+>> Yeah.
+>> Tense.
+>> Yeah. It's a question affordability. So,
+I would be in nine. you know,
+>> longevity and wellness.
+>> Yeah.
+>> For you.
+>> Yeah. I think like
+at what price point matters, but as a
+category, yeah,
+>> nine.
+>> I'm more of an eight.
+>> It's like anti-recession.
+>> I mean, have you guys ever like taken a
+flight that's connecting through stumble
+in Turkey?
+>> Of course.
+>> What do you see there?
+>> A great airport.
+>> Great airport. Yeah. Isn't that freaking
+insane? Yeah.
+>> Where was that industry like 10 years
+ago? wasn't there.
+>> Yeah. Yeah.
+>> And now thanks to Tik Tok and content,
+it has become like a global destination.
+>> Live events,
+concerts, theaters, plays.
+I would even put something like a
+high-end restaurant is a live event. I
+think the nature of live events is
+shifting to people want to advertise
+that they were at a live event on their
+Instagram predominantly. I think that's
+the main purpose for most people um that
+go to go to live events
+>> or others do it you know on your behalf
+and you lose your job as the whole world
+learned last week.
+>> Every everyone wants to go to a good
+Coldplay concert, you know. Um, so but
+generally I'm I'm more neutral on live
+events because I do think attention
+capture is going to be more massive on
+digital and so there are going to be a
+smaller set of people in my mind that
+want to go to live events.
+>> Yeah. Uh net volume not maybe not number
+but the net volume of time spent at a
+live event I don't really have a strong
+view that it goes up. I actually don't
+know.
+>> Nico, what do you think?
+>> I think most live events historically
+have been like [ __ ] businesses to run.
+But in a world where the offline
+experiences become the scars in a world
+where we get tired of being online in
+front of our screens for 14 hours,
+there's going to be a premium. You
+mentioned Taylor Swift. There's a reason
+why she's a billionaire.
+>> She's figured out how to make so much
+money from her super funds. And to the
+extent more and more Taylor Swifts
+exist, which I think, you know, will be
+the case in the individualistic
+driven, you know, society that um we
+live in today,
+live life live offline experiences um
+will uh do really well. And it could be
+a restaurant, you know, like what if,
+you know, the Japanese, you know, sushi
+stuff you mentioned was more
+capitalistdriven. Wouldn't he want to do
+it in front of like a a massive arena,
+you know, or tour the world and do it
+maybe?
+>> No. Scarcity matters though. I think
+scarcity is a good point. Yeah.
+>> Yeah. Scarcity will never go away.
+Desiraability comes from scarcity.
+So,
+>> want to rate live events.
+>> Nico,
+>> I'm I'm like, you know, like an eight.
+>> Okay.
+>> Um, five.
+>> Okay.
+>> Yeah. Yeah, I think philosophically I
+want more live events, but I'm with TDU
+and short-term it's like six like where
+we'll move towards live events.
+>> Six
+>> again, you know, like they're mostly
+[ __ ] businesses, but like look into like
+what happened with the World Cup for
+like the clubs for soccer in the US.
+>> Like this was a brand new revenue stream
+out of nowhere. like the winner pocketed
+over 100 million you know uh dollars
+Chelsea
+uh with the Europeans you know you know
+snobs and we don't care about it but if
+the numbers you know go up which is
+likely in the future would you pay
+attention to it probably you would
+>> but I'd bet still that digital coverage
+of soccer will have a higher percentage
+from an eyeballs and viewership
+perspective percentage of time
+perspective than live events
+>> but supply and demand comes in there
+right like the supply of digital is for
+everyone on the novelty of live is
+>> Yeah. But I think that's what we're
+betting on is like my way of giving a
+score is like what do you think
+percentage of time
+>> goes up in live events versus digital? I
+would bet screen time goes up higher
+than live event time.
+>> And then my think response to you would
+I think there's more concentration in
+live events but not necessarily net
+volume increase. I think more people
+gravitate to the Coldplay concerts, the
+Taylor Swift concerts, the
+>> fair and the Chelsea game. But, you
+know, I think most events that are not
+places you want to be seen are not like
+that interesting.
+>> That's why when you look into most
+ticketing businesses that serve the long
+tail, they're really [ __ ] They can't
+make money. Nobody shows up. People
+don't pay. Yeah.
+>> Okay. Last one. Climate tech.
+>> What What What is climate tech? What's
+the definition?
+carbon capture.
+The thesis behind the statement is
+someday soon, I mean it could be carbon
+credit trading.
+If there were one large event where say
+10,000 people die, say there's a flood
+in Miami, the water levels keep rising,
+suddenly everybody
+will go back to climate and start taking
+it very seriously.
+like climate tech could even be software
+like I was at this I'm part of this
+group called the gates pledge where I
+think your colleagues a couple of them
+are there one of them is there and there
+was this professor this year who was
+showing a model that he had built where
+the base case is world's temperature
+will rise by 1.6° 6° by 2100 and what
+can you tweak in this software which
+changes it? Is it a carbon tax? Is it
+lesser amount of coal? Is it more
+allocation to nuclear? U there are funds
+like breakthrough energy which are
+working on this. So all of this somehow
+comes into climate.
+>> Yeah. I mean we we need to do something
+about it. The challenge is you know that
+for many humans it's hard to relate.
+Even if I live in Miami and there's a
+huge flood and I lose my home, then I
+might move somewhere else and I might
+forget about it. Or my local politician,
+you know, who is responsible for coming
+up with subsidies or incentives.
+That stuff like, you know, doesn't get
+them necessarily re-elected in the next,
+you know, cycle.
+>> Actually, fair point. There was a fire
+here in California and everyone's
+forgotten about.
+>> Yes.
+We we forget. It's really unfortunate.
+I mean same same applies to health stuff
+like you know we had co and
+>> yeah nobody remembers co
+>> I think you know
+>> modera remembers their stock price is
+down from 400 to 30 bucks.
+>> God bless this guy.
+I think climate tech is a overloaded
+term because it means so many things and
+a lot of it is a bad word. Um especially
+in venture for a bunch of historical
+reasons but energy I think unambiguously
+positive and energy is a big part of
+climate. So and
+>> you mean like renewable energy
+>> all energy. How do we get cheaper,
+better, more sustainable energy? Um yes.
+So everything from nuclear to solar to
+geothermal I mean different
+>> can we have fusion right?
+>> Yeah different propensities of working
+and I think that is climate tech I mean
+if we can figure out how to get energy
+in a hyperdense way then we won't need
+to solve all these other problems. So
+>> yeah geothermal fits into climate. So
+energy yes rest of climate tech
+ambiguous on definition but
+>> like you can come up with like creative
+solutions right like whenever in the
+world we have massive volcanic eruptions
+there's a cooling of the uh temperature
+you know on the planet. So like could we
+do any of that you know in ways that is
+safe for all the industries and the
+humans that are running on the planet
+could be powerful or like finding
+creative ideas you know to have
+uh a very positive effect in an e
+economic manner like could we paint all
+of the Sahara desert you know in a way
+that's reflecting you know back some of
+the heat who knows you know
+the challenge it's a very
+complex, you know, spaces like trying to
+cure cancer. Like cancer is not one, you
+know, disease, you know,
+>> and every little one of these solutions
+contribute, but then you pay attention
+to subsidies and capital and labor
+intensive and it's more project finance.
+And
+>> I think there's a subtler point in all
+of this stuff because, you know, Nichol,
+I know you're going to ask this as an
+investment lens. And so being bullish on
+a lot of these things doesn't
+necessarily make them easy investments
+because you look at biotech, you look at
+energy, it's just the failure rate is so
+high that you might be like, of course
+these things matter, but investing in
+these things may probably lose me money
+in most cases.
+>> But if you remove the venture lens and
+you buy the incumbent with a mode, you
+at least want to be in a sector you
+think has wins
+>> perhaps. Yeah, I think that's fair to
+say.
+>> Yeah, because I'm not looking at it from
+the venture lens. I'm looking at it from
+a investment lens overall. So I'm going
+to say climate tech energy largely.
+Would you bet on that number DD?
+>> Um I would say it's you know all of AI
+is built on more compute and energy. So
+that is one reason but nine nine.
+>> Yeah. I mean if I had to bet agnostic of
+where else I could put my dollars if I
+had to bet on climate Yeah. I would
+definitely put like seven
+ego.
+>> Yeah, it would be an eight because like
+we need more energy. This is one of the
+ways you uh boost productivity. That's
+one of the ways you boost economic um
+growth. AI is like a hog for energy.
+>> Mhm. But I actually think the world gets
+worse in the near term because energy
+will become the fundamental limiter
+which means we will frack more. We'll
+pull more from the ocean. Uh because
+nuclear fision and fusion will still
+take time to build. You can't build
+solar panels fast enough. That's why I
+was like a seven. I'm like do I believe
+climate tech will solve? Yes, but it'll
+take a longer time period. But the world
+will get much worse in the next 10 years
+from a climate change perspective. So
+>> So data centers at least back home in
+India have become like a real estate
+play almost. Everyone and their cousin
+and uncle and auntie are building data
+centers.
+>> Makes sense.
+>> Who built apartments up until yesterday.
+Do you think bubble now?
+>> Not yet.
+>> No
+>> bubble if you buy into it now.
+>> The multiples are not high. You you get
+these companies at 16 to 20 ebita
+depending on which geography you pick.
+Data center businesses.
+You think it's a good place to get
+allocation?
+>> But do you have any real estate
+arbitras? Do you have any energy arbitr?
+>> Everyone has a different narrative. One
+is near a power station, one is also a
+real estate player. So they have real
+estate arbitrage.
+Uh different people have different
+thing. India has
+uh we mandated that financial data of
+Indians has to stay in India.
+>> Y
+>> and as much as a big chunk of data
+created is in India. So if they mandate
+that all Indian data has to be in India,
+it becomes
+>> I think that's a very good narrative
+that will be driving you know local
+pockets of demand in many different
+countries. And then can you bet on the
+operator that over time will be the
+consolidator?
+>> Yeah. Like if you can find that awesome
+entrepreneur, I think it could be a good
+trait.
+>> I still think it's underrated. I think
+the amount of compute in each country.
+>> Do you think comput will get more
+efficient with time? We'll need lesser
+space in a data center.
+>> But we'll continue to use more and more
+of it.
+>> You think I mean Google just announced
+they like doubled their token usage in
+three 3 months. Google like I think
+we're just at the very early innings of
+how much token usage even with
+efficiency we're going to use far more
+compute h even with chips getting better
+will still use more I think I don't
+think that goes away for the next 10
+years now the question and then each
+country will use compute and energy as
+their like it's like a nuclear weapon
+like you will have this like you will
+want to keep ownership of this right now
+it's a big geopolitical risk where like
+Saudis especially and other countries
+are holding this whether it's chips or
+energy and that becomes a strategic
+geopolitical asset for them. India will
+not want to be left behind. Rated
+>> uh data centers and investment nine
+depends on the person
+>> today Nico 20 35
+>> again you know this an exceptions
+business so we be back a seven cuz you
+got to pick the right operator that has
+all the other you know right conditions
+but as a broader trend yes I would be a
+seven
+>> I'm actually lower because I think yes
+there's a need for compute but like to
+Nico's point there's so much that goes
+into running a data center. Do you have
+the skills? How often do you have to
+renew the hardware? Like what are the
+hardware you're putting into that? How
+much does that cost? How much are you
+selling it for? Like there's a lot of
+things that go into the business of data
+centers. So yes, will data centers
+exist? And generally, yes, there will be
+more and more, but some data centers are
+extremely bad businesses.
+>> Um,
+>> multiples have not been also good.
+>> Sorry. Yeah. Yeah. Multiples haven't
+been good. And there's ways to really
+[ __ ] that up, right? You can deol buy a
+bunch of Nvidia and then sell inference
+and you might be making like pennies on
+the dollar. So, you know, it really
+depends. So, overall, I would say uh
+six. I'm going to ask you advice on a
+few companies I've been reviewing when
+I'm here. I had a thesis that when we
+all have more time at hand, when
+abundance comes about and productivity
+goes up, I
+wagered a guess that humans will go back
+to what they always intrinsically did.
+One big activity is speculation. So I
+was speaking to companies like Khi and
+Poly Market. What do you think of them
+as investments?
+Forget the regulation side of it. Forget
+one is US, one is
+>> gambling is a good investment. I mean
+gambling will always hap will always be
+good as long as it's legal. So people
+it's a vice. It's a vice investment.
+People like to speculate and make money
+off of it. That's
+>> you think even today at the crazy
+multiples that they're at.
+>> Yeah, I I think so. I mean the more
+people come in more of those markets
+become liquid. They become more
+investable. They become market makers.
+More institutional players might come
+on. There's a whole bunch of things that
+can happen around prediction markets. So
+I think it's a it's a great it's a great
+thing. I would I would like it. I like
+it.
+>> I think you said forget regulation.
+>> Forget regulation because she's
+regulated in the US.
+>> Poly market is more on the blockchain
+peer-to-peer betting more international
+customers. I'm guessing Robin Hood will
+soon figure out whether they're a
+partner or they're going to replicate
+what they could maybe easily replicate.
+There's so many moving parts when it
+comes to regulation. I don't know how to
+put it in a box.
+>> Yes. Like assuming that regulation is
+like sold, you know, for the category.
+Is this a going to be a great category?
+Yes, I think it's a great category
+because it's entertainment.
+>> You already have evidence from several
+of these that the consumer eyeballs, you
+know, are really there. Um, you have
+like a well-driven business model for
+some of these that really works for
+other industries.
+um the margins are can be pretty awesome
+depending on how much the regulators
+would want you you know to part with
+them and then the new cycle is great
+news for all of these businesses. So
+overall um again you know regulation
+risk aside
+um pretty bullish about the category.
+>> Yeah. So I mean it's in the class of
+entertainment as a whole especially with
+abundance there's going to be infinite
+money and time. Do you bet, Niko? I feel
+like you're closeted something in your
+outside.
+>> No, no, no. I play
+I I play poker quite frequently.
+>> I feel like there's another version of
+Nick Quinc that he doesn't let on.
+>> I No, I play poker right now. No, no.
+>> Top 2% of sports batters worldwide.
+>> I play FIFA a lot.
+>> What's your wise, Nikon?
+>> What's my wise? Um,
+probably just like Yeah, probably poker
+is like I spend a lot of time playing.
+>> Poker is not a wise. Come on.
+>> I don't have
+>> You're so composed on the outside.
+Inside has to have something else going
+on, right?
+>> I've always been like my my friends
+growing up always called me like a
+granddad. I've always been that way. I
+like sleep. Like this is like being
+>> Did you enjoy being called a grand?
+>> Yeah, I have no problem.
+>> Not no problem. Did you like it?
+>> Yeah, I was like perfectly fine with it.
+I don't know something about like maybe
+I have more wisdom than the average
+person that maybe the vanity side of it
+could be.
+But
+>> answer that's such a grandad answer to
+>> I don't see the vanity of wisdom. I see
+the vanity in many things but the older
+person kind of vanity I don't see why it
+appeals to a young young boy.
+>> I don't know. I've never been
+Yeah. I
+maybe I've just been very comfortable
+like you know like I want to go to sleep
+at 9:00 p.m. sleep at 9:00 p.m.
+>> I know that's your projection.
+>> Yeah. No, that is
+>> loving husband, two kids, electric cars.
+>> You should ask my wife. Yeah.
+>> How did you meet your wife?
+>> We met in high school.
+>> This is just like textbook
+>> fairy tale.
+>> No, but the craziest the craziest thing
+about our life story is we never dated.
+We never lived together. Um I just knew
+her for 10 years and then one day I
+asked her will you marry me and she said
+no and then I convinced her. 2 months
+later we got engaged.
+>> More textbook,
+[Applause]
+>> right?
+>> Yeah.
+>> I wish I had the time to poke it. Not
+today though.
+>> Not today. I I wonder if you asked
+Chachi PT describe me in three words
+based on everything that he knows.
+>> I would love to know what it says. My
+phone's there. We can try it now. I can
+try it right now. What model should we
+use?
+>> Uh, I don't know. 03. 03 is probably the
+>> 03.
+>> Of course.
+>> My go.
+>> I have 03 Pro. No, based on everything.
+>> That might take a while,
+>> you know. Yeah. About me.
+>> Oh my god. You know,
+>> describe me.
+>> We're going to burn a few trees in the
+rainforest, you know,
+>> just to know.
+>> Just to know. Too much energy.
+>> I'm actually super curious now. I
+>> All right. He probably watches what he
+says to Chachip as well.
+>> No,
+>> no, no.
+>> I actually have never used the
+>> Is that somebody else keeping your data
+for you, right?
+>> Oh, I actually Chachip knows me probably
+better than anybody else in life.
+>> Wow.
+>> Is that including the wife?
+>> No,
+>> it has to because I spend so much time
+sharing your thoughts. Everything I
+write, everything I talk about,
+everything like every thought goes
+through it.
+>> Wow.
+>> I'm fully bionic that way.
+>> Wow. Yeah.
+>> Yeah. I mean, same.
+>> It says, oh, I hate the last one, but it
+says analytical, proactive, visionary.
+I don't think the last ages, but the
+other two probably true.
+>> That's great. New LinkedIn headline.
+>> Now, tell me the truth.
+>> Tell me the real truth.
+>> That's funny.
+>> This is This is the real podcast. I love
+this.
+>> Uh, assessing the real truth. Let's see.
+>> Normally, I'm like little bit
+more robing,
+>> but today we're so many people and we're
+talking about something I want to get
+out of the way.
+>> Yeah, fair enough.
+>> Superpowers. Pattern spotter, relentless
+editor, agency, amplifier.
+>> Can I write the
+>> Yeah, go for it.
+>> Please be funny. Yeah,
+I'm going to write
+speak like Yung.
+A therapist I really like.
+What are my shadow trades I don't want
+to take cognizance of?
+>> So Chris Pack did this thing called /
+Graham on Dia browser. Did you guys see
+this?
+>> No. What is it?
+>> It's basically psychoanalyzes you.
+>> Slash what? It's called slash graham
+based on Graham Duncan who's like who
+did this basically prompt. It's a very
+good prompt. It goes through your
+Twitter and just like psychoanalyzes
+you.
+>> I posted mine online so you can see it
+what it said about me and so everything
+I thought through everything.
+>> Yeah.
+>> Yeah. What did it say?
+>> It's reflecting right now.
+>> You could also ask if he's a gambler.
+>> You can ask him.
+>> My biggest vice is poker.
+>> What are my biggest vices? Chad GPT.
+Tell me.
+>> Okay, this get this getting better.
+>> Oh my. You're an expert prompter.
+>> I love it. I love it.
+>> What does it say?
+>> The tyrant of efficiency.
+>> It's true.
+>> Wow.
+>> Count seconds like coins and curses
+every idle breath.
+>> That is true.
+>> The spectre of control fears chaos more
+than failure.
+>> Maybe. Yeah.
+>> The armor of intellect.
+A polished exterior forged from logic
+and data deflects feelings both yours
+and others.
+The mirror of validation reflects only
+on achievement. Each milestone fades the
+moment it is reached, demanding the next
+brighter proof.
+The shadow of exhaustion, invisible at
+first,
+it whimpers that stamina is limitless.
+Ignore it long enough and it steps
+forward as burnout.
+better
+>> deep,
+>> but not not that different.
+>> Better like little bit less filtered.
+>> Yeah.
+>> I wrote a post called I'm not good
+enough that talks about every failure
+I've had in life. So
+>> this is where humans are better than AI.
+We're vulnerable.
+>> Yeah.
+>> And use it, you know, for advantage.
+>> Okay. Let's read speculation
+>> like poly market.
+>> Yeah. Poly market all that stuff.
+>> Yeah. I mean without regulation I'm a
+10.
+>> Okay.
+>> I'm a nine you know without regulation.
+>> Okay.
+>> Nine especially if you can include it's
+like part of entertainment for me. So
+>> nice.
+Okay. So when we spoke about how the
+world will change. Okay. Let me first
+summarize what got the highest marks.
+So we said
+beauty and luxury
+is like a great sector to build in. 30
+out of 30.
+Followed by speculation and gambling.
+Great sector to build.
+>> All vice businesses. Vanity. It's just
+>> vanity. Yeah.
+>> Followed strangely by education which is
+outcome based.
+>> Yeah.
+>> Then came
+world older sicker senior living content
+EV adoption.
+Yeah. those had the same number.
+That's interesting. We'll put this up on
+a chart and we'll say what each of you
+said and why they said it. I feel like
+this is very useful data both for
+capital allocators like us, but also if
+I'm a young kid looking to start
+something, it allows me to extrapolate a
+rate of growth. So, at least I have some
+tailwind in the industry that I'm
+building.
+>> Right.
+>> So, I would disagree with that last bit.
+>> Yeah. Why?
+>> I I think so much about building is more
+about where your unfair advantage is,
+not where the macro is going.
+>> And so I think, you know, take beauty
+for an example. Like I I'm sure some of
+us have friends. I have friends building
+in beauty. Often I think you know not
+doing a great job is not cuz I don't
+believe in beauty is I think you don't
+have any unfair right to win. You don't
+you're not doing this correctly. So, um,
+I think that that's a bigger part of the
+equation for me, especially when, you
+know, young people come to you for
+advice, then you're not going to say
+just because I think beauty products are
+going to do well that you should go do
+build a beauty product. Those are not,
+you know,
+>> are you still going to contest that your
+unfair advantage is distribution because
+of content?
+>> Uh, for me,
+>> yeah.
+>> Um, on what?
+>> On anything you want to build tomorrow?
+>> 100%. That's one of them. Yeah,
+>> the main one
+>> probably. It's the probably the the
+rarest one. I mean I would say I have
+some unfair advantage on like selling to
+big enterprises but so many other people
+do.
+>> Are you worried that you might be
+perceived as a content creator versus
+all the other stuff that you do and
+hence you try and push it away?
+>> Uh yeah 100%. I don't like people
+perceiving me as that. I think it's a
+terrible tagline. I don't want to be
+called an influencer or a content
+creator.
+>> Why not?
+>> Why not? Yeah.
+>> Because this is I think it comes with an
+association that I do not uh enjoy.
+Right. like I I do it for a certain kind
+of reason and I don't think most people
+who do it do it for that same reason.
+And I think when you use the label then
+people interpret it for the the the the
+latter like they think you're doing it
+for fame, glory, yada yada yada. And I I
+don't think I am. And so therefore I
+don't like the the label.
+>> But isn't it like a form of storytelling
+form of art?
+>> If you called it a storyteller I would
+be like call me that all day.
+>> There you go. Um, but I like it's it's
+very different than calling somebody.
+>> Isn't every influencer a storyteller at
+the end of the day?
+>> I don't think so.
+>> That's definitely not true.
+>> Tell me one very popular influencer who
+doesn't tell stories. Well,
+>> I don't want to diss some some people.
+Let let's say this like if you go on
+some of the the top Twitter profiles on
+on on on X or whatever on X and most of
+them are not telling stories. They are
+inciting rage. That's a that's not you
+could argue that's some kind of story
+but like that's not really a story.
+They're not trying to convey anything
+meaningful. It's rage bait.
+>> They're not taking the contrarian
+narrative to the populist one, right? Uh
+some of them I don't think I mean I
+think you know there's a couple of
+trends and one of them is that
+>> but a lot of people can be popular on
+various different platforms doing things
+that don't involve storytelling.
+>> What you're also seeing is
+>> sharing nude photos of yourself.
+>> I mean yeah exactly. I mean you're
+telling some kind of story. Have you
+done that nude?
+Have
+>> I done it? Uh not like you know for
+popular demand. Yeah. Haven't not yet.
+>> I suspect you're left leaning.
+was almost socialist.
+>> Almost socialist.
+>> Oh, that's just cuz he's Greek.
+>> How so?
+>> I don't know. Just the things you're
+saying.
+>> Things I'm saying. Okay.
+>> There was a distaste for capitalism
+which came across when you said
+something earlier.
+>> Well, I've been working in the US for
+the last, you know, 15 years as a
+capital.
+>> I'm confused, you know.
+>> Yeah.
+>> Fair point.
+>> Yeah.
+>> Okay. Okay, I'm going to ask you guys
+for another opinion on a company called
+Harvey. Harvey AI thoughts legal tech
+legal AI.
+>> Wow, these are very
+>> These are companies I've been meeting in
+the last two weeks and I've been like
+trying to figure out how to maybe do
+something with them allocation.
+>> It's difficult to get answers out of VCs
+on companies like this in my in my
+understanding.
+>> Do you have exposure? There's Yeah,
+there's no incentive for us to ever
+share a negative view on any. No, I
+think Harvey is a great company, but in
+general, asking VCs about companies is
+bad because if they're invested, they
+have to be positive and if they're not,
+they still have to kind of be positive
+because
+>> Okay, with the caveat that you're not
+invested, you can give me a more
+objective opinion.
+>> Not on camera. You never get on camera.
+>> You you just can't like basically every
+company you're going to ask us about,
+all of us are going to say great things.
+Like that's is what's going to happen
+almost no matter what unless it's a
+clear disaster company that you know
+>> you might I don't know you anything bad
+about a company
+>> um I mean you can give some criticism
+you know would you go all out you
+wouldn't right
+>> um I don't know as much about you know
+Harvey to give you an informed opinion
+okay and I'm not saying that to sound
+politically correct but do I think
+they're building on the right side of
+history they are. Have they been amazing
+at signing up a lot of the largest law
+firms on the planet? They have. Has this
+led to them um achieving a capital like
+fundraising advantage? It has. Does this
+mean has this translated into them
+recruiting amazing people? It has. Uh is
+their product the best in the space? I
+have no idea. Not close, you know, to
+the company. Uh but as you know Nikun
+was saying the product has to be really
+good you know because at
+>> for better or for worse you know after
+FOMO goes away they do care about those
+things so like you know given where they
+are now probably you would get a really
+good informed opinion about them if you
+talk to many of their customers who've
+been bombarded by everyone else and
+their mother who've been starting AI
+legal tech companies that's actually one
+of the spaces we miss here that that
+have been so busy. So if someone is
+starting now a new legal tech company
+seed series A probably you would say no
+to you know in the US because that's so
+busy. Um
+>> I have the opposite take on that. I
+think um not on Harvey but I'm saying in
+general especially with the RL focus and
+model stabilizing
+>> I think the era of second mover
+advantages starts this year
+>> or starts now basically where we'll
+start seeing
+>> even companies started 3 years ago
+>> be disrupted by a better product now the
+the David versus Goliath will be in just
+3 years can the better product
+outdistribute them or not but for
+example if somebody came in with like a
+seed series A bet that takes in like an
+established giant not Harvey but in
+general in any area but they have
+clearly a better product I would still
+be interested in at least like exploring
+that bet even though they've been
+outdistributed
+uh just because we're seeing such crazy
+advances on the technology side uh and
+the stacks are leaner gross margins are
+better the question is just about
+distribution
+>> if it if it's as great as you sound
+please give us a
+Can I ask what is India's play in all
+this? Like you know I'm talking to young
+entrepreneurs in India. Where does India
+fit in?
+You can be candid. Don't say on camera I
+won't say this that and the other. I
+think a big problem
+in many parts of life is when we don't
+recognize that there is a problem. I
+don't think you can find a solution if
+you don't first get there
+and
+>> and that's where I think what you
+mentioned before is important like
+having a knowledge of where the trends
+are happening and where you know the
+growth is going to be sure you always
+want to play you know for your strengths
+but isn't it even more amazing when you
+can play you know towards your strengths
+in the biggest market opportunities like
+I find myself incredibly lucky that you
+17 years ago I said I'm going to go and
+have a career in tech because none of my
+friends the people I grew up with you
+know did that and just a lucky accident
+you know for me so like just knowing
+where the trends are heading to is
+important for like the youth
+>> yeah
+I mean I can give a couple of thoughts
+on in India and and AI
+um generally I've been somewhat public
+about this too since and some people
+have not liked it but I think
+unlike other things other kinds of
+technology in the past where you could
+create a local economy with that
+technology I mean for example you had
+your even sharing services and the gig
+working boom so oo you know existed in
+India just like an Airbnb would or you
+have an Ola just like an Uber you can
+create local versions of those
+businesses that work for that area and
+you're not really competing unless that
+other company comes and tries to compete
+in that area. On the on AI, I don't
+think there is any local advantage. So I
+think everyone is competing on the same
+playing field and there are a couple of
+common things that come up that people
+say hey these could potentially be local
+advantages. like one is okay let's get
+data for um languages in India like yeah
+that's that's great I think that's
+perfectly valid if Google doesn't pour
+more resources and try to get the same
+thing and you have an advantage that
+makes sense I like that view but for
+most other things I think you I would
+love to see I would say India try to
+compete on that global scale and that
+needs capital that needs talent that
+needs um you know just a a a desire to
+want to be on the cutting edge and in my
+mind it's not there yet. I mean I think
+that's empirical. None of the top models
+are Indian models. They're they're
+American and they're Chinese. Um in any
+field I mean audio, video, image. So I
+would say in the global playing field of
+of AI, I mean the most prominent Indian
+figures are probably like somebody like
+an Arvin that perplexity or maybe some
+of the researchers at some of these labs
+and things like that. So therefore in my
+opinion today they're I I wouldn't say
+they're competing at a global level. I
+don't know if they have people on the
+ground have ambition to but I think you
+know there's a couple of gaps to be
+filled and if you do have ambition
+>> I mean the ambition is definitely there.
+What can India do to get competitive in
+this realm?
+>> I think one of the things that is I'll
+say an observation first and I'll answer
+the question. I think one of the
+observations I have in general about how
+how India reacts to technology is India
+reacted to AI like I want to be a part
+of this well after this was a thing and
+that general mindset will rarely make
+you win at a thing. Um and so if you
+compare that to China for example, I
+mean there are many differences. I mean
+China has had so much local talent, so
+much development in math, so much
+research in AI for many many years prels
+that allowed them to then capitalize on
+that and go like okay look we can
+probably do something here too. we have
+the base built out and I think for India
+to do something in in AI like I don't
+know if a lot of that base is built out
+there's a huge talent leakage problem
+most of the top AI talent in India is
+here right and literally a three square
+mile radius from where we are um there's
+a talent problem there's a there's a
+comp problem why would I AI researcher
+want to be paid in rupees I don't I want
+to be paid a million dollars or hundred
+million dollars like they're getting
+paid here um and then there's a general
+systemic problem on like on just capital
+is a little bit harder to get and then
+resources are harder to get and then
+people haven't done work on GPUs in
+India. If you go to if you go into
+Bangalore today, how many people have
+ever programmed a GPU? Very hard to do
+anything in AI if you've never
+programmed a GPU. If you're starting
+from scratch, you're going to have to
+catch up. So I think there's a lot of
+systemic factors and then to solve that
+problem invest in core research figure
+out how to keep talent in the company in
+the country and uh you would have to do
+it a long time before something picks up
+for you to be able to take advantage of
+that. There's no accident that China was
+able to take advantage of that. They had
+a lot of foundation built in many many
+years. So that's my take.
+>> I've I've spent you know half my life
+here most of my professional life all my
+professional life here. I don't have a
+view on the India market. I mean a lot
+of things DD says I echo but I do think
+we have to kind of the best I think
+India has a two decade
+uh advantage from a pure median age
+perspective like the youngest talent in
+the world is in India right now and I
+feel like if you don't capture it in the
+next two decades like that shifts to
+Africa or shifts to the next country and
+I feel I don't know what the answer is
+but I would love to see us capture the
+advantage there at least from a pure for
+being in the prime perspective. India
+and I is in prime from a population
+standpoint and like the depth of talent
+and a depth of like you know young
+people. So that's one that's the
+optimistic side. Now what do you do with
+it is is the main problem and I but I
+kind of echo differently than DD like
+you don't need the best AI researcher. I
+mean it would be great if India had lot
+of great AI researchers and they all
+stay there but the brain drain problem
+has been true for the last 50 years and
+will continue to stay true. All the best
+Indian entrepreneurs I know are trying
+to move here. Um but you try to figure
+out like where in the playing field do
+you play like you know Freshworks is a
+great example where they like took a
+product that but figured out the right
+markets for it. Is there products in
+this new AI application era or their
+products in the biotech space? India has
+insane amount of talent and hospitals
+and vaccines like centers are there like
+manufacturing side. take manufacturing
+as a sector like you know the China N
+plus1 model can really benefit India. So
+take the sectors it's going to be
+phenomenal at and then go from the very
+bottom up to the top and see how can you
+allocate capital people training to win
+those markets versus play the me too
+movement. I feel like a lot of Indians I
+meet in India just like have this envy
+and they look at the US market and they
+want to be in the US market versus
+play the games you're going to be
+excellent at and then find ways to like
+huh
+>> which
+>> I mean the things I mentioned again but
+I don't know the India market as well
+it's like but I do believe like the
+China N plus1 is happening like it's
+100% happening from a manufacturer
+>> AI
+>> not in AI like but that's what I'm
+saying don't like don't miss the AI
+board but play on the application level
+which I think India still has fantastic
+product engineers and designers who can
+go build that. That's a talent that is
+easily portable from the preAI era and
+then pick the markets where it's going
+to be excellent at. I don't know if
+that's minerals. I don't know if that's
+mining. I don't know if that's robotics.
+I don't know the India market. But
+instead of playing the meto side like
+hey I want to do this also find it's
+going to be excellent at and then
+concentrate capital in people there.
+Would you guys say that now is probably
+the best time it's ever been for a young
+prospective founder to ever become
+active in India
+>> because you know access to knowledge
+>> relatively
+>> relatively yeah
+>> to our own past
+>> exactly
+>> so access to knowledge thanks to
+>> your podcast and
+>> everyone you know being part of the
+global internet generation it's no
+longer a problem. Yeah,
+>> the size of the local market,
+it's been, you know, larger than it's
+ever been. There are enough, you know,
+India for the world companies that uh
+are now setting the bar pretty high.
+There are enough very successful
+founders on the ground like yourself or
+like over here uh in the US that anyone
+can uh look up to. So like I I would be
+you know very excited to not even
+consider you know
+>> moving to the US or maybe come here for
+a couple of years and then go back and
+build.
+>> By the way just on that previous one I
+want to say just was I was just talking
+about foundational AI layer for apps and
+other everything else in the AI layer
+100% many reasons to do stuff in India
+like that.
+>> Could that be the bigger market
+tomorrow?
+>> Um 100%.
+>> It is already. Yeah.
+>> Right. I mean I don't understand for
+example why Indian doesn't have more
+amazing gaming companies you know that
+could be global leaders
+>> the money required to build like a AAA
+game is substantial and the risk capital
+for that is not there but
+>> you don't need AAA games
+>> but I think it exactly yeah I think the
+future of gaming is largely not going to
+be AAA like in a world where everyone is
+part of the internet generation the more
+brains you have online the more
+creativity you can unlock with AI
+everyone has superpowers course can we
+have, you know, next generation of like,
+you know, Tik Tok games, whatever that
+means from like somebody who is like 15
+years old and they've been making stuff
+online for the previous seven years
+somewhere in India. That's more likely
+than ever before.
+>> You know, I've thought about this a lot
+and I've tried to arrive at what the
+answer to that particular question
+should be could be.
+>> Yeah,
+>> I think it's cultural. M
+>> we
+as Indians from a very young age
+are taught
+to run away from risk.
+We are trained not to depict any form of
+rebellion. Our teachers are not our
+teachers. Our teachers are are gods
+where questioning them is almost
+offending them. Religion plays a huge
+part in our cultural biases as well. So
+we have to some extent nobody's going to
+like this answer but we have to some
+extent become a society which
+does not cherish or encourage
+contesting the norms of the day and I
+think that's bad for innovation.
+>> Is it changing?
+>> I hope it is. I hope it is. I don't know
+if evidence depicts that but I hope it
+is because we have to change
+>> with access to education. I mean
+Chachi's number one market is now India
+like just like those kind of like with
+geo like kind of everybody having access
+to the internet like now it's like you
+know factchecking and you know people
+say something I'm I'm curious I
+>> know I think the internet teaches you
+many things but I think culture are
+culture is more a factor of our schools
+and what we see in our homes.
+>> Fair enough.
+Can patriotism be sold?
+Like you mentioned earlier, there are a
+lot of
+brilliant Indian minds who are in the US
+who are post the financial event.
+>> Yeah. where I don't truly believe him
+that it's it has nothing to do with
+money but they might also want to
+project a similar thing and for them
+coming back to India and starting
+something and adding patriotism to that
+same projection could make a lot of
+sense
+>> I'm trying to collect people
+>> patriotism how can you make this you
+know be like really cool
+>> patriotism
+>> yeah like what we were saying before you
+know having kids should become really
+cool being a patriot and doing the right
+thing for your country should be really
+cool like it was after the second world
+war in the western society right
+>> for a hot bit doge kind of did that for
+the government in the US right you know
+it got like really smart people there
+some of them some of our peers are still
+there
+>> I think there'll have to be unfair
+advantages back home in India
+>> like I've not thought about this enough
+but say
+you're a patriotic Indian who paid x
+amount of tax or you came back to India
+just for the patriotic
+pursuit by giving up something
+substantial
+Maybe there's a toll line on a road and
+you have a separate line.
+>> Yeah.
+>> Maybe you have a card which treats you
+differently
+>> with a government agency. I think some
+kind of unfair advantage has to be
+weaved into the narrative to make this
+work. But if at all it is plausible it
+would be a great thing to attempt.
+>> Yeah. Like Nun said earlier there's two
+two uh stools or two balls in the stool.
+you can get people to be excited about
+coming back to India which is you know a
+lot of people are retaining them when
+they're back in India is is challenging
+I mean
+>> I think if you could build like a
+separate city
+>> see the one great thing India has going
+for it I think personally is the labor
+arbitrage a kid living in a hacker house
+in San Francisco is living a certain
+quality of life if I take him back give
+him two cars two drivers a cook and this
+and that and the other and he's working
+essentially online all day long and he
+still gets to spend I don't know 150
+days a year here while building there
+maybe there's a use case which works for
+both NRI city let's make it happen
+>> and and and no air pollution
+>> yeah yeah
+>> it doesn't have to be near any of the
+big cities
+>> I but this is why like a lot of people
+move to SF and especially like people
+who are used to the quality of life of
+India and others and
+>> the quality of life in SF is horrible.
+Yeah. But the reason like
+>> depends depends on how you
+>> if you like many of the people that all
+of us here are meeting the 20 year olds
+who just moved here 3 weeks ago, 3
+months ago or two years ago,
+>> they're over the moon.
+>> Yeah.
+>> It's as if you know they're doing drugs
+and their head is like exploding from
+joy every single moment. It's the most
+common thing young people that you cook
+and you guys can both know this is I
+have never felt surrounded by
+like-minded people in my life
+>> and now the nerds are here and they want
+to talk about what I want to talk about
+not like the [ __ ] that everybody
+else wants to talk about
+>> and that's that's why people love SF
+that's quality of life. It's not like
+walking on the street or having a maid
+and a driver.
+>> This project to work critical mass has
+to be achieved.
+>> Yes.
+>> But I don't know what critical mass is
+that number. Do you want to be
+surrounded by a 100 nerdy kids? That
+could be possible. Is it 10,000? I don't
+know.
+>> But it it depends what you're solving
+for, right? Because like if I'm a nerdy
+kid, I was bullied my entire life. I
+come here, I have the highest status in
+this society because here, you know,
+you're a nerd.
+>> You're like top of the line.
+>> It's like you have your own what you
+said, you know, your own lane in the
+highway. And when you want to pay the
+tolls, you know, just you, nobody else.
+And then everyone uh around you who is a
+nerd understands you. You're like, "Oh
+my god, people believe in me."
+>> Yeah.
+>> Until now I was bullied.
+>> This is like insane. You know,
+>> it's like
+>> being like a slave and getting
+liberated.
+>> Yeah.
+>> The the example I gave everybody is like
+only in SF in the entire world when you
+quit your job everybody says
+congratulations.
+>> Yeah, that's a great point. Yeah,
+>> that's a good one.
+>> Only city in the world. This doesn't
+happen anywhere else. In India, you're
+whacked probably. Like your parents are
+like, you know, what are you doing? Like
+in any other country, it's like, "Oh my
+god, I'm so sorry for you." Here, Nico
+meets a kid, he's like left his job,
+he's like, "Congratulations, here's a
+term sheet." Like,
+>> yeah. And and again, you know, like I
+think the good news is that this
+internet culture for like the young
+generation that's chronically online is
+becoming a global phenomena.
+>> Yeah. And this where like you know
+talent is universal but opportunity is
+not like it's rising all boats right. So
+like critical mass you can now have
+online in a world of ab abundance
+offline
+even in a big city you know it's harder
+to find those people if not everyone you
+know is inert.
+>> I disagree though I mean co was a great
+reset but it moved right back.
+>> A couple of years that New York City in
+the US in terms of seed states was
+looking better.
+>> Yeah. any neighborhood in New York or
+like anywhere else you can find it. But
+it's just like people it's just like a
+magnet effect. It just everybody gets
+around like for the past 50 years
+Silicon Valley has done this again and
+again and again.
+>> It's hard to disrupt network effects.
+Yeah, it is hard.
+>> I mean I'll tell a story about one of my
+um really really close friends from New
+York. We're like been friends for 12
+years. He moved this year and he's lived
+in maybe like five six different cities
+in in America. He came and and in month
+three or something, he's like, "Dude, I
+found my people.
+>> Where were these people?" Like, "This is
+why I wasn't enjoying my time in Miami,
+in New York." It's like, I don't want to
+talk about all of that. I don't want to
+do all of that. And it's like, sure, he
+did it off offline or like online as
+well, but I think it's just a different
+sensation when you're like, man, these
+are like real people around me who
+actually want to just explore curiosity.
+I mean here's some other things that we
+take for granted now but no one talks
+about wealth in SF
+>> in some circles. Yeah. Yeah. Sure. But I
+mean compare that to India where it's
+like so in your face like how rich
+somebody is is so in your face. Here
+people don't have to drive a fancy car
+to show they're rich. They don't have to
+wear fancy clothes to show they're rich.
+That's one. Um people make economically
+absurd decisions. People will reject
+offers to make millions and millions of
+dollars a year because they believe And
+like that just doesn't happen anywhere
+else.
+>> God bless all those people, especially
+the founding engineers. God bless.
+We wouldn't do well. Our founders
+wouldn't do well if there's like, you
+know, unique class of people, founding
+engineers or founding talent that show
+up a day after your company gets funded
+or gets started and they get like oneird
+of the equity that you get. God bless
+those people.
+>> They're the foundation of the industry,
+>> the startup and the venture capital
+industry.
+Well, I think that's a good note to end
+tonight on. I think we spoke for a
+fairly long amount of time, almost 3
+hours,
+but thank you guys for doing this. Sorry
+I troubled you a little bit.
+>> That's okay.
+>> If you were alone with me, I would have
+troubled you a lot more.
+>> More than welcome to. You could have dug
+10 times deeper.
+>> Maybe the internet will.
+[Music]
+>> Okay. Thank you guys. This
+>> Thank you. Thank you. Mhm.
+>> So, I was going to ask you like, have
+you seen the real of yourself imitating
+you on podcast and what do you think?
+>> I think he's really talented. I wish I
+could act that well.
+>> So, actually, I think
+commented or I sent him something and I
+said, "Great job." I think he's doing a
+good job.
+>> That's nice. That's nice. When are you
+inviting him to the podcast?
+>> Someday soon. Why not, right?

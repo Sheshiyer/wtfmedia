@@ -1,0 +1,3207 @@
+Are you like a Chennai boy? Have you
+grown up there all your life? My parents
+live in Chennai, so I first go there.
+What were these fancy ideas? I'm very
+upset to hear that cuz I actually
+thought my ideas are cool.
+[Music]
+Hi Arvind. Hi Nikico. Hi. This is a bit
+weird for me cuz I'm doing
+it this way. a conversation after a bit.
+Okay. Yeah. Yeah. I wish we could be in
+the same place.
+Where are you now? I'm in San Francisco,
+right? Yeah. I was traveling to Europe
+last week. Okay. A lot more travel
+coming up, but um hope to be in India
+pretty soon. Um before my May hopefully.
+Well, that's not far. When you come to
+India, where do you typically go to? Is
+it my parents live in Chennai so I first
+go there and then um depending on the
+arrangement like who I'm meeting I spent
+like last time I came I went to Mumbai
+and Delhi
+um and this time I probably will try to
+go to Bangalore too in addition to
+um these two cities. Mhm. But
+everything's like in the flux right now.
+Right. Super. Are you like a Chennai
+boy? Have you grown up there all your
+life? Yeah.
+So, you know, like the local stuff about
+Chennai kind of thing.
+Um, I mean, I'm
+I'm Yeah, I grew up there, so I hope I I
+don't know exactly what you mean by
+local, but I definitely know Chennai
+pretty well.
+Right. How did this begin? Would you
+like to start by telling us like a
+little bit of little bit about your
+journey how it was from where you began
+in Chennai to where you are today? Yeah.
+Um well I was just like any other um
+student in Chennai. Um just just
+studying people in Chennai study a lot.
+I think that's one thing I've known.
+Um I think I was pretty interested in
+um all all sorts of statistical things.
+Um mainly coming from following cricket
+a lot is people generally like try to
+analyze the stats and run rate and like
+how many 50s or 100s and I I got a
+intuitive sense for numbers pretty early
+on. I was pretty good at math. Um and
+also like early on picked up programming
+towards the end of my um I think 11th
+standard. So that's that was how it
+began and obviously my mom wanted me to
+get into IITs
+uh every time like we would go on a
+bus and and pass by the IIT Madras
+campus
+uh my mom would point to the campus and
+say this is where you're going to study.
+that it's not even like you should
+study. This is where you're going to
+study. So that was the expectation. I
+definitely grew up thinking that okay
+um I I do want to like compete and win
+against the best people.
+uh and um it was the J exams are pretty
+competitive as you know and so we we had
+a pretty uh good rivalry among like
+fellow students and I obviously didn't
+do as well as I wanted in the J but uh I
+got into IT got into electrical
+engineering and inside there inside
+their
+campus again like uh a lot of our
+friends got into competitive programming
+so I I goes into that too, but I I
+figure I was not as good as what you
+needed to be to get to the world finals
+of like ICPC or something. Um, and so I
+I I got a good understanding of computer
+science. Uh, and and and got a lucky
+opportunity to learn about machine
+learning pretty early on. Um, I got, you
+know, a roommate of mine, uh, or like
+someone neighboring to my room told me
+about this contest that was running in
+Kaggle,
+uh, where he just had a data set and you
+had to predict stuff. And I had no clue
+what any of these meant. They were just
+a bunch of numbers you downloaded and
+like, you know, figure out a prediction
+classifier for like unseen outputs. And,
+um, that's when I got into things like
+scikitlearn, which was a very famous
+machine learning library. And it just
+randomly tried all these algorithms
+uh mixed and matched them. That got me
+that one that helped me win the contest.
+And then from there onwards I thought
+okay like maybe I should take this more
+seriously. I got an internship in a
+startup at Bangalore
+um and and built recommener systems for
+them pretty quickly actually. So my
+internship which is supposed to be 2 and
+a half months I finished it in like 3
+weeks.
+uh they they submitted my solution to
+their client got the money so they were
+happy uh and so I got a lot of time to
+just sit in like learn ML but you know
+come to the intern office and just learn
+so that's what I did I I I I selftaught
+myself all the endrewing lectures and um
+did all the Stanford materials went back
+to campus uh took the machine learning
+class there started doing research Arch
+that got me a PhD in Berkeley. Uh and
+then like from there I got an internship
+at OpenAI, Deep Mind. Um built my
+fundamentals. Um and and obviously every
+stage I got better and better peer group
+you know exposure. Uh always question
+whether my understanding of the world
+was correct or not. Um I felt
+comfortable being like not the best
+person in the room. you know that that
+that takes time because uh the IAT
+mindset is like I want I want to be the
+best smartest person in the room. uh
+right like you're always I think after
+coming here I learned it's okay to not
+be the smartest person it's okay to be
+the person that wants to be the like
+wants to learn everything and and and
+and and learn from the best and I think
+um that was very formative once I came
+here because when I when I actually went
+for my internship at OpenAI um like it
+was truly like humbling like I was very
+very bad compared to the people there
+and I thought I was good so uh those
+were the years when I uh really learned
+uh the details of AI and machine
+learning and I think it's really helped
+me to come to where I am right now. What
+years were these are at open eye? Uh so
+my summer internship was in 2018. So the
+way it happened is I came to Berkeley. I
+didn't have an
+advisor. So um you know when you don't
+have an advisor they give you like a lab
+space that was very small like somewhere
+in the corner. uh and and so that was
+not very uh stimulating to go and work
+every day. Um but again, I'm not a
+person who tries to blame things. So I
+just go to the Phil's coffee here every
+day morning. I would go wake up at 5:30
+a.m. I would be there. I be the first
+person in Phil's coffee and I would
+leave at 8:00 p.m. in the evening. Uh
+and I would just work all like every
+single hour. I would just work. I you
+know because I didn't have my own
+computer like like to to uh do my
+research I learned how to use the cloud
+uh and just work from my laptop and all
+these things were helpful and I wrote a
+paper pretty quickly then that got me my
+adviser Peter and his student was uh
+John Schulman who was one of the open
+AAI co-founders and uh he famously went
+on to create Chad GPT so that guy
+invited me um because he noticed my work
+and and we we were off in the same lab.
+So he he he noticed my work and he
+invited me for an internship and um um
+that's when I went to OpenAI and like
+Ilia Sutsker was essentially running the
+company at the time. Uh there was no Sam
+Alman or um I think Elon Musk was on his
+way out too. So Ilia listens to me for
+like half a minute about my ideas and he
+just says uh you're wrong like all your
+ideas are useless. uh and not in a way
+where it's like arrogant. He's just like
+literally just telling me the truth in a
+very respectful way and uh I'm very
+upset to hear that cuz I actually
+thought my ideas are cool and that's
+what I was being told by other people on
+campus. So um I then go on to question
+and he just tells me AI is just two
+circles and he draws a big circle uh and
+and then inside that he draws a smaller
+circle and he said the big circle is uh
+generative AI and the smaller circle is
+reinforcement learning
+RL and together this is the recipe for
+making AI happen AGI and the only thing
+that remains is to throw a lot compute
+at it and he said this in 2018 and I was
+working on very fancy ideas that you
+know were like made me feel smart but
+not necessarily that mattered long run.
+What were these fancy ideas? Um I was
+trying to work on things where the AI
+would learn its own loss function. So
+obviously the thing in AI is like
+there's something called the loss
+function. That's what the neural network
+optimizes, right? Um, so when when you
+um when you're trying to build
+intelligence, you don't actually know
+what is the real loss function, right?
+You could say intelligence emerges from
+predicting the next word of from the
+previous word. But someone could say why
+why is that a sign of intelligence too?
+You could say intelligence comes from
+identifying thousand breeds of cats and
+dogs and like you know all the images
+you just assign a label to it and
+predict a label. But you could say okay
+wait uh humans don't learn like that. So
+there's there's no one magic sauce for
+building a generally intelligent model
+in AI. Uh you can design objective
+functions that are narrow in nature like
+oh like you go and master the game of go
+or chess or like be the best uh object
+detector on the planet. Uh but these are
+not going to lead to general
+intelligence. So I was trying to work on
+research where uh the AI comes up its
+own with its own loss function um uh
+trains on it and then evaluates itself
+on a bunch of tasks and then decides
+okay it has to go and tweak the loss
+function a little bit to be better at
+like more tasks and then I keep doing
+this iteratively and then I thought
+that's that in that loop intelligence
+will emerge. this is a good idea, right?
+But but um Ilia just said this is too
+complicated. I think from the beginning
+mainly my main takeaway from OpenAI
+internship was like even though uh other
+people in academia who are like the
+elites will respect you for the more
+complicated
+ideas, what matters in reality is making
+things work. And it's often the simplest
+ideas uh that work in practice
+especially when uh thrown a lot of
+compute at them. The simplest ideas
+typically outshine the complicated ones.
+So when we talk about AI today, let me
+like set
+context. Think of me as an absolute
+idiot who does not understand anything.
+And whenever you say something, if
+possible, please try and explain it to
+me in the manner that you would speak to
+like a 10-year-old boy who's not very
+smart. That would help. Sure.
+Absolutely.
+And I think a good place to
+start today where I am, I work in
+fintech largely in India.
+But I feel whenever I read the news or I
+watch the news very insecure about the
+fact that so much is happening in AI
+and I almost feel like I'm being left
+out of it
+and it doesn't feel like I'm even amidst
+the action to learn about it. It feels
+like I'm talking to the commentator or
+reading what the commentator who has
+what he has to say whereas the match is
+happening in another region altogether.
+Mhm. So maybe we can preface this
+conversation with like maybe a brief
+history of compute leading up to AI in
+the manner in the manner that you would
+speak to a 10-year-old boy and we can
+take take it from there. Sure. Uh I mean
+AI has been going on uh since a long
+time. Uh if if like in I think there was
+a project at MIT which declared you can
+solve AI in a summer project like like
+um literally in 3 months and and
+obviously would you want to first define
+what is AI? So AI obviously uh
+artificial intelligence is a field of
+computer science that's uh trying to
+design computers to behave
+intelligently. I was wondering what
+their definition of intelligence is.
+Yeah. Yeah. Program computers to do uh
+tasks that require uh some level of
+intelligence to accomplish them uh in a
+manner similar to a human does it. and
+what is the scope of tasks uh that uh
+require intelligence that that that you
+want the computer could do is where the
+generality comes in. So um so are you
+saying that intelligence is when a
+computer is able to behave like a human
+cuz that itself general intelligences
+general intelligences um right so an AI
+that you write in a in a for a chess
+game that you're building let's say
+you're building a chess game uh as as a
+software project and um obviously the uh
+when when the user picks white and the
+black's playing with an AI um there's an
+AI you write for the game that is not
+really a generally intelligent AI. It's
+it it can only do what you hardcoded it
+to do. Okay, it can assign points for
+HPs. A bishop is this much, a knight is
+this much and it can just run a tree
+search to optimize for that. Uh by that
+I mean it can search for moves, roll out
+few steps and then try to pick the one
+that gives you the maximum score. That
+is people used to call that AI but that
+is not general AI. The reason is
+whatever software you write for that
+cannot do another game even leave alone
+another task. It is a very constrained
+specific setting. Now that is
+interesting by itself. There are a lot
+of things you could do in the world that
+are useful where you break down a
+problem and you write a specific
+solution for that. It's pretty useful.
+But uh what was really on the frontier
+of science at at that time when I when I
+was doing PhD was like how can we figure
+out general intelligence uh in a manner
+similar to a human which is one system
+doing hundreds of thousands of tasks
+without explicitly being programmed for
+it and can be taught new tasks uh and
+and and and it can learn on the fly
+without much much effort. What is it
+optimizing towards though? Let's
+say let's say a AI or AGI is able to do
+millions of different tasks, learn along
+the way. If I were AGI, how would I
+decide what to do first? Yeah. So I
+think that's
+where we get even further in terms of
+like what what is an AGI is like is this
+like an agent that's constantly deciding
+what to learn next on its own? Does it
+have autonomy or is it still um like a
+generally intelligent software but it
+doesn't have any autonomy of its own and
+it doesn't decide what to do next of its
+own. uh is it actually aware of its own
+limitations and and then deciding okay
+like I I I lack this task and this is
+what I I need to go and learn next. No.
+Uh that's not what we have today. Uh
+ideally we should right. Uh what you're
+suggesting is like an AI that uh not
+only learns and trains on stuff that the
+humans throw at it but also like decides
+what to do next in terms of how to make
+itself better. Recursive
+self-improvement. That is not correct
+yet. So is the AI trying to make itself
+better? If a AI can do anything, would
+it want to make itself better? What
+would that be the motive?
+Um, like that would be the ultimate
+motive. Um, if you have an AI that
+uh constantly keeps trying to improve
+itself on any task that it wants to and
+reasons that this is the thing that it's
+worth working on for for the next step
+for itself.
+uh then I think that would be the
+ultimate version
+of uh some people call it even super
+intelligence just
+um a AI has gone beyond the realms of
+AGI which today's systems are let's
+let's say okay what is for the sake of
+ar discussion here let's define AGI as
+like a very very smart version of like
+you know current models like say GPT 4.5
+or five two two or three generations
+later, six or seven where they're doing
+most of the tasks that we do on a
+computer on their own pretty well uh
+with just a simple language instruction
+they can just do it. Uh I think that
+system a lot of people might want to
+call that as an AGI even though it's not
+you know completely an AGI. It's not
+doing physical work that a human does
+and physical work also requires
+intelligence. Let's just say that is a
+pretty reasonable working definition.
+Now that system still doesn't have
+awareness of itself. It doesn't it's not
+aware of what it's bad at, what it's
+good at uh and like what it should do
+next. What are its real goals? It's not
+autonomous. It's not aware.
+Uh so the ultimate uh problem in AI is
+like how do you build an agent that does
+exactly whatever these models do but
+also can keep improving itself and can
+keep coming up with it with its own
+goals and what is its real true
+objective function is it to help
+humanity uh that's what people get
+spooked about usually when they talk
+about like AI taking over humans now I
+think in in in AI community right now
+people are typically referring to the
+second part as super intelligence, not
+general
+intelligence where once you crack it, uh
+there is no way to like control it. Uh
+because you can just say until you shut
+down the system, it's just going to keep
+improving itself. But then there's a an
+argument also that that okay if it's
+that smart that it knows what to do all
+the time and and thinking so smart ahead
+of everybody else. Uh why would it not
+predict that humans might want to shut
+it down and create clones of itself and
+keep staying alive? So that that's where
+like those are getting more in the
+sci-fi territory. Uh but but whatever we
+working with today is like okay it's
+some 10,000 knowledge worker professions
+in one system without any like hard
+coding. That's already pretty crazy,
+right? I'm I'm still trying to wrap my
+head around the definition of
+intelligence almost being humanlike
+behavior. Mhm. If that's what you mean.
+Um, I think like the definition that I I
+I would say is practically pretty useful
+right now is
+um can you create a digital remote
+knowledge
+worker? I think that that is what like
+most people are working towards. Uh it's
+kind of converged to that digital remote
+knowledge worker like an employee that
+you can hire on Upwork. Can it just be
+an LLM?
+Um, but is that intelligence truly? Like
+if you're able to replicate some human
+abilities onto an agent? Mhm. Would you
+would you consider that intelligence? Is
+that the definition that one goes with?
+Well, uh I think like some people are
+pretty uh precise about what
+intelligence is. It's like until you get
+me the uh human brain equivalent in
+software, nothing is intelligent.
+Everything is like narrow.
+And uh there is some merit to that
+argument. Um and and and it's pretty
+difficult to create something exactly
+like the human brain. Um because the
+human brain is amazing. It's power
+efficient. It doesn't consume all the
+data centers in the world to do the
+tasks that we do. Uh and and it's pretty
+fast at learning new things. It's it
+does physical intelligent work too, not
+just digital
+uh dexterity, all that stuff. So yes,
+you can argue it's not really
+intelligence in the human way, but fun
+there's the other way to look at it is
+the functional way. Just look at the
+output and the input. I I give the human
+the same output input and I give the AI
+the same input. And does the AI work
+better than the human on tasks that
+humans are actually getting paid for in
+the will? Software engineering, one of
+the highest paid professions today. It's
+pretty obvious that most human software
+engineers at least like the median human
+software engineer is probably worse than
+an AI
+today,
+right? Typically we've considered people
+who write code as uh smart people. um it
+it's just like thing we've done and and
+so now when an AI is able to do that if
+we say uh that is not
+intelligence then it's kind of like also
+saying okay humans writing code was not
+never an intelligent thing either
+uh right uh you got to apply the same
+standards so then what is intelligence
+kind of changes to uh it's like oh it's
+it's not the fact that humans wrote code
+that made them intelligence it's the
+fact that they can do writing code and
+like designing art and like um you know
+like building a home all these things in
+one person that is intelligence. Now um
+one could again argue that there are
+very few people who are good at doing
+all these three simultaneously right uh
+most people are good at only one or two
+things or like and they have hobbies but
+they're never like world class at the
+hobbies and so uh that's where we are
+getting at is like is if if humans are
+also limited in what they can really do
+in a world-class manner and and and one
+AI system that can write code better
+than the median software engineer is
+also writing writing uh emails better
+than the median uh executive assistant
+and is also like doing um you know
+writing essays better than the median
+writer that's pretty intelligent that
+system or whatever software system it's
+definitely not um humanlike but as an
+output that it produces it's pretty good
+or like better than most humans right
+now and so I would consider it an
+intelligent system right uh and and very
+different kind of intelligence than like
+a calculator or a chess program. Yeah.
+No, I actually like the definition of
+intelligence that if a computer is able
+to mimic what a human does, it can do is
+intelligence. But then along that
+spectrum, computers for a long time have
+been able
+to replicate or better human tasks,
+different things like maybe mathematics
+for example. Correct. Has all of that
+been under this purview of intelligence?
+uh they used to be done in the research
+field of AI like uh you know when deep
+blue beat Caspar in
+chess it was considered like AI research
+you know Monte Carlo research was AI
+research but
+then people were not like oh this is
+insane people were more like
+um how do we make this work in a more
+general way that mhm it's you're not
+just doing it for one task. How do we
+build something? Intelligence does int
+intelligence have to be general. It can
+be narrow and if something is
+intelligent at one thing, you would
+still define it to be intelligent,
+right? Yeah, sure. I I think I think I
+think you can definitely define it to be
+intelligent. Um, so what what I'm kind
+of looking for is the distinction
+between a calculator doing maths and
+what we call intelligence today because
+a calculator does something a human
+could do better than he could do. I
+think you can definitely call it
+intelligence. Uh, but then that's when
+you call anything an AI like anything
+that makes any kind of prediction uh
+becomes an AI. Uh the the reason that
+people genuinely consider
+uh a more general system is more
+intelligent is because it's um harder to
+like just overfit a solution to like you
+know 10,000 problems at once. Um you can
+it's not like 10,000 programs being
+written and then stitch together. Uh
+it's more like one program that's able
+to do 10,000 the equivalent of 10,000
+programs simultaneously.
+uh the same like like the same system,
+the same piece of software which is just
+a bunch of weights of a neural
+network, whatever input you feed to it,
+you ask it to write code, you ask it to
+write a poem, you ask it to write an
+essay, you ask it to summarize a
+document, the same system does these
+tasks in one way, right? I think that is
+what is amazing. That's the generality
+coming from. I could have written 10,000
+different programs each for these each
+of these different
+tasks and um you know have a router that
+tells which program to use for what
+input you will give me and that would
+still appear intelligent to you but it's
+not truly uh general. So when you throw
+when you throw the 10,000 in1 task
+slight variation I might not be able to
+do it but a more general system that
+just uses one piece of code will be able
+to do it and I think that is uh the
+power of of generality like the fact
+that humans in a way you're also saying
+that intelligence in today's context
+we're all talking
+about AI having changed drastically over
+the last I don't know whatever time
+frame so you're I think it has moved
+from narrow to more general in nature
+where it can't just do one task one task
+like a calculator but it can learn how
+to do another and solve it. Is that
+correct? Yeah. Yeah. Is that the
+distinction you're drawing? And I think
+that is that is why people
+are way more excited like this
+is and and and and
+interestingly he was able to do stuff
+that people are getting paid for. Mhm.
+Um, so it'll have economic implications.
+So unlike the previous cases where it
+mastered chess or go people found it
+cool, but nobody really cared because
+they couldn't use it on their own in a
+daily basis unless you're like a player,
+professional player. Um, on the other
+hand, like a lot of people writing code,
+a lot of people are writing documents, a
+lot of people are summarizing things. I
+I think that's where um um I would
+say it's it's beginning to feel like you
+hired another human for your work.
+Right. Right. And and and so it's truly
+replacing human labor in a meaningful
+way. Yeah. This is another stupid
+question, but I'm going to ask it. Uh
+how a calculator worked. I'm using the
+most basic of examples. How a calculator
+worked back in the day. Mhm. when I hit
+on a computer multiply 25 into 25 or 20
+into 20 what happened on the back end
+that I couldn't see how did it throw the
+output we'll start there and we'll try
+to extrapolate all the way to what's
+happening today sure I mean there were
+circuits for adders
+multipliers uh and and these are the
+circuits that are
+running on the back depending on your
+input that you enter it's getting parsed
+first and then that input is getting fed
+into these circuits and then you're
+getting the output and you can build
+even mechanical circuits. That's a
+beautiful thing like once you once it
+works all the you know there are like
+nice visualizations of how adders just
+work in a completely mechanical way. So
+uh you don't actually need that much
+power to uh make this work. I think I
+saw somebody say a beautiful things like
+a calculator is such an amazing p
+artifact that uh if you took it uh let's
+say from 2025 and let's say you time
+travel back to
+1800 it would still work the same way.
+Uh it like solar let's say it's solar
+powered u it would just work the exact
+same way. Um and and that's fantastic
+because you cannot say that about uh
+like say your MacBook. You're not going
+to be able to power it, right? That's
+actually useful. The way you described
+it helps me visualize when you say it's
+mechanical. I can imagine a IC
+doing what I can pictureize mechanically
+in my head like I think you had 10.
+Yeah. There there are some you can go to
+YouTube and watch some how like you can
+have um a binary counter
+three-digit binary counter that's
+completely mechanical and and um it's
+pretty beautiful. So okay and then what
+what changed in computing after that?
+Well, a lot of things obviously um you
+know you got to go very deep into like
+what people built with calculators like
+other other devices and so on. But um I
+think the biggest change I would say was
+the personal computer revolution. We we
+had mainframe computers, right? Uh but
+then the biggest change that kind of
+truly made computing
+uh very democratized and ubiquitous is
+uh people being able to have a personal
+computer at home. Uh that was the whole
+you know Apple 1, Apple 2, IBM. Yeah. So
+sticking to the IC example, Mo's lawy
+IC's got smaller and smaller so you
+could have enough compute at home to do
+these same calculations that before you
+needed a main. Correct. Correct. Not.
+Yeah, definitely Morus's law is one of
+the critical reasons it happened. But um
+also like lot of artistry in the
+beginning to package
+uh a lot of computations in a very
+compact way into like one board that
+could be put into a portable computer
+was pretty amazing. Uh a lot of people
+actually in the beginning were
+skeptical. They thought that it's not
+going to matter like why would people
+need a computer at home, right? It's
+just like stuff you do for work and uh
+uh that's where the beauty was hey
+people might want to actually work at
+home too. Of course, games was a big
+deal, but the real reason computers took
+off, personal computers took off is the
+software called Vissical
+uh which essentially uh spreadsheet and
+calculator and and and uh so that led
+like people who were doing accounting
+uh do the work at home and um slowly it
+spread like more software started being
+written for personal computers um and
+and uh and and so like that be that made
+like personal computing fun. Now after
+that is the network effects where if you
+had a personal computer at home and I
+had one and we could figure out a way to
+talk to each other which is internet and
+then uh the worldwide web and then like
+mobile uh cloud and now AI. So it's very
+like simplistic way to describe it. And
+there's a lot of details here, but this
+is No, it's actually very useful cuz I
+feel like whenever I try and learn more
+about this field online or with the
+people I speak
+to, I feel
+like I get the
+highlevel
+nonuanced generic stuff that everybody
+is saying, but I'm not able to I don't
+have that bridge in my brain which goes
+from okay, it started like this then it
+this happened then that happened. I did
+a I interviewed Yan recently Yan Lakun a
+few months ago and spoke many hours and
+we went into
+like I spent a lot of time sitting and
+trying to learn about Jeppa and the
+machine learning and neural networks and
+what his creations were but again the
+manner in which I explained it or we
+kind of like tried to portray I think
+got too muddled because I don't have a
+clear understanding of much of this. So
+let's say when you say we moved from the
+internet to like today's AI when
+everybody's talking about AI what was
+that one thing if you had to fixate on
+one thing why is AI in 2025 different
+from when people spoke about AI in 2010
+I think uh the biggest change from 2010
+to 2020 or like the 2020s I would say
+not just 2025 is uh this thing called
+neural networks actually
+work and I would say the forefathers
+like Leon or Hinton Benjio they did a
+lot of work to establish the foundations
+but one guy
+single-handedly you know with with with
+of course with a group of amazing
+engineers who worked with them truly
+made it work I'd say it's Ilia Sutsker
+um and and I think the magic sauce was
+throw a lot of data and compute at it uh
+and Now you can ask like, "Oh, wait. Is
+that really all? Like um was it really
+that simple?" And yes, like honestly,
+yes. And I think uh that's where like it
+was it it came down to blind faith in in
+doing things. I'm sorry I'm interrupting
+you again, but can you explain what a
+neural network actually is? I have a
+little bit of history with this because
+I work in the stock investor world and
+we've had neural networks for a long
+time and I remember seeing this over
+much of the last decade where you would
+put in a lot of maybe a bunch of
+different data factors that we have like
+maybe time, price,
+volume and put all this data into a
+neural network. try to get it to predict
+what will happen next and start maybe a
+robo advisory kind of service or you
+know try to figure out how a computer
+might be able to predict but none of
+this played out in the manner that we
+perceived it when it came to the stock
+market but maybe you can define for me
+it didn't play out then I'm talking over
+the last decade can you define what is a
+neural network in very simple words so a
+neural network is a network of
+artificial neurons
+uh connected to each other layer by
+layer. Um and what is an artificial
+neuron is just like a computational unit
+that takes an input number and gives you
+an output number. U and so it's it's
+it's called a neural network because
+it's inspired from the
+biological neural network which is the
+human brain. Um but it's not
+exactly meant to be working the same way
+either. In fact, that's actually why in
+practice it works because a lot of
+people tried to make it work the exact
+same way and failed at it. But think
+about it as like a massive circuit that
+you're feeding numbers to and it spits
+out new numbers. Um, and it's spit out
+new numbers based on the numbers that I
+have put in and the patterns it
+recognizes in those. Correct. Yeah,
+exactly. In the stock market example, if
+we were to just stick to
+it, when you put so much data into a
+neural network and it predicts what
+might happen tomorrow based on what has
+happened yesterday, stock markets often
+tend to be random. And there is a school
+of thought they call it technical
+analysis where people believe that
+patterns exist and they try and map out
+what patterns happened in the past and
+how they will repeat themselves
+specifically. But what
+if this is a bit selfish cuz I'm I'm
+sticking to the stock market example.
+But what if the past patterns do not
+recur in the future? Then what does the
+neural network predict?
+That's a good question. So a neural
+networks Look, neural networks can be
+trained to predict anything, right? The
+stand alone without the prediction
+function, the loss function. Just the
+neural network alone is simply
+a mathematical function.
+Mhm. Very nonlinear. Think about it as
+like some extremely high order
+polinomial function, right? Um is this
+going to What was the last word you
+said? Auto. extremely high order
+polomial function right um by by that
+all I mean is like very nonlinear
+um lot of higher order interactions and
+multiplic multiplications can you help
+me picture a neural network you said it
+was meant to mimic brain chemistry but
+it doesn't yeah think about as like okay
+let's say you're you're feeding in like
+three or four numbers at the input layer
+uh the first layer will take that and
+like transform that Imagine it applies
+some some sinosoids or like do you mean
+when you say transform are you talking
+about transformers in Google and their
+development and stuff like that or no I
+don't mean specifically a transformer
+but I just mean like a mathematical
+function like some function f of like
+those four numbers where that function
+is being learned but the way it's in in
+practice it's implemented is there is
+like a matrix it takes those matrix
+start with a bunch of random numbers in
+the beginning and then and they multiply
+with the input you feed and then there's
+some sinosoid or like some kind of like
+nonlinear function that takes that and
+modifies it. Now why do you need that is
+because that's where you bring in the
+higher order dependencies. You're
+learning that and then you imagine doing
+this over like four or five different
+layers. Um and then you have a bunch of
+outputs. It could be four outputs. It
+could be 40 outputs. That depends on
+your the way you constructed the neural
+net.
+And then there is like a target output
+that you have based on the data set and
+the current prediction is taken and the
+target output is taken. Uh the the
+difference is calculated and you're
+you're updating the the parameters of
+the neural net which are those matrices
+at each layer to um update themselves so
+that you minimize the loss but not the
+loss on one single input. a loss on like
+a giant data set like millions of
+millions of examples
+and go back to the stock market example
+and when we when we would put data into
+a neural network and we didn't get the
+output we desired we would go back and
+curve fit the data in a manner to get a
+more desirable output but does it still
+kind of rely on the premise of
+recognizing patterns historically
+implicitly Yeah. Yeah. So if it's if it
+has to do its job of predicting the
+output
+reliably, then it has to recognize
+whatever patterns it needs to be able to
+do that, right? Um
+like like let's say um I'm I'm going to
+the example of just predicting the next
+word. Uh if if a neural network has to
+be good at predicting the next word
+given the previous word, then it
+implicitly has to understand grammar,
+you know, sentence construction, common
+sense, all that stuff. Or like if if a
+neural network has to predict the next
+uh like like character in a pro program
+that you're writing, it has to somewhat
+understand the logic, all that stuff. So
+it really depends like like like whether
+a neural net captures the useful
+patterns really depends on what is the
+task that you're training it on. If
+you're training it on the raw stock
+price, let's say you just have a bunch
+of numbers of the stock price of Nvidia
+uh opening price every single day, sure,
+it's not going to be useful on its own
+because there are so many other factors
+that influence the price and it if if
+all it had is like the each day's
+opening
+price, it's not going to really there's
+not really that many patterns in in that
+anyway. So uh there's this thing in
+machine learning called uh the model can
+only learn um whatever like like
+like actual patterns exist and
+everything else that's in the data
+that's noise is irreducible noise. By
+that I mean like no loss function can
+hope to capture any of it. You can um
+exactly fit it but it's not going to
+generalize. So um as long as there is
+something that's truly signal in your
+data uh and and the way you crafted the
+task can capture the signal like doing
+the task or requires you to capture the
+signal then yes the model will
+definitely be able to capture
+interesting patterns um and and when you
+said machine learning I'm sorry again
+can you distinguish what is neural
+network and what is machine learning the
+difference? Yeah. So um neural networks
+is one way to do machine learning. Uh
+but machine learning and how would you
+define machine learning? Yeah. Uh
+machine learning is broadly u train a
+computer program to
+um do something intelligent uh or or
+make intelligent predictions on on um
+data sets that you're given uh such that
+you're given a recorded bunch of inputs
+and you want to be able to make
+intelligent predictions on new inputs
+that you've not seen
+before. Um and and the predictions could
+be
+anything and and neural networks happens
+to be a particular way of doing machine
+learning where the predictions are done
+through uh this abstraction called
+neural net that takes in an input and
+like applies matrices
+nonlinearities and then like stacks them
+repeatedly and then makes predictions
+out and updates the predictions using
+back propagation the the the way to you
+know change the weights depending on
+your loss. So there are so many other
+ways to do machine learning. There are
+like you know support vector machines,
+linear regression, logistic regression.
+There's like a whole bunch of techniques
+but it happens to be that uh neural
+networks is the one way to do things
+when you want really want to benefit
+from scale like like like the prediction
+should keep
+improving the more data you throw at the
+problem or more compute you throw at the
+problem. Neural networks happens to be
+the most uh scalable way to do things.
+But if you have like only 100 or 200
+examples, uh other algorithms might be
+working as well too. So where does a
+large language model sit amidst all
+this? What is it?
+So a large language model uh is
+essentially a giant neural network
+that's trained on this one task of
+predicting the next word from the
+previous word except it's training on
+the whole internet. So it's training on
+terabytes of text, trillions of tokens,
+and it's doing it's it's training on
+books, code, and um uh textbooks and
+like general web pages, news articles,
+all these things. So um distinction
+being just text, it's not training on
+videos and pictures and stuff like that.
+Uh I think I think like uh it can uh but
+but since you're calling it large
+language model I'm I'm keeping that most
+people. Let's take charge GPD for
+example. Yeah GPD. Yeah. So the image
+part uh like like taking in an image and
+captioning it and all that stuff comes
+only uh in a different phase of training
+called the post- training. Uh but most
+of the most of the compute is thrown at
+just predicting the next word from the
+previous word. That's called the
+pre-training. Um,
+and so, so essentially think about the
+data set. It's the same thing. Think
+about the data set as being the whole
+internet dump like all of Wikipedia, all
+of Reddit, everything like that. You you
+you you download it from the web. You
+you tokenize it. that is you you know
+convert every sentence into a bunch of
+tokens and then you store it somewhere
+in in your S3 dump and then
+um feed like you know 4,000 words and
+ask it to for each of those 4,000 words
+you ask it to predict the next word
+given the previous word. Right.
+Transformer comes in. Correct. Exactly.
+This is where the transformer comes in
+which is a particular neural network
+architecture. Uh that's pretty
+efficient and um you you shard the model
+which is the neural network model on
+like thousands of GPUs and and and and
+learn on like trillions of tokens on
+like train this model for like 3 or 4
+months and it's pretty amazing. artifact
+emerges out which is it'll it'll be
+great at like predicting the next word
+but it's still not conditioned enough to
+be practically useful and so that's
+where the post-raining process comes in
+where you u train this or fine-tune it
+finetune this model to be a good chatbot
+u which is training it to produce good
+responses to human inputs uh and and and
+um that requires a separate data
+collection phase where you're collecting
+data for practically useful task like
+software programming, compressing
+emails, summarizing documents, uploading
+PDFs, and like having it summarize
+things or answer questions about it. Uh,
+and and and then also like just generic
+conversational outputs where you're
+training the model to be like
+conversationally good, keep references
+of the past and stuff. And once you do
+that, like you end up with a system like
+Chad GPT, right? When I was speaking to
+Yan, I mean, I asked him things like,
+you know, explain tokenize to me a dozen
+times and all of that, but he seemed to
+think that the current path of evolution
+of where large language models are going
+is not the path to AGI. He had a counter
+opinion on it. Can you elaborate on that
+a bit?
+Well, again, like he he has his opinions
+and I think, you know, um he's generally
+been right, so it's worth listening to
+him.
+Um I would say that
+um what Yan wants is like physical
+common sense to like he he counts that
+as a prerequisite for something to be
+deemed as
+AGI. Uh by that I mean like just basic
+stuff that we all take for granted that
+we we do on a daily basis which is how
+to pour water onto a cup. How to like
+let's say you're a waiter in a
+restaurant and you have to pick up like
+three glasses and two coffee cups with
+two hands. Mhm. How do you do it? Right.
+Like you're pretty clever. You take you
+you u tilt them in a way and make sure
+they don't break um and so on. Or like
+oh you have a new uh bottle of wine. how
+to even use the an opener that you've
+never used before. You figure all these
+things out pretty quickly. Uh the tool
+use that comes on a daily basis. You
+know, like it's not good to mix two
+ingredients that are not supposed to be
+mixed. I think these are the things that
+like he thinks a generally intelligent
+AI should do. like stuff a cat figures
+out to just get from one place to
+another when they're like like a maze uh
+or like how a rat behaves in a maze to
+get to where they and and status despite
+all the blocks. I think these are things
+that you know like some model like GBT4
+or five can cannot really do right now
+right. What is the path to that to that?
+Like if I think the example of picking
+up a glass is great because
+if for me picking up a glass is this
+easy and if I were to train a computer
+model to do it, it would require so much
+energy compute and it seems like you
+know you'll have to probably build an
+arm and figure out how the fingers move
+and all of that. So, the job of a waiter
+picking up a glass in a
+restaurant is likely not going to be
+taken over by a computer. Not anytime
+soon. Which is funny because that's not
+paid as much as uh someone gets paid to
+write code today, right? So, it's a it's
+like it happens in the reverse way like
+everybody wants to think what they do is
+the one that's the one that's going to
+be taken by AI uh the last. So but but
+let's go back to your question. So a lot
+of things happen uh in the human brain
+uh in a in a split second. That's pretty
+amazing. Uh so the way computers work
+right now is they would have to watch uh
+a YouTube videos of people picking up
+cups. Uh, and then they would have to
+have like a physics simulation
+environment where they train a robot
+with a suction gripper or like maybe a
+five fing four or five finger dextrous
+hand. Uh, attempt to pick the cup like
+thousands of times or tens of thousands
+of times and then like learn what its
+success and failure based on whether the
+cup was actually picked up or not. And
+then do this in several different uh
+gravity environments so that it
+generalizes to new settings. uh do this
+on se several different visual settings
+and still it might fail if there's a new
+material that's dropped like a new glass
+it still might fail. So I I think that's
+where generalization across different
+physics settings is still like pretty
+bad. It's not like training on the
+internet. There's not enough data. So
+you actually have to build something
+that's truly uh intelligent so that it
+can learn with very little data. I think
+uh we humans by the way you might say
+it's pretty efficient but we have had
+the uh luxury of like evolution right uh
+we evolved like like all the basic
+physical skills that we have like
+walking running uh like doing things
+with our hands is something we've
+evolved to do over several years and um
+I think AIS definitely need to spend the
+compute power to train and and so we
+shouldn't compare the training compute
+to inference compute
+um and so that the the best way to solve
+this problem is like
+reasoning physical common sense and
+reasoning uh is what you need. So you
+you parse the scene and then your
+planner or reasoner just like how you're
+watching like these AI agents now like
+construct a plan to solve a hard task. I
+think you got to do the same thing for
+physical task. Okay, if I want to pick
+up three cups together, like this is
+what's likely to happen. If I do this,
+that and then okay, then this looks like
+this is the optimal way to do it and I
+do it. I I think that's would it also be
+a similar neural network which would
+learn from I don't know videos or
+definitely it has to be it has to learn
+from videos like uh but it also has to
+build a mental models
+such that even for scenarios it's not
+watched on a video before it should be
+able to reason and do things right so
+Arvind if I were to ask you what changed
+like what changed in the last couple of
+years that this has taken over
+everything like this conversation
+I would say it's
+um a lot of compute thrown at the
+problem unprocedented at scale um the
+key realization that it's not just
+compute also uh it's it's high quality
+data and and RHF learning from human
+feedback
+and actually like
+um training it on tasks useful to human
+labor like coding and like summarization
+and stuff like that all came together
+simultaneously
+and do you think the one main thing is
+throwing immense amounts of compute at
+the problem without definitely that is
+if there's like highest order bit I
+think it's without worrying if the
+outcome is going to make up for the
+revenue spent towards the computer
+Yeah, I think so. Um is that the
+distinction?
+Definitely because like um the compute
+and and and by the way computer alone is
+useless like people have tried to
+reproduce these things with doing the
+same thing and it doesn't work. You got
+to throw high quality data tokens at the
+problem too. So that taste on like
+curating data sets of like what will
+really matter like for example if you
+want reasoning to emerge in a model it's
+good for you to like make sure you have
+YouTube transcripts of video uh like
+like like uh lectures uh MIT lectures
+Stanford lectures
+um and and textbooks like where you
+actually have problems where it's not
+just the problem but the solution is
+explained step by step. So when the
+models learn this, you can actually
+prompt engineer them at inference time
+to say think think step by step and then
+it's able to think step by step and
+solve a problem. Then that leads to the
+next idea which is chain of thought. Uh
+where you train the models you you
+collect a data set with like chain of
+thought where the model is not just
+solving the problem but it's actually
+understanding why something is right and
+wrong. So even if it's wrong, it can try
+to like go back and rethink and like
+iterate and improve itself. So I think
+like there are like a bunch of three or
+four key ideas that came one step at a
+time. Uh and and they all stacked on top
+of each other. Um but but but the main
+realization is highquality data sets
+with a lot of compute and trained to be
+uh conversational uh with human feedback
+made accessible to all people through a
+simple chatbot interface um made magic
+happen. I think I think um I think it's
+a lot like lot of like four or five good
+good things coming together.
+Great. I think I have a better
+understanding of where we are at right
+now. I'm going to digress for a minute.
+You said Bangalore. How long were you
+there for and what were you doing?
+That's where I'm from. You mean for my
+internship? Yeah. You said you finished
+the problem in 3 weeks.
+Yeah, probably. Uh I I think I was in
+this place called Cor
+Mangala. Um and um I didn't actually
+explore. So I I I just worked all the
+time which is you
+know now that I look back I probably
+think I should have explored but um no
+now when I look at you I think you did a
+good thing by not exploring K Mangala
+and working all the time. No, not not
+not I I don't mean to explore core
+Mangala but I I just meant explore
+Bangalore in general that that I wish I
+did but um I do remember the traffic
+being bad and I'm being told it's even
+worse now. So so probably not probably
+good that I stayed in the room and just
+worked but otherwise like uh I do
+remember the weather was awesome
+compared to uh Chennai. I think weather
+was much better.
+Um, what did I do? You still follow
+cricket? Uh, yeah, I do. Yeah, I
+followed the match on Sunday. I'm
+actually in Dubai cuz I came to watch
+the match. This is my hotel room in
+Dubai. Oh, cool. It was good. It was
+good. I feel like the stadium had maybe
+99.99% Indian support and 01% New
+Zealand. They had like a tiny box with
+30 people in there. Wow. So, everybody
+walked away happy. Most people walked
+away happy. Yeah.
+Yeah. I mean, like I I was pretty
+disappointed in the last three or four
+um times we lost in the semi-final or
+the final. So, I was really hoping that
+um India wins this time. So, that was
+awesome.
+But honestly, like I I want I want India
+to win the 2027 World Cup. I think that
+that'll be pretty big. Mhm. And you were
+saying about Bangalore, what do you
+remember of it?
+Uh to be very blunt, I only remember
+that I worked really I worked all the
+time. Uh have you been like this all
+your life?
+Uh I mean like I I I I yeah I worked I
+worked pretty hard. Um I'm very proud of
+that and um Is there a why you work very
+hard and you're proud of it? I think I
+enjoy it.
+I'm not doing it because oh like you got
+to do this and then you'll achieve that
+and because that's that's uh impossible
+to scale. That's how most people are
+when they when they're studying for IIT
+or like when they when they when they
+when they're trying to study for grades
+to get good grades in IIT. Most people
+are uh that way where they do it because
+it'll get them a reward.
+Um, I think some of it applied to me
+too, but I I mostly do it because I
+enjoy it and um I think that's why I'm
+able to still keep doing it.
+Which part do you enjoy? Is it
+the Is it the stuff? There's so many
+things you've gotten at this end of the
+bridge. Which part have you enjoyed the
+most and which part you enjoy most
+today? I think I enjoy the intellectual
+part of like learning new things, being
+curious and learning new things. Um,
+yeah, you're going to be disappointed in
+this conversation.
+Well, I you know, one thing they say is
+like
+u you might think you know something
+until someone asks you the most basic
+questions and then you're like, "Okay,
+let let me let me figure out a way to
+explain it. Let me figure out a way to
+explain." then you're truly testing the
+limits of your understanding. So I
+actually enjoy these kind of I had a
+similar chat with Lex Freriedman where
+he made me go through the whole like um
+history of like AI and neural nets and
+like search and you know how like Google
+makes money and I'm like wait I I
+actually thought I knew all this but
+this guy is really testing and making me
+question if I really know stuff and I I
+enjoy those kind of um conversations
+actually because it's pretty rare to
+talk And it's not like you oh make a
+list of the easiest questions, right?
+You're actually trying to go deeper and
+deeper and um this is also
+why we even built this product. It's let
+letting people do that on their own and
+and no question. There's even a saying
+from Confucious, right? That um you you
+might feel like a fool if you ask a
+question, you know, supposedly a simple
+question. And you might feel like a fool
+for a minute, but you'll be a fool for
+your lifetime if you don't ask it. Uh,
+and so I think uh I'm actually like
+always in favor of people asking
+questions.
+Use that. I'm going to use that for the
+rest of today and ask you more stupid
+questions, but go on. Yeah. Hopefully
+hopefully I can come come out answering
+them well. Um, but yeah, I I I I
+genuinely enjoy like learning things. I
+I enjoy the challenge of trying to do
+hard things. Like in general, my my uh
+whole life has been like um trying to do
+something that seemed like pretty
+impossible. Uh I'm not necessarily from
+a rich background. So um most of the
+stuff we did you know my myself my
+parents uh to get here uh get into IIT
+or like like get into Berkeley uh get
+you know get a job at OpenAI like
+started this company. Can I ask a
+question? Yeah. When you spoke just now
+you said we did got into IIT and got
+here now we got here now. Do you think
+of your family your parents that way
+like Yeah. I mean like I I I did all the
+work to study and you know do the exams
+well but they took care of the other
+stuff for me right uh and so it's not a
+individual thing same thing now like I'm
+doing the work running the company but
+my wife takes care of so many things for
+me at home um and uh it's not just about
+the support at home or something it's
+more the moral support I I think you
+have very few people to lean on to and
+and so uh there are so many times when
+you're not like necessarily feeling the
+best about your chances and uh there's a
+lot of things that you cannot share with
+your own fellow colleagues because you
+know as founder CEO you always have to
+appear like I'm I have it all figured
+out so there's somebody you need to go
+and talk to uh for help and and and like
+just simply like or or someone to push
+you also Right? Like sometimes you might
+when things are going well like you
+might feel like you're on the top of the
+world and someone has to like bring you
+back to earth and say, "Hey, like calm
+down." Like you have nothing figured out
+yet. And and so who does that for you?
+My wife does that for me. Yeah. Wow. And
+then back back when I was studying for
+IIT, it's like my mom was always like
+keeping me in check and and and making
+sure that uh I was focused and and it's
+important like there's you can't have
+too many people doing that for you sim
+at the same time like the more people do
+that like it gets chaotic. Uh and so
+it's good to have like one or two people
+doing this all the time. What did your
+parents do Arvin?
+My mom uh works in the government for
+the central government and my dad was uh
+uh an accountant so we financial
+accountant so we I'm actually the first
+engineer in in like extended family uh
+and um so really you're you're
+yeah your first correct yeah but our our
+family had more
+um more the um accounting background
+like and so and so we we we engineering
+was still like a new thing at the time
+for us. Our audience in this particular
+thing uh we speak to wannabe
+entrepreneurs from India largely who are
+under the age of 25. Mhm. But for a
+second, I'm going to put on my investor
+cap and ask you
+what the big players are doing. How do
+you distinguish one from another? Mhm.
+And maybe you can give us a bit of
+nuance of how is one different from
+another. Like you take a gro, you take
+what a meta is doing, you talk about
+what Microsoft is doing. Yeah. maybe
+like just like you know like
+really low-level stuff that I can
+understand. Yeah. Honest answer right
+now is all of them are doing similar
+things. Okay. Like uh I'll just say it
+as blunt as it can be. uh is there's not
+really a genuine differentiation between
+uh Chad GPT or Anthropic or Gemini or
+Gac or Meta
+AI right now. And um of course
+perplexity you can argue similarly which
+is you know in the beginning the
+differentiation was we were the only
+ones to make sure you always had sources
+for everything and like you know highly
+accurate sources fast answers uh and and
+so on but everybody else is also like
+realizing that the real values in search
+even more than free form chat and
+they're trying to put sources for almost
+any any response. So I think right now
+we we're in this weird phase where like
+all AI chat bots seem similar and like
+some people prefer one over the other
+and like you know if you rank response
+accuracy like I'm sure different
+benchmarks will have different people
+ranking one number one or two but but
+consistently perplexity is is deemed as
+like one of the most accurate fastest
+chat bots. Um and and I'm very happy
+because that's the work we've put in the
+last two years. But I feel the this year
+in 2025 and six the differentiation is
+going to come from more agentic
+behavior. Uh where like the the the
+question answering like answering
+questions will be seen as a commodity.
+Uh some people will have preferences for
+some products. Some user interfaces are
+going to be better. uh those will not
+just respond with text but also give you
+charts and like images and inline
+product cards or hotels. Uh you know
+would you call that agent? Like if
+somebody picks off a language answer
+like a text answer from a certain large
+language model and converts it into
+images and makes it more No, that's not
+agentic. I'm just saying question
+answering itself. You can say just
+responding in text is like not going to
+cut it. Like let's say I'm going to ask
+for the best shoes. You want to actually
+see the shoes. Uh you want to see an
+actual shoe card and like reviews and
+like compactly summarized to you with
+like options to buy. Uh same thing with
+hotels, same thing with like
+restaurants. You can just want to book
+it right there. I think these kind of
+experiences will differentiate one or
+two chat bots from the rest. And we are
+doing our part to be ahead of the curve
+there. But I I feel like the real magic
+is going to come from AI is doing things
+where you can go to the AI and ask it to
+play a song or like play a video or or
+book a restaurant reservation, book an
+Uber, book a flight, uh send an email,
+move your calendar. Like say I'm
+communicating to Nikquille's team. I'm
+just going to ask my assistant to like
+um hey can can you ask them can we start
+at 8:30 instead of 8. Uh and then it's
+it's just going to do this emailing for
+me and it's going to do the back and
+forth with your team and it's just going
+to like figure it out. I'm not I'm just
+like in my bed sleeping and the AI is
+working for me. I think those kind of
+things missing. Why is it not happening
+now? It's what needs to change? It's
+only recently began to take off because
+uh reasoning only reasoning be recently
+began to work. Uh and and without
+reasoning you cannot do these things
+with just uh the LLM in the traditional
+sense where you get an output for an
+input it's very hard to do these things
+with reasoning based on my data or
+reasoning reasoning based on generic
+data with nuance derived from mine.
+Yeah. Yeah. So context comes from you.
+Uh but but um the the the the core
+reasoning skill is in the model. Uh the
+context of like okay your emails, your
+existing
+uh calendar, we need access to all that
+and it needs to be
+contextual. And um I think that's a
+that's why product building is equally
+important or probably even more than the
+model here because uh there's going to
+be a bunch of great reasoning models but
+there's not going to be 100 products
+that uh really package personal context
+uh all the API integration services
+integrations uh native integration to
+your phone to be an assistant
+uh really well voice experience like
+there's just like earlier there would be
+like 10 10 details to get right. Now
+there'll be like 50 to 100 details to
+get right. And the more details to get
+right simultaneously,
+Mhm. the less chance that there are like
+five or six different chat bots doing
+the same thing. Eventually, if all data
+is democratized and all the models
+consume all the data, will everyone
+throw out the same answer but the
+language be different?
+It's already that way right now. Like
+the core if you if you leave the search
+part and just talk to an AI and ask it
+questions, most of these models are kind
+of saying the same thing. And there's
+one reason for that is because uh
+they're all trying to climb on the same
+benchmarks. Mhm. The same
+leaderboards. So, uh there's not a very
+big qualitative difference. You can you
+can you can squint at it and say okay
+yeah I like the response style of this
+one model over the other but it doesn't
+matter. So what is the nuance that makes
+one subscribe? I I'm a user of
+publicity. I have Plexity Pro. I have
+chat GPT. I have a bunch of other
+models. Yeah. So what
+nuance will attract me towards
+perplexity versus chat GPT versus Grock
+versus uh meta's AI like what is that
+difference? I think it really depends on
+what you're using AIS for. uh if you're
+a person who use AIS um for like a lot
+of fact checks and research and sources
+and like financial research even you
+want to get charts you want to get stock
+prices balance sheets all the stuff like
+whoever does this best you would
+subscribe to it right who does this I
+think it's us but if if you don't think
+so like I would love to know uh but uh
+like at the same time here's the thing
+like I I I feel like
+uh our product has this advantage that
+we can use any model out there. Uh and
+and and um it's kind of weird like you
+could ask like why can't chat also have
+Grock in it. I I think it's more that
+they also have a different rivalry going
+on of like who trains the smartest model
+which is what attracts the researchers
+to be working there. Um we how do you
+pick which model you use for which
+answer? Um we regularly evaluate models
+on like so many different types of
+queries. We get you're using one model
+at a time and then you switch to
+another. It's not that one query goes to
+a certain model. Uh it's it's uh neither
+like every query goes to a bunch of
+models. Uh but they're doing different
+tasks like one model um rewrites your
+query into a more like easily
+understandable format for the AIS.
+Another model like does the chunking of
+the pages into like
+parts that gets consumed by the
+summarization model and the
+summarization or chat model is different
+and then there's like another model that
+suggests new questions to ask. So these
+are all like four or five different
+models working per query.
+Is there a latency play in that? Like if
+you're running on top of so many models,
+will you be relatively slower? No. No.
+Uh that's that's why that's why like
+that's why even though people say it's a
+rapper uh it's there's a lot of backend
+infrastructure work we put in to make it
+so fast I still think we are the fastest
+product in uh in in among all these
+because the the latency is one of our
+main metrics we track internally tail
+latency actually there's a concept
+called tail latency which is it's a 99th
+percentile that that matters it's not
+the mean latency and so um one thing we
+do if you throw a part of the answer out
+and then there are sub questions which
+you click and then you go to the next
+parts unlike another model which throws
+everything out at the same time. So, so
+the trick that most people figured out
+in AI uh chat bots is you stream the
+answer one word like few few chunks of
+words that way uh the user doesn't feel
+the latency uh they they're just like
+already begin to read the answer. It's a
+it's a it's a clever hack. It's not if
+you actually wait for the this happens
+in voice to voice also by the way. Uh
+the reason it feels real time is like
+the answer is still not done yet but
+it's began talking to you already and
+you're just hearing it. So um I think
+like the one thing that we we try to do
+is
+like a lot of the open-source models
+that we serve ourselves with some fine
+tuning uh we we've tried to serve it
+with extreme efficiency like we wrote
+our own runtimes for Nvidia chips and we
+use other chips like Cerebras and that
+helps us to like make the latency as low
+as possible and and the fact that we
+have our own index lets us pull the
+links really fast uh with like
+sub-second latency and so the overall
+latency feels like really short uh even
+though we um we do like a lot more work
+on the back end. Uh but I think there's
+still like some more juice to squeeze
+out here. Like I I feel like in the end
+of the year uh there'll be another half
+a second that's shaved off here with
+more improvements on the infrastructure.
+To be really honest, you know, as a
+user, I don't even care. Like if one
+answer is coming at 300 microsconds and
+another is coming at 800 and if my naked
+eye can't tell the difference and you're
+streaming anyway so I'm reading I don't
+know how many people truly care about
+that difference. So that that's the
+thing you you might feel that way. uh
+but when we get like 10 thou let's say
+we don't get 10,000 requests but let's
+say we get like
+uh 100,000 requests per second in future
+I think these things will matter like
+because of the load uh you will start to
+feel it slower too even though right now
+you don't so that's where like any day
+like you know like u Google has done
+this historically is like anytime they
+shaved off even like 100 milliseconds on
+the uh Google search result page load
+like like the loading time uh they've
+always measured that retention
+increased. It's just like you know we
+don't care it's just doesn't matter but
+then uh at the scale of traffic you
+serve like it it'll the more
+improvements you do the better uh
+because that way you can handle any uh
+tail cases pretty well. Makes sense
+actually. Is there a way to I know this
+is a probably very hard thing to
+extrapolate, but is there a cost per
+quiry to service that you have versus a
+fee that the user pays? Like if I pay 20
+bucks a month to
+Plexity, how many requests do I need to
+make to really consume that?
+I I mean like uh I would just say that
+it's
+um it's not something that's a static
+metric anymore
+considering every 3 months or something
+like there's a new open source model out
+there uh and then that forces the auto
+labs to lower the prices because then
+nobody's going to use their APIs.
+So uh it's something that's constantly
+going down the cost. Mhm. That doesn't
+mean that we get to mint more money from
+you either because uh what happens is
+um there are newer experiences that are
+being built with the more expensive ones
+simultaneously like the deep research
+stuff. It's actually pretty expensive to
+serve deep research for us. Uh we still
+price it at $20 a month. I think
+OpenAI's one is like slightly more
+detailed on some some some queries, but
+uh it's priced at $200 a month and uh
+you can see right that that's simply
+because Deep Seek is open source and
+we're able to like actually serve it at
+10x cheaper price and we'll address the
+inaccuracies in the next you know few
+months right like with better models
+more finetuning so I I I think that
+actually makes us makes the margins
+lower for us on on on um on on the pro
+subscription if people use deep
+research. Uh but but but the while this
+happens the cost per query on regular
+pro searches or reasoning searches go
+down because the there's more progress
+on the model side and I think that's
+asentic tasks like like when when when
+these AI start beginning to do stuff for
+you it'll definitely cost us more. Mhm.
+uh and and and so we are not we're we're
+actually okay with this
+uh uncertainty in like what the real
+margins are on consumer subscriptions
+and AI uh in the short term because I
+think the real thing to focus on is like
+getting the experience really good and
+and and and sure we would love to like
+not burn the money all the way but uh
+and uh like like but at the same time
+hyper optimizing for margins now would
+be the wrong uh tactical
+If I were to like hold you to a specific
+answer, if you had a hundred bucks and
+you could only put it in one company, uh
+you can take out the private one, so
+don't put yourself in the list. But
+amongst the listed players, if you could
+invest a 100 bucks in them, which one
+would you pick
+in an AI or any any company? AI. AI. AI
+adjacent because these guys do
+everything now.
+I think I would put it into uh meta
+uh mainly
+because in a world where AI works
+increasingly well like I think the human
+to human connection becomes even more
+essential and there's literally no way
+no one disrupting that in in Instagram
+or WhatsApp and so uh
+advertisements and in a world where
+people are going to be able to ask AIS
+to do stuff for them. Um, brand value
+like how much a brand themselves like
+get known to the user matters even more.
+Uh, because like you can you can ask the
+agents to just ignore all the sponsored
+links on Google and and and and truly
+look for like what's best, read the
+reviews and stuff. So, I think what
+people perceive a brand as matters even
+more and peopleto people connection
+matters even more and people knowing
+what other people say matters more. So I
+I feel like they are very well
+positioned to keep their existing ad
+business strong or even or make it even
+stronger uh in a world where AI is
+actually work. It's it's it's a kind of
+a
+interesting position to be in for them
+where uh their ads business is going to
+flourish even better uh when AI's work.
+I wouldn't say the same for Google. Uh,
+I think Google ads and Google agents and
+Google ads are just completely on the
+opposite ends of like
+um business
+incentives and and and that's kind of
+why also Google has the least incentive
+to bring out AI native search or agents
+right there on core Google homepage or
+Google apps. It can be hidden in a mode
+or like sometimes firing some for some
+queries but it's never going to be the
+central piece of it. Meta doesn't have
+this problem at all. Like they can roll
+out AIS, but the core feed of like
+watching what other people post is still
+going to be the same.
+I was thinking about this the other day
+uh with all the talk about tariffs and
+who imports how much and who exports so
+much and the deficit that the US is
+running versus India or China or many of
+these other countries.
+Almost every new company here in India
+spends all of their marketing money,
+their distribution money. Like if I were
+to even start a t-shirt company, a
+coffee brand, I don't know a SAS
+company. Gone are the days of putting a
+ad on a newspaper or a TV channel or a
+cricketing team or you know like the
+traditional way of spending money to get
+distribution.
+uh don't hold me to the numbers but
+pragmatically I see that declining and
+more and more money in discovering
+clients in India goes to either Facebook
+or Google and Meta or Google and that
+money that revenue might be registered
+in Facebook India or Meta India or
+Google India but essentially I the way I
+look at it it's trickling back to the
+parent company because the the market
+cap of these companies are going up by
+virtue of the revenue they register here
+in
+India. Since we are at the very core of
+it talking to entrepreneurs who want to
+start something in India, do you think
+there's a play there to disrupt this
+market? Do you think that's even
+remotely possible for an
+Indian for someone in the Indian youth
+to build something to take away some of
+this pie?
+Well, uh, if an Indian company started
+an Instagram
+or WhatsApp rival, I would very be very
+impressed by the bravery of it. Not that
+like I'm trying to do anything for
+stupidity.
+No.
+Uh, well, I I I would say like what I'm
+doing is similar uh where even now
+people think it's a stupid idea to
+compete with Google.
+Uh but I think it I think there's some
+angle uh that can work. Um and
+um if if okay here here's how I would
+see it. If you can build way better
+targeting
+uh than than Instagram does at least for
+consumers in India that you're trying to
+target for your business.
+Um, and sure, like people would be at
+least all they got to do is like if if
+they're spending a million dollars in
+ads a year, instead of spending the
+entire million on Instagram, if they
+spend 700K on Instagram and 300K on your
+thing, like that's already a big
+disruption. That's step two. after I
+first garner the distribution for my
+platform where people come. You need to
+have one core you need to have one core
+uh reason why people even post on your
+platform. Yeah. What and and u when you
+have zero users uh and or you're just
+like getting
+users the creators are like you know the
+ones who are posting stuff
+uh they they they want they want
+traction. They want like likes and
+stuff. They want
+shares. And so that that's the problem.
+That's a cold start problem. And network
+effects. That that's kind of why I said
+Meta has a bigger mode than Google. Uh
+because Google's mode on distribution
+comes from their deals with with with
+carriers, OEMs, and like you know all
+these people. Um but Meta's u mode is
+just raw network effects. Like nobody
+pre-installs Instagram or WhatsApp on
+phones. U Android pre-installs Google
+despite that like everybody goes and
+installs these apps. So I think you got
+to change that in some way and you got
+to build a user base from scratch and I
+think that's the hard part. Any ideas?
+Say I want to try it. How do I do it?
+Give me an angle. To be honest, I
+haven't thought hard about it but let me
+just try to think on the feet here. Like
+the last big app that actually did it
+was Tik Tok, right? Yeah. Um and and and
+and and interestingly they actually grew
+a lot through Instagram. Like they spent
+billions of dollars of ad re ad spend on
+Instagram to grow Tik Tok. And uh what I
+was told is like the meta team was
+pretty uh like like laughing at it like
+hey like you know we grew to all these
+users
+organically and little do they realize
+that the retention on paid users is like
+like retention on acquiring users
+through paid channels is pretty low and
+then and they're just making us rich and
+growing our stock price through
+increasing our ad revenue and they're
+not going to actually retain any of the
+users. It doesn't matter. But that ended
+up being wrong. Like they actually got a
+lot of users and the only reason
+Instagram is still fine is because Tik
+Tok is banned in in in many countries
+and particularly in India, right? Um so
+I I would
+say definitely you got to spend a lot
+per user uh on on existing channels.
+Uh
+and definitely you got to have some new
+unit of information that existing
+platforms don't have that becomes core
+to your like like reals was new.
+Obviously Instagram copied it. Uh but at
+least for a while it was new on Tik Tok.
+Is that where publicity will go
+eventually? Do you think you'll need to
+have ads? I hope not.
+Um, I think the market for
+uh like just like an assistant
+that is so personalized to you and does
+a lot of work for
+you. Um, gives you daily briefs,
+updates, does market research for you
+without you even asking for
+it is massive. like uh people would pay
+like hundreds of dollars a month for
+such an assistant because it's kind of
+like hiring a
+person and if the RPO per person is so
+high like $1,000 a year
+uh and and if we can at least get 10
+million people to pay for
+it I think that's like a pretty
+successful multiund billion dollar
+company of its own and
+um if you can do that and figuring out a
+way to like grow x% a year and getting
+to Google's like ad
+revenue order of magnitude is certainly
+more
+achievable. Uh and so that's I also
+think when an assistant truly
+personalized ads are pretty easily
+doable like you know the reason
+Instagram ads are better than Google ads
+is they're very personalized to you
+right and so Instagram has done some
+research that if they remove the ads on
+the platform the engagement time went
+down. Mhm. Um, Google has never really
+publicly done any study like that. I'm
+actually certain that like Google
+removing ads makes the experience better
+today.
+But can they survive without ads? They
+cannot. That's the thing. Yeah. Yeah. So
+that that's where the I've kind of like
+stopped using Google for so many things.
+You know what I find today is I will
+search for something on Google, I will
+get annoyed by all the ads and then I
+immediately open
+up you guys or open AAI and I search
+there because I feel like I don't have
+to like in Google searching and
+searching. That's the thing you are you
+are searching first on Google, right?
+Why? Because they are the search bar.
+Yeah. And that's why you got to build a
+browser like or you can convince people
+to go change your default uh search
+engine to perplexity. But you know that
+what they do they always put these
+popups that say hey
+turn your default back to
+um back to Google and then in that
+there'll be two options and the
+highlighted blue one would be yes.
+Mhm. and and this the like retain back
+would be the non- highlighted option
+that would be like non-bold text. So
+they have all these like tricks they've
+learned through ages to like preserve
+their dominance that the first query
+goes to them. Another thing I would tell
+you why they'll they'll still continue
+to be dominant for for a few years is
+let's say you do your research on like
+what microphones to buy, what or like
+you know let's say the best headphones
+for podcast recording. You're buying
+equipment for your podcast studio. You
+do your research on perplexity or chat
+GPT. You you you you know what to buy
+now. you go and actually make the
+purchase on Google or you go to Amazon
+like you know most people just type the
+brand on Google they click on the Amazon
+link and then they go and buy there. So
+who actually makes money out of out of
+that research you did?
+Google like not us, right? Uh because
+Google makes a money every time you
+click on a link and make a purchase
+because they they they get to claim uh
+cost perclick conversion to the
+advertiser and and the advertiser is
+like, "Oh, wait. I got I'm getting all
+this uh you know conversions because of
+Google, so I'm going to keep spending
+advertisement revenue on it." So this is
+the problem. Uh like you got to have AIs
+that not just help you do research, but
+help you make transactions natively.
+um like like like and then you you got
+to have AIS that are not um you know
+vulnerable to the search bar placement
+and and and and that's the real
+challenge that you know companies like
+us or chat GBT have to address. It's not
+it's not the fact that they can't
+provide a better product. I think it's
+pretty obviously clear. I think uh you
+got to be able to finish the other two
+or three steps that remain to get rid of
+the Google dominance and and and and
+android is a massive u advantage for
+them. They they don't let people sell a
+phone if you don't keep Google as a
+default search engine. What they do is
+like they say you cannot have the play
+store. Okay? If you don't have the play
+store there are no apps cuz nobody is
+building apps on any other play store
+and so no phone maker can sell a phone
+there. So, and and they don't share ad
+revenue on on um on the Google search if
+you don't have the Google Assistant as a
+default. So, there's a lot of things
+sounds like a relatively easier business
+to disrupt the play store or the app
+store. First of all, like what what what
+most of the people are building apps.
+You you can have a fork of Android
+um and and ask people to publish it to
+your your app store too, but they don't
+get the visibility that they get on the
+Google's Android because the phone
+makers are still going to use Google's
+Android. And the phone makers are using
+Google's Android because Google shares
+with them the ad revenue on Google
+search that made that's getting made on
+the mobile phones. Uh and you cannot do
+that until you have that scale. Uh so
+it's uh it's very tied to like many
+things and and the more you understand
+the details like you you you're always
+like playing chess figuring out like
+okay like what is the next move you can
+make that you can make as a startup with
+me lower resources uh and and still
+convince the telos and OEMs to work with
+you. I think that's the hard challenge.
+U and and they're always there to like u
+spoil your plans. But again, like I I
+expect the to the question you asked
+about can I can I have an Indian rival
+to Instagram? You're going to have to
+play you're not just going to be focused
+on building a better product. um you
+have to
+actually spend like a lot of your energy
+thinking about distribution
+uh and and uh and and American any
+anytime come and say like hey like just
+pre-install Instagram on all your phones
+and I'll I'll share ad revenue with with
+you uh for Indian users and even before
+that I need an angle as to how I get the
+initial user base. Exactly. So it's very
+difficult but I I certainly think it's
+worth the like you know of of of
+attempting some some brave person needs
+to do it ideal if the person who begins
+it is having their own audience so they
+they can actually influence is Silicon
+Valley people have tried it like
+clubhouse um again everything has
+lessons you can learn from
+so the question is if text moved to
+pictures move to short form video. Could
+it be long form video? No, YouTube has
+YouTube is there, right? Yeah. By the
+way, YouTube is actually
+um one of the biggest rivals to
+Instagram, I would say. Mhm. Um mainly
+because that was Instagram's market to
+take, right? The reals. Yeah. The long
+form video. The long form video as well.
+Long form video. Yeah. Yeah. A little
+bit. Yeah.
+Um what I was told is YouTube's ad
+revenue now uh comes more from TVs than
+even like the actual YouTube app. Um so
+so you can kind of see where people are
+actually beginning to spend more time on
+the TVs now. Yeah. Um than than even the
+mobile app. So there's probably
+something there. Uh podcasts is growing
+a lot. a lot of people, of course,
+you're making one of the most listened
+to podcasts, but it's a it's it's it's a
+thing that Instagram is not really
+getting. Um, and it's going more towards
+the Apple podcast, Spotify. So, there's
+always like people figuring out new
+forms of content that's not necessarily
+going to Instagram. So, that's something
+that's an opportunity if I'm able to
+aggregate every Indian podcaster. Yeah.
+and improve the quality
+of their video by I don't know if I
+include a chat function where they can
+talk to the podcaster and the guest like
+have some angle like that do you think
+if I were to be able to aggregate that
+is is it a possibility definitely um
+another thing that people haven't really
+tried is like live stream the podcast
+like let's say we're talking now um and
+and and like so the way podcast workers.
+We record it, you edit it, we post it,
+and then people are listening to it, but
+there's no communication between us and
+them, right? Um, and and like X tried
+that with with live stream and and and
+you know, like so Instagram has it too,
+Instagram live, but it's not really
+podcast podcast. Right. Right. Right.
+Yeah. Uh but there there's something
+where like you can consume all the
+podcasts. You can also talk to the
+people who did the podcast. They would
+respond to you on the comments. Um you
+you can you can probably
+like I say, "Hey, I want to hear this
+Nikil's thing in in like uh but but only
+the parts where he talks about AI."
+And it'll just edit it like really fast
+and just make a new version. cuz you
+just listen to that. Um, that's
+something YouTube doesn't do well. The
+what do you call when you convert video
+to text? There's a word for the the
+transcriptions. Yeah, they don't do
+great at transcriptions, right? Yeah,
+but that again I'm just saying like why
+do you even need to see the transcript?
+Transcripts are there because it's a
+hack to get to what you want. But if you
+literally just enter a prompt and say uh
+just make a version of this podcast for
+me that edits out what Arvin and Nikl
+talk about uh AI or like neural networks
+and and it just creates that segment and
+they just listen to that uh and they
+would happen now cuz I thought most
+large language models are text they're
+not consuming video yet. Right. Exactly.
+So you you don't need the video part as
+much. You just need to make sure the
+transcript is pretty accurate.
+um or or or even take the uh MP3 file,
+the audio file and then uh the long
+context is good enough to consume all of
+it. Uh and then you just say um I want
+only these parts out and it'll tell you
+the timestamps and you take that and
+make a video out of it. It's it's it's
+going to have rough edges. I'm sure it's
+not going to work perfectly, but uh with
+with but with with some engineering you
+can make something like this happen. uh
+the the hard part honestly in kill is is
+the you know you got to start from
+scratch you got to uh create incentives
+for people to like consume stuff so
+there's some something new new element
+out needed and then a lot of sharing on
+existing platforms of how this is the
+next big thing and and and but you're
+right there's if there's one way to
+aggregate all the podcasts that's
+happening in India on one platform and
+people like being able to edit it
+listening in any new language they want
+on the
+uh it might be a big uh product market
+fit there. Very interesting. I'm going
+to ask you another personal question. I
+have a private equity fund. We're
+reviewing a data center
+business fairly large something that
+does maybe a hund00 million of EITA
+right now. So data center has become
+such a thing in India. Arind uh every
+real estate person that you speak to or
+I speak to
+today, everyone's talking about data
+centers. It's like
+it's like
+the real estate almost in in the 2025
+version, the big big thing for them is
+not this new building, but it's building
+a data center.
+uh if you're able to buy data center
+businesses at a 20 multiple of EIA or a
+25 multiple of
+EITA, would you do it today? Is there
+something I'm missing? Is there
+something changing in terms of how data
+is being compressed? Quantum computing
+or compute moving out of the data center
+that one should not do it. I wouldn't
+really worry about quantum computing
+right now. Uh I I think it's still in
+pretty early
+stages. Um I certainly think India
+should have its own data centers like
+like there's no um reason not to. Um and
+um definitely calls for good real estate
+expertise. Um infrastructure uh buildout
+is not easy. uh buying the chips
+uh connecting them
+the making sure you use the right
+technology for the interconnects between
+these different
+GPUs building these server racks. I mean
+uh compute centers in in in different IT
+have done this like like you know we had
+a clust compute cluster that we had
+access to in IIT and it would live in
+the computer center. So definitely
+doable.
+Um and um it it really depends on like
+Okay, so there's this company called uh
+Core Vivve in in the US. I think it's
+going to IPO pretty soon. It's the first
+like pure data center play that that
+I've seen. Like it's not a it's not a
+big tech data center. Uh Nvidia owns a
+big chunk of this company. Um and and I
+I think like the the way they compete
+against the rest is they do the
+buildouts
+faster. Uh and and uh OpenAI is using
+them, a bunch of others are using them.
+So if you can provide training GPUs to
+people in India uh much faster and and
+and
+like cheaper prices potentially cheaper
+because the data center buildout costs
+might be lower cuz labor costs are
+lower. Uh there there's probably
+something there and I hope at least for
+inference it makes a lot of sense
+because data sovereignty might be a
+thing. So let's say even for companies
+like us in future if the government of
+India wants like the data of uh people
+using perplexity India to stay in India
+then it makes sense to have like you
+know even American companies or for
+other other companies outside India to
+be using the data centers built out in
+India so that the data is stored in
+India I I think it'll happen eventually
+invariably uh now the financial data
+sits out of India and India creates
+something like I don't know 20% of all
+the data because of the number of people
+with
+smartphones. So the assumption is it
+will happen and hence everybody is
+talking about the data center business
+but structurally there is nothing that
+is
+changing in the data center business. I
+don't expect it to be a pretty high
+margin business of its own unless you
+combine it with good software.
+And what would software look like for a
+data center? Is it like spin up spin up
+jobs? um easily host models
+um have the Kubernetes support for like
+scaling instances
+uh that's kind of what the cloud
+companies have shown right um maybe in
+the short term if you're the only one
+who can provide a data center in India
+Mhm. you're going to enjoy good margins
+but long run you should expect more
+people playing the game. Yeah. No, there
+there are many providers already. There
+is maybe a gawatt worth of data centers.
+I mean I'm not sure of the exact number
+but it has scaled significantly. The
+question is does it continue to grow in
+this manner where at the end of the day
+it's a very commoditized business. It's
+almost like a real estate company
+starting a warehouse. I'm I'm not able
+to distinguish if one has IP over
+another
+until you have like some vertical
+integration done pretty well. And the
+other big worry is does this become such
+a big business that the hyperscalers
+build their own and do not go to a third
+party vendor? Possible. I mean
+hyperscalers actually build their own
+data centers everywhere. uh except where
+there are like real constraints where
+they have to move super fast and and um
+and uh the only way to do that is to
+like work with someone else locally and
+and or like there are like local
+regulations and restrictions on like
+what other companies can do in physical
+spaces and and like
+um someone like who's already there
+who's
+who's an Indian business can be the one
+only one who can do that on on the
+timelines they want.
+Do you have a view on Nvidia
+like the the margins that they operate
+at and the scale of revenues and
+profitability they are at? Why has there
+been no disruption? I think it's pretty
+hard to do uh what they do at the
+margins they have. Uh that's the main
+reason. They have a very flexible chip.
+It can do a lot of computations. It's
+not just about inference. It's not just
+about training. It's not just about like
+dense models or mixture of expert sparse
+models. It's not specialized. So it's
+very general. So you can do a lot of
+things with one one chip. And they have
+perfected the art of like the
+interconnects, the data center
+buildouts.
+Um and
+um I think software is a big advantage
+for them too. the fact that CUDA is such
+has a big moat and um uh people
+developers are all like trained and
+program like to to already learn to use
+CUDA. It's very hard to go learn a new
+software stack and they keep a lot of
+the CUDA stuff like closed source. It's
+pretty hard to like you know replicate
+it. Um and then by the time you do all
+the work in like you know going and
+building your own software stack and
+your own hardware and making it pretty
+general they have the next generation of
+chips and then they already have the
+relationships with all the hyperscalers
+to get their chips in for the as as
+first priority right so it's uh they're
+competing on many levels it's it's
+pretty difficult but uh recently what's
+happened is like at least on the
+inference layer uh there are like some
+alternatives like cerebras is there and
+the gro with the cube you um and again
+they're enjoying the time period before
+Blackwell comes to the market and
+Blackwell chips are supposed to be uh
+way more efficient than H100s for
+inference. So maybe all the things are
+going to be shortlived. We never know.
+uh certainly the margins might get
+affected but also the raw AI usage
+adoption and how many others are going
+to build AIS is also going to grow that
+uh the company might still be a very
+lucrative business to invest in but it's
+one of the least understood stocks I
+would say even though there's a lot of
+energy and effort being put into
+understanding it uh it's one of the
+least understood stocks and it's pretty
+volatile to AI progress like AI progress
+needs to keep happening at the same pace
+for Nvidia uh to be uh going up again
+and again and again.
+I mean the earnings also to a certain
+degree seem to have caught up right
+they're at like 40 times one year
+forward earnings which is not ridiculous
+like it once used to be. Yeah. I I tried
+to learn about Nvidia like correct me if
+I'm wrong but the big distinction
+between Nvidia chips and the the
+incumbents of five or 10 years ago was
+the fact that they did tasks
+sequentially and Nvidia does many task
+at the same time. Is that the main
+difference? Um that's one way to put it.
+Uh mainly Nvidia specialized for
+graphics.
+uh graphics is a lot of matrix
+multiplications. This is how the math
+math works. Matrix multiplications is
+parallel
+computations. And interestingly, this is
+a very interesting coincidence. It's not
+designed to be this way. Uh neural
+networks are also a lot of matrix
+multiplications.
+So because they specialize matrix
+multipliers to be fast for graphics that
+core set of primitives that they built
+ended up being extremely uh a great fit
+for AI like neural nets. If AI was not
+neural nets then GPUs wouldn't have
+mattered but but AI happened to be just
+basically neural nets at scale. And so
+all the primitives they built, all the
+uh software stack they built ended up
+being like the the core foundational
+building blocks for neural networks too.
+All the neural network training
+libraries were built around it. Now it's
+so hard for someone else new to come and
+change it. The only one who's managed to
+do this I would say is Google. Uh they
+built their own chips. They build their
+own software around it called Jax. And
+then they um build their own accelerated
+linear algebra library called
+XLA. Uh and then you know they have
+their own data centers too. Uh so
+they're the only ones who managed to do
+everything full stack completely
+independent of the Nvidia
+library and Nvidia's chips. Everybody
+else had either one or two of the pieces
+but not all of it.
+Right.
+Also what is India's role in all this?
+Like say like I said earlier like this
+is genuinely how I feel. You know Jenz
+uses a particular word they say FOMO all
+the time like fear of missing out. I
+face that on a daily basis cuz I keep
+reading about AI. But it does feel to me
+like, you know, the match is happening
+in another geography and I'm I'm talking
+to the commentator's friend about what
+is happening or reading what he's saying
+on Twitter or
+X. What what can India do or what should
+it do? And you can be like honest about
+this like because there's something we
+want to incorporate and we want young
+people to go out and try at least.
+Uh I I've said this before. I I think
+India should definitely train its own
+models
+um and not but wouldn't we arrive at the
+same answers
+that the incumbent models are arriving
+yet if the data is largely democratized
+and our data is also part of the
+training pool.
+It doesn't matter. I I I think we should
+still build our own models because
+there's so much more work to do on the
+models to make them reason and think and
+and and be good at things they're not
+good at today and and and be more
+agentic and do tasks and stuff like
+that. Um and India should have its own
+like deepseek like company uh that that
+um trains models and like competes not
+just on Indian languages but on global
+benchmarks and that'll inspire the next
+generation of like engineers to come and
+work in those companies and and and
+build out the future outside of
+fundamental models. I'm I'm guessing
+this requires serious hardware and a
+reasonable amount of Yeah. data centers,
+chips, models. What does somebody young
+do? Like say a 25 year old boy or girl
+sitting out of Bangalore or Chennai or
+Mumbai or Delhi. What do they do
+specifically like today with no
+resources? I would hope like they can
+raise some venture funding and try to do
+something. Let's assume they're able to
+raise a million dollars cuz AI is hot
+right now. then
+well it's pretty hard to do something
+meaningful with a million dollars but
+certainly doable um the way I would do
+it is I would build a product that's
+pretty interesting and new uh get users
+raise more money um get more users and
+raise one little more money and then
+start to build your own models uh start
+with post- training on top of open
+source models then start to like look
+into pre-training too and um then get
+into the data centers. Like it's a
+multi-stage process. That's what I would
+do if I could start small. But if you're
+already established, if you're not like
+this 25-year-old young person, if you're
+already somewhat established, you have a
+presence, you have a name in the field
+or or or able to attract investments of
+higher magnitude, then I think you can
+go for the more ambitious targets right
+away.
+Is there any like nuanced lowhanging
+fruit that Indians are not taking
+advantage
+of who want to start off?
+I don't know maybe language maybe we
+have access to I think voice uh most of
+the AIS are pretty bad at Indian voices
+uh the the speech recognition and speech
+synthesis are not necessarily good. Mhm.
+That's a place where you can make a
+clear difference because it's not a high
+priority for the western labs to make it
+work and they're like so many dialects
+and languages and like I think Indians
+are also more
+um mobile app users and so voice is a
+more natural form factor of interaction.
+Mhm. So really having that amazing real
+time AI voice synthesis but
+u broadly like support for all the
+Indian languages nailing the dialects
+and accents and grammar would be a big
+deal. Um it's it's easier said than
+done. It's not it's not as easy as is
+collecting data. You have to do a lot of
+evals and training and like iterations.
+Mhm. But it's definitely something that
+will matter a lot for the Indian market
+more than anybody else.
+Because you're a investor as well. Would
+you buy Nvidia stock today? I have
+exposure to it. Mhm. So, uh I'm I'm not
+selling, I'm holding. And I think I
+believe
+in like basically everybody's going to
+try to build super intelligence and
+general intelligence. And uh Mhm. I
+think even if RL is working, I think you
+need a lot of compute to do it. And so
+is SF is SF petty? Like if you said
+something bad about Nvidia, would you
+get lesser chips when you needed them?
+I've not done that, so I don't know. Um
+but I I think not. I hope not. Yeah.
+Right. What about the Indian outsourcing
+giants? Think of Infasis, TCS, Vipro.
+What happens there? If I think they're
+just going to use AIS and what happens
+to all the a all the people who are
+there and if AIs are able to replicate,
+they're not going to hire as many people
+going forward. But the use case for a
+American company outsourcing to the
+Indian company to begin with was if one
+were to assume cheaper cost of labor.
+Yeah. And now maybe a agent does what
+the then what happens to these companies
+on the whole?
+Um certainly less like they'll have to
+charge
+less. Um some of it is actually based on
+like relationships. So like I know these
+AIs can do some of these things but I I
+would still trust you guys to do it
+without any bugs or
+errors and
+u you know like until AIs are at a point
+of reliability where you
+just have no arguments not to use them.
+I feel like humans will still trust
+other human businesses to do stuff for
+them, but they'll just push them to
+like, hey, like now that AI can use
+this, why do why do you guys need like
+three months to get it done? Get it done
+faster. Like, why do you guys need to
+charge us this much? Um, charge us
+slower. I think they're going to push
+more on those shorter term trends rather
+than saying, "Hey, I don't I don't think
+we need you guys anymore." Like just
+it's interesting that you say you guys
+now at this point in life, do you view
+yourself as an American or Indian? No. I
+I I don't mean like you guys in the
+infos. I don't mean it in a bad way. I
+don't mean No, no. I think let me be
+clear. I don't mean we live there. Yeah.
+Yeah. So the for the previous statement
+I want to say it was simply between like
+what would the
+uh software
+vendor say to the software provider I
+mean you guys in that sort of way. It
+could mean by the way there are
+companies like Infosys smaller scale
+that do it in America too where like
+literally say somebody wants to move
+from data bricks to snowflake and AIS
+cannot do the code translation a human
+firm is actually doing that for them
+right but as somebody who has never like
+I want to ask you like a favor at the
+end of all this but as somebody who has
+never lived in the
+west if you live there for long enough
+does it become
+Like would one be conflicted in in what
+you associate with?
+I mean you certainly change as a person
+like you're not the same person anymore.
+Obviously you're having a different uh
+outlook towards life and the world in
+general but you are like uh rooting
+obviously for India to succeed and I I
+don't see zero sum game between India
+and America actually
+um American businesses benefit a lot
+from Indian users
+Indian businesses benefit a lot from
+American
+technology and
+um so there's certainly like lot
+positive sum games to be played here.
+And uh so I'm
+actually it's like one of those rare
+uh
+combinations that end up behaving this
+way. Uh not every country in the world
+is like you know super friendly or like
+non-competitive with America. Yeah. And
+India is like pretty lucky to be in this
+position
+with AI changing so many sectors and you
+know it's it's kind of like replotting
+the
+map like our crowd is fully
+entrepreneurship oriented right like
+want to be entrepreneur crowd all of us
+is there a sector that has tailwinds
+amidst all this I'm thinking think
+anything I could start a restaurant I
+could start a steel company. I could
+start a SAS business. I could start a
+t-shirt brand. I I could start anything
+like Yeah. Is there a sector with
+tailwinds
+where I will be served well in
+attempting entrepreneurship in the next
+decade?
+I think there's going to be a lot of
+personalized apps built. Mhm. Like can
+you elaborate? Right.
+Uh right now if you want an app to work
+for you, what you do is you go and file
+like customer support bugs or like you
+comp you you add them on Twitter and
+say, "Hey, this is not good. I want
+this. I want that." Like and what the
+app developer usually does is like they
+have their own road map and they see the
+customer feedback. They look at the
+dominant feedback and then they try to
+prioritize that into their road map. But
+that feels inefficient. And in a world
+where AI can just write any any
+software, I can build my own software.
+Like I I can have my own kind of fitness
+app that'll work for my needs, you know?
+It'll know what I don't like working,
+what I don't like doing, what what kind
+of workouts I like, what how I feel that
+day. And like I can program it to work
+for me. Same thing with health. Same
+thing with like tutoring. like I I can
+have my own personal tutor for any
+topic. Maybe I don't know anything about
+finance and maybe I want to get up to
+speed and like I can tell it precisely
+and and you know I could try that with
+perplexity chat GPT2 but
+then what if it doesn't actually tell it
+in the way I want and I I want to be
+able to build my own app for me. I I
+think that layer is still not taken off
+but it's certainly something that's
+waiting to happen because as you can
+clearly see software creation is getting
+a lot easier. So someone's going to be
+able to be that platform for deploying
+all these things in a secure way and and
+and and then people sharing apps that
+they have built for themselves with
+others and like that's some social layer
+around it too and um I don't think
+anyone's really cracked this and this
+might be a
+huge huge market by itself and and I
+don't know how monetization is going to
+exactly work here. Or is it like micro
+payments where if I use the app, you
+create it, I pay you. I don't know. Um
+or is it going to be more traditional
+like ads where different people are
+advertising to each other? It's it's not
+clear. But what is clear is people are
+going to create a lot of personal stuff
+for them or the group of friends like
+imagine I just
+wanted an app to like split my payments
+with friends, right? Earlier you would
+go and use split wise, but what happened
+before split wise? You would do it all
+manually. Now I can just create a
+splitwise app that's more custom and I I
+don't have to like be like oh split wise
+doesn't have this feature. What if I can
+just directly like you know build like a
+better version of Venmo or like
+something like that right? I think I
+think these are the kind of things that
+I feel even within businesses and
+enterprises like if I want to track the
+vacations people are taking I I someone
+else need to have built a vacation
+tracker SAS app and you know it's not
+needed I can just build it myself. Uh so
+all this stuff is going to change a lot
+and and and we're not yet
+like yet there at this moment because
+there's still bugs there's still things
+to fix. How do you deploy the app? Okay,
+Claude can write the code for you, but
+you have to actually deploy it. You have
+to actually be in charge of the where
+the data is living, all that stuff, but
+someone's going to abstract all these
+details out for you. It's going to feel
+super seamless and and I think that's in
+my opinion, this is this this is the
+thing that will take off very quickly,
+but it's quite not there yet. Can you
+name a couple of apps that as somebody
+who doesn't understand technology too
+much such as me that I have to use to
+get better better at business, better
+more efficient as a
+person? I mean I I would love to say
+perplexity but I use perplexity already.
+Okay.
+Um I think you should definitely give um
+a shot at um cursor. It's like a coding.
+What does cursor do? Cursor is a coding
+assistant. Like you can it helps you
+write
+code with an AI. Even if I know nothing
+about writing code, right? You can just
+go and ask it to say, hey, I want to
+build a website with so and so generate
+the code for me. But if you're like, I
+don't even want to I don't even want to
+like be in charge of deploying it. I
+think there are some there's this thing
+called replet or bolt where you can just
+go and describe an app you want to build
+and the agent will build and deploy it
+for you and I think that's where things
+are heading to bolt um bolt b or replet
+re lit t and uh sure it's not going to
+work perfectly um but I I feel like this
+is where things are headed where I can
+just you don't have to be a software
+engineer anymore to build an app. Mhm.
+And that's you know a little bit of
+coding or a little bit of maths maybe.
+No. No.
+But will I be able to produce an app via
+this method which is as good as somebody
+who is a software engineer? Not today.
+Right. As good as maybe like
+um lower level or like lower tier
+software engineer. Yes. Mhm. are not as
+good as like the the the the good ones
+or the be best ones. So if I were to
+have a kid, I shouldn't send him to a
+engineering college to study coding.
+I think it still helps to be very good
+at infrastructure backend
+uh data centers like uh flo flo flo flo
+flo flo flo flo flo flo flo flo flo flo
+flo flo flo flo flo flo flo
+floatingpoint arithmetic storage all the
+core fundamentals are not going away. In
+fact, like I would say they're very
+essential in a world where AIS are
+taking care of the front end and the UI
+and um all that stuff because you have
+to know where the data lives. You have
+to know like how it is stored. You have
+to know how it's deployed and you have
+to know if a system goes down, how to
+fix it, debug it. Those things are still
+useful. Mhm. And last one or two
+questions. What is the future? If you
+were to like predict the next 5 years,
+do you have You must have thought of
+this. Yeah, I think we'll all have like
+a personal assistant. It's going to feel
+really amazing. Um, it's not going to be
+a luxury thing anymore. Um, it's not
+just a thing billionaires had access to.
+It's going to feel like an iPhone where
+the same phone that that the president
+of the US uses, you're going to be able
+to use too if you it's not and and by
+that I mean it's going to be pretty
+affordable and uh that's going to make
+life a lot easier. Um and and
+um people are going to be able to build
+personalized things for them. Um and um
+that's been a lot more creative
+expression like what whatever you want t
+exists in the world you can make it
+happen. Not not everyone in the world
+earlier used to be able to make
+something happen when they wanted to.
+They would use other people's creations.
+I think that's going to change and
+that's that's going to feel very
+utopian. That's the nice part of it. The
+dystopian part of it is
+uh unfortunately in the short term
+there's going to be a lot of labor
+displacement
+uh not as many people are needed to get
+a work done anymore. Uh and so how
+people upskill themselves and adapt
+uh those who using AIS are definitely
+going to be well
+positioned. Um so all that stuff is
+going to take place and how people react
+to it. It's already like you know not
+you don't need um to build 10,000 people
+companies to be a trillion dollar
+company
+anymore. So definitely where where are
+the next generation of graduates getting
+jobs existing big techs are laying off
+people or like not hiring more. So all
+this stuff is definitely going to impact
+like the market and um it's very
+interesting that simultaneously while
+creating new value and making software
+creation easier and uh we're also
+like displacing existing labor and
+value. So how people deal with all this
+is going to be interesting to watch and
+and u I don't think anyone really knows
+how it'll all play out.
+Will the world be more complicated
+if a lot of this power access and
+determining the path forward
+is the decision making lies upon one two
+geographies like is playing out today.
+I think
+uh the I think the technologies will be
+broadly accessible uh and and the
+secrets are not going to be lying in one
+or two places and open source will
+ensure there's sufficient distillation
+to the rest of the world. I think what
+won't
+be democratized is access to compute
+mainly because it takes a lot of money.
+Mhm. uh and um that really depends on
+which countries choose to invest early
+on and later on in the process. Right? I
+don't I don't know what to ask you. I
+have in my notes that I should ask you
+about regulation and the future of that.
+I don't know how to I've read a fair
+amount about this
+and how a lot of people think that the
+incumbent AI players are are trying to
+use it as a mo almost and capture the
+regulatory thing like do you have any
+view on this like how should regulation
+let's say the government of India is
+listening or watching this show what
+would be the right way for them to
+regulate AI and then B what is the right
+way for America to regulate AI.
+[Music]
+Um I mean I I I think like regulating
+models is not necessarily a great idea.
+Uh and it's not going to work in
+practice either. Uh people are still
+going to be able to download a model and
+use it. Uh I I think the best way is to
+regulate applications like uh personally
+what I feel is pretty
+um concerning at this point is
+probably people using chat bots when
+they're kids and developing like
+relationships with them. um and and like
+feeling suicidal when when they don't
+get to like enjoy the chat bots anymore
+or they don't respond in the way they
+want
+to and
+um kind of like taking your lon
+loneliness out on like an AI
+chatbot all that stuff is pretty I I I
+find it concerning like maybe some
+people don't and they don't care and
+they just think this is not any
+different from how the internet used to
+be But I think it is different. So
+thinking about that application and like
+how do we make sure AI usage by kids is
+done on apps that you know are
+productive and useful and knowledge
+enhancing rather than feeling too
+companionship like is worth thinking
+about.
+Um I don't think like other stuff is
+worth regulating as much today.
+[Applause]
+[Music]
+Um and
+uh we we're kind of still like very
+early in AI
+that moving slows is going to cost us a
+lot long term and lot means like
+hundreds of billions or trillions of
+dollars. So, it's best
+to keep accelerating right now and be
+mindful of like use cases like what I
+described that are clearly like
+dangerous, but more otherwise like be
+pretty open-minded and build stuff and
+see how things play out. And I don't
+have a different answer to America or
+India. I think it's the same answer
+here.
+Will the world get to a point as it gets
+more complicated that we all try and own
+our data a bit more where like let's
+assume a a model today is scraping data
+from across the
+internet will the world go in a
+direction where Indians own Indian data
+maybe like another country owns their
+data and every model has to pay a fee to
+use that data as an input put to train
+their models in the sense will things
+move behind a pay wall or even if they
+don't mind move behind a pay wall will
+there be a
+fee it's possible um I I I think like in
+general the internet has
+been global and fair use so far I don't
+expect it to change
+um I think if there are some tokens that
+are pretty
+valuable and and and then people might
+want some kind of like token payment for
+it. Uh it probably won't be on the
+internet. That's my
+guess. Don't you find like that's
+happening already more of it? Like right
+now I find so much on the internet which
+appears interesting but it's behind a
+pay wall. But the question also will be
+that me as an
+individual if I consume behind a payw
+wall a model which is then in turn going
+to distribute what is behind a payw wall
+should they pay the same fee or should
+they pay different fees? I genuinely
+don't know because like the models are
+definitely like training on the content.
+So
+they're those who are training
+foundation models, they're not just like
+consuming the content once. They're
+actually like distilling it so they
+never have to consume it
+again. So it's a different kind of
+consumption to a human just reading an
+article,
+right? But even when I read an article,
+I consume it once in dist. Yeah. But
+like your memory and the model's memory
+are not comparable,
+right? But I'm not distributing it.
+But kind of like you you might you might
+share the article with someone else like
+say hey did you read this news so you're
+attributing to it or you're going to
+use the wisdom you learn from it in some
+manner. Um I mean in perplexity that's
+why we s we attribute it to a source
+like we we we don't like say it's our
+content and that way we give credit to
+the source and we're not actually
+training on the data but chat GPT is
+different they they actually train on
+all the data right okay last question
+Arvin because I'm feeling so left out in
+all of
+this do you think it might be possible
+for me to come be an intern, work for
+maybe 3 months at Perplexity free of
+charge. Well, you're uh way more
+accomplished for doing that. But uh No,
+but I'd love to like this is genuine.
+Like I feel like I'd love to come live
+there for a couple of months, learn some
+stuff, and come back cuz I do feel like
+I'm not learning enough right now. I
+mean, we'd be very honored to have you.
+And um I think um I'm not joking. No,
+I'm just going to like be there in the
+next 30 days maybe. Sure. Every day.
+Would love to host you. Uh I guess I'd
+just
+say I I I love the spirit of how you're
+like uh having this learner mindset. I
+think it's very inspiring and
+refreshing. So I don't think there's a
+lot you're missing out on. The internet
+has pretty much everything out there.
+Uh, and the world is like running super
+fast that like physical access matters
+way less anymore. I think it's more the
+amount of time you get to spend yourself
+with an AI model using these apps,
+understanding where they fail and uh
+talking to the best people.
+But interestingly, like X has all of
+them literally talking all the time real
+time. It's uh pretty nuts. So uh so it's
+not so much as learning
+from the model but being around people
+who who know what they're learning or
+who are learning what should be learned.
+Yeah, definitely it'll be inspire like
+like very refreshing to spend time and
+and and get a sense of the feel.
+Super. But thank you for doing this and
+thank you. Uh you're going to be in
+India soon. So if I'm not there I'm
+going to host you when you're here in
+India. Yep.
+Done.
