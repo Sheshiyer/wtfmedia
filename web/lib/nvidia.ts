@@ -40,7 +40,7 @@ export type ChatMessage = { role: "system" | "user" | "assistant"; content: stri
 // Returns a streaming Response body (SSE) from NVIDIA — we re-stream plain text.
 export async function chatStream(
   messages: ChatMessage[],
-  opts: { temperature?: number; maxTokens?: number } = {}
+  opts: { temperature?: number; maxTokens?: number; model?: string } = {}
 ): Promise<ReadableStream<Uint8Array>> {
   const res = await fetch(`${BASE}/chat/completions`, {
     method: "POST",
@@ -49,7 +49,7 @@ export async function chatStream(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: CHAT_MODEL,
+      model: opts.model || CHAT_MODEL,
       messages,
       temperature: opts.temperature ?? 0.3,
       max_tokens: opts.maxTokens ?? 1024,

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { embedQuery, chatStream, type ChatMessage } from "@/lib/nvidia";
 import { search } from "@/lib/vectors";
+import { DEFAULT_MODEL, isValidModel } from "@/lib/models";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -14,13 +15,15 @@ Rules:
 - Do not invent episodes, guests, or quotes.`;
 
 export async function POST(req: NextRequest) {
-  let body: { messages?: ChatMessage[] };
+  let body: { messages?: ChatMessage[]; model?: string };
   try {
     body = await req.json();
   } catch {
     return new Response("bad json", { status: 400 });
   }
   const messages = body.messages || [];
+  // validate model against allowlist (never pass arbitrary client input to the API)
+  const model = body.model && isValidModel(body.model) ? body.model : DEFAULT_MODEL;
   const last = [...messages].reverse().find((m) => m.role === "user");
   if (!last) return new Response("no user message", { status: 400 });
 
@@ -74,10 +77,10 @@ export async function POST(req: NextRequest) {
     },
   ];
 
-  // 2) CHAT model — generation
+  // 2) CHAT model — generation (model chosen in the picker)
   let stream: ReadableStream<Uint8Array>;
   try {
-    stream = await chatStream(chatMessages, { temperature: 0.3, maxTokens: 900 });
+    stream = await chatStream(chatMessages, { temperature: 0.3, maxTokens: 900, model });
   } catch (e) {
     return new Response(`chat error: ${(e as Error).message}`, { status: 500 });
   }
@@ -86,6 +89,7 @@ export async function POST(req: NextRequest) {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       "X-Sources": encodeURIComponent(sourcesHeader),
+      "X-Model": model,
       "Cache-Control": "no-store",
     },
   });

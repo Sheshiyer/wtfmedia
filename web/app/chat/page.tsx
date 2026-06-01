@@ -6,6 +6,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Wordmark } from "@/components/Wordmark";
 import { Sparkle } from "@/components/Sparkle";
+import { ModelPicker } from "@/components/ModelPicker";
+import { DEFAULT_MODEL, MODELS } from "@/lib/models";
 
 type Source = {
   n: number;
@@ -16,7 +18,12 @@ type Source = {
   time?: string;
   url: string;
 };
-type Msg = { role: "user" | "assistant"; content: string; sources?: Source[] };
+type Msg = {
+  role: "user" | "assistant";
+  content: string;
+  sources?: Source[];
+  model?: string;
+};
 
 const SUGGESTIONS = [
   "What does Sam Altman say about winning when AI changes everything?",
@@ -25,7 +32,9 @@ const SUGGESTIONS = [
   "Summarize the boldest predictions across the catalogue.",
 ];
 
-// Turn [1]/[2] into markdown links to the matching source.
+const modelLabel = (id?: string) =>
+  MODELS.find((m) => m.id === id)?.label || id || "";
+
 function linkifyCitations(content: string, sources?: Source[]): string {
   if (!sources || !sources.length) return content;
   return content.replace(/\[(\d{1,2})\]/g, (m, d) => {
@@ -40,21 +49,20 @@ function ChatInner() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [model, setModel] = useState(DEFAULT_MODEL);
   const scrollRef = useRef<HTMLDivElement>(null);
   const sentInitial = useRef(false);
 
-  const send = async (text: string) => {
-    const q = text.trim();
-    if (!q || loading) return;
-    const history = [...messages, { role: "user" as const, content: q }];
-    setMessages([...history, { role: "assistant", content: "" }]);
-    setInput("");
+  // core: take a history ending in a user turn, stream an assistant reply
+  const run = async (history: Msg[], useModel: string) => {
+    setMessages([...history, { role: "assistant", content: "", model: useModel }]);
     setLoading(true);
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          model: useModel,
           messages: history.map((m) => ({ role: m.role, content: m.content })),
         }),
       });
@@ -62,7 +70,7 @@ function ChatInner() {
         const err = await res.text();
         setMessages((m) => {
           const c = [...m];
-          c[c.length - 1] = { role: "assistant", content: `⚠️ ${err || "request failed"}` };
+          c[c.length - 1] = { role: "assistant", content: `⚠️ ${err || "request failed"}`, model: useModel };
           return c;
         });
         setLoading(false);
@@ -75,6 +83,7 @@ function ChatInner() {
           sources = JSON.parse(decodeURIComponent(hdr));
         } catch {}
       }
+      const usedModel = res.headers.get("X-Model") || useModel;
       const reader = res.body.getReader();
       const dec = new TextDecoder();
       let acc = "";
@@ -84,7 +93,7 @@ function ChatInner() {
         acc += dec.decode(value, { stream: true });
         setMessages((m) => {
           const c = [...m];
-          c[c.length - 1] = { role: "assistant", content: acc, sources };
+          c[c.length - 1] = { role: "assistant", content: acc, sources, model: usedModel };
           return c;
         });
         scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
@@ -92,7 +101,7 @@ function ChatInner() {
     } catch (e) {
       setMessages((m) => {
         const c = [...m];
-        c[c.length - 1] = { role: "assistant", content: `⚠️ ${(e as Error).message}` };
+        c[c.length - 1] = { role: "assistant", content: `⚠️ ${(e as Error).message}`, model: useModel };
         return c;
       });
     } finally {
@@ -100,22 +109,44 @@ function ChatInner() {
     }
   };
 
-  // auto-ask from ?q= (used by the episode drawer)
+  const send = (text: string) => {
+    const q = text.trim();
+    if (!q || loading) return;
+    setInput("");
+    run([...messages, { role: "user", content: q }], model);
+  };
+
+  // re-answer the last question with the currently-selected model
+  const retry = () => {
+    if (loading) return;
+    let lastUser = -1;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].role === "user") {
+        lastUser = i;
+        break;
+      }
+    }
+    if (lastUser === -1) return;
+    run(messages.slice(0, lastUser + 1), model);
+  };
+
   useEffect(() => {
     const q = params.get("q");
     if (q && !sentInitial.current) {
       sentInitial.current = true;
-      send(q);
+      run([{ role: "user", content: q }], model);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
   const empty = messages.length === 0;
+  const lastIsAssistant =
+    messages.length > 0 && messages[messages.length - 1].role === "assistant";
 
   return (
     <div className="halftone min-h-[calc(100vh-64px)]">
       <div className="max-w-4xl mx-auto px-5 py-8 flex flex-col h-[calc(100vh-64px)]">
-        <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-start justify-between gap-3 mb-4">
           <div>
             <h1 className="display text-3xl flex items-center gap-2">
               ask <span className="text-wtf-red">wtf</span> anything
@@ -124,14 +155,13 @@ function ChatInner() {
             <p className="text-xs text-ink/55 mt-1">
               retrieval{" "}
               <code className="bg-white border border-ink/20 px-1 rounded">nv-embedqa-e5-v5</code>{" "}
-              · answers{" "}
-              <code className="bg-white border border-ink/20 px-1 rounded">llama-3.3-70b</code>{" "}
-              · NVIDIA NIM
+              · 1,422 chunks · answer model:
             </p>
           </div>
-          <span className="chip bg-wtf-green text-cream hidden sm:inline">
-            1,422 chunks live
-          </span>
+          <div className="flex flex-col items-end gap-1.5">
+            <ModelPicker value={model} onChange={setModel} />
+            <span className="text-[10px] text-ink/40">ranked: context · speed · media</span>
+          </div>
         </div>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto card-flat bg-cream p-5 space-y-5">
@@ -174,13 +204,7 @@ function ChatInner() {
                       remarkPlugins={[remarkGfm]}
                       components={{
                         a: ({ href, children }) => (
-                          <a
-                            href={href}
-                            target="_blank"
-                            rel="noreferrer"
-                            data-cursor="watch"
-                            className="cite"
-                          >
+                          <a href={href} target="_blank" rel="noreferrer" data-cursor="watch" className="cite">
                             {children}
                           </a>
                         ),
@@ -215,17 +239,39 @@ function ChatInner() {
                     ))}
                   </div>
                 )}
+
+                {m.role === "assistant" && m.model && m.content && (
+                  <div className="mt-2 text-[10px] text-ink/40">
+                    answered by {modelLabel(m.model)}
+                  </div>
+                )}
               </div>
             </div>
           ))}
         </div>
+
+        {/* retry bar */}
+        {lastIsAssistant && !loading && (
+          <div className="mt-3 flex items-center gap-2">
+            <button
+              onClick={retry}
+              data-cursor="retry"
+              className="pill px-4 py-2 bg-white text-xs hover:bg-ink hover:text-cream inline-flex items-center gap-1.5"
+            >
+              ↻ Retry with {modelLabel(model)}
+            </button>
+            <span className="text-[11px] text-ink/45">
+              switch the model above, then retry to compare answers
+            </span>
+          </div>
+        )}
 
         <form
           onSubmit={(e) => {
             e.preventDefault();
             send(input);
           }}
-          className="mt-4 flex gap-2"
+          className="mt-3 flex gap-2"
         >
           <input
             value={input}
