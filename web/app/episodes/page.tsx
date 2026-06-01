@@ -11,13 +11,12 @@ export default function EpisodesPage() {
       <div className="max-w-7xl mx-auto px-5 py-12">
         <div className="flex items-end justify-between flex-wrap gap-3 mb-10">
           <div>
-            <div className="eyebrow text-ink/55 mb-1">production library</div>
             <h1 className="display text-5xl sm:text-6xl flex items-center gap-3">
-              episodes <Sparkle size={28} className="animate-twinkle" />
+              every episode <Sparkle size={28} className="animate-twinkle" />
             </h1>
-            <p className="text-ink/65 mt-2">
-              {data.entry_count} episodes · {groups.length} shows · every word
-              indexed for Ask WTF.
+            <p className="serif text-xl text-ink/70 mt-3 max-w-[44ch]">
+              {data.entry_count} conversations, {groups.length} shows, every word
+              read into Ask WTF. Open one to jump straight to a moment.
             </p>
           </div>
           <a

@@ -77,16 +77,21 @@ export default function Home() {
               <span className="w-2.5 h-2.5 rounded-full bg-wtf-green" />
               <span className="eyebrow text-wtf-green">live</span>
             </div>
-            <h2 className="display text-4xl sm:text-5xl mb-4">ask wtf anything</h2>
+            <h2 className="display text-4xl sm:text-5xl mb-4">find the connections</h2>
             <p className="text-ink/70 max-w-[52ch] mb-5">
-              Type a question. It reads across every transcript, answers in
-              plain language, and shows its work: each claim links back to the
-              moment in the episode it came from. Switch the answer model and
-              retry to compare. No scrubbing, no guessing.
+              The curation desk for the catalogue. Surface what recurs, what
+              connects, and where shows overlap: topics, people and companies
+              that cross 20+ episodes become nodes. Ask how any two threads
+              relate and get the answer cited to the moment.
             </p>
-            <Link href="/chat" data-cursor="ask!" className="pill px-6 py-2.5 bg-wtf-yellow text-ink border-ink inline-flex items-center gap-2">
-              <Sparkle size={15} color="#fff" /> Open Ask WTF
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/connections" data-cursor="open" className="pill px-6 py-2.5 bg-wtf-yellow text-ink border-ink inline-flex items-center gap-2">
+                <Sparkle size={15} color="#fff" /> See connections
+              </Link>
+              <Link href="/chat" data-cursor="ask!" className="pill px-6 py-2.5 bg-cream text-ink hover:bg-ink hover:text-cream">
+                Ask WTF
+              </Link>
+            </div>
           </div>
           <Link href="/chat" data-cursor="open" className="order-1 lg:order-2 card overflow-hidden">
             <Image

@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -18,18 +19,25 @@ type Source = {
   time?: string;
   url: string;
 };
+type Step = { role: string; summary?: string };
+type Mode = "fast" | "crew";
 type Msg = {
   role: "user" | "assistant";
   content: string;
   sources?: Source[];
   model?: string;
+  steps?: Step[];
+  mode?: Mode;
+  pending?: boolean; // crew is thinking (blocking)
 };
 
+const CREW_STEPS = ["Query Planner", "Catalogue Researcher", "Answer Synthesizer"];
+
 const SUGGESTIONS = [
-  "What does Sam Altman say about winning when AI changes everything?",
-  "How do these founders think about raising capital in India?",
-  "What did guests say about longevity and health?",
-  "Summarize the boldest predictions across the catalogue.",
+  "Which topics connect the most episodes across the catalogue?",
+  "Where do AI and India overlap, and in which conversations?",
+  "What links the Sam Altman and Dario Amodei episodes?",
+  "Which companies or people recur across 20+ episodes?",
 ];
 
 const modelLabel = (id?: string) =>
@@ -44,18 +52,53 @@ function linkifyCitations(content: string, sources?: Source[]): string {
   });
 }
 
+function CrewThinking() {
+  return (
+    <div className="space-y-2.5 py-1">
+      <div className="flex items-center gap-2 text-sm">
+        <span className="relative flex h-3 w-3">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-wtf-purple opacity-70" />
+          <span className="relative inline-flex h-3 w-3 rounded-full bg-wtf-purple" />
+        </span>
+        <span className="font-semibold">the crew is working…</span>
+      </div>
+      <ol className="text-xs text-ink/65 space-y-1.5">
+        {CREW_STEPS.map((s, i) => (
+          <li key={s} className="flex items-center gap-2">
+            <span className="w-5 h-5 rounded-full border-2 border-ink flex items-center justify-center text-[10px] font-semibold">
+              {i + 1}
+            </span>
+            {s}
+          </li>
+        ))}
+      </ol>
+      <p className="text-[11px] text-ink/40">
+        agentic retrieval on NVIDIA NIM · this takes ~30-60s
+      </p>
+    </div>
+  );
+}
+
 function ChatInner() {
   const params = useSearchParams();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [model, setModel] = useState(DEFAULT_MODEL);
+  const [mode, setMode] = useState<Mode>("fast");
   const scrollRef = useRef<HTMLDivElement>(null);
   const sentInitial = useRef(false);
 
-  // core: take a history ending in a user turn, stream an assistant reply
-  const run = async (history: Msg[], useModel: string) => {
-    setMessages([...history, { role: "assistant", content: "", model: useModel }]);
+  const setLast = (msg: Msg) =>
+    setMessages((m) => {
+      const c = [...m];
+      c[c.length - 1] = msg;
+      return c;
+    });
+
+  // FAST: stream a single-shot RAG answer (TS route)
+  const runFast = async (history: Msg[], useModel: string) => {
+    setMessages([...history, { role: "assistant", content: "", model: useModel, mode: "fast" }]);
     setLoading(true);
     try {
       const res = await fetch("/api/chat", {
@@ -67,22 +110,12 @@ function ChatInner() {
         }),
       });
       if (!res.ok || !res.body) {
-        const err = await res.text();
-        setMessages((m) => {
-          const c = [...m];
-          c[c.length - 1] = { role: "assistant", content: `⚠️ ${err || "request failed"}`, model: useModel };
-          return c;
-        });
-        setLoading(false);
+        setLast({ role: "assistant", content: `⚠️ ${(await res.text()) || "request failed"}`, model: useModel, mode: "fast" });
         return;
       }
       let sources: Source[] = [];
       const hdr = res.headers.get("X-Sources");
-      if (hdr) {
-        try {
-          sources = JSON.parse(decodeURIComponent(hdr));
-        } catch {}
-      }
+      if (hdr) try { sources = JSON.parse(decodeURIComponent(hdr)); } catch {}
       const usedModel = res.headers.get("X-Model") || useModel;
       const reader = res.body.getReader();
       const dec = new TextDecoder();
@@ -91,50 +124,79 @@ function ChatInner() {
         const { done, value } = await reader.read();
         if (done) break;
         acc += dec.decode(value, { stream: true });
-        setMessages((m) => {
-          const c = [...m];
-          c[c.length - 1] = { role: "assistant", content: acc, sources, model: usedModel };
-          return c;
-        });
+        setLast({ role: "assistant", content: acc, sources, model: usedModel, mode: "fast" });
         scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
       }
     } catch (e) {
-      setMessages((m) => {
-        const c = [...m];
-        c[c.length - 1] = { role: "assistant", content: `⚠️ ${(e as Error).message}`, model: useModel };
-        return c;
-      });
+      setLast({ role: "assistant", content: `⚠️ ${(e as Error).message}`, model: useModel, mode: "fast" });
     } finally {
       setLoading(false);
     }
   };
 
+  // CREW: blocking call to the CrewAI + NeMo Agent Toolkit service
+  const runCrew = async (history: Msg[], useModel: string) => {
+    setMessages([...history, { role: "assistant", content: "", model: useModel, mode: "crew", pending: true }]);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/crew", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: useModel,
+          messages: history.map((m) => ({ role: m.role, content: m.content })),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setLast({ role: "assistant", content: `⚠️ ${data.error || "crew failed"}`, model: useModel, mode: "crew" });
+        return;
+      }
+      const sources: Source[] = (data.sources || []).map((s: { n: number; video_id: string; title: string; score: number; start?: number; time?: string; url: string }) => ({
+        n: s.n, video_id: s.video_id, title: s.title, score: s.score,
+        t: s.start ?? null, time: s.time, url: s.url,
+      }));
+      setLast({
+        role: "assistant",
+        content: data.answer || "(no answer)",
+        sources,
+        steps: data.steps || [],
+        model: data.model || useModel,
+        mode: "crew",
+      });
+    } catch (e) {
+      setLast({ role: "assistant", content: `⚠️ ${(e as Error).message}`, model: useModel, mode: "crew" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const run = (history: Msg[], useModel: string, useMode: Mode) =>
+    useMode === "crew" ? runCrew(history, useModel) : runFast(history, useModel);
+
   const send = (text: string) => {
     const q = text.trim();
     if (!q || loading) return;
     setInput("");
-    run([...messages, { role: "user", content: q }], model);
+    run([...messages, { role: "user", content: q }], model, mode);
   };
 
-  // re-answer the last question with the currently-selected model
+  // re-answer the last question with the current model + mode
   const retry = () => {
     if (loading) return;
     let lastUser = -1;
     for (let i = messages.length - 1; i >= 0; i--) {
-      if (messages[i].role === "user") {
-        lastUser = i;
-        break;
-      }
+      if (messages[i].role === "user") { lastUser = i; break; }
     }
     if (lastUser === -1) return;
-    run(messages.slice(0, lastUser + 1), model);
+    run(messages.slice(0, lastUser + 1), model, mode);
   };
 
   useEffect(() => {
     const q = params.get("q");
     if (q && !sentInitial.current) {
       sentInitial.current = true;
-      run([{ role: "user", content: q }], model);
+      run([{ role: "user", content: q }], model, mode);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
@@ -159,8 +221,34 @@ function ChatInner() {
             </p>
           </div>
           <div className="flex flex-col items-end gap-1.5">
-            <ModelPicker value={model} onChange={setModel} />
-            <span className="text-[10px] text-ink/40">ranked: context · speed · media</span>
+            <div className="flex items-center gap-2">
+              <div className="flex rounded-full border-2 border-ink overflow-hidden text-xs">
+                <button
+                  onClick={() => setMode("fast")}
+                  data-cursor="fast"
+                  className={`px-3 py-1.5 font-semibold transition-colors ${
+                    mode === "fast" ? "bg-ink text-cream" : "bg-white hover:bg-cream"
+                  }`}
+                >
+                  ⚡ Fast
+                </button>
+                <button
+                  onClick={() => setMode("crew")}
+                  data-cursor="crew"
+                  className={`px-3 py-1.5 font-semibold border-l-2 border-ink transition-colors ${
+                    mode === "crew" ? "bg-wtf-purple text-cream" : "bg-white hover:bg-cream"
+                  }`}
+                >
+                  🧠 Crew
+                </button>
+              </div>
+              <ModelPicker value={model} onChange={setModel} />
+            </div>
+            <span className="text-[10px] text-ink/40">
+              {mode === "crew"
+                ? "agentic · CrewAI + NeMo Agent Toolkit · slower, grounded"
+                : "single-shot RAG · fast · ranked by context · speed · media"}
+            </span>
           </div>
         </div>
 
@@ -168,10 +256,18 @@ function ChatInner() {
           {empty && (
             <div className="h-full flex flex-col items-center justify-center text-center gap-6">
               <Wordmark size="text-5xl sm:text-6xl" />
-              <p className="serif text-xl text-ink/70 max-w-md">
-                Every WTF conversation, searchable and cited. Ask across 53
-                episodes and get answers grounded in what guests actually said.
+              <p className="serif text-xl text-ink/70 max-w-lg">
+                The curation desk for the catalogue. Find what recurs, what
+                connects, and where shows overlap across 53 conversations, every
+                answer cited to the moment it was said.
               </p>
+              <Link
+                href="/connections"
+                data-cursor="open"
+                className="pill px-5 py-2 bg-white text-sm hover:bg-ink hover:text-cream inline-flex items-center gap-1.5"
+              >
+                See the connection map →
+              </Link>
               <div className="grid sm:grid-cols-2 gap-3 w-full max-w-2xl">
                 {SUGGESTIONS.map((s) => (
                   <button
@@ -213,6 +309,8 @@ function ChatInner() {
                       {linkifyCitations(m.content, m.sources)}
                     </ReactMarkdown>
                   </div>
+                ) : m.mode === "crew" && m.pending ? (
+                  <CrewThinking />
                 ) : (
                   <p className="text-sm">{loading && i === messages.length - 1 ? "▍" : ""}</p>
                 )}
@@ -240,9 +338,27 @@ function ChatInner() {
                   </div>
                 )}
 
+                {m.role === "assistant" && m.mode === "crew" && m.steps && m.steps.length > 0 && (
+                  <div className="mt-3 pt-3 border-t-2 border-ink/10">
+                    <div className="text-[10px] text-wtf-purple font-semibold uppercase tracking-wider mb-1.5">
+                      how the crew answered
+                    </div>
+                    <ol className="space-y-1">
+                      {m.steps.map((s, si) => (
+                        <li key={si} className="flex items-start gap-2 text-[11px] text-ink/60">
+                          <span className="w-4 h-4 shrink-0 rounded-full bg-wtf-purple/15 text-wtf-purple flex items-center justify-center text-[9px] font-bold">
+                            {si + 1}
+                          </span>
+                          <span><b className="text-ink/75">{s.role}</b>{s.summary ? ` · ${s.summary}` : ""}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+
                 {m.role === "assistant" && m.model && m.content && (
                   <div className="mt-2 text-[10px] text-ink/40">
-                    answered by {modelLabel(m.model)}
+                    answered by {m.mode === "crew" ? "Crew · " : ""}{modelLabel(m.model)}
                   </div>
                 )}
               </div>

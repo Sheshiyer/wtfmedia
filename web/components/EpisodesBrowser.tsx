@@ -30,8 +30,8 @@ export function EpisodesBrowser({
           <div className="flex items-center gap-3 mb-4">
             <span className={`chip ${swatch[gi % swatch.length]}`}>{show}</span>
             <span className="text-xs text-ink/45">{eps.length} episodes</span>
-            <span className="eyebrow text-ink/35 ml-auto hidden sm:block">
-              drag →
+            <span className="ml-auto hidden sm:block text-xs text-ink/30 italic">
+              drag to explore →
             </span>
           </div>
 

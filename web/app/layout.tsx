@@ -33,6 +33,7 @@ export const metadata: Metadata = {
 const nav = [
   { href: "/", label: "Control Room" },
   { href: "/episodes", label: "Episodes" },
+  { href: "/connections", label: "Connections" },
   { href: "/chat", label: "Ask WTF" },
 ];
 

@@ -35,28 +35,28 @@
 <tr>
 <td width="50%" valign="top">
 
-### 💬 Ask WTF
-RAG over 53 episodes. Streamed answers grounded in real transcripts, with citations that jump to `youtube?t=` the exact moment.
+### 🕸️ Connections
+The curation engine: topics, people and companies that appear in 20+ of 53 episodes become nodes. Surfaces cross-episode connections and category overlaps, and keeps finding new nodes as the catalogue grows.
 
 </td>
 <td width="50%" valign="top">
 
-### 🧠 Two NVIDIA NIM models
-`nv-embedqa-e5-v5` for retrieval inference, `llama-3.3-70b-instruct` for generation. Key stays server-side.
+### 💬 Ask WTF (two modes)
+**Fast:** single-shot RAG, cited and timestamped to `youtube?t=`. **Crew:** an agentic CrewAI team (Planner → Retriever → Synthesizer) instrumented by the NVIDIA NeMo Agent Toolkit.
 
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
 
-### 🎬 Production library
-53 episodes across 4 shows — drag carousels, real thumbnails, and a click-to-jump timestamped transcript drawer.
+### 🧠 NVIDIA NIM throughout
+`nv-embedqa-e5-v5` retrieval, a ranked picker of chat models (`llama-3.3-70b` default), the connections labeller, and the crew, all on NIM. Key stays server-side.
 
 </td>
 <td width="50%" valign="top">
 
-### 🎛️ One control room
-14 operating modules (research → contracts → payments → publishing) under a single brand-true, playground UI.
+### 🎬 Production library
+53 episodes across 4 shows — drag carousels, real thumbnails, and a click-to-jump timestamped transcript drawer.
 
 </td>
 </tr>
@@ -121,7 +121,12 @@ The embeddings are packed as base64 Float32 in `web/src/data/vectors.json` and l
 │   ├── 📄 yt_channel_extract.py   # channel/playlist → episodes.json + urls.txt
 │   ├── 📄 yt_transcripts_fetch.py # transcripts via youtube_transcript_api (+yt-dlp fallback)
 │   ├── 📄 build_timestamped.py    # chunk + embed (NVIDIA NIM) → timestamped vectors.json
+│   ├── 📄 build_connections.py    # cross-podcast curation graph (nodes/edges/overlaps)
 │   └── 📄 build_embeddings.py     # (legacy, non-timestamped build)
+├── 📂 agent/                      # Ask WTF Crew (CrewAI + NeMo Agent Toolkit, FastAPI)
+│   ├── 📄 crew.py                 # Planner → Retriever → Synthesizer on NVIDIA NIM
+│   ├── 📄 retriever.py            # cosine retrieval over the shared timestamped index
+│   └── 📄 server.py               # POST /ask → grounded, cited answer + agent steps
 ├── 📂 web/                        # Next.js 15 app (App Router)
 │   ├── 📂 app/
 │   │   ├── 📂 api/chat/           # RAG endpoint: embed → retrieve → stream

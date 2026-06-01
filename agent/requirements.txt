@@ -1,0 +1,6 @@
+crewai>=0.86,<1.0
+fastapi>=0.115
+uvicorn[standard]>=0.30
+# Optional: NeMo Agent Toolkit for tracing/eval/profiling around the crew.
+# Installed best-effort; the crew runs with or without it.
+# nemo-agent-toolkit
