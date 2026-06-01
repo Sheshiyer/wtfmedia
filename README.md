@@ -5,7 +5,7 @@
 
 # wtfmedia
 
-**The internal control room for a podcast-first company built to reach a billion Indians.**
+**The WTF catalogue, made askable. Every conversation, cited to the second.**
 
 </div>
 <!-- readme-gen:end:hero -->
@@ -162,7 +162,9 @@ Internal / proprietary — © 2026 wtfmedia. Brand cues referenced from [allthin
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=1A1A1A&height=2" width="100%" />
 
-**Good content. Clearer insights. Better decisions.**
+**Stop scrubbing. Start asking.**
+
+Built by [spaceblanket.ai](https://spaceblanket.ai)
 
 </div>
 <!-- readme-gen:end:footer -->

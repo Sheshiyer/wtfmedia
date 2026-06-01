@@ -2,7 +2,7 @@ import { data, groupByPlaylist } from "@/lib/episodes";
 import { EpisodesBrowser } from "@/components/EpisodesBrowser";
 import { Sparkle } from "@/components/Sparkle";
 
-export const metadata = { title: "Episodes — wtfmedia" };
+export const metadata = { title: "Episodes · wtfmedia" };
 
 export default function EpisodesPage() {
   const groups = groupByPlaylist(data.entries);

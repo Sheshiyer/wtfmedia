@@ -11,13 +11,13 @@ export const metadata: Metadata = {
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000"
   ),
-  title: "wtfmedia — control room for the cultural engine",
+  title: "wtfmedia · the catalogue, with a memory",
   description:
-    "The internal operating system for a podcast-first company built to reach a billion Indians. Research, production, publishing — one control room.",
+    "The internal media workspace for the WTF catalogue. Ask anything across 53 conversations and get answers in the guest's own words, cited to the second.",
   openGraph: {
-    title: "wtfmedia — control room for the cultural engine",
+    title: "wtfmedia · the catalogue, with a memory",
     description:
-      "Ask the WTF catalogue anything — cited, timestamped answers across 53 episodes. Powered by NVIDIA NIM.",
+      "Ask the WTF catalogue anything. Cited, timestamped answers across 53 episodes. Built by spaceblanket.ai.",
     images: ["/brand/og-image.png"],
     type: "website",
   },
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "wtfmedia",
     description:
-      "Ask the WTF catalogue anything — cited, timestamped, NVIDIA NIM.",
+      "Ask the WTF catalogue anything. Cited, timestamped. Built by spaceblanket.ai.",
     images: ["/brand/og-image.png"],
   },
 };
@@ -77,9 +77,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <span style={{ color: "#FFF6EA" }}>media</span>
               </span>
               <p className="text-cream/60 text-sm mt-3 max-w-xs">
-                The control room for a podcast-first company built to reach a
-                billion Indians.
+                The WTF catalogue, made askable. Every conversation, cited to
+                the second.
               </p>
+              <a
+                href="https://spaceblanket.ai"
+                target="_blank"
+                rel="noreferrer"
+                data-cursor="↗"
+                className="inline-flex items-center gap-1.5 mt-4 text-sm text-cream/70 hover:text-wtf-yellow transition-colors"
+              >
+                built by <span className="font-semibold text-cream">spaceblanket.ai</span> ↗
+              </a>
             </div>
             <div className="text-sm">
               <p className="eyebrow text-cream/50 mb-2">System</p>

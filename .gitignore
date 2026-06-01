@@ -9,8 +9,9 @@ node_modules/
 .next/
 out/
 
-# internal planning — never publish
+# internal planning / context — never publish
 PRD.md
+PRODUCT.md
 
 # vercel + env + os
 .vercel/
