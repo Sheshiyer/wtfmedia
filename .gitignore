@@ -1,8 +1,10 @@
-# python / data
-data/
+# python / data (root extraction dir only — NOT web/src/data, which the app needs)
+/data/
 __pycache__/
 *.pyc
 .venv/
+.themes_cache/
+web/src/data/connections.entities.json
 
 # node / next (web app has its own .gitignore too)
 node_modules/

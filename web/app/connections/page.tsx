@@ -7,10 +7,16 @@ import {
   type CNode,
 } from "@/lib/connections";
 import { Sparkle } from "@/components/Sparkle";
+import { ConnectionGraph } from "@/components/ConnectionGraph";
 
 export const metadata = { title: "Connections · wtfmedia" };
 
 const maxEps = C.established[0]?.episodeCount || C.totalEpisodes;
+
+// nodes for the graph: established + emerging, capped for legibility
+const graphNodes = [...C.established, ...C.emerging].slice(0, 40);
+const graphIds = new Set(graphNodes.map((n) => n.id));
+const graphEdges = C.edges.filter((e) => graphIds.has(e.a) && graphIds.has(e.b));
 
 function NodeRow({ n }: { n: CNode }) {
   return (
@@ -58,11 +64,16 @@ export default function ConnectionsPage() {
           connections <Sparkle size={28} className="animate-twinkle" />
         </h1>
         <p className="serif text-xl text-ink/70 mt-3 max-w-[58ch]">
-          What recurs across the catalogue. A node is a topic, person, company or
-          place that shows up in {C.threshold}+ of {C.totalEpisodes} episodes. As
-          the catalogue grows, new nodes cross the line and the graph keeps
-          building.
+          The ideas that recur across the catalogue. A node is a theme, an idea
+          or tension the conversations keep circling, surfacing in {C.threshold}+
+          of {C.totalEpisodes} episodes. As the catalogue grows, new themes cross
+          the line and the graph keeps building.
         </p>
+
+        {/* interactive graph */}
+        <section className="mt-10">
+          <ConnectionGraph nodes={graphNodes} edges={graphEdges} titles={C.titles} />
+        </section>
 
         {/* category overlaps */}
         <section className="mt-12">
