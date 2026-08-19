@@ -151,29 +151,92 @@ permissions, components, and phase boundaries are governed by `DESIGN.md`,
 
 ## Traceability
 
-Roadmap traceability is populated after requirement approval. Every v1.0
-requirement must map to exactly one phase; each roadmap phase must cite its
-covered IDs and observable success criteria.
+Every approved v1.0 requirement maps to exactly one roadmap phase. Cross-phase
+compatibility and quality exit gates persist after their owning phase, but
+that persistence does not duplicate requirement ownership.
 
-| Requirement family | Requirement count | Roadmap status |
-|---|---:|---|
-| COMP | 6 | Pending |
-| DSYS | 10 | Pending |
-| AUTH | 8 | Pending |
-| PROV | 9 | Pending |
-| KNOW | 6 | Pending |
-| FLOW | 7 | Pending |
-| ANLY | 5 | Pending |
-| PEOP | 5 | Pending |
-| INTG | 6 | Pending |
-| QUAL | 8 | Pending |
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| COMP-01 | Phase 1 | Pending |
+| COMP-02 | Phase 1 | Pending |
+| COMP-03 | Phase 1 | Pending |
+| COMP-04 | Phase 1 | Pending |
+| COMP-05 | Phase 1 | Pending |
+| COMP-06 | Phase 8 | Pending |
+| DSYS-01 | Phase 1 | Pending |
+| DSYS-02 | Phase 1 | Pending |
+| DSYS-03 | Phase 1 | Pending |
+| DSYS-04 | Phase 1 | Pending |
+| DSYS-05 | Phase 1 | Pending |
+| DSYS-06 | Phase 1 | Pending |
+| DSYS-07 | Phase 1 | Pending |
+| DSYS-08 | Phase 1 | Pending |
+| DSYS-09 | Phase 1 | Pending |
+| DSYS-10 | Phase 1 | Pending |
+| AUTH-01 | Phase 2 | Pending |
+| AUTH-02 | Phase 2 | Pending |
+| AUTH-03 | Phase 2 | Pending |
+| AUTH-04 | Phase 2 | Pending |
+| AUTH-05 | Phase 2 | Pending |
+| AUTH-06 | Phase 2 | Pending |
+| AUTH-07 | Phase 2 | Pending |
+| AUTH-08 | Phase 2 | Pending |
+| PROV-01 | Phase 3 | Pending |
+| PROV-02 | Phase 3 | Pending |
+| PROV-03 | Phase 3 | Pending |
+| PROV-04 | Phase 3 | Pending |
+| PROV-05 | Phase 3 | Pending |
+| PROV-06 | Phase 3 | Pending |
+| PROV-07 | Phase 3 | Pending |
+| PROV-08 | Phase 3 | Pending |
+| PROV-09 | Phase 3 | Pending |
+| KNOW-01 | Phase 4 | Pending |
+| KNOW-02 | Phase 4 | Pending |
+| KNOW-03 | Phase 4 | Pending |
+| KNOW-04 | Phase 4 | Pending |
+| KNOW-05 | Phase 4 | Pending |
+| KNOW-06 | Phase 4 | Pending |
+| FLOW-01 | Phase 5 | Pending |
+| FLOW-02 | Phase 5 | Pending |
+| FLOW-03 | Phase 5 | Pending |
+| FLOW-04 | Phase 5 | Pending |
+| FLOW-05 | Phase 5 | Pending |
+| FLOW-06 | Phase 5 | Pending |
+| FLOW-07 | Phase 5 | Pending |
+| ANLY-01 | Phase 6 | Pending |
+| ANLY-02 | Phase 6 | Pending |
+| ANLY-03 | Phase 6 | Pending |
+| ANLY-04 | Phase 6 | Pending |
+| ANLY-05 | Phase 6 | Pending |
+| PEOP-01 | Phase 6 | Pending |
+| PEOP-02 | Phase 6 | Pending |
+| PEOP-03 | Phase 6 | Pending |
+| PEOP-04 | Phase 6 | Pending |
+| PEOP-05 | Phase 6 | Pending |
+| INTG-01 | Phase 7 | Pending |
+| INTG-02 | Phase 7 | Pending |
+| INTG-03 | Phase 7 | Pending |
+| INTG-04 | Phase 7 | Pending |
+| INTG-05 | Phase 7 | Pending |
+| INTG-06 | Phase 7 | Pending |
+| QUAL-01 | Phase 1 | Pending |
+| QUAL-02 | Phase 1 | Pending |
+| QUAL-03 | Phase 1 | Pending |
+| QUAL-04 | Phase 1 | Pending |
+| QUAL-05 | Phase 1 | Pending |
+| QUAL-06 | Phase 1 | Pending |
+| QUAL-07 | Phase 2 | Pending |
+| QUAL-08 | Phase 8 | Pending |
 
 **Coverage:**
 
 - v1.0 requirements: 70
-- Mapped to phases: 0
-- Unmapped: 70 — expected until roadmap generation
-- Implementation authorized now: Phase 1 and Phase 2 only
+- Mapped to phases: 70
+- Unmapped: 0 ✓
+- Duplicate mappings: 0 ✓
+- Requirement families in v1.0 scope: 10/10
+- Implementation authorized first: Phase 1 and Phase 2 only
+- Planned / inactive: Phases 3–8 until Phases 1–2 acceptance and explicit owner authorization
 
 ---
 *Requirements defined: 2026-08-19 after owner acceptance of all recommended families and the Phase 1–2 execution cut.*
