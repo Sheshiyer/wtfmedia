@@ -1,0 +1,363 @@
+---
+project: wtfmedia
+task: "Re-found WTF Media as an evidence-native podcast operating system"
+effort: deep
+effort_source: classifier
+phase: verify
+progress: 15/134
+mode: interactive
+started: 2026-08-18T11:39:10Z
+updated: 2026-08-18T12:24:22Z
+---
+
+## Problem
+
+The repository currently proves a public, catalogue-first RAG experience across 55 episodes, while the kickoff brief describes a much larger internal operating system spanning research, episode assets, transcripts, clips, schedules, analytics, budgets, leads, contracts, and team workflows. The current navigation, narrative, bespoke UI primitives, and data model do not yet express that operating-system scope. Planning is only bootstrapped, the project manifest has no active planner, and the checkout is missing Git metadata, so the local Manifest bridge cannot recognize a governed project run.
+
+## Vision
+
+WTF Media becomes one evidence-native control room in which the team can move from an episode or question to its source asset, transcript, exact moment, clip, workflow state, owner, schedule, performance, and downstream decision without changing systems. The public catalogue remains a valuable read-only projection, while the authenticated internal shell makes production work legible and actionable. The visual experience should feel unmistakably WTF: warm cream, ink-heavy, loud editorial typography, purposeful color, physical texture, and playful motion, now disciplined into a dense, dependable operator interface.
+
+## Out of Scope
+
+- This initialization does not implement or deploy the redesigned application.
+- This milestone does not purchase domains, licenses, APIs, storage, or third-party services.
+- This milestone does not write to Asana, WhatsApp, Frame.io, YouTube, ZTV, NAS, finance, CRM, or contract systems.
+- This milestone does not ingest raw private meeting text, spreadsheet links, credentials, prompt bodies, or native session identifiers into the repository.
+- This milestone does not relocate the checkout, mutate vault registries, migrate client sessions, alter OmniRoute providers, or change production infrastructure.
+- The public catalogue and internal operating shell will not be collapsed into one undifferentiated navigation model.
+- Payment rails, e-signature execution, government-ID storage, and outbound publishing remain separately gated work.
+
+## Principles
+
+- Evidence precedes automation: every generated insight must resolve to a source, owner, or explicit unknown.
+- The provenance spine is the product: episode, asset, transcript, timestamp, clip, task, and outcome remain traceable.
+- One brain does not mean one screen; shared entities and navigation unify specialized workspaces.
+- Brand continuity lives in recognizable rules, not repeated decoration.
+- Color communicates state and domain before it decorates surfaces.
+- Operator density must not sacrifice first-use clarity, keyboard access, or readable hierarchy.
+- Public discovery and internal operations may share primitives while preserving separate permissions and narratives.
+- Existing deployed retrieval behavior remains protected while the internal operating shell is built around it.
+- The workbook and kickoff minutes are evidence sources, never runtime dependencies.
+- Every phase ends with behavior-level proof, not confidence inferred from implementation shape.
+
+## Constraints
+
+- Preserve the committed palette: cream `#FFF6EA`, ink `#1A1A1A`, red `#C53B3A`, green `#0C9367`, yellow `#F1B333`, purple `#6758A5`, and blue `#2D6BE0`.
+- Preserve the extruded lowercase WTF Media wordmark and the curious, irreverent, exact voice.
+- Retain Next.js App Router, React, TypeScript strictness, Tailwind, Vercel browser boundary, and Cloudflare edge RAG until an approved architecture phase changes them.
+- Keep provider credentials, server secrets, and environment material outside the repository.
+- Keep the Thoughtseed Labs vault referential; do not copy private notes, transcripts, or seed corpora into this repository.
+- Direct Worker chat remains server-protected; browser clients do not receive the shared secret.
+- Timestamp links appear only where timing provenance is verified.
+- WhatsApp integration remains read-only unless a later owner-approved security design changes that boundary.
+- PII-heavy credential workflows require a separate DPDPA/security decision before implementation.
+- GSD owns execution planning under `.planning/`; this ISA owns acceptance and done.
+- No registry, relocation, provider, session, or deployment mutation occurs without its own approved task.
+- Generated outputs and machine-local dependencies remain ignored.
+
+## Goal
+
+Establish WTF Media as a governed, evidence-native podcast operating system: ISA is the acceptance and goal authority, GSD is the execution plan, and the public catalogue remains a protected projection. The approved plan preserves the brand while defining the provenance spine, operator-first information architecture, accessible components, phased workflows, integrations, and verification gates.
+
+## Criteria
+
+### Governance and planning spine
+
+- [x] ISC-1: Repository root resolves through Git to the `wtfmedia` checkout (probe: `git rev-parse --show-toplevel`).
+- [x] ISC-2: Local `main` references the declared GitHub repository history (probe: `git remote -v`).
+- [x] ISC-3: Temperance project doctor reports `ISA.md` present (probe: `temperance-project-init --cwd . --check`).
+- [x] ISC-4: Temperance project doctor reports `.planning` present (probe: project doctor output).
+- [x] ISC-5: `.temperance/project.json` declares schema `temperance.project.v1` (probe: JSON query).
+- [x] ISC-6: `.temperance/project.json` declares `active_planner` as `isa` (probe: JSON query).
+- [x] ISC-7: `.temperance/project.json` reports `has_isa: true` (probe: JSON query).
+- [x] ISC-8: `.temperance/project.json` reports `has_planning: true` (probe: JSON query).
+- [x] ISC-9: `.temperance/goal.json` sources its text from `## Goal` (probe: `temperance-goal --cwd . --json`).
+- [ ] ISC-10: `.planning/PROJECT.md` states the current WTF operating-system milestone (probe: heading grep).
+- [ ] ISC-11: `.planning/REQUIREMENTS.md` gives every milestone requirement a stable ID (probe: requirements parser).
+- [ ] ISC-12: `.planning/ROADMAP.md` maps every requirement ID exactly once (probe: GSD roadmap analysis).
+
+### Narrative and information architecture
+
+- [ ] ISC-13: Product framing names the public catalogue as a read-only projection (probe: copy snapshot test).
+- [ ] ISC-14: Product framing names the internal control room as the primary operator surface (probe: copy snapshot test).
+- [ ] ISC-15: Primary navigation exposes a Control Room destination (probe: DOM role query).
+- [ ] ISC-16: Primary navigation exposes an Episodes destination (probe: DOM role query).
+- [ ] ISC-17: Primary navigation exposes a Knowledge destination (probe: DOM role query).
+- [ ] ISC-18: Primary navigation exposes a Production destination (probe: DOM role query).
+- [ ] ISC-19: Primary navigation exposes an Analytics destination (probe: DOM role query).
+- [ ] ISC-20: Primary navigation exposes a People destination (probe: DOM role query).
+- [ ] ISC-21: Public routes omit internal operational modules (probe: anonymous route map).
+- [ ] ISC-22: Internal routes display the active workspace context (probe: DOM role query).
+- [ ] ISC-23: Every workspace provides one dominant next action (probe: page rubric).
+- [ ] ISC-24: Empty states explain the next valid operator action (probe: component story assertion).
+
+### Brand foundations and tokens
+
+- [ ] ISC-25: Cream is defined once as a semantic canvas token (probe: token file query).
+- [ ] ISC-26: Ink is defined once as a semantic foreground token (probe: token file query).
+- [ ] ISC-27: Red is defined once as a semantic critical/editorial token (probe: token file query).
+- [ ] ISC-28: Green is defined once as a semantic success/live token (probe: token file query).
+- [ ] ISC-29: Yellow is defined once as a semantic attention/action token (probe: token file query).
+- [ ] ISC-30: Purple is defined once as a semantic knowledge/AI token (probe: token file query).
+- [ ] ISC-31: Blue is defined once as a semantic information token (probe: token file query).
+- [ ] ISC-32: Orange is defined once as a semantic warning token (probe: token file query).
+- [ ] ISC-33: Text contrast on cream meets WCAG AA for body copy (probe: contrast test).
+- [ ] ISC-34: Text contrast on colored fills meets WCAG AA (probe: contrast test).
+- [ ] ISC-35: Display typography resolves through a single token (probe: computed-style test).
+- [ ] ISC-36: Editorial serif typography resolves through a single token (probe: computed-style test).
+- [ ] ISC-37: Body typography resolves through a single token (probe: computed-style test).
+- [ ] ISC-38: Spacing tokens cover the documented compact-to-display scale (probe: token schema test).
+- [ ] ISC-39: Radius tokens distinguish controls, cards, and overlays (probe: token schema test).
+- [ ] ISC-40: Shadow tokens reproduce the committed offset-print depth language (probe: visual snapshot).
+
+### Component library and interaction contracts
+
+- [ ] ISC-41: A documented Button primitive supports primary appearance (probe: component story).
+- [ ] ISC-42: A documented Button primitive supports secondary appearance (probe: component story).
+- [ ] ISC-43: A documented Button primitive supports destructive appearance (probe: component story).
+- [ ] ISC-44: A documented IconButton primitive exposes an accessible name (probe: axe test).
+- [ ] ISC-45: A documented Input primitive renders error state (probe: component story).
+- [ ] ISC-46: A documented Select primitive is keyboard operable (probe: browser test).
+- [ ] ISC-47: A documented SearchField primitive exposes clear behavior (probe: browser test).
+- [ ] ISC-48: A documented StatusChip maps statuses to semantic tokens (probe: story assertions).
+- [ ] ISC-49: A documented Card primitive supports interactive state (probe: component story).
+- [ ] ISC-50: A documented DataTable primitive supports sortable headers (probe: browser test).
+- [ ] ISC-51: A documented Drawer primitive traps focus while open (probe: browser test).
+- [ ] ISC-52: A documented Dialog primitive restores focus on close (probe: browser test).
+- [ ] ISC-53: A documented Toast primitive announces through a live region (probe: axe test).
+- [ ] ISC-54: A documented Tabs primitive supports arrow-key navigation (probe: browser test).
+- [ ] ISC-55: A documented CommandPalette primitive supports keyboard invocation (probe: browser test).
+- [ ] ISC-56: A documented Timeline primitive renders episode workflow events (probe: component story).
+- [ ] ISC-57: A documented MetricCard primitive distinguishes value from trend (probe: visual snapshot).
+- [ ] ISC-58: All animated primitives respect reduced-motion preference (probe: media-query browser test).
+
+### Control room and workflow shell
+
+- [ ] ISC-59: Control Room displays active episode count from real data (probe: fixture browser test).
+- [ ] ISC-60: Control Room displays production-stage counts from real data (probe: fixture browser test).
+- [ ] ISC-61: Control Room displays upcoming shoot dates from real data (probe: fixture browser test).
+- [ ] ISC-62: Control Room displays upcoming publish dates from real data (probe: fixture browser test).
+- [ ] ISC-63: Control Room displays unresolved blockers from real data (probe: fixture browser test).
+- [ ] ISC-64: Control Room displays assigned work for the signed-in operator (probe: role fixture test).
+- [ ] ISC-65: Control Room links each summary card to its filtered workspace (probe: navigation test).
+- [ ] ISC-66: Global command search returns episodes by title (probe: browser fixture test).
+- [ ] ISC-67: Global command search returns people by name (probe: browser fixture test).
+- [ ] ISC-68: Global command search returns tasks by identifier (probe: browser fixture test).
+- [ ] ISC-69: Workspace shell exposes loading state without layout shift (probe: visual regression).
+- [ ] ISC-70: Workspace shell exposes recoverable error state (probe: component story).
+
+### Episodes, assets, transcripts, and provenance
+
+- [ ] ISC-71: Canonical episode records retain a stable internal ID (probe: schema test).
+- [ ] ISC-72: Canonical episode records retain their public video ID when available (probe: schema test).
+- [ ] ISC-73: Canonical episode records identify their show/IP (probe: schema test).
+- [ ] ISC-74: Canonical episode records store shoot date separately from publish date (probe: schema test).
+- [ ] ISC-75: Asset records distinguish clean-cut from published-video sources (probe: schema test).
+- [ ] ISC-76: Asset records preserve an evidence-source reference without embedded credentials (probe: secret scan).
+- [ ] ISC-77: Transcript records identify their source asset (probe: referential-integrity test).
+- [ ] ISC-78: Timestamp maps identify both source timelines (probe: schema test).
+- [ ] ISC-79: Repeated ingestion preserves the same content hash (probe: idempotency test).
+- [ ] ISC-80: Every timed citation resolves to a verified timestamp sidecar (probe: citation integration test).
+- [ ] ISC-81: Untimed sources omit timestamp query parameters (probe: citation integration test).
+- [ ] ISC-82: Catalogue reconciliation reports workbook rows missing from the app corpus (probe: reconciliation command).
+
+### Ask WTF and knowledge workflows
+
+- [ ] ISC-83: Ask WTF answers include at least one source for grounded claims (probe: golden RAG eval).
+- [ ] ISC-84: Ask WTF abstains from unsupported ownership claims (probe: golden RAG eval).
+- [ ] ISC-85: Ask WTF abstains from unsupported role claims (probe: golden RAG eval).
+- [ ] ISC-86: Ask WTF distinguishes source quotes from model synthesis (probe: response schema test).
+- [ ] ISC-87: Ask WTF exposes the active search scope (probe: DOM assertion).
+- [ ] ISC-88: Ask WTF can scope retrieval to one episode (probe: API integration test).
+- [ ] ISC-89: Ask WTF can scope retrieval to one show/IP (probe: API integration test).
+- [ ] ISC-90: Ask WTF can open a cited source in context (probe: browser navigation test).
+- [ ] ISC-91: Knowledge search returns abstract-topic matches above an approved precision threshold (probe: labelled eval set).
+- [ ] ISC-92: Sentiment search returns emotional-moment matches above an approved precision threshold (probe: labelled eval set).
+
+### Production, analytics, people, and integrations
+
+- [ ] ISC-93: Production board represents each episode as one workflow record (probe: fixture browser test).
+- [ ] ISC-94: Production board records one accountable owner per active stage (probe: schema validation).
+- [ ] ISC-95: Shared calendar distinguishes shoot events by semantic state (probe: calendar fixture test).
+- [ ] ISC-96: Shared calendar distinguishes publish events by semantic state (probe: calendar fixture test).
+- [ ] ISC-97: Analytics records retain platform provenance (probe: schema test).
+- [ ] ISC-98: Analytics records retain reporting-window provenance (probe: schema test).
+- [ ] ISC-99: Budget records link spend to an episode or IP (probe: referential-integrity test).
+- [ ] ISC-100: People records distinguish guests from leads (probe: schema test).
+- [ ] ISC-101: Lead records expose a single current pipeline stage (probe: schema validation).
+- [ ] ISC-102: Research dossiers preserve Snacks/Appetizers/Main Course/Desserts sections (probe: document schema test).
+- [ ] ISC-103: Asana synchronization is read-only during its first production phase (probe: integration contract test).
+- [ ] ISC-104: WhatsApp ingestion rejects outbound-message operations (probe: integration contract test).
+- [ ] ISC-105: Frame.io ingestion records transcription readiness per asset (probe: adapter fixture test).
+- [ ] ISC-106: YouTube ingestion records caption timing coverage per source (probe: adapter fixture test).
+- [ ] ISC-107: TikTok analytics exposes an explicit unavailable state without fabricated metrics (probe: adapter failure test).
+- [ ] ISC-108: ZTV integration uses server-side credentials only (probe: secret-boundary test).
+- [ ] ISC-109: NAS integration exposes connectivity health without path disclosure (probe: API response test).
+- [ ] ISC-110: Integration failures create operator-visible retry state (probe: adapter failure test).
+
+### Quality, accessibility, performance, and operations
+
+- [ ] ISC-111: Web TypeScript strict build emits zero errors (probe: `npm run build --prefix web`).
+- [ ] ISC-112: Cloudflare Worker type generation exits zero (probe: package script).
+- [ ] ISC-113: Repository-owned UI tests execute outside dependency directories (probe: test runner).
+- [ ] ISC-114: Core internal routes have zero serious axe violations (probe: axe browser suite).
+- [ ] ISC-115: Core internal routes are usable at 320 CSS pixels (probe: viewport browser suite).
+- [ ] ISC-116: Core internal routes are usable at 1440 CSS pixels (probe: viewport browser suite).
+- [ ] ISC-117: Primary-route LCP stays within the approved internal budget (probe: Lighthouse CI).
+- [ ] ISC-118: Direct Worker chat without the shared secret returns HTTP 401 (probe: HTTP integration test).
+
+### Anti-criteria
+
+- [ ] ISC-119: Anti: repository history contains no `.env` material (probe: secret scan).
+- [ ] ISC-120: Anti: browser bundles contain no server credential values (probe: bundle scan).
+- [ ] ISC-121: Anti: private meeting text is absent from committed artifacts (probe: bounded phrase scan).
+- [ ] ISC-122: Anti: spreadsheet drive links are absent from committed planning artifacts (probe: URL scan).
+- [ ] ISC-123: Anti: public users cannot enumerate internal tasks (probe: anonymous authorization test).
+- [ ] ISC-124: Anti: public users cannot enumerate budgets (probe: anonymous authorization test).
+- [ ] ISC-125: Anti: public users cannot enumerate guest leads (probe: anonymous authorization test).
+- [ ] ISC-126: Anti: citations never guess timestamps for untimed sources (probe: golden RAG eval).
+- [ ] ISC-127: Anti: component code introduces a second competing color palette (probe: token lint).
+- [ ] ISC-128: Antecedent: an operator can identify current context and next action within five seconds (probe: moderated first-click test).
+
+### Design authority packet
+
+- [x] ISC-129: `DESIGN.md` locks the committed repository brand assets as its primary reference set (probe: reference-lock grep).
+- [x] ISC-130: `DESIGN.md` maps the committed shipping palette to stable semantic roles and labels orange as a provisional comp-derived extension (probe: palette table parser).
+- [x] ISC-131: `DESIGN.md` specifies separate public and internal route groups while preserving every shipping public route contract (probe: route-tree and compatibility-contract grep).
+- [x] ISC-132: `DESIGN.md` maps every current reusable web component to a target responsibility (probe: migration-table parser).
+- [x] ISC-133: `DESIGN.md` names the recommended accessible component foundation and defers installation to an owned GSD phase (probe: foundation-section grep).
+- [x] ISC-134: Anti: `DESIGN.md` contains no private source filename, download path, embedded drive link, or raw meeting text (probe: bounded privacy scan).
+
+## Test Strategy
+
+| ISC range | Type | Check | Threshold | Tool |
+|---|---|---|---|---|
+| ISC-1..12 | governance | Git, Manifest, ISA, GSD, and goal authority resolve coherently | all probes pass | Git, Temperance doctor, GSD parser |
+| ISC-13..24 | narrative/IA | route map and page copy express public projection versus internal OS | 100% assertions | browser DOM suite + copy snapshots |
+| ISC-25..40 | design tokens | semantic tokens reproduce the committed brand with accessible contrast | 100% schema checks; WCAG AA | token tests + contrast audit + visual snapshots |
+| ISC-41..58 | component library | primitives cover documented states, keyboard behavior, focus, and motion | 100% component stories pass | component harness + browser + axe |
+| ISC-59..70 | control room | dashboard data, navigation, search, loading, and errors work from fixtures | 100% fixture flows | browser integration suite |
+| ISC-71..82 | provenance | canonical entities and dual timelines reconcile without secret leakage | 100% integrity checks | schema tests + ingestion fixtures + secret scan |
+| ISC-83..92 | knowledge | responses stay grounded while abstract and sentiment retrieval meet labels | grounded ≥95%; abstention 100% | golden RAG eval suite |
+| ISC-93..110 | operations | workflow modules and adapters preserve provenance and safe failure states | 100% contract checks | schema + adapter fixtures + authorization tests |
+| ISC-111..118 | quality | builds, accessibility, responsive behavior, performance, and security pass | zero blocking failures | build, browser, Lighthouse, HTTP tests |
+| ISC-119..128 | anti/experience | secrets, private sources, false timestamps, palette drift, and lost context do not occur | zero violations | scans, authorization tests, token lint, first-click study |
+| ISC-129..134 | design authority | reference lock, semantic palette, route split, migration map, foundation, and privacy boundary are explicit | 100% document probes | Markdown parser + bounded scans |
+
+## Features
+
+```yaml
+- name: ProjectGovernanceSpine
+  description: Git identity, Temperance manifest, ISA goal authority, and GSD planning contract
+  satisfies: [ISC-1, ISC-2, ISC-3, ISC-4, ISC-5, ISC-6, ISC-7, ISC-8, ISC-9, ISC-10, ISC-11, ISC-12]
+  depends_on: []
+  parallelizable: false
+
+- name: DesignAuthority
+  description: Repository-grounded product narrative, visual system, component contracts, route architecture, and migration seams
+  satisfies: [ISC-129, ISC-130, ISC-131, ISC-132, ISC-133, ISC-134]
+  depends_on: [ProjectGovernanceSpine]
+  parallelizable: false
+
+- name: NarrativeAndInformationArchitecture
+  description: Separate public catalogue projection from authenticated operator control room
+  satisfies: [ISC-13, ISC-14, ISC-15, ISC-16, ISC-17, ISC-18, ISC-19, ISC-20, ISC-21, ISC-22, ISC-23, ISC-24]
+  depends_on: [ProjectGovernanceSpine, DesignAuthority]
+  parallelizable: false
+
+- name: BrandTokenFoundation
+  description: Semantic color, typography, spacing, radius, and depth tokens preserving WTF identity
+  satisfies: [ISC-25, ISC-26, ISC-27, ISC-28, ISC-29, ISC-30, ISC-31, ISC-32, ISC-33, ISC-34, ISC-35, ISC-36, ISC-37, ISC-38, ISC-39, ISC-40]
+  depends_on: [NarrativeAndInformationArchitecture, DesignAuthority]
+  parallelizable: false
+
+- name: OperatorComponentLibrary
+  description: Accessible documented primitives for dense editorial operations interfaces
+  satisfies: [ISC-41, ISC-42, ISC-43, ISC-44, ISC-45, ISC-46, ISC-47, ISC-48, ISC-49, ISC-50, ISC-51, ISC-52, ISC-53, ISC-54, ISC-55, ISC-56, ISC-57, ISC-58]
+  depends_on: [BrandTokenFoundation]
+  parallelizable: false
+
+- name: ControlRoomShell
+  description: Context-aware dashboard, global command search, and reliable application states
+  satisfies: [ISC-59, ISC-60, ISC-61, ISC-62, ISC-63, ISC-64, ISC-65, ISC-66, ISC-67, ISC-68, ISC-69, ISC-70]
+  depends_on: [OperatorComponentLibrary]
+  parallelizable: false
+
+- name: ProvenanceSpine
+  description: Canonical episode, asset, transcript, passage, timestamp-map, and reconciliation contracts
+  satisfies: [ISC-71, ISC-72, ISC-73, ISC-74, ISC-75, ISC-76, ISC-77, ISC-78, ISC-79, ISC-80, ISC-81, ISC-82]
+  depends_on: [ProjectGovernanceSpine]
+  parallelizable: true
+
+- name: EvidenceNativeKnowledge
+  description: Scoped, cited Ask WTF plus evaluated abstract-topic and sentiment discovery
+  satisfies: [ISC-83, ISC-84, ISC-85, ISC-86, ISC-87, ISC-88, ISC-89, ISC-90, ISC-91, ISC-92]
+  depends_on: [ProvenanceSpine, OperatorComponentLibrary]
+  parallelizable: false
+
+- name: ProductionOperations
+  description: Episode workflow, calendar, analytics, budgets, people, research, and safe adapters
+  satisfies: [ISC-93, ISC-94, ISC-95, ISC-96, ISC-97, ISC-98, ISC-99, ISC-100, ISC-101, ISC-102, ISC-103, ISC-104, ISC-105, ISC-106, ISC-107, ISC-108, ISC-109, ISC-110]
+  depends_on: [ProvenanceSpine, ControlRoomShell]
+  parallelizable: true
+
+- name: QualityAndSafetyGates
+  description: Build, test, accessibility, performance, security, privacy, and experiential verification
+  satisfies: [ISC-111, ISC-112, ISC-113, ISC-114, ISC-115, ISC-116, ISC-117, ISC-118, ISC-119, ISC-120, ISC-121, ISC-122, ISC-123, ISC-124, ISC-125, ISC-126, ISC-127, ISC-128]
+  depends_on: [ControlRoomShell, ProvenanceSpine, EvidenceNativeKnowledge, ProductionOperations]
+  parallelizable: false
+```
+
+## Decisions
+
+- 2026-08-18 17:09 IST: The project ISA is the acceptance and goal authority; GSD remains the execution-planning spine under `.planning/`.
+- 2026-08-18 17:09 IST: The current public catalogue is preserved as a projection of shared evidence data, not treated as the complete internal operating system.
+- 2026-08-18 17:09 IST: The workbook and kickoff minutes may shape requirements, but raw source content and embedded file links will not be copied into repository artifacts.
+- 2026-08-18 17:09 IST: The highest-leverage product foundation is the provenance spine connecting episode, clean cut, published video, transcript, timestamps, clips, and workflow outcomes.
+- 2026-08-18 17:09 IST: The component-library choice is deferred until implementation planning compares existing bespoke primitives against accessible headless foundations; semantic tokens and interaction contracts are mandatory either way.
+- 2026-08-18 17:09 IST: GSD milestone artifacts remain gated on owner confirmation of the synthesized milestone summary, as required by the GSD workflow.
+- 2026-08-18 17:18 IST: The mandatory pre-build Advisor call was attempted but could not authenticate because its local OAuth session had expired; credentials were not repaired inside this project task, and the resolved `te-plan` rail plus direct repository evidence remain the bounded planning review.
+- 2026-08-18 17:20 IST: refined: The Goal was compressed below Manifest's 400-character extraction limit after the first generated receipt ended mid-word; acceptance authority, planning authority, public-projection boundary, brand continuity, and implementation gates remain explicit.
+- 2026-08-18 17:22 IST: Root-cause-at-ingestion: Manifest rejected the checkout at repository identity discovery because `.git` was absent. The declared `origin/main` history was rehydrated without replacing working files; no bridge, provider, deployment, or credential state was patched.
+- 2026-08-18 17:30 IST: The independent Cato audit initially rejected handoff because machine-local receipts were commit-visible, inherited next-wave state targeted an unrelated historical promo, and the goal measured 404 characters. Runtime receipts are now ignored, bootstrap next-wave resolves to no executable proposal while preserving the historical task, and the goal round-trips at 397 characters.
+- 2026-08-18 17:42 IST: Live Refero research was attempted but its configured subscription is inactive; no account state was changed. The committed control-room, contact-sheet, flow, shipping UI, and bundled craft references therefore form the bounded reference set recorded in `DESIGN.md`.
+- 2026-08-18 17:42 IST: refined: The component-foundation recommendation is selective Radix primitives beneath repository-owned WTF components, TanStack Table as a headless table-state layer, Phosphor icons, and Storybook's Next/Vite framework. Nothing is installed until an approved GSD phase owns dependency and migration tests.
+- 2026-08-18 17:42 IST: `DESIGN.md` is a design authority and GSD input, not an alternate roadmap or acceptance source; `ISA.md` remains acceptance and the required owner confirmation still gates populated milestone artifacts.
+- 2026-08-18 17:51 IST: refined: Route groups may reorganize source files but cannot break `/`, `/episodes`, `/connections`, `/chat`, or `/api/chat`; public and operator connection graphs are separate policy-bound projections over shared evidence. Orange is a provisional comp-derived semantic extension, not part of the committed `PRODUCT.md` palette.
+
+## Changelog
+
+- 2026-08-18 | conjectured: The existing catalogue-first product framing could simply expand by adding more navigation cards
+  refuted by: repository inspection, committed internal-OS brand comps, the 62-row editorial workbook, and the kickoff’s cross-functional workflow requirements show two distinct permission and narrative surfaces
+  learned: the public catalogue must become a projection of a shared provenance spine while the authenticated control room becomes the primary operational product
+  criterion now: ISC-13 through ISC-24 explicitly separate public projection, internal navigation, workspace context, and operator action hierarchy
+- 2026-08-18 | conjectured: A pre-styled component kit could provide both accessibility and the future visual system
+  refuted by: the committed offset-print brand, current bespoke interaction gaps, official headless-library guidance, and the need to migrate a working public projection incrementally
+  learned: accessible behavior should come from selective unstyled primitives while visual authorship, tokens, domain patterns, and migration evidence stay inside the repository
+  criterion now: ISC-129 through ISC-134 make the reference lock, semantic system, route split, component map, foundation decision, and privacy boundary directly probeable
+
+## Verification
+
+- Baseline repository probe: current checkout contains `web`, `cloudflare`, `video`, `agent`, 14 product modules in `PRD.md`, and a deployed 55-episode catalogue surface.
+- Baseline source probe: workbook parsing found five sheets and 62 non-empty episode rows; raw links were inspected in memory and were not written into this artifact.
+- Baseline kickoff probe: the 16-page PDF establishes phased analytics, dual-mode transcript, finance, CRM, WhatsApp, contract, calendar, infrastructure, and research-method requirements.
+- Baseline UI probe: the live production home page preserves the committed palette and wordmark but presents a catalogue-first narrative rather than the internal one-brain workflow.
+- Baseline component probe: the repository has no `web/components/ui` primitive layer, no Storybook surface, no repository-owned UI tests, 101 hard-coded hex usages, and no reduced-motion rule.
+- Baseline governance probe: Temperance doctor reports planning present, ISA absent before this file, no active planner, and a rejected Manifest run because Git metadata is absent.
+- ISC-1 evidence: `git rev-parse --show-toplevel` resolves the current `wtfmedia` repository root after history was rehydrated from the declared origin without checking out over user-owned files.
+- ISC-2 evidence: local `main` points to fetched `origin/main` at `e109e70`, and `origin` is `https://github.com/Sheshiyer/wtfmedia.git`.
+- ISC-3 and ISC-4 evidence: `temperance-project-init --cwd . --check --json` reports both `ISA.md` and `.planning` present.
+- ISC-5 through ISC-8 evidence: `.temperance/project.json` declares `temperance.project.v1`, `active_planner: isa`, `has_isa: true`, and `has_planning: true`.
+- ISC-9 evidence: `.temperance/goal.json` stores the complete 397-character `## Goal` text, planner `isa`, status `active`, and GSD command `plan-phase`.
+- Runtime evidence: the Manifest bridge health endpoint reports `ok: true`, service `temperance-manifest-bridge`, and freshness `fresh`; project doctor reports `high_gaps: 0`.
+- Portability evidence: Git ignore probes match `.temperance/project.json`, `.temperance/manifest.json`, `.planning/NEXT-WAVE.json`, and `.planning/ORCHESTRATION.json`, keeping generated checkout and host paths out of commit-visible artifacts.
+- Next-wave evidence: bootstrap state is complete, `temperance-next-wave --cwd . --json` returns `action: complete`, an empty task list, no executable option, and reports the 12 historical promo checkboxes as ignored rather than dispatchable.
+- Independent audit evidence: the Cato-style remediation re-audit returned PASS after checking ignore rules, empty routing, exact 397-character goal equality, doctor health, privacy boundaries, and the ISA/GSD authority split; it changed no files.
+- ISC-129 evidence: `DESIGN.md` identifies the committed contact sheet, control room, and flow diagram as the primary reference direction and bounds every secondary source to a narrow role.
+- ISC-130 evidence: the design palette table assigns the committed cream, ink, red, green, yellow, purple, and blue values to explicit roles, while identifying orange as a comp-derived extension that remains subject to token, contrast, and design approval.
+- ISC-131 evidence: the product architecture section defines separate `(public)` and `(ops)` Next.js route groups, preserves `/`, `/episodes`, `/connections`, `/chat`, and `/api/chat`, and separates public and operator graph projections over shared evidence.
+- ISC-132 evidence: the current-to-target migration table covers the existing layout and all nine reusable components plus the chat and connections surfaces, naming the retained behavior, target responsibility, and primary risk.
+- ISC-133 evidence: the foundation section recommends selective Radix, TanStack Table, Phosphor, and Storybook Next/Vite, cites current primary documentation, and forbids installation before a GSD implementation phase owns the tests.
+- ISC-134 evidence: a bounded scan of `DESIGN.md` found no supplied source filename, Downloads path, embedded drive/document link, secret assignment, or raw meeting passage.
+- Design remediation audit evidence: the independent read-only re-audit returned PASS after verifying public URL and API continuity, canonical `/chat` ownership, policy-separated connection projections, provisional orange provenance, criteria integrity, privacy, and the owner-confirmation gate.
