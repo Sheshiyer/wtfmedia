@@ -1,4 +1,8 @@
-# 20-Second Product Promo Walkthrough
+# Archived: 20-Second Product Promo Walkthrough
+
+> Historical pre-v1.0 plan preserved during the One Brain GSD initialization.
+> It is not part of the approved eight-phase roadmap and must not be routed as
+> active Phase 1 work.
 
 ## Plan
 
