@@ -4,10 +4,10 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: verify
-progress: 15/134
+progress: 18/134
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-08-18T12:24:22Z
+updated: 2026-08-19T06:00:16Z
 ---
 
 ## Problem
@@ -73,9 +73,9 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-7: `.temperance/project.json` reports `has_isa: true` (probe: JSON query).
 - [x] ISC-8: `.temperance/project.json` reports `has_planning: true` (probe: JSON query).
 - [x] ISC-9: `.temperance/goal.json` sources its text from `## Goal` (probe: `temperance-goal --cwd . --json`).
-- [ ] ISC-10: `.planning/PROJECT.md` states the current WTF operating-system milestone (probe: heading grep).
-- [ ] ISC-11: `.planning/REQUIREMENTS.md` gives every milestone requirement a stable ID (probe: requirements parser).
-- [ ] ISC-12: `.planning/ROADMAP.md` maps every requirement ID exactly once (probe: GSD roadmap analysis).
+- [x] ISC-10: `.planning/PROJECT.md` states the current WTF operating-system milestone (probe: heading grep).
+- [x] ISC-11: `.planning/REQUIREMENTS.md` gives every milestone requirement a stable ID (probe: requirements parser).
+- [x] ISC-12: `.planning/ROADMAP.md` maps every requirement ID exactly once (probe: GSD roadmap analysis).
 
 ### Narrative and information architecture
 
@@ -325,6 +325,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - 2026-08-18 17:42 IST: refined: The component-foundation recommendation is selective Radix primitives beneath repository-owned WTF components, TanStack Table as a headless table-state layer, Phosphor icons, and Storybook's Next/Vite framework. Nothing is installed until an approved GSD phase owns dependency and migration tests.
 - 2026-08-18 17:42 IST: `DESIGN.md` is a design authority and GSD input, not an alternate roadmap or acceptance source; `ISA.md` remains acceptance and the required owner confirmation still gates populated milestone artifacts.
 - 2026-08-18 17:51 IST: refined: Route groups may reorganize source files but cannot break `/`, `/episodes`, `/connections`, `/chat`, or `/api/chat`; public and operator connection graphs are separate policy-bound projections over shared evidence. Orange is a provisional comp-derived semantic extension, not part of the committed `PRODUCT.md` palette.
+- 2026-08-19 11:30 IST: Owner approval finalized the v1.0 roadmap. All ten requirement families remain in milestone scope, but only Phase 1 and Phase 2 are implementation-authorized first; Phases 3 through 8 remain planned and inactive until the recorded owner gate is satisfied.
 
 ## Changelog
 
@@ -336,6 +337,10 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
   refuted by: the committed offset-print brand, current bespoke interaction gaps, official headless-library guidance, and the need to migrate a working public projection incrementally
   learned: accessible behavior should come from selective unstyled primitives while visual authorship, tokens, domain patterns, and migration evidence stay inside the repository
   criterion now: ISC-129 through ISC-134 make the reference lock, semantic system, route split, component map, foundation decision, and privacy boundary directly probeable
+- 2026-08-19 | conjectured: The full internal operating system could begin as one broad implementation wave after design approval
+  refuted by: the dependency analysis and owner-approved execution cut require compatibility proof and the policy boundary before provenance, Knowledge, production, analytics, people, integrations, or legacy retirement can activate
+  learned: the eight-phase roadmap is milestone scope, while implementation authority is deliberately limited to Phase 1 followed by Phase 2 acceptance
+  criterion now: ISC-10 through ISC-12 make the approved GSD milestone spine directly probeable before implementation planning begins
 
 ## Verification
 
@@ -350,6 +355,9 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - ISC-3 and ISC-4 evidence: `temperance-project-init --cwd . --check --json` reports both `ISA.md` and `.planning` present.
 - ISC-5 through ISC-8 evidence: `.temperance/project.json` declares `temperance.project.v1`, `active_planner: isa`, `has_isa: true`, and `has_planning: true`.
 - ISC-9 evidence: `.temperance/goal.json` stores the complete 397-character `## Goal` text, planner `isa`, status `active`, and GSD command `plan-phase`.
+- ISC-10 evidence: `.planning/PROJECT.md` names `v1.0 One Brain Re-foundation` as the current milestone and records the evidence-native operating-system goal.
+- ISC-11 evidence: the requirements parser found 70 v1.0 requirement definitions and 70 unique stable IDs across all ten accepted families.
+- ISC-12 evidence: `.planning/ROADMAP.md` defines eight dependency-ordered phases; `.planning/REQUIREMENTS.md` maps all 70 IDs exactly once, with zero unmapped or duplicate entries and implementation authorization limited to Phases 1 and 2.
 - Runtime evidence: the Manifest bridge health endpoint reports `ok: true`, service `temperance-manifest-bridge`, and freshness `fresh`; project doctor reports `high_gaps: 0`.
 - Portability evidence: Git ignore probes match `.temperance/project.json`, `.temperance/manifest.json`, `.planning/NEXT-WAVE.json`, and `.planning/ORCHESTRATION.json`, keeping generated checkout and host paths out of commit-visible artifacts.
 - Next-wave evidence: bootstrap state is complete, `temperance-next-wave --cwd . --json` returns `action: complete`, an empty task list, no executable option, and reports the 12 historical promo checkboxes as ignored rather than dispatchable.
