@@ -1,0 +1,25 @@
+{
+  "schema": "temperance.goal.v1",
+  "text": "Establish WTF Media as a governed, evidence-native podcast operating system: ISA is the acceptance and goal authority, GSD is the execution plan, and the public catalogue remains a protected projection. The approved plan preserves the brand while defining the provenance spine, operator-first information architecture, accessible components, phased workflows, integrations, and verification gates.",
+  "planner": "isa",
+  "gsd_command": "plan-phase",
+  "evaluator": [
+    {
+      "id": "doctor",
+      "probe": "temperance-project-init --cwd . --check --json",
+      "pass": "high_gaps==0"
+    },
+    {
+      "id": "isa-goal",
+      "probe": "rg -n '^## Goal' ISA.md",
+      "pass": "section present"
+    }
+  ],
+  "status": "met",
+  "native": {
+    "claude": "/goal Establish WTF Media as a governed, evidence-native podcast operating system: ISA is the acceptance and goal authority, GSD is the execution plan, and the public catalogue remains a protected projection. The approved plan preserves the brand while defining the provenance spine, operator-first information architecture, accessible components, phased workflows, integrations, and verification gates.",
+    "codex": "wrapper"
+  },
+  "updated_at": "2026-08-18T11:58:48.767Z",
+  "last_eval_at": "2026-08-19T06:04:02.234Z"
+}

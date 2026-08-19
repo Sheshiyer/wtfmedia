@@ -22,3 +22,9 @@ PRODUCT.md
 *.log
 .DS_Store
 .vercel
+
+# machine-local Temperance runtime receipts (regenerate with project init)
+.temperance/project.json
+.temperance/manifest.json
+.planning/NEXT-WAVE.json
+.planning/ORCHESTRATION.json
