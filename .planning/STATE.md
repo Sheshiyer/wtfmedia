@@ -2,9 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: One Brain Re-foundation
-status: ready_for_discussion
-last_updated: "2026-08-19T05:50:43Z"
-last_activity: 2026-08-19
+status: planning
+stopped_at: Phase 1 context gathered
+last_updated: "2026-08-19T07:30:47.333Z"
+last_activity: 2026-08-19 — Phase 1 context locked for planning
 progress:
   total_phases: 8
   completed_phases: 0
@@ -29,8 +30,8 @@ without losing provenance.
 
 Phase: 1 of 8 (Compatibility + Component Proof Harness)
 Plan: — (phase not yet planned)
-Status: Ready for discussion/planning
-Last activity: 2026-08-19 — Eight-phase roadmap created and all 70 v1.0 requirements mapped
+Status: Ready for planning
+Last activity: 2026-08-19 — Phase 1 context locked for planning
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -38,12 +39,14 @@ Progress: [░░░░░░░░░░] 0%
 
 - **Authorized first:** Phase 1 and Phase 2 only. Work begins with Phase 1;
   Phase 2 depends on Phase 1 acceptance.
+
 - **Planned / inactive:** Phases 3–8. Implementation requires Phases 1–2
   acceptance plus explicit owner authorization.
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 0
 - Average duration: —
 - Total execution time: 0 hours
@@ -56,11 +59,15 @@ Progress: [░░░░░░░░░░] 0%
 
 ## Accumulated Context
 
+### Roadmap Evolution
+
+- Phase 1 edited: Expanded Phase 1 from one proof component to visible migration of every protected public route while preserving all route and API contracts
+
 ### Decisions
 
 - ISA remains acceptance authority; GSD remains execution-planning authority.
 - Public and operator projections stay separate over shared evidence.
-- Phase 1 ships a proof harness plus one real migrated public component, not a speculative full library.
+- Phase 1 ships the proof harness, starts with the Episodes proof slice, and visibly migrates every protected public route without changing its contract.
 - Phase 2 may show only truthful empty or unavailable operator states until canonical records exist.
 
 ### Pending Todos
@@ -80,7 +87,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-19
-Stopped at: Roadmap and traceability ready; Phase 1 has not been discussed or planned.
-Resume file: None
-Resume: Run `$gsd-discuss-phase 1` or proceed directly to `$gsd-plan-phase 1`.
+Last session: 2026-08-19T07:30:47.326Z
+Stopped at: Phase 1 context gathered
+Resume file: .planning/phases/01-compatibility-component-proof-harness/01-CONTEXT.md
+Resume: Run `$gsd-plan-phase 1`.
