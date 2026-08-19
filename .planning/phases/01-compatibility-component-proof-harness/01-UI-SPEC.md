@@ -26,6 +26,8 @@ This contract is prescriptive. When sources differ, apply them in this order:
 
 Phase 1 visibly redesigns `/`, `/episodes`, `/connections`, and `/chat` through one repository-owned WTF system while keeping their URLs, public meaning, data semantics, navigation destinations, bookmarks, supported query parameters, deep links, and behavior intact. `/api/chat` remains a frozen compatibility contract. The first proof slice is `EpisodesBrowser` with `ScrollRail` and a URL-backed accessible episode drawer.
 
+Phase 1 does not create `/episodes/:id` or an `episodes/[episodeId]/` route. Those path-segment references in older `APP-FLOW.md` and `DESIGN.md` diagrams describe future architecture, not the current compatibility baseline; the locked Phase 1 drawer decision and the repository's existing `/episodes` route take precedence.
+
 This phase does not add `/ops`, authentication, operator fields, private assets, workflow actions, dossiers, production records, external-service changes, deployments, corpus mutations, or later-phase capabilities. Every rendered datum and fixture is public-only and privacy-safe.
 
 ## Design System
@@ -309,7 +311,8 @@ Required evidence states: ready, keyboard focus on both hero actions and navigat
 
 ### URL-Backed `EpisodeDrawer`
 
-- Default URL state is `episode=<public-video-id>` on `/episodes`; preserve every unrelated query parameter byte-for-byte where URL encoding allows.
+- The Phase 1 deep link is `/episodes?episode=<public-video-id>` because `/episodes` is the only episode route that exists in the current repository; preserve every unrelated query parameter byte-for-byte where URL encoding allows.
+- A future `/episodes/:id` or `episodes/[episodeId]/` path-segment route requires a separate explicit contract decision plus tested compatibility or redirect behavior. It is not created or implied by this phase.
 - Activating a card pushes the selected URL. Browser Back closes the drawer and Browser Forward reopens it. Refresh and shared links reopen the same public episode.
 - The drawer is a labelled modal dialog with `aria-modal="true"`, a visible `close episode` button, Escape and backdrop dismissal, contained scroll, background inertness, and focus containment.
 - On open, focus the drawer title (`tabindex="-1"`) so long content begins with context. Do not autofocus a source or Ask WTF action.
