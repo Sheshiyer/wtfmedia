@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "plan": "01-01",
+  "results": {
+    "T-01-01": {
+      "plan": "01-01",
+      "task": 1,
+      "command_id": "94491fbdd30bc7347603421214ec2debcb9c69b0d62f4e54427b59ccdfbac5c0",
+      "command": "node web/scripts/capture-phase1-baseline.mjs --check && node -e 'const m=require(\"./web/tests/contracts/phase1-compatibility-manifest.json\"); const p=[\"/\",\"/episodes\",\"/connections\",\"/chat\",\"/api/chat\"]; if(p.some(x=>!m.protected_routes.includes(x))) process.exit(1); if(!m.chat_contract?.headers?.includes(\"X-Sources\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "ce71634bfd86556156baf67a18f1844cd1661bf659889eca45d116c73d2f86dd",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 424,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-20T09:23:55.690Z",
+      "status": "passed"
+    },
+    "T-01-02": {
+      "plan": "01-01",
+      "task": 2,
+      "command_id": "72d7a912e1f4f25f8a5eedd068ce2c2fa9a4895a96371dfdfb5b92d809fe94ef",
+      "command": "node -e 'const s=require(\"fs\").readFileSync(\".planning/phases/01-compatibility-component-proof-harness/01-VALIDATION.md\",\"utf8\"); if(!s.includes(\"01-01\")||!s.includes(\"T-01-01\")) process.exit(1); if((s.match(/wave_0_complete: false/g)||[]).length!==1||(s.match(/nyquist_compliant: false/g)||[]).length!==1) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-20T09:27:55.337Z",
+      "status": "passed"
+    }
+  }
+}

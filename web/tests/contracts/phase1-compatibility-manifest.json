@@ -1,0 +1,340 @@
+{
+  "schema_version": 1,
+  "authority": "current-dirty-worktree-pending-owner-approval",
+  "base_sha": "0f806772acdb008eeb9fb88ec256cbc2c9db07d8",
+  "protected_routes": [
+    "/",
+    "/episodes",
+    "/connections",
+    "/chat",
+    "/api/chat"
+  ],
+  "protected_files": [
+    {
+      "path": "web/app/layout.tsx",
+      "sha256": "7f7ddb592ac029ae10a6f635f2981a8bd81c9b5a59782ee060c3501817f08655",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": " M"
+    },
+    {
+      "path": "web/app/page.tsx",
+      "sha256": "242ac57016d9d61956c8dde799b2488bcc7a899218cf3207b9b0770f7f90476f",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": " M"
+    },
+    {
+      "path": "web/app/episodes/page.tsx",
+      "sha256": "7138a212a1f69170088ba358424b8ab1832f1bc46ee95d7a0adac065689b93b3",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": "clean"
+    },
+    {
+      "path": "web/app/connections/page.tsx",
+      "sha256": "a58a2024c634635358a3a8f4cf191be870c23aa5e7dc728fbddc33f57a6f0855",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": "clean"
+    },
+    {
+      "path": "web/app/chat/page.tsx",
+      "sha256": "73e4fb084a07b899806b27bb67dcd24fa5634dab0c06bea47de7b262db8d5078",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": " M"
+    },
+    {
+      "path": "web/app/api/chat/route.ts",
+      "sha256": "43ed48fa234928b9cf1f51d47a8026f786c255a85a42db5f6b7fc2715c9b7b1a",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": " M"
+    }
+  ],
+  "relevant_dirty_paths": [
+    {
+      "path": "web/app/layout.tsx",
+      "sha256": "7f7ddb592ac029ae10a6f635f2981a8bd81c9b5a59782ee060c3501817f08655",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": " M"
+    },
+    {
+      "path": "web/app/page.tsx",
+      "sha256": "242ac57016d9d61956c8dde799b2488bcc7a899218cf3207b9b0770f7f90476f",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": " M"
+    },
+    {
+      "path": "web/app/chat/page.tsx",
+      "sha256": "73e4fb084a07b899806b27bb67dcd24fa5634dab0c06bea47de7b262db8d5078",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": " M"
+    },
+    {
+      "path": "web/app/api/chat/route.ts",
+      "sha256": "43ed48fa234928b9cf1f51d47a8026f786c255a85a42db5f6b7fc2715c9b7b1a",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": " M"
+    },
+    {
+      "path": "web/lib/models.ts",
+      "sha256": "4a4f376fe29a02fceb9ef271b1091c1b02d404f533547b9b32e3d9e3100e3579",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": " M"
+    },
+    {
+      "path": "web/lib/nvidia.ts",
+      "sha256": "1b684592af6d1618d1668de2470828e9153d12b21359d06a38451a78b177ffab",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": " M"
+    },
+    {
+      "path": "web/src/data/episodes.json",
+      "sha256": "8bd0597fccac551aa1a6667a252d8afce781112e6be1a7f00d0e32c1f67a56c2",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": " M"
+    },
+    {
+      "path": "web/src/data/connections.json",
+      "sha256": "843a13900066a7fc509e0d8813b9787de18c335ff65d990cc4ec22cca060c307",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": " M"
+    },
+    {
+      "path": "web/src/data/corpus-manifest.json",
+      "sha256": "ac2dd77e56180aed4f04df5e0624e90fb7a497747c4d8ca2ca31e28582d2fd13",
+      "mode": "100644",
+      "type": "file",
+      "worktree_status": "??"
+    }
+  ],
+  "navigation": [
+    {
+      "label": "Control Room",
+      "destination": "/"
+    },
+    {
+      "label": "Episodes",
+      "destination": "/episodes"
+    },
+    {
+      "label": "Connections",
+      "destination": "/connections"
+    },
+    {
+      "label": "Ask WTF",
+      "destination": "/chat"
+    }
+  ],
+  "route_contracts": {
+    "/": {
+      "kind": "public page",
+      "query_behavior": "no route-owned query behavior",
+      "navigation_destinations": [
+        "/chat",
+        "/episodes",
+        "/connections"
+      ],
+      "data_semantics": "public catalogue introduction and public episode/connection discovery"
+    },
+    "/episodes": {
+      "kind": "public page",
+      "query_behavior": "no current episode query selection",
+      "selection_behavior": {
+        "state": "client-local active episode object",
+        "open": "episode card activation",
+        "close": [
+          "close control",
+          "backdrop activation",
+          "Escape"
+        ],
+        "refresh_back_share": "open episode is not reproduced",
+        "ask_destination": "/chat?q=<encoded episode question>"
+      },
+      "data_semantics": "episodes grouped by existing playlist title with public transcript fallback"
+    },
+    "/connections": {
+      "kind": "public page",
+      "query_behavior": "no route-owned query behavior",
+      "data_semantics": "recurring public themes and ideas shown as a graph plus public lists"
+    },
+    "/chat": {
+      "kind": "public page",
+      "query_behavior": {
+        "parameter": "q",
+        "value_selection": "URLSearchParams.get first value",
+        "non_empty_value": "auto-submit exactly once per mounted page",
+        "empty_or_absent_value": "no automatic submission",
+        "unrelated_parameters": "left in the URL and ignored by the current page"
+      },
+      "data_semantics": "visitor question, public answer text, and cited public sources"
+    },
+    "/api/chat": {
+      "kind": "public POST endpoint",
+      "query_behavior": "none",
+      "data_semantics": "server-authenticated edge retrieval projected into the browser compatibility contract"
+    }
+  },
+  "public_field_allowlists": {
+    "home": [
+      "brand assets",
+      "catalogue-scoped episode/show counts",
+      "public thumbnails",
+      "public guest names",
+      "public route copy"
+    ],
+    "episodes": [
+      "video_id",
+      "title",
+      "playlist_title",
+      "thumbnail",
+      "duration",
+      "view_count",
+      "transcript availability",
+      "transcript excerpt",
+      "source URL",
+      "verified timestamp"
+    ],
+    "connections": [
+      "node id",
+      "label",
+      "category",
+      "episode count",
+      "public episode ids",
+      "public episode titles",
+      "public source links",
+      "edge endpoint ids",
+      "shared count"
+    ],
+    "chat": [
+      "visitor current question",
+      "safe public answer text",
+      "n",
+      "video_id",
+      "title",
+      "score",
+      "t",
+      "time",
+      "url"
+    ]
+  },
+  "chat_contract": {
+    "method": "POST",
+    "request": {
+      "accepted_body_member": "messages",
+      "non_array_messages": "treated as an empty message list",
+      "history_window": "last 8 messages only",
+      "selected_question": "last user-role message in the retained window",
+      "whitespace_rule": "trimmed content must be non-empty; original content is forwarded",
+      "accepted_question_limit": {
+        "maximum_javascript_string_length": 2000
+      },
+      "client_model_member": "sent by the current client but ignored by the current route"
+    },
+    "upstream_boundary": {
+      "request_body": "selected question only",
+      "timeout_ms": 25000,
+      "route_max_duration_seconds": 30,
+      "cache": "no-store",
+      "authentication": "server-only and never returned to the browser",
+      "correlation": "server-generated request identifier and forwarded first client IP value"
+    },
+    "branches": [
+      {
+        "case": "invalid JSON",
+        "status": 400,
+        "body_kind": "plain text",
+        "safe_body": "bad json",
+        "upstream_called": false
+      },
+      {
+        "case": "missing, empty, non-array, or absent retained user message",
+        "status": 400,
+        "body_kind": "plain text",
+        "safe_body": "no user message",
+        "upstream_called": false
+      },
+      {
+        "case": "selected question exceeds 2000 JavaScript string units",
+        "status": 400,
+        "body_kind": "plain text",
+        "safe_body": "question too long",
+        "upstream_called": false
+      },
+      {
+        "case": "server-only edge authentication unavailable",
+        "status": 503,
+        "body_kind": "JSON error",
+        "safe_body": "The answer service is not configured.",
+        "upstream_called": false
+      },
+      {
+        "case": "network, timeout, or fetch failure",
+        "status": 503,
+        "body_kind": "JSON error",
+        "safe_body": "The answer service is temporarily unavailable. Please retry shortly."
+      },
+      {
+        "case": "upstream non-success, malformed JSON, or missing string answer",
+        "status": 503,
+        "body_kind": "JSON error",
+        "safe_body": "The answer service is temporarily unavailable. Please retry shortly."
+      },
+      {
+        "case": "valid upstream answer",
+        "status": "upstream successful status",
+        "body_kind": "plain text answer",
+        "sources": "empty array when upstream sources is not an array"
+      }
+    ],
+    "headers": [
+      "X-Sources",
+      "X-Model",
+      "X-Fallback",
+      "Content-Type",
+      "Cache-Control"
+    ],
+    "success_headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Sources": "URI-encoded JSON array of mapped public source fields",
+      "X-Model": "fixed server-selected compatibility label",
+      "X-Fallback": "false only when the upstream grounded flag is truthy; otherwise true",
+      "Cache-Control": "no-store"
+    },
+    "source_keys": [
+      "n",
+      "video_id",
+      "title",
+      "score",
+      "t",
+      "time",
+      "url"
+    ],
+    "source_mapping": {
+      "n": "upstream source number",
+      "video_id": "upstream videoId",
+      "title": "upstream public title",
+      "score": "upstream score",
+      "t": "upstream start number or null",
+      "time": "empty for null start; otherwise UTC clock text derived from start seconds",
+      "url": "upstream public URL"
+    },
+    "streaming": {
+      "proxy": "awaits the complete Worker JSON response before constructing a plain-text Response",
+      "first_byte_meaning": "the proxy has a complete parsed answer; it is not evidence of first model-token timing",
+      "transport_chunks": "runtime transport may deliver one or more chunks; source does not promise token cadence or chunk count",
+      "browser": "reads response.body with ReadableStream.getReader(), decodes each delivered chunk, and updates accumulated text after each read",
+      "headers": "sources, model compatibility, and fallback metadata are read before the body loop"
+    }
+  }
+}
