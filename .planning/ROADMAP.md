@@ -38,7 +38,7 @@ migration closure. All ten approved requirement families are v1.0 scope.
 
 ## Phases
 
-- [ ] **Phase 1: Compatibility + Component Proof Harness** - Turn the approved design inputs and current public behavior into executable migration proof through one real public component.
+- [ ] **Phase 1: Compatibility + Component Proof Harness** - Establish the proof harness and visibly migrate every protected public route to the approved WTF design system without changing its contract.
 - [ ] **Phase 2: Authenticated Shell + Policy Boundary** - Give approved operators a deny-by-default shell with a truthful empty or unavailable Control Room.
 - [ ] **Phase 3: Provenance Spine + Canonical Episode Workspace** - Make one stable episode record the navigable source of asset, transcript, timeline, citation, and activity truth.
 - [ ] **Phase 4: Knowledge Receipts-to-Action** - Let operators turn scoped, grounded evidence into saved evidence and dossiers without losing provenance.
@@ -50,18 +50,39 @@ migration closure. All ten approved requirement families are v1.0 scope.
 ## Phase Details
 
 ### Phase 1: Compatibility + Component Proof Harness
-**Goal**: Maintainers can migrate one real public component against executable compatibility and quality evidence while users retain the recognizable, accessible WTF public experience.
+**Goal**: Maintainers can visibly migrate `/`, `/episodes`, `/connections`, and `/chat` through the repository-owned WTF design system while preserving their URLs, meaning, data, navigation, accessibility, and behavior, and while preserving the complete `/api/chat` contract.
 **Depends on**: Nothing (first phase)
-**Execution authorization**: Authorized now; ready for discussion and planning
+**Execution authorization**: Authorized now; planned and ready to execute
 **Design inputs**: Approved moodboard, application flow, component inventory, and design authority
 **Requirements**: COMP-01, COMP-02, COMP-03, COMP-04, COMP-05, DSYS-01, DSYS-02, DSYS-03, DSYS-04, DSYS-05, DSYS-06, DSYS-07, DSYS-08, DSYS-09, DSYS-10, QUAL-01, QUAL-02, QUAL-03, QUAL-04, QUAL-05, QUAL-06
 **Success Criteria** (what must be TRUE):
-  1. A public visitor can use `/`, `/episodes`, `/connections`, `/chat`, and `/api/chat` with supported bookmarks, queries, deep links, streaming, citations, headers, errors, and published-only fields intact.
-  2. A public visitor sees a read-only connections projection that uses shared evidence truth without exposing operator permissions, state, tasks, owners, leads, budgets, briefs, health, or production data.
-  3. A user can use at least one real migrated public component that preserves the WTF wordmark, typography, palette, tactile depth, and voice through repository-owned semantic tokens; only primitives consumed by that migration ship.
-  4. Keyboard, focus, reduced-motion, semantic-alternative, state-distinction, and 320/768/1440 viewport behavior are observable in the migrated workflow without color-only meaning or horizontal page overflow.
-  5. A maintainer can run one documented proof harness that blocks regressions in lint, types, build, component and route behavior, accessibility, visual identity, privacy, bundle and route performance, RAG latency, and protected public contracts using deterministic privacy-safe fixtures.
-**Plans**: TBD
+  1. A public visitor sees `/`, `/episodes`, `/connections`, and `/chat` use the approved semantic tokens, typography, tactile depth, state language, focus policy, responsive rules, and reduced-motion behavior while each route retains its URL and navigation meaning.
+  2. Existing bookmarks, query parameters, episode selections, deep links, streaming behavior, citations, source fields, required headers, status codes, and safe error shapes retain their meaning, including the complete `/api/chat` contract.
+  3. `/connections` remains a read-only public projection with an equivalent semantic alternative and exposes no operator permissions, tasks, owners, leads, budgets, briefs, health, or production state.
+  4. The Episodes proof slice ships `EpisodesBrowser` with `ScrollRail`, native multi-input controls, and a URL-backed accessible public-detail drawer; every other changed public component receives applicable keyboard, state, viewport, motion, semantic, and visual evidence.
+  5. A maintainer can run one documented proof command that blocks regressions across every protected public route and `/api/chat`, including lint, types, build, component and browser behavior, accessibility, privacy, visual identity, performance, RAG latency, and rollback using deterministic privacy-safe fixtures.
+**Plans**: 23 plans across 21 waves
+  - **Wave 1**: `01-01` — Capture and approve the dirty-worktree compatibility baseline.
+  - **Wave 2**: `01-02` — Validate and approve package legitimacy.
+  - **Wave 3**: `01-03` — Install the exact approved harness dependencies.
+  - **Wave 4**: `01-04` — Configure the deterministic proof harness.
+  - **Wave 5**: `01-05` — Freeze public-route, API, and privacy contracts.
+  - **Wave 6**: `01-06` — Measure legacy performance and propose budgets.
+  - **Wave 7**: `01-07` — Approve numeric performance budgets.
+  - **Wave 8**: `01-21` — Freeze and approve the legacy presentation boundary.
+  - **Wave 9**: `01-08` — Establish semantic tokens and global styles; `01-10` — Add the Episodes rollback seam.
+  - **Wave 10**: `01-09` — Build accessible primitives; `01-23` — Add URL state, ScrollRail, and Suspense foundations.
+  - **Wave 11**: `01-11` — Integrate the Episodes drawer and proof evidence.
+  - **Wave 12**: `01-12` — Establish the shared public shell boundary.
+  - **Wave 13**: `01-22` — Add scoped migrated-brand motion and signature effects.
+  - **Wave 14**: `01-13` — Add Connections rollback and public-projection safeguards.
+  - **Wave 15**: `01-14` — Migrate Connections with graph/list parity.
+  - **Wave 16**: `01-15` — Migrate Ask WTF while preserving `/api/chat`.
+  - **Wave 17**: `01-16` — Migrate the Home route.
+  - **Wave 18**: `01-17` — Prove cross-route accessibility, visuals, and component traceability.
+  - **Wave 19**: `01-18` — Assemble aggregate verification, CI, rollback, and candidate evidence.
+  - **Wave 20**: `01-19` — Obtain owner visual and cutover approval.
+  - **Wave 21**: `01-20` — Promote approved evidence, merge threat results, and complete cutover.
 **UI hint**: yes
 
 ### Phase 2: Authenticated Shell + Policy Boundary
