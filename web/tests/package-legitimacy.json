@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "status": "approved",
+  "approval_scope": "phase-01-plan-01-02-task-1-exact-twelve-package-set",
+  "owner_approval_ref": "owner-explicit-approval-2026-08-20-exact-twelve-package-version-set",
+  "approved_at": "2026-08-20T13:44:57Z",
+  "research_checked_at": "2026-08-19",
+  "package_set_canonicalization": "SHA-256 over the UTF-8 compact JSON array of name/version objects sorted lexicographically by package name",
+  "package_set_sha256": "24f0eec8236fba7b0fae6cfb2090b67cb34cfb4d3e412590b72ce000068c513f",
+  "fresh_release_caution": {
+    "published_at": "2026-08-18",
+    "packages": [
+      "storybook@10.5.9",
+      "vitest@4.1.11"
+    ],
+    "required_separation": "Keep package bootstrap isolated from route migration; stop before application migration if peer resolution or transforms fail."
+  },
+  "packages": [
+    {
+      "name": "@axe-core/playwright",
+      "version": "4.13.0",
+      "registry_url": "https://registry.npmjs.org/%40axe-core%2Fplaywright/4.13.0",
+      "npm_page_url": "https://www.npmjs.com/package/@axe-core/playwright/v/4.13.0",
+      "source_url": "https://github.com/dequelabs/axe-core-npm",
+      "slopcheck": "unavailable",
+      "disposition": "ASSUMED"
+    },
+    {
+      "name": "@lhci/cli",
+      "version": "0.15.1",
+      "registry_url": "https://registry.npmjs.org/%40lhci%2Fcli/0.15.1",
+      "npm_page_url": "https://www.npmjs.com/package/@lhci/cli/v/0.15.1",
+      "source_url": "https://github.com/GoogleChrome/lighthouse-ci",
+      "slopcheck": "unavailable",
+      "disposition": "ASSUMED"
+    },
+    {
+      "name": "@playwright/test",
+      "version": "1.62.1",
+      "registry_url": "https://registry.npmjs.org/%40playwright%2Ftest/1.62.1",
+      "npm_page_url": "https://www.npmjs.com/package/@playwright/test/v/1.62.1",
+      "source_url": "https://github.com/microsoft/playwright",
+      "slopcheck": "unavailable",
+      "disposition": "ASSUMED"
+    },
+    {
+      "name": "@radix-ui/react-dialog",
+      "version": "1.1.23",
+      "registry_url": "https://registry.npmjs.org/%40radix-ui%2Freact-dialog/1.1.23",
+      "npm_page_url": "https://www.npmjs.com/package/@radix-ui/react-dialog/v/1.1.23",
+      "source_url": "https://github.com/radix-ui/primitives",
+      "slopcheck": "unavailable",
+      "disposition": "ASSUMED"
+    },
+    {
+      "name": "@storybook/addon-a11y",
+      "version": "10.5.9",
+      "registry_url": "https://registry.npmjs.org/%40storybook%2Faddon-a11y/10.5.9",
+      "npm_page_url": "https://www.npmjs.com/package/@storybook/addon-a11y/v/10.5.9",
+      "source_url": "https://github.com/storybookjs/storybook",
+      "slopcheck": "unavailable",
+      "disposition": "ASSUMED"
+    },
+    {
+      "name": "@storybook/addon-vitest",
+      "version": "10.5.9",
+      "registry_url": "https://registry.npmjs.org/%40storybook%2Faddon-vitest/10.5.9",
+      "npm_page_url": "https://www.npmjs.com/package/@storybook/addon-vitest/v/10.5.9",
+      "source_url": "https://github.com/storybookjs/storybook",
+      "slopcheck": "unavailable",
+      "disposition": "ASSUMED"
+    },
+    {
+      "name": "@storybook/nextjs-vite",
+      "version": "10.5.9",
+      "registry_url": "https://registry.npmjs.org/%40storybook%2Fnextjs-vite/10.5.9",
+      "npm_page_url": "https://www.npmjs.com/package/@storybook/nextjs-vite/v/10.5.9",
+      "source_url": "https://github.com/storybookjs/storybook",
+      "slopcheck": "unavailable",
+      "disposition": "ASSUMED"
+    },
+    {
+      "name": "@vitest/browser-playwright",
+      "version": "4.1.11",
+      "registry_url": "https://registry.npmjs.org/%40vitest%2Fbrowser-playwright/4.1.11",
+      "npm_page_url": "https://www.npmjs.com/package/@vitest/browser-playwright/v/4.1.11",
+      "source_url": "https://github.com/vitest-dev/vitest",
+      "slopcheck": "unavailable",
+      "disposition": "ASSUMED"
+    },
+    {
+      "name": "eslint",
+      "version": "9.39.5",
+      "registry_url": "https://registry.npmjs.org/eslint/9.39.5",
+      "npm_page_url": "https://www.npmjs.com/package/eslint/v/9.39.5",
+      "source_url": "https://github.com/eslint/eslint",
+      "slopcheck": "unavailable",
+      "disposition": "ASSUMED"
+    },
+    {
+      "name": "storybook",
+      "version": "10.5.9",
+      "registry_url": "https://registry.npmjs.org/storybook/10.5.9",
+      "npm_page_url": "https://www.npmjs.com/package/storybook/v/10.5.9",
+      "source_url": "https://github.com/storybookjs/storybook",
+      "slopcheck": "unavailable",
+      "disposition": "ASSUMED"
+    },
+    {
+      "name": "vite",
+      "version": "8.2.1",
+      "registry_url": "https://registry.npmjs.org/vite/8.2.1",
+      "npm_page_url": "https://www.npmjs.com/package/vite/v/8.2.1",
+      "source_url": "https://github.com/vitejs/vite",
+      "slopcheck": "unavailable",
+      "disposition": "ASSUMED"
+    },
+    {
+      "name": "vitest",
+      "version": "4.1.11",
+      "registry_url": "https://registry.npmjs.org/vitest/4.1.11",
+      "npm_page_url": "https://www.npmjs.com/package/vitest/v/4.1.11",
+      "source_url": "https://github.com/vitest-dev/vitest",
+      "slopcheck": "unavailable",
+      "disposition": "ASSUMED"
+    }
+  ]
+}

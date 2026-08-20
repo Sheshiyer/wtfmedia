@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "plan": "01-02",
+  "results": {
+    "T-01-SC-APPROVAL": {
+      "plan": "01-02",
+      "task": 1,
+      "command_id": "c1778dd1cc98afd53b124db01903134d26803388d257a1c282b10db3d00f69c4",
+      "command": "node -e 'const a=require(\"./web/tests/package-legitimacy.json\"); if(a.status!==\"approved\"||a.packages.length!==12||a.packages.some(p=>p.slopcheck!==\"unavailable\"||p.disposition!==\"ASSUMED\"||!p.registry_url||!p.source_url)) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-20T13:48:03.381Z",
+      "status": "passed"
+    }
+  }
+}
