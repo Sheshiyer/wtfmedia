@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "status": "approved",
+  "approval_scope": "phase-01-plan-01-task-3-authoritative-compatibility-baseline",
+  "owner_approval_ref": "owner-explicit-approval-2026-08-20-phase-01-plan-01-task-3",
+  "manifest_path": "web/tests/contracts/phase1-compatibility-manifest.json",
+  "manifest_sha256": "8b9496ffd0dd084d7b4508e5b3170b1aa7f2f21886870ac41eb8ec0c444cf278",
+  "base_sha": "0f806772acdb008eeb9fb88ec256cbc2c9db07d8",
+  "approved_protected_hashes": [
+    {
+      "path": "web/app/layout.tsx",
+      "sha256": "7f7ddb592ac029ae10a6f635f2981a8bd81c9b5a59782ee060c3501817f08655"
+    },
+    {
+      "path": "web/app/page.tsx",
+      "sha256": "242ac57016d9d61956c8dde799b2488bcc7a899218cf3207b9b0770f7f90476f"
+    },
+    {
+      "path": "web/app/episodes/page.tsx",
+      "sha256": "7138a212a1f69170088ba358424b8ab1832f1bc46ee95d7a0adac065689b93b3"
+    },
+    {
+      "path": "web/app/connections/page.tsx",
+      "sha256": "a58a2024c634635358a3a8f4cf191be870c23aa5e7dc728fbddc33f57a6f0855"
+    },
+    {
+      "path": "web/app/chat/page.tsx",
+      "sha256": "73e4fb084a07b899806b27bb67dcd24fa5634dab0c06bea47de7b262db8d5078"
+    },
+    {
+      "path": "web/app/api/chat/route.ts",
+      "sha256": "43ed48fa234928b9cf1f51d47a8026f786c255a85a42db5f6b7fc2715c9b7b1a"
+    }
+  ],
+  "streaming_contract": {
+    "proxy": "awaits the complete Worker JSON response before constructing a plain-text Response",
+    "first_byte_meaning": "the proxy has a complete parsed answer; it is not evidence of first model-token timing",
+    "transport_chunks": "runtime transport may deliver one or more chunks; source does not promise token cadence or chunk count",
+    "browser": "reads response.body with ReadableStream.getReader(), decodes each delivered chunk, and updates accumulated text after each read",
+    "headers": "sources, model compatibility, and fallback metadata are read before the body loop"
+  }
+}
