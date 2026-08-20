@@ -22,6 +22,7 @@ created: 2026-08-19
 | **Route/E2E/visual framework** | Playwright Test 1.62.1, blocking Chromium project — proposed, package legitimacy human-gated |
 | **Accessibility** | Storybook a11y in error mode plus `@axe-core/playwright` and explicit keyboard/focus tests |
 | **Performance** | Lighthouse CI 0.15.1 plus deterministic proxy/RAG timing fixture — proposed, package legitimacy human-gated |
+| **Package legitimacy gate** | Plan `01-02`, Wave 2 — approved receipt `web/tests/package-legitimacy.json`; approval `owner-explicit-approval-2026-08-20-exact-twelve-package-version-set`; package-set SHA-256 `24f0eec8236fba7b0fae6cfb2090b67cb34cfb4d3e412590b72ce000068c513f`; `T-01-SC-APPROVAL` passed. Approval does not imply installation or harness readiness. |
 | **Config files** | None — Wave 0 creates ESLint, Storybook, Vitest, Playwright, and Lighthouse configuration |
 | **Quick run command** | `cd web && npm run test:contracts` — proposed after Wave 0 |
 | **Full suite command** | `cd web && npm run verify:phase1` — locked aggregate command after Wave 0 |
@@ -199,6 +200,7 @@ Final aggregation has no exemption and no circular precondition. Plan 01-20 Task
 
 - [x] Add `web/tests/contracts/phase1-compatibility-manifest.json` from the bounded current dirty-worktree capture without reverting unrelated changes.
 - [ ] Add owner-approved `web/tests/contracts/phase1-baseline-approval.json` bound to the manifest and protected-file hashes.
+- [x] Record Plan `01-02`, Wave 2 package approval in `web/tests/package-legitimacy.json`, bound to approval `owner-explicit-approval-2026-08-20-exact-twelve-package-version-set`, package-set SHA-256 `24f0eec8236fba7b0fae6cfb2090b67cb34cfb4d3e412590b72ce000068c513f`, and passing `T-01-SC-APPROVAL`; installation and harness readiness remain pending.
 - [ ] Pause at a human package-legitimacy checkpoint before installing the exact proposed packages and Chromium.
 - [ ] Add `web/eslint.config.mjs` and direct ESLint 9 scripts.
 - [ ] Add `web/.storybook/main.ts`, `web/.storybook/preview.ts`, deterministic fixture decorators, a11y error mode, and one smoke story.

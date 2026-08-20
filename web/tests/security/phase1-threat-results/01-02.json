@@ -16,6 +16,36 @@
       },
       "completed_at": "2026-08-20T13:48:03.381Z",
       "status": "passed"
+    },
+    "T-01-05": {
+      "plan": "01-02",
+      "task": 2,
+      "command_id": "2ec345b8bc92b0d18545e1b6a3196d10293111e4dc7347fe4c587c9855ed9645",
+      "command": "node -e 'const s=require(\"fs\").readFileSync(\".planning/phases/01-compatibility-component-proof-harness/01-VALIDATION.md\",\"utf8\"); if(!s.includes(\"01-02\")||!s.includes(\"T-01-SC-APPROVAL\")||!s.includes(\"wave_0_complete: false\")||!s.includes(\"nyquist_compliant: false\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-20T13:49:26.414Z",
+      "status": "passed"
+    },
+    "T-01-06": {
+      "plan": "01-02",
+      "task": 2,
+      "command_id": "4def7d434e09c7d0cb3ec0d312598bcfb9d957cb4e91cbaeb747ae9da7243bb4",
+      "command": "node -e 'const s=require(\"fs\").readFileSync(\".planning/phases/01-compatibility-component-proof-harness/01-VALIDATION.md\",\"utf8\"); if(!s.includes(\"01-02\")||!s.includes(\"T-01-SC-APPROVAL\")||!s.includes(\"wave_0_complete: false\")||!s.includes(\"nyquist_compliant: false\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-20T13:49:26.414Z",
+      "status": "passed"
     }
   }
 }
