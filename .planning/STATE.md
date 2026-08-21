@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 01 Plan 01-04 COMPLETE - all 4 threats (T-01-09..12) passed; harness configs + smoke story + scaffold journeys green; 01-04-SUMMARY.md written; next executable is Plan 01-05
-last_updated: "2026-08-21T10:15:00+05:30"
-last_activity: 2026-08-21 -- Plan 01-04 closed: privacy scanner 0 violations, HarnessSmoke 1/1 green, Playwright lists 16 scaffold tests across 320/768/1440 projects, LHCI shape (5 runs/filesystem/4 URLs) verified, threat ledger 01-04.json all passed, wave-verification receipt updated
+stopped_at: Phase 01 Plan 01-05 COMPLETE - all 5 threats (T-01-13..17) passed; public-projection/route contracts + extended privacy scanner + VALIDATION.md COMP-03/04/QUAL-05 rows green; 01-05-SUMMARY.md written; next executable is Plan 01-06
+last_updated: "2026-08-22T05:20:00+05:30"
+last_activity: 2026-08-22 -- Plan 01-05 closed: public-projection and public-routes contract tests 14/14 green against real on-disk data (no allowlist drift), privacy scanner extended to source/test/planning/generated-artifact roots with 0 violations across 80 files, threat ledger 01-05.json all passed (T-01-13..17), VALIDATION.md COMP-03/COMP-04/QUAL-05 rows populated and marked green (COMP-01/COMP-02/QUAL-02 left untouched per Requirement-to-Threat map), wave_0_complete/nyquist_compliant retained false
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 23
-  completed_plans: 4
-  percent: 17
+  completed_plans: 5
+  percent: 22
 approval_refresh:
   id: apr_4737e705fef30c663095_refresh
   approved_at: "2026-08-21T09:20:00.000Z"
@@ -33,11 +33,11 @@ without losing provenance.
 ## Current Position
 
 Phase: 01 (Compatibility + Component Proof Harness) — EXECUTING
-Plan: 4 of 23
-Status: Plans 01-01 through 01-04 complete (`01-04-SUMMARY.md`); next executable is Plan 01-05
-Last activity: 2026-08-21 -- Plan 01-04 closed: privacy scanner 0 violations, HarnessSmoke 1/1 green, Playwright lists 16 scaffold tests across 320/768/1440 projects, LHCI shape (5 runs/filesystem/4 URLs) verified, threat ledger 01-04.json all passed, wave-verification receipt updated
+Plan: 5 of 23
+Status: Plans 01-01 through 01-05 complete (`01-05-SUMMARY.md`); next executable is Plan 01-06
+Last activity: 2026-08-22 -- Plan 01-05 closed: public-projection and public-routes contract tests 14/14 green against real on-disk data (no allowlist drift), privacy scanner extended to source/test/planning/generated-artifact roots with 0 violations across 80 files, threat ledger 01-05.json all passed (T-01-13..17), VALIDATION.md COMP-03/COMP-04/QUAL-05 rows populated and marked green, wave_0_complete/nyquist_compliant retained false
 
-Progress: [█░░░░░░░░░] 17%
+Progress: [██░░░░░░░░] 22%
 
 ## Execution Authorization
 
@@ -51,7 +51,7 @@ Progress: [█░░░░░░░░░] 17%
 
 **Velocity:**
 
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: —
 - Total execution time: 0 hours
 
@@ -59,7 +59,7 @@ Progress: [█░░░░░░░░░] 17%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. Compatibility + Component Proof Harness | 4 | 23 | — |
+| 1. Compatibility + Component Proof Harness | 5 | 23 | — |
 
 ## Accumulated Context
 
@@ -101,7 +101,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-21T10:15:00+05:30
-Stopped at: Phase 01 Plan 01-04 complete; next executable is Plan 01-05
-Resume file: .planning/phases/01-compatibility-component-proof-harness/01-05-PLAN.md
-Resume: Execute Plan 01-05 after reading `01-05-PLAN.md`; Phase 2 remains gated behind Phase 1 acceptance.
+Last session: 2026-08-22T05:20:00+05:30
+Stopped at: Phase 01 Plan 01-05 complete; next executable is Plan 01-06
+Resume file: .planning/phases/01-compatibility-component-proof-harness/01-06-PLAN.md
+Resume: Execute Plan 01-06 after reading `01-06-PLAN.md`; Phase 2 remains gated behind Phase 1 acceptance.

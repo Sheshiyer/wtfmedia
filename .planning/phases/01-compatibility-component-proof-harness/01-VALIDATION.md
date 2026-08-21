@@ -48,8 +48,8 @@ The Phase Threat Definition Ledger below assigns immutable plan/task ownership a
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
 | 01-01-T1/T3 | 01-01 | 1 | COMP-01 | T-01-01, T-01-03 | Protected URLs resolve in both retained variants | contract + E2E | `npm run test:browser -- tests/journeys/public-routes.spec.ts` | ❌ W0 | ⬜ pending |
 | 01-01-T1/T3 | 01-01 | 1 | COMP-02 | T-01-01, T-01-03 | Supported bookmarks, queries, filters, and deep links retain meaning | contract + E2E | `npm run test:browser -- tests/journeys/url-state.spec.ts` | ❌ W0 | ⬜ pending |
-| 01-01-T1/T3 | 01-01 | 1 | COMP-03 | T-01-01, T-01-03, T-01-04 | Chat validation, streaming, headers, sources, status, and safe errors remain compatible | contract + E2E | `npm run test:contracts -- tests/contracts/api-chat.contract.test.ts` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | COMP-04 | Private-field disclosure | Anonymous DTOs, DOM, payloads, and artifacts contain allowlisted fields only | unit + DOM + artifact | `npm run test:contracts -- tests/contracts/public-projection.contract.test.ts` | ❌ W0 | ⬜ pending |
+| 01-01-T1/T3, 01-05-T1 | 01-01, 01-05 | 1, 5 | COMP-03 | T-01-01, T-01-03, T-01-04, T-01-13..T-01-17 | Chat validation, streaming, headers, sources, status, and safe errors remain compatible | contract + E2E | `npm run test:contracts -- tests/contracts/api-chat.contract.test.ts` | ✅ | ✅ green |
+| 01-05-T2 | 01-05 | 5 | COMP-04 | T-01-14 | Anonymous DTOs, DOM, payloads, and artifacts contain allowlisted fields only | unit + DOM + artifact | `npm run test:contracts -- tests/contracts/public-projection.contract.test.ts` | ✅ | ✅ green |
 | TBD | TBD | 0 | COMP-05 | Authorization-state disclosure | Connections remains a read-only public evidence projection | unit + E2E | `npm run test:browser -- tests/journeys/connections.spec.ts` | ❌ W0 | ⬜ pending |
 | TBD | TBD | 0 | DSYS-01 | — | Migrated components consume repository-owned semantic tokens | schema/lint | `npm run test:unit -- tests/unit/tokens.test.ts` | ❌ W0 | ⬜ pending |
 | TBD | TBD | 0 | DSYS-02 | — | Brand-critical wordmark, palette, fonts, depth, and voice remain present | computed style + visual | `npm run test:visual -- --grep @brand` | ❌ W0 | ⬜ pending |
@@ -65,7 +65,7 @@ The Phase Threat Definition Ledger below assigns immutable plan/task ownership a
 | 01-01-T1/T2/T3 | 01-01 | 1 | QUAL-02 | T-01-01, T-01-02, T-01-03, T-01-04 | Contract and browser matrices block incompatible changes | contract + E2E | `npm run test:contracts && npm run test:browser` | ❌ W0 | ⬜ pending |
 | TBD | TBD | 0 | QUAL-03 | Accessibility denial | Keyboard, focus, names, live regions, motion, and serious axe checks pass | component + E2E | `npm run test:components && npm run test:a11y` | ❌ W0 | ⬜ pending |
 | TBD | TBD | 0 | QUAL-04 | — | Three-viewport baselines change only with owner approval | visual regression | `npm run test:visual` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | QUAL-05 | Credential/private-data disclosure | Source, bundles, rendered payloads, fixtures, logs, snapshots, and plans pass bounded privacy scans | artifact scan | `npm run test:privacy` | ❌ W0 | ⬜ pending |
+| 01-05-T1/T2 | 01-05 | 5 | QUAL-05 | T-01-14, T-01-15 | Source, bundles, rendered payloads, fixtures, logs, snapshots, and plans pass bounded privacy scans | artifact scan | `npm run test:privacy -- --check` | ✅ | ✅ green |
 | TBD | TBD | 0 | QUAL-06 | Availability/regression | Route, bundle, RAG, and interaction measurements stay inside owner-approved budgets | performance + contract | `npm run test:performance && npm run test:contracts -- tests/contracts/rag-latency.test.ts` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
