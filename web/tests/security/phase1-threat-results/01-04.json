@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "plan": "01-04",
+  "results": {
+    "T-01-09": {
+      "plan": "01-04",
+      "task": 2,
+      "command_id": "7b5ec26f792a52fbc96c2b9ccd525c3d8ab3f26f74f3ad0ae1cd72fcdd7e14f7",
+      "command": "cd web && npm run test:components -- HarnessSmoke && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "c55a45bfbf99a657fbcc67d065e8678149a5aca7eea3567f07432f53ff157e6a",
+        "error_output_sha256": "238cd77cb7499b2ac6c769d447c7847a5952fbb5ffaf022fa5ef9c9044d626c3",
+        "output_bytes": 624,
+        "error_output_bytes": 1506
+      },
+      "completed_at": "2026-08-21T04:17:58.185Z",
+      "status": "passed"
+    },
+    "T-01-11": {
+      "plan": "01-04",
+      "task": 2,
+      "command_id": "8261e396f5dcd394017455ac1f837b5e313addfbe696863f4c203a308b1907e1",
+      "command": "cd web && npm run test:components -- HarnessSmoke",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "776196d546c56cf675399fda702ce091fd9f424a4d8214c51d7918ce2f23dd80",
+        "error_output_sha256": "e0ce7aecbd8eee2bf34d33bd3b3c4123cc6f34d9dcc65173c972b3a347bc1da5",
+        "output_bytes": 323,
+        "error_output_bytes": 1506
+      },
+      "completed_at": "2026-08-21T04:17:58.185Z",
+      "status": "passed"
+    },
+    "T-01-10": {
+      "plan": "01-04",
+      "task": 3,
+      "command_id": "a0826dfcffeda585054a65acf8867961e5367ee68a2acd2e9ca383fd62fef462",
+      "command": "cd web && npm exec playwright -- test --config=playwright.config.ts --list && node -e 'const c=require(\"./lighthouserc.cjs\"); if(c.ci.collect.numberOfRuns!==5||c.ci.upload.target!==\"filesystem\") process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "845cc9405a5ca2e70732bb15f75e2769189b4ee90987590f254dfe651bb62eff",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 2329,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-21T04:41:57.999Z",
+      "status": "passed"
+    },
+    "T-01-12": {
+      "plan": "01-04",
+      "task": 3,
+      "command_id": "2df3b8dafd366a37517e5cdf0c5faf260c855a92e21337634a0adc8c5f3df4df",
+      "command": "cd web && npm exec playwright -- test --config=playwright.config.ts --list && node -e 'const c=require(\"./lighthouserc.cjs\"); const u=c.ci.collect.url; if(c.ci.collect.numberOfRuns!==5||u.length!==4||c.ci.upload.target!==\"filesystem\") process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "845cc9405a5ca2e70732bb15f75e2769189b4ee90987590f254dfe651bb62eff",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 2329,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-21T04:41:57.999Z",
+      "status": "passed"
+    }
+  }
+}
