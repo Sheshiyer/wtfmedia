@@ -1,6 +1,7 @@
 # Requirements: WTF Media — One Brain Re-foundation
 
 **Defined:** 2026-08-19
+**Reconciled:** 2026-08-20 against the owner-approved client Phase 1/2 build specification (v2.0)
 
 **Core Value:** An operator can move from any episode, question, or decision to
 its source asset, exact evidence, current owner, workflow state, and next action
@@ -8,10 +9,16 @@ without losing provenance.
 
 ## Execution Authorization
 
-All ten requirement families are accepted for the v1.0 roadmap. Only the
+All twelve requirement families are accepted for the v1.0 roadmap. Only the
 requirements assigned to **Phase 1** and **Phase 2** may be executed first.
-Phases 3–8 remain planned, not implementation-authorized, until Phases 1–2 pass
+Phases 3–10 remain planned, not implementation-authorized, until Phases 1–2 pass
 their acceptance gates and the owner explicitly proceeds.
+
+Client-facing “Phase 1” and “Phase 2” are delivery tracks, not aliases for the
+repository's numbered execution phases. Client Phase 1 closes across repository
+Phases 2–4 after the Phase 1 proof harness; client Phase 2 closes across
+repository Phases 5–9. The source document's unresolved items remain blocking
+inputs and do not authorize guessed architecture, accounts, services, or spend.
 
 The generated moodboard and flow board are Phase 1 design inputs. Exact routes,
 permissions, components, and phase boundaries are governed by `DESIGN.md`,
@@ -51,6 +58,8 @@ permissions, components, and phase boundaries are governed by `DESIGN.md`,
 - [ ] **AUTH-06**: A public and operator request use separate allowlisted DTOs, cache namespaces, search projections, and safe-error policies over shared domain services.
 - [ ] **AUTH-07**: An operator whose session expires or is revoked loses protected client state and returns through a focus-safe, non-leaking recovery flow.
 - [ ] **AUTH-08**: An authorized operator can view a truthful empty or unavailable Control Room before canonical workflow records exist, with no invented totals or health claims.
+- [ ] **AUTH-09**: An admin can invite, deactivate, and assign approved roles to WTF-only accounts while `admin` and `editor` behavior is fully enforced and later roles remain non-privileged shells until activated.
+- [ ] **AUTH-10**: An authorized reviewer can trace logins, searches, views, exports, and admin actions to an actor, time, action, entity, and outcome.
 
 ### Provenance (`PROV`)
 
@@ -63,6 +72,11 @@ permissions, components, and phase boundaries are governed by `DESIGN.md`,
 - [ ] **PROV-07**: A citation resolves to an episode, asset version, transcript version, source span, and the correct available timeline coordinate.
 - [ ] **PROV-08**: A re-ingestion stages a complete evidence version before activation and removes or tombstones obsolete chunks so mixed-version retrieval cannot occur.
 - [ ] **PROV-09**: An operator can use one canonical episode workspace to move among identity, assets, transcript, timelines, citations, workflow references, and attributable activity.
+- [ ] **PROV-10**: An admin can idempotently ingest the approved episode inventory from both YouTube channels with video identity, IP, channel, language, guest, content bucket, dates, duration, thumbnail, description, and chapter metadata.
+- [ ] **PROV-11**: An admin can ingest WTF-supplied uncut assets through an asynchronous job whose indexed, pending, failed, and unavailable states are visible without exposing private paths.
+- [ ] **PROV-12**: A transcript is stored as source-bound segments containing start, end, speaker, text, and language evidence, with the uncut ASR transcript primary and published-video timing separately represented.
+- [ ] **PROV-13**: Per-episode transcript alignment converts between uncut and published-video coordinates within two seconds for ten owner-approved evaluation episodes.
+- [ ] **PROV-14**: An editor can open YouTube and Uncut players at the same reconciled moment, switch sources without losing that moment, copy either timestamp, and receive an honest unavailable state when a source is missing.
 
 ### Knowledge (`KNOW`)
 
@@ -72,6 +86,13 @@ permissions, components, and phase boundaries are governed by `DESIGN.md`,
 - [ ] **KNOW-04**: An operator can open a cited source in its available episode, asset, transcript, passage, and timeline context.
 - [ ] **KNOW-05**: An operator can save evidence or add it to a dossier without losing scope, citation, asset version, source span, or authoring provenance.
 - [ ] **KNOW-06**: A maintainer can evaluate scoped retrieval, grounding, citations, abstention, and unsupported-role claims against an approved golden set before release.
+- [ ] **KNOW-07**: An editor can use hybrid keyword, exact-phrase, and semantic retrieval with episode, IP, guest, channel, date, and language filters, ten-result pagination, highlighted evidence, and explicit low-confidence handling.
+- [ ] **KNOW-08**: The owner-approved twenty-query editorial evaluation set places the correct moment in the top three for at least eighty percent of queries with median search latency below three seconds.
+- [ ] **KNOW-09**: A researcher can begin with a guest, company, or industry and receive one ordered Snacks, Appetizers, Main Course, and Desserts brief after explicit entity disambiguation when needed.
+- [ ] **KNOW-10**: A research brief combines WTF offline notes, prior guest appearances, the WTF corpus, live cited web research, and structured primary data while ranking approved human notes above web synthesis.
+- [ ] **KNOW-11**: Every factual brief claim carries a working citation, podcast claims include episode and timestamp, numeric claims receive an independent verification source, and disagreements remain visible.
+- [ ] **KNOW-12**: Research execution exposes parallel track status, retry isolation, and a provider-agnostic orchestration boundary; Kimi Agent Swarm remains unselected until the recorded bake-off passes citation, accuracy, latency, and cost gates.
+- [ ] **KNOW-13**: A brief is editable, versioned, attached to its episode, and can regenerate one tier without regenerating the others; export remains disabled until the owner selects its target.
 
 ### Production Flow (`FLOW`)
 
@@ -82,6 +103,7 @@ permissions, components, and phase boundaries are governed by `DESIGN.md`,
 - [ ] **FLOW-05**: An operator can record a blocker with status, owner, affected episode or work item, evidence, and next action.
 - [ ] **FLOW-06**: A Control Room count is derived from authorized canonical records and deep-links to the exact contributors behind it.
 - [ ] **FLOW-07**: An internal mutation records actor, prior state, new state, time, source, and a defined recovery or correction path.
+- [ ] **FLOW-08**: Authorized operators can use month, week, and IP-filtered calendar views whose shoot, post, and milestone entries link to canonical episode records and whose notification/synchronization mode is explicitly approved.
 
 ### Analytics (`ANLY`)
 
@@ -90,6 +112,10 @@ permissions, components, and phase boundaries are governed by `DESIGN.md`,
 - [ ] **ANLY-03**: An operator can distinguish measured zero from unavailable, stale, partial, permission-denied, or failed metric data.
 - [ ] **ANLY-04**: An operator can inspect calculation lineage for every derived metric or comparison.
 - [ ] **ANLY-05**: An operator sees descriptive performance evidence without unsupported causal or predictive claims.
+- [ ] **ANLY-06**: An operator sees daily cached subscriber, view, watch-time, like, comment, per-episode, trend, and record-break observations for both approved YouTube channels without page-load API calls.
+- [ ] **ANLY-07**: An operator can compare normalized YouTube, Instagram, and LinkedIn observations by platform, IP, and content bucket after each source adapter is approved.
+- [ ] **ANLY-08**: Weekly summaries, monthly rollups, anomaly alerts, and record-break alerts remain viewable in-platform and are delivered only through an owner-approved channel to approved recipients.
+- [ ] **ANLY-09**: Monthly AI consumption reporting attributes tokens and cost to user, feature, query, and agent run and alerts before the approved cost ceiling is exceeded.
 
 ### People (`PEOP`)
 
@@ -107,6 +133,16 @@ permissions, components, and phase boundaries are governed by `DESIGN.md`,
 - [ ] **INTG-04**: An operator sees permission mode, coverage, last attempt, last success, failure boundary, retry state, and accountable owner for each adapter.
 - [ ] **INTG-05**: An operator can distinguish current failure from last-known-good data without credentials, private paths, or raw provider payloads appearing in the UI or logs.
 - [ ] **INTG-06**: A source adapter cannot enter the roadmap until its current official API, scopes, limits, stable keys, retention constraints, safe methods, and owner are approved.
+- [ ] **INTG-07**: Approved YouTube Data and Analytics access for both channels is consumed server-side through a scheduled, cached, read-only adapter with observable coverage and failure state.
+- [ ] **INTG-08**: Approved Instagram and LinkedIn analytics access is consumed server-side through scheduled, cached, read-only adapters that normalize observations without fabricating unavailable metrics.
+
+### Clip Intelligence (`CLIP`)
+
+- [ ] **CLIP-01**: A clip candidate links its episode span to topic, guest, duration, hook evidence, historical performance features, and source transcript version.
+- [ ] **CLIP-02**: A newly ingested episode can produce ten ranked short-form clip candidates, each with start, end, rationale, score, and explicit uncertainty.
+- [ ] **CLIP-03**: An editor can record approval or rejection feedback for each candidate and the system preserves that attributable decision for later evaluation.
+- [ ] **CLIP-04**: On the owner-approved evaluation set, editorial reviewers judge at least five of ten proposed candidates worth cutting.
+- [ ] **CLIP-05**: Clip suggestions are framed as a human-owned shortlist, never a virality guarantee, and remain disabled until automatic-versus-editor-triggered mode is approved.
 
 ### Quality and Release Evidence (`QUAL`)
 
@@ -118,6 +154,15 @@ permissions, components, and phase boundaries are governed by `DESIGN.md`,
 - [ ] **QUAL-06**: A maintainer can measure and approve route performance, bundle impact, RAG latency, and interaction regressions against the recorded baseline.
 - [ ] **QUAL-07**: A security reviewer can verify anonymous, cross-role, ID-tampering, cache-mixing, session-expiry, and privilege-escalation probes fail closed.
 - [ ] **QUAL-08**: A maintainer can rehearse rollback and prove the previous reader, style, or route remains available until replacement evidence is accepted.
+- [ ] **QUAL-09**: Structured application, ingestion, search, and agent telemetry records latency, errors, tokens, and cost without storing credentials or prohibited private payloads.
+- [ ] **QUAL-10**: Development, staging, and production remain separately configured with migration-driven schema changes, a local/environment/ingestion runbook, and an explicitly scheduled staging demonstration gate.
+- [ ] **QUAL-11**: Search median remains below three seconds, search p95 remains below six seconds, dashboards serve cached data, and ingestion exposes asynchronous status.
+- [ ] **QUAL-12**: Guest-confidential material is protected by server-side authorization and managed, rotatable secrets that do not require source changes or repository commits.
+
+### Advanced Intelligence (`AINT`)
+
+- [ ] **AINT-01**: An operator can use abstract-topic or sentiment retrieval only after a labelled evaluation set and thresholds are approved.
+- [ ] **AINT-02**: An operator can use predictive recommendations only when evidence, uncertainty, evaluation, and human decision ownership are explicit.
 
 ## Future Requirements
 
@@ -130,10 +175,8 @@ permissions, components, and phase boundaries are governed by `DESIGN.md`,
 
 - **RISK-01**: An authorized specialist can execute finance, payment, contract, e-signature, identity-document, credential, or legal-retention workflows only under separately reviewed controls.
 
-### Advanced Intelligence
+### Deferred Intelligence
 
-- **AINT-01**: An operator can use abstract-topic or sentiment retrieval only after a labelled evaluation set and thresholds are approved.
-- **AINT-02**: An operator can use predictive recommendations only when evidence, uncertainty, evaluation, and human decision ownership are explicit.
 - **AINT-03**: Multiple operators can collaborate in real time only after conflict, attribution, and concurrency behavior are separately designed.
 
 ## Out of Scope
@@ -162,7 +205,7 @@ that persistence does not duplicate requirement ownership.
 | COMP-03 | Phase 1 | Pending |
 | COMP-04 | Phase 1 | Pending |
 | COMP-05 | Phase 1 | Pending |
-| COMP-06 | Phase 8 | Pending |
+| COMP-06 | Phase 10 | Pending |
 | DSYS-01 | Phase 1 | Pending |
 | DSYS-02 | Phase 1 | Pending |
 | DSYS-03 | Phase 1 | Pending |
@@ -181,6 +224,8 @@ that persistence does not duplicate requirement ownership.
 | AUTH-06 | Phase 2 | Pending |
 | AUTH-07 | Phase 2 | Pending |
 | AUTH-08 | Phase 2 | Pending |
+| AUTH-09 | Phase 2 | Pending |
+| AUTH-10 | Phase 2 | Pending |
 | PROV-01 | Phase 3 | Pending |
 | PROV-02 | Phase 3 | Pending |
 | PROV-03 | Phase 3 | Pending |
@@ -190,35 +235,59 @@ that persistence does not duplicate requirement ownership.
 | PROV-07 | Phase 3 | Pending |
 | PROV-08 | Phase 3 | Pending |
 | PROV-09 | Phase 3 | Pending |
+| PROV-10 | Phase 3 | Pending |
+| PROV-11 | Phase 3 | Pending |
+| PROV-12 | Phase 3 | Pending |
+| PROV-13 | Phase 3 | Pending |
+| PROV-14 | Phase 4 | Pending |
 | KNOW-01 | Phase 4 | Pending |
 | KNOW-02 | Phase 4 | Pending |
 | KNOW-03 | Phase 4 | Pending |
 | KNOW-04 | Phase 4 | Pending |
 | KNOW-05 | Phase 4 | Pending |
 | KNOW-06 | Phase 4 | Pending |
-| FLOW-01 | Phase 5 | Pending |
-| FLOW-02 | Phase 5 | Pending |
-| FLOW-03 | Phase 5 | Pending |
-| FLOW-04 | Phase 5 | Pending |
-| FLOW-05 | Phase 5 | Pending |
-| FLOW-06 | Phase 5 | Pending |
-| FLOW-07 | Phase 5 | Pending |
-| ANLY-01 | Phase 6 | Pending |
-| ANLY-02 | Phase 6 | Pending |
-| ANLY-03 | Phase 6 | Pending |
-| ANLY-04 | Phase 6 | Pending |
-| ANLY-05 | Phase 6 | Pending |
-| PEOP-01 | Phase 6 | Pending |
-| PEOP-02 | Phase 6 | Pending |
-| PEOP-03 | Phase 6 | Pending |
-| PEOP-04 | Phase 6 | Pending |
-| PEOP-05 | Phase 6 | Pending |
+| KNOW-07 | Phase 4 | Pending |
+| KNOW-08 | Phase 4 | Pending |
+| KNOW-09 | Phase 5 | Pending |
+| KNOW-10 | Phase 5 | Pending |
+| KNOW-11 | Phase 5 | Pending |
+| KNOW-12 | Phase 5 | Pending |
+| KNOW-13 | Phase 5 | Pending |
+| FLOW-01 | Phase 6 | Pending |
+| FLOW-02 | Phase 6 | Pending |
+| FLOW-03 | Phase 6 | Pending |
+| FLOW-04 | Phase 6 | Pending |
+| FLOW-05 | Phase 6 | Pending |
+| FLOW-06 | Phase 6 | Pending |
+| FLOW-07 | Phase 6 | Pending |
+| FLOW-08 | Phase 6 | Pending |
+| ANLY-01 | Phase 8 | Pending |
+| ANLY-02 | Phase 8 | Pending |
+| ANLY-03 | Phase 8 | Pending |
+| ANLY-04 | Phase 8 | Pending |
+| ANLY-05 | Phase 8 | Pending |
+| ANLY-06 | Phase 4 | Pending |
+| ANLY-07 | Phase 8 | Pending |
+| ANLY-08 | Phase 8 | Pending |
+| ANLY-09 | Phase 8 | Pending |
+| PEOP-01 | Phase 5 | Pending |
+| PEOP-02 | Phase 5 | Pending |
+| PEOP-03 | Phase 8 | Pending |
+| PEOP-04 | Phase 8 | Pending |
+| PEOP-05 | Phase 8 | Pending |
 | INTG-01 | Phase 7 | Pending |
 | INTG-02 | Phase 7 | Pending |
 | INTG-03 | Phase 7 | Pending |
 | INTG-04 | Phase 7 | Pending |
 | INTG-05 | Phase 7 | Pending |
 | INTG-06 | Phase 7 | Pending |
+| INTG-07 | Phase 3 | Pending |
+| INTG-08 | Phase 7 | Pending |
+| CLIP-01 | Phase 9 | Pending |
+| CLIP-02 | Phase 9 | Pending |
+| CLIP-03 | Phase 9 | Pending |
+| CLIP-04 | Phase 9 | Pending |
+| CLIP-05 | Phase 9 | Pending |
 | QUAL-01 | Phase 1 | Pending |
 | QUAL-02 | Phase 1 | Pending |
 | QUAL-03 | Phase 1 | Pending |
@@ -226,17 +295,23 @@ that persistence does not duplicate requirement ownership.
 | QUAL-05 | Phase 1 | Pending |
 | QUAL-06 | Phase 1 | Pending |
 | QUAL-07 | Phase 2 | Pending |
-| QUAL-08 | Phase 8 | Pending |
+| QUAL-08 | Phase 10 | Pending |
+| QUAL-09 | Phase 2 | Pending |
+| QUAL-10 | Phase 2 | Pending |
+| QUAL-11 | Phase 4 | Pending |
+| QUAL-12 | Phase 2 | Pending |
+| AINT-01 | Phase 9 | Pending |
+| AINT-02 | Phase 9 | Pending |
 
 **Coverage:**
 
-- v1.0 requirements: 70
-- Mapped to phases: 70
+- v1.0 requirements: 102
+- Mapped to phases: 102
 - Unmapped: 0 ✓
 - Duplicate mappings: 0 ✓
-- Requirement families in v1.0 scope: 10/10
+- Requirement families in v1.0 scope: 12/12
 - Implementation authorized first: Phase 1 and Phase 2 only
-- Planned / inactive: Phases 3–8 until Phases 1–2 acceptance and explicit owner authorization
+- Planned / inactive: Phases 3–10 until Phases 1–2 acceptance and explicit owner authorization
 
 ---
 *Requirements defined: 2026-08-19 after owner acceptance of all recommended families and the Phase 1–2 execution cut.*

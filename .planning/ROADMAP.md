@@ -4,64 +4,121 @@
 
 WTF Media v1.0 moves from a protected public catalogue to an evidence-native
 podcast operating system without sacrificing the public product that already
-works. The sequence first establishes an executable compatibility and component
-proof harness, then adds a deny-by-default authenticated operator shell, and
-only then expands through canonical episode provenance, governed Knowledge,
-production, analytics, people, read-only integrations, and consumer-by-consumer
-migration closure. All ten approved requirement families are v1.0 scope.
+works. Repository phases are dependency-safe execution slices. The client
+build specification's “Phase 1” and “Phase 2” remain delivery tracks spanning
+multiple repository phases; their numbers are not interchangeable.
+
+The sequence preserves the already-planned compatibility and component proof
+harness, establishes a deny-by-default platform and operator boundary, then
+adds episode ingestion and provenance, exact-moment retrieval, research briefs,
+production scheduling, read-only source adapters, analytics/reporting, clip
+intelligence, and migration closure.
 
 ## Execution Authorization
 
-- **Implementation-authorized now:** Phase 1 and Phase 2 only. Work begins with
-  Phase 1; Phase 2 remains authorized but depends on Phase 1 acceptance.
-- **Planned and inactive:** Phases 3–8. None may enter implementation until
+- **Implementation-authorized now:** Phase 1 and Phase 2 only. Phase 1 has 23
+  committed plans and is ready to execute. Phase 2 remains authorized but
+  depends on Phase 1 acceptance and its recorded prerequisite decisions.
+
+- **Planned and inactive:** Phases 3–10. None may enter implementation until
   Phases 1–2 pass their acceptance gates and the owner explicitly authorizes
   the next work.
-- This cut is testable in each phase's `Execution authorization` field and in
-  the progress table. A phase marked `Planned / inactive` is not executable.
+
+- Reconciliation of the client specification changes planning scope only. It
+  does not authorize dependency installation, implementation, deployment,
+  domains, accounts, provider spend, source access, or external-service writes.
+
+## Client Delivery Tracks
+
+| Client track | Repository phases | Acceptance spine |
+|---|---|---|
+| Client Phase 1 — Podcast Brain | Phase 2 platform/auth + Phase 3 ingestion/provenance + Phase 4 exact-moment search, dual playback, and YouTube performance | Authenticated WTF-only use; every supplied episode visibly indexed; ten reconciled episodes within two seconds; editorial top-three retrieval at least 80% with median below three seconds; both YouTube channels refreshed daily; three editors adopt the tool and discovery drops below two minutes |
+| Client Phase 2 — AI agent layer | Phase 5 research briefs + Phase 6 production calendar + Phase 7 source adapters + Phase 8 analytics/reporting + Phase 9 clip intelligence | Cited briefs save meaningful desk-research time; cross-platform reporting is daily and automated; production planning uses the canonical calendar; weekly reporting runs unattended; editorial accepts at least five of ten clip candidates |
+
+The source's Weeks 1–3 and Weeks 3–7 labels are planning estimates, not accepted
+delivery promises. Estimation must be rerun after the deployment, identity,
+source-access, language, evaluation, and workflow blockers below are resolved.
+
+## Blocking Client Inputs and Decisions
+
+| Input or decision | Owner | Blocks |
+|---|---|---|
+| Deployment architecture: approved cloud versus ZTV plus NAS, with specs and access | Nikhai + Shesh | Phase 2 architecture and all runtime phases |
+| Domain selection and launch authority | WTF | Production launch, not Phase 1 proof-harness execution |
+| Identity provider, team roster, final role/capability matrix | WTF + owner | Phase 2 |
+| Both-channel YouTube Data/Analytics access, approved episode inventory, IP/language/content-bucket tagging | WTF | Phases 3–4 |
+| Uncut assets with authoritative episode mapping and storage/access policy | WTF | Phases 3–4 |
+| Hindi source/dubbing/search decision | WTF | Phases 3–4 |
+| Twenty-query editorial evaluation set with expected moments | WTF editorial | Phase 4 |
+| Research workflow walkthrough, approved offline notes, and sample briefs | WTF research | Phase 5 |
+| Sonar tier and monthly ceiling; export target; podcast-corpus scope; Kimi bake-off decision | Nikhai + Shesh + WTF | Phase 5 |
+| Current calendar and color convention; native-versus-Google synchronization choice | WTF | Phase 6 |
+| Instagram and LinkedIn analytics access | WTF | Phases 7–8 |
+| Report delivery channel and recipient list | WTF | Phase 8 |
+| Historical Shorts performance data and automatic-versus-editor trigger choice | WTF editorial | Phase 9 |
+
+No dependent plan may guess around an unresolved row. It must either stop at
+the prerequisite gate or implement an honest unavailable state.
 
 ## Milestone Invariants
 
 - `/`, `/episodes`, `/connections`, `/chat`, and `/api/chat` remain protected
   compatibility contracts until an explicitly tested replacement or redirect
   supersedes them.
+
 - Public and operator experiences remain separate projections over shared
   evidence. They do not share authorization policy, serialized DTOs, cache
   namespaces, search projections, safe-error policy, or interaction state.
+
 - The public compatibility, accessibility, visual, privacy, security,
   performance, and rollback gates established in Phase 1 remain blocking exit
-  gates for every later phase. This persistence does not duplicate requirement
-  ownership: every requirement is mapped to exactly one phase below.
+  gates for every later phase.
+
+- The uncut transcript is the primary complete-context source when supplied;
+  published-video timing is a separate coordinate system. No universal offset
+  is assumed and no timestamp is fabricated.
+
+- Generated insight, research claims, metrics, and recommendations resolve to
+  sources, reporting windows, owners, evaluation evidence, or explicit unknowns.
+
+- External adapters are read-only first. Consequential writes, NotebookLM
+  product integration claims, virality guarantees, and autonomous publishing
+  remain outside this roadmap without a separately approved change.
+
 - Missing data remains visibly unknown, unavailable, stale, partial, empty,
-  permission-denied, error, offline, unmapped, conflicted, or measured-zero; it
-  never silently becomes a fabricated total or healthy state.
+  permission-denied, error, offline, unmapped, conflicted, or measured-zero.
 
 ## Phases
 
-- [ ] **Phase 1: Compatibility + Component Proof Harness** - Establish the proof harness and visibly migrate every protected public route to the approved WTF design system without changing its contract.
-- [ ] **Phase 2: Authenticated Shell + Policy Boundary** - Give approved operators a deny-by-default shell with a truthful empty or unavailable Control Room.
-- [ ] **Phase 3: Provenance Spine + Canonical Episode Workspace** - Make one stable episode record the navigable source of asset, transcript, timeline, citation, and activity truth.
-- [ ] **Phase 4: Knowledge Receipts-to-Action** - Let operators turn scoped, grounded evidence into saved evidence and dossiers without losing provenance.
-- [ ] **Phase 5: Production Workflow + Control Room** - Make production state canonical, accountable, auditable, and reproducible from Control Room summaries.
-- [ ] **Phase 6: Analytics + People** - Expose descriptive metrics and person relationships with explicit evidence, availability, lineage, and visibility policy.
-- [ ] **Phase 7: Read-only Integrations** - Ingest source observations through approved, operable adapters that cannot mutate external systems.
-- [ ] **Phase 8: Migration Closure** - Retire remaining legacy consumers only after replacement, rollback, and milestone-wide proof are accepted.
+- [ ] **Phase 1: Compatibility + Component Proof Harness** — Preserve the 23-plan proof harness and visibly migrate every protected public route without changing its contract.
+- [ ] **Phase 2: Platform Foundation + Authenticated Policy Boundary** — Establish separated environments, managed access, auditability, observability, and a truthful deny-by-default operator shell.
+- [ ] **Phase 3: Episode Ingestion + Provenance Spine** — Idempotently ingest both channels and supplied uncut sources into versioned episode, asset, transcript, and timeline truth.
+- [ ] **Phase 4: Podcast Brain Search + Dual Playback** — Deliver evaluated exact-moment retrieval, reconciled YouTube/Uncut playback, and daily YouTube performance.
+- [ ] **Phase 5: Cited Research Brief Agent** — Produce editable, versioned four-tier briefs from governed human, corpus, web, and structured sources.
+- [ ] **Phase 6: Production Calendar + Control Room** — Make production state, dates, blockers, ownership, and calendar projections canonical and auditable.
+- [ ] **Phase 7: Read-only Source Adapters** — Establish approved, observable, idempotent Instagram and LinkedIn analytics adapters before unified reporting.
+- [ ] **Phase 8: Cross-platform Analytics + Reporting** — Normalize platform evidence and automate approved weekly, monthly, anomaly, and cost reporting.
+- [ ] **Phase 9: Evaluated Clip Intelligence** — Produce human-owned, evidence-linked short-form candidate rankings with feedback and explicit uncertainty.
+- [ ] **Phase 10: Migration Closure** — Retire remaining legacy consumers only after replacement, rollback, and milestone-wide proof are accepted.
 
 ## Phase Details
 
 ### Phase 1: Compatibility + Component Proof Harness
+
 **Goal**: Maintainers can visibly migrate `/`, `/episodes`, `/connections`, and `/chat` through the repository-owned WTF design system while preserving their URLs, meaning, data, navigation, accessibility, and behavior, and while preserving the complete `/api/chat` contract.
 **Depends on**: Nothing (first phase)
-**Execution authorization**: Authorized now; planned and ready to execute
-**Design inputs**: Approved moodboard, application flow, component inventory, and design authority
+**Execution authorization**: Authorized now; 23 plans preserved and ready to execute
 **Requirements**: COMP-01, COMP-02, COMP-03, COMP-04, COMP-05, DSYS-01, DSYS-02, DSYS-03, DSYS-04, DSYS-05, DSYS-06, DSYS-07, DSYS-08, DSYS-09, DSYS-10, QUAL-01, QUAL-02, QUAL-03, QUAL-04, QUAL-05, QUAL-06
-**Success Criteria** (what must be TRUE):
-  1. A public visitor sees `/`, `/episodes`, `/connections`, and `/chat` use the approved semantic tokens, typography, tactile depth, state language, focus policy, responsive rules, and reduced-motion behavior while each route retains its URL and navigation meaning.
-  2. Existing bookmarks, query parameters, episode selections, deep links, streaming behavior, citations, source fields, required headers, status codes, and safe error shapes retain their meaning, including the complete `/api/chat` contract.
-  3. `/connections` remains a read-only public projection with an equivalent semantic alternative and exposes no operator permissions, tasks, owners, leads, budgets, briefs, health, or production state.
-  4. The Episodes proof slice ships `EpisodesBrowser` with `ScrollRail`, native multi-input controls, and a URL-backed accessible public-detail drawer; every other changed public component receives applicable keyboard, state, viewport, motion, semantic, and visual evidence.
-  5. A maintainer can run one documented proof command that blocks regressions across every protected public route and `/api/chat`, including lint, types, build, component and browser behavior, accessibility, privacy, visual identity, performance, RAG latency, and rollback using deterministic privacy-safe fixtures.
-**Plans**: 23 plans across 21 waves
+**Success Criteria**:
+
+  1. Every protected public route uses the approved semantic visual and interaction system while retaining its URL, navigation meaning, data semantics, and safe states.
+  2. Existing bookmarks, queries, selections, streaming, citations, headers, statuses, errors, and the complete `/api/chat` contract remain compatible.
+  3. `/connections` preserves graph/list semantic parity without exposing operator data.
+  4. The Episodes proof slice delivers `EpisodesBrowser`, `ScrollRail`, and a URL-backed accessible detail drawer before route-wide migration.
+  5. One blocking `npm run verify:phase1` command proves code, behavior, accessibility, privacy, visuals, performance, API/RAG compatibility, and rollback with owner-approved evidence.
+
+**Plans**: 23 plans across 21 waves, unchanged from commit `0f80677`
+
   - **Wave 1**: `01-01` — Capture and approve the dirty-worktree compatibility baseline.
   - **Wave 2**: `01-02` — Validate and approve package legitimacy.
   - **Wave 3**: `01-03` — Install the exact approved harness dependencies.
@@ -83,114 +140,172 @@ migration closure. All ten approved requirement families are v1.0 scope.
   - **Wave 19**: `01-18` — Assemble aggregate verification, CI, rollback, and candidate evidence.
   - **Wave 20**: `01-19` — Obtain owner visual and cutover approval.
   - **Wave 21**: `01-20` — Promote approved evidence, merge threat results, and complete cutover.
+
 **UI hint**: yes
 
-### Phase 2: Authenticated Shell + Policy Boundary
-**Goal**: Approved operators can enter a useful but truthful `/ops` shell while server-enforced policy prevents protected data or entity existence from crossing the public boundary.
-**Depends on**: Phase 1
-**Execution authorization**: Authorized now; execution depends on Phase 1 acceptance
-**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-06, AUTH-07, AUTH-08, QUAL-07
-**Success Criteria** (what must be TRUE):
-  1. An approved operator can sign in through the owner-selected organization identity provider and enter `/ops` without a repository-owned password system.
-  2. An owner can inspect and approve a role-by-resource-by-action-by-record-by-field capability matrix before operator records are enabled, and an operator receives only allowed records, actions, and fields.
-  3. Anonymous, expired, cross-role, ID-tampering, cache-mixing, and privilege-escalation requests fail closed at server query, handler, and mutation boundaries without revealing protected entity existence.
-  4. Public and operator requests use separate allowlisted DTOs, caches, search projections, errors, and client state even when they resolve through shared evidence-domain services.
-  5. An operator sees workspace context, organization scope, navigation, system state, and a dominant next action in `/ops`, including a truthful empty or unavailable Control Room; logout, revocation, or expiry clears protected state through a focus-safe recovery flow.
+### Phase 2: Platform Foundation + Authenticated Policy Boundary
+
+**Goal**: Approved WTF operators enter a dependable `/ops` shell through managed identity while server-enforced policy, environment separation, audit logs, observability, and secret boundaries fail closed.
+**Depends on**: Phase 1 acceptance plus deployment, identity, team-roster, and capability-matrix decisions
+**Execution authorization**: Authorized next; dependent decisions must resolve before implementation
+**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-06, AUTH-07, AUTH-08, AUTH-09, AUTH-10, QUAL-07, QUAL-09, QUAL-10, QUAL-12
+**Success Criteria**:
+
+  1. WTF-only accounts are invite-controlled, deactivatable, and server-authorized; `admin` and `editor` differ while later roles remain non-privileged shells.
+  2. Anonymous, expired, cross-role, tampered, cache-mixed, and escalated requests reveal no protected entity existence.
+  3. Public and operator DTOs, caches, projections, errors, and client state remain separate.
+  4. Logins, searches, views, exports, and admin actions are attributable; structured logs and managed rotatable secrets contain no prohibited payloads.
+  5. Development, staging, and production boundaries plus migration and runbook contracts are explicit before feature data activates.
+
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 3: Provenance Spine + Canonical Episode Workspace
-**Goal**: Operators can navigate one canonical episode workspace whose identities, assets, transcript evidence, timelines, citations, reconciliation, and activity remain traceable and internally consistent.
-**Depends on**: Phase 2 and explicit owner authorization after Phases 1–2 acceptance
-**Execution authorization**: Planned / inactive — owner authorization required
-**Requirements**: PROV-01, PROV-02, PROV-03, PROV-04, PROV-05, PROV-06, PROV-07, PROV-08, PROV-09
-**Success Criteria** (what must be TRUE):
-  1. An operator can identify an episode by a stable internal ID and inspect its external identities, including unresolved duplicate, merge, split, and authority conflicts.
-  2. An operator can inspect each source asset's version, content hash, authority, availability, observation time, and reconciliation state.
-  3. An operator can distinguish transcript versions and trace every passage and citation to the exact episode, asset version, transcript version, and source span.
-  4. An operator can navigate clean-cut and published-video coordinates independently, see verified/unmapped/stale/partial/conflicted mappings, and never receive a fabricated timestamp affordance for untimed evidence.
-  5. A re-ingestion activates one complete evidence version without mixed or obsolete chunks, and the operator can move through identity, assets, transcript, timelines, citations, workflow references, reconciliation, and attributable activity in one workspace.
+### Phase 3: Episode Ingestion + Provenance Spine
+
+**Goal**: Operators can trust one canonical episode workspace whose source identities, assets, transcript segments, versions, timeline mappings, citations, ingestion jobs, and activity remain internally consistent.
+**Depends on**: Phase 2 acceptance, explicit owner authorization, deployment/storage decision, YouTube access, approved inventory, uncut mapping, and Hindi decision
+**Execution authorization**: Planned / inactive
+**Requirements**: PROV-01, PROV-02, PROV-03, PROV-04, PROV-05, PROV-06, PROV-07, PROV-08, PROV-09, PROV-10, PROV-11, PROV-12, PROV-13, INTG-07
+**Success Criteria**:
+
+  1. Both approved YouTube channels and supplied uncut assets ingest idempotently through visible asynchronous jobs.
+  2. Episode metadata preserves stable identity, IP, channel, language, guests, content bucket, dates, duration, thumbnail, description, and chapters.
+  3. Source-bound transcript segments retain timing, speaker, language, text, version, and asset provenance without private-path disclosure.
+  4. Per-episode mapping never assumes a universal offset and resolves ten approved evaluation episodes within two seconds in both directions.
+  5. Re-ingestion activates a complete version without mixing obsolete chunks or citations.
+
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 4: Knowledge Receipts-to-Action
-**Goal**: Operators can ask within an explicit evidence scope, inspect grounded answers, and turn cited material into durable evidence or dossier records without provenance loss.
-**Depends on**: Phase 3 and explicit owner authorization
-**Execution authorization**: Planned / inactive — owner authorization required
-**Requirements**: KNOW-01, KNOW-02, KNOW-03, KNOW-04, KNOW-05, KNOW-06
-**Success Criteria** (what must be TRUE):
-  1. An operator can choose episode, show, or catalogue scope before asking and can see the active scope in the response.
-  2. An operator can distinguish quoted evidence, source metadata, model synthesis, grounding state, and failure, and receives an explicit abstention for unsupported ownership, role, timestamp, or factual claims.
-  3. An operator can open a citation in its available episode, asset, transcript, passage, and timeline context.
-  4. An operator can save evidence or add it to a dossier while preserving scope, citation, asset version, source span, and authoring provenance.
-  5. A maintainer can run the approved golden evaluation set for scoped retrieval, grounding, citations, abstention, and unsupported-role claims before release.
+### Phase 4: Podcast Brain Search + Dual Playback
+
+**Goal**: Editors can describe a remembered moment, receive trustworthy ranked evidence, and open the same reconciled moment in YouTube or the supplied uncut source while inspecting daily YouTube performance.
+**Depends on**: Phase 3 acceptance, explicit owner authorization, twenty-query evaluation set, and approved search-language policy
+**Execution authorization**: Planned / inactive
+**Requirements**: PROV-14, KNOW-01, KNOW-02, KNOW-03, KNOW-04, KNOW-05, KNOW-06, KNOW-07, KNOW-08, ANLY-06, QUAL-11
+**Success Criteria**:
+
+  1. Hybrid keyword, exact-phrase, and semantic search supports the approved filters, ten-result pagination, highlighted evidence, and honest low-confidence handling.
+  2. At least eighty percent of the twenty editorial queries place the correct moment in the top three; median remains below three seconds and p95 below six.
+  3. YouTube and Uncut tabs seek to the same reconciled moment, preserve position across switching, copy source-specific timestamps, and degrade honestly.
+  4. Both YouTube channels expose cached daily channel and episode observations without page-load API calls.
+  5. Three editors adopt the flow and measured clip discovery falls below two minutes before the client track is accepted.
+
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 5: Production Workflow + Control Room
-**Goal**: Operators can run production from one accountable workflow record while every Control Room summary resolves to the authorized records and actions behind it.
-**Depends on**: Phase 4 and explicit owner authorization
-**Execution authorization**: Planned / inactive — owner authorization required
-**Requirements**: FLOW-01, FLOW-02, FLOW-03, FLOW-04, FLOW-05, FLOW-06, FLOW-07
-**Success Criteria** (what must be TRUE):
-  1. An operator can move an episode only through an approved stage transition and receives a clear reason when a transition is invalid.
-  2. Every active stage has exactly one accountable owner or is visibly unowned with a valid next action.
-  3. An operator can distinguish shoot, planned-publish, and actual-publish dates while board and calendar views remain projections of the same canonical workflow record.
-  4. An operator can record a blocker with status, owner, affected record, evidence, and next action.
-  5. Every Control Room count deep-links to its exact authorized contributors, and every internal mutation exposes actor, prior state, new state, time, source, and a defined correction or recovery path.
+### Phase 5: Cited Research Brief Agent
+
+**Goal**: Researchers can turn a guest, company, or industry into one editable, versioned, cited four-tier brief without tool-hopping or losing human-source priority.
+**Depends on**: Phase 4 acceptance, explicit owner authorization, research walkthrough, sample notes/briefs, Sonar tier/ceiling, export target, corpus scope, and orchestration bake-off
+**Execution authorization**: Planned / inactive
+**Requirements**: KNOW-09, KNOW-10, KNOW-11, KNOW-12, KNOW-13, PEOP-01, PEOP-02
+**Success Criteria**:
+
+  1. Entity resolution expands guest to company to industry and asks only necessary disambiguation questions.
+  2. Snacks, Appetizers, Main Course, and Desserts tracks run with visible isolated status and retry behavior.
+  3. Approved offline notes outrank web synthesis; prior appearances and WTF evidence remain timestamp-citable.
+  4. Every factual claim is cited, numeric claims receive a second source, disagreements remain visible, and unsupported claims are dropped or flagged.
+  5. Three real briefs save at least half a day of desk research and surface five prior appearances per guest where they exist.
+
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 6: Analytics + People
-**Goal**: Operators can inspect performance and people relationships without mistaking missing data, model synthesis, or unauthorized fields for verified fact.
-**Depends on**: Phase 5 and explicit owner authorization
-**Execution authorization**: Planned / inactive — owner authorization required
-**Requirements**: ANLY-01, ANLY-02, ANLY-03, ANLY-04, ANLY-05, PEOP-01, PEOP-02, PEOP-03, PEOP-04, PEOP-05
-**Success Criteria** (what must be TRUE):
-  1. Every displayed metric names its platform, entity scope, reporting window, timezone, observed time, refresh time, availability, and last-known-good state.
-  2. An operator can distinguish measured zero from unavailable, stale, partial, permission-denied, or failed metric data.
-  3. An operator can inspect calculation lineage for derived metrics and sees descriptive performance evidence without unsupported causal or predictive claims.
-  4. An operator can distinguish transcript mentions, guests, leads, team members, accountable owners, and generated synthesis, with evidence or authorized confirmation for every displayed role relationship.
-  5. Guest history and lead pipeline remain separate, while record- and field-level policy omits unauthorized person data and exposes consent, classification, retention, deletion, or legal-hold state only when policy requires it.
+### Phase 6: Production Calendar + Control Room
+
+**Goal**: Operators can plan and inspect production from one accountable workflow record whose board, calendar, blockers, ownership, and Control Room summaries never diverge.
+**Depends on**: Phase 5 acceptance, explicit owner authorization, current calendar, color convention, and synchronization decision
+**Execution authorization**: Planned / inactive
+**Requirements**: FLOW-01, FLOW-02, FLOW-03, FLOW-04, FLOW-05, FLOW-06, FLOW-07, FLOW-08
+**Success Criteria**:
+
+  1. Approved stage transitions, owners, blockers, and corrections are canonical and auditable.
+  2. Shoot, planned-publish, actual-publish, post, and milestone dates remain distinct.
+  3. Month, week, and IP-filtered calendar views project the same episode records as the board.
+  4. Every Control Room number deep-links to its authorized contributors.
+  5. The team can plan a full month without maintaining a competing sheet before client acceptance.
+
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 7: Read-only Integrations
-**Goal**: Operators can trust source observations and adapter health because every approved integration is read-only, idempotent, provenance-preserving, and safely operable.
-**Depends on**: Phase 6 and explicit owner authorization
-**Execution authorization**: Planned / inactive — owner authorization required
-**Requirements**: INTG-01, INTG-02, INTG-03, INTG-04, INTG-05, INTG-06
-**Success Criteria** (what must be TRUE):
-  1. An adapter enters planning only after its official API, scopes, limits, stable keys, retention constraints, safe methods, and accountable owner are approved; crafted writes through an enabled adapter fail.
-  2. An operator sees normalized observations with source identity, stable external key, observed time, content hash, and reconciliation state.
-  3. Duplicate, timeout, partial-response, retry, and replay cases remain idempotent and do not duplicate canonical records.
-  4. An operator can inspect permission mode, coverage, last attempt, last success, failure boundary, retry state, owner, and last-known-good data without credentials, private paths, or raw provider payloads appearing in UI or logs.
+### Phase 7: Read-only Source Adapters
+
+**Goal**: Operators can trust source observations and adapter health because approved Instagram and LinkedIn analytics adapters are read-only, idempotent, provenance-preserving, and safely operable.
+**Depends on**: Phase 6 acceptance, explicit owner authorization, and approved platform access
+**Execution authorization**: Planned / inactive
+**Requirements**: INTG-01, INTG-02, INTG-03, INTG-04, INTG-05, INTG-06, INTG-08
+**Success Criteria**:
+
+  1. Each adapter has approved official API, scopes, limits, stable keys, retention, safe methods, owner, and crafted-write denial.
+  2. Normalized observations retain source identity, stable external key, observed time, content hash, and reconciliation state.
+  3. Duplicate, timeout, partial, retry, and replay paths do not duplicate canonical records.
+  4. Health exposes coverage, attempts, success, failures, retries, owner, and last-known-good state without credentials or raw payloads.
+
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 8: Migration Closure
+### Phase 8: Cross-platform Analytics + Reporting
+
+**Goal**: Operators can compare YouTube, Instagram, and LinkedIn evidence and receive approved automated reporting without confusing absence, synthesis, or correlation with verified fact.
+**Depends on**: Phase 7 acceptance, explicit owner authorization, historical reporting policy, delivery channel, recipients, and cost ceiling
+**Execution authorization**: Planned / inactive
+**Requirements**: ANLY-01, ANLY-02, ANLY-03, ANLY-04, ANLY-05, ANLY-07, ANLY-08, ANLY-09, PEOP-03, PEOP-04, PEOP-05
+**Success Criteria**:
+
+  1. Every metric names platform, entity, window, timezone, observation, refresh, availability, and last-known-good state.
+  2. Unified views filter by IP and content bucket while preserving calculation lineage and measured-zero semantics.
+  3. Weekly summaries, monthly rollups, anomaly alerts, and record-break alerts remain in-platform and use only approved delivery channels.
+  4. AI consumption reports attribute usage and cost to user, feature, query, and agent run and alert before ceiling breach.
+  5. Weekly reporting arrives without manual assembly for three consecutive weeks.
+
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 9: Evaluated Clip Intelligence
+
+**Goal**: Editors receive a trustworthy shortlist of evidence-linked short-form moments whose rankings, uncertainty, and feedback remain human-owned and measurable.
+**Depends on**: Phase 8 acceptance, explicit owner authorization, historical Shorts data, labelled evaluation set, and trigger-mode decision
+**Execution authorization**: Planned / inactive
+**Requirements**: AINT-01, AINT-02, CLIP-01, CLIP-02, CLIP-03, CLIP-04, CLIP-05
+**Success Criteria**:
+
+  1. Each candidate retains source episode, transcript version, span, topic, guest, duration, hook evidence, rationale, score, and uncertainty.
+  2. A newly ingested episode produces ten ranked candidates only through the approved trigger mode.
+  3. Editor approval/rejection remains attributable and reusable for evaluation.
+  4. Editorial reviewers judge at least five of ten candidates worth cutting on the approved set.
+  5. Product copy describes a human-owned shortlist and never promises virality.
+
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 10: Migration Closure
+
 **Goal**: Maintainers can remove legacy public consumers only after the accepted replacement proves full compatibility, quality, privacy, performance, and recoverability.
-**Depends on**: Phase 7 and explicit owner authorization
-**Execution authorization**: Planned / inactive — owner authorization required
+**Depends on**: Phase 9 and explicit owner authorization
+**Execution authorization**: Planned / inactive
 **Requirements**: COMP-06, QUAL-08
-**Success Criteria** (what must be TRUE):
-  1. A maintainer can show that every legacy public consumer has an accepted replacement with contract, browser, accessibility, visual, privacy, security, performance, and consumer-inventory evidence before removal.
-  2. Public visitors and clients can still use `/`, `/episodes`, `/connections`, `/chat`, and `/api/chat` through the accepted implementation or an explicitly tested replacement or redirect.
-  3. A maintainer can rehearse rollback and restore the previous reader, style, or route until replacement evidence is accepted.
+**Success Criteria**:
+
+  1. Every legacy consumer has accepted contract, browser, accessibility, visual, privacy, security, performance, and inventory evidence before removal.
+  2. Protected public routes and `/api/chat` remain available through accepted implementations or tested replacements.
+  3. Rollback can restore the previous reader, style, or route until replacement evidence is accepted.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ## Progress
 
-**Execution order:** Phase 1 → Phase 2 → owner authorization gate → Phases 3–8 in numeric order.
+**Execution order:** Phase 1 → Phase 2 → owner authorization gate → Phases 3–10 in numeric order.
 
 | Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Compatibility + Component Proof Harness | 0/TBD | Ready for discussion/planning | - |
-| 2. Authenticated Shell + Policy Boundary | 0/TBD | Authorized / queued after Phase 1 | - |
-| 3. Provenance Spine + Canonical Episode Workspace | 0/TBD | Planned / inactive | - |
-| 4. Knowledge Receipts-to-Action | 0/TBD | Planned / inactive | - |
-| 5. Production Workflow + Control Room | 0/TBD | Planned / inactive | - |
-| 6. Analytics + People | 0/TBD | Planned / inactive | - |
-| 7. Read-only Integrations | 0/TBD | Planned / inactive | - |
-| 8. Migration Closure | 0/TBD | Planned / inactive | - |
+|---|---:|---|---|
+| 1. Compatibility + Component Proof Harness | 4/23 | In Progress | - |
+| 2. Platform Foundation + Authenticated Policy Boundary | 0/TBD | Authorized / queued after Phase 1 and prerequisite decisions | - |
+| 3. Episode Ingestion + Provenance Spine | 0/TBD | Planned / inactive | - |
+| 4. Podcast Brain Search + Dual Playback | 0/TBD | Planned / inactive | - |
+| 5. Cited Research Brief Agent | 0/TBD | Planned / inactive | - |
+| 6. Production Calendar + Control Room | 0/TBD | Planned / inactive | - |
+| 7. Read-only Source Adapters | 0/TBD | Planned / inactive | - |
+| 8. Cross-platform Analytics + Reporting | 0/TBD | Planned / inactive | - |
+| 9. Evaluated Clip Intelligence | 0/TBD | Planned / inactive | - |
+| 10. Migration Closure | 0/TBD | Planned / inactive | - |

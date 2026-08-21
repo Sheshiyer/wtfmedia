@@ -1,0 +1,210 @@
+{
+  "schema": "temperance.tasks.v1",
+  "project": "wtfmedia",
+  "generated_at": "2026-08-21T09:21:00.000Z",
+  "source": ".planning/DEEP-PASS-REVIEW-2026-08-21.md",
+  "current_position": {
+    "phase": "01",
+    "plan": "01-04",
+    "gsd_status": "executing",
+    "turn": 2
+  },
+  "approval": {
+    "id": "apr_4737e705fef30c663095_refresh",
+    "status": "approved",
+    "approved_at": "2026-08-21T09:20:00.000Z"
+  },
+  "tasks": [
+    {
+      "id": "T-REV-01",
+      "subject": "Re-approve NEXT-WAVE / ORCHESTRATION",
+      "description": "Human approval refreshed after review. Update NEXT-WAVE with new expiration and selected option.",
+      "status": "completed",
+      "layer": "GSD",
+      "combo": "human",
+      "acceptance": "ORCHESTRATION/NEXT-WAVE show approved status with fresh timestamp.",
+      "files": [".planning/NEXT-WAVE.json", ".planning/ORCHESTRATION.json"]
+    },
+    {
+      "id": "T-REV-02",
+      "subject": "Confirm dirty-worktree baseline (L1)",
+      "description": "Confirm accepted dirty-worktree compatibility baseline. Record exact source authority without modifying unrelated changes.",
+      "status": "pending",
+      "layer": "GSD",
+      "combo": "te-build",
+      "acceptance": "git diff --check clean on planning surface; source fingerprints match.",
+      "parallel_eligible": true,
+      "swarm": true
+    },
+    {
+      "id": "T-REV-03",
+      "subject": "Package legitimacy checkpoint (L2)",
+      "description": "Run package legitimacy human checkpoint; install exact dev dependencies and Chromium only after approval. Record receipts.",
+      "status": "pending",
+      "layer": "GSD",
+      "combo": "te-build",
+      "acceptance": "npm ls --depth=0 matches approved pins; Playwright Chromium present; no lifecycle-script approvals.",
+      "parallel_eligible": true,
+      "swarm": true
+    },
+    {
+      "id": "T-REV-04",
+      "subject": "Execute Plan 01-04 harness configuration",
+      "description": "Create deterministic proof-harness: ESLint, Vitest (separated projects), Storybook (deterministic decorators + a11y), Playwright (public routes, 3 viewports), LHCI (CLI via correction), privacy scanner (minimal). One passing smoke story.",
+      "status": "pending",
+      "layer": "Phase 01",
+      "combo": "te-dispatch-paid",
+      "acceptance": "All non-watch configs present; smoke passes; digest evidence; 320/768/1440 covered.",
+      "plan_file": ".planning/phases/01-compatibility-component-proof-harness/01-04-PLAN.md",
+      "parallel_eligible": false
+    },
+    {
+      "id": "T-REV-05",
+      "subject": "Map Excel dual-video requirement to PROV family",
+      "description": "Document (no implementation) the dual-source toggle, separate transcripts, alignment contract. Cross-reference PROV-05,10,12,13,14.",
+      "status": "pending",
+      "layer": "Planning",
+      "combo": "te-plan",
+      "acceptance": "Note or update in REQUIREMENTS or dedicated file records the contracts without inventing executable work.",
+      "parallel_eligible": true
+    },
+    {
+      "id": "T-REV-06",
+      "subject": "Verify CF 9d9d shadow RAG inventory + health",
+      "description": "Confirm Worker, Vectorize, R2, KV, Queue, DLQ. 55-episode corpus. Proxy path (no browser creds).",
+      "status": "pending",
+      "layer": "Infra",
+      "combo": "te-build",
+      "acceptance": "All 6 resources listed and responsive; corpus present; proxy verified.",
+      "parallel_eligible": true,
+      "swarm": true
+    },
+    {
+      "id": "T-REV-07",
+      "subject": "Confirm visual planning artifacts stable",
+      "description": "DESIGN.md, APP-FLOW.md, COMPONENT-INVENTORY.md committed; visuals/ PNGs present; no drift from GSD plans.",
+      "status": "pending",
+      "layer": "Design",
+      "combo": "te-build",
+      "acceptance": "Artifacts referenced and listed; GSD plans align.",
+      "parallel_eligible": true,
+      "swarm": true
+    },
+    {
+      "id": "T-REV-08",
+      "subject": "Update STATE.md post-review",
+      "description": "Advance stopped_at, record approval refresh, update progress notes.",
+      "status": "pending",
+      "layer": "GSD",
+      "combo": "te-plan",
+      "acceptance": "STATE.md reflects review completion and current executable (01-04)."
+    },
+    {
+      "id": "T-REV-09a",
+      "subject": "Materialize tasks.md",
+      "description": "Write human-readable task list from DEEP-PASS task graph.",
+      "status": "in_progress",
+      "layer": "PAI Turn 2",
+      "combo": "te-build",
+      "acceptance": ".planning/tasks.md exists with all 15 tasks and statuses."
+    },
+    {
+      "id": "T-REV-09b",
+      "subject": "Materialize tasks.json",
+      "description": "Write machine-readable tasks.json for orchestrators.",
+      "status": "in_progress",
+      "layer": "PAI Turn 2",
+      "combo": "te-build",
+      "acceptance": "tasks.json at repo root with schema, current position, and task array."
+    },
+    {
+      "id": "T-REV-10",
+      "subject": "Skill gap scan for dual-source alignment",
+      "description": "Search local skill-clusters for transcript alignment / multi-source provenance. Record gaps + resolve path (local | skillsmp | install).",
+      "status": "pending",
+      "layer": "Skills",
+      "combo": "te-plan",
+      "parallel_eligible": true
+    },
+    {
+      "id": "T-REV-11",
+      "subject": "Phase boundary audit (no Phase 2+ leakage)",
+      "description": "Confirm working tree contains only Phase 1 or approved corrections. No real /ops data, no canonical records, no auth wiring.",
+      "status": "pending",
+      "layer": "Audit",
+      "combo": "te-build",
+      "parallel_eligible": true,
+      "swarm": true
+    },
+    {
+      "id": "T-REV-12",
+      "subject": "Reconcile HANDOFF.md flagged items",
+      "description": "Logo asset source, deployment architecture decision, and any other flagged items — resolve with owner or explicitly defer.",
+      "status": "pending",
+      "layer": "GSD",
+      "combo": "human",
+      "parallel_eligible": false
+    },
+    {
+      "id": "T-REV-13",
+      "subject": "Prepare dispatch receipt template for 01-04",
+      "description": "Create .planning/dispatch/01-04-receipt.json with plan, combo, fingerprints, approval.",
+      "status": "pending",
+      "layer": "GSD",
+      "combo": "te-build",
+      "parallel_eligible": true
+    },
+    {
+      "id": "T-REV-14",
+      "subject": "Document 1500 vs 2000 char cap discrepancy",
+      "description": "Note the docs vs code difference in research surface for later Phase 1 resolution.",
+      "status": "pending",
+      "layer": "Research",
+      "combo": "te-plan",
+      "parallel_eligible": true
+    },
+    {
+      "id": "T-REV-15",
+      "subject": "Verify 43/55 timestamp coverage",
+      "description": "Check corpus-manifest.json against sample vectors or R2 sidecars for per-segment timestamps.",
+      "status": "pending",
+      "layer": "Data",
+      "combo": "te-build",
+      "parallel_eligible": true,
+      "swarm": true
+    }
+  ],
+  "waves": {
+    "wave0": {
+      "label": "Wave 0 Gaps + Artifacts",
+      "tasks": ["T-REV-02", "T-REV-03", "T-REV-08", "T-REV-09a", "T-REV-09b"],
+      "combo": "te-build",
+      "concurrency": 2
+    },
+    "wave1": {
+      "label": "Phase 1 Plan 01-04",
+      "tasks": ["T-REV-04"],
+      "combo": "te-dispatch-paid",
+      "concurrency": 1,
+      "depends_on": ["wave0"]
+    },
+    "parallel_verification": {
+      "label": "Parallel verification slices",
+      "tasks": ["T-REV-06", "T-REV-07", "T-REV-11", "T-REV-15"],
+      "combo": "te-swarm-s",
+      "concurrency": 4
+    }
+  },
+  "handoff": {
+    "te-swarm-s": ["T-REV-02", "T-REV-06", "T-REV-07", "T-REV-11", "T-REV-15"],
+    "te-dispatch-paid": ["T-REV-04", "T-REV-09a", "T-REV-09b", "T-REV-13"],
+    "human": ["T-REV-01", "T-REV-12"]
+  },
+  "invariants": [
+    "No full component kit install before vertical proof.",
+    "No real /ops data or canonical records before Phase 2 acceptance.",
+    "No CF mutation beyond shadow verification.",
+    "Do not rewrite preserved 01-*-PLAN.md files.",
+    "Dual-source changes remain planning-only until explicit Phases 3-4 gate."
+  ]
+}

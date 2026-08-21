@@ -32,6 +32,28 @@ behavior, and brand identity.
 - Incremental migration tests protecting `/`, `/episodes`, `/connections`,
   `/chat`, and `/api/chat` throughout the overhaul.
 
+## Client Delivery Track Reconciliation
+
+The owner-approved client build specification uses “Phase 1” and “Phase 2” as
+commercial delivery tracks. They are not aliases for repository Phase 1 and
+Phase 2:
+
+- **Client Phase 1 — Podcast Brain** closes across repository Phases 2–4:
+  platform/authentication, episode ingestion and dual-timeline provenance, then
+  evaluated exact-moment search, dual-source playback, and YouTube reporting.
+- **Client Phase 2 — AI agent layer** closes across repository Phases 5–9:
+  cited research briefs, production calendar, read-only source adapters,
+  cross-platform analytics/reporting, and evaluated clip intelligence.
+- **Repository Phase 1** remains the already-planned 23-plan compatibility,
+  accessible-component, visual-migration, evidence, and rollback prerequisite.
+- **Repository Phase 10** remains migration closure after all accepted
+  replacements and rollback evidence exist.
+
+The client document's calendar labels are estimates. Deployment architecture,
+identity, source access, Hindi behavior, editorial evaluations, research inputs,
+export/orchestration choices, calendar/report delivery, and clip-trigger mode
+must resolve before dependent implementation or estimation.
+
 ## Requirements
 
 ### Validated
@@ -91,6 +113,12 @@ behavior, and brand identity.
 - The source brief describes a wider internal “one brain” spanning episode
   assets, transcripts, clips, schedules, performance, people, budgets,
   contracts, integrations, and research workflows.
+- The reconciled client Phase 1/2 build specification sharpens the near-term
+  delivery order around production access, both-channel and uncut ingestion,
+  transcript alignment, exact-moment retrieval, four-tier cited research,
+  production scheduling, platform reporting, and editor-owned clip shortlists.
+- NotebookLM is treated as a workflow pattern to reproduce through governed
+  source-grounded retrieval, not as an available consumer API integration.
 - `DESIGN.md` is the design authority and migration input. `ISA.md` is the
   acceptance and goal authority. This file, `REQUIREMENTS.md`, and `ROADMAP.md`
   form the GSD execution-planning spine.
@@ -129,6 +157,9 @@ behavior, and brand identity.
 | Use semantic tokens and selective headless primitives | Preserves visual authorship while gaining accessible interaction behavior | — Pending |
 | Treat orange as a provisional comp-derived semantic extension | It appears in committed implementation material but not the authoritative product palette | — Pending |
 | Keep external integrations read-only first | Evidence and reconciliation must precede consequential automation | — Pending |
+| Preserve repository Phase 1 plans while mapping client delivery tracks across later phases | The client specification combines several dependency layers under each commercial phase label | ✓ Good |
+| Put read-only analytics adapters before unified analytics | Metrics cannot truthfully exist before source observations and health do | ✓ Good |
+| Give clip recommendations a separately evaluated phase | A small-data recommender needs explicit uncertainty, feedback, and human ownership | ✓ Good |
 
 ## Evolution
 
@@ -150,4 +181,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current users, evidence, and metrics.
 
 ---
-*Last updated: 2026-08-18 after owner approval of milestone v1.0.*
+*Last updated: 2026-08-20 after owner approval of client Phase 1/2 scope reconciliation.*

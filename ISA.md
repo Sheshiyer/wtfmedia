@@ -3,16 +3,16 @@ project: wtfmedia
 task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
-phase: verify
-progress: 18/134
+phase: learn
+progress: 24/140
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-08-19T06:00:16Z
+updated: 2026-08-20T22:06:57+05:30
 ---
 
 ## Problem
 
-The repository currently proves a public, catalogue-first RAG experience across 55 episodes, while the kickoff brief describes a much larger internal operating system spanning research, episode assets, transcripts, clips, schedules, analytics, budgets, leads, contracts, and team workflows. The current navigation, narrative, bespoke UI primitives, and data model do not yet express that operating-system scope. Planning is only bootstrapped, the project manifest has no active planner, and the checkout is missing Git metadata, so the local Manifest bridge cannot recognize a governed project run.
+The repository proves a public, catalogue-first RAG experience across 55 episodes and now has a governed ten-phase operating-system roadmap plus 23 committed Phase 1 proof-harness plans. The client build specification uses “Phase 1” and “Phase 2” for broader delivery tracks spanning authentication, ingestion, dual timelines, retrieval, research, production, analytics, and clip intelligence. Treating those labels as equivalent to repository Phase 1 and Phase 2 would discard dependency and acceptance gates; the remaining planning problem is to preserve the proven foundation while mapping every client outcome, blocker, and unknown to the correct execution slice.
 
 ## Vision
 
@@ -55,6 +55,9 @@ WTF Media becomes one evidence-native control room in which the team can move fr
 - GSD owns execution planning under `.planning/`; this ISA owns acceptance and done.
 - No registry, relocation, provider, session, or deployment mutation occurs without its own approved task.
 - Generated outputs and machine-local dependencies remain ignored.
+- Client delivery labels do not override repository phase identity, requirement ownership, or implementation authorization.
+- The owner-approved client build specification informs synthesized requirements and blockers without copying its confidential body or machine-local source path into the repository.
+- No dependent runtime phase begins before its named client input or open architecture decision resolves.
 
 ## Goal
 
@@ -229,6 +232,15 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-133: `DESIGN.md` names the recommended accessible component foundation and defers installation to an owned GSD phase (probe: foundation-section grep).
 - [x] ISC-134: Anti: `DESIGN.md` contains no private source filename, download path, embedded drive link, or raw meeting text (probe: bounded privacy scan).
 
+### Client scope reconciliation
+
+- [x] ISC-135: `.planning/ROADMAP.md` states that client Phase 1 and Phase 2 are delivery tracks rather than repository phase aliases (probe: delivery-track table parser).
+- [x] ISC-136: Client Phase 1 acceptance maps to repository Phases 2–4 after the preserved Phase 1 harness (probe: roadmap mapping assertion).
+- [x] ISC-137: Client Phase 2 acceptance maps to repository Phases 5–9 while migration closure remains Phase 10 (probe: roadmap mapping assertion).
+- [x] ISC-138: Every unresolved client input names an owner and blocked repository phase (probe: blocker-table schema test).
+- [x] ISC-139: All 102 approved v1.0 requirements have unique stable IDs and exactly one roadmap owner (probe: requirements/roadmap coverage script).
+- [x] ISC-140: The 23 committed Phase 1 plan files remain byte-identical to commit `0f80677` after reconciliation (probe: Git object hash comparison).
+
 ## Test Strategy
 
 | ISC range | Type | Check | Threshold | Tool |
@@ -244,6 +256,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-111..118 | quality | builds, accessibility, responsive behavior, performance, and security pass | zero blocking failures | build, browser, Lighthouse, HTTP tests |
 | ISC-119..128 | anti/experience | secrets, private sources, false timestamps, palette drift, and lost context do not occur | zero violations | scans, authorization tests, token lint, first-click study |
 | ISC-129..134 | design authority | reference lock, semantic palette, route split, migration map, foundation, and privacy boundary are explicit | 100% document probes | Markdown parser + bounded scans |
+| ISC-135..140 | client scope reconciliation | delivery tracks, blockers, stable requirement ownership, and preserved Phase 1 plans remain explicit | 100% document and Git probes | Markdown parser + coverage script + Git hashes |
 
 ## Features
 
@@ -260,10 +273,16 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
   depends_on: [ProjectGovernanceSpine]
   parallelizable: false
 
+- name: ClientScopeReconciliation
+  description: Stable mapping from client delivery tracks and blockers to repository requirements, phases, and preserved plans
+  satisfies: [ISC-135, ISC-136, ISC-137, ISC-138, ISC-139, ISC-140]
+  depends_on: [ProjectGovernanceSpine]
+  parallelizable: false
+
 - name: NarrativeAndInformationArchitecture
   description: Separate public catalogue projection from authenticated operator control room
   satisfies: [ISC-13, ISC-14, ISC-15, ISC-16, ISC-17, ISC-18, ISC-19, ISC-20, ISC-21, ISC-22, ISC-23, ISC-24]
-  depends_on: [ProjectGovernanceSpine, DesignAuthority]
+  depends_on: [ProjectGovernanceSpine, DesignAuthority, ClientScopeReconciliation]
   parallelizable: false
 
 - name: BrandTokenFoundation
@@ -326,6 +345,14 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - 2026-08-18 17:42 IST: `DESIGN.md` is a design authority and GSD input, not an alternate roadmap or acceptance source; `ISA.md` remains acceptance and the required owner confirmation still gates populated milestone artifacts.
 - 2026-08-18 17:51 IST: refined: Route groups may reorganize source files but cannot break `/`, `/episodes`, `/connections`, `/chat`, or `/api/chat`; public and operator connection graphs are separate policy-bound projections over shared evidence. Orange is a provisional comp-derived semantic extension, not part of the committed `PRODUCT.md` palette.
 - 2026-08-19 11:30 IST: Owner approval finalized the v1.0 roadmap. All ten requirement families remain in milestone scope, but only Phase 1 and Phase 2 are implementation-authorized first; Phases 3 through 8 remain planned and inactive until the recorded owner gate is satisfied.
+- 2026-08-20 17:45 IST: refined: The owner approved preserving all 23 repository Phase 1 plans while reconciling the client build specification above them. Client Phase 1 now maps across repository Phases 2–4; client Phase 2 maps across Phases 5–9; Phase 10 owns migration closure. Only repository Phases 1–2 remain implementation-authorized, and every unresolved client input remains a named blocker rather than guessed architecture.
+- 2026-08-20 18:10 IST: The required post-deliverable Advisor call was attempted but the local OAuth session was expired and could not refresh. Credentials were not repaired in this repository task; deterministic probes and the read-only planning audit remain the bounded verification authority.
+- 2026-08-20 18:12 IST: The requested Cato agent role was unavailable in the local agent registry, so the independent audit ran through an ephemeral read-only GPT-5.4 Codex process. Its two noncritical STATE metadata concerns were corrected, and its focused re-audit returned `VERDICT pass` without modifying files.
+- 2026-08-20 17:26 IST: Phase 1 execution preflight found Plan 01-01 Tasks 1–2 already present as uncommitted, passing artifacts over a substantial dirty production checkout. Execution is paused at the plan's blocking Task 3 owner gate; no clean-HEAD worker, package install, or task commit may proceed until the recorded dirty-worktree contract and streaming interpretation are explicitly approved.
+- 2026-08-20 17:26 IST: The pre-build Advisor call was attempted and failed because the local OAuth session remains expired. Credentials were not repaired; the explicit Plan 01-01 human gate and deterministic manifest evidence govern the current stop.
+- 2026-08-20 22:06 IST: The owner approved the exact pre-existing `@types/node@22.12.0` amendment required by Vite 8.2.1. The approved twelve-package receipt remains unchanged, no peer-dependency bypass was used, and Plan 01-03 Task 1 passed its immutable exact-pin proof.
+- 2026-08-20 22:06 IST: Plan 01-03 Task 2 failed closed because the immutable proof tries to resolve CLI-only `@lhci/cli` as a Node module. The preserved plan will not be rewritten in place; a bounded correction plan must replace that probe with executable verification before Phase 1 resumes.
+- 2026-08-20 22:24 IST: Owner-approved issue #6 is implemented as a narrow effective-command correction ledger, not a PLAN rewrite. It binds only T-01-07 and T-01-08 to their original command IDs, SHA-256 digests, and failed privacy-safe evidence; the runner permits only the approved LHCI executable probe and rejects unapproved or drifted corrections.
 
 ## Changelog
 
@@ -341,6 +368,18 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
   refuted by: the dependency analysis and owner-approved execution cut require compatibility proof and the policy boundary before provenance, Knowledge, production, analytics, people, integrations, or legacy retirement can activate
   learned: the eight-phase roadmap is milestone scope, while implementation authority is deliberately limited to Phase 1 followed by Phase 2 acceptance
   criterion now: ISC-10 through ISC-12 make the approved GSD milestone spine directly probeable before implementation planning begins
+- 2026-08-20 | conjectured: The client build specification's Phase 1 and Phase 2 labels should replace repository Phase 1 and Phase 2
+  refuted by: scope comparison shows each client label combines several dependency layers, while repository Phase 1 already owns 23 accepted compatibility, component, evidence, and rollback plans
+  learned: client phases are delivery tracks over dependency-safe repository phases; preserving both vocabularies makes commitments legible without weakening acceptance or guessing open architecture
+  criterion now: ISC-135 through ISC-140 bind delivery-track mapping, blockers, requirement ownership, and Phase 1 plan preservation to executable probes
+- 2026-08-20 | conjectured: every approved direct development package can be verified through Node module resolution
+  refuted by: the approved `@lhci/cli@0.15.1` executable reports its CLI version but has no resolvable Node module entry, causing the immutable Plan 01-03 Task 2 probe to fail
+  learned: package proof must test the consumption interface actually provided, and an immutable failed probe requires a bounded correction plan rather than a silent rewrite
+  criterion now: the existing Phase 1 proof-gate requirement remains fail-closed until its correction plan replaces the invalid LHCI assertion
+- 2026-08-20 | conjectured: an immutable failed threat probe can resume merely by rerunning a different command
+  refuted by: the runner enforces plan/result command parity and the final ledger requires a fixed 72 threat IDs, so an unbound replacement would either conceal failure or break aggregation
+  learned: a correction must retain immutable definition provenance and prior evidence while separately binding a single approved effective command
+  criterion now: only the #6 allowlisted ledger can supersede the two LHCI results; all other correction files, IDs, commands, approval references, and evidence drift fail closed
 
 ## Verification
 
@@ -356,8 +395,8 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - ISC-5 through ISC-8 evidence: `.temperance/project.json` declares `temperance.project.v1`, `active_planner: isa`, `has_isa: true`, and `has_planning: true`.
 - ISC-9 evidence: `.temperance/goal.json` stores the complete 397-character `## Goal` text, planner `isa`, status `active`, and GSD command `plan-phase`.
 - ISC-10 evidence: `.planning/PROJECT.md` names `v1.0 One Brain Re-foundation` as the current milestone and records the evidence-native operating-system goal.
-- ISC-11 evidence: the requirements parser found 70 v1.0 requirement definitions and 70 unique stable IDs across all ten accepted families.
-- ISC-12 evidence: `.planning/ROADMAP.md` defines eight dependency-ordered phases; `.planning/REQUIREMENTS.md` maps all 70 IDs exactly once, with zero unmapped or duplicate entries and implementation authorization limited to Phases 1 and 2.
+- ISC-11 evidence: the requirements parser found 102 v1.0 requirement definitions and 102 unique stable IDs across all twelve accepted families after client-scope reconciliation.
+- ISC-12 evidence: `.planning/ROADMAP.md` defines ten dependency-ordered phases; `.planning/REQUIREMENTS.md` maps all 102 IDs exactly once, with zero unmapped or duplicate entries and implementation authorization limited to repository Phases 1 and 2.
 - Runtime evidence: the Manifest bridge health endpoint reports `ok: true`, service `temperance-manifest-bridge`, and freshness `fresh`; project doctor reports `high_gaps: 0`.
 - Portability evidence: Git ignore probes match `.temperance/project.json`, `.temperance/manifest.json`, `.planning/NEXT-WAVE.json`, and `.planning/ORCHESTRATION.json`, keeping generated checkout and host paths out of commit-visible artifacts.
 - Next-wave evidence: bootstrap state is complete, `temperance-next-wave --cwd . --json` returns `action: complete`, an empty task list, no executable option, and reports the 12 historical promo checkboxes as ignored rather than dispatchable.
@@ -369,3 +408,10 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - ISC-133 evidence: the foundation section recommends selective Radix, TanStack Table, Phosphor, and Storybook Next/Vite, cites current primary documentation, and forbids installation before a GSD implementation phase owns the tests.
 - ISC-134 evidence: a bounded scan of `DESIGN.md` found no supplied source filename, Downloads path, embedded drive/document link, secret assignment, or raw meeting passage.
 - Design remediation audit evidence: the independent read-only re-audit returned PASS after verifying public URL and API continuity, canonical `/chat` ownership, policy-separated connection projections, provisional orange provenance, criteria integrity, privacy, and the owner-confirmation gate.
+- ISC-135: roadmap parser — the GSD analyzer parsed the client delivery-track section and all ten phase sections without a missing phase detail.
+- ISC-136: mapping assertion — the delivery-track row names repository Phases 2–4 as the complete Client Phase 1 execution span after the preserved proof harness.
+- ISC-137: mapping assertion — the delivery-track row names repository Phases 5–9 as Client Phase 2 and the phase list names Phase 10 as migration closure.
+- ISC-138: blocker schema — the roadmap contains thirteen owner-attributed input or decision rows with explicit blocked phases or launch boundaries.
+- ISC-139: coverage script — the bounded Node probe returned 102 definitions, 102 unique definitions, 102 trace rows, 102 roadmap assignments, zero duplicates, zero missing IDs, and zero extras.
+- ISC-140: Git hash comparison — `git diff --exit-code 0f80677 -- '.planning/phases/01-compatibility-component-proof-harness/01-*-PLAN.md'` exited zero with no changed plan path.
+- Client-scope audit evidence: the independent read-only audit found no critical issue; after normalizing the PROJECT reference date and both STATE stop markers, a focused re-audit returned `VERDICT pass` with matching line evidence.

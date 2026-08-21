@@ -1,0 +1,77 @@
+{
+  "wave": "parallel-verification + preflight",
+  "dispatched_at": "2026-08-21T09:28:00.000Z",
+  "updated_at": "2026-08-21T04:45:00.000Z",
+  "combo": "te-swarm-s + local verification",
+  "tasks": [
+    "T-REV-02",
+    "T-REV-06",
+    "T-REV-07",
+    "T-REV-11",
+    "T-REV-15",
+    "L1",
+    "L2-prep"
+  ],
+  "results": {
+    "T-REV-02": {
+      "status": "completed",
+      "evidence": "git status shows only planning review artifacts (DEEP-PASS-REVIEW, NEXT-WAVE, tasks.md, tasks.json, STATE, dispatch receipts) plus some prior web changes. git diff --check passed for .planning/. No unrelated mutations to source authority.",
+      "command": "git status --porcelain -- .planning/ && git diff --check -- .planning/"
+    },
+    "T-REV-07": {
+      "status": "completed",
+      "evidence": "All design authority files present: DESIGN.md (32702 bytes), docs/design/APP-FLOW.md, COMPONENT-INVENTORY.md, visuals/wtf-one-brain-moodboard-v1.png, wtf-one-brain-app-flow-v1.png",
+      "command": "ls -l DESIGN.md docs/design/APP-FLOW.md docs/design/COMPONENT-INVENTORY.md docs/design/visuals/"
+    },
+    "T-REV-11": {
+      "status": "completed",
+      "evidence": "grep for ops/, auth, control-room, canonical episode patterns in git diff returned nothing. Phase boundary clean for Phase 1.",
+      "command": "git diff --name-only HEAD -- . | grep -E '(ops|auth|control-room|canonical)' || echo 'clean'"
+    },
+    "T-REV-15": {
+      "status": "completed",
+      "evidence": "corpus-manifest.json entries: 55 total, exactly 43 with timestamps.available=true. Matches corpus summary.",
+      "command": "python3 -c '...' on web/src/data/corpus-manifest.json"
+    },
+    "T-REV-06": {
+      "status": "deferred",
+      "evidence": "CF resources documented in docs/CLOUDFLARE-INFRASTRUCTURE.md (Worker wtfmedia-edge, Vectorize wtfmedia-catalogue-v1, R2, KV, Queue, DLQ on 9d9d account). Live health check requires authenticated call or owner confirmation. Not performed in this local session.",
+      "note": "Can be verified with curl against shadow or via owner dashboard."
+    },
+    "T-REV-04": {
+      "status": "completed",
+      "evidence": "01-04.json all four threats passed; 01-04-SUMMARY.md written; playwright --list shows 16 scaffold tests across 4 viewport projects.",
+      "command": "node web/scripts/run-phase1-threat.mjs --plan 01-04 --task 2 && --task 3"
+    }
+  },
+  "harness_01_04_partial": {
+    "present": [
+      "web/eslint.config.mjs",
+      "web/vitest.config.ts",
+      "web/.storybook/main.ts",
+      "web/.storybook/preview.ts",
+      "web/stories/fixtures/public.ts",
+      "web/stories/HarnessSmoke.stories.tsx",
+      "web/playwright.config.ts",
+      "web/lighthouserc.cjs",
+      "web/tests/privacy/scan.mjs",
+      "web/tests/journeys/public-routes.spec.ts"
+    ],
+    "missing": [],
+    "threat_result": "01-04.json \u2014 T-01-09, T-01-10, T-01-11, T-01-12 all passed"
+  },
+  "external_swarm_attempt": {
+    "status": "failed",
+    "backend": "command-code",
+    "reason": "insufficient credits",
+    "fallback": "local bash verification performed for all possible slices"
+  },
+  "te_dispatch_paid_01_04": {
+    "status": "completed_locally_after_gateway_recovery",
+    "reason": "OmniRoute upstream 503: all upstream accounts inactive",
+    "log_tail": "ERROR: unexpected status 503 ... tokens used 2,01,158",
+    "partial_harness_from_prior": true,
+    "note": "Privacy scanner, Playwright config, LHCI config, and scaffold journey spec completed in-session; threat runner tasks 2+3 green."
+  },
+  "rail": "RAIL RUBEDO EXECUTE 5/7 - 01-04 harness complete"
+}

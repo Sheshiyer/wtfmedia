@@ -1,0 +1,18 @@
+{
+  "dispatch_receipt": {
+    "plan": "01-04",
+    "phase": "01-compatibility-component-proof-harness",
+    "combo": "te-dispatch-paid",
+    "concurrency": 1,
+    "approved_at": "2026-08-21T09:20:00.000Z",
+    "approval_id": "apr_4737e705fef30c663095_refresh",
+    "source_fingerprints": [
+      { "path": ".planning/phases/01-compatibility-component-proof-harness/01-04-PLAN.md", "fingerprint": "24cafbf1b623148be8d2599db414707a8b63f8e25142b1bba3f755c7b4d719ee" }
+    ],
+    "tasks": ["T-REV-04"],
+    "reporting_required": ["dispatch", "task", "verification"],
+    "session": "a0e9473a-4a83-40cc-b17b-1eb2485c4dbf",
+    "project": "wtfmedia"
+  },
+  "rail": "♂ RAIL · RUBEDO · EXECUTE · 5/7 · native gpt-5.6-sol · combo te-dispatch-paid · head grok-cli/grok-build"
+}
