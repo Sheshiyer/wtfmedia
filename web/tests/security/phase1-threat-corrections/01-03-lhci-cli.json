@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "plan": "01-03",
+  "approval_reference": "github-issue-6",
+  "corrections": {
+    "T-01-07": {
+      "original_command_id": "14c0f000b4f10b8c10af8537f901b9e5ba1a1409d8d1abc290af3f4ace151399",
+      "original_command_sha256": "75853b80b0f48b46d556526bb19723d4354371097efa1a90c2ad066bd69e0846",
+      "effective_command": "cd web && npm exec playwright -- --version && npm exec vitest -- --version && npm exec storybook -- --version && npm exec lhci -- --version && node -e 'require.resolve(\"@radix-ui/react-dialog\"); require.resolve(\"@axe-core/playwright\");'",
+      "effective_command_sha256": "1f95b00d551203d9d241dbd63ee91443637424465da2b6869b9fde3832dd83b2",
+      "superseded_result": {
+        "plan": "01-03",
+        "task": 2,
+        "command_id": "14c0f000b4f10b8c10af8537f901b9e5ba1a1409d8d1abc290af3f4ace151399",
+        "command": "cd web && npm exec playwright -- --version && npm exec vitest -- --version && npm exec storybook -- --version && node -e 'require.resolve(\"@radix-ui/react-dialog\"); require.resolve(\"@axe-core/playwright\"); require.resolve(\"@lhci/cli\");'",
+        "exit_status": 1,
+        "evidence": {
+          "output_sha256": "45d7658df8814e178b16fec01d2ce458e99695773cc97b950d85a467074c8ab0",
+          "error_output_sha256": "bc16945c075cfa2aded55dbd0f61968fd46c10e9a3fe8bc2b98f45f07fe486bd",
+          "output_bytes": 62,
+          "error_output_bytes": 987
+        },
+        "completed_at": "2026-08-20T16:35:42.078Z",
+        "status": "failed"
+      }
+    },
+    "T-01-08": {
+      "original_command_id": "51861e02a4cbe00494517022a6bac22b33729e161a1a0c4536c873f8948ccc59",
+      "original_command_sha256": "75853b80b0f48b46d556526bb19723d4354371097efa1a90c2ad066bd69e0846",
+      "effective_command": "cd web && npm exec playwright -- --version && npm exec vitest -- --version && npm exec storybook -- --version && npm exec lhci -- --version && node -e 'require.resolve(\"@radix-ui/react-dialog\"); require.resolve(\"@axe-core/playwright\");'",
+      "effective_command_sha256": "1f95b00d551203d9d241dbd63ee91443637424465da2b6869b9fde3832dd83b2",
+      "superseded_result": {
+        "plan": "01-03",
+        "task": 2,
+        "command_id": "51861e02a4cbe00494517022a6bac22b33729e161a1a0c4536c873f8948ccc59",
+        "command": "cd web && npm exec playwright -- --version && npm exec vitest -- --version && npm exec storybook -- --version && node -e 'require.resolve(\"@radix-ui/react-dialog\"); require.resolve(\"@axe-core/playwright\"); require.resolve(\"@lhci/cli\");'",
+        "exit_status": 1,
+        "evidence": {
+          "output_sha256": "45d7658df8814e178b16fec01d2ce458e99695773cc97b950d85a467074c8ab0",
+          "error_output_sha256": "bc16945c075cfa2aded55dbd0f61968fd46c10e9a3fe8bc2b98f45f07fe486bd",
+          "output_bytes": 62,
+          "error_output_bytes": 987
+        },
+        "completed_at": "2026-08-20T16:35:42.078Z",
+        "status": "failed"
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "01-03",
+  "results": {
+    "T-01-SC-INSTALL": {
+      "plan": "01-03",
+      "task": 1,
+      "command_id": "c0a0165a984fbf1650d506ad917240e094f8d770c6f57e6ad24efc8bb308d296",
+      "command": "cd web && npm ls --depth=0 && node -e 'const p=require(\"./package.json\"),a=require(\"./tests/package-legitimacy.json\"); for(const x of a.packages){const v=p.dependencies?.[x.name]||p.devDependencies?.[x.name]; if(v!==x.version) process.exit(1)}; if(!p.scripts[\"verify:phase1\"]||Object.values(p.scripts).some(x=>/\\bwatch\\b/.test(x))) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "6bf71fe9a33642fec933b2f6c2d216f72dcfac449bf197e1bf579c1450eb1a2c",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 847,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-20T16:56:23.305Z",
+      "status": "passed"
+    },
+    "T-01-07": {
+      "plan": "01-03",
+      "task": 2,
+      "command_id": "102ba8063f1dbeec8e971898a96c6c23298f4586bbaad5a69da6ee7c6100c9c0",
+      "command": "cd web && npm exec playwright -- --version && npm exec vitest -- --version && npm exec storybook -- --version && npm exec lhci -- --version && node -e 'require.resolve(\"@radix-ui/react-dialog\"); require.resolve(\"@axe-core/playwright\");'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "67feaf96a5fed3b2ff1ca72c8c03df8da19b952d9d18750a8f3c9d9dbfedbca1",
+        "error_output_sha256": "fbabc05a3cd4469baab6bb85e6b19e8e0bd68e439d715217758c51a07e816b85",
+        "output_bytes": 69,
+        "error_output_bytes": 126
+      },
+      "completed_at": "2026-08-20T16:56:27.269Z",
+      "status": "passed"
+    },
+    "T-01-08": {
+      "plan": "01-03",
+      "task": 2,
+      "command_id": "bace76c6ce087a199f1c2b272204a2cee16557187698a1b9a9eb62c2afffabe9",
+      "command": "cd web && npm exec playwright -- --version && npm exec vitest -- --version && npm exec storybook -- --version && npm exec lhci -- --version && node -e 'require.resolve(\"@radix-ui/react-dialog\"); require.resolve(\"@axe-core/playwright\");'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "67feaf96a5fed3b2ff1ca72c8c03df8da19b952d9d18750a8f3c9d9dbfedbca1",
+        "error_output_sha256": "fbabc05a3cd4469baab6bb85e6b19e8e0bd68e439d715217758c51a07e816b85",
+        "output_bytes": 69,
+        "error_output_bytes": 126
+      },
+      "completed_at": "2026-08-20T16:56:27.269Z",
+      "status": "passed"
+    }
+  }
+}

@@ -21,6 +21,13 @@ const EVIDENCE_KEYS = [
   "output_bytes",
   "error_output_bytes",
 ].sort();
+const CORRECTION_LEDGER = {
+  plan: "01-03",
+  file: "01-03-lhci-cli.json",
+  approval: "github-issue-6",
+  threatIds: new Set(["T-01-07", "T-01-08"]),
+  effectiveCommand: "cd web && npm exec playwright -- --version && npm exec vitest -- --version && npm exec storybook -- --version && npm exec lhci -- --version && node -e 'require.resolve(\"@radix-ui/react-dialog\"); require.resolve(\"@axe-core/playwright\");'",
+};
 
 function sha256(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
@@ -226,7 +233,74 @@ function validateSafeStrings(value, location = "root") {
   }
 }
 
-function validateFragment(fragment, plan, planDefinitions) {
+function resultMatchesDefinition(result, definition) {
+  return result.command === definition.command && result.command_id === commandId(definition);
+}
+
+function validateResult(result, plan, definition, threatId) {
+  if (!exactKeys(result, RESULT_KEYS)) throw new Error(`Result schema drift: ${threatId}`);
+  if (result.plan !== plan || result.task !== definition.task) throw new Error(`Result owner/task drift: ${threatId}`);
+  if (!Number.isInteger(result.exit_status) || result.exit_status < 0) throw new Error(`Invalid exit status: ${threatId}`);
+  if (!exactKeys(result.evidence, EVIDENCE_KEYS)) throw new Error(`Evidence schema drift: ${threatId}`);
+  if (!["passed", "failed"].includes(result.status)) throw new Error(`Invalid result status: ${threatId}`);
+  if ((result.exit_status === 0) !== (result.status === "passed")) throw new Error(`Status/exit mismatch: ${threatId}`);
+  const completedAt = Date.parse(result.completed_at);
+  if (!Number.isFinite(completedAt) || completedAt > Date.now()) throw new Error(`Invalid or future timestamp: ${threatId}`);
+}
+
+function correctionDirectory() {
+  return path.join(REPOSITORY_ROOT, "web/tests/security/phase1-threat-corrections");
+}
+
+function loadCorrections(definitions) {
+  const directory = correctionDirectory();
+  if (!fs.existsSync(directory)) return new Map();
+  const entries = fs.readdirSync(directory, { withFileTypes: true });
+  if (entries.some((entry) => !entry.isFile() || entry.name !== CORRECTION_LEDGER.file)) {
+    throw new Error("Unapproved Phase 1 threat correction ledger");
+  }
+  const ledgerPath = path.join(directory, CORRECTION_LEDGER.file);
+  const ledger = parseJsonWithoutDuplicateKeys(fs.readFileSync(ledgerPath, "utf8"));
+  if (!exactKeys(ledger, ["approval_reference", "corrections", "plan", "schema_version"].sort())) {
+    throw new Error("Correction ledger schema drift");
+  }
+  if (ledger.schema_version !== 1 || ledger.plan !== CORRECTION_LEDGER.plan || ledger.approval_reference !== CORRECTION_LEDGER.approval) {
+    throw new Error("Correction ledger approval drift");
+  }
+  if (!ledger.corrections || typeof ledger.corrections !== "object" || Array.isArray(ledger.corrections)) {
+    throw new Error("Correction ledger corrections must be an object");
+  }
+  const correctionIds = Object.keys(ledger.corrections);
+  if (correctionIds.length !== CORRECTION_LEDGER.threatIds.size || correctionIds.some((id) => !CORRECTION_LEDGER.threatIds.has(id))) {
+    throw new Error("Correction ledger threat allowlist drift");
+  }
+  const corrections = new Map();
+  for (const threatId of correctionIds) {
+    const definition = definitions.get(threatId);
+    const correction = ledger.corrections[threatId];
+    if (!definition || definition.plan !== CORRECTION_LEDGER.plan || definition.task !== 2) {
+      throw new Error(`Correction ledger owner drift: ${threatId}`);
+    }
+    if (!exactKeys(correction, ["effective_command", "effective_command_sha256", "original_command_id", "original_command_sha256", "superseded_result"].sort())) {
+      throw new Error(`Correction ledger entry schema drift: ${threatId}`);
+    }
+    if (correction.original_command_id !== commandId(definition) || correction.original_command_sha256 !== sha256(definition.command)) {
+      throw new Error(`Correction ledger original binding drift: ${threatId}`);
+    }
+    if (correction.effective_command !== CORRECTION_LEDGER.effectiveCommand || correction.effective_command_sha256 !== sha256(correction.effective_command)) {
+      throw new Error(`Correction ledger effective command drift: ${threatId}`);
+    }
+    validateResult(correction.superseded_result, definition.plan, definition, threatId);
+    if (!resultMatchesDefinition(correction.superseded_result, definition) || correction.superseded_result.status !== "failed") {
+      throw new Error(`Correction ledger superseded result drift: ${threatId}`);
+    }
+    corrections.set(threatId, { ...correction, effectiveDefinition: { ...definition, command: correction.effective_command } });
+  }
+  validateSafeStrings(ledger);
+  return corrections;
+}
+
+function validateFragment(fragment, plan, planDefinitions, corrections) {
   if (!exactKeys(fragment, ["plan", "results", "schema_version"].sort())) {
     throw new Error("Fragment top-level schema drift");
   }
@@ -238,17 +312,14 @@ function validateFragment(fragment, plan, planDefinitions) {
   for (const [threatId, result] of Object.entries(fragment.results)) {
     const definition = planDefinitions.get(threatId);
     if (!definition) throw new Error(`Fragment contains a threat not owned by ${plan}: ${threatId}`);
-    if (!exactKeys(result, RESULT_KEYS)) throw new Error(`Result schema drift: ${threatId}`);
-    if (result.plan !== plan || result.task !== definition.task) throw new Error(`Result owner/task drift: ${threatId}`);
-    if (result.command !== definition.command || result.command_id !== commandId(definition)) {
-      throw new Error(`Result command drift: ${threatId}`);
-    }
-    if (!Number.isInteger(result.exit_status) || result.exit_status < 0) throw new Error(`Invalid exit status: ${threatId}`);
-    if (!exactKeys(result.evidence, EVIDENCE_KEYS)) throw new Error(`Evidence schema drift: ${threatId}`);
-    if (!["passed", "failed"].includes(result.status)) throw new Error(`Invalid result status: ${threatId}`);
-    if ((result.exit_status === 0) !== (result.status === "passed")) throw new Error(`Status/exit mismatch: ${threatId}`);
+    validateResult(result, plan, definition, threatId);
     const completedAt = Date.parse(result.completed_at);
     if (!Number.isFinite(completedAt) || completedAt > now) throw new Error(`Invalid or future timestamp: ${threatId}`);
+    const correction = corrections.get(threatId);
+    const expected = correction?.effectiveDefinition ?? definition;
+    if (resultMatchesDefinition(result, expected)) continue;
+    if (correction && JSON.stringify(result) === JSON.stringify(correction.superseded_result)) continue;
+    throw new Error(`Result command drift: ${threatId}`);
   }
   validateSafeStrings(fragment);
 }
@@ -300,6 +371,7 @@ const { plan, task } = parseArgs(process.argv.slice(2));
 process.chdir(REPOSITORY_ROOT);
 const { plans, definitions } = loadDefinitions();
 if (!plans.has(plan)) throw new Error(`Unknown plan: ${plan}`);
+const corrections = loadCorrections(definitions);
 const planDefinitions = new Map([...definitions].filter(([, definition]) => definition.plan === plan));
 const selected = [...planDefinitions.values()].filter((definition) => definition.task === task);
 if (!selected.length) throw new Error(`No threats owned by ${plan} Task ${task}`);
@@ -307,27 +379,29 @@ if (!selected.length) throw new Error(`No threats owned by ${plan} Task ${task}`
 const fragmentPath = path.join(REPOSITORY_ROOT, `web/tests/security/phase1-threat-results/${plan}.json`);
 if (path.basename(fragmentPath) !== `${plan}.json`) throw new Error("Fragment path/plan mismatch");
 const fragment = loadFragment(fragmentPath, plan);
-validateFragment(fragment, plan, planDefinitions);
+validateFragment(fragment, plan, planDefinitions, corrections);
 
 const executions = new Map();
 for (const definition of selected) {
-  if (!executions.has(definition.command)) executions.set(definition.command, runCommand(definition.command));
+  const effective = corrections.get(definition.id)?.effectiveDefinition ?? definition;
+  if (!executions.has(effective.command)) executions.set(effective.command, runCommand(effective.command));
 }
 const completedAt = new Date().toISOString();
 for (const definition of selected) {
-  const execution = executions.get(definition.command);
+  const effective = corrections.get(definition.id)?.effectiveDefinition ?? definition;
+  const execution = executions.get(effective.command);
   fragment.results[definition.id] = {
     plan,
     task,
-    command_id: commandId(definition),
-    command: definition.command,
+    command_id: commandId(effective),
+    command: effective.command,
     exit_status: execution.exitStatus,
     evidence: execution.evidence,
     completed_at: completedAt,
     status: execution.exitStatus === 0 ? "passed" : "failed",
   };
 }
-validateFragment(fragment, plan, planDefinitions);
+validateFragment(fragment, plan, planDefinitions, corrections);
 atomicWrite(fragmentPath, fragment);
 
 const failed = selected.find((definition) => fragment.results[definition.id].status === "failed");
