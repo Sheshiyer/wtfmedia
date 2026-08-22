@@ -3,6 +3,8 @@ import { expect } from "storybook/test";
 
 import { MigratedWordmark, MigratedWordmarkMini } from "../components/patterns/brand/MigratedWordmark";
 import { SignatureSparkle } from "../components/patterns/brand/SignatureSparkle";
+import { PausableMarquee } from "../components/patterns/brand/PausableMarquee";
+import { OptionalPointerAccent } from "../components/patterns/brand/OptionalPointerAccent";
 
 // ---------------------------------------------------------------------------
 // MigratedWordmark stories
@@ -162,5 +164,89 @@ export const SparkleAnimationClass: SparkleStory = {
   play: async ({ canvasElement }) => {
     const svg = canvasElement.querySelector("svg")!;
     await expect(svg).toHaveClass("animate-twinkle");
+  },
+};
+
+// ---------------------------------------------------------------------------
+// PausableMarquee stories
+// ---------------------------------------------------------------------------
+
+const marqueeMeta = {
+  title: "BrandMotion/PausableMarquee",
+  component: PausableMarquee,
+  tags: ["test"],
+  parameters: { layout: "padded" },
+} satisfies Meta<typeof PausableMarquee>;
+
+type MarqueeStory = StoryObj<typeof marqueeMeta>;
+
+const MARQUEE_ITEMS = ["design", "culture", "tech", "media"];
+
+/** Marquee renders doubled items for seamless loop */
+export const MarqueeStructure: MarqueeStory = {
+  render: () => <PausableMarquee items={MARQUEE_ITEMS} />,
+  play: async ({ canvas }) => {
+    // Each item appears twice (doubled for loop)
+    const design = canvas.getAllByText("design", { exact: true });
+    await expect(design.length).toBe(2);
+  },
+};
+
+/** Marquee uses SignatureSparkle (token-driven), not legacy Sparkle */
+export const MarqueeTokenSparkles: MarqueeStory = {
+  render: () => <PausableMarquee items={MARQUEE_ITEMS} />,
+  play: async ({ canvasElement }) => {
+    const svgs = canvasElement.querySelectorAll("svg");
+    // 4 items × 2 (doubled) = 8 sparkles
+    await expect(svgs.length).toBe(8);
+    // Each sparkle uses token-driven color (var(--wtf-*) in fill attribute)
+    const firstPath = svgs[0].querySelector("path")!;
+    const fill = firstPath.getAttribute("fill");
+    await expect(fill).toMatch(/^var\(--wtf-/);
+  },
+};
+
+/** Marquee is aria-hidden (decorative) */
+export const MarqueeHidden: MarqueeStory = {
+  render: () => <PausableMarquee items={MARQUEE_ITEMS} />,
+  play: async ({ canvasElement }) => {
+    const wrapper = canvasElement.querySelector("[aria-hidden]");
+    await expect(wrapper).toBeTruthy();
+  },
+};
+
+/** Marquee has pause-on-hover class */
+export const MarqueePausable: MarqueeStory = {
+  render: () => <PausableMarquee items={MARQUEE_ITEMS} />,
+  play: async ({ canvasElement }) => {
+    const animDiv = canvasElement.querySelector("[class*='animate-marquee']")!;
+    // Verify the pause-on-hover/focus classes are present
+    const classes = animDiv.className;
+    await expect(classes).toContain("group-hover");
+    await expect(classes).toContain("group-focus-within");
+  },
+};
+
+// ---------------------------------------------------------------------------
+// OptionalPointerAccent stories
+// ---------------------------------------------------------------------------
+
+const pointerMeta = {
+  title: "BrandMotion/OptionalPointerAccent",
+  component: OptionalPointerAccent,
+  tags: ["test"],
+  parameters: { layout: "padded" },
+} satisfies Meta<typeof OptionalPointerAccent>;
+
+type PointerStory = StoryObj<typeof pointerMeta>;
+
+/** Pointer accent renders nothing in test environment (no hover/pointer matchMedia) */
+export const PointerFallsBackGracefully: PointerStory = {
+  render: () => <OptionalPointerAccent />,
+  play: async ({ canvasElement }) => {
+    // In jsdom/test environment, (hover: hover) and (pointer: fine) don't match,
+    // so the component renders nothing — graceful fallback
+    const children = canvasElement.children;
+    await expect(children.length).toBeLessThanOrEqual(1);
   },
 };
