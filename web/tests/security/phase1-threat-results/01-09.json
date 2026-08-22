@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "01-09",
+  "results": {
+    "T-01-28": {
+      "plan": "01-09",
+      "task": 1,
+      "command_id": "40e3a96d56eff5eed5906165fd55b16ca55563e08d91ef71efd8890f5dde2f32",
+      "command": "cd web && npm run test:components -- Phase1Primitives --testNamePattern \"actions|links|skip|focus\" && npm run typecheck && npm run lint",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "51ee1c73b24cb07999696203913886b10495f5c5d082547b2adc49849af33ed1",
+        "error_output_sha256": "db001c336d05b9fb633465d48b8792375a850be169f69e81ce501f9f79bcd680",
+        "output_bytes": 474,
+        "error_output_bytes": 1507
+      },
+      "completed_at": "2026-08-22T17:33:10.872Z",
+      "status": "passed"
+    },
+    "T-01-27": {
+      "plan": "01-09",
+      "task": 2,
+      "command_id": "03a7618aaf4e221e46b21406f2af2bbaddb685d24c29337ea72ffbf054ee07ab",
+      "command": "cd web && npm run test:components -- Phase1Primitives --testNamePattern \"availability|live region\" && npm run typecheck && npm run lint",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "c29c6c59e495a4c45b63cacc9fdd1e093c82d5523685d6858237dd54679215ad",
+        "error_output_sha256": "ebed6442c769eb6d06a62530e77e1318c81a815491580b972c135b31e262e0cc",
+        "output_bytes": 476,
+        "error_output_bytes": 1507
+      },
+      "completed_at": "2026-08-22T17:35:55.865Z",
+      "status": "passed"
+    },
+    "T-01-26": {
+      "plan": "01-09",
+      "task": 3,
+      "command_id": "d99b500bdf482db6f216d9c5aadadd35e4865e569e0aca5eb07a6a8fab348cf3",
+      "command": "cd web && npm run test:components -- Phase1Primitives && npm run typecheck",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "43936a0308bbf8a01f25948091c3fe52d235e6c47e853d0f550c4a19f3544ce2",
+        "error_output_sha256": "768bb936b1ab8555782b832a40d89349784bf41ecd9be0ccad95b84e3b5e1ff6",
+        "output_bytes": 377,
+        "error_output_bytes": 1506
+      },
+      "completed_at": "2026-08-22T17:43:20.346Z",
+      "status": "passed"
+    }
+  }
+}
