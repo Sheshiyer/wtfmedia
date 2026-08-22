@@ -13,7 +13,7 @@
     "web/app/connections/page.tsx",
     "web/app/chat/page.tsx"
   ],
-  "node_count": 35,
+  "node_count": 39,
   "nodes": [
     {
       "path": "web/app/chat/page.tsx",
@@ -72,7 +72,7 @@
         "web/lib/public/public-ui-variant.ts"
       ],
       "dependents": [],
-      "sha256": "b26b89734abd2a3abdd12ca7de4c37d310391b9a415a6846a673096c2144cfb2"
+      "sha256": "96875d1571c7693c6ee9c745416ae065f6b8b1d5f15d9708c6256fe2936ca8e2"
     },
     {
       "path": "web/app/page.tsx",
@@ -102,7 +102,8 @@
       "role": "shared-component",
       "dependencies": [],
       "dependents": [
-        "web/components/legacy/public/LegacyPublicShell.tsx"
+        "web/components/legacy/public/LegacyPublicShell.tsx",
+        "web/components/patterns/brand/OptionalPointerAccent.tsx"
       ],
       "sha256": "3bc176b51a435fbb387c54ebc42cf6b6f100bc8391a8ae3be1de5c4fe0e5d57a"
     },
@@ -176,8 +177,7 @@
       "dependents": [
         "web/app/chat/page.tsx",
         "web/app/page.tsx",
-        "web/components/legacy/public/LegacyPublicShell.tsx",
-        "web/components/patterns/PublicShell.tsx"
+        "web/components/legacy/public/LegacyPublicShell.tsx"
       ],
       "sha256": "6fc1661610d9ac2058c5686ba50c211fa38d21d40e5fee5f3454ca610fd185d1"
     },
@@ -281,13 +281,15 @@
       "path": "web/components/patterns/PublicShell.tsx",
       "role": "shared-component",
       "dependencies": [
-        "web/components/Wordmark.tsx",
-        "web/components/patterns/PublicNav.tsx"
+        "web/components/patterns/PublicNav.tsx",
+        "web/components/patterns/brand/MigratedWordmark.tsx",
+        "web/components/patterns/brand/OptionalPointerAccent.tsx",
+        "web/components/patterns/brand/PausableMarquee.tsx"
       ],
       "dependents": [
         "web/app/layout.tsx"
       ],
-      "sha256": "6bf22b56be46f69dad798b452b1c61b29ec2126a02b06c0707e03464b7235fe5"
+      "sha256": "3dbcc134cda402fdccef95e11223674d84336fa2b0f78d05311f18fea0758de2"
     },
     {
       "path": "web/components/patterns/ScrollRail.tsx",
@@ -297,6 +299,49 @@
         "web/components/domain/public/EpisodesContent.tsx"
       ],
       "sha256": "9f8087592d83f076fd25909c22eafeddfccfb58a54df62b46bea60785a108445"
+    },
+    {
+      "path": "web/components/patterns/brand/MigratedWordmark.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/components/patterns/brand/SignatureSparkle.tsx"
+      ],
+      "dependents": [
+        "web/components/patterns/PublicShell.tsx"
+      ],
+      "sha256": "6e732b2aa0c8ba7f811ee6e911dda92696e88fe79beb143b0d34a250d434c724"
+    },
+    {
+      "path": "web/components/patterns/brand/OptionalPointerAccent.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/components/CustomCursor.tsx"
+      ],
+      "dependents": [
+        "web/components/patterns/PublicShell.tsx"
+      ],
+      "sha256": "a8f762776d90c0050195d6b43efcc830ee05963aa1f2e421817e37a01d16aa93"
+    },
+    {
+      "path": "web/components/patterns/brand/PausableMarquee.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/components/patterns/brand/SignatureSparkle.tsx"
+      ],
+      "dependents": [
+        "web/components/patterns/PublicShell.tsx"
+      ],
+      "sha256": "795d3c38391c5613587754765df1ae99b2549215edbf4d26a4f8ffdfc0544a39"
+    },
+    {
+      "path": "web/components/patterns/brand/SignatureSparkle.tsx",
+      "role": "shared-component",
+      "dependencies": [],
+      "dependents": [
+        "web/components/patterns/brand/MigratedWordmark.tsx",
+        "web/components/patterns/brand/PausableMarquee.tsx"
+      ],
+      "sha256": "ea7d56c4bb63413e28b18d5a18f9bf0362cfe6ba7bbe5c08a3d8755baa826a50"
     },
     {
       "path": "web/components/ui/Drawer.tsx",
