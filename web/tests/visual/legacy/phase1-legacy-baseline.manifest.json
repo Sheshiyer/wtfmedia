@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "plan": "01-21",
+  "status": "approved",
+  "description": "Pre-migration legacy public presentation baseline at 320/768/1440 across the four protected UI routes; ready-state viewport captures hash-bound here. Approval is owner-only and never self-granted.",
+  "coverage": [
+    "320",
+    "768",
+    "1440"
+  ],
+  "states_note": "Ready state per route per viewport captured as deterministic screenshots (canvas masked, CSS animations disabled, external network aborted). Focus reachability, reduced-motion census, navigation presence, and chat safe-error behavior are asserted live by tests/rollback/legacy-presentation.spec.ts in verify mode against this same server contract.",
+  "captures": {
+    "/@320": "3d9318efb5bc835edd45d87c8d8a3068fb8f0fb7a14d16c57768185f543316da",
+    "/@768": "dcf950eab50a7eec865cdf5e6e6608ae4207cefbe29a8f1a80e231859cffe24c",
+    "/@1440": "fa49a163dac42179b94c35d0b7dcda3dc927c6eabd2b2a28bdd02f243067910a",
+    "/episodes@320": "4695acd5fe6a21e378cb5983660b84c15c00e0bba6f7ce145a91497031593aed",
+    "/episodes@768": "eac025fa7f5a568c837e495281c35d2b653bc694bc95db97f7df3a48f942695a",
+    "/episodes@1440": "3e29dcdc965f93e406d0c9b02f502c1ba26c766844c2dd8440b3be9d580caca6",
+    "/connections@320": "0a24553acdfeb1ec9808ba48013725506bf6d632f0861dfda76202819c97779e",
+    "/connections@768": "9b28bcd2d521e2c7b49dbeb52976114e47ef2e1b321880738daa936951ab6ade",
+    "/connections@1440": "422e99af820a5cd944dad7e27e76b2ef55afe91f42038a0d0f6de0006135ed46",
+    "/chat@320": "92fcdd5763e4e394263d2366d3aa96af0dd7baee9ee5204197ffa627ea9d743c",
+    "/chat@768": "28585de9b0226da21326d5e41e519536d625caf4810db9edd8ae80ce5756e920",
+    "/chat@1440": "b66ef3c70a92b2532cb6c47505e56e02f37edeab45d7bbb9cdd7976d0abf171b"
+  },
+  "browser": {
+    "name": "chromium",
+    "revision": "1234",
+    "version": "151.0.7922.34",
+    "playwright": "1.62.1",
+    "note": "pinned via package-lock playwright-core browsers.json"
+  },
+  "environment": {
+    "server": "next start (local production build)",
+    "host": "127.0.0.1",
+    "network_scope": "loopback-only; all external requests aborted by test routing"
+  },
+  "dependency_graph_sha256": "891745a8d370994fbb3ec16b2688e9f9a635055f6b0a0518e14a1dcd4c1461d7",
+  "compatibility_manifest_sha256": "91af632adc8f38319a69e6ba3a8653d44051ae5ccde32e7ff9ed215bdcbbd9eb",
+  "owner_approval_ref": "owner-explicit-approval-2026-08-22-legacy-presentation-baseline-via-askuserquestion-review"
+}

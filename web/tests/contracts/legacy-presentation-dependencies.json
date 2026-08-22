@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "plan": "01-21",
+  "generated_at_mode": "deterministic-recompute",
+  "description": "Complete repository-owned legacy presentation dependency boundary (D-12): global style, theme config, shell layout, protected route entries, and all transitive shared components/data modules, hash-bound to the approved compatibility manifest.",
+  "compatibility_manifest_sha256": "91af632adc8f38319a69e6ba3a8653d44051ae5ccde32e7ff9ed215bdcbbd9eb",
+  "protected_roots": [
+    "web/app/globals.css",
+    "web/tailwind.config.ts",
+    "web/app/layout.tsx",
+    "web/app/page.tsx",
+    "web/app/episodes/page.tsx",
+    "web/app/connections/page.tsx",
+    "web/app/chat/page.tsx"
+  ],
+  "node_count": 20,
+  "nodes": [
+    {
+      "path": "web/app/chat/page.tsx",
+      "role": "protected-route",
+      "dependencies": [
+        "web/components/ModelPicker.tsx",
+        "web/components/Sparkle.tsx",
+        "web/components/Wordmark.tsx",
+        "web/lib/models.ts"
+      ],
+      "dependents": [],
+      "sha256": "73e4fb084a07b899806b27bb67dcd24fa5634dab0c06bea47de7b262db8d5078"
+    },
+    {
+      "path": "web/app/connections/page.tsx",
+      "role": "protected-route",
+      "dependencies": [
+        "web/components/ConnectionGraph.tsx",
+        "web/components/Sparkle.tsx",
+        "web/lib/connections.ts"
+      ],
+      "dependents": [],
+      "sha256": "a58a2024c634635358a3a8f4cf191be870c23aa5e7dc728fbddc33f57a6f0855"
+    },
+    {
+      "path": "web/app/episodes/page.tsx",
+      "role": "protected-route",
+      "dependencies": [
+        "web/components/EpisodesBrowser.tsx",
+        "web/components/Sparkle.tsx",
+        "web/lib/episodes.ts"
+      ],
+      "dependents": [],
+      "sha256": "7138a212a1f69170088ba358424b8ab1832f1bc46ee95d7a0adac065689b93b3"
+    },
+    {
+      "path": "web/app/globals.css",
+      "role": "global-style",
+      "dependencies": [],
+      "dependents": [
+        "web/app/layout.tsx"
+      ],
+      "sha256": "757d80c928ea3d507f360a56c1f90aa2caf791e7a311d2711bd776114c2ea3b5"
+    },
+    {
+      "path": "web/app/layout.tsx",
+      "role": "shell-layout",
+      "dependencies": [
+        "web/app/globals.css",
+        "web/components/CustomCursor.tsx",
+        "web/components/Wordmark.tsx"
+      ],
+      "dependents": [],
+      "sha256": "7f7ddb592ac029ae10a6f635f2981a8bd81c9b5a59782ee060c3501817f08655"
+    },
+    {
+      "path": "web/app/page.tsx",
+      "role": "protected-route",
+      "dependencies": [
+        "web/components/GuestStrip.tsx",
+        "web/components/Marquee.tsx",
+        "web/components/Sparkle.tsx",
+        "web/components/Wordmark.tsx",
+        "web/lib/episodes.ts",
+        "web/lib/guests.ts"
+      ],
+      "dependents": [],
+      "sha256": "a46a96eef2e9557cb3a0f362357de34bd67e44a44d73b50a1cbe55eae37ab0a1"
+    },
+    {
+      "path": "web/components/ConnectionGraph.tsx",
+      "role": "shared-component",
+      "dependencies": [],
+      "dependents": [
+        "web/app/connections/page.tsx"
+      ],
+      "sha256": "86c67817f8672b82b75e2e54f1ecb33a38e10de83296763fcc9893e98513be63"
+    },
+    {
+      "path": "web/components/CustomCursor.tsx",
+      "role": "shared-component",
+      "dependencies": [],
+      "dependents": [
+        "web/app/layout.tsx"
+      ],
+      "sha256": "3bc176b51a435fbb387c54ebc42cf6b6f100bc8391a8ae3be1de5c4fe0e5d57a"
+    },
+    {
+      "path": "web/components/DragRow.tsx",
+      "role": "shared-component",
+      "dependencies": [],
+      "dependents": [
+        "web/components/EpisodesBrowser.tsx",
+        "web/components/GuestStrip.tsx"
+      ],
+      "sha256": "6b06b1e722b8218d3432d4d048bb89ee82e41c715e5f69e29d66ea30e31eeb48"
+    },
+    {
+      "path": "web/components/EpisodesBrowser.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/components/DragRow.tsx",
+        "web/components/Sparkle.tsx",
+        "web/lib/episodes.ts"
+      ],
+      "dependents": [
+        "web/app/episodes/page.tsx"
+      ],
+      "sha256": "baf318360cba5b0ef26ec6eca2569d3a53cc7444798ba0f917e34b36d91583b1"
+    },
+    {
+      "path": "web/components/GuestStrip.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/components/DragRow.tsx",
+        "web/lib/episodes.ts",
+        "web/lib/guests.ts"
+      ],
+      "dependents": [
+        "web/app/page.tsx"
+      ],
+      "sha256": "60b5ed41b4fec6350b8f843b709631c146ad78b34c024a2d42d789efa353f161"
+    },
+    {
+      "path": "web/components/Marquee.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/components/Sparkle.tsx"
+      ],
+      "dependents": [
+        "web/app/page.tsx"
+      ],
+      "sha256": "b269bba25da71cbab50beb780f172f7b43d7cd2559badcc1a594cf5241ced02b"
+    },
+    {
+      "path": "web/components/ModelPicker.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/lib/models.ts"
+      ],
+      "dependents": [
+        "web/app/chat/page.tsx"
+      ],
+      "sha256": "25b302d06d1856f495041870af08f13e4e8a4decf24b9c5436d4fee6e97ce25e"
+    },
+    {
+      "path": "web/components/Sparkle.tsx",
+      "role": "shared-component",
+      "dependencies": [],
+      "dependents": [
+        "web/app/chat/page.tsx",
+        "web/app/connections/page.tsx",
+        "web/app/episodes/page.tsx",
+        "web/app/page.tsx",
+        "web/components/EpisodesBrowser.tsx",
+        "web/components/Marquee.tsx",
+        "web/components/Wordmark.tsx"
+      ],
+      "sha256": "abfb18917e04bb19bc28310c6ef6143b3e837fc7724dff70d1d66e1f4e5562d5"
+    },
+    {
+      "path": "web/components/Wordmark.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/components/Sparkle.tsx"
+      ],
+      "dependents": [
+        "web/app/chat/page.tsx",
+        "web/app/layout.tsx",
+        "web/app/page.tsx"
+      ],
+      "sha256": "6fc1661610d9ac2058c5686ba50c211fa38d21d40e5fee5f3454ca610fd185d1"
+    },
+    {
+      "path": "web/lib/connections.ts",
+      "role": "presentation-data-module",
+      "dependencies": [],
+      "dependents": [
+        "web/app/connections/page.tsx"
+      ],
+      "sha256": "7c7fb2e99da3b2fc00b89f91bc84f14ce64c4f89572d257feffb9ffd8832ebba"
+    },
+    {
+      "path": "web/lib/episodes.ts",
+      "role": "presentation-data-module",
+      "dependencies": [],
+      "dependents": [
+        "web/app/episodes/page.tsx",
+        "web/app/page.tsx",
+        "web/components/EpisodesBrowser.tsx",
+        "web/components/GuestStrip.tsx"
+      ],
+      "sha256": "134b072e4abe5b48a328989e67765767febdc522d7d1bae543b4917ad37a6236"
+    },
+    {
+      "path": "web/lib/guests.ts",
+      "role": "presentation-data-module",
+      "dependencies": [],
+      "dependents": [
+        "web/app/page.tsx",
+        "web/components/GuestStrip.tsx"
+      ],
+      "sha256": "eabd086373d6244d029d53f9be5f9d1da98efcfaf671b86d656faf2d184e6d29"
+    },
+    {
+      "path": "web/lib/models.ts",
+      "role": "presentation-data-module",
+      "dependencies": [],
+      "dependents": [
+        "web/app/chat/page.tsx",
+        "web/components/ModelPicker.tsx"
+      ],
+      "sha256": "4a4f376fe29a02fceb9ef271b1091c1b02d404f533547b9b32e3d9e3100e3579"
+    },
+    {
+      "path": "web/tailwind.config.ts",
+      "role": "theme-config",
+      "dependencies": [],
+      "dependents": [],
+      "sha256": "039f1066f9d2dc9ebffd5b0c16e9b7b898e3629f47676f0c9174b36e6e31dd71"
+    }
+  ]
+}

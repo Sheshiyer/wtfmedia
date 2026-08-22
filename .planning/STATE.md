@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 01 Plan 01-07 COMPLETE - T-01-21/T-01-22 passed; approved receipt restructured into T-01-21's seven dimension groups (values unchanged, hashes re-bound); VALIDATION.md Wave 7 authority section added with fail-closed rule; next executable is Plan 01-08
+stopped_at: Phase 01 Plan 01-21 COMPLETE - T-01-65/T-01-66/T-01-67 passed; complete legacy presentation boundary frozen and owner-approved (graph hash 891745a8…, 12 captures at 320/768/1440); VALIDATION.md Wave 8 authority section added with rollback binding rule; next executable is Plan 01-08 (wave 9, now unblocked)
 last_updated: "2026-08-22T19:00:00+05:30"
-last_activity: 2026-08-22 -- Plan 01-07 closed: human checkpoint already satisfied by the 2026-08-22 gate-by-gate approval; receipt restructured into seven dimension groups (home/episodes/connections/chat/bundle/interactions/rag) preserving every owner-approved value; VALIDATION.md gained the 01-07 binding row + Approved Budget Authority section with the fail-closed loading rule; historical threat fragments restored to committed evidence after diagnosis (T-01-01 is a one-shot capture-window probe by design)
+last_activity: 2026-08-22 -- Plan 01-21 closed: blocking owner checkpoint satisfied by explicit AskUserQuestion review; manifest approved with reference owner-explicit-approval-2026-08-22-legacy-presentation-baseline-via-askuserquestion-review; 20-node dependency graph (sha256 891745a8…) and 12 visual captures at 320/768/1440 (canvas masked, loopback-only routing) frozen as rollback oracle; VALIDATION.md gained Wave 8 authority row + binding rule; Plans 01-08 and 01-10 now genuinely unblocked
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 23
-  completed_plans: 7
-  percent: 30
+  completed_plans: 8
+  percent: 35
 approval_refresh:
   id: apr_4737e705fef30c663095_refresh
   approved_at: "2026-08-21T09:20:00.000Z"
@@ -34,8 +34,8 @@ without losing provenance.
 
 Phase: 01 (Compatibility + Component Proof Harness) — EXECUTING
 Plan: 7 of 23
-Status: Plans 01-01 through 01-07 complete (`01-07-SUMMARY.md`); budget authority now a binding fail-closed prerequisite; next executable is Plan 01-08
-Last activity: 2026-08-22 -- Plan 01-07 closed: approved receipt restructured into T-01-21's seven dimension groups (all owner values unchanged, SHA-256 re-bound), VALIDATION.md Wave 7 section + fail-closed rule added, T-01-21/T-01-22 passed, wave_0_complete/nyquist_compliant retained false
+Status: Plans 01-01 through 01-21 complete (`01-21-SUMMARY.md`); budget authority (Wave 7) and legacy presentation boundary (Wave 8) are binding owner-approved prerequisites; next executable is Plan 01-08 (token layer) now genuinely unblocked
+Last activity: 2026-08-22 -- Plan 01-21 closed: legacy presentation baseline approved, manifest flipped, rollback spec hardened (status accepts approved/pending-owner-approval), VALIDATION.md Wave 8 row + authority section added, T-01-65/T-01-66/T-01-67 passed, wave_0_complete/nyquist_compliant retained false
 
 Progress: [███░░░░░░░] 30%
 
@@ -51,7 +51,7 @@ Progress: [███░░░░░░░] 30%
 
 **Velocity:**
 
-- Total plans completed: 6
+- Total plans completed: 8
 - Average duration: —
 - Total execution time: 0 hours
 
@@ -65,7 +65,7 @@ Progress: [███░░░░░░░] 30%
 
 ### Roadmap Evolution
 
-- Phase 1 edited: Expanded Phase 1 from one proof component to visible migration of every protected public route while preserving all route and API contracts
+- Phase 1 progress: Plan 01-21 (Wave 8) completes the pre-migration freeze — dependency graph (20 nodes) and 12 visual captures at 320/768/1440 hash-bound + owner-approved, binding Plans 01-08 and 01-10 to preserve or restore this exact presentation
 - Client Phase 1/2 build scope reconciled: commercial delivery labels now map across repository Phases 2–4 and 5–9; repository Phase 1 remains the unchanged 23-plan prerequisite and migration closure moves to Phase 10
 
 ### Decisions
@@ -101,7 +101,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-22T19:00:00+05:30
-Stopped at: Phase 01 Plan 01-07 complete (T-01-21/T-01-22 passed; receipt restructured into seven dimension groups, VALIDATION.md binding added); work uncommitted pending owner instruction
+Last session: 2026-08-22T14:28:54+00:00
+Stopped at: Phase 01 Plan 01-21 complete (T-01-65/T-01-66/T-01-67 passed; dependency graph + visual baseline owner-approved, VALIDATION.md Wave 8 authority added); work uncommitted pending owner instruction
 Resume file: .planning/phases/01-compatibility-component-proof-harness/01-08-PLAN.md
-Resume: Commit Plan 01-07 work if authorized, then execute Plan 01-08 after reading `01-08-PLAN.md`; Phase 2 remains gated behind Phase 1 acceptance.
+Resume: Commit Plan 01-21 work if authorized, then execute Plan 01-08 after reading `01-08-PLAN.md`; Phase 2 remains gated behind Phase 1 acceptance.
