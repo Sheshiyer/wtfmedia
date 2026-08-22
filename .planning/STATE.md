@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 01 Plan 01-08 COMPLETE - T-01-23/T-01-24/T-01-25 passed; semantic token layer (tokens/themes/motion.css + Tailwind var() aliases) built with zero pixel drift on the approved legacy baseline; dependency graph re-baselined 20→23 nodes, manifest rebound; next executable is Plan 01-10 (per wave order after 01-21 gate; check ROADMAP for 01-09 vs 01-10 readiness)
-last_updated: "2026-08-22T19:00:00+05:30"
-last_activity: 2026-08-22 -- Plan 01-08 closed: token layer created and tested (14 unit assertions incl. live indicator-only finding and two-layer focus-ring geometry), motion/focus/cursor/reduced-motion scoped under migrated marker, graph re-baselined to 23 nodes with manifest rebinding, pixel identity proven via full rollback oracle re-run (12/12 hashes match)
+stopped_at: Phase 01 Plan 01-10 COMPLETE - T-01-29/T-01-30/T-01-31 passed; episodes rollback seam with dual-variant proof (legacy copies frozen, variant selector, rollback proof spec); correction ledger for snapshot hazard; next executable is Plan 01-09 (Wave 10: accessible primitives)
+last_updated: "2026-08-22T22:45:00+05:30"
+last_activity: 2026-08-22 -- Plan 01-10 closed: episodes rollback seam built (legacy copies, variant selector, migrated candidate), rollback proof spec (5 Playwright tests), correction ledger for T-01-29 snapshot hazard, port fix for playwright.config.ts
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 23
-  completed_plans: 9
-  percent: 39
+  completed_plans: 10
+  percent: 43
 approval_refresh:
   id: apr_4737e705fef30c663095_refresh
   approved_at: "2026-08-21T09:20:00.000Z"
@@ -33,11 +33,11 @@ without losing provenance.
 ## Current Position
 
 Phase: 01 (Compatibility + Component Proof Harness) — EXECUTING
-Plan: 7 of 23
-Status: Plans 01-01 through 01-08 and 01-21 complete; budget authority (Wave 7), legacy boundary (Wave 8), and semantic token substrate (Plan 01-08) are binding prerequisites; next executable per ROADMAP wave order after the 01-21 gate
-Last activity: 2026-08-22 -- Plan 01-08 closed: token layer built with zero pixel drift, graph re-baselined 20→23 nodes, T-01-23/T-01-24/T-01-25 passed, wave_0_complete/nyquist_compliant retained false
+Plan: 10 of 23
+Status: Plans 01-01 through 01-10 and 01-21 complete; episodes rollback seam (01-10) proven with dual-variant selector, legacy copies frozen, rollback proof spec passing; next executable is Plan 01-09 (Wave 10: accessible primitives)
+Last activity: 2026-08-22 -- Plan 01-10 closed: episodes rollback seam built (legacy copies, variant selector, migrated candidate), rollback proof spec (5 Playwright tests), correction ledger for T-01-29 snapshot hazard
 
-Progress: [███░░░░░░░] 30%
+Progress: [████░░░░░░] 43%
 
 ## Execution Authorization
 
