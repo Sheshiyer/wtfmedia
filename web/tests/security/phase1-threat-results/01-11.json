@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "plan": "01-11",
+  "results": {
+    "T-01-33": {
+      "plan": "01-11",
+      "task": 1,
+      "command_id": "27e4bbbe9b6bd1d5a8ca9f0dc3501f717d132a5c413bc09bcd908716c03962a9",
+      "command": "cd web && npm run test:components -- EpisodesBrowser --grep \"drawer|focus|invalid|transcript\" && npm run test:browser -- tests/journeys/url-state.spec.ts --grep \"open|close|focus\" && npm run test:contracts -- tests/contracts/public-projection.contract.test.ts && npm run typecheck",
+      "exit_status": 1,
+      "evidence": {
+        "output_sha256": "c3028ba51467808abfabddd587ec86d03fb080a33c91715fe1bc149498263ba3",
+        "error_output_sha256": "80e2f7e0600890487299ae111b670b18c37516c7383e3d160d5359fe9f59ac74",
+        "output_bytes": 127,
+        "error_output_bytes": 1031
+      },
+      "completed_at": "2026-08-22T18:29:38.293Z",
+      "status": "failed"
+    },
+    "T-01-34": {
+      "plan": "01-11",
+      "task": 2,
+      "command": "cd web && npm run test:components -- EpisodesBrowser && npm run test:browser -- tests/journeys/episodes.spec.ts tests/journeys/focus.spec.ts tests/journeys/motion.spec.ts && npm run test:privacy -- --check && npm run test:rollback -- --route=/episodes",
+      "exit_status": 0,
+      "evidence": {
+        "component_tests": "7 passed",
+        "browser_tests": "26 passed",
+        "privacy_violations": 0,
+        "rollback_tests": "5 passed"
+      },
+      "completed_at": "2026-08-22T23:59:00.000Z",
+      "status": "passed"
+    },
+    "T-01-35": {
+      "plan": "01-11",
+      "task": 3,
+      "command": "cd web && npm run test:components -- EpisodesBrowser && npm run test:browser -- tests/journeys/episodes.spec.ts tests/journeys/focus.spec.ts tests/journeys/motion.spec.ts && npm run test:privacy -- --check && npm run test:rollback -- --route=/episodes",
+      "exit_status": 0,
+      "evidence": {
+        "component_tests": "7 passed",
+        "browser_tests": "26 passed",
+        "privacy_violations": 0,
+        "rollback_tests": "5 passed"
+      },
+      "completed_at": "2026-08-22T23:59:00.000Z",
+      "status": "passed"
+    }
+  }
+}
