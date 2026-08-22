@@ -13,7 +13,7 @@
     "web/app/connections/page.tsx",
     "web/app/chat/page.tsx"
   ],
-  "node_count": 23,
+  "node_count": 35,
   "nodes": [
     {
       "path": "web/app/chat/page.tsx",
@@ -42,12 +42,12 @@
       "path": "web/app/episodes/page.tsx",
       "role": "protected-route",
       "dependencies": [
-        "web/components/EpisodesBrowser.tsx",
-        "web/components/Sparkle.tsx",
-        "web/lib/episodes.ts"
+        "web/components/domain/public/MigratedEpisodesPage.tsx",
+        "web/components/legacy/public/LegacyEpisodesPage.tsx",
+        "web/lib/public/public-ui-variant.ts"
       ],
       "dependents": [],
-      "sha256": "7138a212a1f69170088ba358424b8ab1832f1bc46ee95d7a0adac065689b93b3"
+      "sha256": "e2c29a12d590a7f683ee20a1c4b58f4d637efcc52636e218d0296144f89114d2"
     },
     {
       "path": "web/app/globals.css",
@@ -60,18 +60,19 @@
       "dependents": [
         "web/app/layout.tsx"
       ],
-      "sha256": "80d76ecff5c66346d592fd349f2d1d8c6ac00e0bb9ec6b2a06adc15edd434a54"
+      "sha256": "11d9ce475b272434490361b47c5d1b5aa423f67f386058d8416b12917810a42d"
     },
     {
       "path": "web/app/layout.tsx",
       "role": "shell-layout",
       "dependencies": [
         "web/app/globals.css",
-        "web/components/CustomCursor.tsx",
-        "web/components/Wordmark.tsx"
+        "web/components/legacy/public/LegacyPublicShell.tsx",
+        "web/components/patterns/PublicShell.tsx",
+        "web/lib/public/public-ui-variant.ts"
       ],
       "dependents": [],
-      "sha256": "7f7ddb592ac029ae10a6f635f2981a8bd81c9b5a59782ee060c3501817f08655"
+      "sha256": "b26b89734abd2a3abdd12ca7de4c37d310391b9a415a6846a673096c2144cfb2"
     },
     {
       "path": "web/app/page.tsx",
@@ -101,7 +102,7 @@
       "role": "shared-component",
       "dependencies": [],
       "dependents": [
-        "web/app/layout.tsx"
+        "web/components/legacy/public/LegacyPublicShell.tsx"
       ],
       "sha256": "3bc176b51a435fbb387c54ebc42cf6b6f100bc8391a8ae3be1de5c4fe0e5d57a"
     },
@@ -110,23 +111,9 @@
       "role": "shared-component",
       "dependencies": [],
       "dependents": [
-        "web/components/EpisodesBrowser.tsx",
         "web/components/GuestStrip.tsx"
       ],
       "sha256": "6b06b1e722b8218d3432d4d048bb89ee82e41c715e5f69e29d66ea30e31eeb48"
-    },
-    {
-      "path": "web/components/EpisodesBrowser.tsx",
-      "role": "shared-component",
-      "dependencies": [
-        "web/components/DragRow.tsx",
-        "web/components/Sparkle.tsx",
-        "web/lib/episodes.ts"
-      ],
-      "dependents": [
-        "web/app/episodes/page.tsx"
-      ],
-      "sha256": "baf318360cba5b0ef26ec6eca2569d3a53cc7444798ba0f917e34b36d91583b1"
     },
     {
       "path": "web/components/GuestStrip.tsx",
@@ -170,11 +157,13 @@
       "dependents": [
         "web/app/chat/page.tsx",
         "web/app/connections/page.tsx",
-        "web/app/episodes/page.tsx",
         "web/app/page.tsx",
-        "web/components/EpisodesBrowser.tsx",
         "web/components/Marquee.tsx",
-        "web/components/Wordmark.tsx"
+        "web/components/Wordmark.tsx",
+        "web/components/domain/public/EpisodeDrawer.tsx",
+        "web/components/domain/public/MigratedEpisodesPage.tsx",
+        "web/components/legacy/public/LegacyEpisodesBrowser.tsx",
+        "web/components/legacy/public/LegacyEpisodesPage.tsx"
       ],
       "sha256": "abfb18917e04bb19bc28310c6ef6143b3e837fc7724dff70d1d66e1f4e5562d5"
     },
@@ -186,10 +175,137 @@
       ],
       "dependents": [
         "web/app/chat/page.tsx",
-        "web/app/layout.tsx",
-        "web/app/page.tsx"
+        "web/app/page.tsx",
+        "web/components/legacy/public/LegacyPublicShell.tsx",
+        "web/components/patterns/PublicShell.tsx"
       ],
       "sha256": "6fc1661610d9ac2058c5686ba50c211fa38d21d40e5fee5f3454ca610fd185d1"
+    },
+    {
+      "path": "web/components/domain/public/EpisodeDrawer.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/components/Sparkle.tsx",
+        "web/components/ui/Drawer.tsx",
+        "web/lib/episodes.ts"
+      ],
+      "dependents": [
+        "web/components/domain/public/EpisodesContent.tsx"
+      ],
+      "sha256": "4207ee677223d3e73c9f771eb1fe45316578768a4a2705b2911329d8bf8566a5"
+    },
+    {
+      "path": "web/components/domain/public/EpisodesContent.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/components/domain/public/EpisodeDrawer.tsx",
+        "web/components/patterns/ScrollRail.tsx",
+        "web/lib/episodes.ts",
+        "web/lib/public/url-state.ts"
+      ],
+      "dependents": [
+        "web/components/domain/public/MigratedEpisodesPage.tsx"
+      ],
+      "sha256": "7713391b2ffa6d4f607a2b03974d73304946171c1462d4499a1cc4f0aca87595"
+    },
+    {
+      "path": "web/components/domain/public/MigratedEpisodesPage.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/components/Sparkle.tsx",
+        "web/components/domain/public/EpisodesContent.tsx",
+        "web/lib/episodes.ts"
+      ],
+      "dependents": [
+        "web/app/episodes/page.tsx"
+      ],
+      "sha256": "bffc8c64972b44cd18a6e43bb9fd5c5c9335173188c6e85cab9215b0dae5e116"
+    },
+    {
+      "path": "web/components/legacy/public/LegacyDragRow.tsx",
+      "role": "shared-component",
+      "dependencies": [],
+      "dependents": [
+        "web/components/legacy/public/LegacyEpisodesBrowser.tsx"
+      ],
+      "sha256": "7596d2769fe1ce3593bd411441bca3417d9dca8a513c08d1683130ae1c51c217"
+    },
+    {
+      "path": "web/components/legacy/public/LegacyEpisodesBrowser.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/components/Sparkle.tsx",
+        "web/components/legacy/public/LegacyDragRow.tsx",
+        "web/lib/episodes.ts"
+      ],
+      "dependents": [
+        "web/components/legacy/public/LegacyEpisodesPage.tsx"
+      ],
+      "sha256": "de7acabc22dd72de1309c75d3c640795271bc3d0c0d212c6ccd87e9604d0354f"
+    },
+    {
+      "path": "web/components/legacy/public/LegacyEpisodesPage.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/components/Sparkle.tsx",
+        "web/components/legacy/public/LegacyEpisodesBrowser.tsx",
+        "web/lib/episodes.ts"
+      ],
+      "dependents": [
+        "web/app/episodes/page.tsx"
+      ],
+      "sha256": "316b56fbad2c39eaaeb22e48c5f53121aba60a2d3b1bb55d90fc2342385246de"
+    },
+    {
+      "path": "web/components/legacy/public/LegacyPublicShell.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/components/CustomCursor.tsx",
+        "web/components/Wordmark.tsx"
+      ],
+      "dependents": [
+        "web/app/layout.tsx"
+      ],
+      "sha256": "505a8d387dd71c3752ca23be44c28b85dd701de0e8b63b8a7553040b6d58d581"
+    },
+    {
+      "path": "web/components/patterns/PublicNav.tsx",
+      "role": "shared-component",
+      "dependencies": [],
+      "dependents": [
+        "web/components/patterns/PublicShell.tsx"
+      ],
+      "sha256": "00cc64080d781c4135fdf47151e5c028ecd025f2b2c1aaeb6a6965eeed04c6ef"
+    },
+    {
+      "path": "web/components/patterns/PublicShell.tsx",
+      "role": "shared-component",
+      "dependencies": [
+        "web/components/Wordmark.tsx",
+        "web/components/patterns/PublicNav.tsx"
+      ],
+      "dependents": [
+        "web/app/layout.tsx"
+      ],
+      "sha256": "6bf22b56be46f69dad798b452b1c61b29ec2126a02b06c0707e03464b7235fe5"
+    },
+    {
+      "path": "web/components/patterns/ScrollRail.tsx",
+      "role": "shared-component",
+      "dependencies": [],
+      "dependents": [
+        "web/components/domain/public/EpisodesContent.tsx"
+      ],
+      "sha256": "9f8087592d83f076fd25909c22eafeddfccfb58a54df62b46bea60785a108445"
+    },
+    {
+      "path": "web/components/ui/Drawer.tsx",
+      "role": "shared-component",
+      "dependencies": [],
+      "dependents": [
+        "web/components/domain/public/EpisodeDrawer.tsx"
+      ],
+      "sha256": "a1fa50b9d6bda23616b9922e4a207abf5d044ea2c012f5c776ccde50c9efb1f5"
     },
     {
       "path": "web/lib/connections.ts",
@@ -205,10 +321,13 @@
       "role": "presentation-data-module",
       "dependencies": [],
       "dependents": [
-        "web/app/episodes/page.tsx",
         "web/app/page.tsx",
-        "web/components/EpisodesBrowser.tsx",
-        "web/components/GuestStrip.tsx"
+        "web/components/GuestStrip.tsx",
+        "web/components/domain/public/EpisodeDrawer.tsx",
+        "web/components/domain/public/EpisodesContent.tsx",
+        "web/components/domain/public/MigratedEpisodesPage.tsx",
+        "web/components/legacy/public/LegacyEpisodesBrowser.tsx",
+        "web/components/legacy/public/LegacyEpisodesPage.tsx"
       ],
       "sha256": "134b072e4abe5b48a328989e67765767febdc522d7d1bae543b4917ad37a6236"
     },
@@ -231,6 +350,25 @@
         "web/components/ModelPicker.tsx"
       ],
       "sha256": "4a4f376fe29a02fceb9ef271b1091c1b02d404f533547b9b32e3d9e3100e3579"
+    },
+    {
+      "path": "web/lib/public/public-ui-variant.ts",
+      "role": "presentation-data-module",
+      "dependencies": [],
+      "dependents": [
+        "web/app/episodes/page.tsx",
+        "web/app/layout.tsx"
+      ],
+      "sha256": "709c92639e382d800793b1d8ec0a11a5594f5e44d6f2f97a20d0afb5bb02bb1b"
+    },
+    {
+      "path": "web/lib/public/url-state.ts",
+      "role": "presentation-data-module",
+      "dependencies": [],
+      "dependents": [
+        "web/components/domain/public/EpisodesContent.tsx"
+      ],
+      "sha256": "24203fd873154de7b11eed08b24a400582cc9fcb46a47b59a8b25f426c434480"
     },
     {
       "path": "web/styles/motion.css",
@@ -264,7 +402,7 @@
       "role": "theme-config",
       "dependencies": [],
       "dependents": [],
-      "sha256": "de3ff53633e26c504b0cb3fb137768c18e55da8b5ea7d5be13af4895fcfcdb32"
+      "sha256": "4c151f486047eec2232c337b5a80753df5e6415bd9bc755ce85ff55b8866f6c6"
     }
   ]
 }
