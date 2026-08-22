@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "01-13",
+  "results": {
+    "T-01-39": {
+      "plan": "01-13",
+      "task": 2,
+      "command_id": "827635e243e785b8931f14cf9aa931136d5952252b67537c7e0d5b2f67301bfc",
+      "command": "cd web && npm run test:contracts -- tests/contracts/connections-public-projection.test.ts && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "d1ea7e6c2db0e8f4db85c8801dea8ded221d482f0582a1b165992a55f310910f",
+        "error_output_sha256": "b2e09a203cf17cd144a308f10b4e4d217f7376eeb881b722611127c079bc8a68",
+        "output_bytes": 7456,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T22:02:32.434Z",
+      "status": "passed"
+    },
+    "T-01-40": {
+      "plan": "01-13",
+      "task": 2,
+      "command_id": "905e4e23443fed673419731c664c6c048d63568c3ce71b08513fdf2bee9fbad6",
+      "command": "cd web && npm run test:contracts -- tests/contracts/connections-public-projection.test.ts && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "d1ea7e6c2db0e8f4db85c8801dea8ded221d482f0582a1b165992a55f310910f",
+        "error_output_sha256": "b2e09a203cf17cd144a308f10b4e4d217f7376eeb881b722611127c079bc8a68",
+        "output_bytes": 7456,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T22:02:32.434Z",
+      "status": "passed"
+    },
+    "T-01-41": {
+      "plan": "01-13",
+      "task": 3,
+      "command_id": "050d4ec6cd92ea3212280d2b0e52ccfd766980e147ba31d36884d7ad1e3c3187",
+      "command": "cd web && npm run build && npm run test:contracts -- tests/contracts/connections-public-projection.test.ts tests/contracts/public-routes.contract.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "484ea1d51c937d6cb79dd93de19f56a696db0f37d0af7f7ed1f282f04584585d",
+        "error_output_sha256": "0bcbe3bca3f4bda12eab508763904dd773fc5837ba2fe0378c5e3841e6a0a382",
+        "output_bytes": 1641,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T22:07:33.478Z",
+      "status": "passed"
+    }
+  }
+}
