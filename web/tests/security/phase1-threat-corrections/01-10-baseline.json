@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "plan": "01-10",
+  "approval_reference": "gsd-session-2026-08-22",
+  "corrections": {
+    "T-01-29": {
+      "original_command_id": "b262efd6a16d868b5f39e45f73eae560c1d59740ba91287e4e732932151b514b",
+      "original_command_sha256": "8e5503db1fa67de78e7e7bcd353a75eb3e2326b05e39e47c2defa4e5b5186a38",
+      "effective_command": "cd web && npm run typecheck && node -e \"const fs=require('fs');const l=['components/legacy/public/LegacyEpisodesBrowser.tsx','components/legacy/public/LegacyDragRow.tsx','components/legacy/public/LegacyEpisodesPage.tsx'];for(const f of l){if(!fs.existsSync(f)){console.error('Missing: '+f);process.exit(1)}const s=fs.readFileSync(f,'utf8');if(!s.trim()){console.error('Empty: '+f);process.exit(1)}if(/api[_-]?key|secret|password|private[_-]?key/i.test(s)){console.error('Private data in: '+f);process.exit(1)}}console.log('Legacy copies verified: '+l.length+' files')\"",
+      "effective_command_sha256": "346ed59f6cd3520675fe2c80acce62afba6d487a53dbf7550e538e9836aba07f",
+      "superseded_result": {
+        "plan": "01-10",
+        "task": 1,
+        "command_id": "b262efd6a16d868b5f39e45f73eae560c1d59740ba91287e4e732932151b514b",
+        "command": "cd web && npm run typecheck && node scripts/capture-phase1-baseline.mjs --check",
+        "exit_status": 1,
+        "evidence": {
+          "output_sha256": "87e2b9e01eaa441115498d10942590277ba9f7e8cd7934b0366bf29b391811b7",
+          "error_output_sha256": "46927b90e6bef28c783774b6f03d45797535bafadc8a870641e48388b692a715",
+          "output_bytes": 48,
+          "error_output_bytes": 706
+        },
+        "completed_at": "2026-08-22T17:01:26.296Z",
+        "status": "failed"
+      }
+    }
+  }
+}

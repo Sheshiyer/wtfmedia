@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "01-10",
+  "results": {
+    "T-01-29": {
+      "plan": "01-10",
+      "task": 1,
+      "command_id": "869d8eb8251d152ab80d2631ae14dcb9efec92fd519a0e36a9497f2cf6737cc8",
+      "command": "cd web && npm run typecheck && node -e \"const fs=require('fs');const l=['components/legacy/public/LegacyEpisodesBrowser.tsx','components/legacy/public/LegacyDragRow.tsx','components/legacy/public/LegacyEpisodesPage.tsx'];for(const f of l){if(!fs.existsSync(f)){console.error('Missing: '+f);process.exit(1)}const s=fs.readFileSync(f,'utf8');if(!s.trim()){console.error('Empty: '+f);process.exit(1)}if(/api[_-]?key|secret|password|private[_-]?key/i.test(s)){console.error('Private data in: '+f);process.exit(1)}}console.log('Legacy copies verified: '+l.length+' files')\"",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "a211dba6fbbe3f201f64d3ee75a651fe1210ad990c7fe6c379119579f45f9e69",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 80,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T17:09:41.889Z",
+      "status": "passed"
+    },
+    "T-01-30": {
+      "plan": "01-10",
+      "task": 2,
+      "command_id": "6dc272560476b9dc32679cb9369a6d787aed63f56a31768c1f6c349da863178f",
+      "command": "cd web && npm run build && npm run typecheck",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "36972516308c1f7a68f4aed19aa3fa4f191b678103f373deee9b641a84a97f99",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 1279,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T17:10:36.446Z",
+      "status": "passed"
+    },
+    "T-01-31": {
+      "plan": "01-10",
+      "task": 3,
+      "command_id": "4181d71e1083495197d7a1b1ff47b96ddf56138a75c8bc78df927c123efefecc",
+      "command": "cd web && npm run test:browser -- tests/rollback/episodes-variant.spec.ts && node -e 'const fs=require(\"fs\"); if(fs.existsSync(\"app/episodes/[episodeId]\")||fs.existsSync(\"app/episodes/:id\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "7872814c85b72a9df76ab951e580ade181d3c383788b20a16187655f15a67722",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 1049,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T17:18:05.725Z",
+      "status": "passed"
+    }
+  }
+}

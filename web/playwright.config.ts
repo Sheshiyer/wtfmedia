@@ -46,7 +46,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run build && npm run start",
+    command: "npm run build && PORT=4173 npm run start",
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     stdout: "ignore",

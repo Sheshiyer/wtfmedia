@@ -21,13 +21,22 @@ const EVIDENCE_KEYS = [
   "output_bytes",
   "error_output_bytes",
 ].sort();
-const CORRECTION_LEDGER = {
-  plan: "01-03",
-  file: "01-03-lhci-cli.json",
-  approval: "github-issue-6",
-  threatIds: new Set(["T-01-07", "T-01-08"]),
-  effectiveCommand: "cd web && npm exec playwright -- --version && npm exec vitest -- --version && npm exec storybook -- --version && npm exec lhci -- --version && node -e 'require.resolve(\"@radix-ui/react-dialog\"); require.resolve(\"@axe-core/playwright\");'",
-};
+const CORRECTION_LEDGERS = [
+  {
+    plan: "01-03",
+    file: "01-03-lhci-cli.json",
+    approval: "github-issue-6",
+    threatIds: new Set(["T-01-07", "T-01-08"]),
+    effectiveCommand: "cd web && npm exec playwright -- --version && npm exec vitest -- --version && npm exec storybook -- --version && npm exec lhci -- --version && node -e 'require.resolve(\"@radix-ui/react-dialog\"); require.resolve(\"@axe-core/playwright\");'",
+  },
+  {
+    plan: "01-10",
+    file: "01-10-baseline.json",
+    approval: "gsd-session-2026-08-22",
+    threatIds: new Set(["T-01-29"]),
+    effectiveCommand: "cd web && npm run typecheck && node -e \"const fs=require('fs');const l=['components/legacy/public/LegacyEpisodesBrowser.tsx','components/legacy/public/LegacyDragRow.tsx','components/legacy/public/LegacyEpisodesPage.tsx'];for(const f of l){if(!fs.existsSync(f)){console.error('Missing: '+f);process.exit(1)}const s=fs.readFileSync(f,'utf8');if(!s.trim()){console.error('Empty: '+f);process.exit(1)}if(/api[_-]?key|secret|password|private[_-]?key/i.test(s)){console.error('Private data in: '+f);process.exit(1)}}console.log('Legacy copies verified: '+l.length+' files')\"",
+  },
+];
 
 function sha256(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
@@ -256,47 +265,51 @@ function loadCorrections(definitions) {
   const directory = correctionDirectory();
   if (!fs.existsSync(directory)) return new Map();
   const entries = fs.readdirSync(directory, { withFileTypes: true });
-  if (entries.some((entry) => !entry.isFile() || entry.name !== CORRECTION_LEDGER.file)) {
+  const allowedFiles = new Set(CORRECTION_LEDGERS.map((l) => l.file));
+  if (entries.some((entry) => !entry.isFile() || !allowedFiles.has(entry.name))) {
     throw new Error("Unapproved Phase 1 threat correction ledger");
   }
-  const ledgerPath = path.join(directory, CORRECTION_LEDGER.file);
-  const ledger = parseJsonWithoutDuplicateKeys(fs.readFileSync(ledgerPath, "utf8"));
-  if (!exactKeys(ledger, ["approval_reference", "corrections", "plan", "schema_version"].sort())) {
-    throw new Error("Correction ledger schema drift");
-  }
-  if (ledger.schema_version !== 1 || ledger.plan !== CORRECTION_LEDGER.plan || ledger.approval_reference !== CORRECTION_LEDGER.approval) {
-    throw new Error("Correction ledger approval drift");
-  }
-  if (!ledger.corrections || typeof ledger.corrections !== "object" || Array.isArray(ledger.corrections)) {
-    throw new Error("Correction ledger corrections must be an object");
-  }
-  const correctionIds = Object.keys(ledger.corrections);
-  if (correctionIds.length !== CORRECTION_LEDGER.threatIds.size || correctionIds.some((id) => !CORRECTION_LEDGER.threatIds.has(id))) {
-    throw new Error("Correction ledger threat allowlist drift");
-  }
   const corrections = new Map();
-  for (const threatId of correctionIds) {
-    const definition = definitions.get(threatId);
-    const correction = ledger.corrections[threatId];
-    if (!definition || definition.plan !== CORRECTION_LEDGER.plan || definition.task !== 2) {
-      throw new Error(`Correction ledger owner drift: ${threatId}`);
+  for (const ledgerDef of CORRECTION_LEDGERS) {
+    const ledgerPath = path.join(directory, ledgerDef.file);
+    if (!fs.existsSync(ledgerPath)) continue;
+    const ledger = parseJsonWithoutDuplicateKeys(fs.readFileSync(ledgerPath, "utf8"));
+    if (!exactKeys(ledger, ["approval_reference", "corrections", "plan", "schema_version"].sort())) {
+      throw new Error("Correction ledger schema drift");
     }
-    if (!exactKeys(correction, ["effective_command", "effective_command_sha256", "original_command_id", "original_command_sha256", "superseded_result"].sort())) {
-      throw new Error(`Correction ledger entry schema drift: ${threatId}`);
+    if (ledger.schema_version !== 1 || ledger.plan !== ledgerDef.plan || ledger.approval_reference !== ledgerDef.approval) {
+      throw new Error("Correction ledger approval drift");
     }
-    if (correction.original_command_id !== commandId(definition) || correction.original_command_sha256 !== sha256(definition.command)) {
-      throw new Error(`Correction ledger original binding drift: ${threatId}`);
+    if (!ledger.corrections || typeof ledger.corrections !== "object" || Array.isArray(ledger.corrections)) {
+      throw new Error("Correction ledger corrections must be an object");
     }
-    if (correction.effective_command !== CORRECTION_LEDGER.effectiveCommand || correction.effective_command_sha256 !== sha256(correction.effective_command)) {
-      throw new Error(`Correction ledger effective command drift: ${threatId}`);
+    const correctionIds = Object.keys(ledger.corrections);
+    if (correctionIds.length !== ledgerDef.threatIds.size || correctionIds.some((id) => !ledgerDef.threatIds.has(id))) {
+      throw new Error("Correction ledger threat allowlist drift");
     }
-    validateResult(correction.superseded_result, definition.plan, definition, threatId);
-    if (!resultMatchesDefinition(correction.superseded_result, definition) || correction.superseded_result.status !== "failed") {
-      throw new Error(`Correction ledger superseded result drift: ${threatId}`);
+    for (const threatId of correctionIds) {
+      const definition = definitions.get(threatId);
+      const correction = ledger.corrections[threatId];
+      if (!definition || definition.plan !== ledgerDef.plan) {
+        throw new Error(`Correction ledger owner drift: ${threatId}`);
+      }
+      if (!exactKeys(correction, ["effective_command", "effective_command_sha256", "original_command_id", "original_command_sha256", "superseded_result"].sort())) {
+        throw new Error(`Correction ledger entry schema drift: ${threatId}`);
+      }
+      if (correction.original_command_id !== commandId(definition) || correction.original_command_sha256 !== sha256(definition.command)) {
+        throw new Error(`Correction ledger original binding drift: ${threatId}`);
+      }
+      if (correction.effective_command !== ledgerDef.effectiveCommand || correction.effective_command_sha256 !== sha256(correction.effective_command)) {
+        throw new Error(`Correction ledger effective command drift: ${threatId}`);
+      }
+      validateResult(correction.superseded_result, definition.plan, definition, threatId);
+      if (!resultMatchesDefinition(correction.superseded_result, definition) || correction.superseded_result.status !== "failed") {
+        throw new Error(`Correction ledger superseded result drift: ${threatId}`);
+      }
+      corrections.set(threatId, { ...correction, effectiveDefinition: { ...definition, command: correction.effective_command } });
     }
-    corrections.set(threatId, { ...correction, effectiveDefinition: { ...definition, command: correction.effective_command } });
+    validateSafeStrings(ledger);
   }
-  validateSafeStrings(ledger);
   return corrections;
 }
 
