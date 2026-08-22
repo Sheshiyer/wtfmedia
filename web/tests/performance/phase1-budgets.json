@@ -1,90 +1,209 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "approved",
-  "plan": "01-06",
+  "plan": "01-07",
   "owner_approval_ref": "owner-explicit-approval-2026-08-22-performance-budget-gates-via-askuserquestion-review",
-  "approval_scope": "phase-01-plan-01-task-06-eleven-evidence-derived-performance-budgets",
+  "approval_scope": "phase-01-plans-01-06-and-01-07-eleven-evidence-derived-performance-budgets",
   "approved_at": "2026-08-22T12:50:13.592Z",
+  "restructured_at": "2026-08-22T13:21:56.235Z",
+  "restructuring_note": "Restructured during Plan 01-07 Task 1 from the flat eleven-metric receipt into the seven dimension groups (home, episodes, connections, chat, bundle, interactions, rag) required by immutable probe T-01-21. All owner-approved numeric values are byte-for-byte identical to the AskUserQuestion gate-by-gate approvals of 2026-08-22; per-route observed maxima were added from the hash-bound baseline for fidelity.",
   "baseline_sha256": "d80ec0b6f11982284dec92b079108b489adb8dac9b63a260fdf72b2f68064d08",
   "proposal_sha256": "cd20a9159c9763b485646df2f927e5ffe3ca8d84f41e25170e286850c4af528c",
+  "environment": {
+    "node": "v26.7.0",
+    "npm": "11.19.0",
+    "chromium": "chromium-1234 (playwright-core 1.62.1)",
+    "lighthouse": "12.6.1",
+    "next": "15.5.19",
+    "os": {
+      "platform": "darwin",
+      "arch": "arm64"
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "server": "next start (local production server at http://localhost:59740, ephemeral port)",
+    "external_assets": "blocked at browser and Lighthouse level (/_next/image, thumbnail/font/analytics hosts); edge secret forced empty so /api/chat stays local",
+    "runs_per_route": 5
+  },
   "rag_scope_note": "rag_first_byte_ms and rag_total_ms cover local-stub proxy overhead only (Plan 01-01 interpretation); live-Worker model latency is explicitly out of scope and deferred to a later plan.",
   "budgets": {
-    "route_ready_ms": {
-      "budget": 297,
-      "unit": "ms",
-      "observed_max": 117,
-      "source_samples_count": 5,
-      "rationale": "Maximum observed DOMContentLoaded across four routes plus 2× measured run-to-run variability to account for browser/tooling overhead."
+    "home": {
+      "lcp_ms": {
+        "budget": 3000,
+        "unit": "ms",
+        "observed_max": 2405.6,
+        "source_samples_count": 5,
+        "rationale": "Owner-approved global LCP ceiling (3000 ms) applied per route; observed max 2405.6 ms on /."
+      },
+      "fcp_ms": {
+        "budget": 2200,
+        "unit": "ms",
+        "observed_max": 1554.6,
+        "source_samples_count": 5,
+        "rationale": "Owner-approved global FCP ceiling (2200 ms) applied per route; observed max 1554.6 ms on /."
+      },
+      "route_ready_ms": {
+        "budget": 297,
+        "unit": "ms",
+        "observed_max": 117,
+        "source_samples_count": 5,
+        "rationale": "Owner-approved DOMContentLoaded ceiling (297 ms = four-route max 117 ms + 2× variability); observed max 117 ms on /."
+      },
+      "first_load_js_kb": {
+        "budget": 204,
+        "unit": "KB",
+        "observed_max": 111,
+        "source_samples_count": 1,
+        "rationale": "Owner-approved per-route first-load JS ceiling (204 KB = /chat max 154 KB + 50 KB headroom); observed 111 KB on /."
+      }
     },
-    "drawer_open_ms": {
-      "budget": 283,
-      "unit": "ms",
-      "observed_max": 171,
-      "source_samples_count": 5,
-      "rationale": "Maximum drawer-open latency plus the full observed run-to-run range (59‑171ms)."
+    "episodes": {
+      "lcp_ms": {
+        "budget": 3000,
+        "unit": "ms",
+        "observed_max": 2630.1,
+        "source_samples_count": 5,
+        "rationale": "Owner-approved global LCP ceiling (3000 ms) applied per route; observed max 2630.1 ms on /episodes."
+      },
+      "fcp_ms": {
+        "budget": 2200,
+        "unit": "ms",
+        "observed_max": 1781.1,
+        "source_samples_count": 5,
+        "rationale": "Owner-approved global FCP ceiling (2200 ms) applied per route; observed max 1781.1 ms on /episodes."
+      },
+      "route_ready_ms": {
+        "budget": 297,
+        "unit": "ms",
+        "observed_max": 115,
+        "source_samples_count": 5,
+        "rationale": "Owner-approved DOMContentLoaded ceiling (297 ms = four-route max 117 ms + 2× variability); observed max 115 ms on /episodes."
+      },
+      "first_load_js_kb": {
+        "budget": 204,
+        "unit": "KB",
+        "observed_max": 114,
+        "source_samples_count": 1,
+        "rationale": "Owner-approved per-route first-load JS ceiling (204 KB = /chat max 154 KB + 50 KB headroom); observed 114 KB on /episodes."
+      }
     },
-    "node_expand_ms": {
-      "budget": 282,
-      "unit": "ms",
-      "observed_max": 170,
-      "source_samples_count": 5,
-      "rationale": "Maximum node‑expand latency plus the full observed run‑to‑run range (58‑170ms)."
+    "connections": {
+      "lcp_ms": {
+        "budget": 3000,
+        "unit": "ms",
+        "observed_max": 2222.7,
+        "source_samples_count": 5,
+        "rationale": "Owner-approved global LCP ceiling (3000 ms) applied per route; observed max 2222.7 ms on /connections."
+      },
+      "fcp_ms": {
+        "budget": 2200,
+        "unit": "ms",
+        "observed_max": 1845.3,
+        "source_samples_count": 5,
+        "rationale": "Owner-approved global FCP ceiling (2200 ms) applied per route; observed max 1845.3 ms on /connections."
+      },
+      "route_ready_ms": {
+        "budget": 297,
+        "unit": "ms",
+        "observed_max": 92,
+        "source_samples_count": 5,
+        "rationale": "Owner-approved DOMContentLoaded ceiling (297 ms = four-route max 117 ms + 2× variability); observed max 92 ms on /connections."
+      },
+      "first_load_js_kb": {
+        "budget": 204,
+        "unit": "KB",
+        "observed_max": 108,
+        "source_samples_count": 1,
+        "rationale": "Owner-approved per-route first-load JS ceiling (204 KB = /chat max 154 KB + 50 KB headroom); observed 108 KB on /connections."
+      }
     },
-    "chat_safe_error_ms": {
-      "budget": 264,
-      "unit": "ms",
-      "observed_max": 207,
-      "source_samples_count": 5,
-      "rationale": "Maximum safe‑error round trip (server‑side 503 without upstream fetch) plus the full observed run‑to‑run range (150‑207ms)."
+    "chat": {
+      "lcp_ms": {
+        "budget": 3000,
+        "unit": "ms",
+        "observed_max": 2578.3,
+        "source_samples_count": 5,
+        "rationale": "Owner-approved global LCP ceiling (3000 ms) applied per route; observed max 2578.3 ms on /chat."
+      },
+      "fcp_ms": {
+        "budget": 2200,
+        "unit": "ms",
+        "observed_max": 1548.9,
+        "source_samples_count": 5,
+        "rationale": "Owner-approved global FCP ceiling (2200 ms) applied per route; observed max 1548.9 ms on /chat."
+      },
+      "route_ready_ms": {
+        "budget": 297,
+        "unit": "ms",
+        "observed_max": 82,
+        "source_samples_count": 5,
+        "rationale": "Owner-approved DOMContentLoaded ceiling (297 ms = four-route max 117 ms + 2× variability); observed max 82 ms on /chat."
+      },
+      "first_load_js_kb": {
+        "budget": 204,
+        "unit": "KB",
+        "observed_max": 154,
+        "source_samples_count": 1,
+        "rationale": "Owner-approved per-route first-load JS ceiling (204 KB = /chat max 154 KB + 50 KB headroom); observed 154 KB on /chat."
+      }
     },
-    "rag_first_byte_ms": {
-      "budget": 276,
-      "unit": "ms",
-      "observed_max": 256,
-      "source_samples_count": 11,
-      "rationale": "Maximum observed first response byte across grounded, abstention, and delayed‑250ms cases plus a 20‑ms chunk‑encoding headroom."
+    "bundle": {
+      "static_js_kb": {
+        "budget": 1149,
+        "unit": "KB",
+        "observed_max": 949,
+        "source_samples_count": 1,
+        "rationale": "Total static JavaScript bundle size (949 KB) plus 200‑KB headroom for future static assets."
+      },
+      "static_css_kb": {
+        "budget": 46,
+        "unit": "KB",
+        "observed_max": 26,
+        "source_samples_count": 1,
+        "rationale": "Total static CSS bundle size (26 KB) plus 20‑KB headroom."
+      }
     },
-    "rag_total_ms": {
-      "budget": 506,
-      "unit": "ms",
-      "observed_max": 256,
-      "source_samples_count": 11,
-      "rationale": "Maximum observed total completion across grounded, abstention, and delayed‑250ms cases plus 250‑ms headroom for queue/network jitter."
+    "interactions": {
+      "drawer_open_ms": {
+        "budget": 283,
+        "unit": "ms",
+        "observed_max": 171,
+        "source_samples_count": 5,
+        "rationale": "Maximum drawer-open latency plus the full observed run-to-run range (59‑171ms)."
+      },
+      "node_expand_ms": {
+        "budget": 282,
+        "unit": "ms",
+        "observed_max": 170,
+        "source_samples_count": 5,
+        "rationale": "Maximum node‑expand latency plus the full observed run‑to‑run range (58‑170ms)."
+      },
+      "chat_safe_error_ms": {
+        "budget": 264,
+        "unit": "ms",
+        "observed_max": 207,
+        "source_samples_count": 5,
+        "rationale": "Maximum safe‑error round trip (server‑side 503 without upstream fetch) plus the full observed run‑to‑run range (150‑207ms)."
+      }
     },
-    "first_load_js_kb": {
-      "budget": 204,
-      "unit": "KB",
-      "observed_max": 154,
-      "source_samples_count": 1,
-      "rationale": "Maximum per‑route first‑load JavaScript (parsed from build output) plus 50‑KB headroom for future library dependencies."
-    },
-    "static_js_kb": {
-      "budget": 1149,
-      "unit": "KB",
-      "observed_max": 949,
-      "source_samples_count": 1,
-      "rationale": "Total static JavaScript bundle size (949 KB) plus 200‑KB headroom for future static assets."
-    },
-    "static_css_kb": {
-      "budget": 46,
-      "unit": "KB",
-      "observed_max": 26,
-      "source_samples_count": 1,
-      "rationale": "Total static CSS bundle size (26 KB) plus 20‑KB headroom."
-    },
-    "lcp_ms": {
-      "budget": 3000,
-      "unit": "ms",
-      "observed_max": 2630.1,
-      "source_samples_count": 20,
-      "rationale": "Maximum observed Lighthouse LCP across four routes (2630.1ms on /episodes) plus ~370ms headroom for run-to-run and machine variance."
-    },
-    "fcp_ms": {
-      "budget": 2200,
-      "unit": "ms",
-      "observed_max": 1845.3,
-      "source_samples_count": 20,
-      "rationale": "Maximum observed Lighthouse FCP across four routes (1845.3ms on /connections) plus ~355ms headroom for run-to-run and machine variance."
+    "rag": {
+      "first_byte_ms": {
+        "budget": 276,
+        "unit": "ms",
+        "observed_max": 256,
+        "source_samples_count": 11,
+        "rationale": "Maximum observed first response byte across grounded, abstention, and delayed‑250ms cases plus a 20‑ms chunk‑encoding headroom."
+      },
+      "total_ms": {
+        "budget": 506,
+        "unit": "ms",
+        "observed_max": 256,
+        "source_samples_count": 11,
+        "rationale": "Maximum observed total completion across grounded, abstention, and delayed‑250ms cases plus 250‑ms headroom for queue/network jitter."
+      },
+      "scope_note": "rag_first_byte_ms and rag_total_ms cover local-stub proxy overhead only (Plan 01-01 interpretation); live-Worker model latency is explicitly out of scope and deferred to a later plan."
     }
   }
 }

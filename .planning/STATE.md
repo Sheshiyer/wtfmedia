@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 01 Plan 01-06 COMPLETE - all 3 threats passed; baseline captured; ALL ELEVEN budgets owner-approved into phase1-budgets.json (incl. added LCP/FCP gates + RAG stub-scope note); next executable is Plan 01-07 (budget gate wiring)
-last_updated: "2026-08-22T07:30:00+05:30"
-last_activity: 2026-08-22 -- Owner reviewed all nine proposed budgets gate-by-gate via AskUserQuestion and approved them as-is, then chose to add LCP(3000ms)/FCP(2200ms) gates closing the structural gap and a RAG stub-scope note; approved receipt web/tests/performance/phase1-budgets.json bound by SHA-256 to baseline+proposal with ref owner-explicit-approval-2026-08-22-performance-budget-gates-via-askuserquestion-review; owner also authorized committing Plan 01-06 work
+stopped_at: Phase 01 Plan 01-07 COMPLETE - T-01-21/T-01-22 passed; approved receipt restructured into T-01-21's seven dimension groups (values unchanged, hashes re-bound); VALIDATION.md Wave 7 authority section added with fail-closed rule; next executable is Plan 01-08
+last_updated: "2026-08-22T19:00:00+05:30"
+last_activity: 2026-08-22 -- Plan 01-07 closed: human checkpoint already satisfied by the 2026-08-22 gate-by-gate approval; receipt restructured into seven dimension groups (home/episodes/connections/chat/bundle/interactions/rag) preserving every owner-approved value; VALIDATION.md gained the 01-07 binding row + Approved Budget Authority section with the fail-closed loading rule; historical threat fragments restored to committed evidence after diagnosis (T-01-01 is a one-shot capture-window probe by design)
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 23
-  completed_plans: 6
-  percent: 26
+  completed_plans: 7
+  percent: 30
 approval_refresh:
   id: apr_4737e705fef30c663095_refresh
   approved_at: "2026-08-21T09:20:00.000Z"
@@ -33,11 +33,11 @@ without losing provenance.
 ## Current Position
 
 Phase: 01 (Compatibility + Component Proof Harness) — EXECUTING
-Plan: 6 of 23
-Status: Plans 01-01 through 01-06 complete (`01-06-SUMMARY.md`); owner budget-approval checkpoint CLOSED 2026-08-22; next executable is Plan 01-07
-Last activity: 2026-08-22 -- Plan 01-06 closed and the D-15 approval gate closed: all eleven budgets (nine proposals + added LCP 3000ms / FCP 2200ms) approved into `web/tests/performance/phase1-budgets.json` bound by SHA-256 to baseline+proposal; VALIDATION.md QUAL-06 row + closed manual-gate row updated; threat ledger 01-06.json all passed (T-01-18..20); wave_0_complete/nyquist_compliant retained false
+Plan: 7 of 23
+Status: Plans 01-01 through 01-07 complete (`01-07-SUMMARY.md`); budget authority now a binding fail-closed prerequisite; next executable is Plan 01-08
+Last activity: 2026-08-22 -- Plan 01-07 closed: approved receipt restructured into T-01-21's seven dimension groups (all owner values unchanged, SHA-256 re-bound), VALIDATION.md Wave 7 section + fail-closed rule added, T-01-21/T-01-22 passed, wave_0_complete/nyquist_compliant retained false
 
-Progress: [██▌░░░░░░░] 26%
+Progress: [███░░░░░░░] 30%
 
 ## Execution Authorization
 
@@ -101,7 +101,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-22T07:30:00+05:30
-Stopped at: Phase 01 Plan 01-06 complete AND committed; owner budget-approval checkpoint CLOSED (eleven budgets approved in `web/tests/performance/phase1-budgets.json`)
-Resume file: .planning/phases/01-compatibility-component-proof-harness/01-07-PLAN.md
-Resume: Execute Plan 01-07 after reading `01-07-PLAN.md` — convert the approved receipt into the blocking performance-budget gate; Phase 2 remains gated behind Phase 1 acceptance.
+Last session: 2026-08-22T19:00:00+05:30
+Stopped at: Phase 01 Plan 01-07 complete (T-01-21/T-01-22 passed; receipt restructured into seven dimension groups, VALIDATION.md binding added); work uncommitted pending owner instruction
+Resume file: .planning/phases/01-compatibility-component-proof-harness/01-08-PLAN.md
+Resume: Commit Plan 01-07 work if authorized, then execute Plan 01-08 after reading `01-08-PLAN.md`; Phase 2 remains gated behind Phase 1 acceptance.

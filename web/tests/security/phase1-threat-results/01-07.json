@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "plan": "01-07",
+  "results": {
+    "T-01-21": {
+      "plan": "01-07",
+      "task": 1,
+      "command_id": "5a95219eea6bb255c89567accd3ad8a0de53a48bca4bf6ab18ee6d0f217cff7e",
+      "command": "node -e 'const b=require(\"./web/tests/performance/phase1-budgets.json\"); if(b.status!==\"approved\"||!b.owner_approval_ref||!b.baseline_sha256||!b.proposal_sha256) process.exit(1); const required=[\"home\",\"episodes\",\"connections\",\"chat\",\"bundle\",\"interactions\",\"rag\"]; if(required.some(k=>!b.budgets[k])) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T13:22:01.214Z",
+      "status": "passed"
+    },
+    "T-01-22": {
+      "plan": "01-07",
+      "task": 2,
+      "command_id": "edefc87ac9036510ef5aa7e423ebc4f31867b185c29deb44821096614eba5099",
+      "command": "node -e 'const s=require(\"fs\").readFileSync(\".planning/phases/01-compatibility-component-proof-harness/01-VALIDATION.md\",\"utf8\"),b=require(\"./web/tests/performance/phase1-budgets.json\"); if(!s.includes(\"01-07\")||!s.includes(b.owner_approval_ref)||!s.includes(\"T-01-21\")||!s.includes(\"nyquist_compliant: false\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T13:23:51.273Z",
+      "status": "passed"
+    }
+  }
+}

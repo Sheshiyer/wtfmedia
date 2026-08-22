@@ -66,8 +66,10 @@ The Phase Threat Definition Ledger below assigns immutable plan/task ownership a
 | TBD | TBD | 0 | QUAL-03 | Accessibility denial | Keyboard, focus, names, live regions, motion, and serious axe checks pass | component + E2E | `npm run test:components && npm run test:a11y` | ❌ W0 | ⬜ pending |
 | TBD | TBD | 0 | QUAL-04 | — | Three-viewport baselines change only with owner approval | visual regression | `npm run test:visual` | ❌ W0 | ⬜ pending |
 | 01-05-T1/T2 | 01-05 | 5 | QUAL-05 | T-01-14, T-01-15 | Source, bundles, rendered payloads, fixtures, logs, snapshots, and plans pass bounded privacy scans | artifact scan | `npm run test:privacy -- --check` | ✅ | ✅ green |
-| 01-06-T1/T2/T3 | 01-06 | 6 | QUAL-06 | T-01-18, T-01-19, T-01-20 | Route, bundle, RAG, and interaction measurements stay inside owner-approved budgets | performance + contract | `cd web && node scripts/capture-phase1-performance.mjs --check && npm run test:contracts -- tests/contracts/rag-latency.test.ts` | ✅ baseline captured; 11 budgets approved in `web/tests/performance/phase1-budgets.json` | ⬜ pending (gate wiring lands in Plan 01-07) |
+| 01-06-T1/T2/T3 | 01-06 | 6 | QUAL-06 | T-01-18, T-01-19, T-01-20 | Route, bundle, RAG, and interaction measurements stay inside owner-approved budgets | performance + contract | `cd web && node scripts/capture-phase1-performance.mjs --check && npm run test:contracts -- tests/contracts/rag-latency.test.ts` | ✅ baseline captured; 11 budgets approved in `web/tests/performance/phase1-budgets.json` | ✅ approved receipt bound (Plan 01-07); blocking gate wiring pending |
+| 01-07-T1/T2 | 01-07 | 7 | QUAL-06 | T-01-21, T-01-22 | Approved budget artifact is hash-bound, complete, and traceable to the owner decision before any visual migration runs | artifact probe | `node web/scripts/run-phase1-threat.mjs --plan 01-07 --task 1 && node web/scripts/run-phase1-threat.mjs --plan 01-07 --task 2` | ✅ T-01-21 passed; receipt restructured into seven T-01-21 dimension groups, values unchanged | ⬜ pending Task 2 binding below |
 | 01-06-owner-gate | 01-06 | 6 | QUAL-06 budget approval | — | Numeric budgets are owner-approved before migration starts | manual gate | Review `web/tests/performance/phase1-budget-proposal.json`; approval recorded in `web/tests/performance/phase1-budgets.json` (`owner-explicit-approval-2026-08-22-performance-budget-gates-via-askuserquestion-review`) | ✅ | ✅ approved 2026-08-22 |
+| 01-07-binding | 01-07 | 7 | QUAL-06 budget authority binding | — | Approved budgets are a durable prerequisite: later tests load only the approved artifact and reject hash drift or missing metrics | manual + automated | Receipt schema_version 2 with seven dimension groups (home/episodes/connections/chat/bundle/interactions/rag), SHA-256-bound to baseline+proposal, owner ref embedded; T-01-22 verifies VALIDATION.md carries plan id, owner ref, and T-01-21 while flags stay false | ✅ | ⬜ pending Plan 01-07 completion |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -94,6 +96,20 @@ Plan `01-06` recorded the authoritative pre-migration measurement set on 2026-08
 **Threat evidence**: T-01-18, T-01-19, T-01-20 executed from their immutable definitions via `node web/scripts/run-phase1-threat.mjs --plan 01-06 --task <N>` and recorded `passed` in `web/tests/security/phase1-threat-results/01-06.json`.
 
 **Still pending after Wave 6**: enforcement wiring of the approved budgets into the blocking gate (Plan 01-07) and all visual migration rows. The budget-approval manual gate itself is closed (2026-08-22). Completion flags remain false.
+
+---
+
+## Plan 01-07 Approved Budget Authority (Wave 7)
+
+Plan `01-07` converts the owner-approved budgets into the durable prerequisite for every subsequent visual plan. Task 1's human checkpoint was satisfied by the same gate-by-gate AskUserQuestion review that approved the eleven budgets on 2026-08-22; this plan restructured the receipt in `web/tests/performance/phase1-budgets.json` from a flat metric map into the seven dimension groups required by immutable probe T-01-21 (`home`, `episodes`, `connections`, `chat`, `bundle`, `interactions`, `rag`). Every owner-approved numeric value is unchanged; per-route observed maxima were added from the hash-bound baseline for fidelity. The receipt remains SHA-256-bound to both `web/tests/performance/phase1-baseline.json` and `web/tests/performance/phase1-budget-proposal.json`.
+
+**Approval reference**: `owner-explicit-approval-2026-08-22-performance-budget-gates-via-askuserquestion-review`
+
+**Approved ceilings (blocking once Plan 01-07+ verifiers load them)**: LCP ≤3000 ms and FCP ≤2200 ms per route · route-ready ≤297 ms · first-load JS ≤204 KB per route · static JS ≤1149 KB · static CSS ≤46 KB · drawer-open ≤283 ms · node-expand ≤282 ms · chat-safe-error ≤264 ms · RAG first-byte ≤276 ms / total ≤506 ms (local-stub scope only).
+
+**Threat evidence**: T-01-21 executed via `node web/scripts/run-phase1-threat.mjs --plan 01-07 --task 1` → `passed`; T-01-22 executes under Task 2 and verifies this document carries the plan id, owner reference, and T-01-21 traceability while the Nyquist flag remains false in frontmatter.
+
+**Fail-closed rule for later tests**: later performance verification loads only `web/tests/performance/phase1-budgets.json`, requires `status === "approved"`, matching baseline/proposal SHA-256 values against current disk, and every dimension group present — any drift or missing metric disables the run rather than skipping the budget check.
 
 ---
 
@@ -245,7 +261,7 @@ Final aggregation has no exemption and no circular precondition. Plan 01-20 Task
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|-------------------|
 | Approve visual baseline replacements | DSYS-02, DSYS-03, QUAL-04 | Pixel diffs cannot approve WTF identity, editorial quality, or the provisional production token | Review deterministic 320/768/1440 captures and the approval manifest; record owner approval before replacement hashes become authoritative. |
-| Approve numeric performance budgets | QUAL-06 | D-15 forbids invented thresholds before repository measurement | Review five-run legacy baseline, route/bundle/RAG/interaction measurements, and environment metadata; approve exact values before migration begins. |
+| Approve numeric performance budgets | QUAL-06 | D-15 forbids invented thresholds before repository measurement | Review five-run legacy baseline, route/bundle/RAG/interaction measurements, and environment metadata; approve exact values before migration begins. **Closed 2026-08-22**: eleven budgets approved via gate-by-gate owner review (`owner-explicit-approval-2026-08-22-performance-budget-gates-via-askuserquestion-review`), recorded in `web/tests/performance/phase1-budgets.json` (Plan 01-07 restructured into T-01-21's seven dimension groups; values unchanged). Later tests fail closed on hash drift or missing metrics. |
 | Confirm authoritative compatibility baseline | COMP-01, COMP-02, COMP-03 | The protected API/UI baseline includes existing uncommitted work and cannot be inferred safely | Review the captured contract manifest against the intended current behavior; approve the source authority without reverting or staging unrelated work. |
 | Confirm rollback restores the prior public experience | COMP-01, D-12, D-16 | Automated dual-build smoke proves mechanics but final cutover authorization remains an owner decision | Run the documented rollback rehearsal, inspect all protected routes and `/api/chat`, and record approval without changing data or external services. |
 
