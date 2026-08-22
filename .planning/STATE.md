@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 01 Plan 01-10 COMPLETE - T-01-29/T-01-30/T-01-31 passed; episodes rollback seam with dual-variant proof (legacy copies frozen, variant selector, rollback proof spec); correction ledger for snapshot hazard; next executable is Plan 01-09 (Wave 10: accessible primitives)
-last_updated: "2026-08-22T22:45:00+05:30"
-last_activity: 2026-08-22 -- Plan 01-10 closed: episodes rollback seam built (legacy copies, variant selector, migrated candidate), rollback proof spec (5 Playwright tests), correction ledger for T-01-29 snapshot hazard, port fix for playwright.config.ts
+stopped_at: Phase 01 Plan 01-09 COMPLETE - T-01-26/T-01-27/T-01-28 passed; accessible primitives (Button, IconButton, LinkButton, SkipLink, AvailabilityState, LiveRegion, Drawer); next executable is Plan 01-23 (Wave 10 companion: URL state, ScrollRail, Suspense)
+last_updated: "2026-08-22T23:15:00+05:30"
+last_activity: 2026-08-22 -- Plan 01-09 closed: 7 accessible primitives built (Button, IconButton, LinkButton, SkipLink, AvailabilityState, LiveRegion, Drawer), 17 Storybook interaction tests, color-contrast fix (text-ink/50 -> text-ink/70), test assertion fix (regex -> word-count), all 3 threats passed
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 23
-  completed_plans: 10
-  percent: 43
+  completed_plans: 11
+  percent: 48
 approval_refresh:
   id: apr_4737e705fef30c663095_refresh
   approved_at: "2026-08-21T09:20:00.000Z"
@@ -33,11 +33,11 @@ without losing provenance.
 ## Current Position
 
 Phase: 01 (Compatibility + Component Proof Harness) — EXECUTING
-Plan: 10 of 23
-Status: Plans 01-01 through 01-10 and 01-21 complete; episodes rollback seam (01-10) proven with dual-variant selector, legacy copies frozen, rollback proof spec passing; next executable is Plan 01-09 (Wave 10: accessible primitives)
-Last activity: 2026-08-22 -- Plan 01-10 closed: episodes rollback seam built (legacy copies, variant selector, migrated candidate), rollback proof spec (5 Playwright tests), correction ledger for T-01-29 snapshot hazard
+Plan: 11 of 23
+Status: Plans 01-01 through 01-10, 01-09, and 01-21 complete; accessible primitives (01-09) proven with 7 components, 17 Storybook tests, all 3 threats passed; next executable is Plan 01-23 (Wave 10 companion: URL state, ScrollRail, Suspense)
+Last activity: 2026-08-22 -- Plan 01-09 closed: 7 accessible primitives built (Button, IconButton, LinkButton, SkipLink, AvailabilityState, LiveRegion, Drawer), color-contrast fix, test assertion fix
 
-Progress: [████░░░░░░] 43%
+Progress: [█████░░░░░] 48%
 
 ## Execution Authorization
 
@@ -101,7 +101,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-22T15:10:00+00:00
-Stopped at: Phase 01 Plan 01-08 complete (token layer + scoped policies, T-01-23/24/25 passed, pixel identity proven); work uncommitted pending owner instruction
-Resume file: .planning/phases/01-compatibility-component-proof-harness/01-10-PLAN.md
-Resume: Commit Plan 01-08 work if authorized, then execute the next wave-9 plan after checking ROADMAP order (01-09 depends on 01-08; 01-10 also unblocked by 01-21); Phase 2 remains gated behind Phase 1 acceptance.
+Last session: 2026-08-22T17:45:00+00:00
+Stopped at: Phase 01 Plan 01-09 complete (accessible primitives, T-01-26/27/28 passed, 7 components + 17 Storybook tests); committed as 9507207
+Resume file: .planning/phases/01-compatibility-component-proof-harness/01-23-PLAN.md
+Resume: Execute Plan 01-23 (Wave 10 companion: URL state, ScrollRail, Suspense); Phase 2 remains gated behind Phase 1 acceptance.
