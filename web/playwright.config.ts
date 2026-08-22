@@ -46,7 +46,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run build && PORT=4173 npm run start",
+    command: "WTF_PUBLIC_UI_VARIANT=migrated npm run build && WTF_PUBLIC_UI_VARIANT=migrated PORT=4173 npm run start",
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     stdout: "ignore",

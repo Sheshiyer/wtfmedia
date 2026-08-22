@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "plan": "01-23",
+  "results": {
+    "T-01-32": {
+      "plan": "01-23",
+      "task": 1,
+      "command_id": "82824bf2fa42fe830cacda840243f1299fb709596e5028b45120ce4b21e95889",
+      "command": "cd web && npm run build && npm run test:browser -- tests/journeys/url-state.spec.ts && node -e 'const fs=require(\"fs\"); if(fs.existsSync(\"app/episodes/[episodeId]\")||fs.existsSync(\"app/episodes/:id\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "7cd5654df2d742d7e006a8799c7343c7d8145990e0b666e19bfaf4eb4e8fce1d",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 2890,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T18:04:04.954Z",
+      "status": "passed"
+    }
+  }
+}
