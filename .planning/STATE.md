@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 01 Plan 01-05 COMPLETE - all 5 threats (T-01-13..17) passed; public-projection/route contracts + extended privacy scanner + VALIDATION.md COMP-03/04/QUAL-05 rows green; 01-05-SUMMARY.md written; next executable is Plan 01-06
-last_updated: "2026-08-22T05:20:00+05:30"
-last_activity: 2026-08-22 -- Plan 01-05 closed: public-projection and public-routes contract tests 14/14 green against real on-disk data (no allowlist drift), privacy scanner extended to source/test/planning/generated-artifact roots with 0 violations across 80 files, threat ledger 01-05.json all passed (T-01-13..17), VALIDATION.md COMP-03/COMP-04/QUAL-05 rows populated and marked green (COMP-01/COMP-02/QUAL-02 left untouched per Requirement-to-Threat map), wave_0_complete/nyquist_compliant retained false
+stopped_at: Phase 01 Plan 01-06 COMPLETE - all 3 threats passed; baseline captured; ALL ELEVEN budgets owner-approved into phase1-budgets.json (incl. added LCP/FCP gates + RAG stub-scope note); next executable is Plan 01-07 (budget gate wiring)
+last_updated: "2026-08-22T07:30:00+05:30"
+last_activity: 2026-08-22 -- Owner reviewed all nine proposed budgets gate-by-gate via AskUserQuestion and approved them as-is, then chose to add LCP(3000ms)/FCP(2200ms) gates closing the structural gap and a RAG stub-scope note; approved receipt web/tests/performance/phase1-budgets.json bound by SHA-256 to baseline+proposal with ref owner-explicit-approval-2026-08-22-performance-budget-gates-via-askuserquestion-review; owner also authorized committing Plan 01-06 work
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 23
-  completed_plans: 5
-  percent: 22
+  completed_plans: 6
+  percent: 26
 approval_refresh:
   id: apr_4737e705fef30c663095_refresh
   approved_at: "2026-08-21T09:20:00.000Z"
@@ -33,11 +33,11 @@ without losing provenance.
 ## Current Position
 
 Phase: 01 (Compatibility + Component Proof Harness) — EXECUTING
-Plan: 5 of 23
-Status: Plans 01-01 through 01-05 complete (`01-05-SUMMARY.md`); next executable is Plan 01-06
-Last activity: 2026-08-22 -- Plan 01-05 closed: public-projection and public-routes contract tests 14/14 green against real on-disk data (no allowlist drift), privacy scanner extended to source/test/planning/generated-artifact roots with 0 violations across 80 files, threat ledger 01-05.json all passed (T-01-13..17), VALIDATION.md COMP-03/COMP-04/QUAL-05 rows populated and marked green, wave_0_complete/nyquist_compliant retained false
+Plan: 6 of 23
+Status: Plans 01-01 through 01-06 complete (`01-06-SUMMARY.md`); owner budget-approval checkpoint CLOSED 2026-08-22; next executable is Plan 01-07
+Last activity: 2026-08-22 -- Plan 01-06 closed and the D-15 approval gate closed: all eleven budgets (nine proposals + added LCP 3000ms / FCP 2200ms) approved into `web/tests/performance/phase1-budgets.json` bound by SHA-256 to baseline+proposal; VALIDATION.md QUAL-06 row + closed manual-gate row updated; threat ledger 01-06.json all passed (T-01-18..20); wave_0_complete/nyquist_compliant retained false
 
-Progress: [██░░░░░░░░] 22%
+Progress: [██▌░░░░░░░] 26%
 
 ## Execution Authorization
 
@@ -51,7 +51,7 @@ Progress: [██░░░░░░░░] 22%
 
 **Velocity:**
 
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: —
 - Total execution time: 0 hours
 
@@ -59,7 +59,7 @@ Progress: [██░░░░░░░░] 22%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. Compatibility + Component Proof Harness | 5 | 23 | — |
+| 1. Compatibility + Component Proof Harness | 6 | 23 | — |
 
 ## Accumulated Context
 
@@ -101,7 +101,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-22T05:20:00+05:30
-Stopped at: Phase 01 Plan 01-05 complete; next executable is Plan 01-06
-Resume file: .planning/phases/01-compatibility-component-proof-harness/01-06-PLAN.md
-Resume: Execute Plan 01-06 after reading `01-06-PLAN.md`; Phase 2 remains gated behind Phase 1 acceptance.
+Last session: 2026-08-22T07:30:00+05:30
+Stopped at: Phase 01 Plan 01-06 complete AND committed; owner budget-approval checkpoint CLOSED (eleven budgets approved in `web/tests/performance/phase1-budgets.json`)
+Resume file: .planning/phases/01-compatibility-component-proof-harness/01-07-PLAN.md
+Resume: Execute Plan 01-07 after reading `01-07-PLAN.md` — convert the approved receipt into the blocking performance-budget gate; Phase 2 remains gated behind Phase 1 acceptance.

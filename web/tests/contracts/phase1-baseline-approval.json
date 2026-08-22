@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "status": "approved",
-  "approval_scope": "phase-01-plan-01-task-3-authoritative-compatibility-baseline",
-  "owner_approval_ref": "owner-explicit-approval-2026-08-20-phase-01-plan-01-task-3",
+  "approval_scope": "phase-01-plan-01-task-3-authoritative-compatibility-baseline-reapproval-after-page-drift",
+  "owner_approval_ref": "owner-explicit-approval-2026-08-22-phase-01-rebaseline-current-worktree",
   "manifest_path": "web/tests/contracts/phase1-compatibility-manifest.json",
-  "manifest_sha256": "8b9496ffd0dd084d7b4508e5b3170b1aa7f2f21886870ac41eb8ec0c444cf278",
+  "manifest_sha256": "91af632adc8f38319a69e6ba3a8653d44051ae5ccde32e7ff9ed215bdcbbd9eb",
   "base_sha": "0f806772acdb008eeb9fb88ec256cbc2c9db07d8",
   "approved_protected_hashes": [
     {
@@ -13,7 +13,7 @@
     },
     {
       "path": "web/app/page.tsx",
-      "sha256": "242ac57016d9d61956c8dde799b2488bcc7a899218cf3207b9b0770f7f90476f"
+      "sha256": "a46a96eef2e9557cb3a0f362357de34bd67e44a44d73b50a1cbe55eae37ab0a1"
     },
     {
       "path": "web/app/episodes/page.tsx",

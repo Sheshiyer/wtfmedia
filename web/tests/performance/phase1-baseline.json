@@ -1,0 +1,872 @@
+{
+  "schema_version": 1,
+  "plan": "01-06",
+  "generated_at": "2026-08-22T01:04:29.350Z",
+  "source": {
+    "base_sha": "0f806772acdb008eeb9fb88ec256cbc2c9db07d8",
+    "manifest_sha256": "91af632adc8f38319a69e6ba3a8653d44051ae5ccde32e7ff9ed215bdcbbd9eb",
+    "approval_ref": "owner-explicit-approval-2026-08-22-phase-01-rebaseline-current-worktree",
+    "protected_hashes": [
+      {
+        "path": "web/app/layout.tsx",
+        "sha256": "7f7ddb592ac029ae10a6f635f2981a8bd81c9b5a59782ee060c3501817f08655"
+      },
+      {
+        "path": "web/app/page.tsx",
+        "sha256": "a46a96eef2e9557cb3a0f362357de34bd67e44a44d73b50a1cbe55eae37ab0a1"
+      },
+      {
+        "path": "web/app/episodes/page.tsx",
+        "sha256": "7138a212a1f69170088ba358424b8ab1832f1bc46ee95d7a0adac065689b93b3"
+      },
+      {
+        "path": "web/app/connections/page.tsx",
+        "sha256": "a58a2024c634635358a3a8f4cf191be870c23aa5e7dc728fbddc33f57a6f0855"
+      },
+      {
+        "path": "web/app/chat/page.tsx",
+        "sha256": "73e4fb084a07b899806b27bb67dcd24fa5634dab0c06bea47de7b262db8d5078"
+      },
+      {
+        "path": "web/app/api/chat/route.ts",
+        "sha256": "43ed48fa234928b9cf1f51d47a8026f786c255a85a42db5f6b7fc2715c9b7b1a"
+      }
+    ]
+  },
+  "environment": {
+    "node": "v26.7.0",
+    "npm": "11.19.0",
+    "chromium": "chromium-1234 (playwright-core 1.62.1)",
+    "lighthouse": "12.6.1",
+    "next": "15.5.19",
+    "os": {
+      "platform": "darwin",
+      "arch": "arm64"
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "server": "next start (local production server at http://localhost:59740, ephemeral port)",
+    "external_assets": "blocked at browser and Lighthouse level (/_next/image, thumbnail/font/analytics hosts); edge secret forced empty so /api/chat stays local",
+    "runs_per_route": 5
+  },
+  "bundle": {
+    "unit": "KB",
+    "measured_from": "fresh production build output and .next/static file sizes",
+    "static_js_kb": 949,
+    "static_css_kb": 26,
+    "static_media_kb": 0,
+    "static_other_kb": 0,
+    "routes_first_load_js_kb": {
+      "/": 111,
+      "/_not-found": 103,
+      "/chat": 154,
+      "/connections": 108,
+      "/episodes": 114
+    },
+    "routes_parse_status": "parsed-from-build-output"
+  },
+  "routes": {
+    "/": {
+      "runs": [
+        {
+          "sample_id": "01-06-home-run-1",
+          "lighthouse": {
+            "fcp_ms": 1552.1,
+            "lcp_ms": 2226.1,
+            "tbt_ms": 23,
+            "cls": 0,
+            "speed_index_ms": 1552.1,
+            "performance_score": 98
+          },
+          "interaction": {
+            "route_ready_ms": 112,
+            "load_event_ms": 147
+          }
+        },
+        {
+          "sample_id": "01-06-home-run-2",
+          "lighthouse": {
+            "fcp_ms": 1541.7,
+            "lcp_ms": 2388.7,
+            "tbt_ms": 1,
+            "cls": 0,
+            "speed_index_ms": 1541.7,
+            "performance_score": 98
+          },
+          "interaction": {
+            "route_ready_ms": 117,
+            "load_event_ms": 117
+          }
+        },
+        {
+          "sample_id": "01-06-home-run-3",
+          "lighthouse": {
+            "fcp_ms": 1554.6,
+            "lcp_ms": 2405.6,
+            "tbt_ms": 3,
+            "cls": 0,
+            "speed_index_ms": 1554.6,
+            "performance_score": 97
+          },
+          "interaction": {
+            "route_ready_ms": 60,
+            "load_event_ms": 81
+          }
+        },
+        {
+          "sample_id": "01-06-home-run-4",
+          "lighthouse": {
+            "fcp_ms": 1538.3,
+            "lcp_ms": 2389.3,
+            "tbt_ms": 3,
+            "cls": 0,
+            "speed_index_ms": 1538.3,
+            "performance_score": 98
+          },
+          "interaction": {
+            "route_ready_ms": 27,
+            "load_event_ms": 73
+          }
+        },
+        {
+          "sample_id": "01-06-home-run-5",
+          "lighthouse": {
+            "fcp_ms": 1534.7,
+            "lcp_ms": 2384.7,
+            "tbt_ms": 2.5,
+            "cls": 0,
+            "speed_index_ms": 1534.7,
+            "performance_score": 98
+          },
+          "interaction": {
+            "route_ready_ms": 61,
+            "load_event_ms": 87
+          }
+        }
+      ],
+      "stats": {
+        "lighthouse.fcp_ms": {
+          "median": 1541.7,
+          "p75": 1552.1,
+          "max": 1554.6,
+          "unit": "ms"
+        },
+        "lighthouse.lcp_ms": {
+          "median": 2388.7,
+          "p75": 2389.3,
+          "max": 2405.6,
+          "unit": "ms"
+        },
+        "lighthouse.tbt_ms": {
+          "median": 3,
+          "p75": 3,
+          "max": 23,
+          "unit": "ms"
+        },
+        "lighthouse.cls": {
+          "median": 0,
+          "p75": 0,
+          "max": 0,
+          "unit": "score"
+        },
+        "lighthouse.speed_index_ms": {
+          "median": 1541.7,
+          "p75": 1552.1,
+          "max": 1554.6,
+          "unit": "ms"
+        },
+        "lighthouse.performance_score": {
+          "median": 98,
+          "p75": 98,
+          "max": 98,
+          "unit": "score"
+        },
+        "interaction.route_ready_ms": {
+          "median": 61,
+          "p75": 112,
+          "max": 117,
+          "unit": "ms"
+        },
+        "interaction.load_event_ms": {
+          "median": 87,
+          "p75": 117,
+          "max": 147,
+          "unit": "ms"
+        }
+      },
+      "resources": {
+        "unit": "KB",
+        "from": "lighthouse resource-summary audit",
+        "categories": {
+          "total": {
+            "transfer_kb": 226,
+            "request_count": 60
+          },
+          "script": {
+            "transfer_kb": 167.7,
+            "request_count": 12
+          },
+          "other": {
+            "transfer_kb": 39.1,
+            "request_count": 3
+          },
+          "document": {
+            "transfer_kb": 12.5,
+            "request_count": 1
+          },
+          "stylesheet": {
+            "transfer_kb": 6.8,
+            "request_count": 2
+          },
+          "image": {
+            "transfer_kb": 0,
+            "request_count": 42
+          },
+          "media": {
+            "transfer_kb": 0,
+            "request_count": 0
+          },
+          "font": {
+            "transfer_kb": 0,
+            "request_count": 0
+          },
+          "third-party": {
+            "transfer_kb": 0,
+            "request_count": 1
+          }
+        }
+      }
+    },
+    "/episodes": {
+      "runs": [
+        {
+          "sample_id": "01-06-episodes-run-1",
+          "lighthouse": {
+            "fcp_ms": 1781.1,
+            "lcp_ms": 2630.1,
+            "tbt_ms": 2,
+            "cls": 0,
+            "speed_index_ms": 1781.1,
+            "performance_score": 96
+          },
+          "interaction": {
+            "route_ready_ms": 115,
+            "load_event_ms": 144,
+            "drawer_open_ms": 171
+          }
+        },
+        {
+          "sample_id": "01-06-episodes-run-2",
+          "lighthouse": {
+            "fcp_ms": 1692.3,
+            "lcp_ms": 2578.3,
+            "tbt_ms": 20.5,
+            "cls": 0,
+            "speed_index_ms": 1692.3,
+            "performance_score": 96
+          },
+          "interaction": {
+            "route_ready_ms": 91,
+            "load_event_ms": 116,
+            "drawer_open_ms": 69
+          }
+        },
+        {
+          "sample_id": "01-06-episodes-run-3",
+          "lighthouse": {
+            "fcp_ms": 1692.5,
+            "lcp_ms": 2542.5,
+            "tbt_ms": 2.5,
+            "cls": 0,
+            "speed_index_ms": 1692.5,
+            "performance_score": 96
+          },
+          "interaction": {
+            "route_ready_ms": 29,
+            "load_event_ms": 103,
+            "drawer_open_ms": 67
+          }
+        },
+        {
+          "sample_id": "01-06-episodes-run-4",
+          "lighthouse": {
+            "fcp_ms": 1692.8,
+            "lcp_ms": 2548.8,
+            "tbt_ms": 5.5,
+            "cls": 0,
+            "speed_index_ms": 1692.8,
+            "performance_score": 96
+          },
+          "interaction": {
+            "route_ready_ms": 88,
+            "load_event_ms": 114,
+            "drawer_open_ms": 152
+          }
+        },
+        {
+          "sample_id": "01-06-episodes-run-5",
+          "lighthouse": {
+            "fcp_ms": 1684.6,
+            "lcp_ms": 2531.6,
+            "tbt_ms": 1,
+            "cls": 0,
+            "speed_index_ms": 1684.6,
+            "performance_score": 96
+          },
+          "interaction": {
+            "route_ready_ms": 68,
+            "load_event_ms": 94,
+            "drawer_open_ms": 59
+          }
+        }
+      ],
+      "stats": {
+        "lighthouse.fcp_ms": {
+          "median": 1692.5,
+          "p75": 1692.8,
+          "max": 1781.1,
+          "unit": "ms"
+        },
+        "lighthouse.lcp_ms": {
+          "median": 2548.8,
+          "p75": 2578.3,
+          "max": 2630.1,
+          "unit": "ms"
+        },
+        "lighthouse.tbt_ms": {
+          "median": 2.5,
+          "p75": 5.5,
+          "max": 20.5,
+          "unit": "ms"
+        },
+        "lighthouse.cls": {
+          "median": 0,
+          "p75": 0,
+          "max": 0,
+          "unit": "score"
+        },
+        "lighthouse.speed_index_ms": {
+          "median": 1692.5,
+          "p75": 1692.8,
+          "max": 1781.1,
+          "unit": "ms"
+        },
+        "lighthouse.performance_score": {
+          "median": 96,
+          "p75": 96,
+          "max": 96,
+          "unit": "score"
+        },
+        "interaction.route_ready_ms": {
+          "median": 88,
+          "p75": 91,
+          "max": 115,
+          "unit": "ms"
+        },
+        "interaction.load_event_ms": {
+          "median": 114,
+          "p75": 116,
+          "max": 144,
+          "unit": "ms"
+        },
+        "interaction.drawer_open_ms": {
+          "median": 69,
+          "p75": 152,
+          "max": 171,
+          "unit": "ms"
+        }
+      },
+      "resources": {
+        "unit": "KB",
+        "from": "lighthouse resource-summary audit",
+        "categories": {
+          "total": {
+            "transfer_kb": 231,
+            "request_count": 128
+          },
+          "script": {
+            "transfer_kb": 167.7,
+            "request_count": 12
+          },
+          "other": {
+            "transfer_kb": 38,
+            "request_count": 3
+          },
+          "document": {
+            "transfer_kb": 18.6,
+            "request_count": 1
+          },
+          "stylesheet": {
+            "transfer_kb": 6.8,
+            "request_count": 2
+          },
+          "image": {
+            "transfer_kb": 0,
+            "request_count": 110
+          },
+          "media": {
+            "transfer_kb": 0,
+            "request_count": 0
+          },
+          "font": {
+            "transfer_kb": 0,
+            "request_count": 0
+          },
+          "third-party": {
+            "transfer_kb": 0,
+            "request_count": 1
+          }
+        }
+      }
+    },
+    "/connections": {
+      "runs": [
+        {
+          "sample_id": "01-06-connections-run-1",
+          "lighthouse": {
+            "fcp_ms": 1845.3,
+            "lcp_ms": 2177.3,
+            "tbt_ms": 12,
+            "cls": 0,
+            "speed_index_ms": 1845.3,
+            "performance_score": 98
+          },
+          "interaction": {
+            "route_ready_ms": 92,
+            "load_event_ms": 92,
+            "node_expand_ms": 74
+          }
+        },
+        {
+          "sample_id": "01-06-connections-run-2",
+          "lighthouse": {
+            "fcp_ms": 1844.7,
+            "lcp_ms": 2222.7,
+            "tbt_ms": 14,
+            "cls": 0,
+            "speed_index_ms": 1844.7,
+            "performance_score": 97
+          },
+          "interaction": {
+            "route_ready_ms": 71,
+            "load_event_ms": 93,
+            "node_expand_ms": 121
+          }
+        },
+        {
+          "sample_id": "01-06-connections-run-3",
+          "lighthouse": {
+            "fcp_ms": 1840.6,
+            "lcp_ms": 2184.6,
+            "tbt_ms": 24,
+            "cls": 0,
+            "speed_index_ms": 1840.6,
+            "performance_score": 98
+          },
+          "interaction": {
+            "route_ready_ms": 92,
+            "load_event_ms": 92,
+            "node_expand_ms": 170
+          }
+        },
+        {
+          "sample_id": "01-06-connections-run-4",
+          "lighthouse": {
+            "fcp_ms": 1845.3,
+            "lcp_ms": 2177.3,
+            "tbt_ms": 12,
+            "cls": 0,
+            "speed_index_ms": 1845.3,
+            "performance_score": 98
+          },
+          "interaction": {
+            "route_ready_ms": 62,
+            "load_event_ms": 83,
+            "node_expand_ms": 58
+          }
+        },
+        {
+          "sample_id": "01-06-connections-run-5",
+          "lighthouse": {
+            "fcp_ms": 1840.9,
+            "lcp_ms": 2203.9,
+            "tbt_ms": 43,
+            "cls": 0,
+            "speed_index_ms": 1840.9,
+            "performance_score": 98
+          },
+          "interaction": {
+            "route_ready_ms": 59,
+            "load_event_ms": 109,
+            "node_expand_ms": 79
+          }
+        }
+      ],
+      "stats": {
+        "lighthouse.fcp_ms": {
+          "median": 1844.7,
+          "p75": 1845.3,
+          "max": 1845.3,
+          "unit": "ms"
+        },
+        "lighthouse.lcp_ms": {
+          "median": 2184.6,
+          "p75": 2203.9,
+          "max": 2222.7,
+          "unit": "ms"
+        },
+        "lighthouse.tbt_ms": {
+          "median": 14,
+          "p75": 24,
+          "max": 43,
+          "unit": "ms"
+        },
+        "lighthouse.cls": {
+          "median": 0,
+          "p75": 0,
+          "max": 0,
+          "unit": "score"
+        },
+        "lighthouse.speed_index_ms": {
+          "median": 1844.7,
+          "p75": 1845.3,
+          "max": 1845.3,
+          "unit": "ms"
+        },
+        "lighthouse.performance_score": {
+          "median": 98,
+          "p75": 98,
+          "max": 98,
+          "unit": "score"
+        },
+        "interaction.route_ready_ms": {
+          "median": 71,
+          "p75": 92,
+          "max": 92,
+          "unit": "ms"
+        },
+        "interaction.load_event_ms": {
+          "median": 92,
+          "p75": 93,
+          "max": 109,
+          "unit": "ms"
+        },
+        "interaction.node_expand_ms": {
+          "median": 79,
+          "p75": 121,
+          "max": 170,
+          "unit": "ms"
+        }
+      },
+      "resources": {
+        "unit": "KB",
+        "from": "lighthouse resource-summary audit",
+        "categories": {
+          "total": {
+            "transfer_kb": 239.9,
+            "request_count": 18
+          },
+          "script": {
+            "transfer_kb": 167.7,
+            "request_count": 12
+          },
+          "document": {
+            "transfer_kb": 49,
+            "request_count": 1
+          },
+          "other": {
+            "transfer_kb": 16.5,
+            "request_count": 3
+          },
+          "stylesheet": {
+            "transfer_kb": 6.8,
+            "request_count": 2
+          },
+          "image": {
+            "transfer_kb": 0,
+            "request_count": 0
+          },
+          "media": {
+            "transfer_kb": 0,
+            "request_count": 0
+          },
+          "font": {
+            "transfer_kb": 0,
+            "request_count": 0
+          },
+          "third-party": {
+            "transfer_kb": 0,
+            "request_count": 1
+          }
+        }
+      }
+    },
+    "/chat": {
+      "runs": [
+        {
+          "sample_id": "01-06-chat-run-1",
+          "lighthouse": {
+            "fcp_ms": 1537.5,
+            "lcp_ms": 2561.3,
+            "tbt_ms": 5,
+            "cls": 0,
+            "speed_index_ms": 1537.5,
+            "performance_score": 97
+          },
+          "interaction": {
+            "route_ready_ms": 82,
+            "load_event_ms": 82,
+            "chat_safe_error_ms": 175
+          }
+        },
+        {
+          "sample_id": "01-06-chat-run-2",
+          "lighthouse": {
+            "fcp_ms": 1548.9,
+            "lcp_ms": 2578.3,
+            "tbt_ms": 5,
+            "cls": 0,
+            "speed_index_ms": 1548.9,
+            "performance_score": 97
+          },
+          "interaction": {
+            "route_ready_ms": 74,
+            "load_event_ms": 75,
+            "chat_safe_error_ms": 207
+          }
+        },
+        {
+          "sample_id": "01-06-chat-run-3",
+          "lighthouse": {
+            "fcp_ms": 1540.7,
+            "lcp_ms": 2171.7,
+            "tbt_ms": 11,
+            "cls": 0,
+            "speed_index_ms": 1540.7,
+            "performance_score": 98
+          },
+          "interaction": {
+            "route_ready_ms": 42,
+            "load_event_ms": 72,
+            "chat_safe_error_ms": 175
+          }
+        },
+        {
+          "sample_id": "01-06-chat-run-4",
+          "lighthouse": {
+            "fcp_ms": 1540.4,
+            "lcp_ms": 2571.5,
+            "tbt_ms": 5,
+            "cls": 0,
+            "speed_index_ms": 1540.4,
+            "performance_score": 97
+          },
+          "interaction": {
+            "route_ready_ms": 33,
+            "load_event_ms": 60,
+            "chat_safe_error_ms": 180
+          }
+        },
+        {
+          "sample_id": "01-06-chat-run-5",
+          "lighthouse": {
+            "fcp_ms": 1537,
+            "lcp_ms": 2560.5,
+            "tbt_ms": 16,
+            "cls": 0,
+            "speed_index_ms": 1537,
+            "performance_score": 97
+          },
+          "interaction": {
+            "route_ready_ms": 43,
+            "load_event_ms": 69,
+            "chat_safe_error_ms": 150
+          }
+        }
+      ],
+      "stats": {
+        "lighthouse.fcp_ms": {
+          "median": 1540.4,
+          "p75": 1540.7,
+          "max": 1548.9,
+          "unit": "ms"
+        },
+        "lighthouse.lcp_ms": {
+          "median": 2561.3,
+          "p75": 2571.5,
+          "max": 2578.3,
+          "unit": "ms"
+        },
+        "lighthouse.tbt_ms": {
+          "median": 5,
+          "p75": 11,
+          "max": 16,
+          "unit": "ms"
+        },
+        "lighthouse.cls": {
+          "median": 0,
+          "p75": 0,
+          "max": 0,
+          "unit": "score"
+        },
+        "lighthouse.speed_index_ms": {
+          "median": 1540.4,
+          "p75": 1540.7,
+          "max": 1548.9,
+          "unit": "ms"
+        },
+        "lighthouse.performance_score": {
+          "median": 97,
+          "p75": 97,
+          "max": 98,
+          "unit": "score"
+        },
+        "interaction.route_ready_ms": {
+          "median": 43,
+          "p75": 74,
+          "max": 82,
+          "unit": "ms"
+        },
+        "interaction.load_event_ms": {
+          "median": 72,
+          "p75": 75,
+          "max": 82,
+          "unit": "ms"
+        },
+        "interaction.chat_safe_error_ms": {
+          "median": 175,
+          "p75": 180,
+          "max": 207,
+          "unit": "ms"
+        }
+      },
+      "resources": {
+        "unit": "KB",
+        "from": "lighthouse resource-summary audit",
+        "categories": {
+          "total": {
+            "transfer_kb": 220.8,
+            "request_count": 18
+          },
+          "script": {
+            "transfer_kb": 167.7,
+            "request_count": 12
+          },
+          "other": {
+            "transfer_kb": 42.2,
+            "request_count": 3
+          },
+          "stylesheet": {
+            "transfer_kb": 6.8,
+            "request_count": 2
+          },
+          "document": {
+            "transfer_kb": 4.1,
+            "request_count": 1
+          },
+          "image": {
+            "transfer_kb": 0,
+            "request_count": 0
+          },
+          "media": {
+            "transfer_kb": 0,
+            "request_count": 0
+          },
+          "font": {
+            "transfer_kb": 0,
+            "request_count": 0
+          },
+          "third-party": {
+            "transfer_kb": 0,
+            "request_count": 1
+          }
+        }
+      }
+    }
+  },
+  "rag": {
+    "collector": "tests/contracts/rag-latency.test.ts protocol against tests/support/rag-stub.mjs and bounded local delay/hang servers",
+    "approved_interpretation": "Plan 01-01: proxy awaits complete Worker JSON before constructing the plain-text Response; first byte is that answer's first byte, not a model token",
+    "samples": [
+      {
+        "case_name": "grounded",
+        "first_byte_ms": 20,
+        "total_ms": 20,
+        "chunk_count": 1,
+        "status": 200
+      },
+      {
+        "case_name": "grounded",
+        "first_byte_ms": 2,
+        "total_ms": 2,
+        "chunk_count": 1,
+        "status": 200
+      },
+      {
+        "case_name": "grounded",
+        "first_byte_ms": 1,
+        "total_ms": 1,
+        "chunk_count": 1,
+        "status": 200
+      },
+      {
+        "case_name": "abstention",
+        "first_byte_ms": 1,
+        "total_ms": 1,
+        "chunk_count": 1,
+        "status": 200
+      },
+      {
+        "case_name": "abstention",
+        "first_byte_ms": 1,
+        "total_ms": 1,
+        "chunk_count": 1,
+        "status": 200
+      },
+      {
+        "case_name": "abstention",
+        "first_byte_ms": 1,
+        "total_ms": 1,
+        "chunk_count": 1,
+        "status": 200
+      },
+      {
+        "case_name": "delayed-250ms",
+        "first_byte_ms": 256,
+        "total_ms": 256,
+        "chunk_count": 1,
+        "status": 200
+      },
+      {
+        "case_name": "delayed-250ms",
+        "first_byte_ms": 253,
+        "total_ms": 253,
+        "chunk_count": 1,
+        "status": 200
+      },
+      {
+        "case_name": "delayed-250ms",
+        "first_byte_ms": 253,
+        "total_ms": 253,
+        "chunk_count": 1,
+        "status": 200
+      },
+      {
+        "case_name": "timeout-25s",
+        "first_byte_ms": null,
+        "total_ms": 25004,
+        "chunk_count": 0,
+        "status": 503
+      },
+      {
+        "case_name": "timeout-25s",
+        "first_byte_ms": null,
+        "total_ms": 25007,
+        "chunk_count": 0,
+        "status": 503
+      }
+    ]
+  }
+}

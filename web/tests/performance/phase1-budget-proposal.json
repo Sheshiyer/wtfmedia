@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "plan": "01-06",
+  "generated_at": "2026-08-22T01:13:17.148Z",
+  "status": "pending-owner-approval",
+  "note": "All numeric ceilings are evidence-derived (observed max + measured variability). No generic web-vitals thresholds. Every candidate requires explicit owner approval before becoming a gate.",
+  "budgets": {
+    "route_ready_ms": {
+      "source_samples": [
+        "01-06-home-run-1",
+        "01-06-home-run-2",
+        "01-06-home-run-3",
+        "01-06-home-run-4",
+        "01-06-home-run-5"
+      ],
+      "observed_max": 117,
+      "observed_range": 90,
+      "headroom": 180,
+      "budget": 297,
+      "unit": "ms",
+      "rationale": "Maximum observed DOMContentLoaded across four routes plus 2× measured run-to-run variability to account for browser/tooling overhead."
+    },
+    "drawer_open_ms": {
+      "source_samples": [
+        "01-06-episodes-run-1",
+        "01-06-episodes-run-2",
+        "01-06-episodes-run-3",
+        "01-06-episodes-run-4",
+        "01-06-episodes-run-5"
+      ],
+      "observed_max": 171,
+      "observed_range": 112,
+      "headroom": 112,
+      "budget": 283,
+      "unit": "ms",
+      "rationale": "Maximum drawer-open latency plus the full observed run-to-run range (59‑171ms)."
+    },
+    "node_expand_ms": {
+      "source_samples": [
+        "01-06-connections-run-1",
+        "01-06-connections-run-2",
+        "01-06-connections-run-3",
+        "01-06-connections-run-4",
+        "01-06-connections-run-5"
+      ],
+      "observed_max": 170,
+      "observed_range": 112,
+      "headroom": 112,
+      "budget": 282,
+      "unit": "ms",
+      "rationale": "Maximum node‑expand latency plus the full observed run‑to‑run range (58‑170ms)."
+    },
+    "chat_safe_error_ms": {
+      "source_samples": [
+        "01-06-chat-run-1",
+        "01-06-chat-run-2",
+        "01-06-chat-run-3",
+        "01-06-chat-run-4",
+        "01-06-chat-run-5"
+      ],
+      "observed_max": 207,
+      "observed_range": 57,
+      "headroom": 57,
+      "budget": 264,
+      "unit": "ms",
+      "rationale": "Maximum safe‑error round trip (server‑side 503 without upstream fetch) plus the full observed run‑to‑run range (150‑207ms)."
+    },
+    "rag_first_byte_ms": {
+      "source_samples": [
+        "rag-sample-1",
+        "rag-sample-2",
+        "rag-sample-3",
+        "rag-sample-4",
+        "rag-sample-5",
+        "rag-sample-6",
+        "rag-sample-7",
+        "rag-sample-8",
+        "rag-sample-9",
+        "rag-sample-10",
+        "rag-sample-11"
+      ],
+      "observed_max": 256,
+      "observed_range": 255,
+      "headroom": 20,
+      "budget": 276,
+      "unit": "ms",
+      "rationale": "Maximum observed first response byte across grounded, abstention, and delayed‑250ms cases plus a 20‑ms chunk‑encoding headroom."
+    },
+    "rag_total_ms": {
+      "source_samples": [
+        "rag-sample-1",
+        "rag-sample-2",
+        "rag-sample-3",
+        "rag-sample-4",
+        "rag-sample-5",
+        "rag-sample-6",
+        "rag-sample-7",
+        "rag-sample-8",
+        "rag-sample-9",
+        "rag-sample-10",
+        "rag-sample-11"
+      ],
+      "observed_max": 256,
+      "observed_range": 255,
+      "headroom": 250,
+      "budget": 506,
+      "unit": "ms",
+      "rationale": "Maximum observed total completion across grounded, abstention, and delayed‑250ms cases plus 250‑ms headroom for queue/network jitter."
+    },
+    "first_load_js_kb": {
+      "source_samples": [
+        "fresh-build-table"
+      ],
+      "observed_max": 154,
+      "observed_range": 51,
+      "headroom": 50,
+      "budget": 204,
+      "unit": "KB",
+      "rationale": "Maximum per‑route first‑load JavaScript (parsed from build output) plus 50‑KB headroom for future library dependencies."
+    },
+    "static_js_kb": {
+      "source_samples": [
+        "fresh-build-output"
+      ],
+      "observed_max": 949,
+      "observed_range": 0,
+      "headroom": 200,
+      "budget": 1149,
+      "unit": "KB",
+      "rationale": "Total static JavaScript bundle size (949 KB) plus 200‑KB headroom for future static assets."
+    },
+    "static_css_kb": {
+      "source_samples": [
+        "fresh-build-output"
+      ],
+      "observed_max": 26,
+      "observed_range": 0,
+      "headroom": 20,
+      "budget": 46,
+      "unit": "KB",
+      "rationale": "Total static CSS bundle size (26 KB) plus 20‑KB headroom."
+    },
+    "lcp_ms": {
+      "source_samples": [
+        "01-06-home-run-1",
+        "01-06-home-run-2",
+        "01-06-home-run-3",
+        "01-06-home-run-4",
+        "01-06-home-run-5",
+        "01-06-episodes-run-1",
+        "01-06-episodes-run-2",
+        "01-06-episodes-run-3",
+        "01-06-episodes-run-4",
+        "01-06-episodes-run-5",
+        "01-06-connections-run-1",
+        "01-06-connections-run-2",
+        "01-06-connections-run-3",
+        "01-06-connections-run-4",
+        "01-06-connections-run-5",
+        "01-06-chat-run-1",
+        "01-06-chat-run-2",
+        "01-06-chat-run-3",
+        "01-06-chat-run-4",
+        "01-06-chat-run-5"
+      ],
+      "observed_max": 2630.1,
+      "observed_range": 445.5,
+      "headroom": 369.9,
+      "budget": 3000,
+      "unit": "ms",
+      "rationale": "Maximum observed Lighthouse LCP across four routes (2630.1ms on /episodes) plus ~370ms headroom for run-to-run and machine variance."
+    },
+    "fcp_ms": {
+      "source_samples": [
+        "01-06-home-run-1",
+        "01-06-home-run-2",
+        "01-06-home-run-3",
+        "01-06-home-run-4",
+        "01-06-home-run-5",
+        "01-06-episodes-run-1",
+        "01-06-episodes-run-2",
+        "01-06-episodes-run-3",
+        "01-06-episodes-run-4",
+        "01-06-episodes-run-5",
+        "01-06-connections-run-1",
+        "01-06-connections-run-2",
+        "01-06-connections-run-3",
+        "01-06-connections-run-4",
+        "01-06-connections-run-5",
+        "01-06-chat-run-1",
+        "01-06-chat-run-2",
+        "01-06-chat-run-3",
+        "01-06-chat-run-4",
+        "01-06-chat-run-5"
+      ],
+      "observed_max": 1845.3,
+      "observed_range": 304.89999999999986,
+      "headroom": 354.7,
+      "budget": 2200,
+      "unit": "ms",
+      "rationale": "Maximum observed Lighthouse FCP across four routes (1845.3ms on /connections) plus ~355ms headroom for run-to-run and machine variance."
+    }
+  }
+}

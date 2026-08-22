@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "status": "approved",
+  "plan": "01-06",
+  "owner_approval_ref": "owner-explicit-approval-2026-08-22-performance-budget-gates-via-askuserquestion-review",
+  "approval_scope": "phase-01-plan-01-task-06-eleven-evidence-derived-performance-budgets",
+  "approved_at": "2026-08-22T12:50:13.592Z",
+  "baseline_sha256": "d80ec0b6f11982284dec92b079108b489adb8dac9b63a260fdf72b2f68064d08",
+  "proposal_sha256": "cd20a9159c9763b485646df2f927e5ffe3ca8d84f41e25170e286850c4af528c",
+  "rag_scope_note": "rag_first_byte_ms and rag_total_ms cover local-stub proxy overhead only (Plan 01-01 interpretation); live-Worker model latency is explicitly out of scope and deferred to a later plan.",
+  "budgets": {
+    "route_ready_ms": {
+      "budget": 297,
+      "unit": "ms",
+      "observed_max": 117,
+      "source_samples_count": 5,
+      "rationale": "Maximum observed DOMContentLoaded across four routes plus 2× measured run-to-run variability to account for browser/tooling overhead."
+    },
+    "drawer_open_ms": {
+      "budget": 283,
+      "unit": "ms",
+      "observed_max": 171,
+      "source_samples_count": 5,
+      "rationale": "Maximum drawer-open latency plus the full observed run-to-run range (59‑171ms)."
+    },
+    "node_expand_ms": {
+      "budget": 282,
+      "unit": "ms",
+      "observed_max": 170,
+      "source_samples_count": 5,
+      "rationale": "Maximum node‑expand latency plus the full observed run‑to‑run range (58‑170ms)."
+    },
+    "chat_safe_error_ms": {
+      "budget": 264,
+      "unit": "ms",
+      "observed_max": 207,
+      "source_samples_count": 5,
+      "rationale": "Maximum safe‑error round trip (server‑side 503 without upstream fetch) plus the full observed run‑to‑run range (150‑207ms)."
+    },
+    "rag_first_byte_ms": {
+      "budget": 276,
+      "unit": "ms",
+      "observed_max": 256,
+      "source_samples_count": 11,
+      "rationale": "Maximum observed first response byte across grounded, abstention, and delayed‑250ms cases plus a 20‑ms chunk‑encoding headroom."
+    },
+    "rag_total_ms": {
+      "budget": 506,
+      "unit": "ms",
+      "observed_max": 256,
+      "source_samples_count": 11,
+      "rationale": "Maximum observed total completion across grounded, abstention, and delayed‑250ms cases plus 250‑ms headroom for queue/network jitter."
+    },
+    "first_load_js_kb": {
+      "budget": 204,
+      "unit": "KB",
+      "observed_max": 154,
+      "source_samples_count": 1,
+      "rationale": "Maximum per‑route first‑load JavaScript (parsed from build output) plus 50‑KB headroom for future library dependencies."
+    },
+    "static_js_kb": {
+      "budget": 1149,
+      "unit": "KB",
+      "observed_max": 949,
+      "source_samples_count": 1,
+      "rationale": "Total static JavaScript bundle size (949 KB) plus 200‑KB headroom for future static assets."
+    },
+    "static_css_kb": {
+      "budget": 46,
+      "unit": "KB",
+      "observed_max": 26,
+      "source_samples_count": 1,
+      "rationale": "Total static CSS bundle size (26 KB) plus 20‑KB headroom."
+    },
+    "lcp_ms": {
+      "budget": 3000,
+      "unit": "ms",
+      "observed_max": 2630.1,
+      "source_samples_count": 20,
+      "rationale": "Maximum observed Lighthouse LCP across four routes (2630.1ms on /episodes) plus ~370ms headroom for run-to-run and machine variance."
+    },
+    "fcp_ms": {
+      "budget": 2200,
+      "unit": "ms",
+      "observed_max": 1845.3,
+      "source_samples_count": 20,
+      "rationale": "Maximum observed Lighthouse FCP across four routes (1845.3ms on /connections) plus ~355ms headroom for run-to-run and machine variance."
+    }
+  }
+}

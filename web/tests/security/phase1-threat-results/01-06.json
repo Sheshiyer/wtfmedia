@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "01-06",
+  "results": {
+    "T-01-18": {
+      "plan": "01-06",
+      "task": 1,
+      "command_id": "fefeec7a6d2fb2d7f990653ed6d55e6a5f9563c259553c87d826c874fbea6ebd",
+      "command": "cd web && node scripts/capture-phase1-performance.mjs --check && node -e 'const b=require(\"./tests/performance/phase1-baseline.json\"); for(const r of [\"/\",\"/episodes\",\"/connections\",\"/chat\"]) if(b.routes[r].runs.length!==5) process.exit(1); if(!b.environment?.chromium||!b.bundle) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "8fbadfcc575aefb00997a543a0579f043699ff2aa018ac1b79028cb409cc816c",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 77,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T01:05:40.284Z",
+      "status": "passed"
+    },
+    "T-01-19": {
+      "plan": "01-06",
+      "task": 2,
+      "command_id": "9780d5485bc1f8d94e98f4d69e0f177ab26ee02b03872d63bc1a8008033927f3",
+      "command": "cd web && npm run test:contracts -- tests/contracts/rag-latency.test.ts && node -e 'const p=require(\"./tests/performance/phase1-budget-proposal.json\"); if(p.status!==\"pending-owner-approval\") process.exit(1); for(const x of Object.values(p.budgets)) for(const k of [\"source_samples\",\"observed_max\",\"observed_range\",\"headroom\",\"budget\",\"unit\",\"rationale\"]) if(x[k]===undefined) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "a1795abf3e32597883b41688148a9c5ecbbb41a0e63d68b7d7822af53bd306f7",
+        "error_output_sha256": "107261eefef1347c9381046d2a38c491f189b3446042a6a15ea9ee9f00ca444d",
+        "output_bytes": 346,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T01:14:09.376Z",
+      "status": "passed"
+    },
+    "T-01-20": {
+      "plan": "01-06",
+      "task": 3,
+      "command_id": "4a54024ee78a4bf14bca0c9da74b41eeb9cbde512ac1c2756426b8fe29a7be82",
+      "command": "node -e 'const s=require(\"fs\").readFileSync(\".planning/phases/01-compatibility-component-proof-harness/01-VALIDATION.md\",\"utf8\"); if(!s.includes(\"01-06\")||!s.includes(\"phase1-budget-proposal.json\")||!s.includes(\"pending owner approval\")||!s.includes(\"wave_0_complete: false\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T01:15:49.290Z",
+      "status": "passed"
+    }
+  }
+}

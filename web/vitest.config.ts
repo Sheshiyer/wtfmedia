@@ -10,6 +10,9 @@ export default defineConfig({
   oxc: { jsx: { runtime: "automatic" } },
   resolve: { alias },
   test: {
+    // vitest 4 classifies passWithNoTests as a non-project option; it must
+    // live at this top level rather than inside each project's test object.
+    passWithNoTests: true,
     projects: [
       {
         resolve: { alias },
@@ -18,7 +21,6 @@ export default defineConfig({
           environment: "node",
           include: ["tests/unit/**/*.test.ts"],
           exclude: ["stories/**", "tests/contracts/**", "tests/journeys/**"],
-          passWithNoTests: true,
         },
       },
       {
@@ -28,7 +30,6 @@ export default defineConfig({
           environment: "node",
           include: ["tests/contracts/**/*.test.ts"],
           exclude: ["stories/**", "tests/unit/**", "tests/journeys/**"],
-          passWithNoTests: true,
         },
       },
       {
@@ -38,7 +39,6 @@ export default defineConfig({
         test: {
           name: "storybook",
           exclude: ["tests/**"],
-          passWithNoTests: true,
           browser: {
             enabled: true,
             headless: true,

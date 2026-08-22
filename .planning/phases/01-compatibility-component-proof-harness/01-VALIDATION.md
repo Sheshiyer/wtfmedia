@@ -66,9 +66,34 @@ The Phase Threat Definition Ledger below assigns immutable plan/task ownership a
 | TBD | TBD | 0 | QUAL-03 | Accessibility denial | Keyboard, focus, names, live regions, motion, and serious axe checks pass | component + E2E | `npm run test:components && npm run test:a11y` | ❌ W0 | ⬜ pending |
 | TBD | TBD | 0 | QUAL-04 | — | Three-viewport baselines change only with owner approval | visual regression | `npm run test:visual` | ❌ W0 | ⬜ pending |
 | 01-05-T1/T2 | 01-05 | 5 | QUAL-05 | T-01-14, T-01-15 | Source, bundles, rendered payloads, fixtures, logs, snapshots, and plans pass bounded privacy scans | artifact scan | `npm run test:privacy -- --check` | ✅ | ✅ green |
-| TBD | TBD | 0 | QUAL-06 | Availability/regression | Route, bundle, RAG, and interaction measurements stay inside owner-approved budgets | performance + contract | `npm run test:performance && npm run test:contracts -- tests/contracts/rag-latency.test.ts` | ❌ W0 | ⬜ pending |
+| 01-06-T1/T2/T3 | 01-06 | 6 | QUAL-06 | T-01-18, T-01-19, T-01-20 | Route, bundle, RAG, and interaction measurements stay inside owner-approved budgets | performance + contract | `cd web && node scripts/capture-phase1-performance.mjs --check && npm run test:contracts -- tests/contracts/rag-latency.test.ts` | ✅ baseline captured; 11 budgets approved in `web/tests/performance/phase1-budgets.json` | ⬜ pending (gate wiring lands in Plan 01-07) |
+| 01-06-owner-gate | 01-06 | 6 | QUAL-06 budget approval | — | Numeric budgets are owner-approved before migration starts | manual gate | Review `web/tests/performance/phase1-budget-proposal.json`; approval recorded in `web/tests/performance/phase1-budgets.json` (`owner-explicit-approval-2026-08-22-performance-budget-gates-via-askuserquestion-review`) | ✅ | ✅ approved 2026-08-22 |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+
+---
+
+## Plan 01-06 Measured Performance Baseline (Wave 6)
+
+Plan `01-06` recorded the authoritative pre-migration measurement set on 2026-08-22. This section distinguishes **measured evidence** from **owner-approved budgets**: the proposal in `web/tests/performance/phase1-budget-proposal.json` was reviewed gate-by-gate with the owner on 2026-08-22 and all eleven budgets were approved into `web/tests/performance/phase1-budgets.json` (`owner-explicit-approval-2026-08-22-performance-budget-gates-via-askuserquestion-review`). The RAG budgets carry an explicit stub-scope note: they cover local proxy overhead only; live-Worker model latency is deferred to a later plan.
+
+**Measured artifacts**
+
+| Artifact | Path | Contents |
+|---|---|---|
+| Five-run baseline | `web/tests/performance/phase1-baseline.json` | 4 routes × 5 runs of Lighthouse metrics, route-ready/load timing, key interactions (drawer open, node expand, chat safe error), fresh-build bundle summary, and 11 normalized RAG stub samples |
+| Budget proposal | `web/tests/performance/phase1-budget-proposal.json` | 11 evidence-derived candidate budgets (`route_ready_ms`, `drawer_open_ms`, `node_expand_ms`, `chat_safe_error_ms`, `rag_first_byte_ms`, `rag_total_ms`, `first_load_js_kb`, `static_js_kb`, `static_css_kb`, plus owner-requested `lcp_ms` and `fcp_ms`), each citing source samples, observed max, observed range, headroom, unit, and rationale |
+| Approved budgets receipt | `web/tests/performance/phase1-budgets.json` | Owner-approved ceilings bound by SHA-256 to the baseline and proposal; RAG stub-scope note recorded |
+| Capture collector | `web/scripts/capture-phase1-performance.mjs` | Reproducible command: hash preflight against `web/tests/contracts/phase1-baseline-approval.json`, fresh production build, pinned-Chromium Lighthouse ×5 per route with external assets blocked at browser and Lighthouse level, interaction passes on loopback-only server |
+| RAG latency contract | `web/tests/contracts/rag-latency.test.ts` | Deterministic grounded / abstention / delayed-250ms / 25s-timeout cases around `tests/support/rag-stub.mjs`, preserving Plan 01-01's approved body/chunk interpretation |
+
+**Measured environment**: Node v26.7.0 · npm 11.19.0 · Next.js 15.5.19 · Lighthouse 12.6.1 via LHCI 0.15.1 · pinned Playwright Chromium (`chromium-1234`, playwright-core 1.62.1) · macOS arm64 · viewport 1440×900 · local production server on an ephemeral loopback port with `CLOUDFLARE_EDGE_SHARED_SECRET` forced empty so `/api/chat` returns its safe local 503 before any upstream fetch.
+
+**Key observed ceilings (evidence, not gates)**: LCP median 2185–2561 ms across routes (max 2630 ms); FCP median ~1541–1845 ms; interactions max 171 ms (drawer), 170 ms (node expand), 207 ms (chat safe error); RAG stub total 1–256 ms for answering cases and 25,004–25,007 ms for timeout cases proving `AbortSignal.timeout(25_000)` fires; first-load JS max 154 KB (/chat); static JS 949 KB.
+
+**Threat evidence**: T-01-18, T-01-19, T-01-20 executed from their immutable definitions via `node web/scripts/run-phase1-threat.mjs --plan 01-06 --task <N>` and recorded `passed` in `web/tests/security/phase1-threat-results/01-06.json`.
+
+**Still pending after Wave 6**: enforcement wiring of the approved budgets into the blocking gate (Plan 01-07) and all visual migration rows. The budget-approval manual gate itself is closed (2026-08-22). Completion flags remain false.
 
 ---
 
