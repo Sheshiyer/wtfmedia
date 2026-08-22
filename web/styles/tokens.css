@@ -1,0 +1,122 @@
+/**
+ * Canonical semantic token definitions (Plan 01-08 Task 1, D-05).
+ *
+ * Single source of truth for the WTF visual foundation. Raw brand hex
+ * values appear ONLY in this file; every other layer consumes these
+ * custom properties. Tests: web/tests/unit/tokens.test.ts enforces
+ * uniqueness, palette closure, typography/spacing contracts, and WCAG AA
+ * fill pairs.
+ *
+ * Wordmark exception: the extruded lowercase WTF wordmark keeps its
+ * committed red as a brand asset; that exception lives in the legacy
+ * presentation boundary and is never generalized into interface tokens.
+ *
+ * `production` is provisional: defined once here, contrast-tested with
+ * its ink foreground pair, and NOT rendered on Phase 1 public routes
+ * without owner visual approval (enforced by the migrated-consumer scan).
+ */
+
+:root {
+  /* ---------- color: approved palette (raw values live only here) ---------- */
+  --wtf-canvas: #fff6ea;
+  --wtf-surface-subtle: #f0eadf;
+  --wtf-surface-raised: #fffcf7;
+  --wtf-foreground: #1a1a1a;
+  --wtf-editorial: #c53b3a;
+  --wtf-live: #0c9367;
+  --wtf-attention: #f1b333;
+  --wtf-production: #f07633;
+  --wtf-knowledge: #6758a5;
+  --wtf-information: #2d6be0;
+
+  /*
+   * Semantic fill pairs. Each declared pair is WCAG-AA verified by
+   * tokens.test.ts. `live` intentionally declares NO text fill pair:
+   * neither cream (3.64:1) nor ink (4.46:1) reaches 4.5:1 on #0c9367,
+   * so live renders as a dot/border/indicator beside ink-on-canvas
+   * text — never as a filled text background.
+   */
+  --wtf-fill-canvas-foreground: var(--wtf-foreground);
+  --wtf-fill-subtle-foreground: var(--wtf-foreground);
+  --wtf-fill-raised-foreground: var(--wtf-foreground);
+  --wtf-fill-attention-background: var(--wtf-attention);
+  --wtf-fill-attention-foreground: var(--wtf-foreground);
+  --wtf-fill-editorial-background: var(--wtf-editorial);
+  --wtf-fill-editorial-foreground: var(--wtf-canvas);
+  --wtf-fill-knowledge-background: var(--wtf-knowledge);
+  --wtf-fill-knowledge-foreground: var(--wtf-canvas);
+  --wtf-fill-information-background: var(--wtf-information);
+  --wtf-fill-information-foreground: var(--wtf-canvas);
+  --wtf-fill-production-background: var(--wtf-production);
+  --wtf-fill-production-foreground: var(--wtf-foreground);
+
+  /* ---------- typography: exactly four sizes, two weights ---------- */
+  --wtf-font-display: "Bricolage Grotesque", Impact, sans-serif;
+  --wtf-font-body: "Poppins", system-ui, sans-serif;
+  --wtf-font-editorial: "Fraunces", Georgia, serif;
+
+  --wtf-type-label-size: 13px;
+  --wtf-type-label-line-height: 1.4;
+  --wtf-type-body-size: 16px;
+  --wtf-type-body-line-height: 1.5;
+  --wtf-type-heading-size: 34px;
+  --wtf-type-heading-line-height: 1.2;
+  --wtf-type-display-size: clamp(40px, 6vw, 72px);
+  --wtf-type-display-line-height: 0.95;
+
+  --wtf-weight-regular: 400;
+  --wtf-weight-bold: 700;
+
+  /* ---------- spacing: permitted set 4..64 only ---------- */
+  --wtf-space-1: 4px;
+  --wtf-space-2: 8px;
+  --wtf-space-4: 16px;
+  --wtf-space-6: 24px;
+  --wtf-space-8: 32px;
+  --wtf-space-12: 48px;
+  --wtf-space-16: 64px;
+
+  /* ---------- shape ---------- */
+  --wtf-radius-control: 8px;
+  --wtf-radius-panel: 16px;
+  --wtf-radius-card: 16px;
+  --wtf-radius-pill: 999px;
+
+  /* ---------- border and depth ---------- */
+  --wtf-border-strong-width: 2px;
+  --wtf-border-strong-color: var(--wtf-foreground);
+  --wtf-depth-card-offset: 6px;
+  --wtf-depth-card-hover-extra: 3px;
+
+  /* ---------- layout bounds ---------- */
+  --wtf-content-max: 1400px;
+  --wtf-measure-reading: 65ch;
+  --wtf-measure-transcript: 72ch;
+  --wtf-target-min: 44px;
+
+  /* ---------- z-index scale ---------- */
+  --wtf-z-base: 0;
+  --wtf-z-raised: 10;
+  --wtf-z-sticky: 20;
+  --wtf-z-overlay: 100;
+  --wtf-z-drawer: 110;
+  --wtf-z-skip: 999;
+
+  /* ---------- focus: two-layer ring, visible on every fill ----------
+     2px cream inner separation + 3px ink outer outline at 3px offset. */
+  --wtf-focus-inner-color: var(--wtf-canvas);
+  --wtf-focus-outer-color: var(--wtf-foreground);
+  --wtf-focus-ring: 0 0 0 2px var(--wtf-focus-inner-color),
+    0 0 0 5px var(--wtf-focus-outer-color);
+  --wtf-focus-outline-offset: 3px;
+
+  /* ---------- motion ---------- */
+  --wtf-duration-fast: 120ms;
+  --wtf-duration-default: 200ms;
+  --wtf-duration-slow: 320ms;
+  --wtf-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --wtf-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --wtf-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  color-scheme: light;
+}

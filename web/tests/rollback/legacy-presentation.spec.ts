@@ -89,6 +89,7 @@ let manifest: {
   status: string;
   coverage: string[];
   captures: Record<string, string>;
+  owner_approval_ref?: string | null;
 };
 
 test.beforeAll(() => {

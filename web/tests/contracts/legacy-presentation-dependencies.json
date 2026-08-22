@@ -13,7 +13,7 @@
     "web/app/connections/page.tsx",
     "web/app/chat/page.tsx"
   ],
-  "node_count": 20,
+  "node_count": 23,
   "nodes": [
     {
       "path": "web/app/chat/page.tsx",
@@ -52,11 +52,15 @@
     {
       "path": "web/app/globals.css",
       "role": "global-style",
-      "dependencies": [],
+      "dependencies": [
+        "web/styles/motion.css",
+        "web/styles/themes.css",
+        "web/styles/tokens.css"
+      ],
       "dependents": [
         "web/app/layout.tsx"
       ],
-      "sha256": "757d80c928ea3d507f360a56c1f90aa2caf791e7a311d2711bd776114c2ea3b5"
+      "sha256": "80d76ecff5c66346d592fd349f2d1d8c6ac00e0bb9ec6b2a06adc15edd434a54"
     },
     {
       "path": "web/app/layout.tsx",
@@ -229,11 +233,38 @@
       "sha256": "4a4f376fe29a02fceb9ef271b1091c1b02d404f533547b9b32e3d9e3100e3579"
     },
     {
+      "path": "web/styles/motion.css",
+      "role": "semantic-token-layer",
+      "dependencies": [],
+      "dependents": [
+        "web/app/globals.css"
+      ],
+      "sha256": "1c3241f2a88f848758047b86802ad0772240fa48d2915746cdfdd18c19d654f8"
+    },
+    {
+      "path": "web/styles/themes.css",
+      "role": "semantic-token-layer",
+      "dependencies": [],
+      "dependents": [
+        "web/app/globals.css"
+      ],
+      "sha256": "b04ab7025f41a9a794884ca5f506dc76102a9110f6c3d0fdcf2d2adc100a95c8"
+    },
+    {
+      "path": "web/styles/tokens.css",
+      "role": "semantic-token-layer",
+      "dependencies": [],
+      "dependents": [
+        "web/app/globals.css"
+      ],
+      "sha256": "9eae49564d52c728e343357afe42ab3962cae50cfd621934b64deb1191ff208e"
+    },
+    {
       "path": "web/tailwind.config.ts",
       "role": "theme-config",
       "dependencies": [],
       "dependents": [],
-      "sha256": "039f1066f9d2dc9ebffd5b0c16e9b7b898e3629f47676f0c9174b36e6e31dd71"
+      "sha256": "de3ff53633e26c504b0cb3fb137768c18e55da8b5ea7d5be13af4895fcfcdb32"
     }
   ]
 }

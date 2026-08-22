@@ -1,0 +1,28 @@
+/**
+ * Contextual theme mappings (Plan 01-08 Task 1, D-05).
+ *
+ * Maps canonical tokens onto public context surfaces. This file adds NO
+ * new raw colors, NO operator policy/state mappings (Phase 2 concern),
+ * and no competing palette. The operator context is deliberately absent
+ * until Phase 2 owns identity/session/capability decisions.
+ */
+
+:root {
+  /* ---------- public context aliases ---------- */
+  --wtf-page-background: var(--wtf-canvas);
+  --wtf-page-foreground: var(--wtf-foreground);
+  --wtf-surface-inactive: var(--wtf-surface-subtle);
+  --wtf-surface-elevated: var(--wtf-surface-raised);
+  --wtf-accent-primary: var(--wtf-attention);
+  --wtf-state-live-indicator: var(--wtf-live);
+  --wtf-state-editorial: var(--wtf-editorial);
+  --wtf-context-knowledge: var(--wtf-knowledge);
+  --wtf-context-information: var(--wtf-information);
+
+  /*
+   * Provisional production mapping. Defined for completeness; the
+   * migrated-public consumer scan in tokens.test.ts enforces zero
+   * consumers until owner visual approval.
+   */
+  --wtf-state-production-provisional: var(--wtf-production);
+}

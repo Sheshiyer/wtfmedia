@@ -35,7 +35,7 @@
     "host": "127.0.0.1",
     "network_scope": "loopback-only; all external requests aborted by test routing"
   },
-  "dependency_graph_sha256": "891745a8d370994fbb3ec16b2688e9f9a635055f6b0a0518e14a1dcd4c1461d7",
+  "dependency_graph_sha256": "6a4e9ef3195f79950bd282dfae4da9988f8df7c21b67a873d3addfa2f31ece6b",
   "compatibility_manifest_sha256": "91af632adc8f38319a69e6ba3a8653d44051ae5ccde32e7ff9ed215bdcbbd9eb",
   "owner_approval_ref": "owner-explicit-approval-2026-08-22-legacy-presentation-baseline-via-askuserquestion-review"
 }

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "01-08",
+  "results": {
+    "T-01-23": {
+      "plan": "01-08",
+      "task": 1,
+      "command_id": "16eba3ae5a60b8b6330554b9be63f41f5d1e5e1def60633ba9a5e740312745b8",
+      "command": "cd web && npm run test:unit -- tests/unit/tokens.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "440aa2aca668d756dea8e1f312151b7c099fbbc1895bc4983ea8cae411385fcd",
+        "error_output_sha256": "3fe71b8e67f4a682244e70f52853b59489b83b90b1f77cb6d0cccbade339e121",
+        "output_bytes": 324,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T15:17:13.524Z",
+      "status": "passed"
+    },
+    "T-01-24": {
+      "plan": "01-08",
+      "task": 2,
+      "command_id": "96bda2166ce0766922a46390e6dfbd69ce20c963219e8c31c4103cdd7b65fef6",
+      "command": "cd web && npm run test:unit -- tests/unit/tokens.test.ts && npm run lint && npm run typecheck && node scripts/capture-legacy-presentation.mjs --check && npm run test:browser -- tests/rollback/legacy-presentation.spec.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "4c2d6da6e6047c5e49f593e8122e586f11a4a63dfa953e59dfc7c747288f176f",
+        "error_output_sha256": "a66c3be2841129150378feddf5d1fc090b9b324eaf3e48816dbca3fd255b618e",
+        "output_bytes": 3753,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T15:23:58.344Z",
+      "status": "passed"
+    },
+    "T-01-25": {
+      "plan": "01-08",
+      "task": 2,
+      "command_id": "8a9fc61264ee1ab3603f3859abd02f33d47a87e53e15bd46f7506bda1db1ff42",
+      "command": "cd web && npm run test:unit -- tests/unit/tokens.test.ts && npm run lint && npm run typecheck && node scripts/capture-legacy-presentation.mjs --check && npm run test:browser -- tests/rollback/legacy-presentation.spec.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "4c2d6da6e6047c5e49f593e8122e586f11a4a63dfa953e59dfc7c747288f176f",
+        "error_output_sha256": "a66c3be2841129150378feddf5d1fc090b9b324eaf3e48816dbca3fd255b618e",
+        "output_bytes": 3753,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T15:23:58.344Z",
+      "status": "passed"
+    }
+  }
+}

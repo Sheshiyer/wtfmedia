@@ -16,6 +16,18 @@ const config: Config = {
           orange: "#F07633",
           purple: "#6758A5",
           blue: "#2D6BE0",
+          // Plan 01-08 (D-05): semantic aliases resolve through the
+          // canonical CSS custom properties in web/styles/tokens.css —
+          // no duplicate hex values. Legacy keys above are preserved.
+          canvas: "var(--wtf-canvas)",
+          foreground: "var(--wtf-foreground)",
+          subtle: "var(--wtf-surface-subtle)",
+          raised: "var(--wtf-surface-raised)",
+          editorial: "var(--wtf-editorial)",
+          live: "var(--wtf-live)",
+          attention: "var(--wtf-attention)",
+          knowledge: "var(--wtf-knowledge)",
+          information: "var(--wtf-information)",
         },
       },
       fontFamily: {

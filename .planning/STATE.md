@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 01 Plan 01-21 COMPLETE - T-01-65/T-01-66/T-01-67 passed; complete legacy presentation boundary frozen and owner-approved (graph hash 891745a8…, 12 captures at 320/768/1440); VALIDATION.md Wave 8 authority section added with rollback binding rule; next executable is Plan 01-08 (wave 9, now unblocked)
+stopped_at: Phase 01 Plan 01-08 COMPLETE - T-01-23/T-01-24/T-01-25 passed; semantic token layer (tokens/themes/motion.css + Tailwind var() aliases) built with zero pixel drift on the approved legacy baseline; dependency graph re-baselined 20→23 nodes, manifest rebound; next executable is Plan 01-10 (per wave order after 01-21 gate; check ROADMAP for 01-09 vs 01-10 readiness)
 last_updated: "2026-08-22T19:00:00+05:30"
-last_activity: 2026-08-22 -- Plan 01-21 closed: blocking owner checkpoint satisfied by explicit AskUserQuestion review; manifest approved with reference owner-explicit-approval-2026-08-22-legacy-presentation-baseline-via-askuserquestion-review; 20-node dependency graph (sha256 891745a8…) and 12 visual captures at 320/768/1440 (canvas masked, loopback-only routing) frozen as rollback oracle; VALIDATION.md gained Wave 8 authority row + binding rule; Plans 01-08 and 01-10 now genuinely unblocked
+last_activity: 2026-08-22 -- Plan 01-08 closed: token layer created and tested (14 unit assertions incl. live indicator-only finding and two-layer focus-ring geometry), motion/focus/cursor/reduced-motion scoped under migrated marker, graph re-baselined to 23 nodes with manifest rebinding, pixel identity proven via full rollback oracle re-run (12/12 hashes match)
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 23
-  completed_plans: 8
-  percent: 35
+  completed_plans: 9
+  percent: 39
 approval_refresh:
   id: apr_4737e705fef30c663095_refresh
   approved_at: "2026-08-21T09:20:00.000Z"
@@ -34,8 +34,8 @@ without losing provenance.
 
 Phase: 01 (Compatibility + Component Proof Harness) — EXECUTING
 Plan: 7 of 23
-Status: Plans 01-01 through 01-21 complete (`01-21-SUMMARY.md`); budget authority (Wave 7) and legacy presentation boundary (Wave 8) are binding owner-approved prerequisites; next executable is Plan 01-08 (token layer) now genuinely unblocked
-Last activity: 2026-08-22 -- Plan 01-21 closed: legacy presentation baseline approved, manifest flipped, rollback spec hardened (status accepts approved/pending-owner-approval), VALIDATION.md Wave 8 row + authority section added, T-01-65/T-01-66/T-01-67 passed, wave_0_complete/nyquist_compliant retained false
+Status: Plans 01-01 through 01-08 and 01-21 complete; budget authority (Wave 7), legacy boundary (Wave 8), and semantic token substrate (Plan 01-08) are binding prerequisites; next executable per ROADMAP wave order after the 01-21 gate
+Last activity: 2026-08-22 -- Plan 01-08 closed: token layer built with zero pixel drift, graph re-baselined 20→23 nodes, T-01-23/T-01-24/T-01-25 passed, wave_0_complete/nyquist_compliant retained false
 
 Progress: [███░░░░░░░] 30%
 
@@ -101,7 +101,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-22T14:28:54+00:00
-Stopped at: Phase 01 Plan 01-21 complete (T-01-65/T-01-66/T-01-67 passed; dependency graph + visual baseline owner-approved, VALIDATION.md Wave 8 authority added); work uncommitted pending owner instruction
-Resume file: .planning/phases/01-compatibility-component-proof-harness/01-08-PLAN.md
-Resume: Commit Plan 01-21 work if authorized, then execute Plan 01-08 after reading `01-08-PLAN.md`; Phase 2 remains gated behind Phase 1 acceptance.
+Last session: 2026-08-22T15:10:00+00:00
+Stopped at: Phase 01 Plan 01-08 complete (token layer + scoped policies, T-01-23/24/25 passed, pixel identity proven); work uncommitted pending owner instruction
+Resume file: .planning/phases/01-compatibility-component-proof-harness/01-10-PLAN.md
+Resume: Commit Plan 01-08 work if authorized, then execute the next wave-9 plan after checking ROADMAP order (01-09 depends on 01-08; 01-10 also unblocked by 01-21); Phase 2 remains gated behind Phase 1 acceptance.
