@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "plan": "02-04",
+  "results": {
+    "T-02-10": {
+      "plan": "02-04",
+      "task": 1,
+      "command_id": "16e15fe15033a3aaaf3c769774a9043eb906665c18d396c0174e0c3ba76df6d2",
+      "command": "cd cloudflare && npm test -- operator-policy --grep unknown",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "be0f5be7eb25ac29e3e07cde7866561d1629ae32a3ed509604aee264fe818324",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 820,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:39:57.286Z",
+      "status": "passed"
+    }
+  }
+}
