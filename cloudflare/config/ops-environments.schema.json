@@ -1,0 +1,51 @@
+{
+  "title": "WTF Media protected operator environment contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["local", "staging", "production", "preview"],
+  "properties": {
+    "local": {
+      "type": "object",
+      "required": ["d1_binding", "access_application_ref", "access_audience_ref", "origin_proof_secret_ref", "cache_namespace_ref", "protected_backend"],
+      "properties": {
+        "d1_binding": { "const": "OPS_DB_LOCAL" },
+        "access_application_ref": { "const": "OPS_ACCESS_APPLICATION_LOCAL" },
+        "access_audience_ref": { "const": "OPS_ACCESS_AUDIENCE_LOCAL" },
+        "origin_proof_secret_ref": { "const": "OPS_ORIGIN_PROOF_LOCAL" },
+        "cache_namespace_ref": { "const": "OPS_CACHE_LOCAL" },
+        "protected_backend": { "const": true }
+      }
+    },
+    "staging": {
+      "type": "object",
+      "required": ["d1_binding", "access_application_ref", "access_audience_ref", "origin_proof_secret_ref", "cache_namespace_ref", "protected_backend"],
+      "properties": {
+        "d1_binding": { "const": "OPS_DB_STAGING" },
+        "access_application_ref": { "const": "OPS_ACCESS_APPLICATION_STAGING" },
+        "access_audience_ref": { "const": "OPS_ACCESS_AUDIENCE_STAGING" },
+        "origin_proof_secret_ref": { "const": "OPS_ORIGIN_PROOF_STAGING" },
+        "cache_namespace_ref": { "const": "OPS_CACHE_STAGING" },
+        "protected_backend": { "const": true }
+      }
+    },
+    "production": {
+      "type": "object",
+      "required": ["d1_binding", "access_application_ref", "access_audience_ref", "origin_proof_secret_ref", "cache_namespace_ref", "protected_backend"],
+      "properties": {
+        "d1_binding": { "const": "OPS_DB_PRODUCTION" },
+        "access_application_ref": { "const": "OPS_ACCESS_APPLICATION_PRODUCTION" },
+        "access_audience_ref": { "const": "OPS_ACCESS_AUDIENCE_PRODUCTION" },
+        "origin_proof_secret_ref": { "const": "OPS_ORIGIN_PROOF_PRODUCTION" },
+        "cache_namespace_ref": { "const": "OPS_CACHE_PRODUCTION" },
+        "protected_backend": { "const": true }
+      }
+    },
+    "preview": {
+      "type": "object",
+      "required": ["protected_backend"],
+      "properties": {
+        "protected_backend": { "const": false }
+      }
+    }
+  }
+}
