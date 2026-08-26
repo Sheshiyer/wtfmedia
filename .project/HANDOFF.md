@@ -2,7 +2,7 @@
 
 ## Phase 2 Planning Checkpoint (2026-08-26)
 
-**Status:** EXECUTING — Plan 02-01 complete
+**Status:** EXECUTING — Plans 02-01 through 02-05 complete
 
 **Evidence:**
 - The approved `02-UI-SPEC.md` remains the visual and interaction contract at commit `5f5f1ad`.
@@ -11,11 +11,13 @@
 - Plan 02-01 established the immutable 35-threat ledger, empty fail-closed aggregate schema, and privacy-safe command-bound evidence fragments (`f4853e3`, `5be9f74`, `6278dad`).
 - `cd web && npm run verify:phase1` passed after the stale completed-state test contract was reconciled (`2c080e0`); no Phase 1 behavior changed.
 - Plan 02-02 applied and listed the portable D1 migrations locally with Wrangler 4.95.0; the approved roster, typed audit envelope, and symbolic environment contract are checkpointed (`f49efed`, `ae4d5b6`, `196eec5`, `5fbccee`).
+- Plans 02-03 and 02-04 established verified Cloudflare Access + fresh D1 authority, closed policy navigation, and atomic super-admin transfer (`f06105c`, `0306b3a`, `c28c679`).
+- Plan 02-05 added action-specific, append-only audit encoding; authorized fixed CSV export; and local/staging/production retention purges using an audited D1 batch (`ea316ef`, `6a4c0c4`). Local Cloudflare tests passed (18/18) and T-02-13 through T-02-15 have persisted passing receipts.
 - Plan `02-12` is non-autonomous: owner-approved staging evidence and a separately authorized, exact-host, read-only production smoke remain blocking gates.
 - No deployment, migration, provider credential change, production write, registry mutation, or cutover occurred.
 
 **Next Action:**
-Execute Wave 3 plans (`02-03` Access verification, `02-04` policy/ownership, and `02-05` audit lifecycle); retain the Phase 2 runner as the only accepted path for new security evidence.
+Execute Plan 02-06 (protected edge router, DTO projection, and cache isolation); retain the Phase 2 runner as the only accepted path for new security evidence.
 
 ## Phase 1 Completion Checkpoint (2026-08-25)
 
