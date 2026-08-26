@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "02-02",
+  "results": {
+    "T-02-05": {
+      "plan": "02-02",
+      "task": 1,
+      "command_id": "ea321ca0e516940d2e73656dd90bae70a8689627d7b9418809823a751626c833",
+      "command": "cd cloudflare && npm test -- d1-migrations --grep audit",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "679d68b92b3f26bd9d72f69d920938f5954cce980ca2c6c35e4a0f757beec447",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 467,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:20:03.430Z",
+      "status": "passed"
+    },
+    "T-02-06": {
+      "plan": "02-02",
+      "task": 1,
+      "command_id": "d502ce2af5bca8a8918d4e3fb9d78bff85827b08aedf914da6271a76d59ea03e",
+      "command": "node cloudflare/scripts/verify-ops-environments.mjs --static",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "a7b9c540119351adcfd21eed9036780861449e7a4f548100bd8eae1ee2d553dc",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 82,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:20:03.430Z",
+      "status": "passed"
+    },
+    "T-02-04": {
+      "plan": "02-02",
+      "task": 2,
+      "command_id": "696192f307c3e2ac471890ffd12160bd48db2f3a930749fcdaa46ce1bd07bcb0",
+      "command": "cd cloudflare && npm test -- d1-migrations --grep super_admin",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "068069ab77c52268aef9fd176a77ec0e9d0c5114514708308bc954326877cec9",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 472,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:20:03.792Z",
+      "status": "passed"
+    }
+  }
+}

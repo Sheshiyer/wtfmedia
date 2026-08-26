@@ -1,0 +1,2 @@
+-- RETIRED: schema changes are owned exclusively by cloudflare/migrations.
+-- Do not execute this file and do not add runtime DDL statements.
