@@ -2,7 +2,7 @@
 
 ## Phase 2 Planning Checkpoint (2026-08-26)
 
-**Status:** EXECUTING — Plans 02-01 through 02-05 complete
+**Status:** EXECUTING — Plans 02-01 through 02-08 complete
 
 **Evidence:**
 - The approved `02-UI-SPEC.md` remains the visual and interaction contract at commit `5f5f1ad`.
@@ -13,11 +13,13 @@
 - Plan 02-02 applied and listed the portable D1 migrations locally with Wrangler 4.95.0; the approved roster, typed audit envelope, and symbolic environment contract are checkpointed (`f49efed`, `ae4d5b6`, `196eec5`, `5fbccee`).
 - Plans 02-03 and 02-04 established verified Cloudflare Access + fresh D1 authority, closed policy navigation, and atomic super-admin transfer (`f06105c`, `0306b3a`, `c28c679`).
 - Plan 02-05 added action-specific, append-only audit encoding; authorized fixed CSV export; and local/staging/production retention purges using an audited D1 batch (`ea316ef`, `6a4c0c4`). Local Cloudflare tests passed (18/18) and T-02-13 through T-02-15 have persisted passing receipts.
+- Plans 02-06 and 02-07 established the edge-to-origin signed-context boundary, request-scoped policy projection, and non-leaking recovery/sign-out lifecycle (`25990ba`, `ae75f5e`).
+- Plan 02-08 implemented the protected Control Room, role-projected responsive shell, truthful inactive status, and a recovery route outside the protected layout (`19a9156`, `bee5b28`). Local type checks, 320/768/1440 browser checks, and T-02-22 through T-02-24 passed.
 - Plan `02-12` is non-autonomous: owner-approved staging evidence and a separately authorized, exact-host, read-only production smoke remain blocking gates.
 - No deployment, migration, provider credential change, production write, registry mutation, or cutover occurred.
 
 **Next Action:**
-Execute Plan 02-06 (protected edge router, DTO projection, and cache isolation); retain the Phase 2 runner as the only accepted path for new security evidence.
+Resolve the owner-authoritative invitation approval source before completing Plan 02-09. The approved bootstrap roster is readable from D1, but no policy exists for newly invited addresses; domain inference is prohibited.
 
 ## Phase 1 Completion Checkpoint (2026-08-25)
 
