@@ -8,7 +8,7 @@ import { after, before, test } from "node:test";
 const root = new URL("..", import.meta.url).pathname;
 const persistTo = mkdtempSync(join(tmpdir(), "wtfmedia-phase2-d1-"));
 const database = join(persistTo, "ops.sqlite");
-const migrations = ["0001_ops_foundation.sql", "0002_bootstrap_roster.sql"];
+const migrations = ["0001_ops_foundation.sql", "0002_bootstrap_roster.sql", "0003_super_admin_transfer_guard.sql"];
 
 function sql(input) {
   return spawnSync("sqlite3", [database], {
@@ -52,6 +52,7 @@ test("fresh local migrations are repeatable", () => {
   const listing = succeeds("SELECT name FROM d1_migrations ORDER BY name;");
   assert.match(listing, /0001_ops_foundation/);
   assert.match(listing, /0002_bootstrap_roster/);
+  assert.match(listing, /0003_super_admin_transfer_guard/);
 });
 
 test("super_admin invariant rejects zero or multiple active seats", () => {

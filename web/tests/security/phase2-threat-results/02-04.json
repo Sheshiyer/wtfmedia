@@ -16,6 +16,36 @@
       },
       "completed_at": "2026-08-26T09:39:57.286Z",
       "status": "passed"
+    },
+    "T-02-11": {
+      "plan": "02-04",
+      "task": 2,
+      "command_id": "d2e852fa56869d1a07f5ce8209a23c0132141f43ece0ff567815c0726bfa13f4",
+      "command": "cd cloudflare && npm test -- operator-policy --grep mutation",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "2efe50f01f6df1ca3a49cfc2c013262c0d2fa1a11e28ea74d852fc533af469a0",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 915,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:46:37.189Z",
+      "status": "passed"
+    },
+    "T-02-12": {
+      "plan": "02-04",
+      "task": 2,
+      "command_id": "45f7ecda61a24b16b41d362680f88bb4e45943e9d059e655ce2530716b22c06b",
+      "command": "cd cloudflare && npm test -- operator-policy --grep transfer",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "5dda0fcf88bb9c19b56d15d7e3daad802bfed89e7661873f05124dbd895b97bb",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 916,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:46:37.189Z",
+      "status": "passed"
     }
   }
 }
