@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { publicUiVariant } from "@/lib/public/public-ui-variant";
 import { LegacyPublicShell } from "@/components/legacy/public/LegacyPublicShell";
 import { PublicShell } from "@/components/patterns/PublicShell";
@@ -29,14 +30,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const variant = publicUiVariant();
   const Shell = variant === "migrated" ? PublicShell : LegacyPublicShell;
+  const requestHeaders = await headers();
+  const routeKind = requestHeaders.get("x-wtf-route-kind");
+  const isOperatorRoute = routeKind === "ops" || routeKind === "ops-recovery";
 
   return (
     <html lang="en" data-public-ui-variant={variant}>
       <body className="min-h-screen flex flex-col overflow-x-hidden">
-        <Shell>{children}</Shell>
+        {isOperatorRoute ? children : <Shell>{children}</Shell>}
       </body>
     </html>
   );

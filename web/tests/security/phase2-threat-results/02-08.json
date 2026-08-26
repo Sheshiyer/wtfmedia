@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "02-08",
+  "results": {
+    "T-02-22": {
+      "plan": "02-08",
+      "task": 2,
+      "command_id": "d70d21b06d8cdceb46c3e62512029576e70a232f26a75d05028c29fe32ec8491",
+      "command": "cd web && npm run test:browser -- tests/phase2/control-room.spec.ts --grep truthful",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "b47ca490800a4983e989c4fdac95ec31a72fdfa05c519ca8a066ed015d1f6ae6",
+        "error_output_sha256": "d2e381e7e267b8c95c544a1a7558b3cbc35231bdc7fd925fc10e7921276bac68",
+        "output_bytes": 377,
+        "error_output_bytes": 3172
+      },
+      "completed_at": "2026-08-26T10:52:32.063Z",
+      "status": "passed"
+    },
+    "T-02-23": {
+      "plan": "02-08",
+      "task": 1,
+      "command_id": "517f4d6d03e1162ff38b37916f494afae1782b4f44719dcd33ccf2079c22bafd",
+      "command": "cd web && npm run test:browser -- tests/phase2/control-room.spec.ts --grep role",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "acb5c4a4af9586e71583d1cfd0ad9c7f6993f8035b7c6b200a4e797dffe1b7eb",
+        "error_output_sha256": "4fca0c69974b1182362061cae289066469ca9abb24f9e20b4724d921a6c017aa",
+        "output_bytes": 516,
+        "error_output_bytes": 3336
+      },
+      "completed_at": "2026-08-26T10:52:13.132Z",
+      "status": "passed"
+    },
+    "T-02-24": {
+      "plan": "02-08",
+      "task": 1,
+      "command_id": "7f1d4fda2f3fa166e51d45d57eaeaf4781f15016c1fc3041912b43faded7a097",
+      "command": "cd web && npm run test:browser -- tests/phase2/control-room.spec.ts --grep responsive",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "d875758775c986b196d12faf7427ae7ddf9874a4582e928d5fe445a09087b974",
+        "error_output_sha256": "2318a83f012283eebf7e724c71a22364b055a034be045a55bbce4ce9b4a8ffa4",
+        "output_bytes": 335,
+        "error_output_bytes": 3172
+      },
+      "completed_at": "2026-08-26T10:52:13.132Z",
+      "status": "passed"
+    }
+  }
+}
