@@ -26,5 +26,6 @@ PRODUCT.md
 # machine-local Temperance runtime receipts (regenerate with project init)
 .temperance/project.json
 .temperance/manifest.json
+.runtime/preflight/
 .planning/NEXT-WAVE.json
 .planning/ORCHESTRATION.json
