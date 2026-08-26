@@ -2,7 +2,7 @@
 
 ## Phase 2 Planning Checkpoint (2026-08-26)
 
-**Status:** EXECUTING — Plans 02-01 through 02-08 complete
+**Status:** EXECUTING — Plans 02-01 through 02-11 complete
 
 **Evidence:**
 - The approved `02-UI-SPEC.md` remains the visual and interaction contract at commit `5f5f1ad`.
@@ -15,11 +15,14 @@
 - Plan 02-05 added action-specific, append-only audit encoding; authorized fixed CSV export; and local/staging/production retention purges using an audited D1 batch (`ea316ef`, `6a4c0c4`). Local Cloudflare tests passed (18/18) and T-02-13 through T-02-15 have persisted passing receipts.
 - Plans 02-06 and 02-07 established the edge-to-origin signed-context boundary, request-scoped policy projection, and non-leaking recovery/sign-out lifecycle (`25990ba`, `ae75f5e`).
 - Plan 02-08 implemented the protected Control Room, role-projected responsive shell, truthful inactive status, and a recovery route outside the protected layout (`19a9156`, `bee5b28`). Local type checks, 320/768/1440 browser checks, and T-02-22 through T-02-24 passed.
+- Plan 02-09 added a D1-backed invitation approval allowlist. Only the active `super_admin` can approve an address; an administrator can consume a pending approval to activate the invited `admin` or `editor`, and each action is audited (`774c3ad`, `7da776c`).
+- Plan 02-10 added privacy-safe audit-ledger filtering and fixed CSV export. The operator UI exposes only approved DTO fields, while local filter validation rejects unknown inputs (`00ab446`, `6c0b321`).
+- Plan 02-11 added the deterministic local Phase 2 verifier, CI gate, staged-evidence gate, and operations runbook. Local verification passed; staging and final release modes intentionally require separately supplied evidence (`7296f63`, `d4909e2`).
 - Plan `02-12` is non-autonomous: owner-approved staging evidence and a separately authorized, exact-host, read-only production smoke remain blocking gates.
 - No deployment, migration, provider credential change, production write, registry mutation, or cutover occurred.
 
 **Next Action:**
-Resolve the owner-authoritative invitation approval source before completing Plan 02-09. The approved bootstrap roster is readable from D1, but no policy exists for newly invited addresses; domain inference is prohibited.
+For Plan 02-12, supply the exact staging hostname and the approved target list (Access application/policy, D1 database, Worker route, cache namespace, and required secret names), then approve the resulting staging evidence packet. A later production smoke requires separate exact-host, read-only authorization.
 
 ## Phase 1 Completion Checkpoint (2026-08-25)
 
