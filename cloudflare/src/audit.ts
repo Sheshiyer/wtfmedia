@@ -23,8 +23,22 @@ export type AuditFilters = {
   action?: AuditAction;
   environment?: Environment;
   outcome?: AuditOutcome;
+  role?: OperatorRole;
   before?: string;
+  after?: string;
   limit?: number;
+};
+
+export type AuditLedgerRecord = {
+  timestamp: string;
+  subject: "recorded operator" | "approved pseudonymous subject" | "unknown";
+  role: OperatorRole | "unknown";
+  action: AuditAction;
+  entityType: AuditEntityType;
+  entityId: string;
+  outcome: AuditOutcome;
+  environment: Environment;
+  correlationId: string;
 };
 
 export type AuditExport = {
@@ -119,7 +133,9 @@ function filtersAreClosed(filters: AuditFilters): boolean {
   return (filters.action === undefined || actions.has(filters.action))
     && (filters.environment === undefined || environments.has(filters.environment))
     && (filters.outcome === undefined || outcomes.has(filters.outcome))
+    && (filters.role === undefined || roles.has(filters.role))
     && (filters.before === undefined || isIsoTimestamp(filters.before))
+    && (filters.after === undefined || isIsoTimestamp(filters.after))
     && (filters.limit === undefined || (Number.isInteger(filters.limit) && filters.limit >= 1 && filters.limit <= 100));
 }
 
@@ -131,10 +147,27 @@ export async function queryAuditEvents(db: DB, role: unknown, filters: AuditFilt
   if (filters.action) { clauses.push("action = ?"); values.push(filters.action); }
   if (filters.environment) { clauses.push("environment = ?"); values.push(filters.environment); }
   if (filters.outcome) { clauses.push("outcome = ?"); values.push(filters.outcome); }
+  if (filters.role) { clauses.push("effective_role = ?"); values.push(filters.role); }
   if (filters.before) { clauses.push("occurred_at < ?"); values.push(filters.before); }
+  if (filters.after) { clauses.push("occurred_at >= ?"); values.push(filters.after); }
   values.push(filters.limit ?? 100);
   const result = await db.prepare(`SELECT event_id, occurred_at, actor_operator_id, actor_subject_digest, effective_role, action, entity_type, entity_id, outcome, environment, correlation_id, schema_version, metadata_json, created_at FROM audit_events WHERE ${clauses.join(" AND ")} ORDER BY occurred_at DESC LIMIT ?`).bind(...values).all<AuditEvent>();
   return result.results;
+}
+
+/** Removes actor IDs, digests, metadata, and any unapproved schema fields before presentation. */
+export function projectAuditLedger(rows: readonly AuditEvent[]): AuditLedgerRecord[] {
+  return rows.map((row) => ({
+    timestamp: row.occurred_at,
+    subject: row.actor_operator_id === null ? row.actor_subject_digest ? "approved pseudonymous subject" : "unknown" : "recorded operator",
+    role: row.effective_role ?? "unknown",
+    action: row.action,
+    entityType: row.entity_type,
+    entityId: row.entity_id,
+    outcome: row.outcome,
+    environment: row.environment,
+    correlationId: row.correlation_id,
+  }));
 }
 
 export function csvCell(value: unknown): string {

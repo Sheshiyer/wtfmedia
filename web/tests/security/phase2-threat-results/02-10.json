@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "02-10",
+  "results": {
+    "T-02-27": {
+      "plan": "02-10",
+      "task": 1,
+      "command_id": "8e83b638d5cc6c155380b92d344d9684ff37307d581e24e9bad0607888355576",
+      "command": "cd web && npm run test:browser -- tests/phase2/audit-ui.spec.ts --grep denied",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "934a3314e79720747d477e2efcab5d9b06091e3e93fd5c25823c1f4f70f82f41",
+        "error_output_sha256": "27fb438502845c81215fc70118f8c6c99b3578bcfacc9f1ecc63863194c8e9f8",
+        "output_bytes": 331,
+        "error_output_bytes": 3172
+      },
+      "completed_at": "2026-08-26T11:10:27.378Z",
+      "status": "passed"
+    },
+    "T-02-29": {
+      "plan": "02-10",
+      "task": 1,
+      "command_id": "fff8368c1995ac8c6a126ec2c960e54a6141b98f5280ed33a24250c014b34e45",
+      "command": "cd web && npm run test:unit -- audit-filters",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "2480745eb8d02659dd8a26c8c06e156fdf4d905cf7a5ee7b96970128668e2544",
+        "error_output_sha256": "7af23e6f4a973e24bf0753b870542215f36357a00094385685bb3211a0ee82c7",
+        "output_bytes": 310,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-26T11:10:27.378Z",
+      "status": "passed"
+    },
+    "T-02-28": {
+      "plan": "02-10",
+      "task": 2,
+      "command_id": "00703b8e4b95413193d587d4b202c26fc42200add8943fe0536b0e91d74033d4",
+      "command": "cd web && npm run test:browser -- tests/phase2/audit-ui.spec.ts --grep export",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "18266c3612db77da4a0d24ca21611006fe466511e020c5a8c62acabf064cdcde",
+        "error_output_sha256": "52d0cf2cf4f4b82f3c7d836490b0d49d5ef0eb7036b68ea7131494b5320a89cd",
+        "output_bytes": 334,
+        "error_output_bytes": 3172
+      },
+      "completed_at": "2026-08-26T11:10:38.002Z",
+      "status": "passed"
+    }
+  }
+}

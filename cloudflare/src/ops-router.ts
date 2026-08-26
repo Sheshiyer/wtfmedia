@@ -1,4 +1,4 @@
-import { appendAudit } from "./audit.ts";
+import { appendAudit, exportAuditCsv, projectAuditLedger, queryAuditEvents, type AuditFilters } from "./audit.ts";
 import { createRemoteAccessVerifier, type AccessVerification } from "./auth/access.ts";
 import { resolveOperatorContext, type OperatorContext } from "./auth/operator-context.ts";
 import { decide, policyForPath } from "./auth/policy.ts";
@@ -30,9 +30,32 @@ function denied(): Response {
 
 function protectedPath(pathname: string): string | null {
   if (pathname === "/api/ops/operators") return "/ops/operators";
+  if (pathname === "/api/ops/audit") return "/ops/audit";
   if (pathname === "/ops") return pathname;
   if (pathname === "/ops/operators" || pathname === "/ops/audit") return pathname;
   return null;
+}
+
+function auditFilters(url: URL): AuditFilters {
+  const get = (key: string) => url.searchParams.get(key) ?? undefined;
+  const limit = url.searchParams.get("limit");
+  return { action: get("action") as AuditFilters["action"], outcome: get("outcome") as AuditFilters["outcome"], role: get("role") as AuditFilters["role"], environment: get("environment") as AuditFilters["environment"], before: get("before"), after: get("after"), limit: limit === null ? undefined : Number(limit) };
+}
+
+async function auditApi(request: Request, env: OpsEnv, context: OperatorContext): Promise<Response> {
+  const actor = { id: context.operatorId, role: context.role } as const;
+  const filters = auditFilters(new URL(request.url));
+  if (request.method === "GET") {
+    const rows = await queryAuditEvents(env.DB, context.role, filters);
+    return rows ? Response.json({ records: projectAuditLedger(rows) }, { headers: protectedResponseHeaders }) : denied();
+  }
+  if (request.method !== "POST") return denied();
+  let body: { action?: unknown; filters?: AuditFilters };
+  try { body = await request.json() as { action?: unknown; filters?: AuditFilters }; } catch { return denied(); }
+  if (body.action !== "export") return denied();
+  const exported = await exportAuditCsv(env.DB, actor, context.environment, context.correlationId, body.filters ?? {});
+  if (!exported) return denied();
+  return new Response(exported.body, { headers: { ...protectedResponseHeaders, ...exported.headers } });
 }
 
 async function operatorApi(request: Request, env: OpsEnv, context: OperatorContext): Promise<Response> {
@@ -107,6 +130,7 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
     });
     if (!audited) return denied();
     if (url.pathname === "/api/ops/operators") return operatorApi(request, env, context);
+    if (url.pathname === "/api/ops/audit") return auditApi(request, env, context);
     const origin = new URL(env.OPS_ORIGIN);
     origin.pathname = url.pathname;
     origin.search = url.search;

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { encodeAudit, exportAuditCsv, queryAuditEvents } from "../src/audit.ts";
+import { encodeAudit, exportAuditCsv, projectAuditLedger, queryAuditEvents } from "../src/audit.ts";
 import { purgeExpiredAudit, retentionCutoff, retentionDays } from "../src/scheduled.ts";
 
 const input = { action: "auth_denied", entityType: "operator", entityId: "1", outcome: "denied", environment: "local", correlationId: "corr-12345678", metadata: { reason: "inactive" } };
@@ -33,6 +33,12 @@ test("editor and malformed filters cannot infer the ledger", async () => {
   assert.equal(await queryAuditEvents(db, "editor"), null);
   assert.equal(await queryAuditEvents(db, "admin", { limit: 101 }), null);
   assert.equal(prepared, false);
+});
+
+test("ledger projection removes actor IDs, digests, and metadata", () => {
+  const [row] = projectAuditLedger([{ event_id: "event-12345678", occurred_at: "2026-08-26T00:00:00.000Z", actor_operator_id: 4, actor_subject_digest: "a".repeat(64), effective_role: "admin", action: "operator_invite", entity_type: "operator", entity_id: "invitation", outcome: "succeeded", environment: "local", correlation_id: "corr-12345678", schema_version: 1, metadata_json: '{"scope":"approved"}', created_at: "2026-08-26T00:00:00.000Z" }]);
+  assert.deepEqual(Object.keys(row).sort(), ["action", "correlationId", "entityId", "entityType", "environment", "outcome", "role", "subject", "timestamp"]);
+  assert.equal(row.subject, "recorded operator");
 });
 
 test("export is restricted and appends an export receipt", async () => {
