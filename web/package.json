@@ -18,7 +18,9 @@
     "test:privacy": "node tests/privacy/scan.mjs",
     "test:performance": "lhci autorun --config=./lighthouserc.cjs",
     "test:rollback": "node tests/rollback/verify.mjs",
-    "verify:phase1": "node scripts/verify-phase1.mjs"
+    "verify:phase1": "node scripts/verify-phase1.mjs",
+    "test:phase2:threat": "node scripts/run-phase2-threat.mjs --plan 02-01 --task 1",
+    "merge:phase2:threat": "node scripts/lib/phase2-threat-results.mjs --check-definitions"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "1.1.23",

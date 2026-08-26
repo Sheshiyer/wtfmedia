@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "02-01",
+  "results": {
+    "T-02-03": {
+      "plan": "02-01",
+      "task": 1,
+      "command_id": "9a8e1899e2cc83498954b0b0ed266a627cdc941cf9f85465c2f3496c3a899f9b",
+      "command": "node web/scripts/lib/phase2-threat-results.mjs --check-definitions",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "f060641c085855cc6fa48f1798ad75caab7e2dd2fbc4c6d84c01704bad0bbbf5",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 61,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:07:46.344Z",
+      "status": "passed"
+    },
+    "T-02-01": {
+      "plan": "02-01",
+      "task": 2,
+      "command_id": "1c52389039fe6579eecfeed1a45a509b87e62d24a0406306e21240b80d8d37b3",
+      "command": "cd web && npm run test:unit -- phase2-threat-results",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "49104b4d647ace64cb10381ac7d881001bdee0af6c9b2b1d719e9bfd3102f330",
+        "error_output_sha256": "499f05a6cb13358e7cc57eadd202f6711ecb6ee0546a8bac206fe723019d8958",
+        "output_bytes": 318,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-26T09:07:46.491Z",
+      "status": "passed"
+    },
+    "T-02-02": {
+      "plan": "02-01",
+      "task": 2,
+      "command_id": "39aa9d0535a19ab75f8fb5c065d63ce2bbc6d1200084c9f073f60ab263f048ca",
+      "command": "cd web && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "88b0832b4290988f2d09ab769fb06769d3e79cc952f7b15718ae15ae414a216a",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 10035,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:07:46.491Z",
+      "status": "passed"
+    }
+  }
+}
