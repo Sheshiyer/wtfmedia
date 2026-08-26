@@ -4,6 +4,7 @@ import { resolveOperatorContext, type OperatorContext } from "./auth/operator-co
 import { decide, policyForPath } from "./auth/policy.ts";
 import type { DB } from "./db.ts";
 import { operatorContextDto, protectedResponseHeaders, safeOpsError } from "./dto.ts";
+import { approveOperatorInvitation, changeOperatorLifecycle, inviteApprovedOperator, listOperatorRoster, transferSuperAdmin } from "./operators.ts";
 
 export type OpsEnvironment = "local" | "staging" | "production";
 export type OpsEnv = {
@@ -28,9 +29,34 @@ function denied(): Response {
 }
 
 function protectedPath(pathname: string): string | null {
+  if (pathname === "/api/ops/operators") return "/ops/operators";
   if (pathname === "/ops") return pathname;
   if (pathname === "/ops/operators" || pathname === "/ops/audit") return pathname;
   return null;
+}
+
+async function operatorApi(request: Request, env: OpsEnv, context: OperatorContext): Promise<Response> {
+  const actor = { id: context.operatorId, role: context.role, active: true } as const;
+  if (request.method === "GET") {
+    const operators = await listOperatorRoster(env.DB, actor, context.environment);
+    return operators ? Response.json({ operators }, { headers: protectedResponseHeaders }) : denied();
+  }
+  if (request.method !== "POST") return denied();
+  let body: Record<string, unknown>;
+  try { body = await request.json() as Record<string, unknown>; } catch { return denied(); }
+  const action = body.action;
+  let succeeded = false;
+  if (action === "approve_invitation") succeeded = await approveOperatorInvitation(env.DB, actor, body.email, body.name, context.environment, context.correlationId);
+  if (action === "invite") succeeded = await inviteApprovedOperator(env.DB, actor, body.email, body.role, context.environment, context.correlationId);
+  if (action === "change_role") succeeded = await changeOperatorLifecycle(env.DB, actor, body.email, { role: body.role }, context.environment, context.correlationId);
+  if (action === "set_active") succeeded = await changeOperatorLifecycle(env.DB, actor, body.email, { active: body.active }, context.environment, context.correlationId);
+  if (action === "transfer") {
+    const target = typeof body.email === "string" ? await env.DB.prepare("SELECT id FROM operators WHERE email = ? AND active = 1").bind(body.email.trim().toLowerCase()).first<{ id: number }>() : null;
+    succeeded = target ? await transferSuperAdmin(env.DB, actor, target.id, context.environment, context.correlationId) : false;
+  }
+  if (!succeeded) return denied();
+  const operators = await listOperatorRoster(env.DB, actor, context.environment);
+  return operators ? Response.json({ operators }, { headers: protectedResponseHeaders }) : denied();
 }
 
 function validEnvironment(value: unknown): value is OpsEnvironment {
@@ -80,6 +106,7 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
       actorId: context.operatorId, role: context.role, metadata: { scope: path },
     });
     if (!audited) return denied();
+    if (url.pathname === "/api/ops/operators") return operatorApi(request, env, context);
     const origin = new URL(env.OPS_ORIGIN);
     origin.pathname = url.pathname;
     origin.search = url.search;

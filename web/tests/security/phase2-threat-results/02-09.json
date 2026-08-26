@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "plan": "02-09",
+  "results": {
+    "T-02-25": {
+      "plan": "02-09",
+      "task": 1,
+      "command_id": "df1aa3fd5ac028b440b970338a5ef896b2dce899a7f682e8b6a2fe21d1133e30",
+      "command": "cd web && npm run test:browser -- tests/phase2/operators.spec.ts --grep denied",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "8453e5489e1de7374270f9adcd90cd50e6185e65bb0896430cdf16c8cc27bd03",
+        "error_output_sha256": "048ca7b5a68f10dd3bbc169b64a38cca3163a5f9996b00e750802046db023b81",
+        "output_bytes": 335,
+        "error_output_bytes": 3172
+      },
+      "completed_at": "2026-08-26T11:03:51.011Z",
+      "status": "passed"
+    },
+    "T-02-26": {
+      "plan": "02-09",
+      "task": 2,
+      "command_id": "9f494443dd1c36530455dd8528ea44cb48a9cfdffe4d5d579bdea3bd0847a930",
+      "command": "cd web && npm run test:browser -- tests/phase2/operators.spec.ts --grep transfer",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "1dd896a838dfde1e658e8afbf189f2b774d8fee2c13de80c4e3885b7b7feb83e",
+        "error_output_sha256": "9a117019063d08b1f4aace2d3616ff422ccd6e4694159510a590364e7a18457c",
+        "output_bytes": 512,
+        "error_output_bytes": 3336
+      },
+      "completed_at": "2026-08-26T11:04:00.306Z",
+      "status": "passed"
+    }
+  }
+}

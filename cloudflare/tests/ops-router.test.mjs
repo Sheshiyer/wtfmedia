@@ -14,6 +14,7 @@ function db() {
           return sql.includes("SELECT id") ? { id: 7, email: "operator@example.test", role: "admin", active: 1 } : null;
         },
         async run() { return {}; },
+        async all() { return { results: [{ display_name: "Approved Person", email: "approved@example.test", role: "editor", active: 1, updated_at: "2026-08-26T00:00:00.000Z" }] }; },
       };
     },
   };
@@ -27,6 +28,14 @@ test("direct, spoofed, wrong-host, and unknown operator paths deny without origi
     assert.equal(response.status, 404);
   }
   assert.equal(calls, 0);
+});
+
+test("verified operators API returns only the allowlisted roster projection", async () => {
+  const response = await handleOpsRequest(new Request("https://ops.local.test/api/ops/operators", { headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-12345678" } }), { ...env, DB: db() }, {
+    verifyAccess: async () => ({ ok: true, email: "operator@example.test" }),
+  });
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { operators: [{ name: "Approved Person", email: "approved@example.test", role: "editor", active: true, changedAt: "2026-08-26T00:00:00.000Z" }] });
 });
 
 test("verified active policy-approved context is the only origin handoff", async () => {

@@ -8,7 +8,7 @@ import { after, before, test } from "node:test";
 const root = new URL("..", import.meta.url).pathname;
 const persistTo = mkdtempSync(join(tmpdir(), "wtfmedia-phase2-d1-"));
 const database = join(persistTo, "ops.sqlite");
-const migrations = ["0001_ops_foundation.sql", "0002_bootstrap_roster.sql", "0003_super_admin_transfer_guard.sql"];
+const migrations = ["0001_ops_foundation.sql", "0002_bootstrap_roster.sql", "0003_super_admin_transfer_guard.sql", "0004_operator_invitation_approvals.sql"];
 
 function sql(input) {
   return spawnSync("sqlite3", [database], {
@@ -53,6 +53,14 @@ test("fresh local migrations are repeatable", () => {
   assert.match(listing, /0001_ops_foundation/);
   assert.match(listing, /0002_bootstrap_roster/);
   assert.match(listing, /0003_super_admin_transfer_guard/);
+  assert.match(listing, /0004_operator_invitation_approvals/);
+});
+
+test("invitation approvals are explicit, normalized, and reusable only before consumption", () => {
+  succeeds("INSERT INTO operator_invitation_approvals (email, display_name, approved_by_operator_id) VALUES ('approved@example.test', 'Approved Person', 1);");
+  fails("INSERT INTO operator_invitation_approvals (email, display_name, approved_by_operator_id) VALUES ('NOT-NORMALIZED@example.test', 'No', 1);");
+  succeeds("UPDATE operator_invitation_approvals SET consumed_at = '2026-08-26T00:00:00.000Z' WHERE email = 'approved@example.test';");
+  assert.equal(succeeds("SELECT COUNT(*) FROM operator_invitation_approvals WHERE email = 'approved@example.test' AND consumed_at IS NOT NULL;").trim(), "1");
 });
 
 test("super_admin invariant rejects zero or multiple active seats", () => {

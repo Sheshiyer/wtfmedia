@@ -1,12 +1,12 @@
 export const roles = ["super_admin", "admin", "editor"] as const;
 export const resources = ["control_room", "operators", "audit", "chat"] as const;
-export const actions = ["read", "write", "export", "manage", "transfer"] as const;
+export const actions = ["read", "write", "export", "manage", "transfer", "approve"] as const;
 export type Role = typeof roles[number];
 export type Resource = typeof resources[number];
 export type Action = typeof actions[number];
 
 const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
-  super_admin: new Set(["control_room:read", "operators:read", "operators:manage", "operators:transfer", "audit:read", "audit:export", "chat:read", "chat:write"]),
+  super_admin: new Set(["control_room:read", "operators:read", "operators:manage", "operators:transfer", "operators:approve", "audit:read", "audit:export", "chat:read", "chat:write"]),
   admin: new Set(["control_room:read", "operators:read", "operators:manage", "audit:read", "audit:export", "chat:read", "chat:write"]),
   editor: new Set(["control_room:read", "chat:read", "chat:write"]),
 };

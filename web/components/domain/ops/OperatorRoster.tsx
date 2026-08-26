@@ -1,0 +1,14 @@
+export type OperatorRosterRow = {
+  name: string;
+  email: string;
+  role: "admin" | "editor" | "super_admin";
+  active: boolean;
+  changedAt: string | null;
+};
+
+export function OperatorRoster({ rows, state = "ready" }: { rows: readonly OperatorRosterRow[]; state?: "loading" | "ready" | "unavailable" | "measured-zero" }) {
+  if (state === "loading") return <section aria-labelledby="operator-roster-title" className="mt-8 border-2 border-foreground bg-surface-raised p-5"><h2 id="operator-roster-title" className="font-heading text-2xl">operator roster</h2><p className="mt-3">checking the protected operator service…</p></section>;
+  if (state === "unavailable") return <section aria-labelledby="operator-roster-title" className="mt-8 border-2 border-foreground bg-surface-raised p-5"><h2 id="operator-roster-title" className="font-heading text-2xl">operator roster unavailable</h2><p className="mt-3">operator records are unavailable right now. no roster details were loaded.</p><a href="/ops/operators" className="mt-5 inline-block min-h-11 border-2 border-foreground px-4 py-3 font-semibold">retry</a></section>;
+  if (state === "measured-zero") return <section aria-labelledby="operator-roster-title" className="mt-8 border-2 border-foreground bg-surface-raised p-5"><h2 id="operator-roster-title" className="font-heading text-2xl">operator roster</h2><p className="mt-3">no operators match this recorded view.</p></section>;
+  return <section aria-labelledby="operator-roster-title" className="mt-8"><h2 id="operator-roster-title" className="font-heading text-2xl">operator roster</h2><div className="mt-4 hidden overflow-x-auto border-2 border-foreground lg:block"><table className="w-full border-collapse text-left"><thead className="bg-surface-subtle text-label"><tr><th scope="col" className="p-3">name</th><th scope="col" className="p-3">email</th><th scope="col" className="p-3">role</th><th scope="col" className="p-3">access</th><th scope="col" className="p-3">recorded change</th></tr></thead><tbody>{rows.map((row) => <tr key={row.email} className="border-t-2 border-foreground"><td className="p-3 font-semibold">{row.name}</td><td className="p-3">{row.email}</td><td className="p-3">{row.role}</td><td className="p-3">{row.active ? "active" : "inactive"}</td><td className="p-3">{row.changedAt ?? "unknown"}</td></tr>)}</tbody></table></div><ul className="mt-4 grid gap-3 lg:hidden">{rows.map((row) => <li key={row.email} className="border-2 border-foreground bg-surface-raised p-4"><dl className="grid gap-3"><div><dt className="text-label">name</dt><dd>{row.name}</dd></div><div><dt className="text-label">email</dt><dd>{row.email}</dd></div><div><dt className="text-label">application role</dt><dd>{row.role}</dd></div><div><dt className="text-label">access</dt><dd>{row.active ? "active" : "inactive"}</dd></div><div><dt className="text-label">recorded change</dt><dd>{row.changedAt ?? "unknown"}</dd></div></dl></li>)}</ul></section>;
+}
