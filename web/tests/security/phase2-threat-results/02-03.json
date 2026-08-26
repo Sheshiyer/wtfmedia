@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "plan": "02-03",
+  "results": {
+    "T-02-07": {
+      "plan": "02-03",
+      "task": 1,
+      "command_id": "c006aa39ea2276dd952b87a23c8fbbaaa8c8a92e48e913890d8623b4befbb939",
+      "command": "cd cloudflare && npm test -- access-auth --grep forged",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "78dbc69ec8da8d4197442b6a4e0c9e5696e0b4940bc06413d7937e83b0373f77",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 863,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:25:09.675Z",
+      "status": "passed"
+    },
+    "T-02-08": {
+      "plan": "02-03",
+      "task": 1,
+      "command_id": "9ddeb36be42cdabfe60765dafdca9465c4f96fcceacdeeeac4771edc47e9caa4",
+      "command": "cd cloudflare && npm test -- access-auth --grep header",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "5eb50eb5bbb36666a307224a795cd0d138828267ea7b42d5bc6e8d4e0323d43d",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 863,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:25:09.675Z",
+      "status": "passed"
+    }
+  }
+}
