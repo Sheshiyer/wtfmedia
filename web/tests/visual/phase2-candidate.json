@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "candidate",
+  "synthetic": true,
+  "viewports": [320, 768, 1440],
+  "states": ["control-room", "operators-unavailable", "audit-empty", "recovery"],
+  "approval_required": true
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "02-11",
+  "results": {
+    "T-02-30": {
+      "plan": "02-11",
+      "task": 1,
+      "command_id": "99b538b4e701a37edc39bdbc046ceb9191b9448836cf8691e5bf17293d9acf42",
+      "command": "cd web && npm run test:browser -- tests/phase2/authorization-matrix.spec.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "ef880d86485db3323687283f8c1d27c649137d6c25166d66763e42b4825c3e52",
+        "error_output_sha256": "4ad01cc0f87682581783ca72dcd6ead4b7fa705134a773c8c700974bc14025f6",
+        "output_bytes": 361,
+        "error_output_bytes": 3172
+      },
+      "completed_at": "2026-08-26T11:13:05.433Z",
+      "status": "passed"
+    },
+    "T-02-31": {
+      "plan": "02-11",
+      "task": 1,
+      "command_id": "32a5c3b564aacac7ab89b5546fc854e71a4a5eafb21dd6a924347f2710456f77",
+      "command": "cd web && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "712312d7a103367482c17d7e2b3944a03a93864286eb6d6a5308b1f6a693e1f1",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 12088,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T11:13:05.433Z",
+      "status": "passed"
+    },
+    "T-02-32": {
+      "plan": "02-11",
+      "task": 2,
+      "command_id": "f4a8e531cbeef5d62bd2d2d3bdeddee21f1e581195c5fb855b8f2471d6026781",
+      "command": "cd web && npm run verify:phase2 -- --negative-fixtures",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "af21113e3ddf44cee8411b9f0d3e56d4d8c6d2faa36c7f5346cd454744f43f11",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 158,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T11:13:16.589Z",
+      "status": "passed"
+    }
+  }
+}
