@@ -58,12 +58,10 @@ export function checkCapability(
   resource: Resource | string,
   action: Action | string,
 ): boolean {
-  if (!(role in CAPABILITIES) || !(resource in CAPABILITIES.super_admin)) return false;
-  const roleCaps = CAPABILITIES[role as Role];
-  if (!roleCaps) return false;
-  const resourceCaps = roleCaps[resource];
-  if (!resourceCaps) return false;
-  return resourceCaps.includes(action);
+  if (typeof role !== "string" || !(Object.keys(CAPABILITIES) as string[]).includes(role)) return false;
+  if (!(Object.keys(CAPABILITIES.super_admin) as string[]).includes(resource)) return false;
+  if (!["read", "write", "delete", "export", "invite", "deactivate", "reactivate"].includes(action)) return false;
+  return CAPABILITIES[role as Role][resource as Resource]?.includes(action as Action) ?? false;
 }
 
 export function canAccessResource(

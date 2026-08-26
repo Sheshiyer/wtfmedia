@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test:unit": "vitest run --project=unit",
+    "test:unit": "node scripts/test-unit.mjs",
     "test:contracts": "vitest run --project=contracts",
     "test:components": "vitest run --project=storybook",
     "build:storybook": "storybook build",
@@ -29,7 +29,8 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-markdown": "9.0.1",
-    "remark-gfm": "4.0.0"
+    "remark-gfm": "4.0.0",
+    "server-only": "0.0.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",

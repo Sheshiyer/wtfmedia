@@ -4,7 +4,7 @@ import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { defineConfig } from "vitest/config";
 
 const root = path.resolve(import.meta.dirname);
-const alias = { "@": root };
+const alias = { "@": root, "server-only": path.join(root, "tests/support/server-only.ts") };
 
 export default defineConfig({
   oxc: { jsx: { runtime: "automatic" } },

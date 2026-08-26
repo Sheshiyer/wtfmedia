@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "02-07",
+  "results": {
+    "T-02-19": {
+      "plan": "02-07",
+      "task": 2,
+      "command_id": "59efd8c912299626a65424859953b15f94119aa279db2ba3371cb3542169e3f8",
+      "command": "cd web && npm run test:unit -- operator-lifecycle --grep redirect",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "b46cc8892f6b7c79e556155b5970295740ffc8fee0227b491c2a0cfe9079d114",
+        "error_output_sha256": "495456de40975319ff91b50e4cc918f43f0c18dd3be12e25ca40a6f3fb1aaace",
+        "output_bytes": 344,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-26T10:21:52.780Z",
+      "status": "passed"
+    },
+    "T-02-20": {
+      "plan": "02-07",
+      "task": 2,
+      "command_id": "d1cb4d788df9651e9659793f5acff9cca850dc9b3d597f8c3fb7fe77eecee035",
+      "command": "cd web && npm run test:browser -- tests/phase2/operator-lifecycle.spec.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "cfd4928c9616a39f4ec864695fa43d5a43d077d5a98c809dea0792e5433a2bc3",
+        "error_output_sha256": "bc2750bff7ff285dcfad99f44abe3902517ade886481cde2f4fe74bba60852a9",
+        "output_bytes": 455,
+        "error_output_bytes": 3336
+      },
+      "completed_at": "2026-08-26T10:21:52.780Z",
+      "status": "passed"
+    },
+    "T-02-21": {
+      "plan": "02-07",
+      "task": 2,
+      "command_id": "c46182e046cf5d40b27af1b90cb50518b158e6a39f6637c79cb0712b5013dc80",
+      "command": "cd web && npm run test:browser -- tests/phase2/operator-lifecycle.spec.ts --grep logout",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "48a3bc0484b238ef30a95e758dd8df63186be6d95ddfcbc03839f96f4ce94942",
+        "error_output_sha256": "3e792a7b2e1217b15183556d200eed16619d1e8c060d49903be16e485d2c2b63",
+        "output_bytes": 336,
+        "error_output_bytes": 3172
+      },
+      "completed_at": "2026-08-26T10:21:52.780Z",
+      "status": "passed"
+    }
+  }
+}
