@@ -38,5 +38,5 @@ test("transfer is super-admin-only, atomic, audited, and checks the final invari
   assert.equal(await transferSuperAdmin(db, { id: 1, role: "admin", active: true }, 2, "local", "corr-12345678"), false);
   assert.equal(await transferSuperAdmin(db, { id: 1, role: "super_admin", active: true }, 2, "local", "corr-12345678"), true);
   assert.ok(statements.some((entry) => entry.batch === 5));
-  assert.ok(statements.some((entry) => entry.sql?.includes("super_admin_handoff")));
+  assert.ok(statements.some((entry) => entry.args?.includes("super_admin_handoff")));
 });

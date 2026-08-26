@@ -31,6 +31,21 @@
       },
       "completed_at": "2026-08-26T10:04:17.450Z",
       "status": "passed"
+    },
+    "T-02-15": {
+      "plan": "02-05",
+      "task": 2,
+      "command_id": "a87356cec7f77a61e4e8d502f514f59b672216128616cc52555d0d8288e0c38e",
+      "command": "cd cloudflare && npm test -- audit-ledger --grep purge",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "3acbe5cf7a828e6a0ace473a9cdc1853a55245ab2218f5900f8f48bb4f3f52b0",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 1173,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T10:06:25.437Z",
+      "status": "passed"
     }
   }
 }
