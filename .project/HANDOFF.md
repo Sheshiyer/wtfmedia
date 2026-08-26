@@ -10,11 +10,12 @@
 - Static validation covers all 15 Phase 2 requirement IDs, all 26 locked context decisions, 24 executable tasks, and 35 uniquely owned threat definitions.
 - Plan 02-01 established the immutable 35-threat ledger, empty fail-closed aggregate schema, and privacy-safe command-bound evidence fragments (`f4853e3`, `5be9f74`, `6278dad`).
 - `cd web && npm run verify:phase1` passed after the stale completed-state test contract was reconciled (`2c080e0`); no Phase 1 behavior changed.
+- Plan 02-02 applied and listed the portable D1 migrations locally with Wrangler 4.95.0; the approved roster, typed audit envelope, and symbolic environment contract are checkpointed (`f49efed`, `ae4d5b6`, `196eec5`, `5fbccee`).
 - Plan `02-12` is non-autonomous: owner-approved staging evidence and a separately authorized, exact-host, read-only production smoke remain blocking gates.
 - No deployment, migration, provider credential change, production write, registry mutation, or cutover occurred.
 
 **Next Action:**
-Execute `02-02-PLAN.md`; retain the Phase 2 runner as the only accepted path for new security evidence.
+Execute Wave 3 plans (`02-03` Access verification, `02-04` policy/ownership, and `02-05` audit lifecycle); retain the Phase 2 runner as the only accepted path for new security evidence.
 
 ## Phase 1 Completion Checkpoint (2026-08-25)
 
