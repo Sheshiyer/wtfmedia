@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "phase": "02",
+  "threat_count": 35,
+  "sections": [
+    "source_coverage",
+    "build",
+    "d1",
+    "access_d1_matrix",
+    "policy_dto",
+    "lifecycle",
+    "audit",
+    "environment_cache",
+    "ui",
+    "rollback_runbook",
+    "privacy",
+    "staging_approval",
+    "production_smoke"
+  ],
+  "results": {}
+}
