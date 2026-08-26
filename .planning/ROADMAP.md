@@ -43,9 +43,22 @@ source-access, language, evaluation, and workflow blockers below are resolved.
 
 | Input or decision | Owner | Blocks |
 |---|---|---|
-| Deployment architecture: approved cloud versus ZTV plus NAS, with specs and access | Nikhai + Shesh | Phase 2 architecture and all runtime phases |
-| Domain selection and launch authority | WTF | Production launch, not Phase 1 proof-harness execution |
-| Identity provider, team roster, final role/capability matrix | WTF + owner | Phase 2 |
+| Deployment architecture | Existing Vercel public application plus the existing Cloudflare edge estate | WTF | Resolved |
+| Protected operator hostname and routing boundary | Cloudflare-controlled operator endpoint enforces Access and routes to the existing Vercel application; public traffic remains unchanged | WTF | Resolved |
+| Authentication | Cloudflare Zero Trust Access; owner clarification supersedes the unpersisted Clerk decision | WTF | Resolved |
+| Operator and audit persistence | Cloudflare D1 | WTF | Resolved |
+| Temporary Cloudflare account authority | Personal `9d9d` Wrangler account may own Phase 2 resources; keep repository artifacts portable and all credentials/account identifiers out of source control | WTF | Resolved for Phase 2; final account migration deferred |
+| Identity-to-operator mapping | Access-authenticated normalized email must match an active D1 operator with a recognized `super_admin`, `admin`, or `editor` role; missing, inactive, and unknown-role records fail closed | WTF | Resolved |
+| Session recovery behavior | Expiry, revocation, or operator deactivation discards protected client state immediately; recovery reveals no protected data, preserves only a validated intended `/ops` destination, and rechecks Access plus D1 before restoring access | WTF | Resolved |
+| Authoritative session and sign-out | Verified Cloudflare Access token is the only authentication session; no WTF authentication cookie; every protected server request rechecks active D1 authorization; sign-out clears protected state and uses Access logout | WTF | Resolved |
+| Capability enforcement | One shared deny-by-default server policy governs pages, APIs, queries, exports, record/field projections, safe errors, and cache boundaries; UI visibility never grants authority | WTF | Resolved |
+| Bootstrap super administrator | Single temporary `super_admin` seat belongs to the current personal 9d9d account owner and may move only through an atomic audited handoff | WTF | Resolved |
+| Team roster and application-role mapping | 9d9d owner email is `super_admin`; Aditi Raj is `admin`; Sai Date, Naisthika Rathod, Amal Vinayan, Akash Pandey, and Yash Majithia are `editor`; Yash's supplied job title and screenshot completeness remain unknown metadata | WTF | Resolved for visible-roster seeding |
+| Audit event coverage and privacy | Append-only D1 ledger covers authentication outcomes, expiry/logout, protected searches/views/exports, operator/role/settings changes, and super-admin handoffs; only allowlisted metadata and correlation IDs are stored, never tokens, raw queries, prompts, responses, or private payloads | WTF | Resolved |
+| Audit retention and visibility | 365 days production, 30 days staging, ephemeral local; only `super_admin` and `admin` may view/export; every export and automated purge is audited; no silent archival | WTF | Resolved |
+| Environment and data isolation | Separate D1 databases, Access applications/policies, secrets, and cache namespaces for local, staging, and production; never copy production data downward; promote repository-owned migrations forward; previews have no protected backend unless explicitly bound | WTF | Resolved |
+| Truthful initial Control Room shell | First authenticated `/ops` release shows current environment, workspace, effective role, authorized navigation, live-derived service status, and one dominant setup action; missing systems use explicit unknown/offline/unavailable/permission-denied states, never fabricated health or misleading zeroes | WTF | Resolved |
+| Phase 2 production release gate | Staging proves the full identity/role matrix, lifecycle, isolation, audit, environment, accessibility, responsive, rollback, and runbook surfaces through deterministic CI; owner approves the evidence packet; production smoke is read-only; failed or unknown gates block release | WTF | Resolved |
 | Both-channel YouTube Data/Analytics access, approved episode inventory, IP/language/content-bucket tagging | WTF | Phases 3–4 |
 | Uncut assets with authoritative episode mapping and storage/access policy | WTF | Phases 3–4 |
 | Hindi source/dubbing/search decision | WTF | Phases 3–4 |
@@ -148,16 +161,28 @@ the prerequisite gate or implement an honest unavailable state.
 **Goal**: Approved WTF operators enter a dependable `/ops` shell through managed identity while server-enforced policy, environment separation, audit logs, observability, and secret boundaries fail closed.
 **Depends on**: Phase 1 acceptance plus deployment, identity, team-roster, and capability-matrix decisions
 **Execution authorization**: Authorized next; dependent decisions must resolve before implementation
-**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-06, AUTH-07, AUTH-08, AUTH-09, AUTH-10, QUAL-07, QUAL-09, QUAL-10, QUAL-12
+**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-06, AUTH-07, AUTH-08, AUTH-09, AUTH-10, QUAL-07, QUAL-09, QUAL-10, QUAL-12, QUAL-13
 **Success Criteria**:
 
-  1. WTF-only accounts are invite-controlled, deactivatable, and server-authorized; `admin` and `editor` differ while later roles remain non-privileged shells.
+  1. WTF-only accounts are invite-controlled, deactivatable, and server-authorized; exactly one transferable `super_admin` seat exists, `admin` and `editor` differ, and later roles remain non-privileged shells.
   2. Anonymous, expired, cross-role, tampered, cache-mixed, and escalated requests reveal no protected entity existence.
   3. Public and operator DTOs, caches, projections, errors, and client state remain separate.
-  4. Logins, searches, views, exports, and admin actions are attributable; structured logs and managed rotatable secrets contain no prohibited payloads.
+  4. Authentication, protected-use, export, purge, and administrative events are attributable through privacy-minimized audit records with approved environment-specific retention and administrative visibility.
   5. Development, staging, and production boundaries plus migration and runbook contracts are explicit before feature data activates.
+  6. The first authenticated Control Room exposes only authorized navigation and observed status, makes environment, workspace, and effective role visible, and represents missing systems explicitly without fabricated health or misleading zeroes.
+  7. Production remains blocked until deterministic staging checks prove the approved security, lifecycle, isolation, audit, environment, accessibility, responsive, rollback, and runbook matrix; the owner approves the evidence packet; a read-only production smoke test passes; and no gate is failed or unknown.
 
-**Plans**: TBD
+**Plans**: 12 executable plans across 8 waves
+
+- **Wave 1**: `02-01` — Establish the Phase 2 evidence and threat harness.
+- **Wave 2**: `02-02` — Define portable D1 migrations, bootstrap data, and environment contracts.
+- **Wave 3**: `02-03`, `02-04`, `02-05` — Implement Access identity, deny-by-default policy, and typed audit foundations.
+- **Wave 4**: `02-06` — Compose the protected edge router, projections, audit, and cache isolation.
+- **Wave 5**: `02-07` — Replace the unsigned local-session draft with the server-only DAL and recovery lifecycle.
+- **Wave 6**: `02-08`, `02-09`, `02-10` — Build the approved Control Room, Operators, and Audit surfaces.
+- **Wave 7**: `02-11` — Assemble aggregate authorization, privacy, accessibility, responsive, rollback, runbook, and CI gates.
+- **Wave 8**: `02-12` — Run the non-autonomous staging approval and separately authorized read-only production smoke.
+
 **UI hint**: yes
 
 ### Phase 3: Episode Ingestion + Provenance Spine
@@ -299,7 +324,7 @@ the prerequisite gate or implement an honest unavailable state.
 
 | Phase | Plans Complete | Status | Completed |
 |---|---:|---|---|
-| 1. Compatibility + Component Proof Harness | 4/23 | In Progress | - |
+| 1. Compatibility + Component Proof Harness | 23/23 | Complete | ✓ |
 | 2. Platform Foundation + Authenticated Policy Boundary | 0/TBD | Authorized / queued after Phase 1 and prerequisite decisions | - |
 | 3. Episode Ingestion + Provenance Spine | 0/TBD | Planned / inactive | - |
 | 4. Podcast Brain Search + Dual Playback | 0/TBD | Planned / inactive | - |

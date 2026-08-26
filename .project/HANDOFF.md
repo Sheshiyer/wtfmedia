@@ -1,5 +1,95 @@
 # Project handoff
 
+## Phase 2 Planning Checkpoint (2026-08-26)
+
+**Status:** PLANNED — implementation not started
+
+**Evidence:**
+- The approved `02-UI-SPEC.md` remains the visual and interaction contract at commit `5f5f1ad`.
+- The superseded umbrella `02-PLAN.md` was replaced by 12 executable plans (`02-01` through `02-12`) across eight dependency-ordered waves.
+- Static validation covers all 15 Phase 2 requirement IDs, all 26 locked context decisions, 24 executable tasks, and 35 uniquely owned threat definitions.
+- Plan `02-12` is non-autonomous: owner-approved staging evidence and a separately authorized, exact-host, read-only production smoke remain blocking gates.
+- No deployment, migration, provider credential change, production write, registry mutation, or cutover occurred during planning.
+
+**Next Action:**
+Execute `02-01-PLAN.md` only, establishing the evidence harness before any security-sensitive implementation.
+
+## Phase 1 Completion Checkpoint (2026-08-25)
+
+**Status:** COMPLETE
+
+**Evidence:**
+- 23/23 plans executed (T-01-01 through T-01-70 all passed)
+- 72/72 threat definitions in final aggregate (`web/tests/security/phase1-threat-results.json`)
+- Unqualified `cd web && npm run verify:phase1` exit 0 with all 12 sections green
+- Owner approved visual baselines (5 decisions, 2026-08-25)
+- Migrated UI variant active (`publicUiVariant()` default = migrated)
+- Legacy rollback path retained and tested (38/38 tests pass)
+- 17 approved snapshots promoted to `web/tests/visual/public-routes.spec.ts-snapshots/`
+
+**Next Action:**
+Run `$gsd-plan-phase 2` to replace the superseded umbrella draft with
+executable plans (02-01 onward) using the completed Phase 2 context.
+
+## Phase 2 Prerequisite Decisions (RESOLVED 2026-08-25)
+
+1. **Deployment architecture** — Existing Vercel public application plus the existing Cloudflare edge estate — Resolved
+2. **Authentication** — Cloudflare Zero Trust Access — Resolved by owner clarification on 2026-08-25; supersedes the unpersisted Clerk decision
+3. **Database** — Cloudflare D1 for operator and audit persistence — Resolved by owner clarification on 2026-08-25
+4. **Application roles** — `super_admin` (single transferable ownership seat), `admin` (operational administration), and `editor` (read + limited write) — Resolved
+5. **Capability matrix** — Deny-by-default; editor: episodes/connections/chat/analytics read, chat write; no user management — Resolved
+6. **Protected operator boundary** — A Cloudflare-controlled operator endpoint will enforce Access and route to the existing Vercel application — Resolved by owner clarification on 2026-08-25
+7. **Temporary Cloudflare account authority** — The personal `9d9d` Wrangler account may own Phase 2 Cloudflare resources for now — Resolved by owner clarification on 2026-08-25
+8. **Account portability** — Repository-owned schema, migrations, binding names, policy, and verification must remain portable; credentials and numeric account identifiers stay outside source control — Required Phase 2 constraint
+9. **Final account migration** — Port the Cloudflare resources from `9d9d` to the final owner account later — Deferred to a separate owner-approved migration task
+10. **Identity-to-operator mapping** — Cloudflare Access authenticates the normalized email; D1 must contain a matching active operator with a recognized `super_admin`, `admin`, or `editor` role. Missing, inactive, or unknown-role records are denied — Resolved by owner confirmation on 2026-08-25 and extended on 2026-08-26
+11. **Expiry, revocation, and deactivation recovery** — Immediately discard protected client state, reveal no protected data in the recovery screen, retain only a validated intended `/ops` destination, and recheck both Access authentication and D1 authorization before restoring access — Resolved by owner confirmation on 2026-08-25
+12. **Authoritative session and sign-out** — The verified Cloudflare Access token is the only authentication session; WTF issues no separate authentication cookie. Every protected server request rechecks the active D1 role. Sign-out clears protected client state and proceeds through Cloudflare Access logout — Resolved by owner confirmation on 2026-08-26
+13. **Capability enforcement** — One shared deny-by-default server policy governs pages, APIs, queries, exports, record/field projection, errors, and cache boundaries. UI visibility mirrors policy but never grants authority; unknown combinations deny without revealing protected details — Resolved by owner confirmation on 2026-08-26
+14. **Bootstrap super administrator** — `sheshnarayan.iyer@gmail.com`, the current personal `9d9d` account owner, holds the single temporary `super_admin` seat. It may be handed off later through an atomic, audited transfer that never leaves zero or multiple active super administrators — Resolved by owner direction on 2026-08-26
+15. **Initial visible-roster access mapping** — Aditi Raj is `admin`; Sai Date, Naisthika Rathod, Amal Vinayan, Akash Pandey, and Yash Majithia are `editor`; the 9d9d owner email remains `super_admin` — Resolved by owner confirmation on 2026-08-26
+16. **Append-only audit policy** — D1 records authentication outcomes, expiry/logout, protected searches/views/exports, operator and role changes, settings changes, and super-admin handoffs using allowlisted metadata plus correlation IDs. Tokens, raw queries, prompts, responses, and private payloads are prohibited — Resolved by owner confirmation on 2026-08-26
+17. **Audit retention and visibility** — Production retains audit records for 365 days; staging retains them for 30 days; local audit data is ephemeral. Only `super_admin` and `admin` may view or export records. Every export and automated purge is audited, and expired records are deleted without silent archival — Resolved by owner confirmation on 2026-08-26
+18. **Environment and data isolation** — Local, staging, and production use separate D1 databases, Cloudflare Access applications/policies, secrets, and cache namespaces. Production data is never copied to lower environments. Repository-owned migrations promote forward through environments, and preview deployments receive no protected backend unless explicitly bound — Resolved by owner confirmation on 2026-08-26
+19. **Truthful initial Control Room shell** — The first authenticated `/ops` release shows the current environment, workspace, effective operator role, authorized navigation, live-derived service status, and one dominant setup action. Missing systems render explicit unknown, offline, unavailable, or permission-denied states; they never fabricate health or substitute misleading zeroes — Resolved by owner confirmation on 2026-08-26
+20. **Fail-closed production release gate** — Production remains blocked until staging proves the complete anonymous/expired/inactive/editor/admin/`super_admin` authorization matrix; Access and D1 recovery/logout; tampering, DTO, and cache isolation; audit coverage, retention, export, and purge; environment and secret separation; keyboard, focus, accessibility, and responsive behavior; and rollback plus runbook rehearsal. Deterministic checks block CI, the owner approves the staging evidence packet, the production smoke test is read-only, and every failed or unknown gate blocks release — Resolved by owner confirmation on 2026-08-26
+
+**Superseded draft warnings:** The untracked `web/lib/auth/session.ts` creates
+an unsigned JSON `wtf_session` cookie. The draft D1 schema omits `super_admin`,
+accepts unrestricted JSON audit metadata, and hard-codes 90-day retention.
+These conflict with Decisions 12, 14, 16, and 17 and are not approved
+implementation authority. Executable Phase 2 plans must replace them.
+
+## Phase 2 Owner-Supplied Roster Evidence (2026-08-26)
+
+The owner supplied a cropped messaging screenshot. The table records only the
+six visible entries; it does not claim the screenshot contains the complete
+team. Job titles remain distinct from application authorization roles.
+
+| Person | Email | Supplied job title | Phase 2 application role |
+|---|---|---|---|
+| 9d9d account owner | `sheshnarayan.iyer@gmail.com` | Temporary infrastructure owner | `super_admin` |
+| Aditi Raj | `aditi@allthingswtf.com` | Production Manager | `admin` |
+| Sai Date | `sai@allthingswtf.com` | Senior Designer | `editor` |
+| Naisthika Rathod | `naisthika@allthingswtf.com` | Production Associate | `editor` |
+| Amal Vinayan | `amal@allthingswtf.com` | Motion designer | `editor` |
+| Akash Pandey | `akash@allthingswtf.com` | Post production manager | `editor` |
+| Yash Majithia | `yash.majithia@nksqr.com` | Unknown — not visible in supplied screenshot | `editor` |
+
+## Phases 3–10 Status
+
+**Authorization:** Planned / inactive. Phases 3–10 remain planned but inactive until Phases 1–2 are accepted and explicit owner authorization is recorded for the next phase.
+
+## Technical Notes
+
+**Variant selector:** `publicUiVariant()` in `web/lib/public/public-ui-variant.ts`. Default: `migrated`. Legacy rollback: `WTF_PUBLIC_UI_VARIANT=legacy`. Server-only; never serialized to client.
+
+**Performance budgets:** Approved in `web/tests/performance/phase1-budgets.json` (Plan 01-07). 11 metrics. Enforcement: `web/scripts/capture-phase1-performance.mjs --check`. LHCI collection: `npm run test:performance` runs `lhci collect && lhci upload` (no assert phase).
+
+**Visual baselines:** 17 approved snapshots (4 routes × 3 viewports × 4 states). Stability loop in `captureVisual()` ensures deterministic captures. Broken-image alt text handled via CSS `img { color: transparent }` in visual tests.
+
+**Aggregate verifier:** `web/scripts/verify-phase1.mjs` runs 12-section fail-fast sequence. `web/scripts/lib/phase1-threat-results.mjs` validates fragments with correction-ledger tolerance. `web/scripts/merge-phase1-threat-results.mjs` produces final 72-definition aggregate. CI gate: `.github/workflows/phase1.yml` runs `npm run verify:phase1`.
+
 ## Checkpoint
 
 - Status: `draft-held`
@@ -95,6 +185,28 @@ git status --short
 No registry, capsule, relocation, session, or Paseo mutation was performed.
 The owner-authorized Cloudflare shadow resources and Worker deployment above
 are the only external infrastructure mutations in this checkpoint.
+
+## 2026-08-25 Plan 01-18 aggregate + rollback + candidate checkpoint
+
+- Plan 01-18 now has passing threat evidence for T-01-55, T-01-56, and T-01-57.
+- Task 1 (rollback rehearsal): Both legacy and migrated variants pass all 19 tests per variant (38 total) across all 4 protected routes; protected data files (episodes.json, connections.json, vectors.json) verified unchanged via SHA-256.
+- Task 2 (aggregate verifier + CI): `web/scripts/verify-phase1.mjs` implements a static 12-section fail-fast sequence; `web/scripts/lib/phase1-threat-results.mjs` provides read-only fragment validation with correction-ledger support and legacy fragment tolerance; `.github/workflows/phase1.yml` runs `npm run verify:phase1` on Ubuntu/Node 22 with Playwright Chromium.
+- Task 3 (candidate review packet): `web/tests/visual/phase1-candidate.json` assembled with 17 visual candidates across 4 routes, 3 viewports (320/768/1440), and 4 states (default, drawer-open, empty, response); candidate check-merge validates 62 results from 20 completed plans; privacy scan reports 0 violations across 138 files.
+- Threat ledger: 72 total definitions, 62 non-exempt, 10 exempted (T-01-55 through T-01-64).
+- No commit, deployment, owner visual approval, cutover, external-service mutation, registry change, or provider change occurred. The broader dirty worktree remains preserved.
+
+### Next action
+
+Execute Plan 01-19 (owner visual approval). The candidate packet is ready for owner review at 320/768/1440 viewports. Repository Phase 2 remains gated behind complete Phase 1 acceptance.
+
+## 2026-08-24 Plan 01-17 cross-route proof checkpoint
+
+- Plan 01-17 now has passing threat evidence for T-01-52, T-01-53, and T-01-54.
+- The Task 2 correction is bound to the exact historical failure; candidate mode produces 17 persistent, ignored PNG/JSON hash pairs without approving baselines.
+- The component trace recomputes the migrated protected-route import graph, verifies exports/story states/layer direction/cycles, and blocks any remaining `TBD` validation mapping.
+- Contracts passed 67 tests, privacy scanning reported zero violations across 137 files, lint exited zero, and the component-trace suite passed 3 tests.
+- Repository-wide typecheck remains blocked by existing errors in `web/tests/accessibility/public-routes.spec.ts:391` and `web/tests/journeys/chat.spec.ts:365`; Plan 01-18 must own or resolve these before aggregate acceptance.
+- No commit, deployment, owner visual approval, cutover, external-service mutation, registry change, or provider change occurred. The broader dirty worktree remains preserved.
 
 ## 2026-08-18 PAI / Manifest initialization checkpoint
 
