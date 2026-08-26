@@ -2,17 +2,19 @@
 
 ## Phase 2 Planning Checkpoint (2026-08-26)
 
-**Status:** PLANNED — implementation not started
+**Status:** EXECUTING — Plan 02-01 complete
 
 **Evidence:**
 - The approved `02-UI-SPEC.md` remains the visual and interaction contract at commit `5f5f1ad`.
 - The superseded umbrella `02-PLAN.md` was replaced by 12 executable plans (`02-01` through `02-12`) across eight dependency-ordered waves.
 - Static validation covers all 15 Phase 2 requirement IDs, all 26 locked context decisions, 24 executable tasks, and 35 uniquely owned threat definitions.
+- Plan 02-01 established the immutable 35-threat ledger, empty fail-closed aggregate schema, and privacy-safe command-bound evidence fragments (`f4853e3`, `5be9f74`, `6278dad`).
+- `cd web && npm run verify:phase1` passed after the stale completed-state test contract was reconciled (`2c080e0`); no Phase 1 behavior changed.
 - Plan `02-12` is non-autonomous: owner-approved staging evidence and a separately authorized, exact-host, read-only production smoke remain blocking gates.
-- No deployment, migration, provider credential change, production write, registry mutation, or cutover occurred during planning.
+- No deployment, migration, provider credential change, production write, registry mutation, or cutover occurred.
 
 **Next Action:**
-Execute `02-01-PLAN.md` only, establishing the evidence harness before any security-sensitive implementation.
+Execute `02-02-PLAN.md`; retain the Phase 2 runner as the only accepted path for new security evidence.
 
 ## Phase 1 Completion Checkpoint (2026-08-25)
 
