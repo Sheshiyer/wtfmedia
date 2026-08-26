@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "plan": "02-05",
+  "results": {
+    "T-02-13": {
+      "plan": "02-05",
+      "task": 1,
+      "command_id": "54af0a2df37e10cef1b918358e7717cba1d9ad9d380b4b24341692469b5f40a3",
+      "command": "cd cloudflare && npm test -- audit-ledger --grep prohibited",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "ce89fec7d5c5652836206ecd06890eea516c64c84f8da67d9eccdc80ca2ef28c",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 1177,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T10:04:17.450Z",
+      "status": "passed"
+    },
+    "T-02-14": {
+      "plan": "02-05",
+      "task": 1,
+      "command_id": "1c58e2b1de8238a9361dd53a0e85bd1ae8352f60542e4ca586c203bec48e314f",
+      "command": "cd cloudflare && npm test -- audit-export --grep formula",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "a998a777282a1d10d5b8848681492227c8e52941dc921a647817cd7b10addfdd",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 761,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T10:04:17.450Z",
+      "status": "passed"
+    }
+  }
+}
