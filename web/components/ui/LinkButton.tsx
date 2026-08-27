@@ -59,7 +59,7 @@ export const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(
       "inline-flex items-center justify-center",
       "min-h-[44px] min-w-[44px] px-4 py-2",
       "font-label text-sm font-bold tracking-wide",
-      "rounded-[var(--radius-control)]",
+      "rounded-[var(--wtf-radius-control)]",
       "border-2 border-ink",
       "transition-[transform,box-shadow] duration-fast ease-out",
       "focus-visible:outline-none",

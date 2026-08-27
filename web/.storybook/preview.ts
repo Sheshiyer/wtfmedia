@@ -10,7 +10,7 @@ const preview: Preview = {
   parameters: {
     a11y: { test: "error" },
     controls: { sort: "alpha" },
-    options: { storySort: (left, right) => left[1].id.localeCompare(right[1].id) },
+    options: { storySort: { method: "alphabetical" } },
     wtf: {
       clock: fixedNow.toISOString(),
       locale: "en-US",

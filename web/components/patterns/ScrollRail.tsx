@@ -17,6 +17,8 @@ export interface ScrollRailProps extends HTMLAttributes<HTMLDivElement> {
   nextLabel?: string;
   /** Scroll distance per step in pixels */
   step?: number;
+  /** Unique accessible name for this scrollable region */
+  regionLabel?: string;
   children: ReactNode;
 }
 
@@ -35,6 +37,7 @@ export const ScrollRail = forwardRef<HTMLDivElement, ScrollRailProps>(
       prevLabel = "Scroll previous",
       nextLabel = "Scroll next",
       step = 300,
+      regionLabel = "Scrollable content",
       children,
       className = "",
       ...props
@@ -199,7 +202,7 @@ export const ScrollRail = forwardRef<HTMLDivElement, ScrollRailProps>(
         <div
           ref={setRef}
           role="region"
-          aria-label="Scrollable content"
+          aria-label={regionLabel}
           tabIndex={0}
           onKeyDown={handleKeyDown}
           onWheel={handleWheel}

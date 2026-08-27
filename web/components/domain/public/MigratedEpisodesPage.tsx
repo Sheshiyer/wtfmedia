@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { data, groupByPlaylist } from "@/lib/episodes";
-import { Sparkle } from "@/components/Sparkle";
+import { LinkButton } from "@/components/ui/LinkButton";
+import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
 import { EpisodesContent } from "./EpisodesContent";
 
 /**
@@ -14,29 +15,26 @@ export default function MigratedEpisodesPage() {
   const groups = groupByPlaylist(data.entries);
 
   return (
-    <div className="halftone min-h-screen">
-      <div className="max-w-7xl mx-auto px-5 py-12">
-        <div className="flex items-end justify-between flex-wrap gap-3 mb-10">
-          <div>
-            <h1 className="display text-5xl sm:text-6xl flex items-center gap-3">
-              every episode <Sparkle size={28} className="animate-twinkle" />
-            </h1>
-            <p className="serif text-xl text-ink/70 mt-3 max-w-[44ch]">
-              {data.entry_count} conversations, {groups.length} shows, every word
-              read into Ask WTF. Open one to jump straight to a moment.
-            </p>
+    <div className="min-h-screen overflow-x-hidden bg-canvas">
+      <WorkspaceHeader
+        eyebrow="source inventory"
+        title="episodes"
+        summary="open a conversation, inspect the transcript, and keep the exact source beside every grounded moment."
+        accent="information"
+        context={
+          <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/65">
+            <span>{data.entry_count} indexed episodes</span>
+            <span>{groups.length} catalogue shows</span>
+            <span>public projection</span>
           </div>
-          <a
-            href={data.source_url}
-            target="_blank"
-            rel="noreferrer"
-            data-cursor="↗"
-            className="pill px-5 py-2.5 bg-cream hover:bg-ink hover:text-cream"
-          >
-            Source channel ↗
-          </a>
-        </div>
-
+        }
+        primaryAction={
+          <LinkButton href={data.source_url} external variant="secondary">
+            source channel ↗
+          </LinkButton>
+        }
+      />
+      <div className="mx-auto max-w-[var(--wtf-content-max)] px-4 py-8 sm:px-8 xl:px-12 xl:py-12">
         <Suspense fallback={<EpisodesSkeleton />}>
           <EpisodesContent groups={groups} />
         </Suspense>
@@ -47,7 +45,7 @@ export default function MigratedEpisodesPage() {
 
 function EpisodesSkeleton() {
   return (
-    <div className="space-y-12" aria-label="Loading episodes">
+    <div className="space-y-12" role="status" aria-label="Loading episodes">
       {[0, 1].map((i) => (
         <div key={i}>
           <div className="h-6 w-32 bg-ink/10 rounded mb-4" />
