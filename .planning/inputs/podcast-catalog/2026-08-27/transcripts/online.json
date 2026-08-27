@@ -1,0 +1,66 @@
+{
+  "meta": {
+    "snapshot_at": "2026-08-27",
+    "source_file_basename": "Podcast Transcripts (1).xlsx",
+    "source_file_sha256": "dc46a79c07d12a965b531735a87a9e815a56547f1d5f49c6e313b6d43f775516",
+    "source_sheet_name": "Online",
+    "source_sheet_index": 5,
+    "header_row_source_index": 1,
+    "data_starts_at_source_index": 2,
+    "column_headers": [
+      "Name of Episode",
+      "Transcripts",
+      "",
+      "Shoot Date",
+      "Posting Date",
+      "",
+      "Clean Cut",
+      "Final EP Frame"
+    ],
+    "record_count": 3
+  },
+  "records": [
+    {
+      "source_row": 2,
+      "row_hash": "sha256:8c7f99056a7fdf673ac58c0b3e3d488681d5142d4d89d773dbb06968bb2cffa3",
+      "fields": {
+        "Name of Episode": "Arvind Srinivas",
+        "Transcripts": "https://drive.google.com/file/d/1rit6TdXkUjDVXiSIrI-blhazSXQQA4Cp/view?usp=drive_link",
+        "col_2": "",
+        "Shoot Date": "",
+        "Posting Date": "",
+        "col_5": "",
+        "Clean Cut": "",
+        "Final EP Frame": "https://f.io/eHYIs3Fg"
+      }
+    },
+    {
+      "source_row": 3,
+      "row_hash": "sha256:ad0e2d6ae2a5708762ecf8fa41427a205d73b3720e78bd5e9a86b56d1b89166b",
+      "fields": {
+        "Name of Episode": "Brett Adcock",
+        "Transcripts": "https://drive.google.com/file/d/15DLDUBtHEBQox2-2APsHNJHXO3harmA2/view?usp=drive_link",
+        "col_2": "",
+        "Shoot Date": "",
+        "Posting Date": "5th November 2025",
+        "col_5": "",
+        "Clean Cut": "",
+        "Final EP Frame": "https://f.io/7veY-Q3a"
+      }
+    },
+    {
+      "source_row": 4,
+      "row_hash": "sha256:1c46632b388a54160ef15bf5a8c16974078453f0edc61d9a4cc7773a4173591a",
+      "fields": {
+        "Name of Episode": "Mati Staniszewski",
+        "Transcripts": "https://drive.google.com/file/d/1QdieRA2AQNsoR1-LkaLFcVzFebmcfynO/view?usp=drive_link",
+        "col_2": "",
+        "Shoot Date": "",
+        "Posting Date": "11th March 2026",
+        "col_5": "",
+        "Clean Cut": "",
+        "Final EP Frame": "https://f.io/sNEkfU7i"
+      }
+    }
+  ]
+}

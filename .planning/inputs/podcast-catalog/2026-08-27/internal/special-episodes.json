@@ -1,0 +1,105 @@
+{
+  "meta": {
+    "snapshot_at": "2026-08-27",
+    "source_file_basename": "Internal - PODCAST Links .xlsx",
+    "source_file_sha256": "f2070ab4efc3519a17ad2b065992116b7bb6bed9333090e6d96301da7b9cc4f8",
+    "source_sheet_name": "Special Episodes",
+    "source_sheet_index": 4,
+    "header_row_source_index": 2,
+    "data_starts_at_source_index": 3,
+    "column_headers": [
+      "Episode No.",
+      "Name of Episode",
+      "Final EP File",
+      "Final Trailer File",
+      "Final Teaser File",
+      "Thumbnails",
+      "English Subtitles",
+      "Hindi Subtitles",
+      "Zset Folder",
+      "Transcripts",
+      "Switcher",
+      "Creatives",
+      "All Deliverables"
+    ],
+    "record_count": 4
+  },
+  "records": [
+    {
+      "source_row": 3,
+      "row_hash": "sha256:bc5bab74a6f551a300fe5df8b47dcd016a5941503bde99ccbc502e7d5b984baf",
+      "fields": {
+        "Episode No.": "1.0",
+        "Name of Episode": "Policing in Bangalore",
+        "Final EP File": "",
+        "Final Trailer File": "",
+        "Final Teaser File": "",
+        "Thumbnails": "",
+        "English Subtitles": "https://drive.google.com/file/d/1v0oZ9EWzxoqCJbOafdI96L4TDm6xpNUW/view?usp=drive_link",
+        "Hindi Subtitles": "Kannada\nhttps://drive.google.com/file/d/1IVYoUKyyvEcsAfaGTFw2cOZknoRca_-6/view?usp=drive_link",
+        "Zset Folder": "https://web.zset.in/f/rbTgLZd_hWb",
+        "Transcripts": "https://drive.google.com/file/d/10SgL8ZeQNp2TX5vD9IJsieV3OOoiGmKI/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 4,
+      "row_hash": "sha256:d842934213e42421f138a9066a30a77a57308717c208c2fdc4b4d8b7cd53c30d",
+      "fields": {
+        "Episode No.": "2.0",
+        "Name of Episode": "AI Minister: Omar Al Olama",
+        "Final EP File": "https://f.io/jXKxs5id",
+        "Final Trailer File": "-------------------------------",
+        "Final Teaser File": "https://f.io/kYykGTOR",
+        "Thumbnails": "https://f.io/ZrhfjpWm",
+        "English Subtitles": "https://drive.google.com/file/d/1v0oZ9EWzxoqCJbOafdI96L4TDm6xpNUW/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/f/rbTgLZd_hWb",
+        "Transcripts": "https://drive.google.com/file/d/1_YEtXoxnJmKrkvNc3PHEeHXsyX2r40w7/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 5,
+      "row_hash": "sha256:b3195bff715fa5f2c09b50f33c5b04547ccb26c9f6620b46fa43c0e75872f201",
+      "fields": {
+        "Episode No.": "3.0",
+        "Name of Episode": "WTF Bootcamp ",
+        "Final EP File": "https://f.io/zgWI6k3J",
+        "Final Trailer File": "",
+        "Final Teaser File": "",
+        "Thumbnails": "",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "",
+        "Transcripts": "https://drive.google.com/file/d/1_F2q2lMbeEtnCHTjyAKIGmvDLdFM7VZh/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": "https://drive.google.com/drive/folders/1E3UlvUr1aoGzlEGjSm-0Cj1VXFJgjFrS?usp=drive_link"
+      }
+    },
+    {
+      "source_row": 6,
+      "row_hash": "sha256:d1ba7c8257524a4b45fc40786e980bf8b25c8afb9c1a6c074e9bc574a2748cd6",
+      "fields": {
+        "Episode No.": "4.0",
+        "Name of Episode": "The Foundery",
+        "Final EP File": "",
+        "Final Trailer File": "",
+        "Final Teaser File": "",
+        "Thumbnails": "",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "",
+        "Transcripts": "",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    }
+  ]
+}

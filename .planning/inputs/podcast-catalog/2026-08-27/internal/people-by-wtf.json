@@ -1,0 +1,466 @@
+{
+  "meta": {
+    "snapshot_at": "2026-08-27",
+    "source_file_basename": "Internal - PODCAST Links .xlsx",
+    "source_file_sha256": "f2070ab4efc3519a17ad2b065992116b7bb6bed9333090e6d96301da7b9cc4f8",
+    "source_sheet_name": "People by WTF",
+    "source_sheet_index": 2,
+    "header_row_source_index": 2,
+    "data_starts_at_source_index": 3,
+    "column_headers": [
+      "Episode No.",
+      "Name of Episode",
+      "Final EP File",
+      "Final Trailer File",
+      "Final Teaser File",
+      "Thumbnails",
+      "English Subtitles",
+      "Hindi Subtitles",
+      "Zset Folder",
+      "Transcript",
+      "Switcher",
+      "Creatives",
+      "All Deliverables"
+    ],
+    "record_count": 23
+  },
+  "records": [
+    {
+      "source_row": 3,
+      "row_hash": "sha256:fd2c5f6cc2e48e50c18d4882b9c96627cac7a22aa12dbe4b79d74432fc4dd4b9",
+      "fields": {
+        "Episode No.": "1.0",
+        "Name of Episode": "Bill Gates",
+        "Final EP File": "https://f.io/od24Cnit",
+        "Final Trailer File": "https://f.io/CBVS8of2",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/0guoGyyg",
+        "English Subtitles": "https://drive.google.com/file/d/1u9-DwKpZ7GOqT2RVAG8p9MlVOvHCIks6/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1624525",
+        "Transcript": "https://drive.google.com/file/d/1GtLiCiDqRskbZPD4_ahyKQ9d7Eq8lF75/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 4,
+      "row_hash": "sha256:d6b141ca00d946fa4f06ed2a7464faf669132bb15e7c6283cfd4e18a2873d495",
+      "fields": {
+        "Episode No.": "2.0",
+        "Name of Episode": "Ranbir Kapoor",
+        "Final EP File": "https://f.io/vhz7jmbx",
+        "Final Trailer File": "https://f.io/7lTlbPUY",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/f2JLwUdm",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1624531",
+        "Transcript": "https://drive.google.com/file/d/1073nk1uCpg6ZUh_3vQoNf8o75JYX-wKv/view?usp=drive_link",
+        "Switcher": "https://f.io/OGtjoeOH",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 5,
+      "row_hash": "sha256:2e86f4c3839ad3b36af491f39a3e1385aa2d5087ca64db91b0abcd6a1041e1e6",
+      "fields": {
+        "Episode No.": "3.0",
+        "Name of Episode": "Nandan Nilekani",
+        "Final EP File": "https://f.io/hHt88AjJ",
+        "Final Trailer File": "https://f.io/n83iaAdF",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/UEhnYBOR",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1624532",
+        "Transcript": "https://drive.google.com/file/d/1Ttf_x_iYKUEh6JcIwtxNV7iqB17QPFij/view?usp=drive_link",
+        "Switcher": "https://f.io/xNa4DRO4",
+        "Creatives": "https://f.io/zqHo5XZb",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 6,
+      "row_hash": "sha256:0eb1507f0c13f0cd3898c70c9485091c1a1bdda5e438b1abcd0130733fbdbc94",
+      "fields": {
+        "Episode No.": "4.0",
+        "Name of Episode": "Yann LeCunn",
+        "Final EP File": "https://f.io/oVTG8UKh",
+        "Final Trailer File": "https://f.io/jkCj3oMz",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/rJ7_TUcZ",
+        "English Subtitles": "https://drive.google.com/file/d/10jT5TaEJBs9BpDJkQ7jk6TLCGQ1UNkdR/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1624533",
+        "Transcript": "https://drive.google.com/file/d/1fOWYz0qDGBckACj-L-xgTcxhGsXenOlM/view?usp=drive_link",
+        "Switcher": "https://f.io/3Pj4FWKZ",
+        "Creatives": "https://f.io/czl_ePdd",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 7,
+      "row_hash": "sha256:08e8557fe83bb0a2ee93d2e8e5ec49801fee330daf9ffa41d4c9e10d337550e3",
+      "fields": {
+        "Episode No.": "5.0",
+        "Name of Episode": "Kumar Birla",
+        "Final EP File": "https://f.io/TR8BZT5h",
+        "Final Trailer File": "https://f.io/Lm5qu4-f",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/Pog18cye",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1624534",
+        "Transcript": "https://drive.google.com/file/d/16HNQPWK3Nb6x-8KYRRzLSJMw23Vn_lkb/view?usp=drive_link",
+        "Switcher": "https://f.io/lZ-qIPka",
+        "Creatives": "https://f.io/fQIBng3P",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 8,
+      "row_hash": "sha256:df0896d42fed4edc50bbce0a4541c9b0885f89e3f1f263c6f003c5674423bc92",
+      "fields": {
+        "Episode No.": "6.0",
+        "Name of Episode": "Narendra Modi",
+        "Final EP File": "",
+        "Final Trailer File": "https://f.io/pNvY1ZlR",
+        "Final Teaser File": "",
+        "Thumbnails": "",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "",
+        "Transcript": "",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 9,
+      "row_hash": "sha256:50851fed9b8c44fe2fd858c514d05796ae1d24124a26b8289887e6c3f62baa06",
+      "fields": {
+        "Episode No.": "7.0",
+        "Name of Episode": "Christopher Luxon",
+        "Final EP File": "",
+        "Final Trailer File": "https://f.io/tovrn2Mg",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/7G3BR_Wv",
+        "English Subtitles": "https://drive.google.com/file/d/1eIY_YEDjSQ3jpB-2zCkMaLlEk7CvYgPQ/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1624544",
+        "Transcript": "https://drive.google.com/file/d/1s-RRFtfYRm5pJDSREic-uWR0rptCpVeT/view?usp=drive_link",
+        "Switcher": "https://f.io/9U7NY7cq",
+        "Creatives": "https://f.io/GCFG_b-2",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 10,
+      "row_hash": "sha256:45441546ec1c26936aa54a889cb86b82d3f7e77cd045c110b2ccbc89c3afe7e4",
+      "fields": {
+        "Episode No.": "8.0",
+        "Name of Episode": "Bill Gates #2",
+        "Final EP File": "https://f.io/W2Dbpxq0",
+        "Final Trailer File": "https://f.io/P5w0fvIx",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/WnHXW-9j",
+        "English Subtitles": "https://drive.google.com/file/d/1aA98cIJgHE5DU9t5hLds0bHCJfyO-eD0/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1624535",
+        "Transcript": "https://drive.google.com/file/d/1d9T84cVzyomIJAHx6aWySEyHOowzuyeu/view?usp=drive_link",
+        "Switcher": "https://f.io/t47hpLVR",
+        "Creatives": "https://f.io/hPev_-WW",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 11,
+      "row_hash": "sha256:90aa49781ebd2114dd6bba2e9cce0c5377547955fd8b4aafa24a55c4e5114341",
+      "fields": {
+        "Episode No.": "9.0",
+        "Name of Episode": "Neal Mohan",
+        "Final EP File": "https://f.io/LOyVvO6O",
+        "Final Trailer File": "-------------------------------",
+        "Final Teaser File": "https://f.io/T1SGveui",
+        "Thumbnails": "https://f.io/NioYD8G2",
+        "English Subtitles": "https://drive.google.com/file/d/1C60Z0pr6vqhwEahkIG5FUGWRIlElc5oI/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1608221",
+        "Transcript": "https://drive.google.com/file/d/1mrOuw0Qe4fa7gichBUbKrj68xccTHlCy/view?usp=drive_link",
+        "Switcher": "https://f.io/T6hE1Zzb",
+        "Creatives": "https://f.io/vRhROEWo",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 12,
+      "row_hash": "sha256:d0b25f100b4a282bcc55373a5b580d75a952cb4380e58a58badc4fa717a02bd2",
+      "fields": {
+        "Episode No.": "10.0",
+        "Name of Episode": "Ted Sarandos",
+        "Final EP File": "https://f.io/kf5XQpLO",
+        "Final Trailer File": "https://f.io/Prv-HAPu",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/EYjkR9Md",
+        "English Subtitles": "https://drive.google.com/file/d/1sU73FTlM-OpYJ21JIsbl7ZKx-NHFdutB/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1608624",
+        "Transcript": "https://drive.google.com/file/d/1rY43jftb2z8ZxIUw-maYZpAUidFK4729/view?usp=drive_link",
+        "Switcher": "https://f.io/6jNkNXmU",
+        "Creatives": "https://f.io/fa72tXPQ",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 13,
+      "row_hash": "sha256:b804a2e0f2bc3cd194b58c3ae0945bfe5b6370d04a055a3a0f12e442f0363434",
+      "fields": {
+        "Episode No.": "11.0",
+        "Name of Episode": "Nikesh Arora",
+        "Final EP File": "",
+        "Final Trailer File": "https://f.io/pgEiK5o1",
+        "Final Teaser File": "",
+        "Thumbnails": "",
+        "English Subtitles": "https://drive.google.com/file/d/1emZPVXxttg4spD1HEZE-CRy3pXdSCoJE/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1611923",
+        "Transcript": "https://drive.google.com/file/d/1YiD3Sl1TKXdU_Wg9UeEgsqX_2ShNyIaq/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 14,
+      "row_hash": "sha256:7d97a28aa6c51e2200832744d951b616fc0116391065800a68b475085b01e09e",
+      "fields": {
+        "Episode No.": "12.0",
+        "Name of Episode": "Vinod Khosla",
+        "Final EP File": "https://f.io/0I8LmYs9",
+        "Final Trailer File": "https://f.io/0bWFQRSe",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/ZWPyjr2C",
+        "English Subtitles": "https://drive.google.com/file/d/1okxABM1it10IMm9dfaItjJ-o6AnAZNRm/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1614398",
+        "Transcript": "https://drive.google.com/file/d/1mOAl1jCyrky2I2YD776GnbvkUbTEJ_MC/view?usp=drive_link",
+        "Switcher": "https://f.io/op-nqhIj",
+        "Creatives": "https://f.io/0_31VlZb",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 15,
+      "row_hash": "sha256:8f222d284609e98659fdbe70952963ebf9bc01b6a9b86653c8d60f41f1e377d4",
+      "fields": {
+        "Episode No.": "13.0",
+        "Name of Episode": "Sam Altman",
+        "Final EP File": "https://f.io/5MyTq5gL",
+        "Final Trailer File": "https://f.io/O0Ev_Du3",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/C1dHgzdS",
+        "English Subtitles": "https://drive.google.com/file/d/10CN5czD7YquKUb_P2_6LMXNr43y6ahEC/view?usp=drive_link\\",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1618585",
+        "Transcript": "https://drive.google.com/file/d/1Bybg4fGgBPGnTgND57sKa33xZUvWrC4E/view?usp=drive_link",
+        "Switcher": "https://f.io/rUpC__tT",
+        "Creatives": "https://f.io/p1zTARbQ",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 16,
+      "row_hash": "sha256:b570d603e0e7990e7cd607cd16ec0ddd6a5715d9208a4024f03c58563b0fcb80",
+      "fields": {
+        "Episode No.": "14.0",
+        "Name of Episode": "Dara Khosrowshahi",
+        "Final EP File": "https://f.io/SYYyV5U7",
+        "Final Trailer File": "https://f.io/Hfq30wkK",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/JVUHzNAD",
+        "English Subtitles": "https://drive.google.com/file/d/11gfzFDesA4eNJYnt37OW2j6mT2I-LY5o/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1616709",
+        "Transcript": "https://drive.google.com/file/d/1zGlIY8Vu-DCbTRfkjydENe1uMJY6skd6/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "https://f.io/GgFcN9pq",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 17,
+      "row_hash": "sha256:f83faa38114e1ec6733d5ecfd35741220581d1f0e397a1b87bb42dd273675c0c",
+      "fields": {
+        "Episode No.": "15.0",
+        "Name of Episode": "AR Rahman",
+        "Final EP File": "https://f.io/yTrG5qoS",
+        "Final Trailer File": "-------------------------------",
+        "Final Teaser File": "https://f.io/WtbV2Gyp",
+        "Thumbnails": "https://f.io/x_vNzt8K",
+        "English Subtitles": "https://drive.google.com/file/d/1Azkwoh9XSmOkTM-gW7pfNtpULMrq0NUi/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1629541",
+        "Transcript": "https://drive.google.com/file/d/1BqF3uV_ERRP1pnwF1-HUenEavNwME_Vh/view?usp=drive_link",
+        "Switcher": "https://f.io/okB-t5my",
+        "Creatives": "https://f.io/paoELLMd",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 18,
+      "row_hash": "sha256:4537888d3f156068a9b3f80328257192a65e131ca5270541104eb94bb76dc229",
+      "fields": {
+        "Episode No.": "16.0",
+        "Name of Episode": "Elon Musk",
+        "Final EP File": "https://f.io/h405_tNt",
+        "Final Trailer File": "https://f.io/770DzKQC",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/PBNVcZMe",
+        "English Subtitles": "https://drive.google.com/file/d/1i6avlpSyTgnG3jXAB24RAWHOZHFYTVeE/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1641366",
+        "Transcript": "https://drive.google.com/file/d/1vIUcWQjX_2rmC3kYKjnBM-IOzv1vlGbL/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 19,
+      "row_hash": "sha256:88c354353beba36178a709d402c37b8a764d21dace13f66fc70a2e79726b301b",
+      "fields": {
+        "Episode No.": "17.0",
+        "Name of Episode": "Yuval Noah Harari",
+        "Final EP File": "https://f.io/2_pmQ5af",
+        "Final Trailer File": "https://f.io/g4usxEuo",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/8CovgDby",
+        "English Subtitles": "https://drive.google.com/file/d/1bPeK-qBJ2GoVXG2T0YUH16CDrzzqRGC9/view?usp=drive_link",
+        "Hindi Subtitles": "https://drive.google.com/file/d/1MofT8OiPIp2yZsGsmjK5I99KXJCAxdKB/view?usp=drive_link",
+        "Zset Folder": "https://web.zset.in/folder/1639656",
+        "Transcript": "https://drive.google.com/file/d/1z-pkO87_EnWqhB8WfvpilDGQBpGTOHz4/view?usp=drive_link",
+        "Switcher": "https://f.io/dLi_dWfK",
+        "Creatives": "https://f.io/NnHtAtcv",
+        "All Deliverables": "https://drive.google.com/drive/folders/1z3iVOXpR7cm4R0DvQL2fuDNaYlzYz4CM?usp=drive_link"
+      }
+    },
+    {
+      "source_row": 20,
+      "row_hash": "sha256:57ca9f369a7ce198cf16a1f0792e095f0cb6c6096064bceb0513f60e35d79c55",
+      "fields": {
+        "Episode No.": "18.0",
+        "Name of Episode": "Dario Amodei",
+        "Final EP File": "https://f.io/VrTLEcyQ",
+        "Final Trailer File": "https://f.io/kl4G4QeE",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/a3mE86Yj",
+        "English Subtitles": "https://drive.google.com/file/d/1kbfipaBqnFwnkQwBIo-zF6Lvatrs2BNk/view?usp=drive_link",
+        "Hindi Subtitles": "https://drive.google.com/file/d/1i9SEZABewUc_T1l4rOrUmGN0H-Owy5_4/view?usp=drive_link",
+        "Zset Folder": "https://web.zset.in/folder/1641619",
+        "Transcript": "https://drive.google.com/file/d/1V7UURVJdpb6r-bqN6zC8GwPX_lnsZf3W/view?usp=drive_link",
+        "Switcher": "https://f.io/9ueF3DS9",
+        "Creatives": "https://f.io/pTyOLrb9",
+        "All Deliverables": "https://drive.google.com/drive/folders/1CtfLOAiBp3KToJ2P3XSKbnNV4Hy3HARp?usp=drive_link"
+      }
+    },
+    {
+      "source_row": 21,
+      "row_hash": "sha256:16ee411b9e68b6fc4dd4e21e6bef8f79bc8344d643c0ef6363c8f5f7482d743d",
+      "fields": {
+        "Episode No.": "19.0",
+        "Name of Episode": "Chamath Palihapitiya",
+        "Final EP File": "https://f.io/Vt7rIJbv",
+        "Final Trailer File": "https://f.io/ahmx4q2p",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/gSNIRKHn",
+        "English Subtitles": "https://drive.google.com/file/d/1L4MHFseuXMRQDk459DoHKaO6gYMGiOeO/view?usp=drive_link",
+        "Hindi Subtitles": "https://drive.google.com/file/d/1oKl3NuWzaIPo-Ilt_ISl9xo7FApEKJ38/view?usp=drive_link",
+        "Zset Folder": "https://web.zset.in/folder/1641523",
+        "Transcript": "https://drive.google.com/file/d/1wAm604nrdRkxPAVg05EZLoURcsGMzzkE/view?usp=drive_link",
+        "Switcher": "https://f.io/p5sqnSHi",
+        "Creatives": "https://f.io/sDhbE1XI",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 22,
+      "row_hash": "sha256:b22afd4aa1503ed39ca4b1078d78c189dce2ebbcefc848cc6ea78f22356340f9",
+      "fields": {
+        "Episode No.": "20.0",
+        "Name of Episode": "Rishi Sunak x Akshata Murthy",
+        "Final EP File": "https://f.io/qIms_Py4",
+        "Final Trailer File": "https://f.io/9cXkp8fI",
+        "Final Teaser File": "https://f.io/nGVCe_R9",
+        "Thumbnails": "https://f.io/jyS1BJik",
+        "English Subtitles": "https://drive.google.com/file/d/1ofov452Eb1p_7ogR5WGM-eEcUmel5UEO/view?usp=sharing",
+        "Hindi Subtitles": "https://drive.google.com/file/d/1xH4P55uYThcHfYUG8ZlWZnU6f2NQmxkR/view?usp=drive_link",
+        "Zset Folder": "https://web.zset.in/f/dbHSkJkRnGw",
+        "Transcript": "https://drive.google.com/file/d/197DMqCQ6un0Kf6PPkZdx3GZod3fkEXwq/view?usp=drive_link",
+        "Switcher": "https://f.io/r1gxm7ix",
+        "Creatives": "",
+        "All Deliverables": "https://drive.google.com/drive/folders/1yuOqw2blFIn0t0SeIxAjEs7lpJAI_sbH?usp=drive_link"
+      }
+    },
+    {
+      "source_row": 23,
+      "row_hash": "sha256:8f5eae1d2ccd0074b6b8d5df6bfb31a6bdccb726a8e9e2c48ac40a1dfec94626",
+      "fields": {
+        "Episode No.": "21.0",
+        "Name of Episode": "Ajay Banga",
+        "Final EP File": "https://f.io/ENKs96GR",
+        "Final Trailer File": "https://f.io/UODEbim0",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/3VKG1fe4",
+        "English Subtitles": "https://drive.google.com/file/d/1njmj9TXUUmNoD4Tk5a6sv4bf2MggRBtr/view?usp=drive_link",
+        "Hindi Subtitles": "https://drive.google.com/file/d/1Z1gdIzbdsB8m2wfdONarILWaGHbGf-ct/view?usp=drive_link",
+        "Zset Folder": "https://web.zset.in/f/FGnvXccVtFn",
+        "Transcript": "https://drive.google.com/file/d/181iJWsznV88ip0gxIGsbOWmhQkVY0GMq/view?usp=drive_link",
+        "Switcher": "https://f.io/HvQ0ozyb",
+        "Creatives": "",
+        "All Deliverables": "https://drive.google.com/drive/folders/1cq6QhNosUBmDfJrSG6rBAlCWAsEjgbVk?usp=drive_link"
+      }
+    },
+    {
+      "source_row": 24,
+      "row_hash": "sha256:bf738e36af21512ac272a5b474cfabf3ccd69390f870720328a1ea042ee395d1",
+      "fields": {
+        "Episode No.": "22.0",
+        "Name of Episode": "Martin Escobari",
+        "Final EP File": "https://f.io/Z7qDGH2j",
+        "Final Trailer File": "https://f.io/sUBcQakq",
+        "Final Teaser File": "https://f.io/05xV-zx4",
+        "Thumbnails": "https://f.io/mWNFepy4",
+        "English Subtitles": "https://drive.google.com/drive/folders/1K_rFdd3podMmrBxGgpTsdTbnZJW866Hz?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "",
+        "Transcript": "https://drive.google.com/file/d/14oJ5nbbC29SyGTlRPqrRrtChpnAS11N1/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 25,
+      "row_hash": "sha256:535415f740d843e3e0ec4c788223bfbe3ccdcfb13594793740060b7fc3449ac0",
+      "fields": {
+        "Episode No.": "23.0",
+        "Name of Episode": "Nikos Christodoulides",
+        "Final EP File": "https://f.io/wlEoMfP3",
+        "Final Trailer File": "https://f.io/c-7PX957",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/gC7tz5ba",
+        "English Subtitles": "https://drive.google.com/drive/folders/1qesXaDYclKrdW3TLG-LoKQpTnGe7CdMg?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "",
+        "Transcript": "",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    }
+  ]
+}

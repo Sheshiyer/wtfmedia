@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "snapshot_at": "2026-08-27",
+    "source_file_basename": "Podcast Transcripts (1).xlsx",
+    "source_file_sha256": "dc46a79c07d12a965b531735a87a9e815a56547f1d5f49c6e313b6d43f775516",
+    "source_sheet_name": "Special Episode",
+    "source_sheet_index": 4,
+    "header_row_source_index": 1,
+    "data_starts_at_source_index": 2,
+    "column_headers": [
+      "Name of Episode",
+      "Transcripts",
+      "",
+      "Shoot Date",
+      "Posting Date",
+      "",
+      "Clean Cut",
+      "Final EP Frame"
+    ],
+    "record_count": 4
+  },
+  "records": [
+    {
+      "source_row": 2,
+      "row_hash": "sha256:0111adae333231fd8ff3963e1b7b4412e2a80278058c8c001506ea24b4c44b34",
+      "fields": {
+        "Name of Episode": "Policing in Bangalore",
+        "Transcripts": "https://drive.google.com/file/d/10SgL8ZeQNp2TX5vD9IJsieV3OOoiGmKI/view?usp=drive_link",
+        "col_2": "",
+        "Shoot Date": "",
+        "Posting Date": "12th May 2025",
+        "col_5": "",
+        "Clean Cut": "",
+        "Final EP Frame": ""
+      }
+    },
+    {
+      "source_row": 3,
+      "row_hash": "sha256:9fbe34838cadedc4d5f7de2def65d0418f66b33a9b00f441c8ad7eb4c9a18f86",
+      "fields": {
+        "Name of Episode": "AI Minister: Omar Al Olama",
+        "Transcripts": "https://drive.google.com/file/d/1_YEtXoxnJmKrkvNc3PHEeHXsyX2r40w7/view?usp=drive_link",
+        "col_2": "",
+        "Shoot Date": "",
+        "Posting Date": "11th January 2026",
+        "col_5": "",
+        "Clean Cut": "https://f.io/lfiBZXUP",
+        "Final EP Frame": "https://f.io/jXKxs5id"
+      }
+    },
+    {
+      "source_row": 4,
+      "row_hash": "sha256:8b54e79a74bb83933a40b8a7d3d745f4acb9044822ec75edded7a51624a5e9ad",
+      "fields": {
+        "Name of Episode": "WTF Bootcamp ",
+        "Transcripts": "https://drive.google.com/file/d/1_F2q2lMbeEtnCHTjyAKIGmvDLdFM7VZh/view?usp=drive_link",
+        "col_2": "",
+        "Shoot Date": "",
+        "Posting Date": "28th January 2026",
+        "col_5": "",
+        "Clean Cut": "https://f.io/66K3xBT8",
+        "Final EP Frame": "https://f.io/zgWI6k3J"
+      }
+    },
+    {
+      "source_row": 5,
+      "row_hash": "sha256:5842ba32629084898adc9582fcf123cefa1db098e3ebcaf25820b93b56779aea",
+      "fields": {
+        "Name of Episode": "The Foundery",
+        "Transcripts": "",
+        "col_2": "",
+        "Shoot Date": "",
+        "Posting Date": "25th June 2026",
+        "col_5": "",
+        "Clean Cut": "",
+        "Final EP Frame": ""
+      }
+    }
+  ]
+}

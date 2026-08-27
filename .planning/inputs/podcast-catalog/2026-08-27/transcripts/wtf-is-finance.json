@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "snapshot_at": "2026-08-27",
+    "source_file_basename": "Podcast Transcripts (1).xlsx",
+    "source_file_sha256": "dc46a79c07d12a965b531735a87a9e815a56547f1d5f49c6e313b6d43f775516",
+    "source_sheet_name": "WTF is Finance",
+    "source_sheet_index": 3,
+    "header_row_source_index": 1,
+    "data_starts_at_source_index": 2,
+    "column_headers": [
+      "Name of Episode",
+      "Transcript",
+      "",
+      "Shoot Date",
+      "Posting Date",
+      "",
+      "Clean Cut",
+      "Final EP Frame"
+    ],
+    "record_count": 4
+  },
+  "records": [
+    {
+      "source_row": 2,
+      "row_hash": "sha256:4697570b3cd4a087b30416d832b37005b075bd99760d6a19dab66bd9481a69cf",
+      "fields": {
+        "Name of Episode": "Ruchir Sharma",
+        "Transcript": "https://drive.google.com/file/d/1cca_hwJp82r8q7ftNDMAUgdkRTRz81-b/view?usp=drive_link",
+        "col_2": "",
+        "Shoot Date": "",
+        "Posting Date": "3rd September 2025",
+        "col_5": "",
+        "Clean Cut": "",
+        "Final EP Frame": "https://f.io/uDyQHcOm"
+      }
+    },
+    {
+      "source_row": 3,
+      "row_hash": "sha256:815f485e02bd9aa6c58346c76c9b1eceadb7efc3f46e39cb11cd8a99a108d3e8",
+      "fields": {
+        "Name of Episode": "Ray Dalio",
+        "Transcript": "https://drive.google.com/file/d/1ktUJ-APyQnMvoP9MilYmu8HXibop61a1/view?usp=drive_link",
+        "col_2": "",
+        "Shoot Date": "",
+        "Posting Date": "20th December 2025",
+        "col_5": "",
+        "Clean Cut": "https://f.io/BkTiDKC6",
+        "Final EP Frame": "https://f.io/g7neSQCC"
+      }
+    },
+    {
+      "source_row": 4,
+      "row_hash": "sha256:eddd0565f5f6482eacafd267ff6be0d1b3f689a7e28ca1ab2c933b0bb2766a77",
+      "fields": {
+        "Name of Episode": "Howard Marks",
+        "Transcript": "https://drive.google.com/file/d/1LD53958GUq6613tnj0NlOjgs9_dorKIQ/view?usp=drive_link",
+        "col_2": "",
+        "Shoot Date": "",
+        "Posting Date": "4th May 2026",
+        "col_5": "",
+        "Clean Cut": "",
+        "Final EP Frame": "https://f.io/1Iltv2an"
+      }
+    },
+    {
+      "source_row": 5,
+      "row_hash": "sha256:52e1c75b8a605a7395a38f4dc69185711b621f4f3fa5de014531f53309c3fe5b",
+      "fields": {
+        "Name of Episode": "WEF - Economics",
+        "Transcript": "",
+        "col_2": "",
+        "Shoot Date": "",
+        "Posting Date": "",
+        "col_5": "",
+        "Clean Cut": "https://f.io/y62Glzig",
+        "Final EP Frame": ""
+      }
+    }
+  ]
+}
