@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 export type GNode = {
   id: string;
@@ -16,7 +16,8 @@ function catHex(c: string): string {
   const k = c.toLowerCase();
   if (k.includes("ai") || k.includes("tech")) return "#6758A5";
   if (k.includes("start") || k.includes("business")) return "#F07633";
-  if (k.includes("money") || k.includes("finance") || k.includes("market")) return "#0C9367";
+  if (k.includes("money") || k.includes("finance") || k.includes("market"))
+    return "#0C9367";
   if (k.includes("geo") || k.includes("society")) return "#C53B3A";
   if (k.includes("health")) return "#1FA88A";
   if (k.includes("media") || k.includes("culture")) return "#2D6BE0";
@@ -32,13 +33,16 @@ export function ConnectionGraph({
   nodes,
   edges,
   titles,
+  selectedId,
+  onSelect,
 }: {
   nodes: GNode[];
   edges: GEdge[];
   titles: Record<string, string>;
+  selectedId?: string | null;
+  onSelect?: (id: string | null) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [selected, setSelected] = useState<GNode | null>(null);
   const stateRef = useRef<{
     pts: P[];
     hover: number;
@@ -58,6 +62,11 @@ export function ConnectionGraph({
     const maxEps = Math.max(...nodes.map((n) => n.episodeCount), 1);
     const elist = edges.filter((e) => idx[e.a] != null && idx[e.b] != null);
     const maxShared = Math.max(...elist.map((e) => e.shared), 1);
+
+    // reduced-motion: skip physics, use static circle layout
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const resize = () => {
       W = canvas.clientWidth;
@@ -81,8 +90,67 @@ export function ConnectionGraph({
     });
     stateRef.current = { pts, hover: -1, drag: -1, idx };
 
-    let alpha = 1;
+    let alpha = prefersReduced ? 0 : 1;
     let raf = 0;
+    let settled = prefersReduced;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, W, H);
+      const s = stateRef.current;
+      const hov = s.hover;
+      const selIdx = selectedId ? idx[selectedId] ?? -1 : -1;
+      const neighbors = new Set<number>();
+      const activeIdx = hov >= 0 ? hov : selIdx;
+      if (activeIdx >= 0) {
+        neighbors.add(activeIdx);
+        for (const e of elist) {
+          if (idx[e.a] === activeIdx) neighbors.add(idx[e.b]);
+          if (idx[e.b] === activeIdx) neighbors.add(idx[e.a]);
+        }
+      }
+      // edges
+      for (const e of elist) {
+        const i = idx[e.a],
+          j = idx[e.b];
+        const active =
+          activeIdx < 0 ||
+          (neighbors.has(i) &&
+            neighbors.has(j) &&
+            (i === activeIdx || j === activeIdx));
+        ctx.beginPath();
+        ctx.moveTo(pts[i].x, pts[i].y);
+        ctx.lineTo(pts[j].x, pts[j].y);
+        ctx.strokeStyle = active
+          ? "rgba(26,26,26,0.55)"
+          : "rgba(26,26,26,0.08)";
+        ctx.lineWidth = 0.5 + (e.shared / maxShared) * 3;
+        ctx.stroke();
+      }
+      // nodes
+      for (let i = 0; i < pts.length; i++) {
+        const dim = activeIdx >= 0 && !neighbors.has(i);
+        ctx.globalAlpha = dim ? 0.25 : 1;
+        ctx.beginPath();
+        ctx.arc(pts[i].x, pts[i].y, pts[i].r, 0, Math.PI * 2);
+        ctx.fillStyle = catHex(nodes[i].category);
+        ctx.fill();
+        ctx.lineWidth = i === selIdx ? 3 : 2;
+        ctx.strokeStyle = i === selIdx ? "#F07633" : "#1A1A1A";
+        ctx.stroke();
+        if (!dim && (pts[i].r > 16 || i === activeIdx)) {
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = "#1A1A1A";
+          ctx.font = "600 11px Poppins, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(
+            nodes[i].label,
+            pts[i].x,
+            pts[i].y + pts[i].r + 12,
+          );
+        }
+      }
+      ctx.globalAlpha = 1;
+    };
 
     const tick = () => {
       const s = stateRef.current;
@@ -131,58 +199,34 @@ export function ConnectionGraph({
           pts[i].vy *= 0.86;
           pts[i].x += pts[i].vx;
           pts[i].y += pts[i].vy;
-          pts[i].x = Math.max(pts[i].r + 4, Math.min(W - pts[i].r - 4, pts[i].x));
-          pts[i].y = Math.max(pts[i].r + 4, Math.min(H - pts[i].r - 4, pts[i].y));
+          pts[i].x = Math.max(
+            pts[i].r + 4,
+            Math.min(W - pts[i].r - 4, pts[i].x),
+          );
+          pts[i].y = Math.max(
+            pts[i].r + 4,
+            Math.min(H - pts[i].r - 4, pts[i].y),
+          );
         }
         alpha *= 0.992;
+      } else if (!settled) {
+        settled = true;
       }
 
-      // draw
-      ctx.clearRect(0, 0, W, H);
-      const hov = s.hover;
-      const neighbors = new Set<number>();
-      if (hov >= 0) {
-        neighbors.add(hov);
-        for (const e of elist) {
-          if (idx[e.a] === hov) neighbors.add(idx[e.b]);
-          if (idx[e.b] === hov) neighbors.add(idx[e.a]);
-        }
+      draw();
+
+      // stop RAF when settled and not dragging
+      if (!settled || s.drag >= 0) {
+        raf = requestAnimationFrame(tick);
       }
-      // edges
-      for (const e of elist) {
-        const i = idx[e.a],
-          j = idx[e.b];
-        const active = hov < 0 || (neighbors.has(i) && neighbors.has(j) && (i === hov || j === hov));
-        ctx.beginPath();
-        ctx.moveTo(pts[i].x, pts[i].y);
-        ctx.lineTo(pts[j].x, pts[j].y);
-        ctx.strokeStyle = active ? "rgba(26,26,26,0.55)" : "rgba(26,26,26,0.08)";
-        ctx.lineWidth = 0.5 + (e.shared / maxShared) * 3;
-        ctx.stroke();
-      }
-      // nodes
-      for (let i = 0; i < pts.length; i++) {
-        const dim = hov >= 0 && !neighbors.has(i);
-        ctx.globalAlpha = dim ? 0.25 : 1;
-        ctx.beginPath();
-        ctx.arc(pts[i].x, pts[i].y, pts[i].r, 0, Math.PI * 2);
-        ctx.fillStyle = catHex(nodes[i].category);
-        ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "#1A1A1A";
-        ctx.stroke();
-        if (!dim && (pts[i].r > 16 || i === hov)) {
-          ctx.globalAlpha = 1;
-          ctx.fillStyle = "#1A1A1A";
-          ctx.font = "600 11px Poppins, sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText(nodes[i].label, pts[i].x, pts[i].y + pts[i].r + 12);
-        }
-      }
-      ctx.globalAlpha = 1;
-      raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
+
+    if (prefersReduced) {
+      // reduced motion: draw once, no physics
+      draw();
+    } else {
+      raf = requestAnimationFrame(tick);
+    }
 
     const hit = (mx: number, my: number) => {
       for (let i = pts.length - 1; i >= 0; i--) {
@@ -204,9 +248,13 @@ export function ConnectionGraph({
         pts[s.drag].y = y;
         pts[s.drag].vx = pts[s.drag].vy = 0;
         alpha = Math.max(alpha, 0.3);
+        settled = false;
+        // restart RAF if it stopped
+        if (!raf) raf = requestAnimationFrame(tick);
       } else {
         s.hover = hit(x, y);
         canvas.style.cursor = s.hover >= 0 ? "grab" : "default";
+        if (!settled) draw();
       }
     };
     const onDown = (e: PointerEvent) => {
@@ -220,7 +268,9 @@ export function ConnectionGraph({
       const s = stateRef.current;
       const h = hit(x, y);
       // click (no real drag movement) selects
-      if (h >= 0 && s.drag === h) setSelected(nodes[h]);
+      if (h >= 0 && s.drag === h && onSelect) {
+        onSelect(nodes[h].id);
+      }
       s.drag = -1;
     };
     canvas.addEventListener("pointermove", onMove);
@@ -234,55 +284,17 @@ export function ConnectionGraph({
       canvas.removeEventListener("pointerup", onUp);
       window.removeEventListener("resize", resize);
     };
-  }, [nodes, edges, titles]);
+  }, [nodes, edges, titles, selectedId, onSelect]);
 
   return (
-    <div className="relative card-flat bg-cream overflow-hidden" style={{ height: 560 }}>
+    <div
+      className="relative rounded-lg border-2 border-ink bg-cream overflow-hidden"
+      style={{ height: 560 }}
+    >
       <canvas ref={canvasRef} className="w-full h-full block touch-none" />
       <div className="absolute top-3 left-3 text-[11px] text-ink/45">
         drag nodes · hover to isolate · click for episodes
       </div>
-
-      {selected && (
-        <div className="absolute top-3 right-3 w-72 max-h-[92%] overflow-y-auto card-flat bg-white p-4 shadow-[6px_6px_0_#1A1A1A]">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <div
-                className="chip text-cream"
-                style={{ background: catHex(selected.category) }}
-              >
-                {selected.category}
-              </div>
-              <h3 className="font-semibold mt-2 leading-snug">{selected.label}</h3>
-              <p className="text-xs text-ink/55 mt-0.5">
-                {selected.episodeCount} episodes
-              </p>
-            </div>
-            <button
-              onClick={() => setSelected(null)}
-              data-cursor="close"
-              className="chip bg-wtf-red text-cream shrink-0"
-            >
-              ✕
-            </button>
-          </div>
-          <div className="mt-3 space-y-1">
-            {selected.episodes.map((vid) => (
-              <a
-                key={vid}
-                href={`https://www.youtube.com/watch?v=${vid}`}
-                target="_blank"
-                rel="noreferrer"
-                data-cursor="watch"
-                className="block text-[11px] px-2 py-1 rounded bg-cream border border-ink/20 hover:bg-wtf-yellow transition-colors truncate"
-                title={titles[vid]}
-              >
-                {titles[vid] || vid}
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

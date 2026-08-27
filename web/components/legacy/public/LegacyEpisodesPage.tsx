@@ -7,7 +7,7 @@ export const metadata = { title: "Episodes · wtfmedia" };
 export default function LegacyEpisodesPage() {
   const groups = groupByPlaylist(data.entries);
   return (
-    <div className="halftone min-h-screen">
+    <div className="halftone min-h-screen overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-5 py-12">
         <div className="flex items-end justify-between flex-wrap gap-3 mb-10">
           <div>

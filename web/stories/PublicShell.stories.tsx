@@ -2,243 +2,75 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { PublicShell } from "@/components/patterns/PublicShell";
 
 const meta: Meta<typeof PublicShell> = {
-  title: "Patterns/PublicShell",
+  title: "Shells/PublicShellAdapter",
   component: PublicShell,
   parameters: {
     layout: "fullscreen",
+    nextjs: { appDirectory: true, navigation: { pathname: "/" } },
   },
 };
 
 export default meta;
 type Story = StoryObj<typeof PublicShell>;
 
-/**
- * Default migrated shell at desktop width.
- * Verifies: skip link, nav, main content, footer, scoped marker, inert brand slot.
- */
-export const Default: Story = {
-  render: () => (
-    <PublicShell>
-      <div className="p-8">
-        <h1>Page Content</h1>
-        <p>Main content area for testing.</p>
-      </div>
-    </PublicShell>
-  ),
+function content(title: string) {
+  return (
+    <div className="p-8">
+      <h1>{title}</h1>
+    </div>
+  );
+}
+
+export const ControlRoomDesktop: Story = {
+  render: () => <PublicShell>{content("control room")}</PublicShell>,
+  parameters: { viewport: { width: 1440, height: 900 } },
+};
+
+export const EpisodesActive: Story = {
+  render: () => <PublicShell>{content("episodes")}</PublicShell>,
   parameters: {
-    viewport: { defaultViewport: "desktop" },
+    nextjs: { appDirectory: true, navigation: { pathname: "/episodes" } },
+  },
+  play: async ({ canvasElement }) => {
+    const active = canvasElement.querySelector('nav a[aria-current="page"]');
+    if (active?.textContent?.trim() !== "episodes") {
+      throw new Error("Episodes must be the active WTF OS workspace");
+    }
   },
 };
 
-/**
- * Mobile viewport (320px) — 2x2 navigation grid.
- */
 export const Mobile320: Story = {
-  render: () => (
-    <PublicShell>
-      <div className="p-4">
-        <h1>Mobile Content</h1>
-      </div>
-    </PublicShell>
-  ),
-  parameters: {
-    viewport: { defaultViewport: "mobile1" },
-  },
-};
-
-/**
- * Tablet viewport (768px) — single row navigation.
- */
-export const Tablet768: Story = {
-  render: () => (
-    <PublicShell>
-      <div className="p-6">
-        <h1>Tablet Content</h1>
-      </div>
-    </PublicShell>
-  ),
-  parameters: {
-    viewport: { defaultViewport: "tablet" },
-  },
-};
-
-/**
- * Wide desktop (1440px) — bounded 1400px container.
- */
-export const WideDesktop1440: Story = {
-  render: () => (
-    <PublicShell>
-      <div className="p-8">
-        <h1>Wide Desktop Content</h1>
-      </div>
-    </PublicShell>
-  ),
-  parameters: {
-    viewport: { width: 1440, height: 900 },
-  },
-};
-
-/**
- * Skip link interaction — Tab to reveal skip link, Enter to jump to main.
- */
-export const SkipLinkInteraction: Story = {
-  render: () => (
-    <PublicShell>
-      <div className="p-8">
-        <h1 id="main-content-heading">Main Content Target</h1>
-        <p>After skip link activation, focus should land here.</p>
-      </div>
-    </PublicShell>
-  ),
-  parameters: {
-    a11y: {
-      config: {
-        rules: [
-          { id: "color-contrast", enabled: true },
-          { id: "link-name", enabled: true },
-        ],
-      },
-    },
-  },
+  render: () => <PublicShell>{content("mobile workspace")}</PublicShell>,
+  parameters: { viewport: { width: 320, height: 640 } },
   play: async ({ canvasElement }) => {
-    const canvas = canvasElement;
-    const skipLink = canvas.querySelector('a[href="#main-content"]');
-    if (skipLink) {
-      skipLink.focus();
+    if (!canvasElement.querySelector('button[aria-label="Open application navigation"]')) {
+      throw new Error("Missing mobile application navigation trigger");
     }
   },
 };
 
-/**
- * Active route state — verifies aria-current=page on home route.
- */
-export const ActiveRouteHome: Story = {
-  render: () => (
-    <PublicShell>
-      <div className="p-8">
-        <h1>Home Page</h1>
-      </div>
-    </PublicShell>
-  ),
-  parameters: {
-    nextjs: {
-      navigation: {
-        pathname: "/",
-      },
-    },
-  },
-};
-
-/**
- * Active route state — verifies aria-current=page on episodes route.
- */
-export const ActiveRouteEpisodes: Story = {
-  render: () => (
-    <PublicShell>
-      <div className="p-8">
-        <h1>Episodes Page</h1>
-      </div>
-    </PublicShell>
-  ),
-  parameters: {
-    nextjs: {
-      navigation: {
-        pathname: "/episodes",
-      },
-    },
-  },
-};
-
-/**
- * Migrated scope marker — verifies data-wtf-shell="migrated" exists.
- */
-export const MigratedScopeMarker: Story = {
-  render: () => (
-    <PublicShell>
-      <div className="p-8">
-        <h1>Scoped Content</h1>
-        <p>Shell should have data-wtf-shell=&quot;migrated&quot; marker.</p>
-      </div>
-    </PublicShell>
-  ),
+export const CanonicalScope: Story = {
+  render: () => <PublicShell>{content("scope")}</PublicShell>,
   play: async ({ canvasElement }) => {
-    const marker = canvasElement.querySelector('[data-wtf-shell="migrated"]');
-    if (!marker) {
-      throw new Error("Missing data-wtf-shell=migrated marker");
+    if (!canvasElement.querySelector('[data-wtf-shell="wtfos"]')) {
+      throw new Error("Missing canonical WTF OS shell marker");
     }
-  },
-};
-
-/**
- * Inert brand slot — verifies the slot exists but is hidden and aria-hidden.
- */
-export const InertBrandSlot: Story = {
-  render: () => (
-    <PublicShell>
-      <div className="p-8">
-        <h1>Brand Slot Test</h1>
-        <p>Inert brand slot should exist for Plan 01-22.</p>
-      </div>
-    </PublicShell>
-  ),
-  play: async ({ canvasElement }) => {
-    const slot = canvasElement.querySelector('[data-wtf-brand-slot="inert"]');
-    if (!slot) {
-      throw new Error("Missing inert brand slot");
-    }
-    if (slot.getAttribute("aria-hidden") !== "true") {
-      throw new Error("Brand slot should be aria-hidden");
-    }
-  },
-};
-
-/**
- * Public-only footer — verifies no internal/engine/model copy.
- */
-export const PublicOnlyFooter: Story = {
-  render: () => (
-    <PublicShell>
-      <div className="p-8">
-        <h1>Footer Test</h1>
-      </div>
-    </PublicShell>
-  ),
-  play: async ({ canvasElement }) => {
-    const footer = canvasElement.querySelector("footer");
-    if (!footer) {
-      throw new Error("Missing footer");
-    }
-    const forbiddenTerms = [
-      "NVIDIA",
-      "llama",
-      "nv-embedqa",
-      "chunks indexed",
-      "Proof of concept",
-      "Internal build",
-    ];
-    const footerText = footer.textContent || "";
-    for (const term of forbiddenTerms) {
-      if (footerText.includes(term)) {
-        throw new Error(`Footer contains forbidden term: ${term}`);
+    const copy = canvasElement.textContent ?? "";
+    for (const forbidden of ["NVIDIA", "llama", "model picker", "api key"]) {
+      if (copy.toLowerCase().includes(forbidden.toLowerCase())) {
+        throw new Error(`Public shell contains forbidden copy: ${forbidden}`);
       }
     }
   },
 };
 
-/**
- * No legacy imports — verifies PublicShell does not import legacy components.
- * This is a static assertion; the story itself renders correctly.
- */
-export const NoLegacyImports: Story = {
-  render: () => (
-    <PublicShell>
-      <div className="p-8">
-        <h1>Import Boundary Test</h1>
-        <p>
-          PublicShell should not import CustomCursor, Sparkle, Marquee, or
-          legacy brand modules.
-        </p>
-      </div>
-    </PublicShell>
-  ),
+export const SkipLink: Story = {
+  render: () => <PublicShell>{content("skip target")}</PublicShell>,
+  play: async ({ canvasElement }) => {
+    const skip = canvasElement.querySelector<HTMLAnchorElement>('a[href="#wtf-main"]');
+    const main = canvasElement.querySelector("#wtf-main");
+    if (!skip || main?.getAttribute("tabindex") !== "-1") {
+      throw new Error("Shared skip-link contract is incomplete");
+    }
+  },
 };

@@ -32,7 +32,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         className={[
           "inline-flex items-center justify-center",
           "min-h-[44px] min-w-[44px] p-2",
-          "rounded-[var(--radius-control)]",
+          "rounded-[var(--wtf-radius-control)]",
           "border-2 border-transparent",
           "transition-[transform,box-shadow] duration-fast ease-out",
           "focus-visible:outline-none",

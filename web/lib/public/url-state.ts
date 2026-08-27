@@ -66,7 +66,7 @@ export function pushEpisode(videoId: string): void {
  */
 export function replaceClearEpisode(): void {
   const search = buildEpisodeSearch(window.location.search, null);
-  window.history.pushState(null, "", `${window.location.pathname}${search}`);
+  window.history.replaceState(null, "", `${window.location.pathname}${search}`);
 }
 
 /**

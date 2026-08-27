@@ -73,7 +73,7 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
           .then(setText)
           .catch(() => setErr(true));
       });
-  }, [episode?.video_id]);
+  }, [episode]);
 
   if (!episode) return null;
 
@@ -85,7 +85,9 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
     <Drawer
       open={true}
       onOpenChange={(open) => {
-        if (!open) onClose();
+        if (!open) {
+          onClose();
+        }
       }}
       title={episode.title}
       description={`${episode.playlist_title || "Episode"} · ${fmtDuration(episode.duration)} · ${fmtViews(episode.view_count)} views`}
