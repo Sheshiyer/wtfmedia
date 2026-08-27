@@ -1,5 +1,28 @@
 # Project handoff
 
+## 2026-08-27 Operator shell converge + refinements A/D
+
+**Status:** LOCAL IMPLEMENTATION — uncommitted worktree diff on `d1e7ece`
+
+**Evidence:**
+- `OperatorShell` is a thin `AppShell` adapter (`data-ops-shell`, lowercased nav, public-workspaces + sign-out utility).
+- Operator hamburger accessible name is `open operations navigation`; public remains `Open application navigation`.
+- Drawer titles: `operations navigation` vs `application navigation`. Descriptions: `authorized operations destinations` vs `open a WTF OS workspace`. Operator nav landmark is `operations`.
+- Control Room restores 02-UI-SPEC empty copy (`the room is open` as ledger title + verified body in WorkspaceHeader) and keeps one yellow command. Layout still owns `OperatorContextStrip`.
+- StatusLedger accepts at most one `promoted` item, rendered above the list with slot copy `do this next` and a 4px attention bar (not a second yellow fill). Admin/super_admin promote operator access → `/ops/operators`; editor promotes ask wtf → `/chat`.
+- Escape restores focus to the hamburger (operator 320 + public 320 keyboard/pointer paths).
+
+**Verification:**
+```bash
+npm --prefix web run typecheck
+WTF_PUBLIC_UI_VARIANT=migrated WTFMEDIA_OPS_ORIGIN_PROOF=phase2-e2e-test-key npm --prefix web run build
+cd web && npx playwright test --grep-invert @visual tests/phase2/control-room.spec.ts tests/journeys/shell-drawer-focus.spec.ts --project=phase1-chromium-320 --project=phase1-chromium-768 --project=phase1-chromium-1440
+```
+15/15 Playwright passed. No deployment, secret, or registry mutation.
+
+**Next Action:**
+Path-scoped commit of the operator-shell converge files. Plan 02-12 stays owner-gated.
+
 ## Phase 2 Planning Checkpoint (2026-08-26)
 
 **Status:** EXECUTING — Plans 02-01 through 02-11 complete

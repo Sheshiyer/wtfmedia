@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AppRail, type AppNavItem } from "./AppRail";
 import { Drawer } from "@/components/ui/Drawer";
 import { IconButton } from "@/components/ui/IconButton";
@@ -21,6 +21,15 @@ export function AppShell({
   utility,
 }: AppShellProps) {
   const [navigationOpen, setNavigationOpen] = useState(false);
+  const menuTrigger = useRef<HTMLButtonElement>(null);
+  const isOperator = mode === "operator";
+
+  const handleNavigationOpenChange = (open: boolean) => {
+    setNavigationOpen(open);
+    if (!open) {
+      requestAnimationFrame(() => menuTrigger.current?.focus());
+    }
+  };
 
   return (
     <div
@@ -42,9 +51,18 @@ export function AppShell({
         <header className="sticky top-0 z-40 flex min-h-16 items-center justify-between border-b-2 border-foreground bg-foreground px-4 text-canvas lg:hidden">
           <MigratedWordmarkMini />
           <IconButton
-            aria-label="Open application navigation"
+            ref={menuTrigger}
+            aria-label={
+              isOperator
+                ? "open operations navigation"
+                : "Open application navigation"
+            }
             aria-expanded={navigationOpen}
-            aria-controls="wtf-application-navigation"
+            aria-controls={
+              isOperator
+                ? "wtf-operations-navigation"
+                : "wtf-application-navigation"
+            }
             onClick={() => setNavigationOpen(true)}
             className="border-canvas/50 text-canvas hover:border-attention hover:bg-attention hover:text-foreground"
           >
@@ -58,20 +76,28 @@ export function AppShell({
 
         <Drawer
           open={navigationOpen}
-          onOpenChange={setNavigationOpen}
-          title="application navigation"
-          description="open a WTF OS workspace"
+          onOpenChange={handleNavigationOpenChange}
+          title={isOperator ? "operations navigation" : "application navigation"}
+          description={
+            isOperator
+              ? "authorized operations destinations"
+              : "open a WTF OS workspace"
+          }
           side="left"
         >
           <div
-            id="wtf-application-navigation"
+            id={
+              isOperator
+                ? "wtf-operations-navigation"
+                : "wtf-application-navigation"
+            }
             className="-mx-6 -mb-6 -mt-4 h-[calc(100vh-5rem)]"
           >
             <AppRail
               mode={mode}
               navigation={navigation}
               utility={utility}
-              onNavigate={() => setNavigationOpen(false)}
+              onNavigate={() => handleNavigationOpenChange(false)}
             />
           </div>
         </Drawer>
