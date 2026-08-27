@@ -1,0 +1,550 @@
+{
+  "meta": {
+    "snapshot_at": "2026-08-27",
+    "source_file_basename": "Internal - PODCAST Links .xlsx",
+    "source_file_sha256": "f2070ab4efc3519a17ad2b065992116b7bb6bed9333090e6d96301da7b9cc4f8",
+    "source_sheet_name": "Podcasts by WTF",
+    "source_sheet_index": 1,
+    "header_row_source_index": 2,
+    "data_starts_at_source_index": 3,
+    "column_headers": [
+      "Episode No.",
+      "Name of Episode",
+      "Guests",
+      "Final EP File",
+      "Final Trailer File",
+      "Final Teaser File",
+      "Thumbnails",
+      "English Subtitles",
+      "Hindi Subtitles",
+      "Zset Folder",
+      "Transcripts",
+      "Switcher",
+      "Creatives",
+      "All Deliverables"
+    ],
+    "record_count": 26
+  },
+  "records": [
+    {
+      "source_row": 3,
+      "row_hash": "sha256:14b0fec203948e24da063157c94f30b31786a3a23b82e2c74af36955ac610af3",
+      "fields": {
+        "Episode No.": "1.0",
+        "Name of Episode": "WTF is Metaverse?",
+        "Guests": "Tanmay Bhat\nUmang Bedi \nAprameya Radhakrishna",
+        "Final EP File": "https://f.io/9vjmQqEA",
+        "Final Trailer File": "https://f.io/qWGIxh9u",
+        "Final Teaser File": "--------------------------------",
+        "Thumbnails": "https://f.io/FBFd5QdC",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623514",
+        "Transcripts": "https://drive.google.com/file/d/135urJJY4aFp2FcLTq30NIq8JwbTMP0yC/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 4,
+      "row_hash": "sha256:83238aca90b2183b03d13062b46eda9b4a998c5ee7e5fabb56511c70c8429c7f",
+      "fields": {
+        "Episode No.": "2.0",
+        "Name of Episode": "Secrets of Social Media Success, Mental Health & Distribution Hacks",
+        "Guests": "Tanmay Bhat\nUmang Bedi \nAprameya Radhakrishna",
+        "Final EP File": "https://f.io/fA3BzLzZ",
+        "Final Trailer File": "https://f.io/rQe9xuzj",
+        "Final Teaser File": "--------------------------------",
+        "Thumbnails": "https://f.io/ae7fAxbb",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623634",
+        "Transcripts": "https://drive.google.com/file/d/1lwmtGEM0p--9O-Uyo6EjgoTYPlHr065O/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 5,
+      "row_hash": "sha256:4a107beae1627296bc68d46d68a2deb5845d2f56bdf0c30fd86fb61322d10a01",
+      "fields": {
+        "Episode No.": "3.0",
+        "Name of Episode": "WTF is E-commerce?",
+        "Guests": "Kishore Biyani\nVidit Aatrey\nSujeet Kumar",
+        "Final EP File": "https://f.io/ID2MkTj4",
+        "Final Trailer File": "https://f.io/TsyJOvfa",
+        "Final Teaser File": "--------------------------------",
+        "Thumbnails": "https://f.io/CtAYUeU9",
+        "English Subtitles": "https://drive.google.com/file/d/1veu8RgT074698ABQFRTiN0f3MTMNMr4o/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623521",
+        "Transcripts": "https://drive.google.com/file/d/1j2LP4s56zHNTHOMnwD7pZ4rV-hh0NXcN/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 6,
+      "row_hash": "sha256:cc82b4cbbca3e8f85f4f1a8661f2873be0f42575bc6dcfa285de91446707f137",
+      "fields": {
+        "Episode No.": "4.0",
+        "Name of Episode": "WTF is ChatGPT?",
+        "Guests": "Tanmay Bhat\nUmang Bedi \nAprameya Radhakrishna\nVarun Mayya",
+        "Final EP File": "https://f.io/apQ6XFvM",
+        "Final Trailer File": "https://f.io/pnYnEFCZ",
+        "Final Teaser File": "--------------------------------",
+        "Thumbnails": "https://f.io/--eDxviB",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623522",
+        "Transcripts": "https://drive.google.com/file/d/1l7q0O_XfzF9aoS4t3pDxsizSuG_6mT1H/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 7,
+      "row_hash": "sha256:d3f99d5c6e97e151bdca8abcff1625f2a54e8a63de9d16dabfcf389e7ef58c2c",
+      "fields": {
+        "Episode No.": "5.0",
+        "Name of Episode": "WTF is EdTech?",
+        "Guests": "Ronnie Screwvala \nGaurav Munjal \nJay Kotak",
+        "Final EP File": "https://f.io/4OEkae3E",
+        "Final Trailer File": "https://f.io/Q4jYERmT",
+        "Final Teaser File": "--------------------------------",
+        "Thumbnails": "https://f.io/T2A2NlSx",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623545",
+        "Transcripts": "https://drive.google.com/file/d/1Z1qTQony3FPBLZmtYFlAm7rIdL9i98_d/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 8,
+      "row_hash": "sha256:c9440398c3b12043309e90c09573cfd45137b1b7fe12a97b745e36545a9bba77",
+      "fields": {
+        "Episode No.": "6.0",
+        "Name of Episode": "WTF is Health",
+        "Guests": "Suniel Shetty\nNithin Kamath\nMukesh Bansal",
+        "Final EP File": "https://f.io/xKOYgf0f",
+        "Final Trailer File": "https://f.io/tr_W7Neu",
+        "Final Teaser File": "--------------------------------",
+        "Thumbnails": "https://f.io/VxyI5Qgf",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623551",
+        "Transcripts": "https://drive.google.com/file/d/1lJPIA9R4xEaEVTnVsoxw_4cSvf9hYsE5/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 9,
+      "row_hash": "sha256:0c1ee5696df6de1edab3733b7c276ca65ff838db0486be2848ac5b9f0d5967d9",
+      "fields": {
+        "Episode No.": "7.0",
+        "Name of Episode": "WTF is Biotech?",
+        "Guests": "Kiran Mazumdar Shaw",
+        "Final EP File": "https://f.io/xh03e-0J",
+        "Final Trailer File": "https://f.io/l8wOD-bY",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/vZUuzY6L",
+        "English Subtitles": "https://drive.google.com/file/d/10EtX_05GJMBAyjmqdqWpYLGoDsgRqPg4/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623552",
+        "Transcripts": "https://drive.google.com/file/d/1FSnv9PLSCKeYlA6bnY8MoZFK3YpaQX7A/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 10,
+      "row_hash": "sha256:9696499d1dcf6fe5da87dfb49edb66f8e16e6c149b1354e8c433b85964e017bc",
+      "fields": {
+        "Episode No.": "8.0",
+        "Name of Episode": "WTF is Going on in the World of Content?",
+        "Guests": " Ajay Bijli\nVijay Subramaniam \nSajith Sivanandan",
+        "Final EP File": "https://f.io/lDz14jbo",
+        "Final Trailer File": "https://drive.google.com/drive/folders/1rMw9Jotlo0V3mqnoaUQP84Vx724w10m4?usp=drive_link",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/0_x4STgH",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623553",
+        "Transcripts": "https://drive.google.com/file/d/1l93PTQOTsuw6OXrjRau2DWxxtmnkdoGb/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 11,
+      "row_hash": "sha256:ea0625113549e3040071c8cd3ba66c28b418353284b90d78660a758ccad0726f",
+      "fields": {
+        "Episode No.": "9.0",
+        "Name of Episode": "WTF is Venture Capital?",
+        "Guests": "Nithin Kamath\nPrashanth Prakash\nKarthik Reddy\nRajan Anandan",
+        "Final EP File": "https://f.io/3C8FH0fm",
+        "Final Trailer File": "https://f.io/tyuB0Lgz",
+        "Final Teaser File": "--------------------------------",
+        "Thumbnails": "https://drive.google.com/drive/folders/1GRIBCLx0NYtedMtckt3YzVyoDFyDSsuA?usp=drive_link",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623554",
+        "Transcripts": "https://drive.google.com/file/d/1R1dWlEeWv01VXeDYPwggoQmEG-MYkpqe/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 12,
+      "row_hash": "sha256:f6e8514a9212cd2cde3d2fe976f0bc27388e581a3ce7a9a16158d49c1e07be47",
+      "fields": {
+        "Episode No.": "10.0",
+        "Name of Episode": "WTF is the Next Gen Thinking?",
+        "Guests": "Aadit Palicha\n Tara Sutaria\nNavya Naveli\nKaivalya Vohra",
+        "Final EP File": "https://f.io/roSn_hfx",
+        "Final Trailer File": "https://f.io/H2yg99qu",
+        "Final Teaser File": "https://f.io/8bEZrZJb",
+        "Thumbnails": "https://drive.google.com/drive/folders/1HlVUKDrLiE3m9mcth1uNIdrx2qv_5iP2?usp=drive_link",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623555",
+        "Transcripts": "https://drive.google.com/file/d/1qoULK9bnN9uY9WCtze4EL9c9ULumY-dH/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 13,
+      "row_hash": "sha256:4fac216a985ab9f31172da895a5027dec7613e3c59af639cdddbe6736c139281",
+      "fields": {
+        "Episode No.": "11.0",
+        "Name of Episode": "WTF Goes into Building a Fashion, Beauty, or Home Brand?",
+        "Guests": " Ananth Narayanan\n Kishore Biyani\nRaj Shamani",
+        "Final EP File": "https://f.io/FdaVCdPT",
+        "Final Trailer File": "https://f.io/CENGXorb",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://drive.google.com/drive/folders/1QewH96IvUEFRn8ceKV2uzcednIRWg06F?usp=drive_link",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623556",
+        "Transcripts": "https://drive.google.com/file/d/1mfbbGA-dYZG1jwo8viFxXxssw4Mjrj1q/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 14,
+      "row_hash": "sha256:3a351b39f122ee701c1578ed3f58536c287bb4d2058948de9e789e5bccca8330",
+      "fields": {
+        "Episode No.": "12.0",
+        "Name of Episode": " WTF is The Restaurant Game?",
+        "Guests": " Pooja Dhingra\n Zorawar Kalra \n Riyaaz Amlani",
+        "Final EP File": "https://f.io/9H0F83Nu",
+        "Final Trailer File": "https://f.io/jKLBC__B",
+        "Final Teaser File": "https://f.io/5qElegfy",
+        "Thumbnails": "https://f.io/0h2GCFPj",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623562",
+        "Transcripts": "https://drive.google.com/file/d/1-PoAFw_AdT5QOCfh_FwuE8wJ1CGWxcj8/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 15,
+      "row_hash": "sha256:744fa04caff4abc12469107391e1aee23153720ff0a9789b49a46361b74ca986",
+      "fields": {
+        "Episode No.": "13.0",
+        "Name of Episode": "WTF does it take to Build Influence Today?",
+        "Guests": " Nuseir Yasin\n Tanmay Bhat,\n  Prajakta Koli \nRanveer Allahbadia",
+        "Final EP File": "https://f.io/XqPP-aoj",
+        "Final Trailer File": "https://f.io/Cox_vNgJ",
+        "Final Teaser File": "https://f.io/1Nk6PAH2",
+        "Thumbnails": "https://f.io/Exk5GpMf",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623563",
+        "Transcripts": "https://drive.google.com/file/d/1lLdfJy95_qsfrTYU8cGVdXNAOR2pyJwg/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 16,
+      "row_hash": "sha256:d90a4552862f0d7a13ba4bc66737ee1d52f909ee3451fced9bb543cf5b1abfaf",
+      "fields": {
+        "Episode No.": "14.0",
+        "Name of Episode": "WTF is Happening with EV? ",
+        "Guests": "Chetan Maini\n Tarun Mehta\nSuruchi Rao \n Punit Goyal",
+        "Final EP File": "",
+        "Final Trailer File": "https://f.io/v6rt_7qg",
+        "Final Teaser File": "https://f.io/rojA0OqN",
+        "Thumbnails": "https://f.io/l-IXyYqK",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "",
+        "Transcripts": "https://drive.google.com/file/d/1FAlPJCKdmn3HwzjJ5yutakGiQxkUanQv/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 17,
+      "row_hash": "sha256:8ab9bb0c33d3757c0261f44fe34a0d6d86dbead3bde17c7dbc0b81bb9bae7377",
+      "fields": {
+        "Episode No.": "15.0",
+        "Name of Episode": "WTF is Climate Change?",
+        "Guests": "Sunita Narain\nBhumi Pednekar\nNavroz K Dubash\nMirik Gogri ",
+        "Final EP File": "",
+        "Final Trailer File": "https://f.io/7846zslE",
+        "Final Teaser File": "https://f.io/8EvXmyrV",
+        "Thumbnails": "https://f.io/Disy7qRF",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "",
+        "Transcripts": "https://drive.google.com/file/d/1PoRbX5D7I3uVkNcrSbA2zv0v4K98KmKl/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 18,
+      "row_hash": "sha256:0f7a7137fe448adcb2b3372400ea613975b708142c67e2db5dbd79b8ccc19782",
+      "fields": {
+        "Episode No.": "16.0",
+        "Name of Episode": "WTF is Entrepreneurship?",
+        "Guests": "Ritesh Agarwal\nGhazal Alagh",
+        "Final EP File": "https://f.io/N5sFK9qk",
+        "Final Trailer File": "",
+        "Final Teaser File": "https://f.io/kWblP3i4",
+        "Thumbnails": "https://f.io/QjwFBkwr",
+        "English Subtitles": "https://drive.google.com/file/d/11i7nJTt2M1iTQld975AL8bCZ1zEHMYhq/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623787",
+        "Transcripts": "https://drive.google.com/file/d/1fqPfdX2g-vzRgn4STq5cmn14cz_4UaOI/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 19,
+      "row_hash": "sha256:95555d9d8028d2001c8e68e447be5d4be43ae28dd4a6ac03a0e36491e8a964c6",
+      "fields": {
+        "Episode No.": "17.0",
+        "Name of Episode": "WTF is Gaming?",
+        "Guests": "Animesh Agarwal \nSean Hyunil Sohn\nJoseph Kim \nNitish Mittersain ",
+        "Final EP File": "https://f.io/y7J9kbnu",
+        "Final Trailer File": "https://f.io/wLlrCjkO",
+        "Final Teaser File": "https://f.io/3tWeUsMY",
+        "Thumbnails": "https://f.io/RijRIjdm",
+        "English Subtitles": "https://drive.google.com/file/d/1YQTGGMzG7N76ZtHf7_88tYCOfzQO2k_U/view?usp=drive_link",
+        "Hindi Subtitles": "https://drive.google.com/file/d/1MofT8OiPIp2yZsGsmjK5I99KXJCAxdKB/view?usp=drive_link",
+        "Zset Folder": "https://web.zset.in/folder/1623786",
+        "Transcripts": "https://drive.google.com/file/d/18BXTOCDHdg99odtAYAkA556Q6EBxiP_K/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 20,
+      "row_hash": "sha256:f6a9ebdda164eaaaf8470464094756018b675f67b9e9642c0796fac70e6322cb",
+      "fields": {
+        "Episode No.": "18.0",
+        "Name of Episode": "WTF is Alcohol Industry?",
+        "Guests": "Abhishek Khaitan\nMinakshi Singh \nShuchir Suri \nSuraj Shenai ",
+        "Final EP File": "https://f.io/aZ15dDlA",
+        "Final Trailer File": "https://f.io/lkpBilcd",
+        "Final Teaser File": "https://f.io/_7wcgbA3",
+        "Thumbnails": "https://f.io/hQwIWwbL",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623779",
+        "Transcripts": "https://drive.google.com/file/d/182_Xfq6pOuxbxEyOzwaQ4N-JrgfN2vuU/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 21,
+      "row_hash": "sha256:abc3a0b2e143b570913af866797013ccace2e135f9770aa954b2cb540673f435",
+      "fields": {
+        "Episode No.": "19.0",
+        "Name of Episode": "WTF is making it in Offbeat Careers?",
+        "Guests": "Kriti Sanon\nKL Rahul\nBadshah",
+        "Final EP File": "https://f.io/Il34e-9n",
+        "Final Trailer File": "https://f.io/6kRnoIad",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/J2DGjqq9",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623767",
+        "Transcripts": "https://drive.google.com/file/d/1C0R2Jxq_r_90qTiD0AGpVMzJZ3tI3j36/view?usp=drive_link",
+        "Switcher": "https://f.io/eWJUuCeZ",
+        "Creatives": "https://f.io/55-cTzo2",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 22,
+      "row_hash": "sha256:0094217dcdf1d7dc9891f9fda5f43eeaa42e57178ca346698004f424af050f19",
+      "fields": {
+        "Episode No.": "20.0",
+        "Name of Episode": "WTF are Indian Real Estate Giants Up To?",
+        "Guests": "Irfan Razack\nNirupa Shankar\nKaran Virwani",
+        "Final EP File": "https://f.io/QdX681Sj",
+        "Final Trailer File": "https://f.io/ous2to5h",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/ous2to5h",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623766",
+        "Transcripts": "https://drive.google.com/file/d/1bitBE6Hm4qiO2I1ORaetAJyuGRVsupdr/view?usp=drive_link",
+        "Switcher": "https://f.io/tnVu3e7T",
+        "Creatives": "https://f.io/bWa1hqHl",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 23,
+      "row_hash": "sha256:0b7c957b0452852514de56d08e85f84a79cffb0bf46783795938269a8672fa61",
+      "fields": {
+        "Episode No.": "21.0",
+        "Name of Episode": "WTF is Longevity?",
+        "Guests": "Nithin Kamath\nBryan Johnson\nPrashanth Prakash\nJitendra Chouksey",
+        "Final EP File": "https://f.io/IcfLE70O",
+        "Final Trailer File": "https://f.io/WS9CXPxa",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/9xUPcmY8",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623765",
+        "Transcripts": "https://drive.google.com/file/d/1BsvFQVEfDgElhUr94KX-8P2ewUmwjmXl/view?usp=drive_link",
+        "Switcher": "https://f.io/J3FINOPX",
+        "Creatives": "https://f.io/M0uwriV8",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 24,
+      "row_hash": "sha256:e85569db1199b0a0c1e95d4a90d4d2d44a76d8b0e4e668fed3bd59c43d02cf3e",
+      "fields": {
+        "Episode No.": "22.0",
+        "Name of Episode": "WTF is Beverages?",
+        "Guests": "Matt Chitharanjan\nAdithya Kidambi\nAneesh Bhasin \nRahul Reddy",
+        "Final EP File": "https://f.io/M2G-uR15",
+        "Final Trailer File": "https://f.io/LHHaGQ7G",
+        "Final Teaser File": "https://f.io/Fwdynqqb",
+        "Thumbnails": "https://f.io/8FCATVbn",
+        "English Subtitles": "",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623764",
+        "Transcripts": "https://drive.google.com/file/d/1IXyefuT5WamOLeLzhtT2a56FF-VqRq1A/view?usp=drive_link",
+        "Switcher": "https://f.io/45WeCwVD",
+        "Creatives": "https://f.io/QjXXetT8",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 25,
+      "row_hash": "sha256:4644e6df1845f18d4483b68de752cd91c377a994d8cf640ac4557c606d2ef846",
+      "fields": {
+        "Episode No.": "23.0",
+        "Name of Episode": "WTF is Consumer Electronics?",
+        "Guests": "Carl Pei\nRahul Sharma\nAmit Khatri",
+        "Final EP File": "https://f.io/xo4c2nV5",
+        "Final Trailer File": "-------------------------------",
+        "Final Teaser File": "https://f.io/4I3I91NN",
+        "Thumbnails": "https://f.io/8ScYloaY",
+        "English Subtitles": "https://drive.google.com/file/d/1pea-rxL66vRhD4oavLP1P2K_MSYc6c_8/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1623760",
+        "Transcripts": "https://drive.google.com/file/d/1gTd5xSqTlBWtuIteyDWfjhvnlmFBUyi1/view?usp=drive_link",
+        "Switcher": "",
+        "Creatives": "https://f.io/Ffh30NgY",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 26,
+      "row_hash": "sha256:18c0202829ddd70b016e61bbd9481a6f725fbafea7499893c9bb5bbc28fed25d",
+      "fields": {
+        "Episode No.": "24.0",
+        "Name of Episode": "WTF is Venture Capital #2",
+        "Guests": "Deedy Das \nNikunj Kothari \nNiko Bonatsos",
+        "Final EP File": "https://f.io/koo0kn6a",
+        "Final Trailer File": "https://f.io/bl-ttvZt",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/Eyp7LoDG",
+        "English Subtitles": "https://drive.google.com/file/d/1TFzT4HyBNFRaz2r5EQ0YjlctL9BabQ5C/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1616710",
+        "Transcripts": "",
+        "Switcher": "https://f.io/A-v-Sy6J",
+        "Creatives": "https://f.io/mQS2-qlW",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 27,
+      "row_hash": "sha256:a6bfd4685d2aeecfaa1998ac4d4978d437aadb2c3aa8061531cbb371a128f6ec",
+      "fields": {
+        "Episode No.": "25.0",
+        "Name of Episode": "WTF is Skincare?",
+        "Guests": "Bhakti Modi\nDiipa Khosla\nShantanu Deshpande",
+        "Final EP File": "https://f.io/-x0cqh2d\n",
+        "Final Trailer File": "-------------------------------",
+        "Final Teaser File": "https://f.io/L4GVKU_Y",
+        "Thumbnails": "https://f.io/e-_GYbnF",
+        "English Subtitles": "https://drive.google.com/file/d/18-bYZb8_fVgZ7vmYCIvD5ZgAZ0ShP1AA/view?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/folder/1619113",
+        "Transcripts": "",
+        "Switcher": "https://f.io/cBvV1_Do",
+        "Creatives": "https://f.io/JTLmPNQC",
+        "All Deliverables": ""
+      }
+    },
+    {
+      "source_row": 28,
+      "row_hash": "sha256:1189ae0ff9f22841a256a4d6a08072eaeaf2c43dfda3407cf068575474f6fa56",
+      "fields": {
+        "Episode No.": "26.0",
+        "Name of Episode": "WTF is Pharma?",
+        "Guests": "Rajeev Juneja\nG.V Prasad Reddy",
+        "Final EP File": "https://f.io/gruOdHXR",
+        "Final Trailer File": "https://f.io/ll0wKMGB",
+        "Final Teaser File": "-------------------------------",
+        "Thumbnails": "https://f.io/TwsEXtGJ",
+        "English Subtitles": "https://drive.google.com/drive/folders/1Js5U3qqZzs3AmAALPKF86i-9xd-HptIc?usp=drive_link",
+        "Hindi Subtitles": "",
+        "Zset Folder": "https://web.zset.in/f/G-MqvhwXNHF",
+        "Transcripts": "",
+        "Switcher": "https://f.io/Un1_qDIU\n\nhttps://f.io/oafBV-do",
+        "Creatives": "",
+        "All Deliverables": ""
+      }
+    }
+  ]
+}
