@@ -27,12 +27,29 @@ working tree as of session end, untouched.
 
 ## Highest-value follow-up (do this first)
 
-**`wtf/wtf-os-shell-materialize` — makes `main` buildable from a fresh clone.**
+**`wtf/wtf-os-shell-materialize` — lands the local WTF OS shell on `main`.**
 
-The commit at `5dc06fc` ("refactor: make WTF OS the default app version")
-switches the default UI variant to `wtfos`, but the shell files it depends
-on are still untracked. A fresh clone will not build `main`. That is the
-single most important gap to close.
+Verified against `origin/main` at `dfb934b` (not against the dirty working
+tree):
+
+- `5dc06fc` only changes `web/app/layout.tsx`,
+  `web/lib/public/public-ui-variant.ts`, and the variant contract test.
+  Layout still renders the tracked `PublicShell`, not the untracked
+  `AppShell`.
+- Phase 2 Gate on `main` fails first on typecheck:
+  `web/tests/unit/component-trace.test.ts` imports untracked
+  `web/tests/component-trace.json`.
+- Vercel on `main` fails first on ESLint:
+  committed `web/app/page.tsx` (`guest's` → `react/no-unescaped-entities`).
+  That file is still the pre-migration home (it imports tracked
+  `PaintCanvas`), not the local dual-variant `MigratedHomePage` seam.
+
+Shell materialize is still the highest-value product follow-up: the local
+tree already uses `AppShell` / `MigratedHomePage` / `OperatorShell` adapters,
+and landing those files also replaces the lint-failing home page. It is
+not, by itself, the current fresh-clone typecheck failure. Include
+`web/tests/component-trace.json` on this branch or on a tiny preceding
+`test-infrastructure` commit so CI typecheck can pass.
 
 Files to include on this branch:
 
@@ -69,7 +86,7 @@ approximate file counts observed at session end.
 
 | Slug | Concern | Files | Notes |
 |---|---|---:|---|
-| `wtf-os-shell-materialize` | Shell code (see above) | ~28 | Blocks fresh-clone build. Highest priority. |
+| `wtf-os-shell-materialize` | Shell code (see above) | ~28 | Highest-value product follow-up. Pair with `component-trace.json` to unblock typecheck. |
 | `test-infrastructure-2026-08` | New test suites | ~14 | `web/tests/accessibility/`, `journeys/{chat,connections,home,viewports,debug-wordmark}.spec.ts`, `rollback/{chat,connections,home}-variant.spec.ts`, `visual/`, `contracts/{connections-parity,wtf-os-token-contract}.test.ts`. Some depend on shell branch. |
 | `phase1-threat-evidence` | Threat harness output | ~19 | `web/tests/security/phase1-threat-{results,corrections}/*.json`, `web/scripts/{lib/,merge-,verify-}phase1-*`, `.planning/phases/01-*/*-SUMMARY.md` (11), modified `01-09-PLAN.md` + `01-VALIDATION.md`. Self-contained planning + evidence. |
 | `cloudflare-infra-docs` | Infra reference | 4 | `cloudflare/wrangler.jsonc` (safe to commit — resource bindings only, no secrets), `docs/CLOUDFLARE-INFRASTRUCTURE.md`, `docs/CLOUDFLARE-MIGRATION-PLAN.md`, `wtfmedia-cloudflare-architecture.html`. |
