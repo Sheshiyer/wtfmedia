@@ -22,12 +22,17 @@
       "Creatives",
       "All Deliverables"
     ],
-    "record_count": 4
+    "record_count": 4,
+    "url_redaction": {
+      "policy": "scheme-host-plus-sha256-of-original-url",
+      "form": "{scheme}://{host}/#sha256:{hex}",
+      "url_count": 13
+    }
   },
   "records": [
     {
       "source_row": 3,
-      "row_hash": "sha256:bc5bab74a6f551a300fe5df8b47dcd016a5941503bde99ccbc502e7d5b984baf",
+      "row_hash": "sha256:197809c7f0bcf68a2e8047b95306ea6d766a6bafb2a953835f33f9e3c3caec04",
       "fields": {
         "Episode No.": "1.0",
         "Name of Episode": "Policing in Bangalore",
@@ -35,10 +40,10 @@
         "Final Trailer File": "",
         "Final Teaser File": "",
         "Thumbnails": "",
-        "English Subtitles": "https://drive.google.com/file/d/1v0oZ9EWzxoqCJbOafdI96L4TDm6xpNUW/view?usp=drive_link",
-        "Hindi Subtitles": "Kannada\nhttps://drive.google.com/file/d/1IVYoUKyyvEcsAfaGTFw2cOZknoRca_-6/view?usp=drive_link",
-        "Zset Folder": "https://web.zset.in/f/rbTgLZd_hWb",
-        "Transcripts": "https://drive.google.com/file/d/10SgL8ZeQNp2TX5vD9IJsieV3OOoiGmKI/view?usp=drive_link",
+        "English Subtitles": "https://drive.google.com/#sha256:b0de43f4650025745e221db8679ab2965232a8685276fc4e9b2df2b9b2184f9b",
+        "Hindi Subtitles": "Kannada\nhttps://drive.google.com/#sha256:3ba4803555eab955e607dec440c9b04f3ed28977406bb2c3c5cc303195acfe4d",
+        "Zset Folder": "https://web.zset.in/#sha256:cdc95b6e37e53094218b3c94e40efb7159fd5b36d16ab9e891d0b4b27e824e00",
+        "Transcripts": "https://drive.google.com/#sha256:e6a1128cc9c68580fa52cce6b17c00f1ae366e675b4029b34b14bf7c088eda6f",
         "Switcher": "",
         "Creatives": "",
         "All Deliverables": ""
@@ -46,18 +51,18 @@
     },
     {
       "source_row": 4,
-      "row_hash": "sha256:d842934213e42421f138a9066a30a77a57308717c208c2fdc4b4d8b7cd53c30d",
+      "row_hash": "sha256:f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293",
       "fields": {
         "Episode No.": "2.0",
         "Name of Episode": "AI Minister: Omar Al Olama",
-        "Final EP File": "https://f.io/jXKxs5id",
+        "Final EP File": "https://f.io/#sha256:dbe75bd791cf48846b374c275f869adc2cc454ea03286bd4d660818239686cfe",
         "Final Trailer File": "-------------------------------",
-        "Final Teaser File": "https://f.io/kYykGTOR",
-        "Thumbnails": "https://f.io/ZrhfjpWm",
-        "English Subtitles": "https://drive.google.com/file/d/1v0oZ9EWzxoqCJbOafdI96L4TDm6xpNUW/view?usp=drive_link",
+        "Final Teaser File": "https://f.io/#sha256:8cd5961bc30e35d1bc14d0840ce4800c46f6b70a12bdf88023d9c8228ac4a593",
+        "Thumbnails": "https://f.io/#sha256:e4360d4068731be9908c8e3c451bb16dcd069a31c12ce85f319350cf0c6717b0",
+        "English Subtitles": "https://drive.google.com/#sha256:b0de43f4650025745e221db8679ab2965232a8685276fc4e9b2df2b9b2184f9b",
         "Hindi Subtitles": "",
-        "Zset Folder": "https://web.zset.in/f/rbTgLZd_hWb",
-        "Transcripts": "https://drive.google.com/file/d/1_YEtXoxnJmKrkvNc3PHEeHXsyX2r40w7/view?usp=drive_link",
+        "Zset Folder": "https://web.zset.in/#sha256:cdc95b6e37e53094218b3c94e40efb7159fd5b36d16ab9e891d0b4b27e824e00",
+        "Transcripts": "https://drive.google.com/#sha256:bf8358520f0430d3d68abc35482ca74e95bd1fbc848aff7868102a2a5e089882",
         "Switcher": "",
         "Creatives": "",
         "All Deliverables": ""
@@ -65,21 +70,21 @@
     },
     {
       "source_row": 5,
-      "row_hash": "sha256:b3195bff715fa5f2c09b50f33c5b04547ccb26c9f6620b46fa43c0e75872f201",
+      "row_hash": "sha256:8587afb91e672d9b5f5bf4db094604411b990f5c6267371f7bbb3cc23399e58c",
       "fields": {
         "Episode No.": "3.0",
         "Name of Episode": "WTF Bootcamp ",
-        "Final EP File": "https://f.io/zgWI6k3J",
+        "Final EP File": "https://f.io/#sha256:80e3749dd7b638b7b5d737e483c7bf47f1229d2fce937ca1da7f7520206b8575",
         "Final Trailer File": "",
         "Final Teaser File": "",
         "Thumbnails": "",
         "English Subtitles": "",
         "Hindi Subtitles": "",
         "Zset Folder": "",
-        "Transcripts": "https://drive.google.com/file/d/1_F2q2lMbeEtnCHTjyAKIGmvDLdFM7VZh/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:3553ae921725115a4f97b3cdeec7b869bf52457930293510ec46cae1a0cf6869",
         "Switcher": "",
         "Creatives": "",
-        "All Deliverables": "https://drive.google.com/drive/folders/1E3UlvUr1aoGzlEGjSm-0Cj1VXFJgjFrS?usp=drive_link"
+        "All Deliverables": "https://drive.google.com/#sha256:1779bf755b375f62d37d0bc400245780f9a029bc91e86d43bfb2a2d392680ab6"
       }
     },
     {

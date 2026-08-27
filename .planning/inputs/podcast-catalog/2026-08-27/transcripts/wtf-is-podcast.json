@@ -17,197 +17,202 @@
       "Clean Cut",
       "Final EP Frame"
     ],
-    "record_count": 27
+    "record_count": 27,
+    "url_redaction": {
+      "policy": "scheme-host-plus-sha256-of-original-url",
+      "form": "{scheme}://{host}/#sha256:{hex}",
+      "url_count": 52
+    }
   },
   "records": [
     {
       "source_row": 2,
-      "row_hash": "sha256:c54bebd85d754bcdbe4f0ada1ecdeb93731cffacbd0839e4be52140b9e56a33b",
+      "row_hash": "sha256:c0d66697820f24b95a9819b5fada4c7014b08ef86f234c1055edc4c6979191c6",
       "fields": {
         "Name of Episode": "WTF is Metaverse?",
-        "Transcripts": "https://drive.google.com/file/d/135urJJY4aFp2FcLTq30NIq8JwbTMP0yC/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:40a11bcb33105c7a973960d7c40520f28db2fd96ab4ad3365a3a51d38e9a3936",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "12th March 2023",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/9vjmQqEA"
+        "Final EP Frame": "https://f.io/#sha256:58858ae1db39cf15af71314aa2e0a9bf18a31fc6bea7a3e592f56e843d56c7cc"
       }
     },
     {
       "source_row": 3,
-      "row_hash": "sha256:6acbdf9fa56bc430d97c91b925327559bfb3e21f2e61022d2659a15fb72d2649",
+      "row_hash": "sha256:1186056d5da91922c0abcfb5bb1830ec19ebaae671608cee2a4cb1e6744c9dcc",
       "fields": {
         "Name of Episode": "Secrets of Social Media Success, Mental Health & Distribution Hacks",
-        "Transcripts": "https://drive.google.com/file/d/1lwmtGEM0p--9O-Uyo6EjgoTYPlHr065O/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:c0e5d2b084a566655835beb41d4f04081acdf9d0f56d1e517722458f485759a0",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "20th April 2023",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/fA3BzLzZ"
+        "Final EP Frame": "https://f.io/#sha256:6ff0ad3a2b305eacf30ab238b214195e130ad79e5ff388148134c323c1348506"
       }
     },
     {
       "source_row": 4,
-      "row_hash": "sha256:0acd7dfcea1bfde4a48a99b6e461eb8b9b177842a328771dbf86270a318155a0",
+      "row_hash": "sha256:6eef86423371c98ea910d4e647506cc967bbee1d43dd09b59a90dadc7e5ba237",
       "fields": {
         "Name of Episode": "WTF is E-commerce?",
-        "Transcripts": "https://drive.google.com/file/d/1j2LP4s56zHNTHOMnwD7pZ4rV-hh0NXcN/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:885e5eed1d684041d6137a6a9dbf7c1f84c4c83632f947caef53aa5ae5b64093",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "7th May 2023",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/ID2MkTj4"
+        "Final EP Frame": "https://f.io/#sha256:bd6afbadee8a2f3827c3af15bf30206fa7e8427be8cc99525cc09bb8fc6b4e51"
       }
     },
     {
       "source_row": 5,
-      "row_hash": "sha256:0153f86b117cfc17a0661d402b0680d23beab33c23dee5f48f31d6e58048ef1a",
+      "row_hash": "sha256:3f21c3b57dab9155602c659a917305b2fa9377637c884618119034dc4dea74c7",
       "fields": {
         "Name of Episode": "WTF is ChatGPT?",
-        "Transcripts": "https://drive.google.com/file/d/1l7q0O_XfzF9aoS4t3pDxsizSuG_6mT1H/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:e5c204fc00e6bf0a04231276292be5c7aad8eac73e220242a8a310cf78357ca3",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "14th May 2023",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/apQ6XFvM"
+        "Final EP Frame": "https://f.io/#sha256:a28c7be72390f0f87d8e5ff2199ceb84fd9da3ea3b097d146203ce8160cbe505"
       }
     },
     {
       "source_row": 6,
-      "row_hash": "sha256:279169d65b5fb99b4ad190e871c693ff9c5d3da18081213c0cdad8f9f17ea01a",
+      "row_hash": "sha256:37368c713446ef66ac4cfa217b6c84e44157c7391341178ffc2e0c3119ae1b11",
       "fields": {
         "Name of Episode": "WTF is EdTech?",
-        "Transcripts": "https://drive.google.com/file/d/1Z1qTQony3FPBLZmtYFlAm7rIdL9i98_d/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:5fdd2282264417afdc768a6bcda01f0d53f3bf2507fdbbe1f2548263bc766296",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "11th June 2023",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/4OEkae3E"
+        "Final EP Frame": "https://f.io/#sha256:7cf010ad761b714e607dd0cf35f6b0c52a154ee0cb4afb6c7460b407b38b8c42"
       }
     },
     {
       "source_row": 7,
-      "row_hash": "sha256:5b8083fdf814dbb3bbc506ae69ed3ee955d73a67b6cf2d64e05a054d41c2c449",
+      "row_hash": "sha256:6d5d3890618f890451d1bfbdef0557b235a91872a1da7e33f36049f66023ada1",
       "fields": {
         "Name of Episode": "WTF is Health",
-        "Transcripts": "https://drive.google.com/file/d/1lJPIA9R4xEaEVTnVsoxw_4cSvf9hYsE5/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:8662bf2f1ad54ef3f76c4671ee50371604f0016486a7c40b122c027a96a849ac",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "2nd June 2023",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/xKOYgf0f"
+        "Final EP Frame": "https://f.io/#sha256:519818c2eca6b7b777cec2f19622d4f42690905072efe82c7f1323ef8b5d4a0d"
       }
     },
     {
       "source_row": 8,
-      "row_hash": "sha256:123b7837beb03c2fc5304a04d964be7c79dac147edc11b8ec71e7b81d1166239",
+      "row_hash": "sha256:ad6a207924b1b77cad80e757494eeb9bff53271987a99bd3b6331c40d0776242",
       "fields": {
         "Name of Episode": "WTF is Biotech?",
-        "Transcripts": "https://drive.google.com/file/d/1FSnv9PLSCKeYlA6bnY8MoZFK3YpaQX7A/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:2727bd22d2a338e5eb4787c418ec35875ca49d03b7413f13fcbe4cf6cdbbb568",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "23rd July 2023",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/xh03e-0J"
+        "Final EP Frame": "https://f.io/#sha256:2e1eb4a2c5251d22dd5af1c7757bd3490b0344b989acb538c620f2cbe2309bef"
       }
     },
     {
       "source_row": 9,
-      "row_hash": "sha256:e0c4e5cf67bdb667e72cdd43dafe6c90d82477ccc4606b9c93190f33580b8467",
+      "row_hash": "sha256:cb935a2672ec546d10b35c8c5f639dcc3e7445096be9ef44a7d2a86f6cd8300e",
       "fields": {
         "Name of Episode": "WTF is Going on in the World of Content?",
-        "Transcripts": "https://drive.google.com/file/d/1l93PTQOTsuw6OXrjRau2DWxxtmnkdoGb/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:12122777e2b09d6529685e71a880f2236b5c748b8323274137a0fcfd9ab52cbe",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "15th August 2023",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/lDz14jbo"
+        "Final EP Frame": "https://f.io/#sha256:aefa7f840198d525d7c1e8c551e5ec889c54f16e14d2e5aa67f22ca3496ba1b7"
       }
     },
     {
       "source_row": 10,
-      "row_hash": "sha256:31b11a9d52c71d81767de0ba101d10ab5b57247d5e962bc043ebc2563586b178",
+      "row_hash": "sha256:4ff1b2447534888fc023329411eb5325e388072ab3a11643bab2cce539646af3",
       "fields": {
         "Name of Episode": "WTF is Venture Capital?",
-        "Transcripts": "https://drive.google.com/file/d/1R1dWlEeWv01VXeDYPwggoQmEG-MYkpqe/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:258f778b89fbca6733fd012d5da6dd8602ba07bda25d4b31bd8b4d57bef8a125",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "2nd September 2023",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/3C8FH0fm"
+        "Final EP Frame": "https://f.io/#sha256:da22d966bcaffa2ec562ff8d9c4f407bf44750d8b0ba187e2011fa3839fb3b44"
       }
     },
     {
       "source_row": 11,
-      "row_hash": "sha256:8fa658b1e50d44974251d0bf51862eff9eb9d8f395bea552300292886a9e1369",
+      "row_hash": "sha256:da038e3865450248daa967d2c3fc6b8f77a847b57568d2ea0ba765ad4ddb67fb",
       "fields": {
         "Name of Episode": "WTF is the Next Gen Thinking?",
-        "Transcripts": "https://drive.google.com/file/d/1qoULK9bnN9uY9WCtze4EL9c9ULumY-dH/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:1f1e7e58f51ac4180e068e01446535fd7a0ae2254cd3f0f30441079a5a762cf5",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "20th September 2023",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/roSn_hfx"
+        "Final EP Frame": "https://f.io/#sha256:a0aa362c3e9f0ed5c6210d9c3196e5bfecc0852088baec9ab17dfa4777149c24"
       }
     },
     {
       "source_row": 12,
-      "row_hash": "sha256:1bd4f168474dbcea3f90422e1f71fe39077bdc49ac13325e2cc62dc81f7c9135",
+      "row_hash": "sha256:c7f5d5e45af75208ddb755fc2522583f4f859cffc2b01bd66e8514eb8c5434cc",
       "fields": {
         "Name of Episode": "WTF Goes into Building a Fashion, Beauty, or Home Brand?",
-        "Transcripts": "https://drive.google.com/file/d/1mfbbGA-dYZG1jwo8viFxXxssw4Mjrj1q/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:131fea55f1be25c2301f2b0a69dcf69c05f8579dbe360efe3f54186b1d131243",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "7th October 2023",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/FdaVCdPT"
+        "Final EP Frame": "https://f.io/#sha256:e13003e77498895ced6bda31e7fcf97afe7065a66cad3a10019ab06e9a517688"
       }
     },
     {
       "source_row": 13,
-      "row_hash": "sha256:7a148b8a554dd41ea2d1721221679e8e743ea7e752ee1dcf454df673eb4cee5c",
+      "row_hash": "sha256:acfd20fd7089edc552f01d45c00f359ae311a17587841d91496477adb3176e27",
       "fields": {
         "Name of Episode": " WTF is The Restaurant Game?",
-        "Transcripts": "https://drive.google.com/file/d/1-PoAFw_AdT5QOCfh_FwuE8wJ1CGWxcj8/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:e8b3191cad105103acc867339e6e575ff9af6a8e4efa1c13ceef75ca57e550f0",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "28th October 2023",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/9H0F83Nu"
+        "Final EP Frame": "https://f.io/#sha256:8b3ae77b9640048ae54432441b6d03bd49734ece3b8ceb05e2977f8e52ba22ab"
       }
     },
     {
       "source_row": 14,
-      "row_hash": "sha256:504be7bb3accaa7d768e2d25bac205b6c5da436cc947f1349b956f05e83ba79c",
+      "row_hash": "sha256:43eeca5ee90905c6f8bc010c49206e5f61f767a5a7126fb4acba85e50400bf61",
       "fields": {
         "Name of Episode": "WTF does it take to Build Influence Today?",
-        "Transcripts": "https://drive.google.com/file/d/1lLdfJy95_qsfrTYU8cGVdXNAOR2pyJwg/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:6c9eccd1afca25031e4a2ad4b28eb2d3cb8532259f1ba063fd3d89e826dfd13f",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "20th November 2023",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/XqPP-aoj"
+        "Final EP Frame": "https://f.io/#sha256:50f10442208f0f1b654cb5fc86cc13dd26eb681658af430a9170472128ae7791"
       }
     },
     {
       "source_row": 15,
-      "row_hash": "sha256:2f91d65438d1c9689742be53c163c4adf0803ceb90296bb145375b27503387bd",
+      "row_hash": "sha256:b48d41e68c36a49a026393162d0dbc0024e13950ee42c34b6c4b1e1201ed8f1c",
       "fields": {
         "Name of Episode": "WTF is Happening with EV? ",
-        "Transcripts": "https://drive.google.com/file/d/1FAlPJCKdmn3HwzjJ5yutakGiQxkUanQv/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:2099f1f253cb2f7e891e0ed2ea3ce405ad291aba052419eb4f0a1c0f5e739cb9",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "10th December 2023",
@@ -218,10 +223,10 @@
     },
     {
       "source_row": 16,
-      "row_hash": "sha256:f38af8c98ec715f542c93dc4a99f2b9b3f29ed3de6757f9dcd3c1fec15691979",
+      "row_hash": "sha256:e9be84653844b786e0dc21d01488ca8ed9c5e77d4024aff4d26b36fa99945835",
       "fields": {
         "Name of Episode": "WTF is Climate Change?",
-        "Transcripts": "https://drive.google.com/file/d/1PoRbX5D7I3uVkNcrSbA2zv0v4K98KmKl/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:23de91ce9785406dc501d59c51d8a36170aacf6f3ef0a349d53fdc838d5dfb06",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "8th February 2024",
@@ -232,161 +237,161 @@
     },
     {
       "source_row": 17,
-      "row_hash": "sha256:10faae74bd4fe7d05cd5c2132b8f2f3f7b0c17a08add207f712e28e8ce6f25fe",
+      "row_hash": "sha256:afb567cc2c36321233fdc79ccc783a9c964ac8dc42728574b7184eaa5af65f6a",
       "fields": {
         "Name of Episode": "WTF is Entrepreneurship?",
-        "Transcripts": "https://drive.google.com/file/d/1fqPfdX2g-vzRgn4STq5cmn14cz_4UaOI/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:7d4d812c157eef9ba361febb1c38f01489de9b7c41f22e32fb47c94055b5cbd3",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "6th March 2024",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/N5sFK9qk"
+        "Final EP Frame": "https://f.io/#sha256:78e2ea47156b682a09146cd0025c2cd94d10a9fec56478b34efeb4a93506c740"
       }
     },
     {
       "source_row": 18,
-      "row_hash": "sha256:5213c525df622460c67f397ed87c4a712566ea635232463f9e9b0f6c54179da1",
+      "row_hash": "sha256:949b8f0ac8f172644b1deb5ec3645d9440a6a717bcc473798121c2ac9e1fc6ae",
       "fields": {
         "Name of Episode": "WTF is Gaming?",
-        "Transcripts": "https://drive.google.com/file/d/18BXTOCDHdg99odtAYAkA556Q6EBxiP_K/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:69fa5758366819db663cf6370e2707f1b2bd71d7dc70cabac8956fc03d9d4176",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "21st April 2024",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/y7J9kbnu"
+        "Final EP Frame": "https://f.io/#sha256:399fb2c56224aafd8267fbaa4c08dde3998f6a905211883fda27e13ba64a46dc"
       }
     },
     {
       "source_row": 19,
-      "row_hash": "sha256:28a81c15fbccde13c458d400dccf32d880b9b6475d9091e30abf31268462a868",
+      "row_hash": "sha256:1a0dbad2210b79f74e1722a8271a4c3fc8d8c37cb941ed2ce6253e7072fd0111",
       "fields": {
         "Name of Episode": "WTF is Alcohol Industry?",
-        "Transcripts": "https://drive.google.com/file/d/182_Xfq6pOuxbxEyOzwaQ4N-JrgfN2vuU/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:da6765ccb3b1e7cfdfc5e8ed7fd8fd4868a18d5ad46f2c99f01f7cd78b462ea9",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "3rd July 2024",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/aZ15dDlA"
+        "Final EP Frame": "https://f.io/#sha256:f977137a8ff3c1488976da029226d62499e01826e9034c4c0c89264592d9ec6b"
       }
     },
     {
       "source_row": 20,
-      "row_hash": "sha256:bd36e581c4836a7fdab16cac94d4aca28ab0e5e7e52da37097fb9f36b8c61d21",
+      "row_hash": "sha256:6d6af0290bf772836dbbbe997d3e41e98ede484ce4e25b3ad340942d6b8b2ed9",
       "fields": {
         "Name of Episode": "WTF is making it in Offbeat Careers?",
-        "Transcripts": "https://drive.google.com/file/d/1C0R2Jxq_r_90qTiD0AGpVMzJZ3tI3j36/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:cb865c9818761c2bb4b2e98fdf4d509c71dd80db3b3f77ba54770472ab35115b",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "23rd August 2024",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/Il34e-9n"
+        "Final EP Frame": "https://f.io/#sha256:6f7f9068fb288cf4e2d46dc1bacd062844b0fe7865cccdd0e3f6cf9d24623124"
       }
     },
     {
       "source_row": 21,
-      "row_hash": "sha256:6d9fb7e9a32f8b0aeb6e31dd03aba931d88aec5158180289f0493ff09c782188",
+      "row_hash": "sha256:4f49378ee226b683d6be63a44e74b4c75aa04c982cb0f044e25a34406c4c2743",
       "fields": {
         "Name of Episode": "WTF are Indian Real Estate Giants Up To?",
-        "Transcripts": "https://drive.google.com/file/d/1bitBE6Hm4qiO2I1ORaetAJyuGRVsupdr/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:777cf5524dbf3a8c4ce4d25f116268fad0ba4beab7a4fa1bbc8b61fd8c852982",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "11th October 2024",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/QdX681Sj"
+        "Final EP Frame": "https://f.io/#sha256:fb276a63994d1f3482138f17902eb525588eec6c4a812a632a30cca4535bcda5"
       }
     },
     {
       "source_row": 22,
-      "row_hash": "sha256:9245aca2dc92a1f8b8b318caa1951171714f9c6670a56683989897837be71cf4",
+      "row_hash": "sha256:9e8f394a25f7693482ed69bcd53b6f4d03a62407cb274047feb905ab4e79057a",
       "fields": {
         "Name of Episode": "WTF is Longevity?",
-        "Transcripts": "https://drive.google.com/file/d/1BsvFQVEfDgElhUr94KX-8P2ewUmwjmXl/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:277911c2c114b6c371139fb01e39092581858e20101d9896275aaf650c5bf2d9",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "2nd Feb 2025",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/vJUYjvkR"
+        "Final EP Frame": "https://f.io/#sha256:1adfdc4e5e6d54580775cf12f92035e948b5384bbe3fa35c07f389d28835a84b"
       }
     },
     {
       "source_row": 23,
-      "row_hash": "sha256:fc5fedee8edd665f7d266dbb9b59c5fbf30b4bb2a430f76df7690f85ef6c1ec1",
+      "row_hash": "sha256:fe1d76f314ce2fa3df9eb80f95411fc0432752e8f29e4253098a06c098557dc5",
       "fields": {
         "Name of Episode": "WTF is Beverages?",
-        "Transcripts": "https://drive.google.com/file/d/1IXyefuT5WamOLeLzhtT2a56FF-VqRq1A/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:99fa57d8adb45b6f7849ba094d9c5d9f17411a06444a5738d3fe65b2b4337d1c",
         "col_2": "",
         "Shoot Date": "3rd Feb 2025",
         "Posting Date": "3rd March 2025",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/M2G-uR15"
+        "Final EP Frame": "https://f.io/#sha256:73f2e3e2fa2b78f161ba8a2f10d36685c0de21d6577e9198097a3997157df54f"
       }
     },
     {
       "source_row": 24,
-      "row_hash": "sha256:3aa8c39bcd102f248327a9ff5e1dd05f2285c0c2cdad25dd356729a85634313e",
+      "row_hash": "sha256:a8b7119b8645d6ff2ae0eb865408a4b7eb3714b8e0495be38342a964758b4183",
       "fields": {
         "Name of Episode": "WTF is Consumer Electronics?",
-        "Transcripts": "https://drive.google.com/file/d/1gTd5xSqTlBWtuIteyDWfjhvnlmFBUyi1/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:6212c3ae1d7fc54c91f8aed4b51403147bb81cd12719d4a0cb3805c5cc3a8470",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "26th April 2025",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/xo4c2nV5"
+        "Final EP Frame": "https://f.io/#sha256:68d81b48e8aa36401cd06ea90a9b6c61df46c099c5eb1ad593cd34812b3f4655"
       }
     },
     {
       "source_row": 25,
-      "row_hash": "sha256:0042d951f95e8b0db31a4c66d4d80b8bfa79df7b652f8a03522ffa27ba22ebe0",
+      "row_hash": "sha256:081794fe60f720de33b41897db7465938ae99beaa2e2a1ec146cb689677de28f",
       "fields": {
         "Name of Episode": "WTF is Venture Capital #2",
-        "Transcripts": "https://drive.google.com/file/d/1D-RhV9R9gQVv4Y2fGzskP5N598sh7YjO/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:34729c6524b9c1edcbb3e9d40357861a33ae379971cbf76edae683c657c02f2a",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "29th August 2025",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/koo0kn6a"
+        "Final EP Frame": "https://f.io/#sha256:2b18731300d7651554f693aff8ea402f40c8af7f159f14a172165b8e4176fc56"
       }
     },
     {
       "source_row": 26,
-      "row_hash": "sha256:0d8399c8572c5119e8ade50366788240be991b88d645da5de448e2f6dab1eb74",
+      "row_hash": "sha256:d3137cc7a2876f059ba2e85f9ce2e56473448e766a764fe56d5f786e083b2313",
       "fields": {
         "Name of Episode": "WTF is Skincare?",
-        "Transcripts": "https://drive.google.com/file/d/1R2aKFnOUnPgRNfrFY9s-9bUPorGK9tdB/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:7af2773cdc0bd44666f1801b5a0d97750bcfa15f359ebd3b376ac2191c504864",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "20th September 2025",
         "col_5": "",
-        "Clean Cut": "https://f.io/3Kp_5XB1",
-        "Final EP Frame": "https://f.io/-x0cqh2d\n"
+        "Clean Cut": "https://f.io/#sha256:072bfcee27a2e029ad02946c437e9c618b404965b7ace5370c56209abc555984",
+        "Final EP Frame": "https://f.io/#sha256:c0013880aeecf94a3f95a7faac15dcaec4a8d95047565f9aff3fea52840f0465\n"
       }
     },
     {
       "source_row": 27,
-      "row_hash": "sha256:f255f8ec4ae9452d608d03b4ccb2a4f89abae00b94cfa5b4b8ff43941fd197c5",
+      "row_hash": "sha256:2fd32605c99e7c34feb040cfe5f9ce0605379aa13478b9db6ebe3b7f3248245b",
       "fields": {
         "Name of Episode": "WTF is Pharma?",
-        "Transcripts": "https://drive.google.com/file/d/1GjFLiTUliBheAsX_upE_mTFWyRo0JfRV/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:e2d59cb08b87d615c2b0593595f715be63052c4b756cdde80279b6813a004ac4",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "17th June 2026",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/gruOdHXR"
+        "Final EP Frame": "https://f.io/#sha256:fb91e5a0b05b2b242b653fa65450be91e3add60391254c58c6846f64d62e5069"
       }
     },
     {
       "source_row": 28,
-      "row_hash": "sha256:39bcea391286232c1b5889b2e4c0fa8275a0343afa7af9df26a16391f970c281",
+      "row_hash": "sha256:bf52106a59edae7f17c955a808c09778a055730f03b43962087d82155691235b",
       "fields": {
         "Name of Episode": "WTF is a Battery?",
         "Transcripts": "",
@@ -394,7 +399,7 @@
         "Shoot Date": "",
         "Posting Date": "",
         "col_5": "",
-        "Clean Cut": "https://f.io/tm9ozyHv",
+        "Clean Cut": "https://f.io/#sha256:c94b89a66cdb09c5cc9fd375e32f3ad2ae667671000984639e8f19dbd9bc6bc6",
         "Final EP Frame": ""
       }
     }

@@ -17,49 +17,54 @@
       "Clean Cut",
       "Final EP Frame"
     ],
-    "record_count": 3
+    "record_count": 3,
+    "url_redaction": {
+      "policy": "scheme-host-plus-sha256-of-original-url",
+      "form": "{scheme}://{host}/#sha256:{hex}",
+      "url_count": 6
+    }
   },
   "records": [
     {
       "source_row": 2,
-      "row_hash": "sha256:8c7f99056a7fdf673ac58c0b3e3d488681d5142d4d89d773dbb06968bb2cffa3",
+      "row_hash": "sha256:2cc7e49c996e768d7ad4dacdf9cb88a434d628f7a4ad95180fe152f73d29ab21",
       "fields": {
         "Name of Episode": "Arvind Srinivas",
-        "Transcripts": "https://drive.google.com/file/d/1rit6TdXkUjDVXiSIrI-blhazSXQQA4Cp/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:d4f58c9efa694d4cdb8f61cbd3b389e7b7a7168c8907fe1678fd667a75d88c27",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/eHYIs3Fg"
+        "Final EP Frame": "https://f.io/#sha256:28c698f7dfa8a88fcaa338851469180089e48b0d70dc399a803f947bffc9ba01"
       }
     },
     {
       "source_row": 3,
-      "row_hash": "sha256:ad0e2d6ae2a5708762ecf8fa41427a205d73b3720e78bd5e9a86b56d1b89166b",
+      "row_hash": "sha256:3c4daddfe209508bf2d9e807fbdd4b9cd8348603db23a0ecc46f539f9e35bbb6",
       "fields": {
         "Name of Episode": "Brett Adcock",
-        "Transcripts": "https://drive.google.com/file/d/15DLDUBtHEBQox2-2APsHNJHXO3harmA2/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:2696a6c791d470fe67983973a6bf45f27cc0aa0040551db9244d761eb6ad8d47",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "5th November 2025",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/7veY-Q3a"
+        "Final EP Frame": "https://f.io/#sha256:5c47d9197a18212184e4e2869d804122acb4b47bc5086b49c28f10adc2298977"
       }
     },
     {
       "source_row": 4,
-      "row_hash": "sha256:1c46632b388a54160ef15bf5a8c16974078453f0edc61d9a4cc7773a4173591a",
+      "row_hash": "sha256:b666229f4f0e829220ef105994ab51ba867310bb507607fd3ce96637135015c3",
       "fields": {
         "Name of Episode": "Mati Staniszewski",
-        "Transcripts": "https://drive.google.com/file/d/1QdieRA2AQNsoR1-LkaLFcVzFebmcfynO/view?usp=drive_link",
+        "Transcripts": "https://drive.google.com/#sha256:f3bcd831005f4c779ac06fa0f9d22de4f849cc20536bfc82e6a5bea8d88ab111",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "11th March 2026",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/sNEkfU7i"
+        "Final EP Frame": "https://f.io/#sha256:1eb3b7fc1467a2f5776d671a5c7b6e516b42106e9e7301e067a04dcbd57361f3"
       }
     }
   ]

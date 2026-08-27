@@ -2,8 +2,12 @@
 
 **Drafted:** 2026-08-27
 **For:** Nikhai (SpaceBlanket.AI) → Nikhil Kamath Media Group / WTF editorial
-**Blocks:** Phase 3 (Provenance) episode schema authoring — `PROV-01`, `PROV-10`, and the `episodes.ip` field committed in `docs/superpowers/plans/2026-08-27-wtf-os-whole-app-shell.md`
-**Related requirement:** `REQUIREMENTS.md` — PROV-01/10 assign `ip` as a first-class episode field
+**Blocks:** Phase 3 episode schema authoring — `PROV-10` (ingest metadata
+includes IP) and later `KNOW-07` IP filters. `PROV-01` is only the stable
+internal episode ID and is not an IP field.
+**Related requirement:** `REQUIREMENTS.md` — `PROV-10` lists IP among ingest
+metadata; `KNOW-07` filters by IP. No committed `episodes.ip` column exists
+in `docs/superpowers/plans/2026-08-27-wtf-os-whole-app-shell.md`.
 **Status:** draft-held, awaiting owner reply
 
 ---
@@ -37,7 +41,8 @@ production team already uses in operational sheets.
 
 ## Why this matters
 
-The episode schema in Phase 3 needs one canonical `ip` field per `PROV-01/10`.
+The episode schema in Phase 3 needs a canonical IP (and possibly show)
+field per `PROV-10` before `KNOW-07` can filter on it.
 Guessing wrong means either:
 
 - rewriting the schema when the second dimension surfaces later, or
@@ -70,7 +75,8 @@ actually organizes the catalogue and we align to that.
 
 ## Follow-up requests, whichever option is chosen
 
-1. **Per-episode mapping.** For each of the ~59 episodes in the catalogue,
+1. **Per-episode mapping.** For each catalogue row (59 internal / 62
+   transcripts in the 2026-08-27 snapshot),
    which IP (and, if option 2, which show) does it belong to? A single
    column added to either supplied sheet is sufficient.
 2. **Backfill authority.** Confirm who on the WTF side owns disputes when a
