@@ -47,3 +47,43 @@ export const StateVocabulary: Story = {
     }
   },
 };
+
+export const Promoted: Story = {
+  args: {
+    title: "workspace state",
+    eyebrow: "now / next",
+    items: [
+      {
+        label: "ask wtf",
+        state: "active",
+        detail: "ask the catalogue and keep quoted evidence beside the answer.",
+        href: "/chat",
+        promoted: true,
+      },
+      {
+        label: "episodes",
+        state: "active",
+        detail: "the public episode workspace is available.",
+        href: "/episodes",
+      },
+      {
+        label: "production",
+        state: "not-activated",
+        detail: "the production workflow is not activated.",
+      },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const promoted = canvasElement.querySelectorAll('[data-promoted="true"]');
+    if (promoted.length !== 1) {
+      throw new Error("StatusLedger must render exactly one promoted item");
+    }
+    if (!promoted[0]?.textContent?.includes("do this next")) {
+      throw new Error("Promoted item must replace the observed slot with do this next");
+    }
+    const firstState = canvasElement.querySelector("[data-state]");
+    if (firstState?.getAttribute("data-promoted") !== "true") {
+      throw new Error("Promoted item must render above the divided list");
+    }
+  },
+};

@@ -5,7 +5,7 @@ import AxeBuilder from "@axe-core/playwright";
  * Plan 01-12 Task 3: Public shell route-matrix journey.
  *
  * Verifies the migrated PublicShell across all public routes at 320/768/1440:
- * - Shell structure (skip link, main target, nav, footer, scope marker)
+ * - Shell structure (skip link, main target, rail/drawer, scope marker)
  * - Keyboard tab order and skip-to-main flow
  * - aria-current on active route
  * - focus-visible indicators
@@ -36,30 +36,30 @@ test.describe("Public shell journey", () => {
         await page.goto(route, { waitUntil: "domcontentloaded" });
 
         // Shell scope marker present
-        const scopeMarker = page.locator('[data-wtf-shell="migrated"]');
+        const scopeMarker = page.locator('[data-wtf-shell="wtfos"]');
         await expect(scopeMarker).toBeAttached();
 
         // Skip link exists and is first focusable
-        const skipLink = page.locator('a[href="#main-content"]');
+        const skipLink = page.locator('a[href="#wtf-main"]');
         await expect(skipLink).toBeAttached();
 
         // Main content target exists
-        const main = page.locator("#main-content");
+        const main = page.locator("#wtf-main");
         await expect(main).toBeAttached();
         await expect(main).toHaveAttribute("tabindex", "-1");
 
         // Primary nav present
-        const nav = page.locator('nav[aria-label="Primary"]');
+        const nav = page.locator('nav[aria-label="Application"]');
         await expect(nav).toBeAttached();
 
-        // Footer present
-        const footer = page.locator("footer");
-        await expect(footer).toBeAttached();
+        // Every active application route presents a workspace header.
+        await expect(page.locator("[data-workspace-header]")).toBeVisible();
 
-        // Inert brand slot present
-        const brandSlot = page.locator('[data-wtf-brand-slot="inert"]');
-        await expect(brandSlot).toBeAttached();
-        await expect(brandSlot).toHaveAttribute("aria-hidden", "true");
+        if (vp.width < 1024) {
+          await expect(
+            page.getByRole("button", { name: "Open application navigation", exact: true }),
+          ).toBeVisible();
+        }
       });
     }
   }
@@ -70,21 +70,22 @@ test.describe("Public shell journey", () => {
     // Tab to skip link (first focusable element)
     await page.keyboard.press("Tab");
 
-    const skipLink = page.locator('a[href="#main-content"]:focus');
+    const skipLink = page.locator('a[href="#wtf-main"]:focus');
     await expect(skipLink).toBeVisible();
 
     // Activate skip link
     await page.keyboard.press("Enter");
 
-    // Focus should move to main-content
-    const main = page.locator("#main-content:focus");
+    // Focus should move to the shared workspace main region.
+    const main = page.locator("#wtf-main:focus");
     await expect(main).toBeAttached();
   });
 
   test("keyboard tab order reaches nav links", async ({ page }) => {
+    test.skip((page.viewportSize()?.width ?? 1440) < 1024, "Desktop rail tab order is persistent from 1024px.");
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    // Tab: skip link → WordmarkMini link → first nav link
+    // Desktop tab order: skip link → rail wordmark → first workspace link.
     await page.keyboard.press("Tab"); // skip link
     await page.keyboard.press("Tab"); // WordmarkMini home link (header, outside nav)
     await page.keyboard.press("Tab"); // first nav link
@@ -94,7 +95,7 @@ test.describe("Public shell journey", () => {
     expect(tag).toBe("a");
 
     // Should be within the nav
-    const inNav = await page.locator('nav[aria-label="Primary"] :focus').count();
+    const inNav = await page.locator('nav[aria-label="Application"] :focus').count();
     expect(inNav).toBeGreaterThan(0);
   });
 
@@ -119,6 +120,7 @@ test.describe("Public shell journey", () => {
   }
 
   test("focus-visible indicators on nav links", async ({ page }) => {
+    test.skip((page.viewportSize()?.width ?? 1440) < 1024, "Desktop rail focus is persistent from 1024px.");
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     // Tab to a nav link
@@ -205,12 +207,12 @@ test.describe("Public shell journey", () => {
     // This is a structural check — the actual rollback test runs separately
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    // The migrated shell should have the scope marker
-    const migrated = page.locator('[data-wtf-shell="migrated"]');
-    await expect(migrated).toBeAttached();
+    // The default application should have the canonical WTF OS marker.
+    const wtfos = page.locator('[data-wtf-shell="wtfos"]');
+    await expect(wtfos).toBeAttached();
 
-    // WordmarkMini should be present (not legacy Wordmark)
-    const wordmark = page.locator('[data-cursor="home"]');
+    // The rail uses the converged control-room wordmark link.
+    const wordmark = page.locator('a[aria-label="WTF Media control room"]');
     await expect(wordmark).toBeAttached();
   });
 });

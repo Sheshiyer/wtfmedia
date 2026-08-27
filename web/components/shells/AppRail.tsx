@@ -86,7 +86,7 @@ export function AppRail({
       </div>
 
       <nav
-        aria-label={mode === "operator" ? "Operations" : "Application"}
+        aria-label={mode === "operator" ? "operations" : "Application"}
         className="min-h-0 flex-1 overflow-y-auto px-3 py-5"
       >
         <p className="px-3 pb-2 font-label text-[11px] font-bold uppercase tracking-[0.16em] text-canvas/45">
