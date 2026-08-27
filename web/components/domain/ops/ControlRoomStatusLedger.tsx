@@ -79,6 +79,7 @@ export function ControlRoomStatusLedger({ role }: { role: ControlRoomRole }) {
       title="the room is open"
       eyebrow="verified / inactive"
       items={items}
+      className="overflow-hidden rounded-panel"
     />
   );
 }

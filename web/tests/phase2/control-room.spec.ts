@@ -28,6 +28,7 @@ test("truthful role-projected Control Room shell shows only activated administra
   await expect(page.getByText("all systems operational")).toHaveCount(0);
   await expect(page.locator("[data-primary-action]")).toHaveCount(1);
   await expect(page.getByRole("link", { name: "review operator access" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "refresh status" })).toBeVisible();
   const promoted = page.locator("[data-promoted=true]");
   await expect(promoted).toHaveCount(1);
   await expect(promoted).toContainText("do this next");
