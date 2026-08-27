@@ -23,7 +23,10 @@
 - No deployment, migration, provider credential change, production write, registry mutation, or cutover occurred.
 
 **Next Action:**
-For Plan 02-12, supply the exact staging hostname and the approved target list (Access application/policy, D1 database, Worker route, cache namespace, and required secret names), then approve the resulting staging evidence packet. A later production smoke requires separate exact-host, read-only authorization.
+UI/UX work can proceed without Plan 02-12: land `wtf-os-shell-materialize`
+(plus `web/tests/component-trace.json`) so `origin/main` matches the local
+WTF OS shell. Plan 02-12 stays blocked until the owner fills
+`.planning/inputs/client-questions/2026-08-27-plan-02-12-staging-authorization.md`.
 
 ## Phase 1 Completion Checkpoint (2026-08-25)
 
@@ -39,8 +42,10 @@ For Plan 02-12, supply the exact staging hostname and the approved target list (
 - 17 approved snapshots promoted to `web/tests/visual/public-routes.spec.ts-snapshots/`
 
 **Next Action:**
-Run `$gsd-plan-phase 2` to replace the superseded umbrella draft with
-executable plans (02-01 onward) using the completed Phase 2 context.
+Phase 2 plans 02-01 through 02-11 are executed. Keep Phase 1
+`verify:phase1` green after the WTF OS shell lands on `main`. Do not
+flip REQUIREMENTS.md COMP/DSYS rows until that verifier passes on the
+landed shell.
 
 ## Phase 2 Prerequisite Decisions (RESOLVED 2026-08-25)
 
@@ -473,3 +478,101 @@ digest evidence.
 git show --check --stat 4d57e30
 node web/scripts/run-phase1-threat.mjs --plan 01-04 --task 2
 ```
+
+## 2026-08-27 WTF OS whole-app shell (local working tree — not on origin/main)
+
+- This checkpoint describes the **dirty local tree**, not `origin/main`.
+  `5dc06fc` on main only switches `appUiVariant()` to `wtfos` and still
+  renders tracked `PublicShell`. `AppShell`, `AppRail`, `MigratedHomePage`,
+  and related files remain untracked.
+- Locally, public and operator routes share one responsive application
+  frame (`AppShell` / `AppRail`) with skip target, mobile drawer, workspace
+  headers, semantic status ledgers, and explicit unavailable/not-activated
+  states. `/ops/recover` stays outside the shell.
+- Local `/` is a source-backed public Control Room (`MigratedHomePage`)
+  with episode/show counts from catalogue data, named future systems, and
+  a direct Ask workflow. It must not invent operational health.
+- Binding design:
+  `docs/superpowers/specs/2026-08-27-wtf-os-whole-app-shell-design.md`.
+  Implementation sequence:
+  `docs/superpowers/plans/2026-08-27-wtf-os-whole-app-shell.md`.
+- No deployment, provider configuration, credentials, or protected content
+  data was mutated by this local convergence work.
+
+### Verification (local dirty tree only)
+
+Commands below were recorded against the local tree. They are **not** a
+fresh-clone `origin/main` receipt. `origin/main` currently fails Phase 2
+Gate typecheck (`web/tests/component-trace.json` untracked) and Vercel
+ESLint (`guest's` in committed `web/app/page.tsx`).
+
+```bash
+cd web
+npm run typecheck
+npm run lint
+npm run test:contracts
+npm run test:components
+npm run test:privacy -- --check
+npm run build
+npm run test:rollback
+```
+
+### Next action
+
+Land `wtf/wtf-os-shell-materialize` so this local shell exists on `main`,
+then run A + D refinements (promoted dominant action + focus-return).
+Do not start Plan 02-12 until the staging-authorization form is filled.
+
+## 2026-08-27 session PR merge + next UI/UX wave
+
+**Status:** PRs #7, #8, and #9 squash-merged to `origin/main`. Local main
+fast-forwarded to `7defffa`. The ~120 other dirty files were not staged.
+
+| PR | Squash commit | What landed |
+|---|---|---|
+| #7 | `baa90d8` | Podcast catalogue snapshot + owner questions; extractor no longer stores machine-local paths |
+| #8 | `b9de2f8` | `scripts/session-pr.sh`, PR template, session-PR workflow doc |
+| #9 | `7defffa` | Working-tree backlog with corrected main-build diagnosis |
+
+Review notes: `/code-review ultra` was not launched (billed Claude Code
+command). Grok review + follow-up commits resolved the only merge blocker
+(absolute checkout/Downloads paths in `snapshot_sheets.py`). CI remains
+red on `main` for reasons **outside** these PRs.
+
+### Current remote vs local split
+
+- **On `origin/main`:** Phase 1 plans 01-01..01-23 executed in history;
+  Phase 2 plans 02-01..02-11 executed; 02-12 blocked on owner staging
+  targets; WTF OS *variant default* is `wtfos` but presentation is still
+  tracked `PublicShell` + pre-migration `web/app/page.tsx`.
+- **In the dirty local tree:** `AppShell` / `MigratedHomePage` /
+  `OperatorShell` adapters, journey/visual/threat evidence, Cloudflare
+  docs, catalogue JSON refreshes. Highest-value follow-up is still
+  `wtf-os-shell-materialize`, paired with `web/tests/component-trace.json`.
+
+### Next UI/UX wave (Phase 1 + Phase 2 mapped)
+
+See `.planning/STATE.md` Pending Todos. Execution order:
+
+1. Unblock typecheck: commit `web/tests/component-trace.json`.
+2. Materialize WTF OS shell (replaces lint-failing home page).
+3. Refinement A (promoted dominant action) then D (focus-return). Local
+   `AppRail` already has `aria-current` + attention active state (B).
+4. Shell-dependent tests (journeys, rollback variants, visual, a11y).
+5. Flip COMP/DSYS/QUAL Phase 1 rows in `REQUIREMENTS.md` only after
+   `npm run verify:phase1` on the landed shell.
+6. Close remaining 02-UI-SPEC gaps on `/ops` without activating Phase 3
+   modules. Plan 02-12 stays owner-gated.
+
+### Verification
+
+```bash
+git log --oneline -3 origin/main
+# 7defffa docs(planning): categorize post-cleanup working-tree backlog (#9)
+# b9de2f8 chore(workflow): add reusable session-PR scaffold (#8)
+# baa90d8 docs(planning): snapshot podcast catalogue + draft owner questions (#7)
+rg -n '/Users/|/Volumes/' .planning/inputs/podcast-catalog/tools/snapshot_sheets.py
+# no matches
+```
+
+No registry, deploy, secret, or production mutation.
