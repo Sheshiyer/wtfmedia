@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "plan": "01-15",
+  "results": {
+    "T-01-45": {
+      "plan": "01-15",
+      "task": 2,
+      "command_id": "32f4dffa4a127a70d538ac6830f442f6f37edd886cc8187b2e2dfb5c7c2924da",
+      "command": "cd web && npm run test:components -- MigratedChatPage && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts tests/contracts/public-projection.contract.test.ts && npm run typecheck && npm run lint",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "3f28b2609de68494f725b7779d3cc7da9fdd765b81f7e98705f38756ef406e6c",
+        "error_output_sha256": "a4a62624e578b54347afe0b923030a55b5601b1c86fa7d2a365dfc868c983869",
+        "output_bytes": 833,
+        "error_output_bytes": 2447
+      },
+      "completed_at": "2026-08-23T03:47:45.567Z",
+      "status": "passed"
+    },
+    "T-01-46": {
+      "plan": "01-15",
+      "task": 2,
+      "command_id": "82572f923cb0f0f699c377415a7780c8e9b7af8270b5e528822aaacc61f88ac4",
+      "command": "cd web && npm run test:components -- MigratedChatPage && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts tests/contracts/public-projection.contract.test.ts && npm run typecheck && npm run lint",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "3f28b2609de68494f725b7779d3cc7da9fdd765b81f7e98705f38756ef406e6c",
+        "error_output_sha256": "a4a62624e578b54347afe0b923030a55b5601b1c86fa7d2a365dfc868c983869",
+        "output_bytes": 833,
+        "error_output_bytes": 2447
+      },
+      "completed_at": "2026-08-23T03:47:45.567Z",
+      "status": "passed"
+    },
+    "T-01-47": {
+      "plan": "01-15",
+      "task": 3,
+      "command_id": "9a8bca8b6a0ba8f538ff9430ca410ecdf3843b026eadef95fb0d6761fdedc7b4",
+      "command": "cd web && npm run test:components -- MigratedChatPage && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts tests/contracts/rag-latency.test.ts && npm run test:browser -- tests/journeys/chat.spec.ts && npm run test:privacy -- --check && npm run test:rollback -- --route=/chat",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "d96f32ff3fb22a173b2de16813d3e4efc61504556e863ba1a59a41d81c6f173c",
+        "error_output_sha256": "9d2ae8990dfd54fc90b64b88355e5e7e92e9da17f0fe3cfa87b10393a6bc5a7c",
+        "output_bytes": 11964,
+        "error_output_bytes": 2573
+      },
+      "completed_at": "2026-08-23T04:17:25.605Z",
+      "status": "passed"
+    },
+    "T-01-48": {
+      "plan": "01-15",
+      "task": 3,
+      "command_id": "b0a82b0283a56fb8e9edfcea19c2c4f5aa48154149a0fde5a9e2d958cdcfa76c",
+      "command": "cd web && npm run test:components -- MigratedChatPage && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts tests/contracts/rag-latency.test.ts && npm run test:browser -- tests/journeys/chat.spec.ts && npm run test:privacy -- --check && npm run test:rollback -- --route=/chat",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "d96f32ff3fb22a173b2de16813d3e4efc61504556e863ba1a59a41d81c6f173c",
+        "error_output_sha256": "9d2ae8990dfd54fc90b64b88355e5e7e92e9da17f0fe3cfa87b10393a6bc5a7c",
+        "output_bytes": 11964,
+        "error_output_bytes": 2573
+      },
+      "completed_at": "2026-08-23T04:17:25.605Z",
+      "status": "passed"
+    }
+  }
+}

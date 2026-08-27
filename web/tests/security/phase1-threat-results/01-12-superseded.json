@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "plan": "01-12",
+  "results": {
+    "T-01-37": {
+      "plan": "01-12",
+      "task": 2,
+      "command_id": "676a098a638ec47ea2403eecdb636c0da9f6b02e912bf9b3c6c8618abcea29f4",
+      "command": "cd web && npm run test:components -- PublicShell --grep \"navigation|focus|responsive\" && npm run typecheck && npm run lint && node scripts/capture-legacy-presentation.mjs --check",
+      "exit_status": 1,
+      "evidence": {
+        "output_sha256": "7fb36fe80144d27f3acf6bd0e2b338cb465c98e4cd6052bf1ca0d92896a41d2b",
+        "error_output_sha256": "80e2f7e0600890487299ae111b670b18c37516c7383e3d160d5359fe9f59ac74",
+        "output_bytes": 119,
+        "error_output_bytes": 1031
+      },
+      "completed_at": "2026-08-22T19:24:29.304Z",
+      "status": "failed"
+    }
+  }
+}

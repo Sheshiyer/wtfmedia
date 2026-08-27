@@ -36,6 +36,41 @@ const CORRECTION_LEDGERS = [
     threatIds: new Set(["T-01-29"]),
     effectiveCommand: "cd web && npm run typecheck && node -e \"const fs=require('fs');const l=['components/legacy/public/LegacyEpisodesBrowser.tsx','components/legacy/public/LegacyDragRow.tsx','components/legacy/public/LegacyEpisodesPage.tsx'];for(const f of l){if(!fs.existsSync(f)){console.error('Missing: '+f);process.exit(1)}const s=fs.readFileSync(f,'utf8');if(!s.trim()){console.error('Empty: '+f);process.exit(1)}if(/api[_-]?key|secret|password|private[_-]?key/i.test(s)){console.error('Private data in: '+f);process.exit(1)}}console.log('Legacy copies verified: '+l.length+' files')\"",
   },
+  {
+    plan: "01-12",
+    file: "01-12-navigation.json",
+    approval: "GSD-01-12-NAVIGATION-CORRECTION",
+    threatIds: new Set(["T-01-37"]),
+    effectiveCommand: "cd web && npm run test:components -- PublicShell && npm run typecheck && npm run lint && node scripts/capture-legacy-presentation.mjs --check",
+  },
+  {
+    plan: "01-14",
+    file: "01-14.json",
+    approval: "GSD-01-14-CORRECTION",
+    threatIds: new Set(["T-01-43"]),
+    effectiveCommand: "cd web && npm run test:components -- ConnectionsGraph -t \"Default|Reduced Motion|Pre Selected|Keyboard Only\" && npm run test:contracts -- tests/contracts/connections-parity.test.ts && npm run typecheck && npm run lint",
+  },
+  {
+    plan: "01-15",
+    file: "01-15.json",
+    approval: "GSD-01-15-CORRECTION",
+    threatIds: new Set(["T-01-45", "T-01-46"]),
+    effectiveCommand: "cd web && npm run test:components -- MigratedChatPage && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts tests/contracts/public-projection.contract.test.ts && npm run typecheck && npm run lint",
+  },
+  {
+    plan: "01-16",
+    file: "01-16.json",
+    approval: "GSD-01-16-TYPECHECK-CORRECTION",
+    threatIds: new Set(["T-01-50"]),
+    effectiveCommand: "cd web && npm run test:components -- MigratedHomePage && npm run lint && node scripts/capture-legacy-presentation.mjs --check",
+  },
+  {
+    plan: "01-17",
+    file: "01-17.json",
+    approval: "GSD-01-17-TESTDIR-CORRECTION",
+    threatIds: new Set(["T-01-53", "T-01-54"]),
+    effectiveCommand: "cd web && npx playwright test --project=phase1-chromium --grep @a11y tests/accessibility/ && npx playwright test --project=phase1-chromium --grep @visual tests/visual/ -- --candidate",
+  },
 ];
 
 function sha256(value) {
@@ -347,7 +382,7 @@ function runCommand(command) {
     cwd: REPOSITORY_ROOT,
     shell: "/bin/sh",
     encoding: null,
-    maxBuffer: 1024 * 1024,
+    maxBuffer: 10 * 1024 * 1024,
     env: process.env,
   });
   const output = Buffer.isBuffer(execution.stdout) ? execution.stdout : Buffer.alloc(0);

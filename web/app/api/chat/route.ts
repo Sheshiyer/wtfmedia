@@ -1,95 +1,86 @@
 import { NextRequest } from "next/server";
-import { embedQuery, chatStream, type ChatMessage } from "@/lib/nvidia";
-import { search } from "@/lib/vectors";
-import { DEFAULT_MODEL, isValidModel } from "@/lib/models";
+import type { ChatMessage } from "@/lib/nvidia";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 30;
 
-const SYSTEM = `You are the wtfmedia research assistant. You answer questions about Nikhil Kamath's WTF podcast catalogue using ONLY the transcript excerpts provided as CONTEXT.
+const EDGE_RAG_URL = process.env.CLOUDFLARE_RAG_URL || "https://wtfmedia-edge.sheshnarayan-iyer.workers.dev";
+const EDGE_SHARED_SECRET = process.env.CLOUDFLARE_EDGE_SHARED_SECRET;
+const MAX_MESSAGES = 8;
+const MAX_QUESTION_CHARS = 2_000;
 
-Rules:
-- Ground every claim in the provided context. If the context does not contain the answer, say so plainly.
-- Be concise and specific. Quote or paraphrase what guests actually said.
-- When you use an excerpt, cite it inline like [1], [2] matching the numbered sources.
-- Do not invent episodes, guests, or quotes.`;
+type EdgeSource = {
+  n: number;
+  score: number;
+  videoId: string;
+  title: string;
+  url: string;
+  start: number | null;
+  timestamped: boolean;
+};
+
+type EdgeAnswer = {
+  answer?: string;
+  sources?: EdgeSource[];
+  grounded?: boolean;
+  error?: string;
+};
+
+function sourceHeader(sources: EdgeSource[]) {
+  return JSON.stringify(sources.map((source) => ({
+    n: source.n,
+    video_id: source.videoId,
+    title: source.title,
+    score: source.score,
+    t: source.start,
+    time: source.start == null ? "" : new Date(source.start * 1_000).toISOString().slice(11, 19).replace(/^00:/, ""),
+    url: source.url,
+  })));
+}
 
 export async function POST(req: NextRequest) {
-  let body: { messages?: ChatMessage[]; model?: string };
+  let body: { messages?: ChatMessage[] };
   try {
     body = await req.json();
   } catch {
     return new Response("bad json", { status: 400 });
   }
-  const messages = body.messages || [];
-  // validate model against allowlist (never pass arbitrary client input to the API)
-  const model = body.model && isValidModel(body.model) ? body.model : DEFAULT_MODEL;
-  const last = [...messages].reverse().find((m) => m.role === "user");
-  if (!last) return new Response("no user message", { status: 400 });
+  const messages = Array.isArray(body.messages) ? body.messages.slice(-MAX_MESSAGES) : [];
+  const last = [...messages].reverse().find((message) => message.role === "user");
+  if (!last?.content?.trim()) return new Response("no user message", { status: 400 });
+  if (last.content.length > MAX_QUESTION_CHARS) return new Response("question too long", { status: 400 });
+  if (!EDGE_SHARED_SECRET) return Response.json({ error: "The answer service is not configured." }, { status: 503 });
 
-  // 1) EMBEDDING model — retrieval inference
-  let hits;
+  let edge: Response;
   try {
-    const qvec = await embedQuery(last.content);
-    hits = search(qvec, 6);
-  } catch (e) {
-    return new Response(`retrieval error: ${(e as Error).message}`, { status: 500 });
+    edge = await fetch(`${EDGE_RAG_URL}/v1/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Edge-Secret": EDGE_SHARED_SECRET,
+        "X-Client-IP": req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown",
+        "X-Request-ID": crypto.randomUUID(),
+      },
+      body: JSON.stringify({ question: last.content }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(25_000),
+    });
+  } catch {
+    return Response.json({ error: "The answer service is temporarily unavailable. Please retry shortly." }, { status: 503 });
   }
 
-  const fmtTime = (s?: number) => {
-    if (s == null) return "";
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s % 60);
-    const h = Math.floor(m / 60);
-    return h > 0
-      ? `${h}:${String(m % 60).padStart(2, "0")}:${String(sec).padStart(2, "0")}`
-      : `${m}:${String(sec).padStart(2, "0")}`;
-  };
-
-  const context = hits
-    .map(
-      (h, i) =>
-        `[${i + 1}] (${h.title}${h.start != null ? ` @ ${fmtTime(h.start)}` : ""})\n${h.text}`
-    )
-    .join("\n\n---\n\n");
-
-  const sourcesHeader = JSON.stringify(
-    hits.map((h, i) => ({
-      n: i + 1,
-      video_id: h.video_id,
-      title: h.title,
-      score: Number(h.score.toFixed(3)),
-      t: h.start ?? null,
-      time: fmtTime(h.start),
-      url:
-        h.start != null
-          ? `https://www.youtube.com/watch?v=${h.video_id}&t=${h.start}s`
-          : `https://www.youtube.com/watch?v=${h.video_id}`,
-    }))
-  );
-
-  const chatMessages: ChatMessage[] = [
-    { role: "system", content: SYSTEM },
-    ...messages.filter((m) => m.role !== "system").slice(-6, -1),
-    {
-      role: "user",
-      content: `CONTEXT:\n${context || "(no relevant excerpts found)"}\n\nQUESTION: ${last.content}`,
-    },
-  ];
-
-  // 2) CHAT model — generation (model chosen in the picker)
-  let stream: ReadableStream<Uint8Array>;
-  try {
-    stream = await chatStream(chatMessages, { temperature: 0.3, maxTokens: 900, model });
-  } catch (e) {
-    return new Response(`chat error: ${(e as Error).message}`, { status: 500 });
+  const result = await edge.json().catch(() => undefined) as EdgeAnswer | undefined;
+  if (!edge.ok || !result || typeof result.answer !== "string") {
+    return Response.json({ error: "The answer service is temporarily unavailable. Please retry shortly." }, { status: 503 });
   }
-
-  return new Response(stream, {
+  const sources = Array.isArray(result.sources) ? result.sources : [];
+  return new Response(result.answer, {
+    status: edge.status,
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
-      "X-Sources": encodeURIComponent(sourcesHeader),
-      "X-Model": model,
+      "X-Sources": encodeURIComponent(sourceHeader(sources)),
+      "X-Model": "cloudflare/llama-3.3-70b-instruct",
+      "X-Fallback": result.grounded ? "false" : "true",
       "Cache-Control": "no-store",
     },
   });

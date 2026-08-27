@@ -16,7 +16,7 @@
     "test:a11y": "playwright test --project=phase1-chromium --grep @a11y",
     "test:visual": "playwright test --project=phase1-chromium --grep @visual",
     "test:privacy": "node tests/privacy/scan.mjs",
-    "test:performance": "lhci autorun --config=./lighthouserc.cjs",
+    "test:performance": "lhci collect --config=./lighthouserc.cjs && lhci upload --config=./lighthouserc.cjs",
     "test:rollback": "node tests/rollback/verify.mjs",
     "verify:phase1": "node scripts/verify-phase1.mjs",
     "verify:phase2": "node scripts/verify-phase2.mjs",

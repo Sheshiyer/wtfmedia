@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "plan": "01-17",
+  "approval_reference": "GSD-01-17-TESTDIR-CORRECTION",
+  "corrections": {
+    "T-01-53": {
+      "effective_command": "cd web && npx playwright test --project=phase1-chromium --grep @a11y tests/accessibility/ && npx playwright test --project=phase1-chromium --grep @visual tests/visual/ -- --candidate",
+      "effective_command_sha256": "69cf7e1ae0614dc66e6a7e129cbd74e34cdfb658923590e8574cef85d79212c7",
+      "original_command_id": "2a28492e7492e5f6cca587d0a997b823bbc42c2e52501fb4dd69ae8414e8b6e8",
+      "original_command_sha256": "daa845529747b428a1ee58ab940f976f487c1dd54b1239078db1766a30f13af5",
+      "superseded_result": {
+        "plan": "01-17",
+        "task": 2,
+        "command_id": "2a28492e7492e5f6cca587d0a997b823bbc42c2e52501fb4dd69ae8414e8b6e8",
+        "command": "cd web && npm run test:a11y && npm run test:visual -- --candidate",
+        "exit_status": 1,
+        "evidence": {
+          "output_sha256": "6b3e7cfcf255b1e1be5770c9d9fb064647c7a7857f096d2bcdedd125404802e5",
+          "error_output_sha256": "ac9e1a8953492b23a296ecf5b8d91415e47fb7d17468b2537c8eb1425511c13b",
+          "output_bytes": 2950,
+          "error_output_bytes": 1046
+        },
+        "completed_at": "2026-08-23T06:33:19.155Z",
+        "status": "failed"
+      }
+    },
+    "T-01-54": {
+      "effective_command": "cd web && npx playwright test --project=phase1-chromium --grep @a11y tests/accessibility/ && npx playwright test --project=phase1-chromium --grep @visual tests/visual/ -- --candidate",
+      "effective_command_sha256": "69cf7e1ae0614dc66e6a7e129cbd74e34cdfb658923590e8574cef85d79212c7",
+      "original_command_id": "fbdf2235e3d92763253859492301212c8d868d09384805bdf60d866b2156e745",
+      "original_command_sha256": "daa845529747b428a1ee58ab940f976f487c1dd54b1239078db1766a30f13af5",
+      "superseded_result": {
+        "plan": "01-17",
+        "task": 2,
+        "command_id": "fbdf2235e3d92763253859492301212c8d868d09384805bdf60d866b2156e745",
+        "command": "cd web && npm run test:a11y && npm run test:visual -- --candidate",
+        "exit_status": 1,
+        "evidence": {
+          "output_sha256": "6b3e7cfcf255b1e1be5770c9d9fb064647c7a7857f096d2bcdedd125404802e5",
+          "error_output_sha256": "ac9e1a8953492b23a296ecf5b8d91415e47fb7d17468b2537c8eb1425511c13b",
+          "output_bytes": 2950,
+          "error_output_bytes": 1046
+        },
+        "completed_at": "2026-08-23T06:33:19.155Z",
+        "status": "failed"
+      }
+    }
+  }
+}

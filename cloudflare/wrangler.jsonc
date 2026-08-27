@@ -1,0 +1,41 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wtfmedia-edge",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-11",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  "vars": {
+    "ALLOWED_ORIGIN": "https://wtfmedia.vercel.app",
+    "RATE_LIMIT_PER_MINUTE": "20"
+  },
+  "ai": { "binding": "AI" },
+  "vectorize": [
+    { "binding": "VECTORIZE", "index_name": "wtfmedia-catalogue-v1" }
+  ],
+  "kv_namespaces": [
+    { "binding": "WTFMEDIA_STATE", "id": "7b839356a85d4d1a9bfa6aed20140fe3" }
+  ],
+  "r2_buckets": [
+    { "binding": "CATALOGUE", "bucket_name": "wtfmedia-catalogue" }
+  ],
+  "queues": {
+    "producers": [
+      { "binding": "INGEST_QUEUE", "queue": "wtfmedia-ingest" }
+    ],
+    "consumers": [
+      {
+        "queue": "wtfmedia-ingest",
+        "max_batch_size": 1,
+        "max_concurrency": 1,
+        "max_batch_timeout": 30,
+        "max_retries": 5,
+        "dead_letter_queue": "wtfmedia-ingest-dlq"
+      }
+    ]
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "wtfmedia-ops", "database_id": "wtfmedia-ops-db" }
+  ]
+}

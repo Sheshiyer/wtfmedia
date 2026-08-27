@@ -7,13 +7,13 @@ module.exports = {
   ci: {
     collect: {
       url: [
-        "http://localhost:4173/",
-        "http://localhost:4173/episodes",
-        "http://localhost:4173/connections",
-        "http://localhost:4173/chat",
+        "http://127.0.0.1:4173/",
+        "http://127.0.0.1:4173/episodes",
+        "http://127.0.0.1:4173/connections",
+        "http://127.0.0.1:4173/chat",
       ],
       numberOfRuns: 5,
-      startServerCommand: "npm run build && npm run start",
+      startServerCommand: "npm run build && PORT=4173 npm run start",
       startServerReadyPattern: "Ready in",
       startServerReadyTimeout: 120000,
     },

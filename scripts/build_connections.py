@@ -7,7 +7,7 @@ whole catalogue. This builds that graph:
 1. Deterministic pass: extract candidate entities (capitalized phrases) from every
    transcript; count how many distinct EPISODES each appears in (episode-spread)
    plus total mentions.
-2. Hybrid pass: hand the shortlist to NVIDIA NIM (llama-3.3-70b) to merge variants,
+2. Hybrid pass: hand the shortlist to NVIDIA NIM to merge variants,
    drop non-entities, and assign a category + clean label.
 3. Nodes = canonical entities appearing in >= THRESHOLD episodes (default 20);
    "emerging" = below threshold but climbing.
@@ -17,6 +17,7 @@ Output: web/src/data/connections.json
 """
 from __future__ import annotations
 
+import ast
 import json
 import re
 import sys
@@ -32,8 +33,11 @@ OUT = ROOT / "web" / "src" / "data" / "connections.json"
 
 THRESHOLD = 20            # node = appears in >= 20 distinct episodes
 EMERGING_MIN = 8          # show climbing nodes from here up to threshold
-CHAT_MODEL = "meta/llama-3.3-70b-instruct"
+CHAT_MODELS = [
+    "meta/llama-3.1-8b-instruct",
+]
 CHAT_URL = "https://integrate.api.nvidia.com/v1/chat/completions"
+CLASSIFIER_TIMEOUT = 25
 
 STOP = set("""the a an and or but if then so of to in on at by for with from as is are was were be been being this that these those it its
 i you he she we they them his her our your their my me us him there here what which who whom whose how why when where
@@ -79,33 +83,113 @@ def candidates_for(text: str) -> dict[str, int]:
     return counts
 
 
+def infer_category(label: str) -> str:
+    """Keep a useful graph when a fast model returns variants without tags."""
+    value = label.lower()
+    if any(word in value for word in ("ai", "openai", "chatgpt", "nvidia", "machine learning")):
+        return "AI"
+    if any(word in value for word in ("bank", "money", "market", "fund", "finance", "invest")):
+        return "Finance"
+    if any(word in value for word in ("india", "indian", "bangalore", "mumbai", "delhi")):
+        return "India"
+    if any(word in value for word in ("china", "united states", "america", "europe", "russia")):
+        return "Geopolitics"
+    if any(word in value for word in ("health", "pharma", "medicine", "doctor")):
+        return "Health"
+    return "People"
+
+
+def parse_canonical_nodes(raw: str) -> list[dict]:
+    """Accept documented JSON and the compact Python-map form some NIM models emit."""
+    start = raw.find("{")
+    if start < 0:
+        raise ValueError("model did not return an object")
+    depth = 0
+    quote = None
+    escaped = False
+    end = None
+    for index, char in enumerate(raw[start:], start):
+        if quote:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+            continue
+        if char in ("'", '"'):
+            quote = char
+        elif char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                end = index + 1
+                break
+    if end is None:
+        raise ValueError("model returned an incomplete object")
+    text = raw[start:end]
+    try:
+        parsed = json.loads(text)
+    except json.JSONDecodeError:
+        parsed = ast.literal_eval(text)
+    if not isinstance(parsed, dict):
+        raise ValueError("model response was not a map")
+    if isinstance(parsed.get("nodes"), list):
+        return parsed["nodes"]
+    # Compact map: {"OpenAI": ["open ai", "openai"], ...}.
+    return [
+        {"label": label, "category": infer_category(label), "variants": variants}
+        for label, variants in parsed.items()
+        if isinstance(label, str) and isinstance(variants, list)
+    ]
+
+
 def canonicalize(key: str, shortlist: list[dict]) -> list[dict]:
-    """Ask NIM to merge variants, drop junk, assign category + clean label."""
-    payload = {
-        "model": CHAT_MODEL,
-        "temperature": 0.1,
-        "max_tokens": 3000,
-        "messages": [
-            {"role": "system", "content":
-             "You clean a list of candidate entities mined from podcast transcripts. "
-             "Merge spelling/case variants of the same thing (e.g. 'Open Ai','OpenAI' -> 'OpenAI'; "
-             "'United States','US' -> 'United States'). Drop anything that is NOT a real recurring "
-             "topic, person, company, place, or concept (drop generic words, names of the host, "
-             "filler). Assign each kept node a category from exactly this set: "
-             "[AI, Startups, Finance, Geopolitics, Health, Media, India, Science, Crypto, People]. "
-             "Return STRICT JSON only: {\"nodes\":[{\"label\":\"OpenAI\",\"category\":\"AI\",\"variants\":[\"open ai\",\"openai\"]}]}."},
-            {"role": "user", "content":
-             "Candidates (label : episodes_seen):\n" +
-             "\n".join(f"{c['label']} : {c['episodeCount']}" for c in shortlist)},
-        ],
-    }
-    req = urllib.request.Request(CHAT_URL, data=json.dumps(payload).encode(),
-        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
-    raw = json.load(urllib.request.urlopen(req, timeout=120))["choices"][0]["message"]["content"]
-    m = re.search(r"\{.*\}", raw, re.S)
-    if not m:
-        raise SystemExit("LLM did not return JSON: " + raw[:200])
-    return json.loads(m.group(0)).get("nodes", [])
+    """Merge variants through a bounded, fallback-capable NIM request."""
+    messages = [
+        {"role": "system", "content":
+         "You clean a list of candidate entities mined from podcast transcripts. "
+         "Merge spelling/case variants of the same thing (e.g. 'Open Ai','OpenAI' -> 'OpenAI'; "
+         "'United States','US' -> 'United States'). Drop anything that is NOT a real recurring "
+         "topic, person, company, place, or concept (drop generic words, names of the host, "
+         "filler). Assign each kept node a category from exactly this set: "
+         "[AI, Startups, Finance, Geopolitics, Health, Media, India, Science, Crypto, People]. "
+         "Keep at most 20 canonical nodes. "
+         "Return STRICT JSON only: {\"nodes\":[{\"label\":\"OpenAI\",\"category\":\"AI\",\"variants\":[\"open ai\",\"openai\"]}]}."},
+        {"role": "user", "content":
+         "Candidates (label : episodes_seen):\n" +
+         "\n".join(f"{c['label']} : {c['episodeCount']}" for c in shortlist)},
+    ]
+    failures = []
+    for model in CHAT_MODELS:
+        payload = {"model": model, "temperature": 0.1, "max_tokens": 1800, "messages": messages}
+        req = urllib.request.Request(CHAT_URL, data=json.dumps(payload).encode(),
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
+        try:
+            raw = json.load(urllib.request.urlopen(req, timeout=CLASSIFIER_TIMEOUT))["choices"][0]["message"]["content"]
+            nodes = parse_canonical_nodes(raw)
+            if nodes:
+                print(f"[connections] canonicalized with {model}", file=sys.stderr)
+                return nodes
+            raise ValueError("model returned no nodes")
+        except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError, KeyError, json.JSONDecodeError) as exc:
+            failures.append(f"{model}: {type(exc).__name__}")
+            print(f"[connections] {model} failed: {type(exc).__name__}", file=sys.stderr)
+    # The graph is still useful without an LLM merge pass. Never leave a stale
+    # graph in production solely because a provider ignored its output schema.
+    print(
+        "[connections] using deterministic fallback after model failures: " + "; ".join(failures),
+        file=sys.stderr,
+    )
+    return [
+        {
+            "label": candidate["label"],
+            "category": infer_category(candidate["label"]),
+            "variants": [candidate["label"]],
+        }
+        for candidate in shortlist
+    ]
 
 
 key = read_key()
@@ -131,7 +215,7 @@ ranked = sorted(episodes_of.items(), key=lambda kv: len(kv[1]), reverse=True)
 shortlist = [
     {"label": display_of[k], "key": k, "episodeCount": len(v), "mentions": mentions_of[k]}
     for k, v in ranked if len(v) >= EMERGING_MIN
-][:120]
+][:40]
 print(f"[connections] {len(txt_files)} transcripts, {len(shortlist)} candidates >= {EMERGING_MIN} eps", file=sys.stderr)
 
 # 2) hybrid: canonicalize via NIM

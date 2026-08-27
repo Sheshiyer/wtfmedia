@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AuditExportDialog } from "./AuditExportDialog";
 import { AuditLedger, type AuditLedgerRow } from "./AuditLedger";
 
@@ -19,8 +19,8 @@ export function AuditWorkspace() {
   const [notice, setNotice] = useState("");
   const [exporting, setExporting] = useState(false);
   const query = useMemo(() => new URLSearchParams(Object.entries(filters).filter(([, value]) => value)).toString(), [filters]);
-  const refresh = async () => { setState("loading"); try { const response = await fetch(`${endpoint}${query ? `?${query}` : ""}`, { cache: "no-store" }); const data: unknown = await response.json(); if (!response.ok || !validRows(data)) throw new Error("audit_unavailable"); setRows(data.records); setState(data.records.length ? "ready" : "measured-zero"); } catch { setRows([]); setState("unavailable"); } };
-  useEffect(() => { void refresh(); }, [query]);
+  const refresh = useCallback(async () => { setState("loading"); try { const response = await fetch(`${endpoint}${query ? `?${query}` : ""}`, { cache: "no-store" }); const data: unknown = await response.json(); if (!response.ok || !validRows(data)) throw new Error("audit_unavailable"); setRows(data.records); setState(data.records.length ? "ready" : "measured-zero"); } catch { setRows([]); setState("unavailable"); } }, [query]);
+  useEffect(() => { void refresh(); }, [refresh]);
   const filterSummary = query || "none";
   const exportRecords = async () => { try { const response = await fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "export", filters }), cache: "no-store" }); if (!response.ok) throw new Error("export_unavailable"); const blob = await response.blob(); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = "wtfmedia-audit-ledger.csv"; anchor.click(); URL.revokeObjectURL(url); setNotice("allowlisted audit export prepared."); return true; } catch { setNotice("audit export is unavailable right now. retry or cancel."); return false; } };
   return <><div className="mt-8 flex flex-wrap gap-3" aria-label="audit filters">{filterOptions.map(([key, values]) => <label key={key} className="grid gap-1"><span className="text-label">{key}</span><select value={filters[key]} onChange={(event) => setFilters((current) => ({ ...current, [key]: event.target.value }))} className="min-h-11 border-2 border-foreground bg-canvas px-3">{values.map((value) => <option key={value} value={value}>{value || `all ${key}s`}</option>)}</select></label>)}<button type="button" onClick={() => void refresh()} className="min-h-11 self-end border-2 border-foreground px-4 py-3 font-semibold">refresh records</button><button type="button" onClick={() => setExporting(true)} disabled={state === "loading" || state === "unavailable"} className="min-h-11 self-end border-2 border-foreground px-4 py-3 font-semibold">export audit records</button></div><div aria-live="polite" className="sr-only">{notice}</div><AuditLedger rows={rows} state={state} />{exporting && <AuditExportDialog filters={filterSummary} onClose={() => setExporting(false)} onConfirm={exportRecords} />}</>;

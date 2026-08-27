@@ -1,0 +1,988 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-11T02:06:03.860Z",
+  "corpus": {
+    "episodes": 55,
+    "timestamped_episodes": 43
+  },
+  "entries": [
+    {
+      "video_id": "RSB58m7Xwhg",
+      "title": "Nikos Christodoulides on Why India Must Lead What Comes Next | Nikhil Kamath | People by WTF",
+      "source_url": "https://www.youtube.com/watch?v=RSB58m7Xwhg",
+      "transcript": {
+        "key": "transcripts/RSB58m7Xwhg.txt",
+        "sha256": "1535b4e4fadddddb59eb5ebb3d05ce338224f9f533391650f176c778e2d73bf5",
+        "bytes": 52763
+      },
+      "timestamps": {
+        "key": "timestamps/RSB58m7Xwhg.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "SPLFyVyTI1A",
+      "title": "Martin Escobari: Trauma, Chaos & Three Industries Worth $100B | Nikhil Kamath | People by WTF",
+      "source_url": "https://www.youtube.com/watch?v=SPLFyVyTI1A",
+      "transcript": {
+        "key": "transcripts/SPLFyVyTI1A.txt",
+        "sha256": "545344496656c06b1fa4ce335895d99ff4e522bf62d3e22c84e0b32d17ce760f",
+        "bytes": 78132
+      },
+      "timestamps": {
+        "key": "timestamps/SPLFyVyTI1A.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "QdWHGjReLUo",
+      "title": "The World Bank President On Why Jobs Fix Everything | Ajay Banga x Nikhil Kamath | People by WTF",
+      "source_url": "https://www.youtube.com/watch?v=QdWHGjReLUo",
+      "transcript": {
+        "key": "transcripts/QdWHGjReLUo.txt",
+        "sha256": "b60b430843a74975d7dd222f12837843a36be632069c11a540876cc2f25a40a7",
+        "bytes": 78790
+      },
+      "timestamps": {
+        "key": "timestamps/QdWHGjReLUo.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "spdUv7OFOu4",
+      "title": "Rishi Sunak & Akshata Murty: Power, Identity & Why Patience Beats Ambition | Nikhil | People by WTF",
+      "source_url": "https://www.youtube.com/watch?v=spdUv7OFOu4",
+      "transcript": {
+        "key": "transcripts/spdUv7OFOu4.txt",
+        "sha256": "f0515137ad0e401b9b1d67b40861f324a6fcd1943e7c750c61e4922044670152",
+        "bytes": 162307
+      },
+      "timestamps": {
+        "key": "timestamps/spdUv7OFOu4.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "hAgqDdPgA3g",
+      "title": "Pain, Power & The Game Nobody Wins | Chamath Palihapitiya x Nikhil Kamath | People by WTF",
+      "source_url": "https://www.youtube.com/watch?v=hAgqDdPgA3g",
+      "transcript": {
+        "key": "transcripts/hAgqDdPgA3g.txt",
+        "sha256": "4ec30559930fbd74be9ae32a31a3dce81a4ac4f0186bbb60930c57f0caca170a",
+        "bytes": 61862
+      },
+      "timestamps": {
+        "key": "timestamps/hAgqDdPgA3g.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "68ylaeBbdsg",
+      "title": "The AI Tsunami is Here & Society Isn't Ready | Dario Amodei x Nikhil Kamath | People by WTF",
+      "source_url": "https://www.youtube.com/watch?v=68ylaeBbdsg",
+      "transcript": {
+        "key": "transcripts/68ylaeBbdsg.txt",
+        "sha256": "c52b94c8063c8bb4d3a7759d5a5b4e2a24f63bc677c44871dc4958f876d48f8f",
+        "bytes": 68009
+      },
+      "timestamps": {
+        "key": "timestamps/68ylaeBbdsg.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "N0S048D2tj4",
+      "title": "Yuval Noah Harari: Stories, Power & Why Truth Doesn't Matter | Nikhil Kamath | People by WTF",
+      "source_url": "https://www.youtube.com/watch?v=N0S048D2tj4",
+      "transcript": {
+        "key": "transcripts/N0S048D2tj4.txt",
+        "sha256": "267cad1d2296a614ab9b175762a87694b4df3ba9392f5cd1278b38ca8fbbcda8",
+        "bytes": 69843
+      },
+      "timestamps": {
+        "key": "timestamps/N0S048D2tj4.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "Rni7Fz7208c",
+      "title": "Elon Musk: A Different Conversation w/ Nikhil Kamath | Full Episode | People by WTF Ep. 16",
+      "source_url": "https://www.youtube.com/watch?v=Rni7Fz7208c",
+      "transcript": {
+        "key": "transcripts/Rni7Fz7208c.txt",
+        "sha256": "2edc31b78be5498a84e59350766a56b3c0977d3c71a88e2e667a5b8b441f14f9",
+        "bytes": 90615
+      },
+      "timestamps": {
+        "key": "timestamps/Rni7Fz7208c.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "ohjXRswUYqM",
+      "title": "A.R. Rahman: The Genius Who Took Indian Music Global | Nikhil Kamath | People by WTF | Ep 15",
+      "source_url": "https://www.youtube.com/watch?v=ohjXRswUYqM",
+      "transcript": {
+        "key": "transcripts/ohjXRswUYqM.txt",
+        "sha256": "bd74babbaa3516c16ec3e74bdf3825b3378e9a6de9e7ebfdd531dd8a8bba5331",
+        "bytes": 94309
+      },
+      "timestamps": {
+        "key": "timestamps/ohjXRswUYqM.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "2B8gABDfh7I",
+      "title": "From Iran to Uber CEO | Nikhil Kamath x Dara Khosrowshahi | People by WTF | Ep. 14",
+      "source_url": "https://www.youtube.com/watch?v=2B8gABDfh7I",
+      "transcript": {
+        "key": "transcripts/2B8gABDfh7I.txt",
+        "sha256": "b94af36b61c139827a635ab7c79e1a6a3df5578fb73084a06c20961e1d3355c2",
+        "bytes": 81555
+      },
+      "timestamps": {
+        "key": "timestamps/2B8gABDfh7I.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "SfOaZIGJ_gs",
+      "title": "Sam Altman x Nikhil Kamath: How to Win When AI Changes Everything | People by WTF | Episode 13",
+      "source_url": "https://www.youtube.com/watch?v=SfOaZIGJ_gs",
+      "transcript": {
+        "key": "transcripts/SfOaZIGJ_gs.txt",
+        "sha256": "00c0ef4b71500702f82670a084c182692d681bfa8d4db2d85e80120e5bd8fd53",
+        "bytes": 39470
+      },
+      "timestamps": {
+        "key": "timestamps/SfOaZIGJ_gs.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "O7O204wD82s",
+      "title": "Vinod Khosla: College Degrees Are Becoming Useless | People by WTF | Episode 12",
+      "source_url": "https://www.youtube.com/watch?v=O7O204wD82s",
+      "transcript": {
+        "key": "transcripts/O7O204wD82s.txt",
+        "sha256": "d5ca0f43fa7844c3d51d97b656c9d03bd751e6f153c92f1fe88b93ee1cbd3461",
+        "bytes": 59457
+      },
+      "timestamps": {
+        "key": "timestamps/O7O204wD82s.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "vPvnzWoK24Q",
+      "title": "From Ghaziabad to Silicon Valley: Nikhil Kamath x Nikesh Arora | People by WTF | Ep. 11",
+      "source_url": "https://www.youtube.com/watch?v=vPvnzWoK24Q",
+      "transcript": {
+        "key": "transcripts/vPvnzWoK24Q.txt",
+        "sha256": "4c5165e10ad2ce05c70ff03f71451cb567494779718140b02a6f0543a3d865c5",
+        "bytes": 83949
+      },
+      "timestamps": {
+        "key": "timestamps/vPvnzWoK24Q.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "QT2FGbR0nIM",
+      "title": "Nikhil Kamath x Netflix Co-CEO, Ted Sarandos | People by WTF | Ep. 10",
+      "source_url": "https://www.youtube.com/watch?v=QT2FGbR0nIM",
+      "transcript": {
+        "key": "transcripts/QT2FGbR0nIM.txt",
+        "sha256": "b6907aaa2c40764f84b47a9f758e0eb26b47a691778a1c6267429fd7e5823927",
+        "bytes": 108943
+      },
+      "timestamps": {
+        "key": "timestamps/QT2FGbR0nIM.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "8uFOBdle3WY",
+      "title": "Nikhil Kamath x YouTube CEO, Neal Mohan | People by WTF Ep. 9",
+      "source_url": "https://www.youtube.com/watch?v=8uFOBdle3WY",
+      "transcript": {
+        "key": "transcripts/8uFOBdle3WY.txt",
+        "sha256": "f413a8ea5e48cc07e4445bfb645871a520641c83ed97480ce3d5dcfa5c8c64a8",
+        "bytes": 58366
+      },
+      "timestamps": {
+        "key": "timestamps/8uFOBdle3WY.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "YY7J1pHfSyY",
+      "title": "Bill Gates x Nikhil Kamath Part 2 | People by WTF | Ep.8",
+      "source_url": "https://www.youtube.com/watch?v=YY7J1pHfSyY",
+      "transcript": {
+        "key": "transcripts/YY7J1pHfSyY.txt",
+        "sha256": "9e1a4410b5fa7558c1b3179d7bb1bc568d95c7b3d15129dd0b60fd523861cfe8",
+        "bytes": 29460
+      },
+      "timestamps": {
+        "key": "timestamps/YY7J1pHfSyY.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "tlicx3KKzmQ",
+      "title": "Nikhil Kamath x NZ PM Christopher Luxon | People by WTF Ep #7",
+      "source_url": "https://www.youtube.com/watch?v=tlicx3KKzmQ",
+      "transcript": {
+        "key": "transcripts/tlicx3KKzmQ.txt",
+        "sha256": "94d794131b1aa3a594a5222885573b110bc164ba7142ae0dafc540b263b9b7f7",
+        "bytes": 45452
+      },
+      "timestamps": {
+        "key": "timestamps/tlicx3KKzmQ.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "yTMYtcQLLaw",
+      "title": "People with The Prime Minister Shri Narendra Modi x Nikhil Kamath | Episode 6 | By WTF",
+      "source_url": "https://www.youtube.com/watch?v=yTMYtcQLLaw",
+      "transcript": {
+        "key": "transcripts/yTMYtcQLLaw.txt",
+        "sha256": "662cb16d1ec4d9a29bb2dac8a7f4b929d279962f906ddd1b22df1785a14ab65e",
+        "bytes": 85488
+      },
+      "timestamps": {
+        "key": "timestamps/yTMYtcQLLaw.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "e6FqC4pWy8I",
+      "title": "Nikhil Kamath x Kumar Birla | People by WTF Ep #5",
+      "source_url": "https://www.youtube.com/watch?v=e6FqC4pWy8I",
+      "transcript": {
+        "key": "transcripts/e6FqC4pWy8I.txt",
+        "sha256": "a12b7540ecc4b74474051bb602ca8687940829a2fe6525bf6cea4c73933bf8c8",
+        "bytes": 100758
+      },
+      "timestamps": {
+        "key": "timestamps/e6FqC4pWy8I.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "JAgHUDhaTU0",
+      "title": "WTF is Artificial Intelligence Really? | Yann LeCun x Nikhil Kamath  | People by WTF Ep #4",
+      "source_url": "https://www.youtube.com/watch?v=JAgHUDhaTU0",
+      "transcript": {
+        "key": "transcripts/JAgHUDhaTU0.txt",
+        "sha256": "bb58a64829bd59c4c0a4252f8ee0823749bad03b84253498812ed5f68065a5a8",
+        "bytes": 90170
+      },
+      "timestamps": {
+        "key": "timestamps/JAgHUDhaTU0.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "YqdJSu1DX48",
+      "title": "Nikhil Kamath x Nandan Nilekani | People by WTF | Ep #3",
+      "source_url": "https://www.youtube.com/watch?v=YqdJSu1DX48",
+      "transcript": {
+        "key": "transcripts/YqdJSu1DX48.txt",
+        "sha256": "8f02218039a5e91414b8ffe3745d563ead9b01af08e17e8961dbb324642be57e",
+        "bytes": 57234
+      },
+      "timestamps": {
+        "key": "timestamps/YqdJSu1DX48.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "fEnwMyHejtQ",
+      "title": "Nikhil Kamath x Ranbir Kapoor | People by WTF Ep #2",
+      "source_url": "https://www.youtube.com/watch?v=fEnwMyHejtQ",
+      "transcript": {
+        "key": "transcripts/fEnwMyHejtQ.txt",
+        "sha256": "540a23f8178e3930a2a6018723704368a23bf89924552ef985ca8918c3401375",
+        "bytes": 101745
+      },
+      "timestamps": {
+        "key": "timestamps/fEnwMyHejtQ.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "ckNEdxQ0Tc0",
+      "title": "Nikhil Kamath x Bill Gates | People by WTF | Ep. #1",
+      "source_url": "https://www.youtube.com/watch?v=ckNEdxQ0Tc0",
+      "transcript": {
+        "key": "transcripts/ckNEdxQ0Tc0.txt",
+        "sha256": "7c88a7ca966fe3ea799c566894368fbca8e37b5935bddc8adf17412b3719eb29",
+        "bytes": 23393
+      },
+      "timestamps": {
+        "key": "timestamps/ckNEdxQ0Tc0.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "tWzalcN_Inc",
+      "title": "#1 WTF is Metaverse? WTF is with Nikhil Kamath ft. Tanmay Bhat, Umang Bedi & Aprameya Radhakrishna",
+      "source_url": "https://www.youtube.com/watch?v=tWzalcN_Inc",
+      "transcript": {
+        "key": "transcripts/tWzalcN_Inc.txt",
+        "sha256": "bbe68f6cab99bc1f4cd36ab821093fca58f0f779422705f40283bd251fcb8e0d",
+        "bytes": 62868
+      },
+      "timestamps": {
+        "key": "timestamps/tWzalcN_Inc.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "SkU3J2vWUK8",
+      "title": "Ep. #2: Secrets of Social Media Success, Mental Health & Distribution Hacks - 3 OGs Reveal All",
+      "source_url": "https://www.youtube.com/watch?v=SkU3J2vWUK8",
+      "transcript": {
+        "key": "transcripts/SkU3J2vWUK8.txt",
+        "sha256": "076e455251cae36fa84d03b7b52ff7b0e432764f499ce634cf55e9afa4450b16",
+        "bytes": 143694
+      },
+      "timestamps": {
+        "key": "timestamps/SkU3J2vWUK8.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "UKag4LVAEdU",
+      "title": "Ep #3| WTF is E-commerce: Kishore Biyani, Udaan & Meesho Founders Reveal What Sells and What Doesn’t",
+      "source_url": "https://www.youtube.com/watch?v=UKag4LVAEdU",
+      "transcript": {
+        "key": "transcripts/UKag4LVAEdU.txt",
+        "sha256": "c311725341d3483acf34497f728968de54a2aa81080f91ad2255e09828afd869",
+        "bytes": 107188
+      },
+      "timestamps": {
+        "key": "timestamps/UKag4LVAEdU.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "-HkBwSazZsM",
+      "title": "Ep #4 | WTF is ChatGPT: Heaven or Hell? | w/ Nikhil, Varun Mayya, Tanmay, Umang & Aprameya",
+      "source_url": "https://www.youtube.com/watch?v=-HkBwSazZsM",
+      "transcript": {
+        "key": "transcripts/-HkBwSazZsM.txt",
+        "sha256": "2cdeeeb22f8dd57ee0eeee938c1009522b1cb765a02ef3f74feb02e0099efa98",
+        "bytes": 139888
+      },
+      "timestamps": {
+        "key": "timestamps/-HkBwSazZsM.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "01qfxLY2rhQ",
+      "title": "Ep #5 | EdTech What’s Broken, What’s Next? With Nikhil, Ronnie Screwvala , Gaurav Munjal & Jay Kotak",
+      "source_url": "https://www.youtube.com/watch?v=01qfxLY2rhQ",
+      "transcript": {
+        "key": "transcripts/01qfxLY2rhQ.txt",
+        "sha256": "d93338fdc885ced1de63691d44d8233a50130888cba33b7add5cf37e8ba4de1e",
+        "bytes": 116918
+      },
+      "timestamps": {
+        "key": "timestamps/01qfxLY2rhQ.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "6HE6d0lKh4o",
+      "title": "Ep #6 | WTF is Health? ft. Nikhil Kamath, Suniel Shetty, Nithin Kamath and Mukesh Bansal",
+      "source_url": "https://www.youtube.com/watch?v=6HE6d0lKh4o",
+      "transcript": {
+        "key": "transcripts/6HE6d0lKh4o.txt",
+        "sha256": "19c749765ecc01853c4db8c42af2cd286095973a5c248275b6596e104790085d",
+        "bytes": 121448
+      },
+      "timestamps": {
+        "key": "timestamps/6HE6d0lKh4o.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "58i057QXl1A",
+      "title": "Ep #7 | Who is Kiran Mazumdar Shaw Really? And WTF is Biotech?",
+      "source_url": "https://www.youtube.com/watch?v=58i057QXl1A",
+      "transcript": {
+        "key": "transcripts/58i057QXl1A.txt",
+        "sha256": "295bc078cd050c77407d4ea54b0ddd368cabebde0387fd1d2ef6362d84ae08b6",
+        "bytes": 94133
+      },
+      "timestamps": {
+        "key": "timestamps/58i057QXl1A.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "hNV6urpwrk8",
+      "title": "Ep #8 | WTF is Going on in the World of Content | w/ Nikhil, Ajay Bijli, Vijay S. & Sajith S.",
+      "source_url": "https://www.youtube.com/watch?v=hNV6urpwrk8",
+      "transcript": {
+        "key": "transcripts/hNV6urpwrk8.txt",
+        "sha256": "8df58d3fbdd3fd848e60530025369d1ccd04286bbaad58c529458f1c85bdc541",
+        "bytes": 116116
+      },
+      "timestamps": {
+        "key": "timestamps/hNV6urpwrk8.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "zCTm1wHcfkI",
+      "title": "Ep #9 | WTF is Venture Capital? Ft. Nikhil, Nithin, Rajan A., Prashanth P. & Karthik R.",
+      "source_url": "https://www.youtube.com/watch?v=zCTm1wHcfkI",
+      "transcript": {
+        "key": "transcripts/zCTm1wHcfkI.txt",
+        "sha256": "7b33d936455ccf9fdab504270c036212fa2a65c64b9a12ef59502f1e059572db",
+        "bytes": 133610
+      },
+      "timestamps": {
+        "key": "timestamps/zCTm1wHcfkI.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "nGpir4oUfJI",
+      "title": "Ep #10 | WTF is the Next Gen Thinking? Nikhil w/ Navya, Tara, Aadit & Kaivalya",
+      "source_url": "https://www.youtube.com/watch?v=nGpir4oUfJI",
+      "transcript": {
+        "key": "transcripts/nGpir4oUfJI.txt",
+        "sha256": "d2cd5ac917b4decae4bbca0fe36851375e2d6b13080afdf596eefefc8d0fc9f5",
+        "bytes": 148742
+      },
+      "timestamps": {
+        "key": "timestamps/nGpir4oUfJI.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "hjiZ11lKCrU",
+      "title": "Ep #11 | WTF Goes into Building a Fashion, Beauty, or Home Brand? Nikhil w/ Kishore, Raj, and Ananth",
+      "source_url": "https://www.youtube.com/watch?v=hjiZ11lKCrU",
+      "transcript": {
+        "key": "transcripts/hjiZ11lKCrU.txt",
+        "sha256": "f1a1c2b99e169669bb26ab8cef3d9f06baf09cd494fbab6bd6e18a17253e8d2c",
+        "bytes": 203464
+      },
+      "timestamps": {
+        "key": "timestamps/hjiZ11lKCrU.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "M72Wu2rZE7Y",
+      "title": "Ep# 12 | WTF is The Restaurant Game? Nikhil w/ Pooja Dhingra, Zorawar Kalra & Riyaaz Amlani",
+      "source_url": "https://www.youtube.com/watch?v=M72Wu2rZE7Y",
+      "transcript": {
+        "key": "transcripts/M72Wu2rZE7Y.txt",
+        "sha256": "f9134e1fb2aee97344544636ee272fe4f69510a0b7113cfff899f3427c38c7b8",
+        "bytes": 187457
+      },
+      "timestamps": {
+        "key": "timestamps/M72Wu2rZE7Y.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "JjDjDvNgkFo",
+      "title": "Ep# 13 | WTF does it take to Build Influence Today? Nikhil w/ Nuseir, Tanmay, Prajakta & Ranveer",
+      "source_url": "https://www.youtube.com/watch?v=JjDjDvNgkFo",
+      "transcript": {
+        "key": "transcripts/JjDjDvNgkFo.txt",
+        "sha256": "2d0f87afcc182a0792971894eedddce5593e4f759d6cbde0a9dddc4685322bb7",
+        "bytes": 189739
+      },
+      "timestamps": {
+        "key": "timestamps/JjDjDvNgkFo.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "iuyy1bIgR1s",
+      "title": "Ep# 14 | WTF is Happening with EV? Nikhil ft. Founders of Reva, Ather, Blusmart, and Ossus",
+      "source_url": "https://www.youtube.com/watch?v=iuyy1bIgR1s",
+      "transcript": {
+        "key": "transcripts/iuyy1bIgR1s.txt",
+        "sha256": "cb18da938f32ca846f573d73c4dc1c3c05ba0dcb6e172a6cdf87f8014a220741",
+        "bytes": 175691
+      },
+      "timestamps": {
+        "key": "timestamps/iuyy1bIgR1s.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "2q7-cTPwf-g",
+      "title": "Ep# 15 | WTF is Climate Change? Nikhil ft. Sunita, Bhumi, Navroz and Mirik",
+      "source_url": "https://www.youtube.com/watch?v=2q7-cTPwf-g",
+      "transcript": {
+        "key": "transcripts/2q7-cTPwf-g.txt",
+        "sha256": "c313ef174fdd95fba977272d9ae5fb26b1f49e6142ae3f6160ff99f994cbee70",
+        "bytes": 157862
+      },
+      "timestamps": {
+        "available": false
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "FPV5fAkqyBs",
+      "title": "WTF Ep# 16 | What character \"flaws\" make the best entrepreneurs? Nikhil ft.Ritesh, Ghazal and Manish",
+      "source_url": "https://www.youtube.com/watch?v=FPV5fAkqyBs",
+      "transcript": {
+        "key": "transcripts/FPV5fAkqyBs.txt",
+        "sha256": "6f92219eb3072e97e3895d0132c13256c6021a2d1c5b919e9191adb15807d276",
+        "bytes": 216483
+      },
+      "timestamps": {
+        "available": false
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "VIlfHB7Jk2s",
+      "title": "Ep# 17 | WTF is Gaming in India? | Career, Investment, Entrepreneurship",
+      "source_url": "https://www.youtube.com/watch?v=VIlfHB7Jk2s",
+      "transcript": {
+        "key": "transcripts/VIlfHB7Jk2s.txt",
+        "sha256": "906373fca4d0f28563b4d8908c917d7b89ee699a134e3a7353afd76a87448080",
+        "bytes": 145013
+      },
+      "timestamps": {
+        "available": false
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "0JDsFpU6pGQ",
+      "title": "Ep #18 | WTF, Alcohol is a $70B Business in India? | Nikhil Kamath explores Gaps & Opportunities",
+      "source_url": "https://www.youtube.com/watch?v=0JDsFpU6pGQ",
+      "transcript": {
+        "key": "transcripts/0JDsFpU6pGQ.txt",
+        "sha256": "48dabb08fb43f9d840d46bc3cbb09698310f5c62a0e42c22b82801fce47f13fa",
+        "bytes": 173193
+      },
+      "timestamps": {
+        "available": false
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "2_yA6GoqUnY",
+      "title": "Ep. #19 | WTF is “Making it” in an Offbeat Career? Nikhil Kamath Ft. Kriti Sanon, Badshah & KL Rahul",
+      "source_url": "https://www.youtube.com/watch?v=2_yA6GoqUnY",
+      "transcript": {
+        "key": "transcripts/2_yA6GoqUnY.txt",
+        "sha256": "8e93cc7e5c9376873f01161f3d38b7ab86a21b94cacf73cd50dad88b7fd9dc34",
+        "bytes": 120226
+      },
+      "timestamps": {
+        "available": false
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "fEUoJSTYtyc",
+      "title": "Ep #21 | WTF is Longevity? | Nikhil ft. Nithin Kamath, Bryan Johnson, Prashanth, Jitendra & Seema",
+      "source_url": "https://www.youtube.com/watch?v=fEUoJSTYtyc",
+      "transcript": {
+        "key": "transcripts/fEUoJSTYtyc.txt",
+        "sha256": "5ff62a736792e72b199f928ea411efd07a7b55c4d351c4fa2b9976e96423c2fa",
+        "bytes": 179149
+      },
+      "timestamps": {
+        "available": false
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "LqSEfz4YUFA",
+      "title": "Ep. #20 | WTF are Indian Real Estate Giants Up To? Nikhil ft. Irfan, Nirupa, & Karan",
+      "source_url": "https://www.youtube.com/watch?v=LqSEfz4YUFA",
+      "transcript": {
+        "key": "transcripts/LqSEfz4YUFA.txt",
+        "sha256": "0ecf8193908b67cefcc227eae26841de4001d4e13a3fbada284ac5bddcd8a57b",
+        "bytes": 174611
+      },
+      "timestamps": {
+        "available": false
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "lRjprPQHuXw",
+      "title": "Ep #23 | WTF are Consumer Electronics? | Nikhil ft. Carl Pei, Rahul Sharma & Amit Khatri",
+      "source_url": "https://www.youtube.com/watch?v=lRjprPQHuXw",
+      "transcript": {
+        "key": "transcripts/lRjprPQHuXw.txt",
+        "sha256": "7d901eaca2acc8f1c77f5b2f41ddb4c56f43fe31bc37cb7d95cedfa769eba6d2",
+        "bytes": 153079
+      },
+      "timestamps": {
+        "available": false
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "wHQiewz8k9g",
+      "title": "Ep #22 | WTF are Craft Beverages? Nikhil ft. the Founders of Blue Tokai, Subko, Svami, and Mossant",
+      "source_url": "https://www.youtube.com/watch?v=wHQiewz8k9g",
+      "transcript": {
+        "key": "transcripts/wHQiewz8k9g.txt",
+        "sha256": "91a597c949c4f76f36bb844c45122768e30dede1bf7bda3ae08e15ba0bc7a2bf",
+        "bytes": 187132
+      },
+      "timestamps": {
+        "available": false
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "g0CjWbgsdTQ",
+      "title": "Inside Silicon Valley’s VC Playbook | WTF is Venture Capital? - 2025 Edition | Ep. 24",
+      "source_url": "https://www.youtube.com/watch?v=g0CjWbgsdTQ",
+      "transcript": {
+        "key": "transcripts/g0CjWbgsdTQ.txt",
+        "sha256": "3b1bc3d09dae4a77bbf28649ddda3754b6590c6b652afd1dbf8b8925b04a2618",
+        "bytes": 162826
+      },
+      "timestamps": {
+        "available": false
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "AdI_XWv-ZTk",
+      "title": "Tira, Bombay Shaving Co., Inde Wild | WTF is Fueling India’s Beauty & Skincare Revolution? | Ep. 25",
+      "source_url": "https://www.youtube.com/watch?v=AdI_XWv-ZTk",
+      "transcript": {
+        "key": "transcripts/AdI_XWv-ZTk.txt",
+        "sha256": "4785a1ad2f7e121920996a9fac5da354ded751f696bc91f3047b225f5e4a0319",
+        "bytes": 213526
+      },
+      "timestamps": {
+        "available": false
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "WMRO9dvD5T0",
+      "title": "Two Pharma Giants Who'd Never Met | Mankind & Dr. Reddy's | WTF is Pharma?",
+      "source_url": "https://www.youtube.com/watch?v=WMRO9dvD5T0",
+      "transcript": {
+        "key": "transcripts/WMRO9dvD5T0.txt",
+        "sha256": "66a7e265595872090886190b0e7f324c005c56b66a643c2ac68ab76326ff0870",
+        "bytes": 146595
+      },
+      "timestamps": {
+        "available": false
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "ef3D5Ak1HP4",
+      "title": "The $11B Bet That Voice Will Replace Everything | Mati Staniszewski x Nikhil Kamath | WTF Online",
+      "source_url": "https://www.youtube.com/watch?v=ef3D5Ak1HP4",
+      "transcript": {
+        "key": "transcripts/ef3D5Ak1HP4.txt",
+        "sha256": "598756b5e0acee2f423c6f1386c8822733fbf2cb87f2a99e9575a4a9404e15c2",
+        "bytes": 57969
+      },
+      "timestamps": {
+        "key": "timestamps/ef3D5Ak1HP4.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "fL2wyVLX08o",
+      "title": "Humanoids Cost as Much as an SUV Now | Nikhil Kamath x Brett Adcock | WTF Online Ep 2",
+      "source_url": "https://www.youtube.com/watch?v=fL2wyVLX08o",
+      "transcript": {
+        "key": "transcripts/fL2wyVLX08o.txt",
+        "sha256": "b507f47ec3c9adf0d14933299f5091aca9fa91c8a458d7291922a6c9c7bd5d39",
+        "bytes": 106901
+      },
+      "timestamps": {
+        "key": "timestamps/fL2wyVLX08o.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "y5Ewu8wYgqM",
+      "title": "Nikhil Kamath ft. Perplexity CEO, Aravind Srinivas | WTF Online Ep 1.",
+      "source_url": "https://www.youtube.com/watch?v=y5Ewu8wYgqM",
+      "transcript": {
+        "key": "transcripts/y5Ewu8wYgqM.txt",
+        "sha256": "155a7518d7f1719d3088fbc223dd8b70394bbcaaa1cfba6de2d01befbf05f992",
+        "bytes": 116225
+      },
+      "timestamps": {
+        "key": "timestamps/y5Ewu8wYgqM.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "0YKTsHr5bDE",
+      "title": "WTF Is Wealth? Ray Dalio Breaks It Down w/ Nikhil Kamath | WTF is Finance Ep 2",
+      "source_url": "https://www.youtube.com/watch?v=0YKTsHr5bDE",
+      "transcript": {
+        "key": "transcripts/0YKTsHr5bDE.txt",
+        "sha256": "e7360825f73d6a899bb7876fde42d1d4caea4ae985c5f4e9f56914a478ccf171",
+        "bytes": 59550
+      },
+      "timestamps": {
+        "key": "timestamps/0YKTsHr5bDE.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "WGiAwFmscmc",
+      "title": "WTF are Ray Dalio’s Rules to Build a Real Portfolio? | Nikhil Kamath | WTF is Finance Ep 2 Teaser",
+      "source_url": "https://www.youtube.com/watch?v=WGiAwFmscmc",
+      "transcript": {
+        "key": "transcripts/WGiAwFmscmc.txt",
+        "sha256": "76c5313fda25e883de18b0fa44f890c8dce90af3afdfb186913efb8d7096fb71",
+        "bytes": 560
+      },
+      "timestamps": {
+        "key": "timestamps/WGiAwFmscmc.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "lTCzIDITaac",
+      "title": "India vs. China vs. US: Who Wins the Next Decade? | WTF is Finance | Ep 1 ft. Ruchir Sharma",
+      "source_url": "https://www.youtube.com/watch?v=lTCzIDITaac",
+      "transcript": {
+        "key": "transcripts/lTCzIDITaac.txt",
+        "sha256": "3a8551dce2bb2a5a72bd42c0a50d89d23ebabc953918af8868daaf695c2b8e81",
+        "bytes": 187447
+      },
+      "timestamps": {
+        "key": "timestamps/lTCzIDITaac.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    }
+  ]
+}

@@ -54,12 +54,12 @@ permissions, components, and phase boundaries are governed by `DESIGN.md`,
 - [ ] **AUTH-02**: An anonymous or expired session fails closed before protected data, RSC payloads, search results, prefetches, errors, or exports disclose internal entity existence.
 - [ ] **AUTH-03**: An owner can approve a role-by-resource-by-action-by-record-by-field capability matrix before operator data is enabled.
 - [ ] **AUTH-04**: An operator receives only records, actions, and fields allowed by server-side capability checks at every query, handler, and mutation boundary.
-- [ ] **AUTH-05**: An operator sees current workspace, organization scope, system status, navigation, and dominant next action in a persistent operator shell.
+- [ ] **AUTH-05**: An authenticated operator sees the current environment, workspace, organization scope, effective role, authorized navigation, live-derived service status, and one dominant setup action in a persistent `/ops` shell.
 - [ ] **AUTH-06**: A public and operator request use separate allowlisted DTOs, cache namespaces, search projections, and safe-error policies over shared domain services.
 - [ ] **AUTH-07**: An operator whose session expires or is revoked loses protected client state and returns through a focus-safe, non-leaking recovery flow.
-- [ ] **AUTH-08**: An authorized operator can view a truthful empty or unavailable Control Room before canonical workflow records exist, with no invented totals or health claims.
-- [ ] **AUTH-09**: An admin can invite, deactivate, and assign approved roles to WTF-only accounts while `admin` and `editor` behavior is fully enforced and later roles remain non-privileged shells until activated.
-- [ ] **AUTH-10**: An authorized reviewer can trace logins, searches, views, exports, and admin actions to an actor, time, action, entity, and outcome.
+- [ ] **AUTH-08**: An authorized operator can view a truthful empty or unavailable Control Room before canonical workflow records exist; missing systems appear as explicit unknown, offline, unavailable, or permission-denied states, never fabricated health claims or misleading zero values.
+- [ ] **AUTH-09**: An admin can invite, deactivate, and assign `admin` or `editor` roles to approved WTF-only accounts, while exactly one active `super_admin` can transfer that seat through an atomic audited handoff that never leaves zero or multiple active super administrators; later roles remain non-privileged shells until activated.
+- [ ] **AUTH-10**: An authorized reviewer can trace authentication outcomes, expiry/logout, protected searches, views, exports, operator/role/settings changes, purges, and super-admin handoffs to an actor, effective role, time, action, entity, outcome, environment, and correlation ID through append-only allowlisted audit metadata that excludes tokens, raw queries, prompts, responses, and private payloads; production retains 365 days, staging 30 days, local data is ephemeral, only `super_admin` and `admin` may view/export, and no expired record is silently archived.
 
 ### Provenance (`PROV`)
 
@@ -155,9 +155,10 @@ permissions, components, and phase boundaries are governed by `DESIGN.md`,
 - [ ] **QUAL-07**: A security reviewer can verify anonymous, cross-role, ID-tampering, cache-mixing, session-expiry, and privilege-escalation probes fail closed.
 - [ ] **QUAL-08**: A maintainer can rehearse rollback and prove the previous reader, style, or route remains available until replacement evidence is accepted.
 - [ ] **QUAL-09**: Structured application, ingestion, search, and agent telemetry records latency, errors, tokens, and cost without storing credentials or prohibited private payloads.
-- [ ] **QUAL-10**: Development, staging, and production remain separately configured with migration-driven schema changes, a local/environment/ingestion runbook, and an explicitly scheduled staging demonstration gate.
+- [ ] **QUAL-10**: Local, staging, and production use separate D1 databases, Cloudflare Access applications and policies, secrets, and cache namespaces; production data is never copied to a lower environment; repository-owned migrations promote forward through environments; preview deployments receive no protected backend unless explicitly bound; and the runbook defines local/environment/ingestion operation plus an explicitly scheduled staging demonstration gate.
 - [ ] **QUAL-11**: Search median remains below three seconds, search p95 remains below six seconds, dashboards serve cached data, and ingestion exposes asynchronous status.
 - [ ] **QUAL-12**: Guest-confidential material is protected by server-side authorization and managed, rotatable secrets that do not require source changes or repository commits.
+- [ ] **QUAL-13**: Production remains blocked until staging deterministically proves the complete anonymous, expired, inactive, `editor`, `admin`, and `super_admin` authorization matrix; Access and D1 recovery/logout; tampering, DTO, and cache isolation; audit coverage, retention, export, and purge; environment and secret separation; keyboard, focus, accessibility, and 320/768/1440 responsive behavior; and rollback plus runbook rehearsal. These checks block CI, the owner approves the staging evidence packet, the production smoke test is read-only, and every failed or unknown gate blocks release.
 
 ### Advanced Intelligence (`AINT`)
 
@@ -300,12 +301,13 @@ that persistence does not duplicate requirement ownership.
 | QUAL-10 | Phase 2 | Pending |
 | QUAL-11 | Phase 4 | Pending |
 | QUAL-12 | Phase 2 | Pending |
+| QUAL-13 | Phase 2 | Pending |
 | AINT-01 | Phase 9 | Pending |
 | AINT-02 | Phase 9 | Pending |
 
 **Coverage:**
 
-- v1.0 requirements: 102
+- v1.0 requirements: 103
 - Mapped to phases: 102
 - Unmapped: 0 ✓
 - Duplicate mappings: 0 ✓

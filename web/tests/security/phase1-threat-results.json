@@ -1,0 +1,1158 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-25T12:30:09.134Z",
+  "total_definitions": 72,
+  "total_results": 72,
+  "results": {
+    "T-01-01": {
+      "plan": "01-01",
+      "task": 1,
+      "command_id": "94491fbdd30bc7347603421214ec2debcb9c69b0d62f4e54427b59ccdfbac5c0",
+      "command": "node web/scripts/capture-phase1-baseline.mjs --check && node -e 'const m=require(\"./web/tests/contracts/phase1-compatibility-manifest.json\"); const p=[\"/\",\"/episodes\",\"/connections\",\"/chat\",\"/api/chat\"]; if(p.some(x=>!m.protected_routes.includes(x))) process.exit(1); if(!m.chat_contract?.headers?.includes(\"X-Sources\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "ce71634bfd86556156baf67a18f1844cd1661bf659889eca45d116c73d2f86dd",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 424,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-20T09:23:55.690Z",
+      "status": "passed",
+      "id": "T-01-01"
+    },
+    "T-01-02": {
+      "plan": "01-01",
+      "task": 2,
+      "command_id": "72d7a912e1f4f25f8a5eedd068ce2c2fa9a4895a96371dfdfb5b92d809fe94ef",
+      "command": "node -e 'const s=require(\"fs\").readFileSync(\".planning/phases/01-compatibility-component-proof-harness/01-VALIDATION.md\",\"utf8\"); if(!s.includes(\"01-01\")||!s.includes(\"T-01-01\")) process.exit(1); if((s.match(/wave_0_complete: false/g)||[]).length!==1||(s.match(/nyquist_compliant: false/g)||[]).length!==1) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-20T09:27:55.337Z",
+      "status": "passed",
+      "id": "T-01-02"
+    },
+    "T-01-03": {
+      "plan": "01-01",
+      "task": 3,
+      "command_id": "e1e3b15f544f61895722921b63a16554ce3d30c6c31e0f6f86e20f9a591b62b9",
+      "command": "node -e 'const a=require(\"./web/tests/contracts/phase1-baseline-approval.json\"); const m=require(\"./web/tests/contracts/phase1-compatibility-manifest.json\"); if(a.status!==\"approved\"||!a.manifest_sha256||!a.streaming_contract||a.base_sha!==m.base_sha) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-20T12:13:01.580Z",
+      "status": "passed",
+      "id": "T-01-03"
+    },
+    "T-01-04": {
+      "plan": "01-01",
+      "task": 3,
+      "command_id": "e2176c6ccd98b45698b16955745e8f5a76697231368152905242b24cef0dbd70",
+      "command": "node -e 'const a=require(\"./web/tests/contracts/phase1-baseline-approval.json\"); const m=require(\"./web/tests/contracts/phase1-compatibility-manifest.json\"); if(a.status!==\"approved\"||!a.manifest_sha256||!a.streaming_contract||a.base_sha!==m.base_sha) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-20T12:13:01.580Z",
+      "status": "passed",
+      "id": "T-01-04"
+    },
+    "T-01-05": {
+      "plan": "01-02",
+      "task": 2,
+      "command_id": "2ec345b8bc92b0d18545e1b6a3196d10293111e4dc7347fe4c587c9855ed9645",
+      "command": "node -e 'const s=require(\"fs\").readFileSync(\".planning/phases/01-compatibility-component-proof-harness/01-VALIDATION.md\",\"utf8\"); if(!s.includes(\"01-02\")||!s.includes(\"T-01-SC-APPROVAL\")||!s.includes(\"wave_0_complete: false\")||!s.includes(\"nyquist_compliant: false\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-20T16:19:06.422Z",
+      "status": "passed",
+      "id": "T-01-05"
+    },
+    "T-01-06": {
+      "plan": "01-02",
+      "task": 2,
+      "command_id": "4def7d434e09c7d0cb3ec0d312598bcfb9d957cb4e91cbaeb747ae9da7243bb4",
+      "command": "node -e 'const s=require(\"fs\").readFileSync(\".planning/phases/01-compatibility-component-proof-harness/01-VALIDATION.md\",\"utf8\"); if(!s.includes(\"01-02\")||!s.includes(\"T-01-SC-APPROVAL\")||!s.includes(\"wave_0_complete: false\")||!s.includes(\"nyquist_compliant: false\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-20T16:19:06.422Z",
+      "status": "passed",
+      "id": "T-01-06"
+    },
+    "T-01-07": {
+      "plan": "01-03",
+      "task": 2,
+      "command_id": "102ba8063f1dbeec8e971898a96c6c23298f4586bbaad5a69da6ee7c6100c9c0",
+      "command": "cd web && npm exec playwright -- --version && npm exec vitest -- --version && npm exec storybook -- --version && npm exec lhci -- --version && node -e 'require.resolve(\"@radix-ui/react-dialog\"); require.resolve(\"@axe-core/playwright\");'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "67feaf96a5fed3b2ff1ca72c8c03df8da19b952d9d18750a8f3c9d9dbfedbca1",
+        "error_output_sha256": "fbabc05a3cd4469baab6bb85e6b19e8e0bd68e439d715217758c51a07e816b85",
+        "output_bytes": 69,
+        "error_output_bytes": 126
+      },
+      "completed_at": "2026-08-20T16:56:27.269Z",
+      "status": "passed",
+      "id": "T-01-07"
+    },
+    "T-01-08": {
+      "plan": "01-03",
+      "task": 2,
+      "command_id": "bace76c6ce087a199f1c2b272204a2cee16557187698a1b9a9eb62c2afffabe9",
+      "command": "cd web && npm exec playwright -- --version && npm exec vitest -- --version && npm exec storybook -- --version && npm exec lhci -- --version && node -e 'require.resolve(\"@radix-ui/react-dialog\"); require.resolve(\"@axe-core/playwright\");'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "67feaf96a5fed3b2ff1ca72c8c03df8da19b952d9d18750a8f3c9d9dbfedbca1",
+        "error_output_sha256": "fbabc05a3cd4469baab6bb85e6b19e8e0bd68e439d715217758c51a07e816b85",
+        "output_bytes": 69,
+        "error_output_bytes": 126
+      },
+      "completed_at": "2026-08-20T16:56:27.269Z",
+      "status": "passed",
+      "id": "T-01-08"
+    },
+    "T-01-09": {
+      "plan": "01-04",
+      "task": 2,
+      "command_id": "7b5ec26f792a52fbc96c2b9ccd525c3d8ab3f26f74f3ad0ae1cd72fcdd7e14f7",
+      "command": "cd web && npm run test:components -- HarnessSmoke && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "c55a45bfbf99a657fbcc67d065e8678149a5aca7eea3567f07432f53ff157e6a",
+        "error_output_sha256": "238cd77cb7499b2ac6c769d447c7847a5952fbb5ffaf022fa5ef9c9044d626c3",
+        "output_bytes": 624,
+        "error_output_bytes": 1506
+      },
+      "completed_at": "2026-08-21T04:17:58.185Z",
+      "status": "passed",
+      "id": "T-01-09"
+    },
+    "T-01-10": {
+      "plan": "01-04",
+      "task": 3,
+      "command_id": "a0826dfcffeda585054a65acf8867961e5367ee68a2acd2e9ca383fd62fef462",
+      "command": "cd web && npm exec playwright -- test --config=playwright.config.ts --list && node -e 'const c=require(\"./lighthouserc.cjs\"); if(c.ci.collect.numberOfRuns!==5||c.ci.upload.target!==\"filesystem\") process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "845cc9405a5ca2e70732bb15f75e2769189b4ee90987590f254dfe651bb62eff",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 2329,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-21T04:41:57.999Z",
+      "status": "passed",
+      "id": "T-01-10"
+    },
+    "T-01-11": {
+      "plan": "01-04",
+      "task": 2,
+      "command_id": "8261e396f5dcd394017455ac1f837b5e313addfbe696863f4c203a308b1907e1",
+      "command": "cd web && npm run test:components -- HarnessSmoke",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "776196d546c56cf675399fda702ce091fd9f424a4d8214c51d7918ce2f23dd80",
+        "error_output_sha256": "e0ce7aecbd8eee2bf34d33bd3b3c4123cc6f34d9dcc65173c972b3a347bc1da5",
+        "output_bytes": 323,
+        "error_output_bytes": 1506
+      },
+      "completed_at": "2026-08-21T04:17:58.185Z",
+      "status": "passed",
+      "id": "T-01-11"
+    },
+    "T-01-12": {
+      "plan": "01-04",
+      "task": 3,
+      "command_id": "2df3b8dafd366a37517e5cdf0c5faf260c855a92e21337634a0adc8c5f3df4df",
+      "command": "cd web && npm exec playwright -- test --config=playwright.config.ts --list && node -e 'const c=require(\"./lighthouserc.cjs\"); const u=c.ci.collect.url; if(c.ci.collect.numberOfRuns!==5||u.length!==4||c.ci.upload.target!==\"filesystem\") process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "845cc9405a5ca2e70732bb15f75e2769189b4ee90987590f254dfe651bb62eff",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 2329,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-21T04:41:57.999Z",
+      "status": "passed",
+      "id": "T-01-12"
+    },
+    "T-01-13": {
+      "plan": "01-05",
+      "task": 1,
+      "command_id": "760f2197af4d4dc7625a154f4649d39a0d06f54f227d76ce413534e02be25ca3",
+      "command": "cd web && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "0f1e15d87aa142438f4cfa76c5d3e790883875287e233f0ee996e56f63369f68",
+        "error_output_sha256": "b6f96d87a2394b7e115ddffe38adf2f24ad1b4b6441f5a37c13b6731a9cde872",
+        "output_bytes": 351,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-21T23:15:53.879Z",
+      "status": "passed",
+      "id": "T-01-13"
+    },
+    "T-01-14": {
+      "plan": "01-05",
+      "task": 2,
+      "command_id": "81db2aec9bcea84b589b2a85278e86adc875277fff41915d1c265d5c5b212def",
+      "command": "cd web && npm run test:contracts -- tests/contracts/public-projection.contract.test.ts tests/contracts/public-routes.contract.test.ts && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "9869cb6d82417365c5a54f5a4f91fad16fce7a8e346d6e42c32951b4b8221b19",
+        "error_output_sha256": "3e8e14f50dfbba1706bb42f4f997c535f6318fec408ff9bfba563a0584cfd434",
+        "output_bytes": 4999,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-21T23:44:55.205Z",
+      "status": "passed",
+      "id": "T-01-14"
+    },
+    "T-01-15": {
+      "plan": "01-05",
+      "task": 1,
+      "command_id": "0d209bd2836990c2f416815840faefad9f9d7532584e23f96a0f77927a5520aa",
+      "command": "cd web && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "0f1e15d87aa142438f4cfa76c5d3e790883875287e233f0ee996e56f63369f68",
+        "error_output_sha256": "b6f96d87a2394b7e115ddffe38adf2f24ad1b4b6441f5a37c13b6731a9cde872",
+        "output_bytes": 351,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-21T23:15:53.879Z",
+      "status": "passed",
+      "id": "T-01-15"
+    },
+    "T-01-16": {
+      "plan": "01-05",
+      "task": 1,
+      "command_id": "dbfb91d0064f72d8ef3ded8c5c8879bba4304746b3929a4eaa0c50760e2d6f5e",
+      "command": "cd web && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "0f1e15d87aa142438f4cfa76c5d3e790883875287e233f0ee996e56f63369f68",
+        "error_output_sha256": "b6f96d87a2394b7e115ddffe38adf2f24ad1b4b6441f5a37c13b6731a9cde872",
+        "output_bytes": 351,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-21T23:15:53.879Z",
+      "status": "passed",
+      "id": "T-01-16"
+    },
+    "T-01-17": {
+      "plan": "01-05",
+      "task": 3,
+      "command_id": "138b6fc74d8b0a9e43050faeec51f1b825604e594c028c417b633de65cdfc822",
+      "command": "node -e 'const s=require(\"fs\").readFileSync(\".planning/phases/01-compatibility-component-proof-harness/01-VALIDATION.md\",\"utf8\"); for(const id of [\"COMP-01\",\"COMP-02\",\"COMP-03\",\"COMP-04\",\"QUAL-02\",\"QUAL-05\"]) {const l=s.split(\"\\n\").find(x=>x.includes(`| ${id} |`)); if(!l||l.includes(\"TBD\")) process.exit(1)} if(!s.includes(\"wave_0_complete: false\")||!s.includes(\"nyquist_compliant: false\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-21T23:46:54.597Z",
+      "status": "passed",
+      "id": "T-01-17"
+    },
+    "T-01-18": {
+      "plan": "01-06",
+      "task": 1,
+      "command_id": "fefeec7a6d2fb2d7f990653ed6d55e6a5f9563c259553c87d826c874fbea6ebd",
+      "command": "cd web && node scripts/capture-phase1-performance.mjs --check && node -e 'const b=require(\"./tests/performance/phase1-baseline.json\"); for(const r of [\"/\",\"/episodes\",\"/connections\",\"/chat\"]) if(b.routes[r].runs.length!==5) process.exit(1); if(!b.environment?.chromium||!b.bundle) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "8fbadfcc575aefb00997a543a0579f043699ff2aa018ac1b79028cb409cc816c",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 77,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T01:05:40.284Z",
+      "status": "passed",
+      "id": "T-01-18"
+    },
+    "T-01-19": {
+      "plan": "01-06",
+      "task": 2,
+      "command_id": "9780d5485bc1f8d94e98f4d69e0f177ab26ee02b03872d63bc1a8008033927f3",
+      "command": "cd web && npm run test:contracts -- tests/contracts/rag-latency.test.ts && node -e 'const p=require(\"./tests/performance/phase1-budget-proposal.json\"); if(p.status!==\"pending-owner-approval\") process.exit(1); for(const x of Object.values(p.budgets)) for(const k of [\"source_samples\",\"observed_max\",\"observed_range\",\"headroom\",\"budget\",\"unit\",\"rationale\"]) if(x[k]===undefined) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "a1795abf3e32597883b41688148a9c5ecbbb41a0e63d68b7d7822af53bd306f7",
+        "error_output_sha256": "107261eefef1347c9381046d2a38c491f189b3446042a6a15ea9ee9f00ca444d",
+        "output_bytes": 346,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T01:14:09.376Z",
+      "status": "passed",
+      "id": "T-01-19"
+    },
+    "T-01-20": {
+      "plan": "01-06",
+      "task": 3,
+      "command_id": "4a54024ee78a4bf14bca0c9da74b41eeb9cbde512ac1c2756426b8fe29a7be82",
+      "command": "node -e 'const s=require(\"fs\").readFileSync(\".planning/phases/01-compatibility-component-proof-harness/01-VALIDATION.md\",\"utf8\"); if(!s.includes(\"01-06\")||!s.includes(\"phase1-budget-proposal.json\")||!s.includes(\"pending owner approval\")||!s.includes(\"wave_0_complete: false\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T01:15:49.290Z",
+      "status": "passed",
+      "id": "T-01-20"
+    },
+    "T-01-21": {
+      "plan": "01-07",
+      "task": 1,
+      "command_id": "5a95219eea6bb255c89567accd3ad8a0de53a48bca4bf6ab18ee6d0f217cff7e",
+      "command": "node -e 'const b=require(\"./web/tests/performance/phase1-budgets.json\"); if(b.status!==\"approved\"||!b.owner_approval_ref||!b.baseline_sha256||!b.proposal_sha256) process.exit(1); const required=[\"home\",\"episodes\",\"connections\",\"chat\",\"bundle\",\"interactions\",\"rag\"]; if(required.some(k=>!b.budgets[k])) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T13:22:01.214Z",
+      "status": "passed",
+      "id": "T-01-21"
+    },
+    "T-01-22": {
+      "plan": "01-07",
+      "task": 2,
+      "command_id": "edefc87ac9036510ef5aa7e423ebc4f31867b185c29deb44821096614eba5099",
+      "command": "node -e 'const s=require(\"fs\").readFileSync(\".planning/phases/01-compatibility-component-proof-harness/01-VALIDATION.md\",\"utf8\"),b=require(\"./web/tests/performance/phase1-budgets.json\"); if(!s.includes(\"01-07\")||!s.includes(b.owner_approval_ref)||!s.includes(\"T-01-21\")||!s.includes(\"nyquist_compliant: false\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T13:23:51.273Z",
+      "status": "passed",
+      "id": "T-01-22"
+    },
+    "T-01-23": {
+      "plan": "01-08",
+      "task": 1,
+      "command_id": "16eba3ae5a60b8b6330554b9be63f41f5d1e5e1def60633ba9a5e740312745b8",
+      "command": "cd web && npm run test:unit -- tests/unit/tokens.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "440aa2aca668d756dea8e1f312151b7c099fbbc1895bc4983ea8cae411385fcd",
+        "error_output_sha256": "3fe71b8e67f4a682244e70f52853b59489b83b90b1f77cb6d0cccbade339e121",
+        "output_bytes": 324,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T15:17:13.524Z",
+      "status": "passed",
+      "id": "T-01-23"
+    },
+    "T-01-24": {
+      "plan": "01-08",
+      "task": 2,
+      "command_id": "96bda2166ce0766922a46390e6dfbd69ce20c963219e8c31c4103cdd7b65fef6",
+      "command": "cd web && npm run test:unit -- tests/unit/tokens.test.ts && npm run lint && npm run typecheck && node scripts/capture-legacy-presentation.mjs --check && npm run test:browser -- tests/rollback/legacy-presentation.spec.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "4c2d6da6e6047c5e49f593e8122e586f11a4a63dfa953e59dfc7c747288f176f",
+        "error_output_sha256": "a66c3be2841129150378feddf5d1fc090b9b324eaf3e48816dbca3fd255b618e",
+        "output_bytes": 3753,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T15:23:58.344Z",
+      "status": "passed",
+      "id": "T-01-24"
+    },
+    "T-01-25": {
+      "plan": "01-08",
+      "task": 2,
+      "command_id": "8a9fc61264ee1ab3603f3859abd02f33d47a87e53e15bd46f7506bda1db1ff42",
+      "command": "cd web && npm run test:unit -- tests/unit/tokens.test.ts && npm run lint && npm run typecheck && node scripts/capture-legacy-presentation.mjs --check && npm run test:browser -- tests/rollback/legacy-presentation.spec.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "4c2d6da6e6047c5e49f593e8122e586f11a4a63dfa953e59dfc7c747288f176f",
+        "error_output_sha256": "a66c3be2841129150378feddf5d1fc090b9b324eaf3e48816dbca3fd255b618e",
+        "output_bytes": 3753,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T15:23:58.344Z",
+      "status": "passed",
+      "id": "T-01-25"
+    },
+    "T-01-26": {
+      "plan": "01-09",
+      "task": 3,
+      "command_id": "d99b500bdf482db6f216d9c5aadadd35e4865e569e0aca5eb07a6a8fab348cf3",
+      "command": "cd web && npm run test:components -- Phase1Primitives && npm run typecheck",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "43936a0308bbf8a01f25948091c3fe52d235e6c47e853d0f550c4a19f3544ce2",
+        "error_output_sha256": "768bb936b1ab8555782b832a40d89349784bf41ecd9be0ccad95b84e3b5e1ff6",
+        "output_bytes": 377,
+        "error_output_bytes": 1506
+      },
+      "completed_at": "2026-08-22T17:43:20.346Z",
+      "status": "passed",
+      "id": "T-01-26"
+    },
+    "T-01-27": {
+      "plan": "01-09",
+      "task": 2,
+      "command_id": "03a7618aaf4e221e46b21406f2af2bbaddb685d24c29337ea72ffbf054ee07ab",
+      "command": "cd web && npm run test:components -- Phase1Primitives --testNamePattern \"availability|live region\" && npm run typecheck && npm run lint",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "c29c6c59e495a4c45b63cacc9fdd1e093c82d5523685d6858237dd54679215ad",
+        "error_output_sha256": "ebed6442c769eb6d06a62530e77e1318c81a815491580b972c135b31e262e0cc",
+        "output_bytes": 476,
+        "error_output_bytes": 1507
+      },
+      "completed_at": "2026-08-22T17:35:55.865Z",
+      "status": "passed",
+      "id": "T-01-27"
+    },
+    "T-01-28": {
+      "plan": "01-09",
+      "task": 1,
+      "command_id": "40e3a96d56eff5eed5906165fd55b16ca55563e08d91ef71efd8890f5dde2f32",
+      "command": "cd web && npm run test:components -- Phase1Primitives --testNamePattern \"actions|links|skip|focus\" && npm run typecheck && npm run lint",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "51ee1c73b24cb07999696203913886b10495f5c5d082547b2adc49849af33ed1",
+        "error_output_sha256": "db001c336d05b9fb633465d48b8792375a850be169f69e81ce501f9f79bcd680",
+        "output_bytes": 474,
+        "error_output_bytes": 1507
+      },
+      "completed_at": "2026-08-22T17:33:10.872Z",
+      "status": "passed",
+      "id": "T-01-28"
+    },
+    "T-01-29": {
+      "plan": "01-10",
+      "task": 1,
+      "command_id": "869d8eb8251d152ab80d2631ae14dcb9efec92fd519a0e36a9497f2cf6737cc8",
+      "command": "cd web && npm run typecheck && node -e \"const fs=require('fs');const l=['components/legacy/public/LegacyEpisodesBrowser.tsx','components/legacy/public/LegacyDragRow.tsx','components/legacy/public/LegacyEpisodesPage.tsx'];for(const f of l){if(!fs.existsSync(f)){console.error('Missing: '+f);process.exit(1)}const s=fs.readFileSync(f,'utf8');if(!s.trim()){console.error('Empty: '+f);process.exit(1)}if(/api[_-]?key|secret|password|private[_-]?key/i.test(s)){console.error('Private data in: '+f);process.exit(1)}}console.log('Legacy copies verified: '+l.length+' files')\"",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "a211dba6fbbe3f201f64d3ee75a651fe1210ad990c7fe6c379119579f45f9e69",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 80,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T17:09:41.889Z",
+      "status": "passed",
+      "id": "T-01-29"
+    },
+    "T-01-30": {
+      "plan": "01-10",
+      "task": 2,
+      "command_id": "6dc272560476b9dc32679cb9369a6d787aed63f56a31768c1f6c349da863178f",
+      "command": "cd web && npm run build && npm run typecheck",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "36972516308c1f7a68f4aed19aa3fa4f191b678103f373deee9b641a84a97f99",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 1279,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T17:10:36.446Z",
+      "status": "passed",
+      "id": "T-01-30"
+    },
+    "T-01-31": {
+      "plan": "01-10",
+      "task": 3,
+      "command_id": "4181d71e1083495197d7a1b1ff47b96ddf56138a75c8bc78df927c123efefecc",
+      "command": "cd web && npm run test:browser -- tests/rollback/episodes-variant.spec.ts && node -e 'const fs=require(\"fs\"); if(fs.existsSync(\"app/episodes/[episodeId]\")||fs.existsSync(\"app/episodes/:id\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "7872814c85b72a9df76ab951e580ade181d3c383788b20a16187655f15a67722",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 1049,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T17:18:05.725Z",
+      "status": "passed",
+      "id": "T-01-31"
+    },
+    "T-01-32": {
+      "plan": "01-23",
+      "task": 1,
+      "command_id": "82824bf2fa42fe830cacda840243f1299fb709596e5028b45120ce4b21e95889",
+      "command": "cd web && npm run build && npm run test:browser -- tests/journeys/url-state.spec.ts && node -e 'const fs=require(\"fs\"); if(fs.existsSync(\"app/episodes/[episodeId]\")||fs.existsSync(\"app/episodes/:id\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "7cd5654df2d742d7e006a8799c7343c7d8145990e0b666e19bfaf4eb4e8fce1d",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 2890,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T18:04:04.954Z",
+      "status": "passed",
+      "id": "T-01-32"
+    },
+    "T-01-33": {
+      "plan": "01-11",
+      "task": 1,
+      "command_id": "27e4bbbe9b6bd1d5a8ca9f0dc3501f717d132a5c413bc09bcd908716c03962a9",
+      "command": "cd web && npm run test:components -- EpisodesBrowser --grep \"drawer|focus|invalid|transcript\" && npm run test:browser -- tests/journeys/url-state.spec.ts --grep \"open|close|focus\" && npm run test:contracts -- tests/contracts/public-projection.contract.test.ts && npm run typecheck",
+      "exit_status": 1,
+      "evidence": {
+        "output_sha256": "c3028ba51467808abfabddd587ec86d03fb080a33c91715fe1bc149498263ba3",
+        "error_output_sha256": "80e2f7e0600890487299ae111b670b18c37516c7383e3d160d5359fe9f59ac74",
+        "output_bytes": 127,
+        "error_output_bytes": 1031
+      },
+      "completed_at": "2026-08-22T18:29:38.293Z",
+      "status": "failed",
+      "id": "T-01-33"
+    },
+    "T-01-34": {
+      "plan": "01-11",
+      "task": 2,
+      "command": "cd web && npm run test:components -- EpisodesBrowser && npm run test:browser -- tests/journeys/episodes.spec.ts tests/journeys/focus.spec.ts tests/journeys/motion.spec.ts && npm run test:privacy -- --check && npm run test:rollback -- --route=/episodes",
+      "exit_status": 0,
+      "evidence": {
+        "component_tests": "7 passed",
+        "browser_tests": "26 passed",
+        "privacy_violations": 0,
+        "rollback_tests": "5 passed"
+      },
+      "completed_at": "2026-08-22T23:59:00.000Z",
+      "status": "passed",
+      "id": "T-01-34"
+    },
+    "T-01-35": {
+      "plan": "01-11",
+      "task": 3,
+      "command": "cd web && npm run test:components -- EpisodesBrowser && npm run test:browser -- tests/journeys/episodes.spec.ts tests/journeys/focus.spec.ts tests/journeys/motion.spec.ts && npm run test:privacy -- --check && npm run test:rollback -- --route=/episodes",
+      "exit_status": 0,
+      "evidence": {
+        "component_tests": "7 passed",
+        "browser_tests": "26 passed",
+        "privacy_violations": 0,
+        "rollback_tests": "5 passed"
+      },
+      "completed_at": "2026-08-22T23:59:00.000Z",
+      "status": "passed",
+      "id": "T-01-35"
+    },
+    "T-01-36": {
+      "plan": "01-12",
+      "task": 1,
+      "command_id": "1af3400d79957adedd6927300ca298c3ccae8e92fa80dd642c4fb3f077480e4f",
+      "command": "cd web && npm run build && npm run test:contracts -- tests/contracts/public-routes.contract.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "c708d2b1582b1c0cf27a0986d34425d9eeb642e66d7a8b6162c20d7129e57ff4",
+        "error_output_sha256": "06a5c649c774fb9bbc5b7f11ecd89a5ba43edd925231ec22b3ce1a263dcc0780",
+        "output_bytes": 1583,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T21:48:13.186Z",
+      "status": "passed",
+      "id": "T-01-36"
+    },
+    "T-01-37": {
+      "plan": "01-12",
+      "task": 2,
+      "command_id": "b81f5d5df2cc79a79cc55a862c6c33b3faae603724b647e32acf1052f64c52fb",
+      "command": "cd web && npm run test:components -- PublicShell && npm run typecheck && npm run lint && node scripts/capture-legacy-presentation.mjs --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "f76ee641483106a5474c0c7738c1efeccbbec3d994515915fedbdeed6d34d0ef",
+        "error_output_sha256": "c6e1ca6fd6591b652611dad5dbf626094194cc896a78e17f44debd48ff63d085",
+        "output_bytes": 484,
+        "error_output_bytes": 1506
+      },
+      "completed_at": "2026-08-22T21:49:21.305Z",
+      "status": "passed",
+      "id": "T-01-37"
+    },
+    "T-01-38": {
+      "plan": "01-12",
+      "task": 3,
+      "command_id": "07e2e21dc85e424fe47d3a3841a95f943ddbb43bb08e38d93e45285651bee6a3",
+      "command": "cd web && npm run test:components -- PublicShell && npm run test:browser -- tests/journeys/public-shell.spec.ts tests/rollback/legacy-presentation.spec.ts && npm run test:privacy -- --check && npm run test:rollback -- --route=/episodes",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "0d4ef3ca8aab26ed3b2402ca98119bca48076a4dd2833bb4c7bfc182b38bd027",
+        "error_output_sha256": "550cea7fb85500b4dd14f844fe7089172441a5e30153cab63da2c4d0f813e648",
+        "output_bytes": 14981,
+        "error_output_bytes": 1632
+      },
+      "completed_at": "2026-08-22T21:53:02.064Z",
+      "status": "passed",
+      "id": "T-01-38"
+    },
+    "T-01-39": {
+      "plan": "01-13",
+      "task": 2,
+      "command_id": "827635e243e785b8931f14cf9aa931136d5952252b67537c7e0d5b2f67301bfc",
+      "command": "cd web && npm run test:contracts -- tests/contracts/connections-public-projection.test.ts && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "d1ea7e6c2db0e8f4db85c8801dea8ded221d482f0582a1b165992a55f310910f",
+        "error_output_sha256": "b2e09a203cf17cd144a308f10b4e4d217f7376eeb881b722611127c079bc8a68",
+        "output_bytes": 7456,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T22:02:32.434Z",
+      "status": "passed",
+      "id": "T-01-39"
+    },
+    "T-01-40": {
+      "plan": "01-13",
+      "task": 2,
+      "command_id": "905e4e23443fed673419731c664c6c048d63568c3ce71b08513fdf2bee9fbad6",
+      "command": "cd web && npm run test:contracts -- tests/contracts/connections-public-projection.test.ts && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "d1ea7e6c2db0e8f4db85c8801dea8ded221d482f0582a1b165992a55f310910f",
+        "error_output_sha256": "b2e09a203cf17cd144a308f10b4e4d217f7376eeb881b722611127c079bc8a68",
+        "output_bytes": 7456,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T22:02:32.434Z",
+      "status": "passed",
+      "id": "T-01-40"
+    },
+    "T-01-41": {
+      "plan": "01-13",
+      "task": 3,
+      "command_id": "050d4ec6cd92ea3212280d2b0e52ccfd766980e147ba31d36884d7ad1e3c3187",
+      "command": "cd web && npm run build && npm run test:contracts -- tests/contracts/connections-public-projection.test.ts tests/contracts/public-routes.contract.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "484ea1d51c937d6cb79dd93de19f56a696db0f37d0af7f7ed1f282f04584585d",
+        "error_output_sha256": "0bcbe3bca3f4bda12eab508763904dd773fc5837ba2fe0378c5e3841e6a0a382",
+        "output_bytes": 1641,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T22:07:33.478Z",
+      "status": "passed",
+      "id": "T-01-41"
+    },
+    "T-01-42": {
+      "plan": "01-14",
+      "task": 1,
+      "command_id": "548f9af3b78057df6129a5ac869144740d158b746e86180ab652057b3224244c",
+      "command": "cd web && npm run test:contracts -- tests/contracts/connections-parity.test.ts tests/contracts/connections-public-projection.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "b6553cd7630596ee0b70b65d901c1a8be65d00553be926971cad10e84003cf73",
+        "error_output_sha256": "fe0b11ce2f019e7d14ad62d1a6bf4279cc1d2d70a52a519308d643bc6cadfe8b",
+        "output_bytes": 408,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-23T03:01:57.607Z",
+      "status": "passed",
+      "id": "T-01-42"
+    },
+    "T-01-43": {
+      "plan": "01-14",
+      "task": 2,
+      "command_id": "a867074a09038eff4bd9c7a3edfabede6f720fd716379a01e1de6102a91fba3f",
+      "command": "cd web && npm run test:components -- ConnectionsGraph -t \"Default|Reduced Motion|Pre Selected|Keyboard Only\" && npm run test:contracts -- tests/contracts/connections-parity.test.ts && npm run typecheck && npm run lint",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "571c16f02e6976c054b402e59a225db4f4328c09312c67cb7a8b7729867177d2",
+        "error_output_sha256": "4b19267d7d9b6673239de9e401eb1c00b5ba7b49addab5090e66134ed48954f9",
+        "output_bytes": 836,
+        "error_output_bytes": 2447
+      },
+      "completed_at": "2026-08-23T03:08:40.012Z",
+      "status": "passed",
+      "id": "T-01-43"
+    },
+    "T-01-44": {
+      "plan": "01-14",
+      "task": 3,
+      "command_id": "c00d4c2ccacad92f8f71890c5b7435c2b64379708c375d6c6f472412de4385d9",
+      "command": "cd web && npm run test:components -- GraphWithList && npm run test:browser -- tests/journeys/connections.spec.ts && npm run test:privacy -- --check && npm run test:rollback -- --route=/connections",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "cb6629fc30881bfb3e3d75a971f0ffc3a524ff025e53ec4d3af9377b7eea580e",
+        "error_output_sha256": "ef16cabdfbce9c7acb4e8e533fd0cf7f70b84a9d6319ecc69f72679cb529b0f9",
+        "output_bytes": 10491,
+        "error_output_bytes": 1632
+      },
+      "completed_at": "2026-08-23T03:19:29.895Z",
+      "status": "passed",
+      "id": "T-01-44"
+    },
+    "T-01-45": {
+      "plan": "01-15",
+      "task": 2,
+      "command_id": "32f4dffa4a127a70d538ac6830f442f6f37edd886cc8187b2e2dfb5c7c2924da",
+      "command": "cd web && npm run test:components -- MigratedChatPage && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts tests/contracts/public-projection.contract.test.ts && npm run typecheck && npm run lint",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "3f28b2609de68494f725b7779d3cc7da9fdd765b81f7e98705f38756ef406e6c",
+        "error_output_sha256": "a4a62624e578b54347afe0b923030a55b5601b1c86fa7d2a365dfc868c983869",
+        "output_bytes": 833,
+        "error_output_bytes": 2447
+      },
+      "completed_at": "2026-08-23T03:47:45.567Z",
+      "status": "passed",
+      "id": "T-01-45"
+    },
+    "T-01-46": {
+      "plan": "01-15",
+      "task": 2,
+      "command_id": "82572f923cb0f0f699c377415a7780c8e9b7af8270b5e528822aaacc61f88ac4",
+      "command": "cd web && npm run test:components -- MigratedChatPage && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts tests/contracts/public-projection.contract.test.ts && npm run typecheck && npm run lint",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "3f28b2609de68494f725b7779d3cc7da9fdd765b81f7e98705f38756ef406e6c",
+        "error_output_sha256": "a4a62624e578b54347afe0b923030a55b5601b1c86fa7d2a365dfc868c983869",
+        "output_bytes": 833,
+        "error_output_bytes": 2447
+      },
+      "completed_at": "2026-08-23T03:47:45.567Z",
+      "status": "passed",
+      "id": "T-01-46"
+    },
+    "T-01-47": {
+      "plan": "01-15",
+      "task": 3,
+      "command_id": "9a8bca8b6a0ba8f538ff9430ca410ecdf3843b026eadef95fb0d6761fdedc7b4",
+      "command": "cd web && npm run test:components -- MigratedChatPage && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts tests/contracts/rag-latency.test.ts && npm run test:browser -- tests/journeys/chat.spec.ts && npm run test:privacy -- --check && npm run test:rollback -- --route=/chat",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "d96f32ff3fb22a173b2de16813d3e4efc61504556e863ba1a59a41d81c6f173c",
+        "error_output_sha256": "9d2ae8990dfd54fc90b64b88355e5e7e92e9da17f0fe3cfa87b10393a6bc5a7c",
+        "output_bytes": 11964,
+        "error_output_bytes": 2573
+      },
+      "completed_at": "2026-08-23T04:17:25.605Z",
+      "status": "passed",
+      "id": "T-01-47"
+    },
+    "T-01-48": {
+      "plan": "01-15",
+      "task": 3,
+      "command_id": "b0a82b0283a56fb8e9edfcea19c2c4f5aa48154149a0fde5a9e2d958cdcfa76c",
+      "command": "cd web && npm run test:components -- MigratedChatPage && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts tests/contracts/rag-latency.test.ts && npm run test:browser -- tests/journeys/chat.spec.ts && npm run test:privacy -- --check && npm run test:rollback -- --route=/chat",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "d96f32ff3fb22a173b2de16813d3e4efc61504556e863ba1a59a41d81c6f173c",
+        "error_output_sha256": "9d2ae8990dfd54fc90b64b88355e5e7e92e9da17f0fe3cfa87b10393a6bc5a7c",
+        "output_bytes": 11964,
+        "error_output_bytes": 2573
+      },
+      "completed_at": "2026-08-23T04:17:25.605Z",
+      "status": "passed",
+      "id": "T-01-48"
+    },
+    "T-01-49": {
+      "plan": "01-16",
+      "task": 1,
+      "command_id": "cdeaf9e10b70982249c629f510bf70f53e61dae24f3dcbdf5fc82a571879db9b",
+      "command": "cd web && npm run build && npm run test:contracts -- tests/contracts/public-routes.contract.test.ts tests/contracts/public-projection.contract.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "edb4e33016321e54d0feadfd645b010a3c604916869cddc05d48549625b6eca4",
+        "error_output_sha256": "409bf09d619ea1c0d926f5a11cdc824bb892e4f2a990d404ae86ec0e8c423592",
+        "output_bytes": 1636,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-23T04:34:30.818Z",
+      "status": "passed",
+      "id": "T-01-49"
+    },
+    "T-01-50": {
+      "plan": "01-16",
+      "task": 2,
+      "command_id": "fae296a03475570aa60241fd96c5a4e1bd012812ba47aaba529ec8ac23d088b7",
+      "command": "cd web && npm run test:components -- MigratedHomePage && npm run lint && node scripts/capture-legacy-presentation.mjs --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "bd1fb2188e3631b81f62e4a8a8cf36a145cecefd91ab7d6b66e414108b0467cf",
+        "error_output_sha256": "bd045b8ca8748a4f71fe3f721de2c4d51df201d54ad4bc9de522cd2fe244a99c",
+        "output_bytes": 441,
+        "error_output_bytes": 1507
+      },
+      "completed_at": "2026-08-23T04:40:25.420Z",
+      "status": "passed",
+      "id": "T-01-50"
+    },
+    "T-01-51": {
+      "plan": "01-16",
+      "task": 3,
+      "command_id": "cf7ae44be20c57d8d1442638bf19f8f9c69958f1b44dc7e2ce6c164150be33d9",
+      "command": "cd web && npm run test:components -- MigratedHomePage && npm run test:browser -- tests/journeys/home.spec.ts tests/journeys/episodes.spec.ts tests/journeys/connections.spec.ts tests/journeys/chat.spec.ts && npm run test:privacy -- --check && npm run test:rollback -- --route=/",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "07df7ce94657e4ccc325fb9868226d7d909bce521559b7ff3074c11833722bcd",
+        "error_output_sha256": "d593e7b772ddb63cccae1d12050e63a0673ad5a687da99ce46770a59c88ce395",
+        "output_bytes": 15842,
+        "error_output_bytes": 1633
+      },
+      "completed_at": "2026-08-23T04:33:05.882Z",
+      "status": "passed",
+      "id": "T-01-51"
+    },
+    "T-01-52": {
+      "plan": "01-17",
+      "task": 3,
+      "command_id": "e2225755ee0ca5cfd04d892f2bcc5d44ace7dde489734365890c7b2a39cbf242",
+      "command": "cd web && npm run test:browser -- tests/journeys/public-routes.spec.ts tests/journeys/viewports.spec.ts && npm run test:unit -- tests/unit/component-trace.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "5f967c56e2405701421b1a63ea475ff24c65120a1e4a9b946b2c4c7107f5cd84",
+        "error_output_sha256": "f9bc7a02e9920eaf297babd70413007a3edd5240d35e06915e5065e8c279bcc4",
+        "output_bytes": 5728,
+        "error_output_bytes": 4581
+      },
+      "completed_at": "2026-08-24T17:04:01.485Z",
+      "status": "passed",
+      "id": "T-01-52"
+    },
+    "T-01-53": {
+      "plan": "01-17",
+      "task": 2,
+      "command_id": "8c72698f61b5320d858f3eb38ffd91399d0c562c821b0f26889195dc59572199",
+      "command": "cd web && npx playwright test --project=phase1-chromium --grep @a11y tests/accessibility/ && npx playwright test --project=phase1-chromium --grep @visual tests/visual/ -- --candidate",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "8601c5376c33566cd2318f9b27510b2de52614e35ee2127c5ad11acf551b7f60",
+        "error_output_sha256": "72bdfe23232121c20ca6520fe87b90f80a65f5dc0df77331c26434079c07b2f0",
+        "output_bytes": 5928,
+        "error_output_bytes": 7280
+      },
+      "completed_at": "2026-08-24T17:06:21.264Z",
+      "status": "passed",
+      "id": "T-01-53"
+    },
+    "T-01-54": {
+      "plan": "01-17",
+      "task": 2,
+      "command_id": "32a872dfc91497f9088008af456a70d07118d1f87e032c8826cbf8eadec2a934",
+      "command": "cd web && npx playwright test --project=phase1-chromium --grep @a11y tests/accessibility/ && npx playwright test --project=phase1-chromium --grep @visual tests/visual/ -- --candidate",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "8601c5376c33566cd2318f9b27510b2de52614e35ee2127c5ad11acf551b7f60",
+        "error_output_sha256": "72bdfe23232121c20ca6520fe87b90f80a65f5dc0df77331c26434079c07b2f0",
+        "output_bytes": 5928,
+        "error_output_bytes": 7280
+      },
+      "completed_at": "2026-08-24T17:06:21.264Z",
+      "status": "passed",
+      "id": "T-01-54"
+    },
+    "T-01-55": {
+      "plan": "01-18",
+      "task": 2,
+      "command_id": "dcd06489a407f520bf9c9c28983418b2c74bd04f5b9b606888e56159a76d3f8d",
+      "command": "cd web && node scripts/verify-phase1.mjs --self-test && node scripts/verify-phase1.mjs --self-test-threat-ledger",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "fcfd7e3836a90d09d77e29fbbfc9fe87b4dbdbe0d72d6230a6ebfc4d98660e2c",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 183,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-25T08:15:20.111Z",
+      "status": "passed",
+      "id": "T-01-55"
+    },
+    "T-01-56": {
+      "plan": "01-18",
+      "task": 3,
+      "command_id": "a23e97daf957a56101667b286b5360cc86872585b393eca117f948ce70194ad0",
+      "command": "cd web && npm run verify:phase1 -- --candidate && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "300f2c29819687648e1c4c7241943e32784554a7313c585ca7681798f953ee00",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 8724,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-25T08:16:17.727Z",
+      "status": "passed",
+      "id": "T-01-56"
+    },
+    "T-01-57": {
+      "plan": "01-18",
+      "task": 1,
+      "command_id": "b6687e21d8c7f6a9776026f09c3df0063ed71adbe3737a445cf3637ab04efd06",
+      "command": "cd web && npm run test:rollback",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "61337fc6c4625329b730d15347fcb1281402d00de4d56cb4cd57f952545aeff0",
+        "error_output_sha256": "5b669c80ff6b7a03db5c6a04c23795afadb58edf0f85cb180075500c5059fba5",
+        "output_bytes": 8678,
+        "error_output_bytes": 580
+      },
+      "completed_at": "2026-08-25T11:38:54.069Z",
+      "status": "passed",
+      "id": "T-01-57"
+    },
+    "T-01-58": {
+      "plan": "01-19",
+      "task": 1,
+      "command_id": "eae09b96b66140d4b6c74b06bc69004741d5cd1d0d8dd6e17e05a4b285169e76",
+      "command": "cd web && npm run verify:phase1 -- --candidate && npm run test:privacy -- --check && node scripts/verify-phase1.mjs --check-validation-waves",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "174a40990e1dbb041c9a9ebea69998b82896bb86f541a0905dba1ffe0a897552",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 8881,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-25T09:52:26.824Z",
+      "status": "passed",
+      "id": "T-01-58"
+    },
+    "T-01-59": {
+      "plan": "01-19",
+      "task": 2,
+      "command_id": "827bb9a512f90a3889bef420616e79767fcff4d8842a2ada6c5b11192266e5b3",
+      "command": "node -e 'const a=require(\"./web/tests/visual/phase1-approval.json\"),c=require(\"./web/tests/visual/phase1-candidate.json\"); if(a.status!==\"approved\"||a.candidate_sha256!==c.sha256||!a.owner_approval_ref||a.cutover_authorized!==true||a.rollback_approved!==true) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-25T09:54:57.358Z",
+      "status": "passed",
+      "id": "T-01-59"
+    },
+    "T-01-60": {
+      "plan": "01-19",
+      "task": 2,
+      "command_id": "4825a589e19125e050aca373db7bfc6398ee2833cd1cf8ffc225c954bb23d62b",
+      "command": "node -e 'const a=require(\"./web/tests/visual/phase1-approval.json\"),c=require(\"./web/tests/visual/phase1-candidate.json\"); if(a.status!==\"approved\"||a.candidate_sha256!==c.sha256||!a.owner_approval_ref||a.cutover_authorized!==true||a.rollback_approved!==true) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-25T09:54:57.358Z",
+      "status": "passed",
+      "id": "T-01-60"
+    },
+    "T-01-61": {
+      "plan": "01-20",
+      "task": 1,
+      "command_id": "ceaa1962413430d2c3ebe7adb0921708a69fceb435f2a26342eaeaa0863a5918",
+      "command": "cd web && npm run test:visual && npm run test:rollback && node -e 'const fs=require(\"fs\"); if(fs.existsSync(\"app/episodes/[episodeId]\")||fs.existsSync(\"app/episodes/:id\")) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "0d2cc677dc47c3f31f89470df5da48d97d9d21132e981832df05591bfe65bc65",
+        "error_output_sha256": "93f8804f65327cbd321746f1f42e0fe2dc38b21bd37601f9f17077e43880ffd4",
+        "output_bytes": 11201,
+        "error_output_bytes": 1400
+      },
+      "completed_at": "2026-08-25T10:33:29.806Z",
+      "status": "passed",
+      "id": "T-01-61"
+    },
+    "T-01-62": {
+      "plan": "01-20",
+      "task": 2,
+      "command_id": "f2f755c5ca499aef32114ae5f7a240eec92e7935798169fbaf69b72344530677",
+      "command": "cd web && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts tests/contracts/public-projection.contract.test.ts && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "ecc2ab494eea5c187449f168af4c5a16519ff81cd6ad5c5b5948f0747e72dc50",
+        "error_output_sha256": "34a110e9407ce14031eba0c5e6b85467f24565c067913da1fe4eb44c3b6fd1f2",
+        "output_bytes": 8833,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-25T12:29:36.996Z",
+      "status": "passed",
+      "id": "T-01-62"
+    },
+    "T-01-63": {
+      "plan": "01-20",
+      "task": 2,
+      "command_id": "6319dec379420fbe018b46aae4717af77de695dfa237f9ef455a4c7357acdbbb",
+      "command": "cd web && npm run test:browser -- tests/journeys/public-routes.spec.ts tests/journeys/viewports.spec.ts && npm run test:a11y && npm run test:performance && npm run test:rollback",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e011c64a6a0483f79eae921736c77a542c65441a2a1a45c67ba7b21580ec832f",
+        "error_output_sha256": "c6a82ac16e73b8d1e3654dbf44a58279227e778a3f9cbcebf9ef2946c01aa130",
+        "output_bytes": 18522,
+        "error_output_bytes": 2220
+      },
+      "completed_at": "2026-08-25T12:29:36.996Z",
+      "status": "passed",
+      "id": "T-01-63"
+    },
+    "T-01-64": {
+      "plan": "01-20",
+      "task": 2,
+      "command_id": "59d53f2faff10fadcc475f0f401bfce1889c0d07d8a15bd8ba0841cecde98f55",
+      "command": "cd web && node scripts/verify-phase1.mjs --self-test-threat-ledger --case=final-task-ordering",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "c34c1200a4fe0e2b465fd65cadaa8e77775d7a49d44ad7f028255772bfbabde3",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 47,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-25T12:29:36.996Z",
+      "status": "passed",
+      "id": "T-01-64"
+    },
+    "T-01-65": {
+      "plan": "01-21",
+      "task": 1,
+      "command_id": "db9a6fb5a7c5da85b212141b558127ee8b8c9f12fa05f4461d8819bfeb3308e8",
+      "command": "cd web && node scripts/capture-legacy-presentation.mjs --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "644188abf5f880489594b53e917b1fa967a6230fe86a7f1ed3b2cf78efd992c2",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 56,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T13:42:29.119Z",
+      "status": "passed",
+      "id": "T-01-65"
+    },
+    "T-01-66": {
+      "plan": "01-21",
+      "task": 2,
+      "command_id": "003562fe7c883cf940542f622c3b8e3c4959f4a97b3fbd4baa70578bf95a92a0",
+      "command": "cd web && npm run test:browser -- tests/rollback/legacy-presentation.spec.ts && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "0f41814fab8c59fe950c84b0d6ed08bce78ca5bf6940e8a3c7e8e7dc180f1ca7",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 8219,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T14:00:08.356Z",
+      "status": "passed",
+      "id": "T-01-66"
+    },
+    "T-01-67": {
+      "plan": "01-21",
+      "task": 3,
+      "command_id": "39fbb27908a3980a9639631aa8cccca411fbcc7fc489a9fa0846255d82afe053",
+      "command": "node -e 'const m=require(\"./web/tests/visual/legacy/phase1-legacy-baseline.manifest.json\"); if(m.status!==\"approved\"||!m.owner_approval_ref||!m.dependency_graph_sha256||![\"320\",\"768\",\"1440\"].every(x=>m.coverage?.includes(x))) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T14:27:42.232Z",
+      "status": "passed",
+      "id": "T-01-67"
+    },
+    "T-01-68": {
+      "plan": "01-22",
+      "task": 3,
+      "command_id": "f5758364b6bd3f3f2d0583a8cbda63d678dd5297d212eb6be8c0fb0b9af4b7de",
+      "command": "cd web && node scripts/capture-legacy-presentation.mjs --check && npm run test:browser -- tests/rollback/legacy-presentation.spec.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "26974b30a690d127b8d2cfbe45d720d579c919508f4231fa98150d63a43a379c",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 3325,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T21:40:45.834Z",
+      "status": "passed",
+      "id": "T-01-68"
+    },
+    "T-01-69": {
+      "plan": "01-22",
+      "task": 3,
+      "command_id": "84b01c4b6cd350620ec588e9bb485ee6715c0768d299ac6507bcc450f1872c5d",
+      "command": "cd web && npm run test:browser -- tests/journeys/brand-motion.spec.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "8f165dc0b4df60977ac75841f9a3248e718c99dc05c48f76ff1323a6a95b9c6e",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 2088,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T21:40:45.834Z",
+      "status": "passed",
+      "id": "T-01-69"
+    },
+    "T-01-70": {
+      "plan": "01-22",
+      "task": 3,
+      "command_id": "72d536c6000ff3bd366b1712466e5a1951026f13b247d912e8b234ded0fa6b98",
+      "command": "cd web && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "df21492230d346a611eb97afde82e3c465199bbdbcba2d6712a68a6ba330a772",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 6575,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T21:40:45.834Z",
+      "status": "passed",
+      "id": "T-01-70"
+    },
+    "T-01-SC-APPROVAL": {
+      "plan": "01-02",
+      "task": 1,
+      "command_id": "c1778dd1cc98afd53b124db01903134d26803388d257a1c282b10db3d00f69c4",
+      "command": "node -e 'const a=require(\"./web/tests/package-legitimacy.json\"); if(a.status!==\"approved\"||a.packages.length!==12||a.packages.some(p=>p.slopcheck!==\"unavailable\"||p.disposition!==\"ASSUMED\"||!p.registry_url||!p.source_url)) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-20T16:19:06.338Z",
+      "status": "passed",
+      "id": "T-01-SC-APPROVAL"
+    },
+    "T-01-SC-INSTALL": {
+      "plan": "01-03",
+      "task": 1,
+      "command_id": "c0a0165a984fbf1650d506ad917240e094f8d770c6f57e6ad24efc8bb308d296",
+      "command": "cd web && npm ls --depth=0 && node -e 'const p=require(\"./package.json\"),a=require(\"./tests/package-legitimacy.json\"); for(const x of a.packages){const v=p.dependencies?.[x.name]||p.devDependencies?.[x.name]; if(v!==x.version) process.exit(1)}; if(!p.scripts[\"verify:phase1\"]||Object.values(p.scripts).some(x=>/\\bwatch\\b/.test(x))) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "6bf71fe9a33642fec933b2f6c2d216f72dcfac449bf197e1bf579c1450eb1a2c",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 847,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-20T16:56:23.305Z",
+      "status": "passed",
+      "id": "T-01-SC-INSTALL"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "01-17",
+  "results": {
+    "T-01-53": {
+      "plan": "01-17",
+      "task": 2,
+      "command_id": "8c72698f61b5320d858f3eb38ffd91399d0c562c821b0f26889195dc59572199",
+      "command": "cd web && npx playwright test --project=phase1-chromium --grep @a11y tests/accessibility/ && npx playwright test --project=phase1-chromium --grep @visual tests/visual/ -- --candidate",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "8601c5376c33566cd2318f9b27510b2de52614e35ee2127c5ad11acf551b7f60",
+        "error_output_sha256": "72bdfe23232121c20ca6520fe87b90f80a65f5dc0df77331c26434079c07b2f0",
+        "output_bytes": 5928,
+        "error_output_bytes": 7280
+      },
+      "completed_at": "2026-08-24T17:06:21.264Z",
+      "status": "passed"
+    },
+    "T-01-54": {
+      "plan": "01-17",
+      "task": 2,
+      "command_id": "32a872dfc91497f9088008af456a70d07118d1f87e032c8826cbf8eadec2a934",
+      "command": "cd web && npx playwright test --project=phase1-chromium --grep @a11y tests/accessibility/ && npx playwright test --project=phase1-chromium --grep @visual tests/visual/ -- --candidate",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "8601c5376c33566cd2318f9b27510b2de52614e35ee2127c5ad11acf551b7f60",
+        "error_output_sha256": "72bdfe23232121c20ca6520fe87b90f80a65f5dc0df77331c26434079c07b2f0",
+        "output_bytes": 5928,
+        "error_output_bytes": 7280
+      },
+      "completed_at": "2026-08-24T17:06:21.264Z",
+      "status": "passed"
+    },
+    "T-01-52": {
+      "plan": "01-17",
+      "task": 3,
+      "command_id": "e2225755ee0ca5cfd04d892f2bcc5d44ace7dde489734365890c7b2a39cbf242",
+      "command": "cd web && npm run test:browser -- tests/journeys/public-routes.spec.ts tests/journeys/viewports.spec.ts && npm run test:unit -- tests/unit/component-trace.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "5f967c56e2405701421b1a63ea475ff24c65120a1e4a9b946b2c4c7107f5cd84",
+        "error_output_sha256": "f9bc7a02e9920eaf297babd70413007a3edd5240d35e06915e5065e8c279bcc4",
+        "output_bytes": 5728,
+        "error_output_bytes": 4581
+      },
+      "completed_at": "2026-08-24T17:04:01.485Z",
+      "status": "passed"
+    }
+  }
+}

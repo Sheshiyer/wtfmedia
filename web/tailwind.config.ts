@@ -9,9 +9,19 @@ const config: Config = {
         dot: "#F0EADF",
         surface: "#F0EADF",
         ink: "#1A1A1A",
+        canvas: "var(--wtf-canvas)",
+        foreground: "var(--wtf-foreground)",
+        "surface-subtle": "var(--wtf-surface-subtle)",
+        "surface-raised": "var(--wtf-surface-raised)",
+        editorial: "var(--wtf-editorial)",
+        live: "var(--wtf-live)",
+        attention: "var(--wtf-attention)",
+        production: "var(--wtf-production)",
+        knowledge: "var(--wtf-knowledge)",
+        information: "var(--wtf-information)",
         wtf: {
           red: "#C53B3A",
-          green: "#0C9367",
+          green: "#0C8167",
           yellow: "#F1B333",
           orange: "#F07633",
           purple: "#6758A5",
@@ -32,8 +42,43 @@ const config: Config = {
       },
       fontFamily: {
         display: ['"Bricolage Grotesque"', "Impact", "sans-serif"],
-        serif: ['"Fraunces"', "Georgia", "serif"],
-        sans: ['"Poppins"', "system-ui", "sans-serif"],
+        heading: ["var(--wtf-font-display)"],
+        body: ["var(--wtf-font-body)"],
+        label: ["var(--wtf-font-body)"],
+        serif: ["var(--wtf-font-editorial)"],
+        sans: ["var(--wtf-font-body)"],
+      },
+      fontSize: {
+        label: [
+          "var(--wtf-type-label-size)",
+          { lineHeight: "var(--wtf-type-label-line-height)" },
+        ],
+        body: [
+          "var(--wtf-type-body-size)",
+          { lineHeight: "var(--wtf-type-body-line-height)" },
+        ],
+        heading: [
+          "var(--wtf-type-heading-size)",
+          { lineHeight: "var(--wtf-type-heading-line-height)" },
+        ],
+        display: [
+          "var(--wtf-type-display-size)",
+          { lineHeight: "var(--wtf-type-display-line-height)" },
+        ],
+      },
+      lineHeight: {
+        display: "var(--wtf-type-display-line-height)",
+      },
+      borderRadius: {
+        control: "var(--wtf-radius-control)",
+        panel: "var(--wtf-radius-panel)",
+        card: "var(--wtf-radius-card)",
+        pill: "var(--wtf-radius-pill)",
+      },
+      transitionDuration: {
+        fast: "var(--wtf-duration-fast)",
+        default: "var(--wtf-duration-default)",
+        slow: "var(--wtf-duration-slow)",
       },
       keyframes: {
         marquee: {

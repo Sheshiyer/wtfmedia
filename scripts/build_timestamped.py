@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parent.parent
 EPISODES = ROOT / "data" / "nikhil-kamath" / "episodes.json"
 OUT = ROOT / "web" / "src" / "data" / "vectors.json"
 PUB_TX = ROOT / "web" / "public" / "transcripts"
+SOURCE_TX = ROOT / "data" / "nikhil-kamath" / "transcripts"
 
 EMBED_MODEL = "nvidia/nv-embedqa-e5-v5"
 EMBED_URL = "https://integrate.api.nvidia.com/v1/embeddings"
@@ -73,6 +74,27 @@ def chunk_snippets(snips):
     return chunks[:MAX_CHUNKS]
 
 
+def chunk_plaintext(text):
+    """Fallback for videos whose caption API request is unavailable.
+
+    We preserve the complete retrieval corpus even when YouTube cannot return
+    timestamped snippets. These chunks omit `start`, so the UI links to the
+    video rather than a guessed timestamp.
+    """
+    text = " ".join(text.split())
+    chunks = []
+    while text:
+        chunk, text = text[:CHUNK_CHARS], text[CHUNK_CHARS:]
+        if text:
+            split = max(chunk.rfind(". "), chunk.rfind(" "))
+            if split > CHUNK_CHARS * 0.6:
+                text = chunk[split + 1:] + text
+                chunk = chunk[:split + 1]
+        if len(chunk.strip()) > 60:
+            chunks.append(chunk.strip())
+    return chunks[:MAX_CHUNKS]
+
+
 def embed_batch(key, texts):
     body = json.dumps({
         "input": texts, "model": EMBED_MODEL,
@@ -106,19 +128,35 @@ def main():
     for i, vid in enumerate(vids, 1):
         title = eps[vid].get("title", vid)
         snips = fetch_snippets(client, vid)
-        if not snips:
+        if snips:
+            # Save timestamped transcript for the drawer.
+            (PUB_TX / f"{vid}.json").write_text(
+                json.dumps([{"t": round(s, 1), "x": t} for s, t in snips], ensure_ascii=False)
+            )
+            chunks = chunk_snippets(snips)
+            for ci, (start, text) in enumerate(chunks):
+                records.append({
+                    "video_id": vid, "title": title, "chunk_idx": ci,
+                    "start": int(start), "text": text,
+                })
+            print(f"  [{i}/{len(vids)}] {vid}: {len(chunks)} timestamped chunks", file=sys.stderr)
+            time.sleep(0.8)
             continue
-        # save timestamped transcript for the drawer
-        (PUB_TX / f"{vid}.json").write_text(
-            json.dumps([{"t": round(s, 1), "x": t} for s, t in snips], ensure_ascii=False)
-        )
-        chunks = chunk_snippets(snips)
-        for ci, (start, text) in enumerate(chunks):
-            records.append({
-                "video_id": vid, "title": title, "chunk_idx": ci,
-                "start": int(start), "text": text,
-            })
-        print(f"  [{i}/{len(vids)}] {vid}: {len(chunks)} chunks", file=sys.stderr)
+
+        # Some videos expose a transcript through the sync pipeline but not
+        # the timestamp API. Keep those passages searchable instead of
+        # silently deleting them from the vector store.
+        fallback = SOURCE_TX / f"{vid}.txt"
+        if fallback.exists():
+            chunks = chunk_plaintext(fallback.read_text(encoding="utf-8", errors="ignore"))
+            for ci, text in enumerate(chunks):
+                records.append({
+                    "video_id": vid, "title": title, "chunk_idx": ci,
+                    "text": text,
+                })
+            print(f"  [{i}/{len(vids)}] {vid}: {len(chunks)} untimestamped fallback chunks", file=sys.stderr)
+        else:
+            print(f"  [{i}/{len(vids)}] {vid}: no transcript", file=sys.stderr)
         time.sleep(0.8)
 
     print(f"[build] {len(records)} chunks; embedding…", file=sys.stderr)
@@ -135,8 +173,7 @@ def main():
     payload = {
         "model": EMBED_MODEL, "dim": dim, "count": len(records),
         "items": [
-            {**{k: r[k] for k in ("video_id", "title", "chunk_idx", "start", "text")},
-             "embedding": embs[i]}
+            {**r, "embedding": embs[i]}
             for i, r in enumerate(records)
         ],
     }
