@@ -23,9 +23,22 @@ PRODUCT.md
 .DS_Store
 .vercel
 
+# Cloudflare local runtime and generated bindings
+cloudflare/.wrangler/
+cloudflare/worker-configuration.d.ts
+# Root-level wrangler runtime cache (not the cloudflare/ workspace)
+.wrangler/
+
 # machine-local Temperance runtime receipts (regenerate with project init)
 .temperance/project.json
 .temperance/manifest.json
 .runtime/preflight/
 .planning/NEXT-WAVE.json
 .planning/ORCHESTRATION.json
+
+# machine-local Superset tool state (holds absolute paths and account ids)
+.superset/
+
+# planning state backups (regenerate via GSD, do not commit)
+.planning/STATE.md.bak
+.planning/STATE.md.bak-*
