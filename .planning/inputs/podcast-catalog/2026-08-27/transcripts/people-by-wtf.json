@@ -17,77 +17,82 @@
       "Clean Cut",
       "Final EP Frame"
     ],
-    "record_count": 24
+    "record_count": 24,
+    "url_redaction": {
+      "policy": "scheme-host-plus-sha256-of-original-url",
+      "form": "{scheme}://{host}/#sha256:{hex}",
+      "url_count": 49
+    }
   },
   "records": [
     {
       "source_row": 2,
-      "row_hash": "sha256:478f43af4ce5626d97bf758b972ab4404a21c0443d3bd7cd4287fd2a58c2f6e6",
+      "row_hash": "sha256:2288a61073a505034c0dcf60e4b8a62d9ddd2bd398ebf213353a0f3cf939e2c2",
       "fields": {
         "Name of Episode": "Bill Gates",
-        "Transcript": "https://drive.google.com/file/d/1GtLiCiDqRskbZPD4_ahyKQ9d7Eq8lF75/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:5e67e52637268c58cb0b8fb365623e783a572dc36e6fd80aed458b6c23aa2d0f",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "14th June 2024",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/od24Cnit"
+        "Final EP Frame": "https://f.io/#sha256:538d91746e8a16185e0a8cf8310573d102d243c7742cdf32916ed5f62f69db4f"
       }
     },
     {
       "source_row": 3,
-      "row_hash": "sha256:f4305db2cb12473623a9d0ea76f3455f373307dce4e81bc8e52502fd2eeb93d3",
+      "row_hash": "sha256:2817851f332badaa292f5e2434608c4e647bd72abf7c90016942bfd54faf830a",
       "fields": {
         "Name of Episode": "Ranbir Kapoor",
-        "Transcript": "https://drive.google.com/file/d/1073nk1uCpg6ZUh_3vQoNf8o75JYX-wKv/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:4ff660ba35813672715a588f11f89ce8a5b7cec02e491f74071009478d10156e",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "27th July 2024",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/vhz7jmbx"
+        "Final EP Frame": "https://f.io/#sha256:62dc7903bfbb527605c3314ac0f1aa853c3540615f5a0ac9beb96ea9aa2cb1ee"
       }
     },
     {
       "source_row": 4,
-      "row_hash": "sha256:4f069b68fadead6cbad46a63d8b75c15d55dda8bf2f93176cb860308dc739836",
+      "row_hash": "sha256:1bfb82f1e41911d8d26b89d23106d8c87bdfbae3b6bae710ad178f28ad7b5b9c",
       "fields": {
         "Name of Episode": "Nandan Nilekani",
-        "Transcript": "https://drive.google.com/file/d/1Ttf_x_iYKUEh6JcIwtxNV7iqB17QPFij/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:7219269a4cd01806dbc1b2a5b5147560f4ab1a1bb5a0b635a7e03056d5f1b438",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "14th September 2024",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/hHt88AjJ"
+        "Final EP Frame": "https://f.io/#sha256:516190e2c09cc171bfae116b850dc66186421f674f9189312c150d61c84d4f0a"
       }
     },
     {
       "source_row": 5,
-      "row_hash": "sha256:25026bf07582650031554a6692560111d8d4d85a4be474950b99d0813ddd5315",
+      "row_hash": "sha256:cd1bdc8d1d78f74c1c0d191707368886c5cdb293c55335065aa69dbccac5d2c3",
       "fields": {
         "Name of Episode": "Yann LeCunn",
-        "Transcript": "https://drive.google.com/file/d/1fOWYz0qDGBckACj-L-xgTcxhGsXenOlM/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:45268e2277762d3e24d8d80f4801c57e684f3392acab0b5776dc4f2c014425d5",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "27th November 2024",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/oVTG8UKh"
+        "Final EP Frame": "https://f.io/#sha256:fcb0c9d06d9ef5c63e6b23689787b79516ed3f62bb68e2efa4ed40063c2dee8e"
       }
     },
     {
       "source_row": 6,
-      "row_hash": "sha256:ee19ef0e4923977268f958c5e90393f9d2837b06245d663e7a936e6b0e6410b5",
+      "row_hash": "sha256:7484e4737e64636b35b8e8440a84b7cbce300e310e90096a94de0a6881be3a2d",
       "fields": {
         "Name of Episode": "Kumar Birla",
-        "Transcript": "https://drive.google.com/file/d/16HNQPWK3Nb6x-8KYRRzLSJMw23Vn_lkb/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:30ea4d5f671a2b91fdbee65543b7a75aed1784a595e347b56ae0452e82761dc0",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "20th December 2024",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/TR8BZT5h"
+        "Final EP Frame": "https://f.io/#sha256:dd0cb008446ed93b8d24cd2033bdd75c865c040784dabff30142a65abbe47ea8"
       }
     },
     {
@@ -106,10 +111,10 @@
     },
     {
       "source_row": 8,
-      "row_hash": "sha256:a7b54492b8ba5d5cd0c59a3c2eacc91c18948e67a6d426428d9f67d7c246d18f",
+      "row_hash": "sha256:55c08038b31a8a26152f4530ee8246168e1ec9c378d2f1ce1df1edfc050942be",
       "fields": {
         "Name of Episode": "Christopher Luxon",
-        "Transcript": "https://drive.google.com/file/d/1s-RRFtfYRm5pJDSREic-uWR0rptCpVeT/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:d2e1211d8167da06a812f39fb8e902fa4326854fc6ee3900893104a68b661178",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "5th April 2025",
@@ -120,52 +125,52 @@
     },
     {
       "source_row": 9,
-      "row_hash": "sha256:57c1a2daca9a66240937a927f692bbc5ce3ab5b0a38d59e9f7f3a5a6a29fa15e",
+      "row_hash": "sha256:c516408bf1fc53b37e5b4a7a187d66c987d1c1f390c61d60fff0068d71f29755",
       "fields": {
         "Name of Episode": "Bill Gates #2",
-        "Transcript": "https://drive.google.com/file/d/1d9T84cVzyomIJAHx6aWySEyHOowzuyeu/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:0a29869d7c0630ac90fc2589e863ca2f153e93ef55acc7ca303161b05a0bf9b5",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "11th April 2025",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/W2Dbpxq0"
+        "Final EP Frame": "https://f.io/#sha256:c4ac9d2247f57e3225d36f1f93a8e5165b1f6b6e13ed735925d2e4dfb99852f1"
       }
     },
     {
       "source_row": 10,
-      "row_hash": "sha256:276ff8c403eca122b14415cef8145dec5e7c705d5b9698b4dbcc1b346c36b2fe",
+      "row_hash": "sha256:77922d2e8ff9224dd63d5c4e0442a982ceb71c66b2bb04b5bd2ca541a56a44e4",
       "fields": {
         "Name of Episode": "Neal Mohan",
-        "Transcript": "https://drive.google.com/file/d/1mrOuw0Qe4fa7gichBUbKrj68xccTHlCy/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:6b8aae4ae6f933df34df19a1514c35d30013e0615b426b91f9a7c4ac1ffef69f",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "24th May 2025",
         "col_5": "",
-        "Clean Cut": "https://f.io/PlVaUmSO",
-        "Final EP Frame": "https://f.io/LOyVvO6O"
+        "Clean Cut": "https://f.io/#sha256:d008f0f72ca4324844a7a94e9b4d2a487b35111e4c13e87b332c2652f4d1b238",
+        "Final EP Frame": "https://f.io/#sha256:4a9aebfd1084d2de2ff3e8294782379519c63d89658d529c384ac35aa051126f"
       }
     },
     {
       "source_row": 11,
-      "row_hash": "sha256:272723d6983b73200e4503ff181583f1716736559854c4d69852c00a04b7e198",
+      "row_hash": "sha256:ac6b6e8d02ec5965b7144573d85a86a02bccfac71a93c4296c329fa5bd5ae705",
       "fields": {
         "Name of Episode": "Ted Sarandos",
-        "Transcript": "https://drive.google.com/file/d/1rY43jftb2z8ZxIUw-maYZpAUidFK4729/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:6b8ca6ab6bcd4d3664dde2908b5683ac40c019533b8d6612cd7057528ffa1f93",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "7th June 2025",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/kf5XQpLO"
+        "Final EP Frame": "https://f.io/#sha256:8dc63e1e31646c15bac6d09d55ba05f534c2080320a0f2757197d9bf159b2fc7"
       }
     },
     {
       "source_row": 12,
-      "row_hash": "sha256:df61b8dd3a38f396c9f066b2a0c36b339ae050c674eab07844b6bbdf95885181",
+      "row_hash": "sha256:6a9a1a40aefc827d1ef15c923d175112e9485b1b81e74ce7b64b037c583d2551",
       "fields": {
         "Name of Episode": "Nikesh Arora",
-        "Transcript": "https://drive.google.com/file/d/1YiD3Sl1TKXdU_Wg9UeEgsqX_2ShNyIaq/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:94209b95a6302a51f318a6a5c4b88675fecf040d51b12023b7119c9b6513f638",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "28th June 2025",
@@ -176,178 +181,178 @@
     },
     {
       "source_row": 13,
-      "row_hash": "sha256:cada709f3b39b0c02bd28dd1dbe6a0ec48359b39d24d33796b8372a2f63b0de1",
+      "row_hash": "sha256:e4bbdbf835b31607ba2c43892cb1d26ae9421041dae68f7b3e3a4c8b6d837a7a",
       "fields": {
         "Name of Episode": "Vinod Khosla",
-        "Transcript": "https://drive.google.com/file/d/1mOAl1jCyrky2I2YD776GnbvkUbTEJ_MC/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:aa9bff7b5f95861adcfe681e9178cd21706cddbd5fefb82a7719399b817f6f50",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "2nd August 2025",
         "col_5": "",
-        "Clean Cut": "https://f.io/bEXh2xXi",
-        "Final EP Frame": "https://f.io/0I8LmYs9"
+        "Clean Cut": "https://f.io/#sha256:6e58e68c89ad1631ae65a07d949c3ed25b76ceaece4b4207e940153a1de1e967",
+        "Final EP Frame": "https://f.io/#sha256:caeb0ae2027d1aa6f12cea94bbc694923a599a862e0260db42f9c64cac0bfeac"
       }
     },
     {
       "source_row": 14,
-      "row_hash": "sha256:9ff5072fc63d7151284d9fbc9d9fb303e60e552ab4576eb9de74b882ead7cdae",
+      "row_hash": "sha256:76b94e90bc008381117f73f8a39560b584d1a306b853e737c2a669fecf764aad",
       "fields": {
         "Name of Episode": "Sam Altman",
-        "Transcript": "https://drive.google.com/file/d/1Bybg4fGgBPGnTgND57sKa33xZUvWrC4E/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:37b7b0e73723b7fc91bada904eef4378ba021f09ab9ae82ff2c27e9d40c39fff",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "14th August 2025",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/5MyTq5gL"
+        "Final EP Frame": "https://f.io/#sha256:752fa9d79dc641057be375d11b17b47d3b4532c534040e0732a5fb38abcc04b2"
       }
     },
     {
       "source_row": 15,
-      "row_hash": "sha256:92647144cbb69f42e87cded6d7d22d14ad9ee97cff4586313982c5775e2d8992",
+      "row_hash": "sha256:fc347372a9fa02796264538eaff3d294feb9c57b03c0a096d8fe26846bb0a242",
       "fields": {
         "Name of Episode": "Dara Khosrowshahi",
-        "Transcript": "https://drive.google.com/file/d/1zGlIY8Vu-DCbTRfkjydENe1uMJY6skd6/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:351a0af8e7bd2d530ca90b303b31c9c745e0d94dc65ecdebbbc0d424aa6fae75",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "24th August 2025",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/SYYyV5U7"
+        "Final EP Frame": "https://f.io/#sha256:fea459a457d7b933cf714855a03d1409806ec2b08fbc0be39f6a7d74ad920b95"
       }
     },
     {
       "source_row": 16,
-      "row_hash": "sha256:d7a87d93e7256e2e11475a3a7282ac800a5b787e023f5687b436c09236121b7a",
+      "row_hash": "sha256:34747230d4b3f892143b34934ca8f5285a595ff06e10e23dce0f96140f6a5c34",
       "fields": {
         "Name of Episode": "AR Rahman",
-        "Transcript": "https://drive.google.com/file/d/1BqF3uV_ERRP1pnwF1-HUenEavNwME_Vh/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:ee9aceeaffbf0cbac7bee13613ed87640a3e65e368fbaae47e963e2da13ba615",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "20th November 2025",
         "col_5": "",
-        "Clean Cut": "https://f.io/4L2wtVZV",
-        "Final EP Frame": "https://f.io/yTrG5qoS"
+        "Clean Cut": "https://f.io/#sha256:22e08c54020026f3bdbf1831bdcbe09f1ee10450a28028ef9ce92752e16abd90",
+        "Final EP Frame": "https://f.io/#sha256:448b24050ceddc983a20c472ef87283526978509e4bfcb2660fa647f51e32ddb"
       }
     },
     {
       "source_row": 17,
-      "row_hash": "sha256:a1f69b98a5a9c76e419ae46473588c6c2f4d0650d4bfca6c26f23ba8adeea18f",
+      "row_hash": "sha256:b575d22fa921465596824ffc7e60bd34e41ada43ddf5979075f0d6a85ad4c935",
       "fields": {
         "Name of Episode": "Elon Musk",
-        "Transcript": "https://drive.google.com/file/d/1vIUcWQjX_2rmC3kYKjnBM-IOzv1vlGbL/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:af63c9e6b9d1636c53e8e271889b2601231d5d50100d39c72b0ad254b8381e8b",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "30th November 2025",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/h405_tNt"
+        "Final EP Frame": "https://f.io/#sha256:baf46f7a6124c8e2a955cc550f837ef0a646bf50885f134eface9658bf95bb4d"
       }
     },
     {
       "source_row": 18,
-      "row_hash": "sha256:3c04bd8cbc77446648eb27647e83eccddbae8a55fc658303c54c45eb3e7a36bd",
+      "row_hash": "sha256:0448e69d1879087cd631553829bc1e1106d69af7d9763accb0604f5bc2566d09",
       "fields": {
         "Name of Episode": "Yuval Noah Harari",
-        "Transcript": "https://drive.google.com/file/d/1z-pkO87_EnWqhB8WfvpilDGQBpGTOHz4/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:1ad06f676d2dbb039b4c3005fdc12bedbe554f4694d15187dc6c1d060a1a186d",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "11th February 2026",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/2_pmQ5af"
+        "Final EP Frame": "https://f.io/#sha256:32dc5a12c5fec5d6eb0800a845539be59dbcd870318a7efa4e4724da5066486f"
       }
     },
     {
       "source_row": 19,
-      "row_hash": "sha256:7356365c8229218d62264110dab82a3602efd6bc9fb608f3b84e5909a1c52724",
+      "row_hash": "sha256:b6dddb0d21cac63bda28bcb70de9b857482d2f1368c2f67f38d5a6da73843967",
       "fields": {
         "Name of Episode": "Dario Amodei",
-        "Transcript": "https://drive.google.com/file/d/1V7UURVJdpb6r-bqN6zC8GwPX_lnsZf3W/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:e6657209fc96533358cb165cb26e9639deeed29890ad3feee8e6f1a290ee55b7",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "24th February 2026",
         "col_5": "",
-        "Clean Cut": "https://f.io/s0wKSDe0",
-        "Final EP Frame": "https://f.io/VrTLEcyQ"
+        "Clean Cut": "https://f.io/#sha256:86c1a18fa385d904496903a4507fe55debdac1ec9e9ec89e1bb05ba7e0fd03d7",
+        "Final EP Frame": "https://f.io/#sha256:f1288525a8bec8baeec3b4b788ca0e7200272ab8fc3220d69103f0a2bbc1cf15"
       }
     },
     {
       "source_row": 20,
-      "row_hash": "sha256:1e0c1a3efeee0bcb5a6a7732776fa77d44f3a4b85e575ecebc11e58bb1776f93",
+      "row_hash": "sha256:dec375372b7f89799bcff664cdac9ec8c0d00ff18e7a0bff98044fa4ae2341f3",
       "fields": {
         "Name of Episode": "Chamath Palihapitiya",
-        "Transcript": "https://drive.google.com/file/d/1wAm604nrdRkxPAVg05EZLoURcsGMzzkE/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:e474cde0f76b0d4152a5641b072ac805c8386b3326a4ee81a8d45d41125b60b9",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "2nd March 2026",
         "col_5": "",
-        "Clean Cut": "https://f.io/K6fXwz7D",
-        "Final EP Frame": "https://f.io/Vt7rIJbv"
+        "Clean Cut": "https://f.io/#sha256:4368077036c85bda69a1849b4e0f6cca183caab227d301be68db58a6d1fc41fa",
+        "Final EP Frame": "https://f.io/#sha256:6556aca992a45935fe65eda4ab2dc3e659db50fb3f7acdfe413b61568c28903d"
       }
     },
     {
       "source_row": 21,
-      "row_hash": "sha256:a48dd20e26ba13afb80fcdcd3beff6d9a1a8bacf6e50afd13dde7886c583d744",
+      "row_hash": "sha256:459680c24a2220fda4771fb759298d7f1da2d1ff4a5298e7d1cdd2d37c7c9e4f",
       "fields": {
         "Name of Episode": "Rishi Sunak x Akshata Murthy",
-        "Transcript": "https://drive.google.com/file/d/197DMqCQ6un0Kf6PPkZdx3GZod3fkEXwq/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:b377d12e367997058f7ace8e3543c157f93624c299b8ebd6c326001a7cb3e07e",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "25th March 2026",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/qIms_Py4"
+        "Final EP Frame": "https://f.io/#sha256:af2370d04ad130f1ab49b28fd193a79e184a785419d17ca07976080f926150fa"
       }
     },
     {
       "source_row": 22,
-      "row_hash": "sha256:89203d7b8b7714a74981a9fbf54cc8fc3084c1842f7898bfa51ab9be84bd7e71",
+      "row_hash": "sha256:373cedb6bdd83a5f7052399c24c1e772ea66689fd53315eb9e1478de146901b8",
       "fields": {
         "Name of Episode": "Ajay Banga",
-        "Transcript": "https://drive.google.com/file/d/181iJWsznV88ip0gxIGsbOWmhQkVY0GMq/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:d731a120097223e25402f803503777e1afe8ad8e9aad2c9172eba74ca917be8f",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "20th April 2026",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/ENKs96GR"
+        "Final EP Frame": "https://f.io/#sha256:46d944a1fd59187bcc2e21ba6eb01cb6df435b3b380746379120e3bde7ab6b41"
       }
     },
     {
       "source_row": 23,
-      "row_hash": "sha256:ff3df8e115078184d927451568730e1c3a3abfcb443322867d00f0d225f95b09",
+      "row_hash": "sha256:cd663115c2cbf0105d6f7faf938c768da5e762cc232e098b47b77bbc9e126dcb",
       "fields": {
         "Name of Episode": "Martin Escobari",
-        "Transcript": "https://drive.google.com/file/d/14oJ5nbbC29SyGTlRPqrRrtChpnAS11N1/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:25e597b2b7b3210585a5f363c3182216224a1bae014b83d89b8c605da57eac5e",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "28th May 2026",
         "col_5": "",
         "Clean Cut": "",
-        "Final EP Frame": "https://f.io/Z7qDGH2j"
+        "Final EP Frame": "https://f.io/#sha256:0262967b5f99e058c368c7da2f78b68a36509d7fc67274a30815fd5217d0739e"
       }
     },
     {
       "source_row": 24,
-      "row_hash": "sha256:ba328ce68ad24722bcea34e253511b1d0492f006e1bb8cf92dc0f174aeb0f238",
+      "row_hash": "sha256:df47374587365da812e5e7037cce49313aa8a2968facef091ee245ffeaa02bc9",
       "fields": {
         "Name of Episode": "Nikos Christodoulides",
-        "Transcript": "https://drive.google.com/file/d/1k5E8ZP7E9GArjAzUASyBMJ0cjLW66VTi/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:89477a351c3a42e8e9b82d10b1af47dc55a51cb46d4e8b6a03c666425e62c5a0",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "1st July 2026",
         "col_5": "",
-        "Clean Cut": "https://f.io/G7QLvk7m",
-        "Final EP Frame": "https://f.io/wlEoMfP3"
+        "Clean Cut": "https://f.io/#sha256:904769c4ea0bb9206668856d6f3866ca7d7c47ec074776be7ec07fb3637731ea",
+        "Final EP Frame": "https://f.io/#sha256:ee6e486a6a8a731135894bcc3d2083ba25a63a04f563538fda0db55d3848da65"
       }
     },
     {
       "source_row": 25,
-      "row_hash": "sha256:eb53055f15e635cb729f3f2fd26daf042ba26d6e63a5d5be15d9c469e1ca381c",
+      "row_hash": "sha256:7046b69b589e4000b282fcccc8da26e9bcce27a6e4e4d2f3ee1a3af9f04de91d",
       "fields": {
         "Name of Episode": "Brain Armstrong",
-        "Transcript": "https://drive.google.com/file/d/1WBG1o-u75RgoQ5yzRP2x0DWrL9rhrG3h/view?usp=drive_link",
+        "Transcript": "https://drive.google.com/#sha256:583f3f8ed7b27a6f8f4557c97ed582d543e5bb59ffde5a5e44f6ab84aeb43172",
         "col_2": "",
         "Shoot Date": "",
         "Posting Date": "16th July 2026",

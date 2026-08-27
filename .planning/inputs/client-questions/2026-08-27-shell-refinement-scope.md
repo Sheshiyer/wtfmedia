@@ -3,21 +3,29 @@
 **Drafted:** 2026-08-27
 **For:** Repository owner
 **Blocks:** the next code-level PR against the shell
-**Context:** the whole-app WTF OS shell landed as the default (handoff
-`.project/HANDOFF.md:477`), but the summary is explicit that "final
-reference-design parity" has not been claimed. The next pass is **density,
-hierarchy, and operator affordance** — inside the empty-Control-Room contract
-already committed to in decision D-19 (no fake counts, no invented health).
-**Status:** draft-held, awaiting owner pick
+**Context:** the whole-app WTF OS shell exists in the **local working tree**
+(`web/components/shells/`, untracked on `origin/main` until
+`wtf-os-shell-materialize` lands). Committed `web/app/page.tsx` is still the
+pre-migration home. The next pass is **density, hierarchy, and operator
+affordance** inside the empty-Control-Room contract in Phase 2 decision D-19
+and `02-UI-SPEC.md` (no fake counts, no invented health).
+**Status:** draft-held. Owner pick recorded as A + B + D; no shell code ships
+in this planning folder.
 
 ---
 
 ## Evidence surveyed
 
-- Shell: [web/components/shells/AppShell.tsx](web/components/shells/AppShell.tsx) — 100 lines, fixed 60-wide rail (`w-60`) on `lg`, mobile Drawer, SkipLink to `#wtf-main`, radial dot texture layer.
-- Status pattern: [web/components/patterns/StatusLedger.tsx](web/components/patterns/StatusLedger.tsx) — 128 lines, four-column row (label · state chip · detail · observed), seven `WorkspaceState` variants, `not-activated` intentionally non-interactive.
-- Home: [web/app/page.tsx](web/app/page.tsx) — 19 lines, delegates to migrated Control Room.
-- Ops workspaces: 10 files totalling 232 lines under [web/components/domain/ops/](web/components/domain/ops/), most of them thin (10–41 lines) — each still expects the empty-state envelope.
+These paths describe the local uncommitted shell, not `origin/main`:
+
+- `web/components/shells/AppShell.tsx` — fixed 60-wide rail on `lg`, mobile
+  Drawer, SkipLink to `#wtf-main`.
+- `web/components/patterns/StatusLedger.tsx` — four-column row, seven
+  `WorkspaceState` variants, `not-activated` non-interactive.
+- Local `web/app/page.tsx` is a dual-variant seam to `MigratedHomePage`.
+  Tracked `web/app/page.tsx` on `origin/main` is still the pre-migration home.
+- Operator Control Room contract: `.planning/phases/02-platform-foundation-authenticated-policy-boundary/02-UI-SPEC.md`
+  and D-19 in `.planning/STATE.md`.
 
 ## The contract we are refining inside
 
@@ -121,20 +129,24 @@ Pick one to start. If you pick a set, we ship them in the order listed above
 
 | Option | Pick |
 |---|---|
-| A only | ⧗ |
-| A + B | ⧗ |
-| A + B + D | ⧗ |
-| A + B + C + D | ⧗ |
-| None; wait for reference-design parity input | ⧗ |
-| Different — describe below | ⧗ |
+| A only | |
+| A + B | |
+| A + B + D | recorded 2026-08-27 |
+| A + B + C + D | |
+| None; wait for reference-design parity input | |
+| Different — describe below | |
 
-## What we will not do without a pick
+Local `AppRail` already implements B (`aria-current="page"` plus attention
+fill). Remaining code PRs after shell-materialize: A, then D. C is not in
+the pick.
 
-- No changes to `AppShell.tsx`, `AppRail.tsx`, `StatusLedger.tsx`, or any
-  Control Room consumer beyond what a picked option scopes.
+## What we will not do beyond the pick
+
+- No shell code in this planning folder. A, then D, wait for
+  `wtf-os-shell-materialize` so they are not PRs against untracked files.
 - No introduction of a count, health signal, or state variant beyond the
   existing seven `WorkspaceState` values.
 - No addition of a data-fetching path from the shell surface.
 
 ---
-*Draft-held. Repository will not be modified until you pick.*
+*Draft-held. A + B + D is the recorded pick; B is already present locally.*

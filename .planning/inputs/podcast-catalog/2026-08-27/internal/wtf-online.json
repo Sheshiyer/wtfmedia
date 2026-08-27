@@ -22,23 +22,28 @@
       "Creatives",
       "All Deliverables"
     ],
-    "record_count": 3
+    "record_count": 3,
+    "url_redaction": {
+      "policy": "scheme-host-plus-sha256-of-original-url",
+      "form": "{scheme}://{host}/#sha256:{hex}",
+      "url_count": 17
+    }
   },
   "records": [
     {
       "source_row": 3,
-      "row_hash": "sha256:012042edfc7a2dd53e1321874545ccf16b1c0f2e6b7760892db8f9f9bff35662",
+      "row_hash": "sha256:08d79130c1329abb6079ebb929b52a32d585d70400f793eb400be9bb7c8fc4f6",
       "fields": {
         "Episode No.": "1.0",
         "Name of Episode": "Arvind Srinivas",
-        "Final EP File": "https://f.io/eHYIs3Fg",
+        "Final EP File": "https://f.io/#sha256:28c698f7dfa8a88fcaa338851469180089e48b0d70dc399a803f947bffc9ba01",
         "Final Trailer File": "",
         "Final Teaser File": "",
-        "Thumbnails": "https://f.io/-CIg8oSm",
+        "Thumbnails": "https://f.io/#sha256:1a596c4fc6bf2d32788fc76f6deefa033978a44b36daded8d240c81e48a6166f",
         "English Subtitles": "",
         "Hindi Subtitles": "",
-        "Zset Folder": "https://web.zset.in/f/wrbrCWdQxTq",
-        "Transcripts": "https://drive.google.com/file/d/1rit6TdXkUjDVXiSIrI-blhazSXQQA4Cp/view?usp=drive_link",
+        "Zset Folder": "https://web.zset.in/#sha256:2e402ccb28046dc6bd035b94b4802ada335f2b5575d393578d2637e7d6445fc7",
+        "Transcripts": "https://drive.google.com/#sha256:d4f58c9efa694d4cdb8f61cbd3b389e7b7a7168c8907fe1678fd667a75d88c27",
         "Switcher": "",
         "Creatives": "",
         "All Deliverables": ""
@@ -46,17 +51,17 @@
     },
     {
       "source_row": 4,
-      "row_hash": "sha256:532bd8943817edf851e68bf289a653f666addc921b7a46f15198867bdbedf415",
+      "row_hash": "sha256:6eec93fa0a3d8a1cbc7bd3ab08e7d5c8ec1a396f41440686989f68551107d7c6",
       "fields": {
         "Episode No.": "2.0",
         "Name of Episode": "Brett Adcock",
-        "Final EP File": "https://f.io/7veY-Q3a",
+        "Final EP File": "https://f.io/#sha256:5c47d9197a18212184e4e2869d804122acb4b47bc5086b49c28f10adc2298977",
         "Final Trailer File": "",
-        "Final Teaser File": "https://f.io/ln3RVSxX",
-        "Thumbnails": "https://f.io/SpY1eQfx",
-        "English Subtitles": "https://drive.google.com/file/d/1v0oZ9EWzxoqCJbOafdI96L4TDm6xpNUW/view?usp=drive_link",
+        "Final Teaser File": "https://f.io/#sha256:7026b28fc26d0925edddb3631b7e19cf944476882e76393bac6d8ec9f74ffbf8",
+        "Thumbnails": "https://f.io/#sha256:2a2653be6b727f757e536c69319c0cccf0f3d0e7b194f8ef5222693f44c54cf1",
+        "English Subtitles": "https://drive.google.com/#sha256:b0de43f4650025745e221db8679ab2965232a8685276fc4e9b2df2b9b2184f9b",
         "Hindi Subtitles": "",
-        "Zset Folder": "https://web.zset.in/f/LpXLBnXFXPW",
+        "Zset Folder": "https://web.zset.in/#sha256:378f1b097e3b02b9e94001b6d98603e3b415cadc4e33f1624e92100a06630566",
         "Transcripts": "",
         "Switcher": "",
         "Creatives": "",
@@ -65,21 +70,21 @@
     },
     {
       "source_row": 5,
-      "row_hash": "sha256:d74ec6df32db95e84a747c4abec6d3e11fee1788189685e895c43c6f70dea7b2",
+      "row_hash": "sha256:e6aae4c5b62771b98edf5c577301f76a2e4ab5c90989eb90cb9b5147f212baa8",
       "fields": {
         "Episode No.": "3.0",
         "Name of Episode": "Mati Staniszewski",
-        "Final EP File": "https://f.io/sNEkfU7i",
-        "Final Trailer File": "https://f.io/Caeymt2K",
+        "Final EP File": "https://f.io/#sha256:1eb3b7fc1467a2f5776d671a5c7b6e516b42106e9e7301e067a04dcbd57361f3",
+        "Final Trailer File": "https://f.io/#sha256:0ead66bd1dc14e56f977021f1d8c4c45ae7c9b2271b4d5faf50a0c093b6e0d01",
         "Final Teaser File": "",
         "Thumbnails": "",
-        "English Subtitles": "https://drive.google.com/file/d/1gCkR9KYDLpkmUEshwUI6nlAtyDc4Lee_/view?usp=drive_link",
-        "Hindi Subtitles": "https://drive.google.com/file/d/155pRzNOdfm8Yj1GwkOkGz5TFdOkD3rfO/view?usp=drive_link",
-        "Zset Folder": "https://web.zset.in/f/PTfJZzBLK_V",
-        "Transcripts": "https://drive.google.com/file/d/1QdieRA2AQNsoR1-LkaLFcVzFebmcfynO/view?usp=drive_link",
-        "Switcher": "https://f.io/RZVY9nDR",
+        "English Subtitles": "https://drive.google.com/#sha256:9b07ce44fb86ebf0d003b20b30efe1c218b2ceb74b70dd3d53b53fc50c778d12",
+        "Hindi Subtitles": "https://drive.google.com/#sha256:8acb165782e14a7a0a5930a9879a1e262850aa2cecab819eed27e0cc78276f5b",
+        "Zset Folder": "https://web.zset.in/#sha256:631b88fbdb0dec7cf687ba97ba3cbbacefa69a226e18deeae7daa92e9631d9f4",
+        "Transcripts": "https://drive.google.com/#sha256:f3bcd831005f4c779ac06fa0f9d22de4f849cc20536bfc82e6a5bea8d88ab111",
+        "Switcher": "https://f.io/#sha256:57b32a92d52af257e5f6e0203f7dc4f25b0fe182d9c7927896b4db2628dc9cbd",
         "Creatives": "",
-        "All Deliverables": "https://drive.google.com/drive/folders/1-rQPMkLMSjo1baeejVhRCA53vTT7sePE?usp=drive_link"
+        "All Deliverables": "https://drive.google.com/#sha256:bf0992d3df0564949fc6fc8e654114e97c8b3b418e72cc878e96e95fe222a26a"
       }
     }
   ]

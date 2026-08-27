@@ -31,7 +31,7 @@
             "Creatives",
             "All Deliverables"
           ],
-          "snapshot_hash": "sha256:24d68334059679f8019b887489c421ac0721aecd1822c7cbb020f38aa8c079d5"
+          "snapshot_hash": "sha256:3e1deaab2e7bb11f3459fa1eddb6d71f408a4e4d3b8a26713c636e5836536b35"
         },
         {
           "source_sheet_name": "People by WTF",
@@ -53,7 +53,7 @@
             "Creatives",
             "All Deliverables"
           ],
-          "snapshot_hash": "sha256:75b592f2f6b8a910ff21ba96935faac216a5931111d35582b52ead4514ffe8f3"
+          "snapshot_hash": "sha256:1987502cf33a10439bcab824ff32961eee0ffb106eecfec22846f51d7c8d6fbe"
         },
         {
           "source_sheet_name": "WTF is Finance",
@@ -75,7 +75,7 @@
             "Creatives",
             "All Deliverables"
           ],
-          "snapshot_hash": "sha256:7a0c9d7b89c12e91d9f8ac2e15add3ac1970dc7b129ad57cf8dc9042ef93881e"
+          "snapshot_hash": "sha256:a390376f3649acf531e1461dfd6ab57208ac8cd3294da13adf8dfc196dddf128"
         },
         {
           "source_sheet_name": "Special Episodes",
@@ -97,7 +97,7 @@
             "Creatives",
             "All Deliverables"
           ],
-          "snapshot_hash": "sha256:f99f2b05d392ff108e2809abcd65e74e31cd92f8b1a2689629d605463b0e41a6"
+          "snapshot_hash": "sha256:396857e7b8f0f7a2f81540fc6578feb1fbba8a5144f2de0875bde0296a5a2dbb"
         },
         {
           "source_sheet_name": "WTF Online",
@@ -119,7 +119,7 @@
             "Creatives",
             "All Deliverables"
           ],
-          "snapshot_hash": "sha256:827a7870d8a12cc2e2dc04955336c516124f06ecf7866a047865f4e815bbbb3b"
+          "snapshot_hash": "sha256:572ca938c6f1e7f6a7cc6adc9f241be5dd1536a9da713923fae27c386ff530f6"
         }
       ]
     },
@@ -145,7 +145,7 @@
             "Clean Cut",
             "Final EP Frame"
           ],
-          "snapshot_hash": "sha256:75cecb0c502c61f9ff2ed44e54685cc6d100fce4d6c5bea735eaff8216ba13cc"
+          "snapshot_hash": "sha256:d15899893d2b1c1b7eaab625748314f927a59ba93429ae791ffcf1393989f9d4"
         },
         {
           "source_sheet_name": "People by WTF",
@@ -162,7 +162,7 @@
             "Clean Cut",
             "Final EP Frame"
           ],
-          "snapshot_hash": "sha256:418f37cdce169fe496bf13204f3dc4570206524e31d5e16950e08ff4d826ae13"
+          "snapshot_hash": "sha256:550b9be81bc05dce34efa784b8d51471981e5a4c42ec3dc0e2c690c3e844f795"
         },
         {
           "source_sheet_name": "WTF is Finance",
@@ -179,7 +179,7 @@
             "Clean Cut",
             "Final EP Frame"
           ],
-          "snapshot_hash": "sha256:9607f1e68435c688b6a3dba7132962ba7bc673c8445d366a4a652d9b8db23697"
+          "snapshot_hash": "sha256:d9c8874e60cc42bdaf0b358c8c20b72bec0f6a08c4db4aace53d57bd847371ef"
         },
         {
           "source_sheet_name": "Special Episode",
@@ -196,7 +196,7 @@
             "Clean Cut",
             "Final EP Frame"
           ],
-          "snapshot_hash": "sha256:bc9aa09ad36e3263e2c23898747a162aa52beaacd7b71b2ddb989c87fee8f0ff"
+          "snapshot_hash": "sha256:c731543ccf4f2e83d3f099416c88a982c7e73057fdfe4eb3138018259fde0b9a"
         },
         {
           "source_sheet_name": "Online",
@@ -213,9 +213,20 @@
             "Clean Cut",
             "Final EP Frame"
           ],
-          "snapshot_hash": "sha256:66674baca77c1920f0179390316a83596791e763ccbd69843c8d5c1d0f5ef3df"
+          "snapshot_hash": "sha256:cb441ed81a0bd78f85c74111875ccf8f33c353b5dd0de326e24f5462f52b275a"
         }
       ]
     }
-  ]
+  ],
+  "url_redaction": {
+    "policy": "scheme-host-plus-sha256-of-original-url",
+    "form": "{scheme}://{host}/#sha256:{hex}",
+    "url_count": 494,
+    "hosts": {
+      "drive.google.com": 163,
+      "f.io": 278,
+      "next.frame.io": 1,
+      "web.zset.in": 52
+    }
+  }
 }

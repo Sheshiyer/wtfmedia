@@ -22,64 +22,69 @@
       "Creatives",
       "All Deliverables"
     ],
-    "record_count": 3
+    "record_count": 3,
+    "url_redaction": {
+      "policy": "scheme-host-plus-sha256-of-original-url",
+      "form": "{scheme}://{host}/#sha256:{hex}",
+      "url_count": 22
+    }
   },
   "records": [
     {
       "source_row": 3,
-      "row_hash": "sha256:0bdab3a2108caadc896204e0922847cb9da1f185d01f77bdb9fa551b1c2a1726",
+      "row_hash": "sha256:f87f9c654a2479029fc57b091c6eafb5be234dcd196e74ca265d1bbbfb77aa77",
       "fields": {
         "Episode No.": "1.0",
         "Name of Episode": "Ruchir Sharma",
-        "Final EP File": "https://f.io/uDyQHcOm",
+        "Final EP File": "https://f.io/#sha256:45fbadddfd2e3c1d1ac72c693ffa576f3f23e584e46513d02fdb3345524d380d",
         "Final Trailer File": "",
         "Final Teaser File": "",
-        "Thumbnails": "https://f.io/-T0sS0ew",
-        "English Subtitles": "https://drive.google.com/file/d/19nETpyoua86dA4kJrcc75KLWUcEQD8nt/view?usp=drive_link",
-        "Hindi Subtitles": "https://drive.google.com/file/d/1zPoIStU4iJe-M32NemD0vzqIBEajRJu9/view?usp=drive_link",
-        "Zset Folder": "https://web.zset.in/f/jXjNxksNjlw",
+        "Thumbnails": "https://f.io/#sha256:2b76b9612ed3e59482e34ba5bcf72a90b539f575aefe8798c5d085222f2253c2",
+        "English Subtitles": "https://drive.google.com/#sha256:2f39d416d54848d79c6d05b687ec8ff44817ef36c5545aa84989c26ef8d3b82c",
+        "Hindi Subtitles": "https://drive.google.com/#sha256:082cc523fedec39ef410f9732ef0d693f4fb93e4439ddb9d16b8497de6d3bf86",
+        "Zset Folder": "https://web.zset.in/#sha256:84abd9feda0bbe05bdb5e3f4a79056d45374992d257a49f2a8181082c9a01d2b",
         "Transcript": "",
-        "Switcher": "https://f.io/WfIaPQmy",
+        "Switcher": "https://f.io/#sha256:2637ba521381aa04cc884ecdffee3625643516a64ffb45ebcfe8d124412c96dd",
         "Creatives": "",
         "All Deliverables": ""
       }
     },
     {
       "source_row": 4,
-      "row_hash": "sha256:ce0bc2ae55062fa4edf6013acc65d69b7f4e08ff0683cb5bd91f622fcc844b33",
+      "row_hash": "sha256:f02fefbb6af1012227189e36c197e45494f4a064a3dfd05d789ea207e89bdfec",
       "fields": {
         "Episode No.": "2.0",
         "Name of Episode": "Ray Dalio",
-        "Final EP File": "https://f.io/g7neSQCC",
+        "Final EP File": "https://f.io/#sha256:a5bc6904a3a4a51af59fff665441ade120130c22116199e1b13b154c38732ba0",
         "Final Trailer File": "-------------------------------",
-        "Final Teaser File": "https://f.io/WwBcOs-m",
-        "Thumbnails": "https://f.io/S__pfCF4",
-        "English Subtitles": "https://drive.google.com/file/d/1scFSM5tL2uEyTFFFQJ4sWn1vUy3i5TWI/view?usp=drive_link",
+        "Final Teaser File": "https://f.io/#sha256:be5692ed8471a8f2c157f4d08aa5ae757b5c17560983eaf08d38420e55a69c01",
+        "Thumbnails": "https://f.io/#sha256:9501569c0519a6e20f3d2027116ad18aa6d7613d53a5bc50e08d586107d0f195",
+        "English Subtitles": "https://drive.google.com/#sha256:2d7a4639738a9b0e8b5955985acb9f82a52fa7422518b713f39c0bb6897dc7ec",
         "Hindi Subtitles": "",
-        "Zset Folder": "https://web.zset.in/f/vRPZHP-fGHL",
-        "Transcript": "https://drive.google.com/file/d/1ktUJ-APyQnMvoP9MilYmu8HXibop61a1/view?usp=drive_link",
+        "Zset Folder": "https://web.zset.in/#sha256:e578785f958785f9c811a60da2fef29f28725e2a70c3718e81eb1732c1ae44ac",
+        "Transcript": "https://drive.google.com/#sha256:6cc16aaf5bfb9c36a79a162fd7643efb1f94913073c0d5e2f552fec7d6480f01",
         "Switcher": "",
-        "Creatives": "https://f.io/fbyO60ge",
+        "Creatives": "https://f.io/#sha256:de546598c1b98080561a8cd1bd8982347e2c2c94850433935e7641f5441d0d1f",
         "All Deliverables": ""
       }
     },
     {
       "source_row": 5,
-      "row_hash": "sha256:647f23e9d151332b13d4d0c63f4b352d9864922a26672f4dea8a2878d8e8972e",
+      "row_hash": "sha256:f14d7705c545e5035cab2b9084d38cec679548c50367fe602e5efcefccb1d506",
       "fields": {
         "Episode No.": "3.0",
         "Name of Episode": "Howard Marks",
-        "Final EP File": "https://f.io/1Iltv2an",
-        "Final Trailer File": "https://f.io/8aDJ_j-l",
+        "Final EP File": "https://f.io/#sha256:6e371638faa1545096e6fb45163ee9c5b6f165b5144c8776733f18f0cb8e8545",
+        "Final Trailer File": "https://f.io/#sha256:edf3ba8565959427bc9724900257e60d6d4d0a57397eac81462f1307ea0c4a46",
         "Final Teaser File": "-------------------------------",
-        "Thumbnails": "https://f.io/44xigb7z",
-        "English Subtitles": "https://drive.google.com/file/d/1Xo0ZZqR4qVcBl7YrcYuWe8LsC3U7Tdph/view?usp=drive_link",
-        "Hindi Subtitles": "https://drive.google.com/file/d/1ReXkH6GuNk5shJxNe9wJsxsXsvSzjLLQ/view?usp=drive_link",
-        "Zset Folder": "https://web.zset.in/f/FsBDtcKrqTs",
+        "Thumbnails": "https://f.io/#sha256:4b49c49635da42c6ca35432505e305db0c0f2bbb7652845a173f4b7b06eff7f9",
+        "English Subtitles": "https://drive.google.com/#sha256:1041e88f30bd39ccdb2bd133439aa6d5b477e0b29182edfcf7c9ca4851756de0",
+        "Hindi Subtitles": "https://drive.google.com/#sha256:28bbe4a16cd175b4b4f99c7f4e2bb6422249290e80ac9e73a046efa39cee7753",
+        "Zset Folder": "https://web.zset.in/#sha256:237de5e7ace1b147ab76a9dd9cc1a6d4c73d96825384025f3e292823f51cb123",
         "Transcript": "",
-        "Switcher": "https://next.frame.io/share/2acf523a-7029-485a-82f2-7d8dd4c231bf/4a832500-6523-4da1-957c-5f2d20037ef9",
-        "Creatives": "https://f.io/wO1H9jyz",
-        "All Deliverables": "https://drive.google.com/drive/folders/1E3UlvUr1aoGzlEGjSm-0Cj1VXFJgjFrS?usp=drive_link"
+        "Switcher": "https://next.frame.io/#sha256:a1efb4e1e4f9995b6839dbba6d1a302edf92dc0f13640077cf914c70b4ce3f18",
+        "Creatives": "https://f.io/#sha256:304f6b80996e343326415c3cf6114483c108137d95cb6c66aa9009783172a91d",
+        "All Deliverables": "https://drive.google.com/#sha256:1779bf755b375f62d37d0bc400245780f9a029bc91e86d43bfb2a2d392680ab6"
       }
     }
   ]
