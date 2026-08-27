@@ -45,10 +45,13 @@ podcast-catalog/
 
 ## Snapshot procedure
 
-The extractor reads the two Excel files from the owner's Downloads directory
-(paths hard-coded in `tools/snapshot_sheets.py`). To rebuild:
+The extractor reads the two Excel files from `$WTF_CATALOGUE_XLSX_DIR`, or
+from the current user's Downloads directory when that variable is unset.
+Checkout paths and operator usernames are not stored in the script. To rebuild:
 
 ```bash
+# optional: point at a directory that contains the two .xlsx files
+export WTF_CATALOGUE_XLSX_DIR="$HOME/Downloads"
 python3 .planning/inputs/podcast-catalog/tools/snapshot_sheets.py
 ```
 

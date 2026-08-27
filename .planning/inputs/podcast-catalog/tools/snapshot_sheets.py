@@ -24,14 +24,24 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 NS = {"s": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
-REPO = Path("/Volumes/madara/2026/Projects/thoughtseed/wtfmedia")
+# tools/ -> podcast-catalog/ -> inputs/ -> .planning/ -> repo root
+REPO = Path(__file__).resolve().parents[4]
 SNAPSHOT_AT = "2026-08-27"
 OUT_ROOT = REPO / ".planning/inputs/podcast-catalog" / SNAPSHOT_AT
+
+
+def catalogue_xlsx_dir() -> Path:
+    """Operator-local Excel sources. Override with WTF_CATALOGUE_XLSX_DIR."""
+    override = os.environ.get("WTF_CATALOGUE_XLSX_DIR")
+    if override:
+        return Path(override).expanduser().resolve()
+    return Path.home() / "Downloads"
+
 
 SOURCES = [
     {
         "label": "internal",
-        "path": "/Users/sheshnarayaniyer/Downloads/Internal - PODCAST Links .xlsx",
+        "filename": "Internal - PODCAST Links .xlsx",
         "role": "internal-catalogue-with-uncut-and-transcript-links",
         # Row 1 (0-indexed 0) is a section banner ("Episode Final Files",
         # "Subtitle Files", "Internal", "Hindi"); row 2 (0-indexed 1) is the
@@ -48,7 +58,7 @@ SOURCES = [
     },
     {
         "label": "transcripts",
-        "path": "/Users/sheshnarayaniyer/Downloads/Podcast Transcripts (1).xlsx",
+        "filename": "Podcast Transcripts (1).xlsx",
         "role": "leaner-catalogue-name-transcript-dates-clean-cut-frame",
         # No section banner in this file; row 1 (0-indexed 0) is already the
         # column header row ("Name of Episode", "Transcripts", ...).
@@ -185,7 +195,7 @@ def main() -> int:
     }
 
     for src in SOURCES:
-        src_path = Path(src["path"])
+        src_path = catalogue_xlsx_dir() / src["filename"]
         if not src_path.exists():
             print(f"MISSING: {src_path}", file=sys.stderr)
             return 2
