@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Plan 02-12 blocked: exact staging authorization and targets required
-last_updated: "2026-08-26T11:14:21.243Z"
-last_activity: 2026-08-26
+stopped_at: Plan 02-12 blocked on owner staging targets; next UI work is wtf-os-shell-materialize
+last_updated: "2026-08-27T06:35:00.000Z"
+last_activity: 2026-08-27
 progress:
   total_phases: 10
   completed_phases: 1
@@ -30,8 +30,8 @@ without losing provenance.
 
 Phase: 02 (Platform Foundation + Authenticated Policy Boundary) — EXECUTING
 Plan: 12 of 12
-Status: Ready to execute
-Last activity: 2026-08-26
+Status: Blocked — owner must fill `.planning/inputs/client-questions/2026-08-27-plan-02-12-staging-authorization.md`
+Last activity: 2026-08-27
 
 Progress: [██████████] 97%
 
@@ -104,10 +104,38 @@ Progress: [██████████] 97%
 
 ### Pending Todos
 
-None yet.
+UI/UX wave to integrate Phase 1 public proof with Phase 2 operator shell
+(do not start Phase 3). Use `scripts/session-pr.sh --allow-dirty`.
+
+1. **Unblock origin/main typecheck** — commit tracked
+   `web/tests/component-trace.json` (Phase 2 Gate currently fails here).
+   Maps: DSYS-10, QUAL-01.
+2. **`wtf-os-shell-materialize`** — land untracked `AppShell` / `AppRail` /
+   `StatusLedger` / `WorkspaceHeader` / migrated home+chat+legacy rollback
+   pages and their `M` companions. Replaces the ESLint-failing committed
+   home page. Maps: COMP-01, COMP-02, DSYS-01..10, AUTH-05/08 presentation.
+   Verify: `npm --prefix web run typecheck && npm --prefix web run build`
+   plus contracts/components/rollback.
+3. **Refinement A** — `StatusLedger` promoted item = one dominant setup
+   action (02-UI-SPEC / AUTH-05). Owner pick A+B+D; local `AppRail` already
+   implements B (`aria-current` + attention fill).
+4. **Refinement D** — Playwright keyboard open/close of the mobile drawer
+   asserts focus returns to the trigger (DSYS-06, QUAL-03).
+5. **Shell-dependent tests** — journeys, rollback variants, visual,
+   accessibility, token contract. Maps: QUAL-02, QUAL-03, QUAL-04, QUAL-08.
+6. **Phase 1 REQUIREMENTS close** — flip COMP-01..05, DSYS-01..10,
+   QUAL-01..06, QUAL-08 from Pending to Complete only after
+   `cd web && npm run verify:phase1` on the landed shell.
+7. **Phase 2 UI contract remainder** — `/ops` context strip, role-specific
+   yellow command, 320/768/1440 drawer, truthful `not activated` rows.
+   AUTH-01..10 code exists in 02-01..02-11; QUAL-13 stays blocked until
+   02-12 owner authorization.
 
 ### Blockers/Concerns
 
+- Plan 02-12 is blocked on exact staging hostname, Access app/policy, D1, Worker route, cache namespace, and secret names (draft form merged in PR #7).
+- Local WTF OS shell is not on `origin/main`; fresh clones still fail typecheck (missing `component-trace.json`) and Vercel ESLint (committed `page.tsx` apostrophe).
+- REQUIREMENTS.md traceability table still says Pending for Phase 1/2 IDs even though plan summaries claim execution; do not flip rows without `verify:phase1` / 02-12 evidence.
 - YouTube access, episode inventory, uncut mapping, Hindi behavior, and the editorial query set block Phases 3–4.
 - Research inputs and vendor/export/orchestration decisions block Phase 5; calendar, analytics-access, reporting, and clip-trigger decisions block Phases 6–9.
 - Phases 3–10 remain inactive until the recorded owner-authorization gate passes.
@@ -121,7 +149,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-26T09:23:23.946Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-08-27
+Stopped at: Merged PRs #7 #8 #9; 02-12 still owner-gated; UI wave starts at shell materialize
 Resume file: None
-Resume: Execute Phase 2 from Plan 02-01; Plans 02-01 through 02-12 are dependency-ordered across eight waves.
+Resume: Open `wtf/wtf-os-shell-materialize-2026-08-27` via `scripts/session-pr.sh` (now on main). Do not execute 02-12. Owner picks A+B+D for shell refinement; B is already present in local `AppRail`.
