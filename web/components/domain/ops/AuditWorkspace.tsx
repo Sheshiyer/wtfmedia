@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { DatePicker } from "@/components/ui/DatePicker";
+import { dayBoundsToIso } from "@/lib/ops/production";
 import { AuditExportDialog } from "./AuditExportDialog";
 import { AuditLedger, type AuditLedgerRow } from "./AuditLedger";
 
@@ -62,15 +64,29 @@ export function AuditWorkspace() {
     outcome: "",
     role: "",
     environment: "",
+    after: "",
+    before: "",
   });
+  const [range, setRange] = useState({ after: "", before: "" });
   const [rows, setRows] = useState<AuditLedgerRow[]>([]);
   const [state, setState] = useState<"loading" | "ready" | "unavailable" | "measured-zero">("loading");
   const [notice, setNotice] = useState("");
   const [exporting, setExporting] = useState(false);
-  const query = useMemo(
-    () => new URLSearchParams(Object.entries(filters).filter(([, value]) => value)).toString(),
-    [filters],
-  );
+  const query = useMemo(() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+      if (value) params.set(key, value);
+    }
+    return params.toString();
+  }, [filters]);
+
+  const setBound = (edge: "after" | "before", value: string) => {
+    setRange((current) => ({ ...current, [edge]: value }));
+    setFilters((current) => ({
+      ...current,
+      [edge]: value ? dayBoundsToIso(value, edge === "after" ? "start" : "end") : "",
+    }));
+  };
 
   const refresh = useCallback(async () => {
     setState("loading");
@@ -123,7 +139,7 @@ export function AuditWorkspace() {
       >
         {filterOptions.map(([key, values]) => (
           <label key={key} className="grid min-w-[10rem] flex-1 gap-1">
-            <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-foreground/65">
+            <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">
               {key}
             </span>
             <select
@@ -141,6 +157,18 @@ export function AuditWorkspace() {
             </select>
           </label>
         ))}
+        <DatePicker
+          id="audit-after"
+          label="after"
+          value={range.after}
+          onChange={(value) => setBound("after", value)}
+        />
+        <DatePicker
+          id="audit-before"
+          label="before"
+          value={range.before}
+          onChange={(value) => setBound("before", value)}
+        />
         <button type="button" onClick={() => void refresh()} className={secondary}>
           refresh records
         </button>

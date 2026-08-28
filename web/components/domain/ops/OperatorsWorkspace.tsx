@@ -12,7 +12,7 @@ const field =
 const ghost =
   "min-h-11 rounded-control border-2 border-foreground bg-canvas px-3 font-label text-sm font-bold";
 const command =
-  "min-h-11 rounded-control border-2 border-foreground bg-attention px-4 py-3 font-label text-sm font-bold text-foreground";
+  "min-h-11 rounded-control border-2 border-foreground bg-attention px-4 py-3 font-label text-sm font-bold text-on-attention";
 
 function validRoster(value: unknown): value is { operators: OperatorRosterRow[] } {
   return (
@@ -104,13 +104,13 @@ export function OperatorsWorkspace({ role }: { role: Role }) {
             className="grid gap-3 rounded-panel border-2 border-foreground bg-surface-raised p-4 sm:grid-cols-3"
           >
             <label className="grid gap-1">
-              <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-foreground/65">
+              <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">
                 approved email
               </span>
               <input required name="email" type="email" className={field} />
             </label>
             <label className="grid gap-1">
-              <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-foreground/65">
+              <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">
                 application role
               </span>
               <select name="role" className={field}>
@@ -126,13 +126,13 @@ export function OperatorsWorkspace({ role }: { role: Role }) {
               className="grid gap-3 rounded-panel border-2 border-foreground bg-surface-raised p-4 sm:grid-cols-3"
             >
               <label className="grid gap-1">
-                <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-foreground/65">
+                <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">
                   email to approve
                 </span>
                 <input required name="email" type="email" className={field} />
               </label>
               <label className="grid gap-1">
-                <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-foreground/65">
+                <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">
                   approved name
                 </span>
                 <input required name="name" className={field} />

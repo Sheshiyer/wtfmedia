@@ -15,6 +15,7 @@ export const POLICIES: PolicyRule[] = [
   { pattern: /^\/ops\/audit/, resource: "audit", action: "read", adminOnly: true },
   { pattern: /^\/ops\/settings/, resource: "settings", action: "read", adminOnly: true },
   { pattern: /^\/ops\/analytics/, resource: "analytics", action: "read" },
+  { pattern: /^\/ops\/production/, resource: "episodes", action: "read" },
   { pattern: /^\/ops\/chat/, resource: "chat", action: "read" },
   { pattern: /^\/ops$/, resource: "episodes", action: "read" },
 ];
@@ -36,7 +37,7 @@ export function checkPolicy(role: Role | null, pathname: string): boolean {
 }
 
 export function isPublicRoute(pathname: string): boolean {
-  const publicPatterns = [/^\/$/, /^\/episodes/, /^\/connections/, /^\/chat/, /^\/api\/chat/, /^\/sign-in/, /^\/_next/, /^\/favicon/, /^\/brand/];
+  const publicPatterns = [/^\/$/, /^\/episodes/, /^\/connections/, /^\/chat/, /^\/api\/chat/, /^\/sign-in/, /^\/request-access/, /^\/_next/, /^\/favicon/, /^\/brand/];
   return publicPatterns.some((p) => p.test(pathname));
 }
 
