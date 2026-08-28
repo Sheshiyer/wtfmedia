@@ -125,12 +125,12 @@ export function ConversationThread({
               <h2 className="mt-3 font-display text-4xl font-extrabold lowercase leading-none sm:text-5xl">
                 ask for the moment, not the mythology.
               </h2>
-              <p className="mt-5 max-w-[52ch] font-body text-sm leading-relaxed text-foreground/70">
+              <p className="mt-5 max-w-[52ch] font-body text-sm leading-relaxed text-secondary">
                 Ask across published conversations. The answer keeps its source
                 receipts nearby and leaves unsupported claims unresolved.
               </p>
               <div className="mt-7 border-l-4 border-knowledge bg-canvas px-4 py-3">
-                <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/55">
+                <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
                   source-answerable example
                 </p>
                 <p className="mt-2 font-serif text-lg text-foreground">
@@ -138,21 +138,21 @@ export function ConversationThread({
                 </p>
               </div>
             </section>
-            <aside className="border-t-2 border-foreground bg-foreground p-6 text-canvas md:border-l-2 md:border-t-0">
+            <aside className="border-t-2 border-foreground bg-surface-structure p-6 text-on-structure md:border-l-2 md:border-t-0">
               <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-attention">
                 evidence protocol
               </p>
-              <dl className="mt-5 divide-y divide-canvas/20 border-y border-canvas/20 font-label text-sm">
+              <dl className="mt-5 divide-y divide-foreground/20 border-y border-foreground/20 font-label text-sm">
                 <div className="py-3">
-                  <dt className="text-canvas/55">scope</dt>
+                  <dt className="text-on-structure/55">scope</dt>
                   <dd className="mt-1 font-bold">current catalogue</dd>
                 </div>
                 <div className="py-3">
-                  <dt className="text-canvas/55">quoted evidence</dt>
+                  <dt className="text-on-structure/55">quoted evidence</dt>
                   <dd className="mt-1 font-bold">separate from synthesis</dd>
                 </div>
                 <div className="py-3">
-                  <dt className="text-canvas/55">source timing</dt>
+                  <dt className="text-on-structure/55">source timing</dt>
                   <dd className="mt-1 font-bold">only when verified</dd>
                 </div>
               </dl>
@@ -166,12 +166,12 @@ export function ConversationThread({
               {msg.role === "user" ? (
                 <div className="flex justify-end">
                   <div className="max-w-[80%] rounded-control border-2 border-foreground bg-attention px-4 py-2">
-                    <p className="text-sm text-foreground">{msg.content}</p>
+                    <p className="text-sm text-on-attention">{msg.content}</p>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <div className="border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-foreground/75">
+                  <div className="border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary">
                     {linkifyCitations(msg.content)}
                   </div>
 
@@ -183,7 +183,7 @@ export function ConversationThread({
                   {/* Abstention label */}
                   {msg.abstained && (
                     <p
-                      className="text-xs font-medium italic text-foreground/70"
+                      className="text-xs font-medium italic text-secondary"
                       data-testid="abstention-label"
                     >
                       the catalogue doesn&apos;t support that claim
@@ -197,7 +197,7 @@ export function ConversationThread({
           {/* Loading indicator */}
           {loading && (
             <div
-              className="border-l-4 border-knowledge pl-4 text-sm font-semibold text-foreground/70"
+              className="border-l-4 border-knowledge pl-4 text-sm font-semibold text-secondary"
               data-testid="loading-indicator"
               role="status"
             >

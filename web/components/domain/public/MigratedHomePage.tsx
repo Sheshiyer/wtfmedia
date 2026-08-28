@@ -59,7 +59,7 @@ export function MigratedHomePage() {
         summary="one brain for the catalogue, its recurring ideas, and source-backed answers. receipts stay visible before they become actions."
         accent="attention"
         context={
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/65">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
             <span>public workspace</span>
             <span>{episodeCount} indexed episodes</span>
             <span>{showCount} catalogue shows</span>
@@ -71,7 +71,7 @@ export function MigratedHomePage() {
             href="/chat"
             variant="secondary"
             data-testid="cta-primary"
-            className="border-foreground bg-attention text-foreground shadow-[4px_4px_0_var(--wtf-foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-attention hover:shadow-[6px_6px_0_var(--wtf-foreground)]"
+            className="border-foreground bg-attention text-on-attention shadow-[4px_4px_0_var(--wtf-foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-attention hover:shadow-[6px_6px_0_var(--wtf-foreground)]"
           >
             ask the catalogue ↗
           </LinkButton>
@@ -85,35 +85,35 @@ export function MigratedHomePage() {
           items={workspaceItems}
         />
 
-        <aside className="border-2 border-foreground bg-foreground p-6 text-canvas xl:sticky xl:top-8 xl:self-start">
+        <aside className="border-2 border-foreground bg-surface-structure p-6 text-on-structure xl:sticky xl:top-8 xl:self-start">
           <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-attention">
             evidence receipt
           </p>
           <h2 className="mt-3 font-display text-4xl font-extrabold lowercase leading-none">
             receipts become actions.
           </h2>
-          <p className="mt-5 font-body text-sm leading-relaxed text-canvas/70">
+          <p className="mt-5 font-body text-sm leading-relaxed text-on-structure/70">
             Ask WTF keeps source episodes beside the answer. A timestamp appears
             only when the underlying source timing is verified; an unknown stays
             unknown.
           </p>
-          <dl className="mt-8 divide-y divide-canvas/20 border-y border-canvas/20 font-label text-sm">
+          <dl className="mt-8 divide-y divide-foreground/20 border-y border-foreground/20 font-label text-sm">
             <div className="flex items-center justify-between gap-4 py-3">
-              <dt className="text-canvas/55">catalogue scope</dt>
+              <dt className="text-on-structure/55">catalogue scope</dt>
               <dd className="font-bold">{episodeCount} episodes</dd>
             </div>
             <div className="flex items-center justify-between gap-4 py-3">
-              <dt className="text-canvas/55">answer mode</dt>
+              <dt className="text-on-structure/55">answer mode</dt>
               <dd className="font-bold">source-backed</dd>
             </div>
             <div className="flex items-center justify-between gap-4 py-3">
-              <dt className="text-canvas/55">missing evidence</dt>
+              <dt className="text-on-structure/55">missing evidence</dt>
               <dd className="font-bold">shown plainly</dd>
             </div>
           </dl>
           <Link
             href="/connections"
-            className="mt-6 inline-flex min-h-11 items-center border-b-2 border-attention font-label text-sm font-bold lowercase text-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
+            className="mt-6 inline-flex min-h-11 items-center border-b-2 border-attention font-label text-sm font-bold lowercase text-on-structure focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
           >
             inspect recurring ideas ↗
           </Link>
@@ -124,7 +124,7 @@ export function MigratedHomePage() {
         <div className="mx-auto max-w-[var(--wtf-content-max)]">
           <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
-              <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-foreground/55">
+              <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-muted">
                 source material
               </p>
               <h2 className="mt-1 font-display text-3xl font-extrabold lowercase sm:text-4xl">
@@ -144,9 +144,9 @@ export function MigratedHomePage() {
               <Link
                 key={episode.video_id}
                 href={`/episodes?episode=${encodeURIComponent(episode.video_id)}`}
-                className="group grid min-h-full grid-rows-[auto_1fr] border-2 border-foreground bg-canvas shadow-[4px_4px_0_var(--wtf-foreground)] transition-[transform,box-shadow] duration-fast hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_var(--wtf-foreground)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-information"
+                className="group grid min-h-full grid-rows-[auto_1fr] border-2 border-foreground bg-surface-raised shadow-[4px_4px_0_var(--wtf-foreground)] transition-[transform,box-shadow] duration-fast hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_var(--wtf-foreground)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-information"
               >
-                <div className="relative aspect-video overflow-hidden border-b-2 border-foreground bg-foreground">
+                <div className="relative aspect-video overflow-hidden border-b-2 border-foreground bg-surface-structure">
                   <Image
                     src={thumbnailUrl(episode.video_id)}
                     alt=""
@@ -155,7 +155,7 @@ export function MigratedHomePage() {
                     className="object-cover grayscale transition-[filter,transform] duration-default group-hover:scale-[1.02] group-hover:grayscale-0"
                     unoptimized
                   />
-                  <span className="absolute left-3 top-3 border-2 border-foreground bg-attention px-2 py-1 font-label text-[11px] font-bold uppercase tracking-[0.1em]">
+                  <span className="absolute left-3 top-3 border-2 border-foreground bg-attention px-2 py-1 font-label text-[11px] font-bold uppercase tracking-[0.1em] text-on-attention">
                     source {String(index + 1).padStart(2, "0")}
                   </span>
                 </div>
@@ -163,7 +163,7 @@ export function MigratedHomePage() {
                   <h3 className="font-heading text-xl font-bold leading-tight lowercase">
                     {episode.title}
                   </h3>
-                  <span className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/55">
+                  <span className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
                     open episode receipt ↗
                   </span>
                 </div>

@@ -186,7 +186,7 @@ function ChatInner() {
         summary="ask across the catalogue. synthesis and quoted evidence stay visually distinct, and missing source support remains explicit."
         accent="knowledge"
         context={
-          <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/65">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
             <span>catalogue scope</span>
             <span>source-backed answers</span>
             <span>timing only when verified</span>

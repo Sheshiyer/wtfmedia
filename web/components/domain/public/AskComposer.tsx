@@ -57,7 +57,7 @@ export function AskComposer({
           <label htmlFor="ask-wtf-composer" className="font-label text-sm font-bold lowercase">
             ask the catalogue
           </label>
-          <span className="font-label text-[11px] font-semibold uppercase tracking-[0.1em] text-foreground/55">
+          <span className="font-label text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">
             enter to ask · shift + enter for a new line
           </span>
         </div>
@@ -71,13 +71,13 @@ export function AskComposer({
             placeholder="ask the catalogue"
             rows={2}
             aria-label="Ask the catalogue"
-            className="min-h-14 flex-1 resize-none rounded-control border-2 border-foreground bg-canvas px-4 py-3 font-body text-sm text-foreground placeholder:text-foreground/55 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-knowledge"
+            className="min-h-14 flex-1 resize-none rounded-control border-2 border-foreground bg-canvas px-4 py-3 font-body text-sm text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-knowledge"
           />
           <Button
             type="submit"
             disabled={disabled || loading || !value.trim()}
             loading={loading}
-            className="min-w-32 border-foreground bg-knowledge text-canvas hover:bg-knowledge sm:self-stretch"
+            className="min-w-32 border-foreground bg-knowledge text-on-knowledge hover:bg-knowledge sm:self-stretch"
           >
             ask wtf
           </Button>

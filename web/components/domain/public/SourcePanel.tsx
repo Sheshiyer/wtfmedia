@@ -22,8 +22,8 @@ export function SourcePanel({ sources }: SourcePanelProps) {
   if (!sources || sources.length === 0) return null;
 
   return (
-    <details className="text-xs text-text-ink/40" data-testid="source-panel">
-      <summary className="cursor-pointer hover:text-text-ink/61 transition-colors">
+    <details className="text-xs text-muted" data-testid="source-panel">
+      <summary className="cursor-pointer transition-colors hover:text-foreground">
         {sources.length} source{sources.length !== 1 ? "s" : ""}
       </summary>
       <ul className="mt-1 space-y-1 pl-4">
@@ -34,7 +34,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 href={src.url}
                 target="_blank"
                 rel="noreferrer"
-                className="underline decoration-text-ink/30 hover:decoration-text-ink/60 transition-colors"
+                className="underline decoration-foreground/30 transition-colors hover:decoration-foreground/60"
               >
                 {src.title || src.episodeId || src.url}
               </a>

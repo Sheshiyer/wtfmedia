@@ -22,7 +22,7 @@ export default function MigratedEpisodesPage() {
         summary="open a conversation, inspect the transcript, and keep the exact source beside every grounded moment."
         accent="information"
         context={
-          <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/65">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
             <span>{data.entry_count} indexed episodes</span>
             <span>{groups.length} catalogue shows</span>
             <span>public projection</span>
@@ -48,12 +48,12 @@ function EpisodesSkeleton() {
     <div className="space-y-12" role="status" aria-label="Loading episodes">
       {[0, 1].map((i) => (
         <div key={i}>
-          <div className="h-6 w-32 bg-ink/10 rounded mb-4" />
+          <div className="mb-4 h-6 w-32 rounded bg-foreground/10" />
           <div className="flex gap-4 overflow-hidden">
             {[0, 1, 2].map((j) => (
               <div
                 key={j}
-                className="shrink-0 w-[300px] h-[240px] bg-ink/5 rounded-lg"
+                className="h-[240px] w-[300px] shrink-0 rounded-lg bg-foreground/5"
               />
             ))}
           </div>
