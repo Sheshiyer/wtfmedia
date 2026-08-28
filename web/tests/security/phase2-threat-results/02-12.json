@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "02-12",
+  "results": {
+    "T-02-33": {
+      "plan": "02-12",
+      "task": 1,
+      "command_id": "96915183c147f73d3a9ba7159e58ff9da2a2d50b0d78e9e7c8ed25f57a6b9c27",
+      "command": "node cloudflare/scripts/phase2-preflight.mjs --receipt .runtime/preflight/phase2-staging.json",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "3116f0e720960ad120eae6074013d19010c862f9b85f2404f7e7cfcd98cb2107",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 92,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-28T20:03:05.000Z",
+      "status": "passed"
+    },
+    "T-02-34": {
+      "plan": "02-12",
+      "task": 2,
+      "command_id": "afac2ac89d9daf2fbe26132ebda6dda21961827e823ac18d2a5f8cb6d03833f4",
+      "command": "cd web && npm run verify:phase2 -- --final",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "698cdefc84fef0dd81b60973c21a34237e06ba9848a5fb63ba188eada78f55a0",
+        "error_output_sha256": "70aa7bec5932c5d1f49fec9815cf335c56ccf9d0052d07c254f7570cd56547a4",
+        "output_bytes": 22849,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-28T20:10:32.237Z",
+      "status": "passed"
+    },
+    "T-02-35": {
+      "plan": "02-12",
+      "task": 2,
+      "command_id": "c4542bb82dc2d11ea5b79282fb8a6d23dca3214c830e17d654a0d1e256c913a9",
+      "command": "node web/scripts/phase2-production-smoke.mjs --receipt .runtime/preflight/phase2-production-smoke.json",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "a4243a38a21f3d224cafe0a7c3e9feff2673261c7cc879403f167304ad0b5e21",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 67,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-28T20:10:32.237Z",
+      "status": "passed"
+    }
+  }
+}

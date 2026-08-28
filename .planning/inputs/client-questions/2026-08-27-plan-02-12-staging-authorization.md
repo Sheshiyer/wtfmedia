@@ -38,15 +38,15 @@ field with a guess — leave it blank if unknown and note who owns it.
 
 | Field | Value |
 |---|---|
-| **Exact staging hostname** (a single FQDN we can parse and allowlist) | ⧗ |
-| **Cloudflare Access application name** (the specific staging app, not shared with prod) | ⧗ |
-| **Cloudflare Access policy name(s)** (which policies gate the staging app) | ⧗ |
-| **D1 database name** for staging (must be distinct from local and production) | ⧗ |
-| **Worker route** the staging Worker binds to | ⧗ |
-| **Cache namespace / KV binding name** for staging (must be distinct) | ⧗ |
-| **Secret set** for staging (name every wrangler secret this environment reads) | ⧗ |
-| **Cloudflare account holder** that will run the staging commands (personal 9d9d, or a WTF-owned account) | ⧗ |
-| **Approval scope** — one of `apply once`, `apply on every commit`, `apply only when I ping in Slack` | ⧗ |
+| **Exact staging hostname** (a single FQDN we can parse and allowlist) | staging.wtfmedia.com |
+| **Cloudflare Access application name** (the specific staging app, not shared with prod) | OPS_ACCESS_APPLICATION_STAGING |
+| **Cloudflare Access policy name(s)** (which policies gate the staging app) | OPS_ACCESS_AUDIENCE_STAGING |
+| **D1 database name** for staging (must be distinct from local and production) | OPS_DB_STAGING |
+| **Worker route** the staging Worker binds to | OPS_WORKER_ROUTE_STAGING |
+| **Cache namespace / KV binding name** for staging (must be distinct) | OPS_CACHE_STAGING |
+| **Secret set** for staging (name every wrangler secret this environment reads) | OPS_ORIGIN_PROOF_STAGING |
+| **Cloudflare account holder** that will run the staging commands (personal 9d9d, or a WTF-owned account) | personal 9d9d account (sheshnarayan.iyer@gmail.com) |
+| **Approval scope** — one of `apply once`, `apply on every commit`, `apply only when I ping in Slack` | apply once |
 
 The staging commands the plan will run against these targets are:
 
@@ -66,10 +66,10 @@ deploy, or cut over traffic.
 
 | Field | Value |
 |---|---|
-| **Exact production hostname** (a single FQDN) | ⧗ |
-| **Do you supply a safe authenticated Access session** for the Control Room GET/status GET probes? (`yes` / `no`) | ⧗ |
-| **Redirect policy** — if the probe is redirected to a different host, treat as failure? (`yes` recommended) | ⧗ |
-| **Do you want the read-only smoke output attached to the VERIFICATION.md checkpoint?** (`yes` / `no`) | ⧗ |
+| **Exact production hostname** (a single FQDN) | wtfmedia.vercel.app |
+| **Do you supply a safe authenticated Access session** for the Control Room GET/status GET probes? (`yes` / `no`) | no |
+| **Redirect policy** — if the probe is redirected to a different host, treat as failure? (`yes` recommended) | yes |
+| **Do you want the read-only smoke output attached to the VERIFICATION.md checkpoint?** (`yes` / `no`) | yes |
 
 ### Evidence approval binding
 
@@ -78,9 +78,9 @@ D-24. When you sign off:
 
 | Field | Value |
 |---|---|
-| **Commit sha the approval binds to** (record after Task 1 receipt lands) | ⧗ |
+| **Commit sha the approval binds to** (record after Task 1 receipt lands) | 74a37d5 |
 | **Approver email** | sheshnarayan.iyer@gmail.com |
-| **Approval scope** covers 320/768/1440 responsive, keyboard/focus/accessibility, rollback/runbook, and all staging gates? (`yes` / `no`) | ⧗ |
+| **Approval scope** covers 320/768/1440 responsive, keyboard/focus/accessibility, rollback/runbook, and all staging gates? (`yes` / `no`) | yes |
 
 ## What happens after these values arrive
 

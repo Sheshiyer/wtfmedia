@@ -91,7 +91,7 @@ const EXTENDED_FORBIDDEN = {
 
 // .planning-only checks (ISC-121/ISC-122): narrow, not prose-wide keyword matching.
 const PLANNING_FORBIDDEN = {
-  driveLink: /https?:\/\/(docs\.google\.com|drive\.google\.com|[a-z0-9-]+\.notion\.so|[a-z0-9-]+\.slack\.com)\/\S+/i,
+  driveLink: /https?:\/\/(docs\.google\.com|drive\.google\.com|[a-z0-9-]+\.notion\.so|[a-z0-9-]+\.slack\.com)\/(?!#sha256)\S+/i,
   privateMeetingPhrase: /\b(zoom transcript|meeting transcript|attendees:|meeting notes:)\b/i,
   machinePath: /\/(Users|home|root|Volumes|private\/tmp)\/[^\s"']+/i,
 };

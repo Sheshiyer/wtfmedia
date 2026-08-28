@@ -28,38 +28,38 @@ permissions, components, and phase boundaries are governed by `DESIGN.md`,
 
 ### Compatibility (`COMP`)
 
-- [ ] **COMP-01**: A public visitor can continue using `/`, `/episodes`, `/connections`, `/chat`, and `/api/chat` throughout the migration.
-- [ ] **COMP-02**: A public visitor's supported bookmarks, query parameters, filters, and episode deep links retain their meaning after route files move.
-- [ ] **COMP-03**: A public Ask WTF client receives compatible request validation, streaming behavior, citation/source fields, status codes, required headers, and safe error shapes.
-- [ ] **COMP-04**: An anonymous response exposes only allowlisted published fields and never enumerates internal tasks, owners, leads, budgets, briefs, health, or production state.
-- [ ] **COMP-05**: A public user sees a read-only `/connections` projection that shares evidence-domain truth without sharing operator permissions or interaction state.
+- [x] **COMP-01**: A public visitor can continue using `/`, `/episodes`, `/connections`, `/chat`, and `/api/chat` throughout the migration.
+- [x] **COMP-02**: A public visitor's supported bookmarks, query parameters, filters, and episode deep links retain their meaning after route files move.
+- [x] **COMP-03**: A public Ask WTF client receives compatible request validation, streaming behavior, citation/source fields, status codes, required headers, and safe error shapes.
+- [x] **COMP-04**: An anonymous response exposes only allowlisted published fields and never enumerates internal tasks, owners, leads, budgets, briefs, health, or production state.
+- [x] **COMP-05**: A public user sees a read-only `/connections` projection that shares evidence-domain truth without sharing operator permissions or interaction state.
 - [ ] **COMP-06**: A maintainer can remove a legacy public consumer only after contract, browser, accessibility, visual, privacy, performance, and rollback evidence proves its replacement.
 
 ### Design System (`DSYS`)
 
-- [ ] **DSYS-01**: A component consumes repository-owned semantic tokens for canvas, surface, foreground, editorial, live, attention, knowledge, information, and production roles instead of raw color values.
-- [ ] **DSYS-02**: A user sees the shipping WTF wordmark, committed palette, Bricolage Grotesque, Fraunces, Poppins, cream/ink dominance, tactile depth, and editorial voice preserved across migrated surfaces.
-- [ ] **DSYS-03**: A user sees orange only as a provisional production-state token whose foreground pairing has passed contrast and design approval.
-- [ ] **DSYS-04**: A keyboard user can operate every shipped control, overlay, selection widget, filter, table, and navigation pattern without pointer-only behavior.
-- [ ] **DSYS-05**: A user can distinguish unknown, unavailable, stale, partial, empty, permission-denied, error, offline, unmapped, conflicted, and measured-zero states without relying on color alone.
-- [ ] **DSYS-06**: A keyboard user always receives a visible high-contrast focus indicator and focus returns predictably after overlays close or routes change.
-- [ ] **DSYS-07**: A user requesting reduced motion receives static or shortened alternatives for marquees, sparkles, drawers, transitions, charts, and other nonessential movement.
-- [ ] **DSYS-08**: A user can complete each shipped workflow at 320, 768, and 1440 CSS-pixel viewport widths without hidden actions or horizontal page overflow.
-- [ ] **DSYS-09**: A screen-reader user receives a semantic alternative containing equivalent meaning whenever a canvas graph, chart, timeline, or spatial board is shown.
-- [ ] **DSYS-10**: A maintainer can trace each shipped component from tokens through primitives and patterns to a named consuming workflow, with deterministic stories and complete state fixtures.
+- [x] **DSYS-01**: A component consumes repository-owned semantic tokens for canvas, surface, foreground, editorial, live, attention, knowledge, information, and production roles instead of raw color values.
+- [x] **DSYS-02**: A user sees the shipping WTF wordmark, committed palette, Bricolage Grotesque, Fraunces, Poppins, cream/ink dominance, tactile depth, and editorial voice preserved across migrated surfaces.
+- [x] **DSYS-03**: A user sees orange only as a provisional production-state token whose foreground pairing has passed contrast and design approval.
+- [x] **DSYS-04**: A keyboard user can operate every shipped control, overlay, selection widget, filter, table, and navigation pattern without pointer-only behavior.
+- [x] **DSYS-05**: A user can distinguish unknown, unavailable, stale, partial, empty, permission-denied, error, offline, unmapped, conflicted, and measured-zero states without relying on color alone.
+- [x] **DSYS-06**: A keyboard user always receives a visible high-contrast focus indicator and focus returns predictably after overlays close or routes change.
+- [x] **DSYS-07**: A user requesting reduced motion receives static or shortened alternatives for marquees, sparkles, drawers, transitions, charts, and other nonessential movement.
+- [x] **DSYS-08**: A user can complete each shipped workflow at 320, 768, and 1440 CSS-pixel viewport widths without hidden actions or horizontal page overflow.
+- [x] **DSYS-09**: A screen-reader user receives a semantic alternative containing equivalent meaning whenever a canvas graph, chart, timeline, or spatial board is shown.
+- [x] **DSYS-10**: A maintainer can trace each shipped component from tokens through primitives and patterns to a named consuming workflow, with deterministic stories and complete state fixtures.
 
 ### Authorization and Operator Shell (`AUTH`)
 
-- [ ] **AUTH-01**: An approved operator can sign in through the owner-selected organization identity provider and enter `/ops` without creating a local password system.
-- [ ] **AUTH-02**: An anonymous or expired session fails closed before protected data, RSC payloads, search results, prefetches, errors, or exports disclose internal entity existence.
-- [ ] **AUTH-03**: An owner can approve a role-by-resource-by-action-by-record-by-field capability matrix before operator data is enabled.
-- [ ] **AUTH-04**: An operator receives only records, actions, and fields allowed by server-side capability checks at every query, handler, and mutation boundary.
-- [ ] **AUTH-05**: An authenticated operator sees the current environment, workspace, organization scope, effective role, authorized navigation, live-derived service status, and one dominant setup action in a persistent `/ops` shell.
-- [ ] **AUTH-06**: A public and operator request use separate allowlisted DTOs, cache namespaces, search projections, and safe-error policies over shared domain services.
-- [ ] **AUTH-07**: An operator whose session expires or is revoked loses protected client state and returns through a focus-safe, non-leaking recovery flow.
-- [ ] **AUTH-08**: An authorized operator can view a truthful empty or unavailable Control Room before canonical workflow records exist; missing systems appear as explicit unknown, offline, unavailable, or permission-denied states, never fabricated health claims or misleading zero values.
-- [ ] **AUTH-09**: An admin can invite, deactivate, and assign `admin` or `editor` roles to approved WTF-only accounts, while exactly one active `super_admin` can transfer that seat through an atomic audited handoff that never leaves zero or multiple active super administrators; later roles remain non-privileged shells until activated.
-- [ ] **AUTH-10**: An authorized reviewer can trace authentication outcomes, expiry/logout, protected searches, views, exports, operator/role/settings changes, purges, and super-admin handoffs to an actor, effective role, time, action, entity, outcome, environment, and correlation ID through append-only allowlisted audit metadata that excludes tokens, raw queries, prompts, responses, and private payloads; production retains 365 days, staging 30 days, local data is ephemeral, only `super_admin` and `admin` may view/export, and no expired record is silently archived.
+- [x] **AUTH-01**: An approved operator can sign in through the owner-selected organization identity provider and enter `/ops` without creating a local password system.
+- [x] **AUTH-02**: An anonymous or expired session fails closed before protected data, RSC payloads, search results, prefetches, errors, or exports disclose internal entity existence.
+- [x] **AUTH-03**: An owner can approve a role-by-resource-by-action-by-record-by-field capability matrix before operator data is enabled.
+- [x] **AUTH-04**: An operator receives only records, actions, and fields allowed by server-side capability checks at every query, handler, and mutation boundary.
+- [x] **AUTH-05**: An authenticated operator sees the current environment, workspace, organization scope, effective role, authorized navigation, live-derived service status, and one dominant setup action in a persistent `/ops` shell.
+- [x] **AUTH-06**: A public and operator request use separate allowlisted DTOs, cache namespaces, search projections, and safe-error policies over shared domain services.
+- [x] **AUTH-07**: An operator whose session expires or is revoked loses protected client state and returns through a focus-safe, non-leaking recovery flow.
+- [x] **AUTH-08**: An authorized operator can view a truthful empty or unavailable Control Room before canonical workflow records exist; missing systems appear as explicit unknown, offline, unavailable, or permission-denied states, never fabricated health claims or misleading zero values.
+- [x] **AUTH-09**: An admin can invite, deactivate, and assign `admin` or `editor` roles to approved WTF-only accounts, while exactly one active `super_admin` can transfer that seat through an atomic audited handoff that never leaves zero or multiple active super administrators; later roles remain non-privileged shells until activated.
+- [x] **AUTH-10**: An authorized reviewer can trace authentication outcomes, expiry/logout, protected searches, views, exports, operator/role/settings changes, purges, and super-admin handoffs to an actor, effective role, time, action, entity, outcome, environment, and correlation ID through append-only allowlisted audit metadata that excludes tokens, raw queries, prompts, responses, and private payloads; production retains 365 days, staging 30 days, local data is ephemeral, only `super_admin` and `admin` may view/export, and no expired record is silently archived.
 
 ### Provenance (`PROV`)
 
@@ -146,19 +146,19 @@ permissions, components, and phase boundaries are governed by `DESIGN.md`,
 
 ### Quality and Release Evidence (`QUAL`)
 
-- [ ] **QUAL-01**: A maintainer can run one documented command set that proves lint, type checking, production build, unit tests, and component tests for the owned slice.
-- [ ] **QUAL-02**: A maintainer can run blocking contract and browser journeys for every protected public route and `/api/chat` behavior.
-- [ ] **QUAL-03**: A maintainer can run keyboard, focus, accessible-name, live-region, reduced-motion, and serious-axe checks for every shipped workflow.
-- [ ] **QUAL-04**: A maintainer can compare deterministic 320, 768, and 1440 viewport evidence plus brand-critical visual snapshots before approving a migration.
-- [ ] **QUAL-05**: A maintainer can prove synthetic fixtures, bundles, rendered payloads, logs, errors, snapshots, and planning artifacts contain no credentials, private source payloads, embedded private links, or machine-local paths.
-- [ ] **QUAL-06**: A maintainer can measure and approve route performance, bundle impact, RAG latency, and interaction regressions against the recorded baseline.
-- [ ] **QUAL-07**: A security reviewer can verify anonymous, cross-role, ID-tampering, cache-mixing, session-expiry, and privilege-escalation probes fail closed.
+- [x] **QUAL-01**: A maintainer can run one documented command set that proves lint, type checking, production build, unit tests, and component tests for the owned slice.
+- [x] **QUAL-02**: A maintainer can run blocking contract and browser journeys for every protected public route and `/api/chat` behavior.
+- [x] **QUAL-03**: A maintainer can run keyboard, focus, accessible-name, live-region, reduced-motion, and serious-axe checks for every shipped workflow.
+- [x] **QUAL-04**: A maintainer can compare deterministic 320, 768, and 1440 viewport evidence plus brand-critical visual snapshots before approving a migration.
+- [x] **QUAL-05**: A maintainer can prove synthetic fixtures, bundles, rendered payloads, logs, errors, snapshots, and planning artifacts contain no credentials, private source payloads, embedded private links, or machine-local paths.
+- [x] **QUAL-06**: A maintainer can measure and approve route performance, bundle impact, RAG latency, and interaction regressions against the recorded baseline.
+- [x] **QUAL-07**: A security reviewer can verify anonymous, cross-role, ID-tampering, cache-mixing, session-expiry, and privilege-escalation probes fail closed.
 - [ ] **QUAL-08**: A maintainer can rehearse rollback and prove the previous reader, style, or route remains available until replacement evidence is accepted.
-- [ ] **QUAL-09**: Structured application, ingestion, search, and agent telemetry records latency, errors, tokens, and cost without storing credentials or prohibited private payloads.
-- [ ] **QUAL-10**: Local, staging, and production use separate D1 databases, Cloudflare Access applications and policies, secrets, and cache namespaces; production data is never copied to a lower environment; repository-owned migrations promote forward through environments; preview deployments receive no protected backend unless explicitly bound; and the runbook defines local/environment/ingestion operation plus an explicitly scheduled staging demonstration gate.
+- [x] **QUAL-09**: Structured application, ingestion, search, and agent telemetry records latency, errors, tokens, and cost without storing credentials or prohibited private payloads.
+- [x] **QUAL-10**: Local, staging, and production use separate D1 databases, Cloudflare Access applications and policies, secrets, and cache namespaces; production data is never copied to a lower environment; repository-owned migrations promote forward through environments; preview deployments receive no protected backend unless explicitly bound; and the runbook defines local/environment/ingestion operation plus an explicitly scheduled staging demonstration gate.
 - [ ] **QUAL-11**: Search median remains below three seconds, search p95 remains below six seconds, dashboards serve cached data, and ingestion exposes asynchronous status.
-- [ ] **QUAL-12**: Guest-confidential material is protected by server-side authorization and managed, rotatable secrets that do not require source changes or repository commits.
-- [ ] **QUAL-13**: Production remains blocked until staging deterministically proves the complete anonymous, expired, inactive, `editor`, `admin`, and `super_admin` authorization matrix; Access and D1 recovery/logout; tampering, DTO, and cache isolation; audit coverage, retention, export, and purge; environment and secret separation; keyboard, focus, accessibility, and 320/768/1440 responsive behavior; and rollback plus runbook rehearsal. These checks block CI, the owner approves the staging evidence packet, the production smoke test is read-only, and every failed or unknown gate blocks release.
+- [x] **QUAL-12**: Guest-confidential material is protected by server-side authorization and managed, rotatable secrets that do not require source changes or repository commits.
+- [x] **QUAL-13**: Production remains blocked until staging deterministically proves the complete anonymous, expired, inactive, `editor`, `admin`, and `super_admin` authorization matrix; Access and D1 recovery/logout; tampering, DTO, and cache isolation; audit coverage, retention, export, and purge; environment and secret separation; keyboard, focus, accessibility, and 320/768/1440 responsive behavior; and rollback plus runbook rehearsal. These checks block CI, the owner approves the staging evidence packet, the production smoke test is read-only, and every failed or unknown gate blocks release.
 
 ### Advanced Intelligence (`AINT`)
 
@@ -201,32 +201,32 @@ that persistence does not duplicate requirement ownership.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| COMP-01 | Phase 1 | Pending |
-| COMP-02 | Phase 1 | Pending |
-| COMP-03 | Phase 1 | Pending |
-| COMP-04 | Phase 1 | Pending |
-| COMP-05 | Phase 1 | Pending |
+| COMP-01 | Phase 1 | Complete |
+| COMP-02 | Phase 1 | Complete |
+| COMP-03 | Phase 1 | Complete |
+| COMP-04 | Phase 1 | Complete |
+| COMP-05 | Phase 1 | Complete |
 | COMP-06 | Phase 10 | Pending |
-| DSYS-01 | Phase 1 | Pending |
-| DSYS-02 | Phase 1 | Pending |
-| DSYS-03 | Phase 1 | Pending |
-| DSYS-04 | Phase 1 | Pending |
-| DSYS-05 | Phase 1 | Pending |
-| DSYS-06 | Phase 1 | Pending |
-| DSYS-07 | Phase 1 | Pending |
-| DSYS-08 | Phase 1 | Pending |
-| DSYS-09 | Phase 1 | Pending |
-| DSYS-10 | Phase 1 | Pending |
-| AUTH-01 | Phase 2 | Pending |
-| AUTH-02 | Phase 2 | Pending |
-| AUTH-03 | Phase 2 | Pending |
-| AUTH-04 | Phase 2 | Pending |
-| AUTH-05 | Phase 2 | Pending |
-| AUTH-06 | Phase 2 | Pending |
-| AUTH-07 | Phase 2 | Pending |
-| AUTH-08 | Phase 2 | Pending |
-| AUTH-09 | Phase 2 | Pending |
-| AUTH-10 | Phase 2 | Pending |
+| DSYS-01 | Phase 1 | Complete |
+| DSYS-02 | Phase 1 | Complete |
+| DSYS-03 | Phase 1 | Complete |
+| DSYS-04 | Phase 1 | Complete |
+| DSYS-05 | Phase 1 | Complete |
+| DSYS-06 | Phase 1 | Complete |
+| DSYS-07 | Phase 1 | Complete |
+| DSYS-08 | Phase 1 | Complete |
+| DSYS-09 | Phase 1 | Complete |
+| DSYS-10 | Phase 1 | Complete |
+| AUTH-01 | Phase 2 | Complete |
+| AUTH-02 | Phase 2 | Complete |
+| AUTH-03 | Phase 2 | Complete |
+| AUTH-04 | Phase 2 | Complete |
+| AUTH-05 | Phase 2 | Complete |
+| AUTH-06 | Phase 2 | Complete |
+| AUTH-07 | Phase 2 | Complete |
+| AUTH-08 | Phase 2 | Complete |
+| AUTH-09 | Phase 2 | Complete |
+| AUTH-10 | Phase 2 | Complete |
 | PROV-01 | Phase 3 | Pending |
 | PROV-02 | Phase 3 | Pending |
 | PROV-03 | Phase 3 | Pending |
@@ -289,19 +289,19 @@ that persistence does not duplicate requirement ownership.
 | CLIP-03 | Phase 9 | Pending |
 | CLIP-04 | Phase 9 | Pending |
 | CLIP-05 | Phase 9 | Pending |
-| QUAL-01 | Phase 1 | Pending |
-| QUAL-02 | Phase 1 | Pending |
-| QUAL-03 | Phase 1 | Pending |
-| QUAL-04 | Phase 1 | Pending |
-| QUAL-05 | Phase 1 | Pending |
-| QUAL-06 | Phase 1 | Pending |
-| QUAL-07 | Phase 2 | Pending |
+| QUAL-01 | Phase 1 | Complete |
+| QUAL-02 | Phase 1 | Complete |
+| QUAL-03 | Phase 1 | Complete |
+| QUAL-04 | Phase 1 | Complete |
+| QUAL-05 | Phase 1 | Complete |
+| QUAL-06 | Phase 1 | Complete |
+| QUAL-07 | Phase 2 | Complete |
 | QUAL-08 | Phase 10 | Pending |
-| QUAL-09 | Phase 2 | Pending |
-| QUAL-10 | Phase 2 | Pending |
+| QUAL-09 | Phase 2 | Complete |
+| QUAL-10 | Phase 2 | Complete |
 | QUAL-11 | Phase 4 | Pending |
-| QUAL-12 | Phase 2 | Pending |
-| QUAL-13 | Phase 2 | Pending |
+| QUAL-12 | Phase 2 | Complete |
+| QUAL-13 | Phase 2 | Complete |
 | AINT-01 | Phase 9 | Pending |
 | AINT-02 | Phase 9 | Pending |
 
