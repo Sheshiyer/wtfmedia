@@ -13,6 +13,7 @@ const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
 
 const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/ops": ["control_room", "read"],
+  "/ops/production": ["control_room", "read"],
   "/ops/operators": ["operators", "read"],
   "/ops/audit": ["audit", "read"],
 };
@@ -40,6 +41,7 @@ export function canAccessPath(role: unknown, pathname: string): boolean {
 
 export function navigationFor(role: unknown) {
   const items = [{ label: "Control Room", href: "/ops" }];
+  if (decide(role, "control_room", "read")) items.push({ label: "Production", href: "/ops/production" });
   if (decide(role, "operators", "read")) items.push({ label: "Operators", href: "/ops/operators" });
   if (decide(role, "audit", "read")) items.push({ label: "Audit", href: "/ops/audit" });
   return items;

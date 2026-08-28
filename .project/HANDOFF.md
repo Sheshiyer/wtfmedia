@@ -1,5 +1,66 @@
 # Project handoff
 
+## 2026-08-28 Production calendar chrome (truthful empty)
+
+**Status:** LOCAL IMPLEMENTATION — uncommitted on `main`. Preview: `http://127.0.0.1:3000/ops/production`.
+
+**Shipped in this slice**
+- `/ops/production` calendar + board + pin well. No episode records, owners, or counts. Local-only sketches in `next dev`.
+- React Bits **Folder** harmonized to cream/ink/attention as `PaperFolder`. No shadcn init. No neon catalog colors.
+- Closed `DatePicker` on production pins and audit after/before filters (02-UI-SPEC time range).
+- Production is a workspace nav item for every ops role. Control Room ledger still says production is **not activated**.
+- Rail current-route: `/ops` is exact-match so Control Room is not also current on `/ops/production`.
+
+**Verified:** `npm --prefix web run typecheck`; vitest production/policy/lifecycle; Cloudflare operator-policy 3/3; Playwright `tests/phase2/production.spec.ts` 2/2.
+
+**Did not do:** Plan 02-12 staging/production smoke; Phase 3 ingestion; Google Calendar sync; fake episode pins.
+
+**Next Action:** Visual walk `/ops/production` and `/?boot=1` on localhost:3000. Plan 02-12 stays owner-gated. Do not start Phase 3.
+
+## 2026-08-28 WTF OS splash + Grok React Bits MCP (do not re-loop)
+
+**Status:** LOCAL IMPLEMENTATION — uncommitted on `main` (`ced3e83`, ahead of origin by 2). Host MCP is done. Do **not** reinstall React Bits MCP or re-ask for the Pro license.
+
+**New-session first reads:** `PROJECT.md`, `AGENTS.md`, this file, `docs/design/MOTION-MAP.md`, `.planning/STATE.md`. Visual contract: `.planning/phases/02-UI-SPEC.md`.
+
+**What this session already decided**
+
+- Product name is **WTF OS**. Official lockup is `web/public/brand/wtfos-wordmark.png`. **Do not recolor letters.** Raster is the mark; reconstructed `wtf`/`media` spans are retired.
+- Cloudflare Access is the IdP. There is no consumer password signup. Access-shaped routes: `/sign-in`, `/request-access` (owner-approved seat). Recovery stays `/ops/recover`.
+- Splash is **two plates**, public-only: Grainient background + official logo alpha video. Not a CSS progress bar. Skip overlay under `navigator.webdriver`. Reduced motion: still Grainient/canvas + static PNG.
+- Grok Imagine bg video was rejected (watermark, no alpha). Catalog pick: React Bits **Grainient** (MIT, `ogl`), cream/ink tokens. Pro alternatives already verified against the live license: `grain-wave-tw`, `halftone-wave-tw` (also `silk-waves-tw`, `dither-wave-tw`). Do not paste neon Aurora/Plasma/Silk/Galaxy.
+- React Bits / MotionSites are **catalogs**. Harmonize to tokens. **No shadcn visual layer** in WTF OS.
+- Local `/ops` needs HMAC. `next dev` + loopback may inject signed `x-wtf-ops-context` via `web/lib/ops/local-dev-headers.ts` when `WTFMEDIA_OPS_ORIGIN_PROOF` is set. Preview:
+  ```bash
+  WTF_PUBLIC_UI_VARIANT=migrated WTFMEDIA_OPS_ORIGIN_PROOF=phase2-e2e-test-key WTFMEDIA_OPS_LOCAL_ROLE=super_admin npm --prefix web run dev
+  ```
+- Phase 1 public rooms: `/`, `/episodes`, `/connections`, `/chat`. Phase 2 ops: `/ops`, `/ops/operators`, `/ops/audit`, `/ops/recover`. Phase 3+ inactive. Plan **02-12 owner-gated**.
+
+**Host MCP (already installed — do not `grok mcp add` again)**
+
+| Server | Command | Doctor |
+|---|---|---|
+| `reactbits` | `npx -y reactbits-dev-mcp-server` | handshake OK, 5 tools (OSS catalog) |
+| `reactbits-pro` | `~/.grok/bin/reactbits-pro-mcp.sh` → `npx shadcn@latest mcp` | handshake OK, 7 tools |
+| `motionsites` | HTTP MCP (also on Claude) | OAuth; this Grok session may need `/mcps` auth |
+
+License lives **only** at `~/.temperance_engine/secrets/reactbits-license.env` (mode 600). Wrapper sources it. **Never commit, never paste into chat, never put in `web/.env.local` unless a later owner task asks.** Live probe: `@reactbits-starter` and `@reactbits-pro` registry.json both HTTP 200. `web/components.json` is **not** in the repo yet — do not `shadcn init`; do not install Pro files until the owner picks a block **and** registries are added without pulling shadcn primitives.
+
+A **continued** Grok conversation will not see `reactbits__*` / `reactbits-pro__*` in `search_tool`. Open a **new** Grok session in this repo. If tools are missing: `/mcps` refresh. If `grok mcp list` already shows the three names, stop.
+
+**Uncommitted (do not `git add .`)**
+
+Tracked mods include layout, recover, AccessRecovery, OperatorContextStrip, MigratedWordmark, AppRail, middleware, package.json (+ `ogl`), brand/public-shell tests, tailwind. Untracked: `docs/design/MOTION-MAP.md`, `web/app/sign-in/`, `web/app/request-access/`, `Grainient.tsx`, `WtfOsBoot.tsx`, `web/lib/ops/display.ts`, `web/lib/ops/local-dev-headers.ts`, `web/public/brand/wtfos-wordmark.png` (+ `.source.png`), `web/public/brand/splash/`.
+
+**Next Action (new session)**
+
+1. Confirm `grok mcp list` shows `reactbits` + `reactbits-pro`. Call OSS `list_components` / Pro search for backgrounds. Do not reinstall.
+2. Continue **visual** walk only: splash → `/sign-in` → `/request-access` → public rooms → ops chrome. Owner still ~30% on visuals. Wire live Control Room status later.
+3. Optional splash swap: Grainient (shipping now) vs Pro `grain-wave-tw` / `halftone-wave-tw` after owner pick. Splash is skippable and session-once (`?boot=1` replays). Grok mark cropped off `wtfos-bg-still.jpg`. Chroma plates stay sources, not product layers.
+4. Do not start Phase 3. Do not execute Plan 02-12. Do not rotate Frame.io/Drive/Zset here.
+
+**Owner still holds:** 02-12 staging questions; IP/editorial; share rotation.
+
 ## 2026-08-27 Phase 2 operator visual alignment
 
 **Status:** LOCAL IMPLEMENTATION — uncommitted until this checkpoint lands
@@ -622,3 +683,47 @@ rg -n '/Users/|/Volumes/' .planning/inputs/podcast-catalog/tools/snapshot_sheets
 ```
 
 No registry, deploy, secret, or production mutation.
+
+## 2026-08-28 Phase 2 WTF OS system-theme lock (reviewed local)
+
+**Scope:** active WTF OS Phase 1/2 public, operator, recovery, graph, drawer,
+and confirmation-dialog surfaces only. Legacy rollback behavior and unactivated
+future workspaces were not changed.
+
+- Added semantic light/dark token pairs, alpha-compatible Tailwind color
+  channels, and a `data-wtf-theme="system"` contract scoped to WTF OS.
+- Reduced background noise to static, low-opacity grain/dots; the Grainient
+  and connections graph now redraw when the system preference changes.
+- Migrated active shells, rails, cards, status labels, recovery, drawer, and
+  operator dialogs to semantic foreground/surface/overlay roles. The raster
+  wordmark receives a semantic plate on structural rails so its black letter
+  remains legible in both themes.
+- Added source and browser proof for semantic tokens, dark overlays, live
+  graph re-theming, recovery routes, narrow layouts, and both operator dialogs.
+
+### Verification (local dirty tree only)
+
+```bash
+cd web
+npm run lint
+npm run typecheck
+npm run test:unit -- tests/unit/theme-contract.test.ts tests/unit/graph-theme.test.ts tests/unit/tokens.test.ts
+npm run test:contracts -- tests/contracts/wtf-os-token-contract.test.ts tests/contracts/app-ui-variant.contract.test.ts
+npm run test:components
+npx playwright test tests/journeys/theme-system.spec.ts tests/journeys/episodes.spec.ts tests/journeys/connections.spec.ts tests/journeys/motion.spec.ts tests/journeys/shell-drawer-focus.spec.ts tests/phase2/operators.spec.ts tests/phase2/audit-ui.spec.ts --project=phase1-chromium-1440 --workers=2
+```
+
+All commands above passed: 23 focused unit checks, 9 contracts, 100 component
+checks, and 47 focused browser journeys. Light and dark live renders were also
+inspected locally after the normal boot interval.
+
+### Handoff note
+
+The Playwright server performs a production build in `web/.next`. Do not run
+that suite concurrently with a manually started `next dev` process in the same
+checkout: the production build replaces the development server's generated
+artifacts. Restart `next dev` after the suite when an interactive visual review
+is needed.
+
+No deployment, registry, credential, production, or legacy-variant mutation
+occurred in this wave.
