@@ -25,9 +25,9 @@ export function AuditExportDialog({
       onKeyDown={(event) => {
         if (event.key === "Escape" && !pending) onClose();
       }}
-      className="fixed inset-0 z-50 grid place-items-center bg-foreground/70 p-4"
+      className="fixed inset-0 z-50 grid place-items-center bg-overlay/70 p-4"
     >
-      <section className="w-full max-w-lg rounded-panel border-2 border-foreground bg-canvas p-6">
+      <section className="w-full max-w-lg rounded-panel border-2 border-foreground bg-surface-raised p-6">
         <h2
           id="audit-export-title"
           className="font-heading text-[23px] font-bold lowercase leading-[1.2]"

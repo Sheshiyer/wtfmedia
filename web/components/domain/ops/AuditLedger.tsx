@@ -112,7 +112,7 @@ export function AuditLedger({
                 ] as const
               ).map(([label, value]) => (
                 <div key={label}>
-                  <dt className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-foreground/65">
+                  <dt className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">
                     {label}
                   </dt>
                   <dd

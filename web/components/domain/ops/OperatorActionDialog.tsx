@@ -28,9 +28,9 @@ export function OperatorActionDialog({
       onKeyDown={(event) => {
         if (event.key === "Escape" && !pending) onClose();
       }}
-      className="fixed inset-0 z-50 grid place-items-center bg-foreground/70 p-4"
+      className="fixed inset-0 z-50 grid place-items-center bg-overlay/70 p-4"
     >
-      <section className="w-full max-w-lg rounded-panel border-2 border-foreground bg-canvas p-6">
+      <section className="w-full max-w-lg rounded-panel border-2 border-foreground bg-surface-raised p-6">
         <h2
           id="operator-action-title"
           className="font-heading text-[23px] font-bold lowercase leading-[1.2]"
@@ -60,7 +60,7 @@ export function OperatorActionDialog({
               if (await onConfirm()) onClose();
               else setPending(false);
             }}
-            className="min-h-11 rounded-control border-2 border-editorial bg-editorial px-4 py-3 font-label text-sm font-bold text-canvas"
+            className="min-h-11 rounded-control border-2 border-editorial bg-editorial px-4 py-3 font-label text-sm font-bold text-on-editorial"
           >
             {pending ? "saving…" : transfer ? "transfer seat" : "deactivate operator"}
           </button>

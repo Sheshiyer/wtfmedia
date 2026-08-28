@@ -16,7 +16,7 @@ function AccessChip({ active }: { active: boolean }) {
         "inline-flex min-h-8 items-center border-2 px-2 font-label text-[11px] font-semibold uppercase tracking-[0.08em]",
         active
           ? "border-live bg-canvas text-foreground"
-          : "border-foreground/40 bg-surface-subtle text-foreground/70",
+          : "border-foreground/40 bg-surface-subtle text-muted",
       ].join(" ")}
     >
       {active ? "active" : "inactive"}
@@ -106,23 +106,23 @@ export function OperatorRoster({
           <li key={row.email} className="rounded-panel border-2 border-foreground bg-surface-raised p-4">
             <dl className="grid gap-3 font-body text-[13px] leading-[1.45]">
               <div>
-                <dt className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-foreground/65">name</dt>
+                <dt className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">name</dt>
                 <dd className="mt-1 font-semibold">{row.name}</dd>
               </div>
               <div>
-                <dt className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-foreground/65">email</dt>
+                <dt className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">email</dt>
                 <dd className="mt-1 break-words">{row.email}</dd>
               </div>
               <div>
-                <dt className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-foreground/65">application role</dt>
+                <dt className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">application role</dt>
                 <dd className="mt-1">{row.role}</dd>
               </div>
               <div>
-                <dt className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-foreground/65">access</dt>
+                <dt className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">access</dt>
                 <dd className="mt-1"><AccessChip active={row.active} /></dd>
               </div>
               <div>
-                <dt className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-foreground/65">recorded change</dt>
+                <dt className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">recorded change</dt>
                 <dd className="mt-1 tabular-nums">{row.changedAt ?? "unknown"}</dd>
               </div>
             </dl>

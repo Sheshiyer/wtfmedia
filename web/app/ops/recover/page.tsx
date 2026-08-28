@@ -17,7 +17,8 @@ export default async function OpsRecoveryPage({
   const mode: RecoveryMode =
     params.mode === "unavailable" ||
     params.mode === "verification-unavailable" ||
-    params.mode === "signing-out"
+    params.mode === "signing-out" ||
+    params.mode === "request-access"
       ? params.mode
       : "reauthenticate";
   const returnTo = validatedReturnTo(params.returnTo);
