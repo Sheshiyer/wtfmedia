@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { graphPaletteFromCssVariables } from "@/lib/public/theme-colors";
 
 export type GNode = {
   id: string;
@@ -10,22 +11,6 @@ export type GNode = {
   episodes: string[];
 };
 export type GEdge = { a: string; b: string; shared: number };
-
-// category -> brand hex (covers both entity + theme category names)
-function catHex(c: string): string {
-  const k = c.toLowerCase();
-  if (k.includes("ai") || k.includes("tech")) return "#6758A5";
-  if (k.includes("start") || k.includes("business")) return "#F07633";
-  if (k.includes("money") || k.includes("finance") || k.includes("market"))
-    return "#0C9367";
-  if (k.includes("geo") || k.includes("society")) return "#C53B3A";
-  if (k.includes("health")) return "#1FA88A";
-  if (k.includes("media") || k.includes("culture")) return "#2D6BE0";
-  if (k.includes("india")) return "#F1B333";
-  if (k.includes("mind") || k.includes("philos")) return "#1A1A1A";
-  if (k.includes("science")) return "#0E7C86";
-  return "#1A1A1A";
-}
 
 type P = { x: number; y: number; vx: number; vy: number; r: number };
 
@@ -76,6 +61,9 @@ export function ConnectionGraph({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     resize();
+    let palette = graphPaletteFromCssVariables(
+      getComputedStyle(document.documentElement),
+    );
 
     // init on a circle
     const pts: P[] = nodes.map((n, i) => {
@@ -120,9 +108,7 @@ export function ConnectionGraph({
         ctx.beginPath();
         ctx.moveTo(pts[i].x, pts[i].y);
         ctx.lineTo(pts[j].x, pts[j].y);
-        ctx.strokeStyle = active
-          ? "rgba(26,26,26,0.55)"
-          : "rgba(26,26,26,0.08)";
+        ctx.strokeStyle = active ? palette.edgeActive : palette.edgeInactive;
         ctx.lineWidth = 0.5 + (e.shared / maxShared) * 3;
         ctx.stroke();
       }
@@ -132,14 +118,14 @@ export function ConnectionGraph({
         ctx.globalAlpha = dim ? 0.25 : 1;
         ctx.beginPath();
         ctx.arc(pts[i].x, pts[i].y, pts[i].r, 0, Math.PI * 2);
-        ctx.fillStyle = catHex(nodes[i].category);
+        ctx.fillStyle = palette.category(nodes[i].category);
         ctx.fill();
         ctx.lineWidth = i === selIdx ? 3 : 2;
-        ctx.strokeStyle = i === selIdx ? "#F07633" : "#1A1A1A";
+        ctx.strokeStyle = i === selIdx ? palette.selectedStroke : palette.nodeStroke;
         ctx.stroke();
         if (!dim && (pts[i].r > 16 || i === activeIdx)) {
           ctx.globalAlpha = 1;
-          ctx.fillStyle = "#1A1A1A";
+          ctx.fillStyle = palette.label;
           ctx.font = "600 11px Poppins, sans-serif";
           ctx.textAlign = "center";
           ctx.fillText(
@@ -277,22 +263,39 @@ export function ConnectionGraph({
     canvas.addEventListener("pointerdown", onDown);
     canvas.addEventListener("pointerup", onUp);
     window.addEventListener("resize", resize);
+
+    const onThemeChange = () => {
+      palette = graphPaletteFromCssVariables(
+        getComputedStyle(document.documentElement),
+      );
+      draw();
+    };
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+    const themeObserver = new MutationObserver(onThemeChange);
+    systemTheme.addEventListener("change", onThemeChange);
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-wtf-theme"],
+    });
+
     return () => {
       cancelAnimationFrame(raf);
       canvas.removeEventListener("pointermove", onMove);
       canvas.removeEventListener("pointerdown", onDown);
       canvas.removeEventListener("pointerup", onUp);
       window.removeEventListener("resize", resize);
+      systemTheme.removeEventListener("change", onThemeChange);
+      themeObserver.disconnect();
     };
   }, [nodes, edges, titles, selectedId, onSelect]);
 
   return (
     <div
-      className="relative rounded-lg border-2 border-ink bg-cream overflow-hidden"
+      className="relative overflow-hidden rounded-lg border-2 border-foreground bg-surface-raised"
       style={{ height: 560 }}
     >
       <canvas ref={canvasRef} className="w-full h-full block touch-none" />
-      <div className="absolute top-3 left-3 text-[11px] text-ink/45">
+      <div className="absolute top-3 left-3 text-[11px] text-muted">
         drag nodes · hover to isolate · click for episodes
       </div>
     </div>

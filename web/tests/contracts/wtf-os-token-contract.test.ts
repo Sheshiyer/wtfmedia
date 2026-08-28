@@ -15,15 +15,21 @@ describe("WTF OS semantic shell substrate", () => {
     const tailwind = read("tailwind.config.ts");
 
     for (const declaration of [
-      'canvas: "var(--wtf-canvas)"',
-      'foreground: "var(--wtf-foreground)"',
-      '"surface-subtle": "var(--wtf-surface-subtle)"',
-      '"surface-raised": "var(--wtf-surface-raised)"',
-      'editorial: "var(--wtf-editorial)"',
-      'live: "var(--wtf-live)"',
-      'attention: "var(--wtf-attention)"',
-      'knowledge: "var(--wtf-knowledge)"',
-      'information: "var(--wtf-information)"',
+      'canvas: "rgb(var(--wtf-canvas-rgb) / <alpha-value>)"',
+      'foreground: "rgb(var(--wtf-foreground-rgb) / <alpha-value>)"',
+      '"surface-subtle": "rgb(var(--wtf-surface-subtle-rgb) / <alpha-value>)"',
+      '"surface-raised": "rgb(var(--wtf-surface-raised-rgb) / <alpha-value>)"',
+      '"surface-structure": "rgb(var(--wtf-surface-structure-rgb) / <alpha-value>)"',
+      'overlay: "rgb(var(--wtf-overlay-rgb) / <alpha-value>)"',
+      'editorial: "rgb(var(--wtf-editorial-rgb) / <alpha-value>)"',
+      'live: "rgb(var(--wtf-live-rgb) / <alpha-value>)"',
+      'attention: "rgb(var(--wtf-attention-rgb) / <alpha-value>)"',
+      'knowledge: "rgb(var(--wtf-knowledge-rgb) / <alpha-value>)"',
+      'information: "rgb(var(--wtf-information-rgb) / <alpha-value>)"',
+      '"on-attention": "rgb(var(--wtf-on-attention-rgb) / <alpha-value>)"',
+      '"on-editorial": "rgb(var(--wtf-on-editorial-rgb) / <alpha-value>)"',
+      '"on-knowledge": "rgb(var(--wtf-on-knowledge-rgb) / <alpha-value>)"',
+      '"on-information": "rgb(var(--wtf-on-information-rgb) / <alpha-value>)"',
     ]) {
       expect(tailwind).toContain(declaration);
     }
@@ -64,6 +70,76 @@ describe("WTF OS semantic shell substrate", () => {
       "components/domain/ops/ControlRoomStatusLedger.tsx",
     ]) {
       expect(read(surface)).not.toMatch(/#[0-9a-f]{3,8}\b/i);
+    }
+  });
+
+  it("uses explicit structural, overlay, and on-accent roles in shared interactive surfaces", () => {
+    const required: Record<string, string[]> = {
+      "components/ui/Button.tsx": [
+        "bg-surface-structure text-on-structure",
+        "bg-surface-raised text-foreground",
+        "bg-attention text-on-attention",
+      ],
+      "components/ui/IconButton.tsx": [
+        "bg-surface-structure text-on-structure",
+        "bg-surface-raised text-foreground",
+      ],
+      "components/ui/LinkButton.tsx": [
+        "bg-surface-structure text-on-structure",
+        "bg-attention text-on-attention",
+      ],
+      "components/ui/Drawer.tsx": [
+        "bg-overlay/40",
+        "bg-surface-raised",
+        "text-secondary",
+      ],
+      "components/shells/AppShell.tsx": [
+        "bg-surface-structure",
+        "text-on-structure",
+        "hover:text-on-attention",
+      ],
+      "components/domain/ops/OperatorActionDialog.tsx": [
+        "bg-overlay/70",
+        "bg-editorial",
+        "text-on-editorial",
+      ],
+      "components/domain/ops/AuditExportDialog.tsx": [
+        "bg-overlay/70",
+      ],
+    };
+
+    for (const [relativePath, expectedClasses] of Object.entries(required)) {
+      const source = read(relativePath);
+      for (const expectedClass of expectedClasses) {
+        expect(source, `${relativePath} should use ${expectedClass}`).toContain(expectedClass);
+      }
+    }
+  });
+
+  it("uses named text and surface roles for active route summaries, forms, and dialogs", () => {
+    const required: Record<string, string[]> = {
+      "components/patterns/WorkspaceHeader.tsx": ["text-secondary", "text-muted"],
+      "components/domain/public/MigratedEpisodesPage.tsx": [
+        "text-secondary",
+        "bg-foreground/10",
+        "bg-foreground/5",
+      ],
+      "components/domain/ops/OperatorContextStrip.tsx": ["text-muted", "text-secondary"],
+      "components/domain/ops/OperatorsWorkspace.tsx": ["text-secondary"],
+      "components/domain/ops/AuditWorkspace.tsx": ["text-secondary"],
+      "components/domain/ops/OperatorRoster.tsx": ["text-secondary", "text-muted"],
+      "components/domain/ops/AuditLedger.tsx": ["text-secondary"],
+      "components/patterns/StatusLedger.tsx": ["text-muted"],
+      "components/domain/ops/AccessRecovery.tsx": ["text-secondary"],
+      "components/domain/ops/OperatorActionDialog.tsx": ["bg-surface-raised"],
+      "components/domain/ops/AuditExportDialog.tsx": ["bg-surface-raised"],
+    };
+
+    for (const [relativePath, expectedClasses] of Object.entries(required)) {
+      const source = read(relativePath);
+      for (const expectedClass of expectedClasses) {
+        expect(source, `${relativePath} should use ${expectedClass}`).toContain(expectedClass);
+      }
     }
   });
 });

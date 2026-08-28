@@ -16,18 +16,110 @@
  * without owner visual approval (enforced by the migrated-consumer scan).
  */
 
-:root {
-  /* ---------- color: approved palette (raw values live only here) ---------- */
-  --wtf-canvas: #fff6ea;
-  --wtf-surface-subtle: #f0eadf;
-  --wtf-surface-raised: #fffcf7;
-  --wtf-foreground: #1a1a1a;
-  --wtf-editorial: #c53b3a;
-  --wtf-live: #0c9367;
-  --wtf-attention: #f1b333;
-  --wtf-production: #f07633;
-  --wtf-knowledge: #6758a5;
-  --wtf-information: #2d6be0;
+ :root {
+  /* ---------- color: canonical light and dark palettes ----------
+     Raw values live only here. `themes.css` maps an active theme onto
+     the semantic roles below; components never select a palette directly. */
+  --wtf-light-canvas: #fff6ea;
+  --wtf-light-surface-subtle: #f0eadf;
+  --wtf-light-surface-raised: #fffcf7;
+  --wtf-light-foreground: #1a1a1a;
+  --wtf-light-text-secondary: #5a5148;
+  --wtf-light-text-muted: #72685d;
+  --wtf-light-editorial: #c53b3a;
+  --wtf-light-live: #0c9367;
+  --wtf-light-attention: #f1b333;
+  --wtf-light-production: #f07633;
+  --wtf-light-knowledge: #6758a5;
+  --wtf-light-information: #2d6be0;
+
+  --wtf-dark-canvas: #171513;
+  --wtf-dark-surface-subtle: #26231f;
+  --wtf-dark-surface-raised: #312d28;
+  --wtf-dark-structure: #0e0c0b;
+  --wtf-dark-foreground: #fff6ea;
+  --wtf-dark-text-secondary: #ddd2c3;
+  --wtf-dark-text-muted: #aaa093;
+  --wtf-dark-editorial: #f2766e;
+  --wtf-dark-live: #56c99a;
+  --wtf-dark-attention: #f7c84a;
+  --wtf-dark-production: #ff9a57;
+  --wtf-dark-knowledge: #a99be0;
+  --wtf-dark-information: #79a8ff;
+
+  --wtf-light-canvas-rgb: 255 246 234;
+  --wtf-light-surface-subtle-rgb: 240 234 223;
+  --wtf-light-surface-raised-rgb: 255 252 247;
+  --wtf-light-foreground-rgb: 26 26 26;
+  --wtf-light-text-secondary-rgb: 90 81 72;
+  --wtf-light-text-muted-rgb: 114 104 93;
+  --wtf-light-editorial-rgb: 197 59 58;
+  --wtf-light-live-rgb: 12 147 103;
+  --wtf-light-attention-rgb: 241 179 51;
+  --wtf-light-production-rgb: 240 118 51;
+  --wtf-light-knowledge-rgb: 103 88 165;
+  --wtf-light-information-rgb: 45 107 224;
+  --wtf-light-overlay-rgb: 26 26 26;
+
+  --wtf-dark-canvas-rgb: 23 21 19;
+  --wtf-dark-surface-subtle-rgb: 38 35 31;
+  --wtf-dark-surface-raised-rgb: 49 45 40;
+  --wtf-dark-structure-rgb: 14 12 11;
+  --wtf-dark-foreground-rgb: 255 246 234;
+  --wtf-dark-text-secondary-rgb: 221 210 195;
+  --wtf-dark-text-muted-rgb: 170 160 147;
+  --wtf-dark-editorial-rgb: 242 118 110;
+  --wtf-dark-live-rgb: 86 201 154;
+  --wtf-dark-attention-rgb: 247 200 74;
+  --wtf-dark-production-rgb: 255 154 87;
+  --wtf-dark-knowledge-rgb: 169 155 224;
+  --wtf-dark-information-rgb: 121 168 255;
+  --wtf-dark-overlay-rgb: 14 12 11;
+
+  /* ---------- active semantic roles: light by default ---------- */
+  --wtf-canvas: var(--wtf-light-canvas);
+  --wtf-surface-subtle: var(--wtf-light-surface-subtle);
+  --wtf-surface-raised: var(--wtf-light-surface-raised);
+  --wtf-surface-structure: var(--wtf-light-foreground);
+  --wtf-foreground: var(--wtf-light-foreground);
+  --wtf-text-primary: var(--wtf-light-foreground);
+  --wtf-text-secondary: var(--wtf-light-text-secondary);
+  --wtf-text-muted: var(--wtf-light-text-muted);
+  --wtf-text-on-structure: var(--wtf-light-canvas);
+  --wtf-editorial: var(--wtf-light-editorial);
+  --wtf-live: var(--wtf-light-live);
+  --wtf-attention: var(--wtf-light-attention);
+  --wtf-production: var(--wtf-light-production);
+  --wtf-knowledge: var(--wtf-light-knowledge);
+  --wtf-information: var(--wtf-light-information);
+
+  --wtf-on-attention: var(--wtf-light-foreground);
+  --wtf-on-editorial: var(--wtf-light-canvas);
+  --wtf-on-knowledge: var(--wtf-light-canvas);
+  --wtf-on-information: var(--wtf-light-canvas);
+  --wtf-on-production: var(--wtf-light-foreground);
+
+  --wtf-canvas-rgb: var(--wtf-light-canvas-rgb);
+  --wtf-surface-subtle-rgb: var(--wtf-light-surface-subtle-rgb);
+  --wtf-surface-raised-rgb: var(--wtf-light-surface-raised-rgb);
+  --wtf-surface-structure-rgb: var(--wtf-light-foreground-rgb);
+  --wtf-foreground-rgb: var(--wtf-light-foreground-rgb);
+  --wtf-text-primary-rgb: var(--wtf-light-foreground-rgb);
+  --wtf-text-secondary-rgb: var(--wtf-light-text-secondary-rgb);
+  --wtf-text-muted-rgb: var(--wtf-light-text-muted-rgb);
+  --wtf-text-on-structure-rgb: var(--wtf-light-canvas-rgb);
+  --wtf-editorial-rgb: var(--wtf-light-editorial-rgb);
+  --wtf-live-rgb: var(--wtf-light-live-rgb);
+  --wtf-attention-rgb: var(--wtf-light-attention-rgb);
+  --wtf-production-rgb: var(--wtf-light-production-rgb);
+  --wtf-knowledge-rgb: var(--wtf-light-knowledge-rgb);
+  --wtf-information-rgb: var(--wtf-light-information-rgb);
+  --wtf-on-attention-rgb: var(--wtf-light-foreground-rgb);
+  --wtf-on-editorial-rgb: var(--wtf-light-canvas-rgb);
+  --wtf-on-knowledge-rgb: var(--wtf-light-canvas-rgb);
+  --wtf-on-information-rgb: var(--wtf-light-canvas-rgb);
+  --wtf-on-production-rgb: var(--wtf-light-foreground-rgb);
+  --wtf-overlay-rgb: var(--wtf-light-overlay-rgb);
 
   /*
    * Semantic fill pairs. Each declared pair is WCAG-AA verified by
@@ -36,19 +128,19 @@
    * so live renders as a dot/border/indicator beside ink-on-canvas
    * text — never as a filled text background.
    */
-  --wtf-fill-canvas-foreground: var(--wtf-foreground);
-  --wtf-fill-subtle-foreground: var(--wtf-foreground);
-  --wtf-fill-raised-foreground: var(--wtf-foreground);
+  --wtf-fill-canvas-foreground: var(--wtf-text-primary);
+  --wtf-fill-subtle-foreground: var(--wtf-text-primary);
+  --wtf-fill-raised-foreground: var(--wtf-text-primary);
   --wtf-fill-attention-background: var(--wtf-attention);
-  --wtf-fill-attention-foreground: var(--wtf-foreground);
+  --wtf-fill-attention-foreground: var(--wtf-on-attention);
   --wtf-fill-editorial-background: var(--wtf-editorial);
-  --wtf-fill-editorial-foreground: var(--wtf-canvas);
+  --wtf-fill-editorial-foreground: var(--wtf-on-editorial);
   --wtf-fill-knowledge-background: var(--wtf-knowledge);
-  --wtf-fill-knowledge-foreground: var(--wtf-canvas);
+  --wtf-fill-knowledge-foreground: var(--wtf-on-knowledge);
   --wtf-fill-information-background: var(--wtf-information);
-  --wtf-fill-information-foreground: var(--wtf-canvas);
+  --wtf-fill-information-foreground: var(--wtf-on-information);
   --wtf-fill-production-background: var(--wtf-production);
-  --wtf-fill-production-foreground: var(--wtf-foreground);
+  --wtf-fill-production-foreground: var(--wtf-on-production);
 
   /* ---------- typography: exactly four sizes, two weights ---------- */
   --wtf-font-display: "Bricolage Grotesque", Impact, sans-serif;
@@ -117,6 +209,12 @@
   --wtf-ease-out: cubic-bezier(0, 0, 0.2, 1);
   --wtf-ease-in: cubic-bezier(0.4, 0, 1, 1);
   --wtf-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---------- restrained paper texture ---------- */
+  --wtf-texture-grain-opacity: 0.018;
+  --wtf-texture-dot-opacity: 0.018;
+  --wtf-texture-dot-size: 0.5px;
+  --wtf-texture-dot-spacing: 16px;
 
   color-scheme: light;
 }

@@ -25,12 +25,26 @@ const APPROVED_PALETTE: Record<string, string> = {
   "#f0eadf": "surface-subtle",
   "#fffcf7": "surface-raised",
   "#1a1a1a": "foreground",
+  "#5a5148": "light-text-secondary",
+  "#72685d": "light-text-muted",
   "#c53b3a": "editorial",
   "#0c9367": "live",
   "#f1b333": "attention",
   "#f07633": "production",
   "#6758a5": "knowledge",
   "#2d6be0": "information",
+  "#171513": "dark-canvas",
+  "#26231f": "dark-surface-subtle",
+  "#312d28": "dark-surface-raised",
+  "#0e0c0b": "dark-structure",
+  "#ddd2c3": "dark-text-secondary",
+  "#aaa093": "dark-text-muted",
+  "#f2766e": "dark-editorial",
+  "#56c99a": "dark-live",
+  "#f7c84a": "dark-attention",
+  "#ff9a57": "dark-production",
+  "#a99be0": "dark-knowledge",
+  "#79a8ff": "dark-information",
 };
 
 function declarations(css: string): Map<string, string[]> {
@@ -130,17 +144,16 @@ describe("token uniqueness and palette closure", () => {
   });
 
   it("defines production exactly once with its approved pair", () => {
-    const all = declarations(`${TOKENS}\n${THEMES}`);
-    // Exactly one raw definition; the provisional theme alias is the
-    // only other production-named token in the layer.
+    const all = declarations(TOKENS);
+    // The canonical semantic role is defined once in token authority. Theme
+    // contexts may override it through aliases, but never add raw hex values.
     expect(all.get("--wtf-production")).toHaveLength(1);
     const prodNamed = [...all.keys()].filter((n) => n.includes("production")).sort();
-    expect(prodNamed).toEqual([
-      "--wtf-fill-production-background",
-      "--wtf-fill-production-foreground",
-      "--wtf-production",
-      "--wtf-state-production-provisional",
-    ]);
+    expect(prodNamed).toContain("--wtf-fill-production-background");
+    expect(prodNamed).toContain("--wtf-fill-production-foreground");
+    expect(prodNamed).toContain("--wtf-production");
+    expect(prodNamed).toContain("--wtf-on-production");
+    expect(prodNamed).toContain("--wtf-production-rgb");
     expect(resolve(all.get("--wtf-fill-production-background")![0], all)).toBe("#f07633");
     expect(resolve(all.get("--wtf-fill-production-foreground")![0], all)).toBe("#1a1a1a");
   });
@@ -271,13 +284,14 @@ describe("contrast authority (WCAG AA)", () => {
   });
 });
 
-describe("migrated-public consumer policy", () => {
-  /** Route/component sources that will carry the migrated marker. */
+describe("WTF OS consumer policy", () => {
+  /** Active application sources excluding the isolated legacy rollback. */
   function migratedPublicSources(): string[] {
     const files: string[] = [];
     const roots = [
       path.join(WEB_ROOT, "app"),
       path.join(WEB_ROOT, "components"),
+      path.join(WEB_ROOT, "lib"),
     ];
     const walk = (dir: string) => {
       for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -288,16 +302,14 @@ describe("migrated-public consumer policy", () => {
     };
     for (const root of roots) walk(root);
     return files.filter((f) => {
-      const text = fs.readFileSync(f, "utf8");
-      return text.includes('data-public-ui-variant="migrated"') ||
-        text.includes("data-public-ui-variant='migrated'");
+      return !f.includes(`${path.sep}components${path.sep}legacy${path.sep}`);
     });
   }
 
-  it("has zero migrated public consumers of the production token", () => {
+  it("keeps the provisional production color out of active WTF OS surfaces", () => {
     const consumers = migratedPublicSources().filter((f) => {
       const text = fs.readFileSync(f, "utf8");
-      return /var\(--wtf-state-production-provisional\)|var\(--wtf-production\)/.test(text);
+      return /var\(--wtf-state-production-provisional\)|var\(--wtf-production\)|--wtf-production-rgb|(?:bg|text|border)-production\b|text-on-production\b/.test(text);
     });
     expect(consumers).toEqual([]);
   });

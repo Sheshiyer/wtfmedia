@@ -19,13 +19,13 @@
    3px offset. Dark fills separate from the ring via the cream layer;
    light fills via the ink outline. Never removed, never color-only:
    the ink outline carries shape independent of hue. */
-[data-public-ui-variant="migrated"] :focus-visible {
+html[data-wtf-ui="wtfos"] :focus-visible {
   outline: 3px solid var(--wtf-focus-outer-color);
   outline-offset: var(--wtf-focus-outline-offset);
   border-radius: inherit;
 }
 
-[data-public-ui-variant="migrated"] :focus-visible::after {
+html[data-wtf-ui="wtfos"] :focus-visible::after {
   content: "";
   position: absolute;
   inset: -2px;
@@ -39,8 +39,8 @@
    controls; this mirror rule with equal importance wins inside the
    subtree while leaving legacy surfaces untouched. */
 @media (hover: hover) and (pointer: fine) {
-  [data-public-ui-variant="migrated"],
-  [data-public-ui-variant="migrated"] * {
+  html[data-wtf-ui="wtfos"],
+  html[data-wtf-ui="wtfos"] * {
     cursor: auto !important;
   }
 }
@@ -50,12 +50,12 @@
    scrolling becomes instant, and transitions collapse to <=120ms fades
    per the Motion Contract. Scoped to the migrated subtree only. */
 @media (prefers-reduced-motion: reduce) {
-  [data-public-ui-variant="migrated"],
-  [data-public-ui-variant="migrated"] *,
-  [data-public-ui-variant="migrated"]::before,
-  [data-public-ui-variant="migrated"] *::before,
-  [data-public-ui-variant="migrated"]::after,
-  [data-public-ui-variant="migrated"] *::after {
+  html[data-wtf-ui="wtfos"],
+  html[data-wtf-ui="wtfos"] *,
+  html[data-wtf-ui="wtfos"]::before,
+  html[data-wtf-ui="wtfos"] *::before,
+  html[data-wtf-ui="wtfos"]::after,
+  html[data-wtf-ui="wtfos"] *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -63,7 +63,7 @@
   }
 
   /* Marquee/sparkle-class loops render as their static frame. */
-  [data-public-ui-variant="migrated"] [class*="animate-"] {
+  html[data-wtf-ui="wtfos"] [class*="animate-"] {
     animation: none !important;
   }
 }
@@ -71,7 +71,7 @@
 /* ---------- motion durations ----------
    Migrated components consume token durations/easing; transform and
    opacity only. Explicitly no `transition: all` in this layer. */
-[data-public-ui-variant="migrated"] {
+html[data-wtf-ui="wtfos"] {
   --wtf-transition-fast: transform var(--wtf-duration-fast)
       var(--wtf-ease-out),
     opacity var(--wtf-duration-fast) var(--wtf-ease-out);
