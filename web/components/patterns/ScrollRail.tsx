@@ -172,9 +172,9 @@ export const ScrollRail = forwardRef<HTMLDivElement, ScrollRailProps>(
           className={[
             "absolute left-0 top-1/2 -translate-y-1/2 z-10",
             "w-10 h-10 flex items-center justify-center",
-            "rounded-full bg-cream/90 border-2 border-ink/20",
-            "text-ink/60 hover:text-ink hover:border-ink/40",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink",
+            "rounded-full border-2 border-foreground/20 bg-surface-raised/90",
+            "text-secondary hover:border-foreground/40 hover:text-foreground",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground",
             "disabled:opacity-30 disabled:pointer-events-none",
             "transition-opacity",
           ].join(" ")}
@@ -221,9 +221,9 @@ export const ScrollRail = forwardRef<HTMLDivElement, ScrollRailProps>(
           className={[
             "absolute right-0 top-1/2 -translate-y-1/2 z-10",
             "w-10 h-10 flex items-center justify-center",
-            "rounded-full bg-cream/90 border-2 border-ink/20",
-            "text-ink/60 hover:text-ink hover:border-ink/40",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink",
+            "rounded-full border-2 border-foreground/20 bg-surface-raised/90",
+            "text-secondary hover:border-foreground/40 hover:text-foreground",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground",
             "disabled:opacity-30 disabled:pointer-events-none",
             "transition-opacity",
           ].join(" ")}

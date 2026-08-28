@@ -44,7 +44,7 @@ export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(
       <Dialog.Root open={open} onOpenChange={onOpenChange}>
         <Dialog.Portal>
           <Dialog.Overlay
-            className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm
+            className="fixed inset-0 z-50 bg-overlay/40 backdrop-blur-sm
                        data-[state=open]:animate-in data-[state=open]:fade-in-0
                        data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
           />
@@ -52,8 +52,8 @@ export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(
             ref={ref}
             aria-describedby={description ? "drawer-description" : undefined}
             className={[
-              "fixed z-50 gap-4 bg-cream border-l-2 border-ink",
-              "shadow-lg shadow-ink/10",
+              "fixed z-50 gap-4 bg-surface-raised border-l-2 border-foreground",
+              "shadow-lg shadow-foreground/10",
               "transition ease-in-out",
               "data-[state=open]:animate-in data-[state=closed]:animate-out",
               // Responsive positioning
@@ -75,28 +75,28 @@ export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(
             <div className="flex flex-col h-full p-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <Dialog.Title className="font-label text-lg font-bold text-ink">
+                  <Dialog.Title className="font-label text-lg font-bold text-foreground">
                     {title}
                   </Dialog.Title>
                   {description && (
                     <Dialog.Description
                       id="drawer-description"
-                      className="text-sm text-ink/70 mt-1"
+                      className="mt-1 text-sm text-secondary"
                     >
                       {description}
                     </Dialog.Description>
                   )}
                 </div>
                 <Dialog.Close
-                  aria-label="close drawer"
+                  aria-label="Close drawer"
                   className={[
                     "inline-flex items-center justify-center",
                     "min-h-[44px] min-w-[44px]",
                     "rounded-[var(--wtf-radius-control)]",
-                    "text-ink hover:bg-surface-subtle",
+                    "text-foreground hover:bg-surface-subtle",
                     "focus-visible:outline-none",
-                    "focus-visible:ring-2 ring-cream focus-visible:ring-offset-2",
-                    "focus-visible:ring-offset-ink",
+                    "focus-visible:ring-2 ring-canvas focus-visible:ring-offset-2",
+                    "focus-visible:ring-offset-foreground",
                   ].join(" ")}
                 >
                   <span aria-hidden="true" className="text-lg font-bold">

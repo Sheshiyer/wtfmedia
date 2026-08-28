@@ -21,61 +21,38 @@ export default wordmarkMeta;
 
 type WordmarkStory = StoryObj<typeof wordmarkMeta>;
 
-/** Full wordmark renders all four letters with correct structure */
+/** Official WTF OS raster lockup */
 export const WordmarkStructure: WordmarkStory = {
   render: () => <MigratedWordmark />,
   play: async ({ canvas }) => {
-    // The wordmark renders "wtfmedia" as four spans
-    const w = canvas.getByText("w", { exact: true });
-    const t = canvas.getByText("t", { exact: true });
-    const f = canvas.getByText("f", { exact: true });
-    const media = canvas.getByText("media", { exact: true });
-
-    await expect(w).toBeInTheDocument();
-    await expect(t).toBeInTheDocument();
-    await expect(f).toBeInTheDocument();
-    await expect(media).toBeInTheDocument();
+    const mark = canvas.getByAltText("WTF OS");
+    await expect(mark).toBeInTheDocument();
+    await expect(mark).toHaveAttribute("src", "/brand/wtfos-wordmark.png");
   },
 };
 
-/** Wordmark uses semantic tokens for w, t, media and raw #0C8167 for f */
+/** Wordmark is the saved brand asset, not reconstructed letter spans */
 export const WordmarkTokens: WordmarkStory = {
   render: () => <MigratedWordmark />,
   play: async ({ canvas }) => {
-    const w = canvas.getByText("w", { exact: true });
-    const t = canvas.getByText("t", { exact: true });
-    const f = canvas.getByText("f", { exact: true });
-    const media = canvas.getByText("media", { exact: true });
-
-    // w uses var(--wtf-editorial) — browser resolves to computed RGB
-    await expect(w).toHaveStyle({ color: "rgb(197, 59, 58)" });
-
-    // t uses var(--wtf-foreground) — ink
-    await expect(t).toHaveStyle({ color: "rgb(26, 26, 26)" });
-
-    // f uses brand-asset exception #0C8167 (not var(--wtf-live))
-    await expect(f).toHaveStyle({ color: "rgb(12, 129, 103)" });
-
-    // media uses var(--wtf-canvas) — cream
-    await expect(media).toHaveStyle({ color: "rgb(255, 246, 234)" });
+    const mark = canvas.getByAltText("WTF OS");
+    await expect(mark).toHaveAttribute("data-wtfos-wordmark");
   },
 };
 
-/** Wordmark with sparkles shows two SignatureSparkle instances */
+/** Official mark includes sparkles in the raster; no extra SVG layer */
 export const WordmarkWithSparkles: WordmarkStory = {
   render: () => <MigratedWordmark withSparkles={true} />,
   play: async ({ canvasElement }) => {
-    // Sparkles are aria-hidden SVGs — query DOM directly
-    const svgs = canvasElement.querySelectorAll("svg");
-    await expect(svgs.length).toBeGreaterThanOrEqual(2);
+    const img = canvasElement.querySelector("[data-wtfos-wordmark]");
+    if (!img) throw new Error("Missing WTF OS wordmark asset");
   },
 };
 
-/** Wordmark without sparkles shows no SVG elements */
+/** Official mark has no reconstructed SVG letters */
 export const WordmarkWithoutSparkles: WordmarkStory = {
   render: () => <MigratedWordmark withSparkles={false} />,
   play: async ({ canvasElement }) => {
-    // No SVGs should be present
     const svgs = canvasElement.querySelectorAll("svg");
     await expect(svgs).toHaveLength(0);
   },
@@ -94,23 +71,22 @@ const miniMeta = {
 
 type MiniStory = StoryObj<typeof miniMeta>;
 
-/** Mini wordmark renders four letters inline */
+/** Mini wordmark uses the same official asset */
 export const MiniStructure: MiniStory = {
   render: () => <MigratedWordmarkMini />,
   play: async ({ canvas }) => {
-    const w = canvas.getByText("w", { exact: true });
-    const f = canvas.getByText("f", { exact: true });
-    await expect(w).toBeInTheDocument();
-    await expect(f).toBeInTheDocument();
+    const mark = canvas.getByAltText("WTF OS");
+    await expect(mark).toBeInTheDocument();
+    await expect(mark).toHaveAttribute("data-wtfos-wordmark-mini");
   },
 };
 
-/** Mini wordmark uses brand-asset exception for green */
+/** Mini wordmark points at the saved WTF OS PNG */
 export const MiniTokens: MiniStory = {
   render: () => <MigratedWordmarkMini />,
   play: async ({ canvas }) => {
-    const f = canvas.getByText("f", { exact: true });
-    await expect(f).toHaveStyle({ color: "rgb(12, 129, 103)" });
+    const mark = canvas.getByAltText("WTF OS");
+    await expect(mark).toHaveAttribute("src", "/brand/wtfos-wordmark.png");
   },
 };
 

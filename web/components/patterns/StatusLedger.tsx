@@ -36,12 +36,12 @@ const stateCopy: Record<WorkspaceState, string> = {
 };
 
 const stateStyle: Record<WorkspaceState, string> = {
-  active: "bg-attention text-foreground",
+  active: "bg-attention text-on-attention",
   verified: "border-live bg-canvas text-foreground",
   unknown: "border-foreground/40 bg-surface-subtle text-foreground",
   unavailable: "border-editorial bg-canvas text-foreground",
-  "access-restricted": "border-foreground bg-foreground text-canvas",
-  "not-activated": "border-foreground/30 bg-surface-subtle text-foreground/70",
+  "access-restricted": "border-foreground bg-surface-structure text-on-structure",
+  "not-activated": "border-foreground/30 bg-surface-subtle text-muted",
   stale: "border-information bg-canvas text-foreground",
 };
 
@@ -69,10 +69,10 @@ function LedgerRow({
       >
         {stateCopy[item.state]}
       </span>
-      <p className="font-body text-sm leading-relaxed text-foreground/70">
+      <p className="font-body text-sm leading-relaxed text-secondary">
         {item.detail}
       </p>
-      <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-foreground/50">
+      <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
         {observed}
       </span>
     </>
@@ -131,7 +131,7 @@ export function StatusLedger({
       <div className="flex items-end justify-between gap-4 border-b-2 border-foreground px-4 py-4 sm:px-6">
         <div>
           {eyebrow && (
-            <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/55">
+            <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">
               {eyebrow}
             </p>
           )}

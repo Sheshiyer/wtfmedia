@@ -212,7 +212,7 @@ test.describe("Public shell journey", () => {
     await expect(wtfos).toBeAttached();
 
     // The rail uses the converged control-room wordmark link.
-    const wordmark = page.locator('a[aria-label="WTF Media control room"]');
+    const wordmark = page.locator('a[aria-label="WTF OS"]');
     await expect(wordmark).toBeAttached();
   });
 });

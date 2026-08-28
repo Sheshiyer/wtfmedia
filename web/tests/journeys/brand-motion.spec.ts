@@ -23,24 +23,19 @@ const VIEWPORTS = [
 test.describe("brand motion journey", () => {
   // ─── MigratedWordmarkMini ───────────────────────────────────────────
 
-  test("header shows MigratedWordmarkMini with semantic tokens", async ({
+  test("header shows the official WTF OS wordmark asset", async ({
     page,
   }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
+    const mark = page.locator("[data-wtfos-wordmark]").first();
+    await expect(mark).toBeVisible();
+    await expect(mark).toHaveAttribute("src", "/brand/wtfos-wordmark.png");
+    await expect(mark).toHaveAttribute("alt", "WTF OS");
+  });
 
-    // The home link in the header should contain the migrated wordmark
-    const homeLink = page.locator('header a[data-cursor="home"]');
-    await expect(homeLink).toBeAttached();
-
-    // MigratedWordmarkMini renders "w", "t", "f", "media" as separate spans
-    // Use exact text matching to avoid matching the outer wrapper span
-    const w = homeLink.getByText("w", { exact: true });
-    const f = homeLink.getByText("f", { exact: true });
-    await expect(w).toBeAttached();
-    await expect(f).toBeAttached();
-
-    // "f" uses brand-asset exception #0C8167 (rgb(12, 129, 103))
-    await expect(f).toHaveCSS("color", "rgb(12, 129, 103)");
+  test("boot overlay does not block automated clients", async ({ page }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await expect(page.locator("[data-wtf-os-boot]")).toHaveCount(0);
   });
 
   // ─── PausableMarquee ───────────────────────────────────────────────
@@ -202,17 +197,8 @@ test.describe("brand motion journey", () => {
   }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    // The header wordmark link should contain the migrated mini wordmark
-    // (extrude-sm class, not the full extrude class used by legacy Wordmark)
-    const homeLink = page.locator('header a[data-cursor="home"]');
-    const wordmark = homeLink.locator(".extrude");
-    await expect(wordmark).toBeAttached();
-
-    // MigratedWordmarkMini uses extrude-sm; legacy WordmarkMini uses extrude
-    // Both have .extrude, but the mini has .extrude-sm
-    const hasExtrudeSm = await wordmark.evaluate((el) =>
-      el.classList.contains("extrude-sm")
-    );
-    expect(hasExtrudeSm).toBe(true);
+    const mark = page.locator("[data-wtfos-wordmark]").first();
+    await expect(mark).toBeAttached();
+    await expect(mark).toHaveAttribute("src", "/brand/wtfos-wordmark.png");
   });
 });

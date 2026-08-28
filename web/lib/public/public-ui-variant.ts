@@ -12,6 +12,7 @@
 
 export type AppUiVariant = "legacy" | "wtfos";
 export type PublicUiVariant = "legacy" | "migrated";
+export type WtfThemePreference = "system";
 
 export function appUiVariant(): AppUiVariant {
   return process.env.WTF_PUBLIC_UI_VARIANT === "legacy" ? "legacy" : "wtfos";
@@ -19,4 +20,14 @@ export function appUiVariant(): AppUiVariant {
 
 export function publicUiVariant(): PublicUiVariant {
   return appUiVariant() === "legacy" ? "legacy" : "migrated";
+}
+
+/**
+ * The adaptive token system is intentionally opt-in: legacy rollback keeps
+ * its established light stylesheet while the active WTF OS follows the OS.
+ */
+export function themeForAppUiVariant(
+  variant: AppUiVariant,
+): WtfThemePreference | undefined {
+  return variant === "wtfos" ? "system" : undefined;
 }
