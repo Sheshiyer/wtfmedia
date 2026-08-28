@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "status": "approved",
+  "owner_approval_ref": "owner-explicit-approval-2026-08-25-visual-baseline-cutover-via-conversation",
+  "approved_at": "2026-08-25T09:52:48.632Z",
+  "candidate_sha256": "3e63e76fd4a9e1e5944061a96ef477756adcd8f4033439da8d8a16e574e5d8e8",
+  "baseline_commit": "promoted-from-candidate-plan-01-20-deterministic-img",
+  "total": 17,
+  "snapshots": [
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/chat-empty-1440px.png",
+      "sha256": "fa16e4f12ca81f669d507c291963cd21c0c73a8cb8adbbc329492c925870b687",
+      "bytes": 76360,
+      "route": "/chat",
+      "state": "empty",
+      "viewport": "1440"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/chat-empty-320px.png",
+      "sha256": "c60eba43a46195b050f5044f427a9285842680d3124dca0d3d2880313e1980e5",
+      "bytes": 58445,
+      "route": "/chat",
+      "state": "empty",
+      "viewport": "320"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/chat-empty-768px.png",
+      "sha256": "3b438444d8602192e6f480ab1fb96812f9649f87c557f26fa99aeade7723cbfe",
+      "bytes": 71531,
+      "route": "/chat",
+      "state": "empty",
+      "viewport": "768"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/chat-response-1440px.png",
+      "sha256": "75b544027bcf1653c08131bd57e6cc395604a45afd9b6540e41ac201381296dc",
+      "bytes": 65351,
+      "route": "/chat",
+      "state": "response",
+      "viewport": "1440"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/chat-response-320px.png",
+      "sha256": "c4ccd2448ceafdc0cbea9bdd2f4cda1788facde346d870f8bb35edb76520915e",
+      "bytes": 52032,
+      "route": "/chat",
+      "state": "response",
+      "viewport": "320"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/chat-response-768px.png",
+      "sha256": "9067fe8d26f4a99c89f229a1a0ec12e710b456101136d67f0ff823d65803b4b3",
+      "bytes": 61866,
+      "route": "/chat",
+      "state": "response",
+      "viewport": "768"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/connections-1440px.png",
+      "sha256": "b7ca3c0599671e8d8ef1de86ce21f468348f712e4549b0414ff72417694d60ad",
+      "bytes": 838051,
+      "route": "/connections",
+      "state": "default",
+      "viewport": "1440"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/connections-320px.png",
+      "sha256": "7bb28a137262dcf20f7a24cdf93b8fe49f69ba86e7f79b7d6c1eb4bbd589f921",
+      "bytes": 852948,
+      "route": "/connections",
+      "state": "default",
+      "viewport": "320"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/connections-768px.png",
+      "sha256": "93a89267da0996256b6456a18879e8b4f326b9d09838165891534d41c5eeb0fb",
+      "bytes": 784660,
+      "route": "/connections",
+      "state": "default",
+      "viewport": "768"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/episodes-1440px.png",
+      "sha256": "15a997966861a1c265a2eeb256f22015affdc733f76b67fd1e12c1b3f8313c49",
+      "bytes": 1457326,
+      "route": "/episodes",
+      "state": "default",
+      "viewport": "1440"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/episodes-320px.png",
+      "sha256": "5c095ab7ad6cd571e18de1896e7dece3e1b6caa4c1a3a5bdfeebda00cf77bafd",
+      "bytes": 460425,
+      "route": "/episodes",
+      "state": "default",
+      "viewport": "320"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/episodes-768px.png",
+      "sha256": "4d5891f9d8770d8a1c33139869dc5500605c811cf4760b3b7289fcd754fbd471",
+      "bytes": 988952,
+      "route": "/episodes",
+      "state": "default",
+      "viewport": "768"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/episodes-drawer-open-1440px.png",
+      "sha256": "bc5eb767501a0e1d5ddc66dec10c1965e61b355958d22794577e95de5bfcaa3a",
+      "bytes": 1178595,
+      "route": "/episodes",
+      "state": "drawer-open",
+      "viewport": "1440"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/episodes-drawer-open-320px.png",
+      "sha256": "449e113170f8ecd005aa3dd2f84a92915657100f28bf3d4d38855961f3e5b543",
+      "bytes": 392222,
+      "route": "/episodes",
+      "state": "drawer-open",
+      "viewport": "320"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/home-1440px.png",
+      "sha256": "579f8fe7438b33e389a2824afacf65dbb949e177293e796f83f4058a20261680",
+      "bytes": 342629,
+      "route": "/",
+      "state": "default",
+      "viewport": "1440"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/home-320px.png",
+      "sha256": "e05f732b979da1b6c9cdcd1e630cad28832e2348604fe9e13abf6d67d4e2e558",
+      "bytes": 199868,
+      "route": "/",
+      "state": "default",
+      "viewport": "320"
+    },
+    {
+      "artifact": "tests/visual/approved/public-routes.spec.ts-snapshots/home-768px.png",
+      "sha256": "e37a5b8281660fd77cf8ca45706c5e37327327ceb0c72d960c1da3f83cf3d0d6",
+      "bytes": 303856,
+      "route": "/",
+      "state": "default",
+      "viewport": "768"
+    }
+  ],
+  "coverage": {
+    "routes": [
+      "/",
+      "/chat",
+      "/connections",
+      "/episodes"
+    ],
+    "viewports": [
+      "1440",
+      "320",
+      "768"
+    ],
+    "states": [
+      "default",
+      "drawer-open",
+      "empty",
+      "response"
+    ]
+  }
+}

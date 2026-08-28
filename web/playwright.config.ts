@@ -5,6 +5,10 @@ const BASE_URL = `http://127.0.0.1:${PORT}`;
 
 export default defineConfig({
   testDir: "./tests",
+  testMatch: /.*\.spec\.ts$/,
+  metadata: {
+    phase1VisualCandidate: process.env.PHASE1_VISUAL_CANDIDATE === "1",
+  },
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

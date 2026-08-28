@@ -40,7 +40,7 @@ test("transfer uses a separate super-admin confirmation with a verified target",
   });
   await authenticate(page, "super_admin");
   await page.goto("/ops/operators", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("cell", { name: "approved@example.test" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "transfer seat" })).toBeVisible();
   await page.getByRole("button", { name: "transfer seat" }).click();
   await expect(page.getByRole("dialog")).toContainText("this makes approved@example.test the single super admin and records the handoff.");
   await expect(page.getByRole("button", { name: "keep current owner" })).toBeFocused();

@@ -9,12 +9,12 @@
       "command": "cd cloudflare && npm test -- d1-migrations --grep audit",
       "exit_status": 0,
       "evidence": {
-        "output_sha256": "679d68b92b3f26bd9d72f69d920938f5954cce980ca2c6c35e4a0f757beec447",
+        "output_sha256": "63ebf0ce4ec1083cdedd5d1392e93c3ea484cb3bfe83bd289ff64eb060947721",
         "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "output_bytes": 467,
         "error_output_bytes": 0
       },
-      "completed_at": "2026-08-26T09:20:03.430Z",
+      "completed_at": "2026-08-26T09:22:36.662Z",
       "status": "passed"
     },
     "T-02-06": {
@@ -29,7 +29,7 @@
         "output_bytes": 82,
         "error_output_bytes": 0
       },
-      "completed_at": "2026-08-26T09:20:03.430Z",
+      "completed_at": "2026-08-26T09:22:36.662Z",
       "status": "passed"
     },
     "T-02-04": {
@@ -39,12 +39,12 @@
       "command": "cd cloudflare && npm test -- d1-migrations --grep super_admin",
       "exit_status": 0,
       "evidence": {
-        "output_sha256": "068069ab77c52268aef9fd176a77ec0e9d0c5114514708308bc954326877cec9",
+        "output_sha256": "61039f14dd5b812fc69695f9126e8461a2f0b29199d4c2a51b30d84da9170950",
         "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "output_bytes": 472,
+        "output_bytes": 474,
         "error_output_bytes": 0
       },
-      "completed_at": "2026-08-26T09:20:03.792Z",
+      "completed_at": "2026-08-26T09:22:37.012Z",
       "status": "passed"
     }
   }

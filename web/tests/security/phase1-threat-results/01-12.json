@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "01-12",
+  "results": {
+    "T-01-36": {
+      "plan": "01-12",
+      "task": 1,
+      "command_id": "1af3400d79957adedd6927300ca298c3ccae8e92fa80dd642c4fb3f077480e4f",
+      "command": "cd web && npm run build && npm run test:contracts -- tests/contracts/public-routes.contract.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "c708d2b1582b1c0cf27a0986d34425d9eeb642e66d7a8b6162c20d7129e57ff4",
+        "error_output_sha256": "06a5c649c774fb9bbc5b7f11ecd89a5ba43edd925231ec22b3ce1a263dcc0780",
+        "output_bytes": 1583,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-22T21:48:13.186Z",
+      "status": "passed"
+    },
+    "T-01-37": {
+      "plan": "01-12",
+      "task": 2,
+      "command_id": "b81f5d5df2cc79a79cc55a862c6c33b3faae603724b647e32acf1052f64c52fb",
+      "command": "cd web && npm run test:components -- PublicShell && npm run typecheck && npm run lint && node scripts/capture-legacy-presentation.mjs --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "f76ee641483106a5474c0c7738c1efeccbbec3d994515915fedbdeed6d34d0ef",
+        "error_output_sha256": "c6e1ca6fd6591b652611dad5dbf626094194cc896a78e17f44debd48ff63d085",
+        "output_bytes": 484,
+        "error_output_bytes": 1506
+      },
+      "completed_at": "2026-08-22T21:49:21.305Z",
+      "status": "passed"
+    },
+    "T-01-38": {
+      "plan": "01-12",
+      "task": 3,
+      "command_id": "07e2e21dc85e424fe47d3a3841a95f943ddbb43bb08e38d93e45285651bee6a3",
+      "command": "cd web && npm run test:components -- PublicShell && npm run test:browser -- tests/journeys/public-shell.spec.ts tests/rollback/legacy-presentation.spec.ts && npm run test:privacy -- --check && npm run test:rollback -- --route=/episodes",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "0d4ef3ca8aab26ed3b2402ca98119bca48076a4dd2833bb4c7bfc182b38bd027",
+        "error_output_sha256": "550cea7fb85500b4dd14f844fe7089172441a5e30153cab63da2c4d0f813e648",
+        "output_bytes": 14981,
+        "error_output_bytes": 1632
+      },
+      "completed_at": "2026-08-22T21:53:02.064Z",
+      "status": "passed"
+    }
+  }
+}

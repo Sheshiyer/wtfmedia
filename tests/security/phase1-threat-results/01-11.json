@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "plan": "01-11",
+  "results": {
+    "T-01-33": {
+      "plan": "01-11",
+      "task": 1,
+      "command_id": "manual-01-11-T-01-33",
+      "command": "npm run test:components -- EpisodesBrowser && npm run test:browser -- tests/journeys/url-state.spec.ts --grep \"open|close|focus\" && npm run test:contracts -- tests/contracts/public-projection.contract.test.ts && npm run typecheck",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "manual-execution",
+        "error_output_sha256": "manual-execution",
+        "output_bytes": 0,
+        "error_output_bytes": 0,
+        "note": "Original plan command used --grep (Playwright flag) with vitest; corrected to run without --grep for vitest portion"
+      },
+      "completed_at": "2026-08-22T16:37:00.000Z",
+      "status": "passed"
+    }
+  }
+}

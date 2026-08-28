@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "01-18",
+  "results": {
+    "T-01-55": {
+      "plan": "01-18",
+      "task": 2,
+      "command_id": "dcd06489a407f520bf9c9c28983418b2c74bd04f5b9b606888e56159a76d3f8d",
+      "command": "cd web && node scripts/verify-phase1.mjs --self-test && node scripts/verify-phase1.mjs --self-test-threat-ledger",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "fcfd7e3836a90d09d77e29fbbfc9fe87b4dbdbe0d72d6230a6ebfc4d98660e2c",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 183,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-25T08:15:20.111Z",
+      "status": "passed"
+    },
+    "T-01-56": {
+      "plan": "01-18",
+      "task": 3,
+      "command_id": "a23e97daf957a56101667b286b5360cc86872585b393eca117f948ce70194ad0",
+      "command": "cd web && npm run verify:phase1 -- --candidate && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "300f2c29819687648e1c4c7241943e32784554a7313c585ca7681798f953ee00",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 8724,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-25T08:16:17.727Z",
+      "status": "passed"
+    },
+    "T-01-57": {
+      "plan": "01-18",
+      "task": 1,
+      "command_id": "b6687e21d8c7f6a9776026f09c3df0063ed71adbe3737a445cf3637ab04efd06",
+      "command": "cd web && npm run test:rollback",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "61337fc6c4625329b730d15347fcb1281402d00de4d56cb4cd57f952545aeff0",
+        "error_output_sha256": "5b669c80ff6b7a03db5c6a04c23795afadb58edf0f85cb180075500c5059fba5",
+        "output_bytes": 8678,
+        "error_output_bytes": 580
+      },
+      "completed_at": "2026-08-25T11:38:54.069Z",
+      "status": "passed"
+    }
+  }
+}

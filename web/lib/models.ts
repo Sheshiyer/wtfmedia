@@ -15,6 +15,11 @@ export type ChatModel = {
   note?: string;
 };
 
+// Keep fallbacks explicit and short. The UI may expose any catalog model, but
+// an API request must always have a known, text-capable recovery path.
+const FAST_FALLBACK_MODEL = "meta/llama-3.1-8b-instruct";
+const BALANCED_FALLBACK_MODEL = "meta/llama-3.3-70b-instruct";
+
 export const MODELS: ChatModel[] = [
   {
     id: "meta/llama-3.3-70b-instruct",
@@ -100,6 +105,15 @@ export const MODELS: ChatModel[] = [
 export const DEFAULT_MODEL = "meta/llama-3.3-70b-instruct";
 
 export const isValidModel = (id: string) => MODELS.some((m) => m.id === id);
+
+/**
+ * Return the requested model followed by two distinct recovery models.
+ * The final 8B model is deliberately small: it is the latency escape hatch
+ * when a larger model is unavailable or slow to emit its first token.
+ */
+export function modelAttempts(requested: string): string[] {
+  return [...new Set([requested, BALANCED_FALLBACK_MODEL, FAST_FALLBACK_MODEL])];
+}
 
 // modality weights — richer media support scores higher
 const MOD_WEIGHT: Record<Modality, number> = {

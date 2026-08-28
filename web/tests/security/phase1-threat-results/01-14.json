@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "01-14",
+  "results": {
+    "T-01-42": {
+      "plan": "01-14",
+      "task": 1,
+      "command_id": "548f9af3b78057df6129a5ac869144740d158b746e86180ab652057b3224244c",
+      "command": "cd web && npm run test:contracts -- tests/contracts/connections-parity.test.ts tests/contracts/connections-public-projection.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "b6553cd7630596ee0b70b65d901c1a8be65d00553be926971cad10e84003cf73",
+        "error_output_sha256": "fe0b11ce2f019e7d14ad62d1a6bf4279cc1d2d70a52a519308d643bc6cadfe8b",
+        "output_bytes": 408,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-23T03:01:57.607Z",
+      "status": "passed"
+    },
+    "T-01-43": {
+      "plan": "01-14",
+      "task": 2,
+      "command_id": "a867074a09038eff4bd9c7a3edfabede6f720fd716379a01e1de6102a91fba3f",
+      "command": "cd web && npm run test:components -- ConnectionsGraph -t \"Default|Reduced Motion|Pre Selected|Keyboard Only\" && npm run test:contracts -- tests/contracts/connections-parity.test.ts && npm run typecheck && npm run lint",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "571c16f02e6976c054b402e59a225db4f4328c09312c67cb7a8b7729867177d2",
+        "error_output_sha256": "4b19267d7d9b6673239de9e401eb1c00b5ba7b49addab5090e66134ed48954f9",
+        "output_bytes": 836,
+        "error_output_bytes": 2447
+      },
+      "completed_at": "2026-08-23T03:08:40.012Z",
+      "status": "passed"
+    },
+    "T-01-44": {
+      "plan": "01-14",
+      "task": 3,
+      "command_id": "c00d4c2ccacad92f8f71890c5b7435c2b64379708c375d6c6f472412de4385d9",
+      "command": "cd web && npm run test:components -- GraphWithList && npm run test:browser -- tests/journeys/connections.spec.ts && npm run test:privacy -- --check && npm run test:rollback -- --route=/connections",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "cb6629fc30881bfb3e3d75a971f0ffc3a524ff025e53ec4d3af9377b7eea580e",
+        "error_output_sha256": "ef16cabdfbce9c7acb4e8e533fd0cf7f70b84a9d6319ecc69f72679cb529b0f9",
+        "output_bytes": 10491,
+        "error_output_bytes": 1632
+      },
+      "completed_at": "2026-08-23T03:19:29.895Z",
+      "status": "passed"
+    }
+  }
+}

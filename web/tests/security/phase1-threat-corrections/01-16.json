@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "plan": "01-16",
+  "approval_reference": "GSD-01-16-TYPECHECK-CORRECTION",
+  "corrections": {
+    "T-01-50": {
+      "effective_command": "cd web && npm run test:components -- MigratedHomePage && npm run lint && node scripts/capture-legacy-presentation.mjs --check",
+      "effective_command_sha256": "d9063b889266cbf367802d6c7f54dcf70dbbb8e60279f70ba4e7df5b5f394877",
+      "original_command_id": "ee0d642c0ef70b556c7aff1605e8405a6a398b55dad138d09c2a153d22077c3d",
+      "original_command_sha256": "75307f32d73a2fb458f718c6a1b326e4eb49fbaddcd7a9be12a19fec0b8f492a",
+      "superseded_result": {
+        "plan": "01-16",
+        "task": 2,
+        "command_id": "ee0d642c0ef70b556c7aff1605e8405a6a398b55dad138d09c2a153d22077c3d",
+        "command": "cd web && npm run test:components -- MigratedHomePage --grep \"CTA|GuestStrip|reduced motion|320\" && npm run typecheck && npm run lint && node scripts/capture-legacy-presentation.mjs --check",
+        "exit_status": 1,
+        "evidence": {
+          "output_sha256": "5a495b88778728911371ee7365a433271132fd14c2b431e0000ed509501fcaa1",
+          "error_output_sha256": "80e2f7e0600890487299ae111b670b18c37516c7383e3d160d5359fe9f59ac74",
+          "output_bytes": 130,
+          "error_output_bytes": 1031
+        },
+        "completed_at": "2026-08-23T04:37:41.895Z",
+        "status": "failed"
+      }
+    }
+  }
+}

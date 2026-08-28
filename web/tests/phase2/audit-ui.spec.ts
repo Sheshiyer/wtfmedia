@@ -7,7 +7,11 @@ test("ledger renders only its allowlisted envelope", async ({ page }) => {
   await page.route("**/api/ops/audit*", (route) => route.fulfill({ json: { records: [{ timestamp: "2026-08-26T00:00:00.000Z", subject: "recorded operator", role: "admin", action: "operator_invite", entityType: "operator", entityId: "invitation", outcome: "succeeded", environment: "local", correlationId: "fixture-correlation" }] } }));
   await authenticate(page, "admin"); await page.goto("/ops/audit", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: "audit ledger" })).toBeVisible();
-  await expect(page.getByRole("cell", { name: "fixture-correlation" })).toBeVisible();
+  if ((page.viewportSize()?.width ?? 1440) < 768) {
+    await expect(page.getByRole("listitem").filter({ hasText: "fixture-correlation" })).toBeVisible();
+  } else {
+    await expect(page.getByRole("cell", { name: "fixture-correlation" })).toBeVisible();
+  }
   await expect(page.getByText(/token|prompt|provider/i)).toHaveCount(0);
 });
 

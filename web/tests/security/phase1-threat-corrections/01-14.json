@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "plan": "01-14",
+  "approval_reference": "GSD-01-14-CORRECTION",
+  "corrections": {
+    "T-01-43": {
+      "effective_command": "cd web && npm run test:components -- ConnectionsGraph -t \"Default|Reduced Motion|Pre Selected|Keyboard Only\" && npm run test:contracts -- tests/contracts/connections-parity.test.ts && npm run typecheck && npm run lint",
+      "effective_command_sha256": "191488fca6e1057da43187e4efdea4eec4498ca2d095dd8cf47d29675e1cc2ff",
+      "original_command_id": "144d01705be1b08f33abfec3346deb4ecc7b8e26d9d054d87f6e45c008aae837",
+      "original_command_sha256": "ca82aecf0d6351a3cbcee56557db4e6b8ac8e8d09ae8b54832959dcfd0738007",
+      "superseded_result": {
+        "plan": "01-14",
+        "task": 2,
+        "command_id": "144d01705be1b08f33abfec3346deb4ecc7b8e26d9d054d87f6e45c008aae837",
+        "command": "cd web && npm run test:components -- GraphWithList --grep \"selection|settle|reduced|responsive\" && npm run test:contracts -- tests/contracts/connections-parity.test.ts && npm run typecheck && npm run lint",
+        "exit_status": 1,
+        "evidence": {
+          "output_sha256": "7b84928538340b5e917ff71559a11a447ef592426a4b1de71e917be6689f693c",
+          "error_output_sha256": "80e2f7e0600890487299ae111b670b18c37516c7383e3d160d5359fe9f59ac74",
+          "output_bytes": 129,
+          "error_output_bytes": 1031
+        },
+        "completed_at": "2026-08-22T22:17:20.972Z",
+        "status": "failed"
+      }
+    }
+  }
+}

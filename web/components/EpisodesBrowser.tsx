@@ -92,7 +92,7 @@ export default function EpisodesBrowser({ data }: Props) {
                   <h3 className="font-medium text-sm leading-snug line-clamp-3 flex-1">
                     {e.title}
                   </h3>
-                  <div className="flex items-center justify-between mt-3 text-xs text-ink/50">
+                  <div className="flex items-center justify-between mt-3 text-xs text-ink/70">
                     <span>{fmtViews(e.view_count)} views</span>
                     <span className="eyebrow text-wtf-purple">open ↗</span>
                   </div>

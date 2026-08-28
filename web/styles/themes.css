@@ -1,10 +1,9 @@
 /**
  * Contextual theme mappings (Plan 01-08 Task 1, D-05).
  *
- * Maps canonical tokens onto public context surfaces. This file adds NO
- * new raw colors, NO operator policy/state mappings (Phase 2 concern),
- * and no competing palette. The operator context is deliberately absent
- * until Phase 2 owns identity/session/capability decisions.
+ * Maps canonical tokens onto public and operator surfaces. Raw colors stay
+ * in tokens.css; this file selects semantic roles for a light/dark context.
+ * Legacy has no theme marker and therefore retains the root light baseline.
  */
 
 :root {
@@ -25,4 +24,100 @@
    * consumers until owner visual approval.
    */
   --wtf-state-production-provisional: var(--wtf-production);
+}
+
+html[data-wtf-theme="light"] {
+  color-scheme: light;
+}
+
+html[data-wtf-theme="dark"] {
+  --wtf-canvas: var(--wtf-dark-canvas);
+  --wtf-surface-subtle: var(--wtf-dark-surface-subtle);
+  --wtf-surface-raised: var(--wtf-dark-surface-raised);
+  --wtf-surface-structure: var(--wtf-dark-structure);
+  --wtf-foreground: var(--wtf-dark-foreground);
+  --wtf-text-primary: var(--wtf-dark-foreground);
+  --wtf-text-secondary: var(--wtf-dark-text-secondary);
+  --wtf-text-muted: var(--wtf-dark-text-muted);
+  --wtf-text-on-structure: var(--wtf-dark-foreground);
+  --wtf-editorial: var(--wtf-dark-editorial);
+  --wtf-live: var(--wtf-dark-live);
+  --wtf-attention: var(--wtf-dark-attention);
+  --wtf-production: var(--wtf-dark-production);
+  --wtf-knowledge: var(--wtf-dark-knowledge);
+  --wtf-information: var(--wtf-dark-information);
+  --wtf-on-attention: var(--wtf-dark-canvas);
+  --wtf-on-editorial: var(--wtf-dark-canvas);
+  --wtf-on-knowledge: var(--wtf-dark-canvas);
+  --wtf-on-information: var(--wtf-dark-canvas);
+  --wtf-on-production: var(--wtf-dark-canvas);
+  --wtf-canvas-rgb: var(--wtf-dark-canvas-rgb);
+  --wtf-surface-subtle-rgb: var(--wtf-dark-surface-subtle-rgb);
+  --wtf-surface-raised-rgb: var(--wtf-dark-surface-raised-rgb);
+  --wtf-surface-structure-rgb: var(--wtf-dark-structure-rgb);
+  --wtf-foreground-rgb: var(--wtf-dark-foreground-rgb);
+  --wtf-text-primary-rgb: var(--wtf-dark-foreground-rgb);
+  --wtf-text-secondary-rgb: var(--wtf-dark-text-secondary-rgb);
+  --wtf-text-muted-rgb: var(--wtf-dark-text-muted-rgb);
+  --wtf-text-on-structure-rgb: var(--wtf-dark-foreground-rgb);
+  --wtf-editorial-rgb: var(--wtf-dark-editorial-rgb);
+  --wtf-live-rgb: var(--wtf-dark-live-rgb);
+  --wtf-attention-rgb: var(--wtf-dark-attention-rgb);
+  --wtf-production-rgb: var(--wtf-dark-production-rgb);
+  --wtf-knowledge-rgb: var(--wtf-dark-knowledge-rgb);
+  --wtf-information-rgb: var(--wtf-dark-information-rgb);
+  --wtf-on-attention-rgb: var(--wtf-dark-canvas-rgb);
+  --wtf-on-editorial-rgb: var(--wtf-dark-canvas-rgb);
+  --wtf-on-knowledge-rgb: var(--wtf-dark-canvas-rgb);
+  --wtf-on-information-rgb: var(--wtf-dark-canvas-rgb);
+  --wtf-on-production-rgb: var(--wtf-dark-canvas-rgb);
+  --wtf-overlay-rgb: var(--wtf-dark-overlay-rgb);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-wtf-theme="system"] {
+    --wtf-canvas: var(--wtf-dark-canvas);
+    --wtf-surface-subtle: var(--wtf-dark-surface-subtle);
+    --wtf-surface-raised: var(--wtf-dark-surface-raised);
+    --wtf-surface-structure: var(--wtf-dark-structure);
+    --wtf-foreground: var(--wtf-dark-foreground);
+    --wtf-text-primary: var(--wtf-dark-foreground);
+    --wtf-text-secondary: var(--wtf-dark-text-secondary);
+    --wtf-text-muted: var(--wtf-dark-text-muted);
+    --wtf-text-on-structure: var(--wtf-dark-foreground);
+    --wtf-editorial: var(--wtf-dark-editorial);
+    --wtf-live: var(--wtf-dark-live);
+    --wtf-attention: var(--wtf-dark-attention);
+    --wtf-production: var(--wtf-dark-production);
+    --wtf-knowledge: var(--wtf-dark-knowledge);
+    --wtf-information: var(--wtf-dark-information);
+    --wtf-on-attention: var(--wtf-dark-canvas);
+    --wtf-on-editorial: var(--wtf-dark-canvas);
+    --wtf-on-knowledge: var(--wtf-dark-canvas);
+    --wtf-on-information: var(--wtf-dark-canvas);
+    --wtf-on-production: var(--wtf-dark-canvas);
+    --wtf-canvas-rgb: var(--wtf-dark-canvas-rgb);
+    --wtf-surface-subtle-rgb: var(--wtf-dark-surface-subtle-rgb);
+    --wtf-surface-raised-rgb: var(--wtf-dark-surface-raised-rgb);
+    --wtf-surface-structure-rgb: var(--wtf-dark-structure-rgb);
+    --wtf-foreground-rgb: var(--wtf-dark-foreground-rgb);
+    --wtf-text-primary-rgb: var(--wtf-dark-foreground-rgb);
+    --wtf-text-secondary-rgb: var(--wtf-dark-text-secondary-rgb);
+    --wtf-text-muted-rgb: var(--wtf-dark-text-muted-rgb);
+    --wtf-text-on-structure-rgb: var(--wtf-dark-foreground-rgb);
+    --wtf-editorial-rgb: var(--wtf-dark-editorial-rgb);
+    --wtf-live-rgb: var(--wtf-dark-live-rgb);
+    --wtf-attention-rgb: var(--wtf-dark-attention-rgb);
+    --wtf-production-rgb: var(--wtf-dark-production-rgb);
+    --wtf-knowledge-rgb: var(--wtf-dark-knowledge-rgb);
+    --wtf-information-rgb: var(--wtf-dark-information-rgb);
+    --wtf-on-attention-rgb: var(--wtf-dark-canvas-rgb);
+    --wtf-on-editorial-rgb: var(--wtf-dark-canvas-rgb);
+    --wtf-on-knowledge-rgb: var(--wtf-dark-canvas-rgb);
+    --wtf-on-information-rgb: var(--wtf-dark-canvas-rgb);
+    --wtf-on-production-rgb: var(--wtf-dark-canvas-rgb);
+    --wtf-overlay-rgb: var(--wtf-dark-overlay-rgb);
+    color-scheme: dark;
+  }
 }

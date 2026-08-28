@@ -178,9 +178,11 @@ test.describe("phase1 legacy presentation baseline @legacy-baseline", () => {
 
     // Force the client-side failure path: the transport itself fails, so the
     // surface renders its safe error bubble without leaking internals.
+    // The composer is a textarea in the migrated variant and an input in legacy.
     await page.route("**/api/chat", (route: Route) => route.abort());
-    await page.locator('input[placeholder*="Ask"]').fill("baseline probe question");
-    await page.locator('button[type="submit"]').click();
+    const composer = page.locator('textarea, input[placeholder*="Ask"]').first();
+    await composer.fill("baseline probe question");
+    await composer.press("Enter");
     await expect(page.locator("text=/⚠️/")).toBeVisible({ timeout: 15_000 });
   });
 

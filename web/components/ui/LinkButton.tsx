@@ -23,7 +23,7 @@ export interface LinkButtonProps
   /** Destination URL. Rejects unsafe protocols. */
   href: string;
   /** Visual variant using semantic tokens */
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "secondary" | "ghost" | "attention";
   /** Force external behavior even for same-origin paths */
   external?: boolean;
   children: ReactNode;
@@ -72,6 +72,8 @@ export const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(
         "bg-cream text-ink hover:bg-surface-subtle active:bg-surface-subtle/80",
       variant === "ghost" &&
         "bg-transparent text-ink hover:bg-surface-subtle active:bg-surface-subtle/80",
+      variant === "attention" &&
+        "bg-attention text-foreground hover:bg-attention active:bg-attention",
       !safe && "opacity-50 cursor-not-allowed pointer-events-none",
       className,
     ]

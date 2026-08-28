@@ -16,22 +16,34 @@ import {
 describe("connections public projection", () => {
   // ─── Allowlist field sets ────────────────────────────────────────────
 
-  it("PUBLIC_CONNECTIONS_DATA_FIELDS contains exactly nodes, edges, overlaps", () => {
-    expect(PUBLIC_CONNECTIONS_DATA_FIELDS).toEqual(["nodes", "edges", "overlaps"]);
+  it("PUBLIC_CONNECTIONS_DATA_FIELDS contains exactly nodes, edges, overlaps, threshold, emergingMin, totalEpisodes, categories, established, emerging, titles", () => {
+    expect(PUBLIC_CONNECTIONS_DATA_FIELDS).toEqual([
+      "nodes",
+      "edges",
+      "overlaps",
+      "threshold",
+      "emergingMin",
+      "totalEpisodes",
+      "categories",
+      "established",
+      "emerging",
+      "titles",
+    ]);
   });
 
-  it("PUBLIC_CONNECTION_NODE_FIELDS contains exactly id, label, category, episodeCount, episodes", () => {
+  it("PUBLIC_CONNECTION_NODE_FIELDS contains exactly id, label, category, episodeCount, episodes, mentions", () => {
     expect(PUBLIC_CONNECTION_NODE_FIELDS).toEqual([
       "id",
       "label",
       "category",
       "episodeCount",
       "episodes",
+      "mentions",
     ]);
   });
 
-  it("PUBLIC_CONNECTION_EDGE_FIELDS contains exactly a, b, shared", () => {
-    expect(PUBLIC_CONNECTION_EDGE_FIELDS).toEqual(["a", "b", "shared"]);
+  it("PUBLIC_CONNECTION_EDGE_FIELDS contains exactly a, b, shared, episodes", () => {
+    expect(PUBLIC_CONNECTION_EDGE_FIELDS).toEqual(["a", "b", "shared", "episodes"]);
   });
 
   it("PUBLIC_CONNECTION_OVERLAP_FIELDS contains exactly a, b, shared", () => {
@@ -47,6 +59,7 @@ describe("connections public projection", () => {
       category: "tech",
       episodeCount: 5,
       episodes: ["vid1", "vid2"],
+      mentions: 10,
       // extra fields that must be stripped
       tasks: ["t1"],
       owners: ["alice"],
@@ -66,6 +79,7 @@ describe("connections public projection", () => {
       category: "tech",
       episodeCount: 5,
       episodes: ["vid1", "vid2"],
+      mentions: 10,
     });
     expect(result).not.toHaveProperty("tasks");
     expect(result).not.toHaveProperty("owners");
@@ -86,6 +100,7 @@ describe("connections public projection", () => {
       category: "business",
       episodeCount: 3,
       episodes: ["a", "b", "c"],
+      mentions: 7,
     };
     const result = normalizeConnectionNode(raw);
     const keys = Object.keys(result);
@@ -157,9 +172,10 @@ describe("connections public projection", () => {
       category: "tech",
       episodeCount: 5,
       episodes: ["vid1"],
+      mentions: 3,
     });
     expect(result.edges).toHaveLength(1);
-    expect(result.edges[0]).toEqual({ a: "n1", b: "n2", shared: 3 });
+    expect(result.edges[0]).toEqual({ a: "n1", b: "n2", shared: 3, episodes: ["vid1"] });
     expect(result.overlaps).toHaveLength(1);
     expect(result.overlaps[0]).toEqual({ a: "tech", b: "business", shared: 2 });
   });

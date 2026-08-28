@@ -1,5 +1,28 @@
 # Project handoff
 
+## 2026-08-27 Phase 2 operator visual alignment
+
+**Status:** LOCAL IMPLEMENTATION — uncommitted until this checkpoint lands
+
+**Evidence:**
+- Remaining Phase 1 evidence/docs checkpointed on `aa913d7` (Lighthouse CI cache ignored).
+- Phase 2 screens restyled to `02-UI-SPEC.md` without new fetch/auth logic: Control Room, Operators, Audit, Recovery.
+- `WorkspaceHeader` sizes: `workspace` (public default), `control-room` (`text-display` clamp 40–72), `page` (34px / 28px Operators and Audit).
+- Control Room has one yellow `attention` command plus secondary **refresh status**. Context strip uses 11px labels, 13px values, tabular last-verified time, and does not truncate scope fields.
+- Operators/Audit use page headers, dense 13px rows, 2px ink panels, 320 record lists / 768+ tables. Recovery is `AccessRecovery` with spec copy.
+- No fake health, counts, or invented workflow systems.
+
+**Verification:**
+```bash
+npm --prefix web run typecheck
+cd web && npx vitest run tests/contracts/wtf-os-token-contract.test.ts
+cd web && WTF_PUBLIC_UI_VARIANT=migrated WTFMEDIA_OPS_ORIGIN_PROOF=phase2-e2e-test-key npx playwright test --grep-invert @visual tests/phase2 --project=phase1-chromium-320 --project=phase1-chromium-768 --project=phase1-chromium-1440
+```
+Typecheck passed. Token contract 3/3. Phase 2 Playwright 39/39. Browser screenshots of `/ops` at 1440 and 320 confirmed the yellow command and stacked 320 chrome.
+
+**Next Action:**
+Wire live status refresh and remaining operator/audit data presentation after this visual baseline. Plan 02-12 stays owner-gated.
+
 ## 2026-08-27 Operator shell converge + refinements A/D
 
 **Status:** LOCAL IMPLEMENTATION — uncommitted worktree diff on `d1e7ece`

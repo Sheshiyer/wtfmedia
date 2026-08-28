@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "01-16",
+  "results": {
+    "T-01-51": {
+      "plan": "01-16",
+      "task": 3,
+      "command_id": "cf7ae44be20c57d8d1442638bf19f8f9c69958f1b44dc7e2ce6c164150be33d9",
+      "command": "cd web && npm run test:components -- MigratedHomePage && npm run test:browser -- tests/journeys/home.spec.ts tests/journeys/episodes.spec.ts tests/journeys/connections.spec.ts tests/journeys/chat.spec.ts && npm run test:privacy -- --check && npm run test:rollback -- --route=/",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "07df7ce94657e4ccc325fb9868226d7d909bce521559b7ff3074c11833722bcd",
+        "error_output_sha256": "d593e7b772ddb63cccae1d12050e63a0673ad5a687da99ce46770a59c88ce395",
+        "output_bytes": 15842,
+        "error_output_bytes": 1633
+      },
+      "completed_at": "2026-08-23T04:33:05.882Z",
+      "status": "passed"
+    },
+    "T-01-49": {
+      "plan": "01-16",
+      "task": 1,
+      "command_id": "cdeaf9e10b70982249c629f510bf70f53e61dae24f3dcbdf5fc82a571879db9b",
+      "command": "cd web && npm run build && npm run test:contracts -- tests/contracts/public-routes.contract.test.ts tests/contracts/public-projection.contract.test.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "edb4e33016321e54d0feadfd645b010a3c604916869cddc05d48549625b6eca4",
+        "error_output_sha256": "409bf09d619ea1c0d926f5a11cdc824bb892e4f2a990d404ae86ec0e8c423592",
+        "output_bytes": 1636,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-23T04:34:30.818Z",
+      "status": "passed"
+    },
+    "T-01-50": {
+      "plan": "01-16",
+      "task": 2,
+      "command_id": "fae296a03475570aa60241fd96c5a4e1bd012812ba47aaba529ec8ac23d088b7",
+      "command": "cd web && npm run test:components -- MigratedHomePage && npm run lint && node scripts/capture-legacy-presentation.mjs --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "bd1fb2188e3631b81f62e4a8a8cf36a145cecefd91ab7d6b66e414108b0467cf",
+        "error_output_sha256": "bd045b8ca8748a4f71fe3f721de2c4d51df201d54ad4bc9de522cd2fe244a99c",
+        "output_bytes": 441,
+        "error_output_bytes": 1507
+      },
+      "completed_at": "2026-08-23T04:40:25.420Z",
+      "status": "passed"
+    }
+  }
+}

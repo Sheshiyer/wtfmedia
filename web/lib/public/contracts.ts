@@ -49,11 +49,11 @@ export const PUBLIC_EPISODE_FIELDS = [
   "manually_added",
 ] as const;
 
-export const PUBLIC_CONNECTIONS_DATA_FIELDS = ["nodes", "edges", "overlaps"] as const;
+export const PUBLIC_CONNECTIONS_DATA_FIELDS = ["nodes", "edges", "overlaps", "threshold", "emergingMin", "totalEpisodes", "categories", "established", "emerging", "titles"] as const;
 
-export const PUBLIC_CONNECTION_NODE_FIELDS = ["id", "label", "category", "episodeCount", "episodes"] as const;
+export const PUBLIC_CONNECTION_NODE_FIELDS = ["id", "label", "category", "episodeCount", "episodes", "mentions"] as const;
 
-export const PUBLIC_CONNECTION_EDGE_FIELDS = ["a", "b", "shared"] as const;
+export const PUBLIC_CONNECTION_EDGE_FIELDS = ["a", "b", "shared", "episodes"] as const;
 
 export const PUBLIC_CONNECTION_OVERLAP_FIELDS = ["a", "b", "shared"] as const;
 

@@ -4,7 +4,7 @@ import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Visual variant using semantic tokens */
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "secondary" | "ghost" | "attention";
   /** Show loading state with preserved width */
   loading?: boolean;
   /** Visual pressed state for toggle-like behavior */
@@ -60,6 +60,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             "bg-cream text-ink hover:bg-surface-subtle active:bg-surface-subtle/80",
           variant === "ghost" &&
             "bg-transparent text-ink hover:bg-surface-subtle active:bg-surface-subtle/80",
+          variant === "attention" &&
+            "bg-attention text-foreground hover:bg-attention active:bg-attention",
           // Disabled state
           isDisabled && "opacity-50 cursor-not-allowed",
           // Loading state

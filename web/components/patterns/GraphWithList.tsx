@@ -76,15 +76,15 @@ export function GraphWithList({
                 data-node-id={node.id}
                 aria-pressed={node.id === selectedId}
                 onClick={() => handleSelect(node.id)}
-                className="w-full text-left rounded-lg border-2 border-ink bg-cream p-3 space-y-1 hover:bg-wtf-yellow transition-colors"
+                className="w-full space-y-1 rounded-lg border-2 border-foreground bg-surface-raised p-3 text-left transition-colors hover:bg-attention/20"
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-ink/61">{node.category}</span>
-                  <span className="text-sm font-semibold text-ink">
+                  <span className="text-xs text-secondary">{node.category}</span>
+                  <span className="text-sm font-semibold text-foreground">
                     {node.label}
                   </span>
                 </div>
-                <div className="text-xs text-ink/61">
+                <div className="text-xs text-secondary">
                   {node.episodeCount} episode
                   {node.episodeCount !== 1 ? "s" : ""}
                 </div>
@@ -105,7 +105,7 @@ export function GraphWithList({
                 key={`${edge.a}-${edge.b}`}
                 data-testid={`graph-edge-${edge.a}-${edge.b}`}
                 data-edge-key={`${edge.a}-${edge.b}`}
-                className="text-xs text-ink/61"
+                className="text-xs text-secondary"
               >
                 {la} + {lb} ({edge.shared} shared)
               </li>
@@ -120,17 +120,17 @@ export function GraphWithList({
           role="region"
           aria-label={`Details for ${selectedNode.label}`}
           data-testid="graph-selection-detail"
-          className="mt-4 rounded-lg border-2 border-ink bg-cream p-4 space-y-2"
+          className="mt-4 space-y-2 rounded-lg border-2 border-foreground bg-surface-raised p-4"
         >
           <div className="flex items-center gap-2">
-            <span className="text-xs text-ink/61">
+            <span className="text-xs text-secondary">
               {selectedNode.category}
             </span>
-            <span className="text-lg font-bold text-ink">
+            <span className="text-lg font-bold text-foreground">
               {selectedNode.label}
             </span>
           </div>
-          <div className="text-sm text-ink/61">
+          <div className="text-sm text-secondary">
             {selectedNode.episodeCount} episode
             {selectedNode.episodeCount !== 1 ? "s" : ""}
           </div>
@@ -143,7 +143,7 @@ export function GraphWithList({
                 rel="noreferrer"
                 data-testid={`graph-episode-link-${vid}`}
                 data-episode-id={vid}
-                className="text-xs px-2 py-1 rounded bg-ink/5 hover:bg-wtf-yellow transition-colors"
+                className="rounded bg-foreground/5 px-2 py-1 text-xs transition-colors hover:bg-attention/20"
               >
                 {vid}
               </a>

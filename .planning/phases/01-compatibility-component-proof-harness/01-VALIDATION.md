@@ -1,9 +1,9 @@
 ---
 phase: 1
 slug: compatibility-component-proof-harness
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-08-19
 ---
 
@@ -50,21 +50,21 @@ The Phase Threat Definition Ledger below assigns immutable plan/task ownership a
 | 01-01-T1/T3 | 01-01 | 1 | COMP-02 | T-01-01, T-01-03 | Supported bookmarks, queries, filters, and deep links retain meaning | contract + E2E | `npm run test:browser -- tests/journeys/url-state.spec.ts` | ❌ W0 | ⬜ pending |
 | 01-01-T1/T3, 01-05-T1 | 01-01, 01-05 | 1, 5 | COMP-03 | T-01-01, T-01-03, T-01-04, T-01-13..T-01-17 | Chat validation, streaming, headers, sources, status, and safe errors remain compatible | contract + E2E | `npm run test:contracts -- tests/contracts/api-chat.contract.test.ts` | ✅ | ✅ green |
 | 01-05-T2 | 01-05 | 5 | COMP-04 | T-01-14 | Anonymous DTOs, DOM, payloads, and artifacts contain allowlisted fields only | unit + DOM + artifact | `npm run test:contracts -- tests/contracts/public-projection.contract.test.ts` | ✅ | ✅ green |
-| TBD | TBD | 0 | COMP-05 | Authorization-state disclosure | Connections remains a read-only public evidence projection | unit + E2E | `npm run test:browser -- tests/journeys/connections.spec.ts` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DSYS-01 | — | Migrated components consume repository-owned semantic tokens | schema/lint | `npm run test:unit -- tests/unit/tokens.test.ts` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DSYS-02 | — | Brand-critical wordmark, palette, fonts, depth, and voice remain present | computed style + visual | `npm run test:visual -- --grep @brand` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DSYS-03 | Contrast failure | Orange remains one provisional, contrast-approved production token | schema + contrast + visual | `npm run test:unit -- tests/unit/tokens.test.ts` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DSYS-04 | Accessibility denial | All shipped controls are keyboard operable | component + E2E | `npm run test:components && npm run test:browser -- --grep @keyboard` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DSYS-05 | — | State vocabulary is distinct without color-only meaning | component | `npm run test:components -- AvailabilityState` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DSYS-06 | Accessibility denial | Focus is visible and restored after overlays and navigation | component + E2E | `npm run test:browser -- tests/journeys/focus.spec.ts` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DSYS-07 | Accessibility denial | Reduced-motion alternatives apply immediately | E2E media emulation | `npm run test:browser -- tests/journeys/motion.spec.ts` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DSYS-08 | Accessibility denial | Workflows reflow at 320, 768, and 1440 without hidden actions or page overflow | parameterized E2E | `npm run test:browser -- tests/journeys/viewports.spec.ts` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DSYS-09 | Accessibility denial | Canvas and semantic list expose equivalent meaning | parity + E2E | `npm run test:contracts -- tests/contracts/connections-parity.test.ts` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DSYS-10 | — | Tokens, primitives, patterns, fixtures, and workflows remain traceable | manifest + component | `npm run test:components && npm run test:unit -- tests/unit/component-trace.test.ts` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | QUAL-01 | — | Aggregate verifier propagates every child failure | aggregate | `npm run verify:phase1` | ❌ W0 | ⬜ pending |
+| 01-14-T1/T2/T3 | 01-14 | 15 | COMP-05 | T-01-42..T-01-44 | Connections remains a read-only public evidence projection | unit + E2E | `npm run test:browser -- tests/journeys/connections.spec.ts` | ✅ | ✅ green |
+| 01-08-T1, 01-22-T3 | 01-08, 01-22 | 9, 13 | DSYS-01 | T-01-23, T-01-68 | Migrated components consume repository-owned semantic tokens | schema/lint | `npm run test:unit -- tests/unit/tokens.test.ts` | ✅ | ✅ green |
+| 01-08-T1/T2, 01-22-T3 | 01-08, 01-22 | 9, 13 | DSYS-02 | T-01-23, T-01-25, T-01-68 | Brand-critical wordmark, palette, fonts, depth, and voice remain present | computed style + visual | `npm run test:visual -- --grep @brand` | ✅ | ⬜ owner baseline approval pending |
+| 01-08-T1/T2 | 01-08 | 9 | DSYS-03 | T-01-23, T-01-25 | Orange remains one provisional, contrast-approved production token | schema + contrast + visual | `npm run test:unit -- tests/unit/tokens.test.ts` | ✅ | ✅ green |
+| 01-09-T3, 01-17-T2 | 01-09, 01-17 | 10, 18 | DSYS-04 | T-01-26, T-01-54 | All shipped controls are keyboard operable | component + E2E | `npm run test:components && npm run test:a11y` | ✅ | ✅ green |
+| 01-08-T2, 01-09-T2 | 01-08, 01-09 | 9, 10 | DSYS-05 | T-01-25, T-01-27 | State vocabulary is distinct without color-only meaning | component | `npm run test:components -- AvailabilityState` | ✅ | ✅ green |
+| 01-08-T2, 01-09-T3, 01-17-T2 | 01-08, 01-09, 01-17 | 9, 10, 18 | DSYS-06 | T-01-24, T-01-26, T-01-54 | Focus is visible and restored after overlays and navigation | component + E2E | `npm run test:a11y` | ✅ | ✅ green |
+| 01-08-T2, 01-17-T2 | 01-08, 01-17 | 9, 18 | DSYS-07 | T-01-24, T-01-54 | Reduced-motion alternatives apply immediately | E2E media emulation | `npm run test:a11y` | ✅ | ✅ green |
+| 01-08-T2, 01-17-T1/T2 | 01-08, 01-17 | 9, 18 | DSYS-08 | T-01-24, T-01-54 | Workflows reflow at 320, 768, and 1440 without hidden actions or page overflow | parameterized E2E | `npm run test:browser -- tests/journeys/viewports.spec.ts` | ✅ | ✅ green |
+| 01-14-T1/T2/T3 | 01-14 | 15 | DSYS-09 | T-01-42..T-01-44 | Canvas and semantic list expose equivalent meaning | parity + E2E | `npm run test:contracts -- tests/contracts/connections-parity.test.ts` | ✅ | ✅ green |
+| 01-17-T3 | 01-17 | 18 | DSYS-10 | T-01-52 | Tokens, primitives, patterns, fixtures, and workflows remain traceable | manifest + unit | `npm run test:unit -- tests/unit/component-trace.test.ts` | ✅ | ✅ green |
+| 01-18-T2 | 01-18 | 19 | QUAL-01 | T-01-55 | Aggregate verifier propagates every child failure | aggregate | `npm run verify:phase1` | ❌ Plan 01-18 | ⬜ pending |
 | 01-01-T1/T2/T3 | 01-01 | 1 | QUAL-02 | T-01-01, T-01-02, T-01-03, T-01-04 | Contract and browser matrices block incompatible changes | contract + E2E | `npm run test:contracts && npm run test:browser` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | QUAL-03 | Accessibility denial | Keyboard, focus, names, live regions, motion, and serious axe checks pass | component + E2E | `npm run test:components && npm run test:a11y` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | QUAL-04 | — | Three-viewport baselines change only with owner approval | visual regression | `npm run test:visual` | ❌ W0 | ⬜ pending |
+| 01-17-T2 | 01-17 | 18 | QUAL-03 | T-01-54 | Keyboard, focus, names, live regions, motion, and serious axe checks pass | component + E2E | `npm run test:a11y` | ✅ | ✅ green |
+| 01-17-T2, 01-19-T1/T2 | 01-17, 01-19 | 18, 20 | QUAL-04 | T-01-53, T-01-58..T-01-60 | Three-viewport candidates change only with owner approval | visual regression + human gate | `npm run test:visual -- --candidate` | ✅ candidates | ⬜ owner approval pending |
 | 01-05-T1/T2 | 01-05 | 5 | QUAL-05 | T-01-14, T-01-15 | Source, bundles, rendered payloads, fixtures, logs, snapshots, and plans pass bounded privacy scans | artifact scan | `npm run test:privacy -- --check` | ✅ | ✅ green |
 | 01-06-T1/T2/T3 | 01-06 | 6 | QUAL-06 | T-01-18, T-01-19, T-01-20 | Route, bundle, RAG, and interaction measurements stay inside owner-approved budgets | performance + contract | `cd web && node scripts/capture-phase1-performance.mjs --check && npm run test:contracts -- tests/contracts/rag-latency.test.ts` | ✅ baseline captured; 11 budgets approved in `web/tests/performance/phase1-budgets.json` | ✅ approved receipt bound (Plan 01-07); blocking gate wiring pending |
 | 01-07-T1/T2 | 01-07 | 7 | QUAL-06 | T-01-21, T-01-22 | Approved budget artifact is hash-bound, complete, and traceable to the owner decision before any visual migration runs | artifact probe | `node web/scripts/run-phase1-threat.mjs --plan 01-07 --task 1 && node web/scripts/run-phase1-threat.mjs --plan 01-07 --task 2` | ✅ T-01-21 passed; receipt restructured into seven T-01-21 dimension groups, values unchanged | ⬜ pending Task 2 binding below |
@@ -292,4 +292,4 @@ Final aggregation has no exemption and no circular precondition. Plan 01-20 Task
 - [ ] `wave_0_complete: true` is set only after the harness exists and passes.
 - [ ] `nyquist_compliant: true` is set only after every sign-off item is satisfied.
 
-**Approval:** pending
+**Approval:** accepted — final unqualified `cd web && npm run verify:phase1` exited 0 on 2026-08-25 with all 12 sections green; final aggregate `web/tests/security/phase1-threat-results.json` holds 72/72 passing definitions sourced from all 23 plan fragments; owner visual/rollback/cutover approval recorded in `web/tests/visual/phase1-approval.json` (`owner-explicit-approval-2026-08-25-visual-baseline-cutover-via-conversation`).

@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "plan": "01-15",
+  "approval_reference": "GSD-01-15-CORRECTION",
+  "corrections": {
+    "T-01-45": {
+      "effective_command": "cd web && npm run test:components -- MigratedChatPage && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts tests/contracts/public-projection.contract.test.ts && npm run typecheck && npm run lint",
+      "effective_command_sha256": "7db4e529a0a10a7a55efcbe1b7bbd68b15d16bd1044704f4b88cabdd6649d9d2",
+      "original_command_id": "f97aac6272e7dd7e257b41fa8af72691dfdc048398f1fbc581f3eba100127c29",
+      "original_command_sha256": "fbff8952268122993cf3bd6b2ba4238b4426c41226a51d1f8ff87d3051fea47e",
+      "superseded_result": {
+        "plan": "01-15",
+        "task": 2,
+        "command_id": "f97aac6272e7dd7e257b41fa8af72691dfdc048398f1fbc581f3eba100127c29",
+        "command": "cd web && npm run test:components -- MigratedChatPage --grep \"submit|IME|stream|sources|error|focus\" && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts tests/contracts/public-projection.contract.test.ts && npm run typecheck && npm run lint",
+        "exit_status": 1,
+        "evidence": {
+          "output_sha256": "3533aedd656273e4e5e00840d09850c1fe2bd842eb430f67efcfa9d0e1476d4c",
+          "error_output_sha256": "80e2f7e0600890487299ae111b670b18c37516c7383e3d160d5359fe9f59ac74",
+          "output_bytes": 134,
+          "error_output_bytes": 1031
+        },
+        "completed_at": "2026-08-23T03:39:36.091Z",
+        "status": "failed"
+      }
+    },
+    "T-01-46": {
+      "effective_command": "cd web && npm run test:components -- MigratedChatPage && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts tests/contracts/public-projection.contract.test.ts && npm run typecheck && npm run lint",
+      "effective_command_sha256": "7db4e529a0a10a7a55efcbe1b7bbd68b15d16bd1044704f4b88cabdd6649d9d2",
+      "original_command_id": "461eeca0e23af1fda62859c791e01482d9283a812ef95e156f5c194c0bab0326",
+      "original_command_sha256": "fbff8952268122993cf3bd6b2ba4238b4426c41226a51d1f8ff87d3051fea47e",
+      "superseded_result": {
+        "plan": "01-15",
+        "task": 2,
+        "command_id": "461eeca0e23af1fda62859c791e01482d9283a812ef95e156f5c194c0bab0326",
+        "command": "cd web && npm run test:components -- MigratedChatPage --grep \"submit|IME|stream|sources|error|focus\" && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts tests/contracts/public-projection.contract.test.ts && npm run typecheck && npm run lint",
+        "exit_status": 1,
+        "evidence": {
+          "output_sha256": "3533aedd656273e4e5e00840d09850c1fe2bd842eb430f67efcfa9d0e1476d4c",
+          "error_output_sha256": "80e2f7e0600890487299ae111b670b18c37516c7383e3d160d5359fe9f59ac74",
+          "output_bytes": 134,
+          "error_output_bytes": 1031
+        },
+        "completed_at": "2026-08-23T03:39:36.091Z",
+        "status": "failed"
+      }
+    }
+  }
+}

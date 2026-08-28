@@ -1,10 +1,12 @@
 export function Sparkle({
   className = "",
-  color = "#F1B333",
+  color = "var(--wtf-attention)",
+  stroke = "var(--wtf-on-attention)",
   size = 24,
 }: {
   className?: string;
   color?: string;
+  stroke?: string;
   size?: number;
 }) {
   return (
@@ -19,7 +21,7 @@ export function Sparkle({
       <path
         d="M12 0c.7 6.2 5.1 10.6 12 12-6.9 1.4-11.3 5.8-12 12-.7-6.2-5.1-10.6-12-12C6.9 10.6 11.3 6.2 12 0Z"
         fill={color}
-        stroke="#1A1A1A"
+        stroke={stroke}
         strokeWidth="1.2"
         strokeLinejoin="round"
       />

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "01-22",
+  "results": {
+    "T-01-68": {
+      "plan": "01-22",
+      "task": 3,
+      "command_id": "f5758364b6bd3f3f2d0583a8cbda63d678dd5297d212eb6be8c0fb0b9af4b7de",
+      "command": "cd web && node scripts/capture-legacy-presentation.mjs --check && npm run test:browser -- tests/rollback/legacy-presentation.spec.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "26974b30a690d127b8d2cfbe45d720d579c919508f4231fa98150d63a43a379c",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 3325,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T21:40:45.834Z",
+      "status": "passed"
+    },
+    "T-01-69": {
+      "plan": "01-22",
+      "task": 3,
+      "command_id": "84b01c4b6cd350620ec588e9bb485ee6715c0768d299ac6507bcc450f1872c5d",
+      "command": "cd web && npm run test:browser -- tests/journeys/brand-motion.spec.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "8f165dc0b4df60977ac75841f9a3248e718c99dc05c48f76ff1323a6a95b9c6e",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 2088,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T21:40:45.834Z",
+      "status": "passed"
+    },
+    "T-01-70": {
+      "plan": "01-22",
+      "task": 3,
+      "command_id": "72d536c6000ff3bd366b1712466e5a1951026f13b247d912e8b234ded0fa6b98",
+      "command": "cd web && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "df21492230d346a611eb97afde82e3c465199bbdbcba2d6712a68a6ba330a772",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 6575,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-22T21:40:45.834Z",
+      "status": "passed"
+    }
+  }
+}

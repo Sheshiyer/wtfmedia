@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "status": "approved",
+  "owner_approval_ref": "owner-explicit-approval-2026-08-25-visual-baseline-cutover-via-conversation",
+  "approved_at": "2026-08-25T09:52:48.632Z",
+  "candidate_sha256": "d3b36de66e13c6c073d8d621f22db3bcf931bccb79c9a3994b338bbacb0882ce",
+  "candidate_count": 17,
+  "cutover_authorized": true,
+  "rollback_approved": true,
+  "decisions": {
+    "wtf_identity_approved": true,
+    "production_orange_disposition": "not_rendered_confirmed",
+    "baseline_replacement_approved": true,
+    "rollback_sufficiency_approved": true,
+    "migrated_default_cutover_authorized": true
+  },
+  "coverage": {
+    "routes": [
+      "/",
+      "/chat",
+      "/connections",
+      "/episodes"
+    ],
+    "viewports": [
+      "1440",
+      "320",
+      "768"
+    ],
+    "states": [
+      "default",
+      "drawer-open",
+      "empty",
+      "response"
+    ]
+  },
+  "performance_budget_ref": "tests/performance/phase1-budgets.json",
+  "rollback_evidence": "T-01-57 passed (38 tests, both variants, data integrity verified)",
+  "api_chat_contract": "preserved"
+}

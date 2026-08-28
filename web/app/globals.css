@@ -12,9 +12,13 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
   --cream: #fff6ea;
   --ink: #1a1a1a;
+}
+
+html[data-wtf-theme] {
+  --cream: var(--wtf-canvas);
+  --ink: var(--wtf-foreground);
 }
 
 * {
@@ -60,6 +64,28 @@ body {
   pointer-events: none;
   opacity: 0.035;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+html[data-wtf-theme] .grain::after {
+  opacity: var(--wtf-texture-grain-opacity);
+}
+
+html[data-wtf-theme] .halftone {
+  background-color: var(--wtf-canvas);
+  background-image: radial-gradient(
+    rgb(var(--wtf-foreground-rgb) / 0.08) 1px,
+    transparent 1.5px
+  );
+  background-size: var(--wtf-texture-dot-spacing) var(--wtf-texture-dot-spacing);
+}
+
+html[data-wtf-theme] .halftone-dense {
+  background-color: var(--wtf-canvas);
+  background-image: radial-gradient(
+    rgb(var(--wtf-foreground-rgb) / 0.1) 0.8px,
+    transparent 1.3px
+  );
+  background-size: 12px 12px;
 }
 
 /* ---------- type ---------- */
@@ -113,6 +139,55 @@ body {
   border: 2.5px solid #1a1a1a;
   border-radius: 18px;
   background: #fff;
+}
+
+/* WTF OS gets adaptive paper surfaces; legacy keeps its approved literals. */
+html[data-wtf-theme] .card {
+  border-color: var(--wtf-foreground);
+  background: var(--wtf-surface-raised);
+  box-shadow: 6px 6px 0 var(--wtf-surface-structure);
+}
+html[data-wtf-theme] .card:hover {
+  box-shadow: 11px 11px 0 var(--wtf-surface-structure);
+}
+html[data-wtf-theme] .card-flat {
+  border-color: var(--wtf-foreground);
+  background: var(--wtf-surface-raised);
+}
+html[data-wtf-theme] .pill {
+  border-color: var(--wtf-foreground);
+}
+html[data-wtf-theme] .pill-solid {
+  background: var(--wtf-surface-structure);
+  color: var(--wtf-text-on-structure);
+}
+html[data-wtf-theme] .pill-solid:hover {
+  background: transparent;
+  color: var(--wtf-foreground);
+}
+html[data-wtf-theme] .chip {
+  border-color: var(--wtf-foreground);
+  color: var(--wtf-text-primary);
+}
+
+.wtf-wordmark-plate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--wtf-foreground);
+  border-radius: var(--wtf-radius-control);
+  background: var(--wtf-surface-raised);
+  padding: 0.25rem 0.5rem;
+}
+
+html[data-wtf-theme="dark"] .wtf-wordmark-plate {
+  background: var(--wtf-foreground);
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-wtf-theme="system"] .wtf-wordmark-plate {
+    background: var(--wtf-foreground);
+  }
 }
 .pill {
   border-radius: 9999px;

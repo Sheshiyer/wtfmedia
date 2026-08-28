@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan": "01-19",
+  "results": {
+    "T-01-58": {
+      "plan": "01-19",
+      "task": 1,
+      "command_id": "eae09b96b66140d4b6c74b06bc69004741d5cd1d0d8dd6e17e05a4b285169e76",
+      "command": "cd web && npm run verify:phase1 -- --candidate && npm run test:privacy -- --check && node scripts/verify-phase1.mjs --check-validation-waves",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "174a40990e1dbb041c9a9ebea69998b82896bb86f541a0905dba1ffe0a897552",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 8881,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-25T09:52:26.824Z",
+      "status": "passed"
+    },
+    "T-01-59": {
+      "plan": "01-19",
+      "task": 2,
+      "command_id": "827bb9a512f90a3889bef420616e79767fcff4d8842a2ada6c5b11192266e5b3",
+      "command": "node -e 'const a=require(\"./web/tests/visual/phase1-approval.json\"),c=require(\"./web/tests/visual/phase1-candidate.json\"); if(a.status!==\"approved\"||a.candidate_sha256!==c.sha256||!a.owner_approval_ref||a.cutover_authorized!==true||a.rollback_approved!==true) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-25T09:54:57.358Z",
+      "status": "passed"
+    },
+    "T-01-60": {
+      "plan": "01-19",
+      "task": 2,
+      "command_id": "4825a589e19125e050aca373db7bfc6398ee2833cd1cf8ffc225c954bb23d62b",
+      "command": "node -e 'const a=require(\"./web/tests/visual/phase1-approval.json\"),c=require(\"./web/tests/visual/phase1-candidate.json\"); if(a.status!==\"approved\"||a.candidate_sha256!==c.sha256||!a.owner_approval_ref||a.cutover_authorized!==true||a.rollback_approved!==true) process.exit(1)'",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 0,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-25T09:54:57.358Z",
+      "status": "passed"
+    }
+  }
+}
