@@ -30,7 +30,7 @@ export default function MigratedConnectionsPage() {
         summary="inspect recurring themes and idea overlaps across the catalogue without turning transcript mentions into identity, employment, or relationship claims."
         accent="information"
         context={
-          <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/65">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
             <span>{data.nodes.length} public idea nodes</span>
             <span>{data.edges.length} source-backed overlaps</span>
             <span>canvas + semantic list</span>
@@ -59,17 +59,17 @@ export default function MigratedConnectionsPage() {
 
       {/* Category overlaps */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold text-ink">Category overlaps</h2>
+        <h2 className="text-2xl font-bold text-foreground">Category overlaps</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {data.overlaps.map((o, i) => (
             <div
               key={i}
-              className="rounded-lg border-2 border-ink bg-cream p-4"
+              className="rounded-lg border-2 border-foreground bg-surface-raised p-4"
             >
-              <div className="text-sm font-semibold text-ink">
+              <div className="text-sm font-semibold text-foreground">
                 {o.a} + {o.b}
               </div>
-              <div className="mt-1 text-xs font-medium text-ink/70">
+              <div className="mt-1 text-xs font-medium text-secondary">
                 {o.shared} shared episodes
               </div>
             </div>
@@ -79,9 +79,9 @@ export default function MigratedConnectionsPage() {
 
       {/* Established nodes */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold text-ink">
+        <h2 className="text-2xl font-bold text-foreground">
           Established nodes{" "}
-          <span className="text-base font-normal text-ink/70">
+          <span className="text-base font-normal text-secondary">
             ({established.length})
           </span>
         </h2>
@@ -94,7 +94,7 @@ export default function MigratedConnectionsPage() {
 
       {/* Strongest connections */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold text-ink">Strongest connections</h2>
+        <h2 className="text-2xl font-bold text-foreground">Strongest connections</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {data.edges
             .slice()
@@ -106,12 +106,12 @@ export default function MigratedConnectionsPage() {
               return (
                 <div
                   key={i}
-                  className="rounded-lg border-2 border-ink bg-cream p-4"
+                  className="rounded-lg border-2 border-foreground bg-surface-raised p-4"
                 >
-                  <div className="text-sm font-semibold text-ink">
-                    {la} <span className="text-ink/40">+</span> {lb}
+                  <div className="text-sm font-semibold text-foreground">
+                    {la} <span className="text-muted">+</span> {lb}
                   </div>
-                  <div className="mt-1 text-xs font-medium text-ink/70">
+                  <div className="mt-1 text-xs font-medium text-secondary">
                     {e.shared} shared episodes
                   </div>
                 </div>
@@ -122,9 +122,9 @@ export default function MigratedConnectionsPage() {
 
         {/* Emerging nodes */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold text-ink">
+        <h2 className="text-2xl font-bold text-foreground">
           Emerging nodes{" "}
-          <span className="text-base font-normal text-ink/70">
+          <span className="text-base font-normal text-secondary">
             ({emerging.length})
           </span>
         </h2>
@@ -152,39 +152,39 @@ function PublicNodeRow({
 }) {
   const catClass = (c: string) => {
     const k = c.toLowerCase();
-    if (k.includes("ai") || k.includes("tech")) return "bg-knowledge text-canvas";
-    if (k.includes("start") || k.includes("business")) return "bg-production text-foreground";
+    if (k.includes("ai") || k.includes("tech")) return "bg-knowledge text-on-knowledge";
+    if (k.includes("start") || k.includes("business")) return "bg-information text-on-information";
     if (k.includes("money") || k.includes("finance") || k.includes("market"))
       return "border-live bg-canvas text-foreground";
-    if (k.includes("geo") || k.includes("society")) return "bg-editorial text-canvas";
+    if (k.includes("geo") || k.includes("society")) return "bg-editorial text-on-editorial";
     if (k.includes("health")) return "border-live bg-canvas text-foreground";
-    if (k.includes("media") || k.includes("culture")) return "bg-information text-canvas";
-    if (k.includes("india")) return "bg-attention text-foreground";
-    if (k.includes("mind") || k.includes("philos")) return "bg-foreground text-canvas";
-    if (k.includes("science")) return "bg-information text-canvas";
-    return "bg-foreground text-canvas";
+    if (k.includes("media") || k.includes("culture")) return "bg-information text-on-information";
+    if (k.includes("india")) return "bg-attention text-on-attention";
+    if (k.includes("mind") || k.includes("philos")) return "bg-surface-structure text-on-structure";
+    if (k.includes("science")) return "bg-information text-on-information";
+    return "bg-surface-structure text-on-structure";
   };
 
   return (
-    <div className="rounded-lg border-2 border-ink bg-cream p-4 space-y-2">
+    <div className="space-y-2 rounded-lg border-2 border-foreground bg-surface-raised p-4">
       <div className="flex items-center gap-2">
         <span
           className={`inline-block rounded border px-2 py-0.5 text-[10px] font-semibold ${catClass(node.category)}`}
         >
           {node.category}
         </span>
-        <span className="text-sm font-semibold text-ink">{node.label}</span>
+        <span className="text-sm font-semibold text-foreground">{node.label}</span>
       </div>
       <div className="flex items-center gap-3">
-        <div className="flex-1 h-1.5 bg-ink/10 rounded-full overflow-hidden">
+        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-foreground/10">
           <div
-            className="h-full bg-ink/60 rounded-full"
+            className="h-full rounded-full bg-foreground/60"
             style={{
               width: `${Math.min(100, (node.episodeCount / 10) * 100)}%`,
             }}
           />
         </div>
-        <span className="shrink-0 text-[11px] font-medium text-ink/70">
+        <span className="shrink-0 text-[11px] font-medium text-secondary">
           {node.episodeCount} ep{node.episodeCount !== 1 ? "s" : ""}
         </span>
       </div>
@@ -196,13 +196,13 @@ function PublicNodeRow({
             target="_blank"
             rel="noreferrer"
             data-cursor="watch"
-            className="text-[10px] px-1.5 py-0.5 rounded bg-ink/5 hover:bg-wtf-yellow transition-colors truncate max-w-[140px]"
+            className="max-w-[140px] truncate rounded bg-foreground/5 px-1.5 py-0.5 text-[10px] transition-colors hover:bg-attention/20"
           >
             {vid}
           </a>
         ))}
         {node.episodes.length > 6 && (
-          <span className="text-[10px] font-medium text-ink/70">
+          <span className="text-[10px] font-medium text-secondary">
             +{node.episodes.length - 6}
           </span>
         )}

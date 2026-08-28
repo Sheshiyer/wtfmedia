@@ -101,7 +101,7 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
             target="_blank"
             rel="noreferrer"
             data-cursor="watch"
-            className="pill px-4 py-2 bg-white text-sm hover:bg-ink hover:text-cream"
+            className="pill bg-surface-raised px-4 py-2 text-sm text-foreground hover:bg-surface-structure hover:text-on-structure"
           >
             ▶ Watch on YouTube
           </a>
@@ -110,25 +110,25 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
             data-cursor="ask!"
             className="pill pill-solid px-4 py-2 text-sm inline-flex items-center gap-1.5"
           >
-            <Sparkle size={14} color="#F1B333" /> Ask about this episode
+            <Sparkle size={14} /> Ask about this episode
           </Link>
         </div>
 
         {/* Transcript */}
         <div className="flex-1 overflow-y-auto">
           <div className="flex items-center gap-2 mb-3">
-            <span className="eyebrow text-ink/65">transcript</span>
+            <span className="eyebrow text-secondary">transcript</span>
             {blocks && (
-              <span className="text-[11px] text-ink/55">
+              <span className="text-[11px] text-muted">
                 · click any line to jump to that moment
               </span>
             )}
           </div>
           {blocks === null && text === null && !err && (
-            <p className="text-sm text-ink/65">Loading transcript…</p>
+            <p className="text-sm text-secondary">Loading transcript…</p>
           )}
           {err && (
-            <p className="text-sm text-ink/65">
+            <p className="text-sm text-secondary">
               No public transcript is available for this episode.
             </p>
           )}
@@ -141,12 +141,12 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
                   target="_blank"
                   rel="noreferrer"
                   data-cursor="jump"
-                  className="group flex gap-3 rounded-lg p-2 -mx-2 hover:bg-white transition-colors"
+                  className="group -mx-2 flex gap-3 rounded-lg p-2 transition-colors hover:bg-surface-subtle"
                 >
-                  <span className="shrink-0 text-[11px] font-semibold bg-wtf-yellow border border-ink rounded px-1.5 h-fit py-0.5 group-hover:bg-wtf-red group-hover:text-cream transition-colors">
+                  <span className="h-fit shrink-0 rounded border border-foreground bg-attention px-1.5 py-0.5 text-[11px] font-semibold text-on-attention transition-colors group-hover:bg-editorial group-hover:text-on-editorial">
                     ▶ {fmtTime(b.t)}
                   </span>
-                  <span className="text-sm leading-relaxed text-ink/80">
+                  <span className="text-sm leading-relaxed text-secondary">
                     {b.text}
                   </span>
                 </a>
@@ -154,7 +154,7 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
             </div>
           )}
           {text && !blocks && (
-            <p className="text-sm leading-relaxed whitespace-pre-wrap text-ink/80">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-secondary">
               {text}
             </p>
           )}

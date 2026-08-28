@@ -14,11 +14,11 @@ import {
 } from "@/lib/public/url-state";
 
 const swatch = [
-  "bg-wtf-yellow",
-  "bg-wtf-orange",
-  "bg-wtf-red text-cream",
-  "bg-wtf-green text-cream",
-  "bg-wtf-purple text-cream",
+  "bg-attention text-on-attention",
+  "bg-information text-on-information",
+  "bg-editorial text-on-editorial",
+  "border-live bg-canvas text-foreground",
+  "bg-knowledge text-on-knowledge",
 ];
 
 interface EpisodesContentProps {
@@ -83,7 +83,7 @@ export function EpisodesContent({ groups }: EpisodesContentProps) {
         <section key={show} className="mb-12">
           <div className="flex items-center gap-3 mb-4">
             <h2 className={`chip ${swatch[gi % swatch.length]}`}>{show}</h2>
-            <span className="text-xs font-medium text-ink/70">{eps.length} episodes</span>
+            <span className="text-xs font-medium text-secondary">{eps.length} episodes</span>
           </div>
 
           <ScrollRail
@@ -99,7 +99,7 @@ export function EpisodesContent({ groups }: EpisodesContentProps) {
                 data-cursor="open"
                 className="card overflow-hidden flex flex-col shrink-0 w-[300px] text-left"
               >
-                <div className="relative aspect-video bg-ink/10">
+                <div className="relative aspect-video bg-foreground/10">
                   <Image
                     src={thumbnailUrl(e.video_id)}
                     alt={e.title}
@@ -107,7 +107,7 @@ export function EpisodesContent({ groups }: EpisodesContentProps) {
                     sizes="300px"
                     className="object-cover"
                   />
-                  <span className="absolute bottom-2 right-2 chip bg-ink text-cream">
+                  <span className="absolute bottom-2 right-2 chip bg-surface-structure text-on-structure">
                     {fmtDuration(e.duration)}
                   </span>
                 </div>
@@ -115,9 +115,9 @@ export function EpisodesContent({ groups }: EpisodesContentProps) {
                   <h3 className="font-medium text-sm leading-snug line-clamp-3 flex-1">
                     {e.title}
                   </h3>
-                  <div className="flex items-center justify-between mt-3 text-xs text-ink/70">
+                  <div className="flex items-center justify-between mt-3 text-xs text-secondary">
                     <span>{fmtViews(e.view_count)} views</span>
-                    <span className="eyebrow text-wtf-purple">open ↗</span>
+                    <span className="eyebrow text-knowledge">open ↗</span>
                   </div>
                 </div>
               </button>
