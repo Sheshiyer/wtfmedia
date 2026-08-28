@@ -40,7 +40,7 @@ export function AppShell({
       <SkipLink targetId="wtf-main">skip to workspace</SkipLink>
 
       <div data-wtf-shell="migrated" className="min-h-screen">
-        <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 border-r-2 border-foreground bg-foreground lg:block">
+        <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 border-r-2 border-foreground bg-surface-structure lg:block">
           <AppRail
             mode={mode}
             navigation={navigation}
@@ -48,8 +48,8 @@ export function AppShell({
           />
         </aside>
 
-        <header className="sticky top-0 z-40 flex min-h-16 items-center justify-between border-b-2 border-foreground bg-foreground px-4 text-canvas lg:hidden">
-          <MigratedWordmarkMini />
+        <header className="sticky top-0 z-40 flex min-h-16 items-center justify-between border-b-2 border-foreground bg-surface-structure px-4 text-on-structure lg:hidden">
+          <MigratedWordmarkMini plate />
           <IconButton
             ref={menuTrigger}
             aria-label={
@@ -64,7 +64,7 @@ export function AppShell({
                 : "wtf-application-navigation"
             }
             onClick={() => setNavigationOpen(true)}
-            className="border-canvas/50 text-canvas hover:border-attention hover:bg-attention hover:text-foreground"
+            className="border-foreground/50 text-on-structure hover:border-attention hover:bg-attention hover:text-on-attention"
           >
             <span aria-hidden="true" className="grid gap-1">
               <span className="block h-0.5 w-5 bg-current" />
@@ -105,11 +105,13 @@ export function AppShell({
         <div className="relative min-h-screen overflow-hidden lg:pl-60">
           <div
             aria-hidden="true"
-            className="pointer-events-none fixed inset-0 z-0 opacity-[0.035] lg:left-60"
+            className="pointer-events-none fixed inset-0 z-0 lg:left-60"
             style={{
+              opacity: "var(--wtf-texture-dot-opacity)",
               backgroundImage:
-                "radial-gradient(var(--wtf-foreground) 0.75px, transparent 0.75px)",
-              backgroundSize: "12px 12px",
+                "radial-gradient(rgb(var(--wtf-foreground-rgb) / 1) var(--wtf-texture-dot-size), transparent var(--wtf-texture-dot-size))",
+              backgroundSize:
+                "var(--wtf-texture-dot-spacing) var(--wtf-texture-dot-spacing)",
             }}
           />
           <main

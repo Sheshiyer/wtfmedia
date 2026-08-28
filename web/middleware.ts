@@ -1,22 +1,46 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { maybeLocalDevOpsHeaders } from "@/lib/ops/local-dev-headers";
 
-export function middleware(request: NextRequest) {
+const recoveryPaths = new Set(["/ops/recover", "/sign-in", "/request-access"]);
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (!pathname.startsWith("/ops")) return NextResponse.next();
-  if (pathname === "/ops/recover") {
+  if (recoveryPaths.has(pathname)) {
     const forwarded = new Headers(request.headers);
     forwarded.set("x-wtf-route-kind", "ops-recovery");
     return NextResponse.next({ request: { headers: forwarded } });
   }
+  if (!pathname.startsWith("/ops")) return NextResponse.next();
+
+  let context = request.headers.get("x-wtf-ops-context");
+  let proof = request.headers.get("x-wtf-ops-proof");
+  if (!context || !proof) {
+    const local = await maybeLocalDevOpsHeaders({
+      nodeEnv: process.env.NODE_ENV,
+      hostname: request.nextUrl.hostname,
+      secret: process.env.WTFMEDIA_OPS_ORIGIN_PROOF,
+      role: process.env.WTFMEDIA_OPS_LOCAL_ROLE,
+    });
+    if (local) {
+      context = local.payload;
+      proof = local.proof;
+    }
+  }
+
   // Middleware may reject obvious direct access, but proof verification happens in server-only code.
-  if (!request.headers.get("x-wtf-ops-context") || !request.headers.get("x-wtf-ops-proof")) {
+  if (!context || !proof) {
     const recover = new URL("/ops/recover", request.url);
     recover.searchParams.set("mode", "reauthenticate");
     return NextResponse.rewrite(recover);
   }
+
   const forwarded = new Headers(request.headers);
+  forwarded.set("x-wtf-ops-context", context);
+  forwarded.set("x-wtf-ops-proof", proof);
   forwarded.set("x-wtf-route-kind", "ops");
   return NextResponse.next({ request: { headers: forwarded } });
 }
 
-export const config = { matcher: ["/ops/:path*", "/api/ops/:path*"] };
+export const config = {
+  matcher: ["/ops/:path*", "/api/ops/:path*", "/sign-in", "/request-access"],
+};

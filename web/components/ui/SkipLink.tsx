@@ -30,12 +30,12 @@ export function SkipLink({
         "focus:inline-flex focus:items-center",
         "focus:min-h-[44px] focus:px-4 focus:py-2",
         "focus:font-label focus:text-sm focus:font-bold",
-        "focus:bg-ink focus:text-cream",
+        "focus:bg-surface-structure focus:text-on-structure",
         "focus:rounded-[var(--wtf-radius-control)]",
-        "focus:border-2 focus:border-ink",
+        "focus:border-2 focus:border-foreground",
         "focus-visible:outline-none",
-        "focus-visible:ring-2 ring-cream focus-visible:ring-offset-2",
-        "focus-visible:ring-offset-ink",
+        "focus-visible:ring-2 ring-canvas focus-visible:ring-offset-2",
+        "focus-visible:ring-offset-foreground",
         className,
       ]
         .filter(Boolean)

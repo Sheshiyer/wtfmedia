@@ -1,9 +1,10 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { appUiVariant } from "@/lib/public/public-ui-variant";
+import { appUiVariant, themeForAppUiVariant } from "@/lib/public/public-ui-variant";
 import { LegacyPublicShell } from "@/components/legacy/public/LegacyPublicShell";
 import { PublicShell } from "@/components/patterns/PublicShell";
+import { WtfOsBoot } from "@/components/patterns/brand/WtfOsBoot";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -38,9 +39,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const isOperatorRoute = routeKind === "ops" || routeKind === "ops-recovery";
 
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      data-wtf-ui={variant === "wtfos" ? "wtfos" : undefined}
+      data-wtf-theme={themeForAppUiVariant(variant)}
+    >
       <body className="min-h-screen flex flex-col overflow-x-hidden">
-        {isOperatorRoute ? children : <Shell>{children}</Shell>}
+        {isOperatorRoute ? (
+          children
+        ) : (
+          <>
+            {variant === "wtfos" && <WtfOsBoot />}
+            <Shell>{children}</Shell>
+          </>
+        )}
       </body>
     </html>
   );

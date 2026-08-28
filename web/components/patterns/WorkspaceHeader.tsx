@@ -38,10 +38,10 @@ const titleClass: Record<WorkspaceHeaderSize, string> = {
 
 const summaryClass: Record<WorkspaceHeaderSize, string> = {
   workspace:
-    "mt-5 max-w-[65ch] font-body text-base leading-relaxed text-foreground/70 sm:text-lg",
+    "mt-5 max-w-[65ch] font-body text-base leading-relaxed text-secondary sm:text-lg",
   "control-room":
-    "mt-5 max-w-[65ch] font-body text-[19px] leading-[1.45] text-pretty text-foreground/70",
-  page: "mt-4 max-w-[65ch] font-body text-body text-pretty text-foreground/70",
+    "mt-5 max-w-[65ch] font-body text-[19px] leading-[1.45] text-pretty text-secondary",
+  page: "mt-4 max-w-[65ch] font-body text-body text-pretty text-secondary",
 };
 
 const frameClass: Record<WorkspaceHeaderSize, string> = {
@@ -78,7 +78,7 @@ export function WorkspaceHeader({
                 aria-hidden="true"
                 className={`h-1 w-8 border border-foreground ${accentClass[accent]}`}
               />
-              <p className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-foreground/65">
+              <p className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
                 {eyebrow}
               </p>
             </div>

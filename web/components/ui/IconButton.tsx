@@ -36,15 +36,15 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
           "border-2 border-transparent",
           "transition-[transform,box-shadow] duration-fast ease-out",
           "focus-visible:outline-none",
-          "focus-visible:ring-2 ring-cream focus-visible:ring-offset-2",
-          "focus-visible:ring-offset-ink",
+          "focus-visible:ring-2 ring-canvas focus-visible:ring-offset-2",
+          "focus-visible:ring-offset-foreground",
           // Variant styles
           variant === "primary" &&
-            "bg-ink text-cream hover:bg-ink/90 active:bg-ink/80",
+            "bg-surface-structure text-on-structure hover:bg-surface-structure/90 active:bg-surface-structure/80",
           variant === "secondary" &&
-            "bg-cream text-ink hover:bg-surface-subtle active:bg-surface-subtle/80",
+            "bg-surface-raised text-foreground hover:bg-surface-subtle active:bg-surface-subtle/80",
           variant === "ghost" &&
-            "bg-transparent text-ink hover:bg-surface-subtle active:bg-surface-subtle/80",
+            "bg-transparent text-foreground hover:bg-surface-subtle active:bg-surface-subtle/80",
           // Disabled state
           disabled && "opacity-50 cursor-not-allowed",
           className,

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   appUiVariant,
   publicUiVariant,
+  themeForAppUiVariant,
 } from "@/lib/public/public-ui-variant";
 
 afterEach(() => {
@@ -22,5 +23,10 @@ describe("WTF OS application version", () => {
     process.env.WTF_PUBLIC_UI_VARIANT = "migrated";
     expect(appUiVariant()).toBe("wtfos");
     expect(publicUiVariant()).toBe("migrated");
+  });
+
+  it("keeps legacy light while WTF OS follows the system theme", () => {
+    expect(themeForAppUiVariant("legacy")).toBeUndefined();
+    expect(themeForAppUiVariant("wtfos")).toBe("system");
   });
 });

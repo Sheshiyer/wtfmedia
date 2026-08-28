@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:ops": "WTF_PUBLIC_UI_VARIANT=migrated WTFMEDIA_OPS_ORIGIN_PROOF=phase2-e2e-test-key WTFMEDIA_OPS_LOCAL_ROLE=super_admin next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
@@ -27,6 +28,7 @@
     "@radix-ui/react-dialog": "1.1.23",
     "eslint-config-next": "^15.5.19",
     "next": "^15.5.19",
+    "ogl": "^1.0.11",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-markdown": "9.0.1",

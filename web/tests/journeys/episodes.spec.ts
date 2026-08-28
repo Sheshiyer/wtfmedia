@@ -135,10 +135,10 @@ test.describe("Episodes route journeys", () => {
     const firstCard = page.locator('[data-cursor="open"]').first();
     await firstCard.click();
 
-    const watchLink = page.locator('a[href*="youtube.com"]').first();
+    const watchLink = page.getByRole("dialog").locator('a[href*="youtube.com"]').first();
     if ((await watchLink.count()) > 0) {
       await expect(watchLink).toHaveAttribute("target", "_blank");
-      await expect(watchLink).toHaveAttribute("rel", "noreferrer");
+      expect(await watchLink.getAttribute("rel")).toContain("noreferrer");
     }
   });
 
