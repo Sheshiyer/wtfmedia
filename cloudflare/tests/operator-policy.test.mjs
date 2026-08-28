@@ -9,6 +9,7 @@ test("matrix grants only activated role capabilities", () => {
     assert.equal(canAccessPath(role, "/ops/operators"), true);
     assert.equal(canAccessPath(role, "/ops/audit"), true);
   }
+  assert.equal(canAccessPath("editor", "/ops/production"), true);
   assert.equal(canAccessPath("editor", "/ops/operators"), false);
   assert.equal(canAccessPath("editor", "/ops/audit"), false);
   assert.equal(decide("super_admin", "operators", "transfer"), true);
@@ -20,7 +21,10 @@ test("unknown and tampered policy inputs deny", () => {
   assert.equal(decide("editor", "future_module", "read"), false);
   assert.equal(decide("admin", "audit", "read", { environment: "preview" }), false);
   assert.equal(canAccessPath("admin", "/ops/unknown"), false);
-  assert.deepEqual(navigationFor("editor"), [{ label: "Control Room", href: "/ops" }]);
+  assert.deepEqual(navigationFor("editor"), [
+    { label: "Control Room", href: "/ops" },
+    { label: "Production", href: "/ops/production" },
+  ]);
 });
 
 test("transfer is super-admin-only, atomic, audited, and checks the final invariant", async () => {

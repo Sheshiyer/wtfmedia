@@ -22,6 +22,7 @@ PRODUCT.md
 *.log
 .DS_Store
 .vercel
+.playwright-cli/
 
 # Cloudflare local runtime and generated bindings
 cloudflare/.wrangler/

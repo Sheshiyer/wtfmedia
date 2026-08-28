@@ -32,7 +32,7 @@ function protectedPath(pathname: string): string | null {
   if (pathname === "/api/ops/operators") return "/ops/operators";
   if (pathname === "/api/ops/audit") return "/ops/audit";
   if (pathname === "/ops") return pathname;
-  if (pathname === "/ops/operators" || pathname === "/ops/audit") return pathname;
+  if (pathname === "/ops/operators" || pathname === "/ops/audit" || pathname === "/ops/production") return pathname;
   return null;
 }
 
