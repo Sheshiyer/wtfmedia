@@ -1,5 +1,17 @@
 # Project handoff
 
+## 2026-08-29 Architecture inventory + Phase 1 Access boundary
+
+**Status:** LOCAL DOCUMENTATION — current repository architecture is recorded in [`docs/architecture/architecture.html`](../docs/architecture/architecture.html). No Cloudflare account, Access Application, policy, hostname, seat, D1 binding, OAuth account, calendar, MCP host, or OTA channel was configured or verified.
+
+- Repository Phase 1 remains a public compatibility/proof release; it is **not** gated by Cloudflare Zero Trust or Access provisioning.
+- The `/ops` UI, seat/RBAC schema, future Access JWT verifier, and loopback-only development context are modeled code, not evidence of a live protected application or assigned operator account.
+- `npm run docs:architecture:update` regenerates the HTML ledger and compact companion inventories from reviewed source facts; `npm run docs:architecture:check` is the deterministic freshness gate used by the architecture CI workflow.
+- The current inventory makes historical deployment/Phase 2 closure text visible as historical evidence only. The worker queue/cron, asset upload, OAuth, hosted MCP, calendar, release, and OTA holds remain explicit.
+- The editor navigation now remains at `/ops` and `/ops/production` while the Episode workspace is still an excluded draft; the public drawer Storybook contract verifies in-place YouTube playback and an explicitly unavailable Uncut control.
+- Focused lint/typecheck/unit/contract/component checks passed after that repair. The aggregate Phase 1 journey run remains a separate recovery item: it exposed ten migrated-shell/browser expectation failures before the run was stopped, so it is not represented as fresh Phase 1 acceptance evidence.
+- Keep untracked operator drafts outside commits and the canonical inventory until individually reviewed; do not infer deployment authority from this documentation update.
+
 ## 2026-08-29 Phase 3 held recovery + agentic integration planning
 
 **Status:** LOCAL RECOVERY — previous safe checkpoint `399a83b`; the focused local regression suite is green and this follow-up is checkpointed locally. Phase 3 is not complete and no external system was changed.

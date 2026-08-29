@@ -1,6 +1,12 @@
 # Cloudflare edge RAG infrastructure
 
-Status: **production edge RAG deployed** — 2026-08-11
+Status: **historical deployment record** — 2026-08-11
+
+> **Current-inventory note (2026-08-29):** This document records a prior edge
+> RAG deployment narrative. It was not live-probed during the current recovery,
+> so it does not prove current Worker bindings, Cloudflare Access Applications,
+> policies, operator seats, or protected hostnames. The evidence-led current
+> inventory is [`docs/architecture/architecture.html`](architecture/architecture.html).
 
 The public product remains served by Vercel, with its chat API proxying to a
 dedicated Cloudflare Worker. Cloudflare keeps the durable retrieval and
@@ -30,7 +36,7 @@ then asks the answer model to cite only the returned numbered evidence. It
 returns a generic error code rather than a provider response body. Retrieval
 refuses when the best source does not clear the similarity floor.
 
-The deployed pilot has the following explicit guardrails:
+The recorded pilot had the following explicit guardrails:
 
 - 1,500-character question cap and JSON/content-type validation.
 - 20 requests per minute per IP by default (tune after real traffic data).

@@ -15,7 +15,7 @@ export type OpsDestination = typeof opsDestinations[number];
 const grants: Record<OpsRole, ReadonlySet<OpsDestination>> = {
   super_admin: new Set(opsDestinations),
   admin: new Set(opsDestinations),
-  editor: new Set(["/ops", "/ops/production", "/ops/episodes"]),
+  editor: new Set(["/ops", "/ops/production"]),
 };
 
 export function isOpsRole(value: unknown): value is OpsRole {
