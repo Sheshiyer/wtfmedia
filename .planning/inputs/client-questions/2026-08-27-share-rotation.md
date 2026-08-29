@@ -9,6 +9,20 @@ shares
 
 ---
 
+## Current review — 2026-08-29
+
+Git redaction completed in `1ad469d`; the tracked snapshot retains only
+redacted scheme/host plus SHA-256 placeholders. That prevents new public
+clones from replaying the capability URLs, but it does not revoke prior
+shares, remove URLs from earlier clones/history, or prove provider-side
+rotation.
+
+No third-party rotation confirmation has been recorded. Historical catalogue
+links are not an approved Phase 3 ingestion source; an owner-approved staging
+protocol and redacted mapping manifest are required before any provider or R2
+ingestion is activated. Do not paste raw URLs, share IDs, tokens, or provider
+screenshots into Git.
+
 ## Why this exists
 
 Sheshiyer/wtfmedia is a **public** repository. The 2026-08-27 catalogue
@@ -66,4 +80,5 @@ When rotation is done, reply with:
 - Treat redaction as equivalent to revocation
 
 ---
-*Owner-action-required. Filling the table above is the only close-out.*
+*Owner-action-required. A redacted owner attestation is the close-out; Git
+redaction alone is not proof of revocation or rotation.*

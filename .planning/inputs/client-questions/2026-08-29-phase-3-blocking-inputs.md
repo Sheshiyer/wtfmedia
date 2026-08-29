@@ -2,19 +2,47 @@
 
 **Drafted:** 2026-08-29
 **For:** Nikhai (SpaceBlanket.AI) → Nikhil Kamath Media Group / WTF Editorial
-**Blocks:** Execution of repository Phase 3 (Episode Ingestion + Provenance Spine), including Plans `03-01` through `03-06`, D1 provenance migrations, automated YouTube channel synchronization, uncut asset staging, and multi-version transcript activation
+**Blocks:** owner-approved remote Phase 3 activation and acceptance: D1
+provenance migrations, automated YouTube synchronization, uncut asset staging,
+and multi-version transcript activation. It does not block reviewed local
+source recovery or its regression checks.
 **Related requirements:** `PROV-01`, `PROV-02`, `PROV-03`, `PROV-04`, `PROV-05`, `PROV-06`, `PROV-07`, `PROV-08`, `PROV-09`, `PROV-10`, `PROV-11`, `PROV-12`, `PROV-13`, `INTG-07`, `QUAL-05`, `QUAL-12`
 **Related decisions & prior requests:**
 - `.planning/inputs/client-questions/2026-08-27-ip-taxonomy-reconciliation.md` (IP taxonomy dilemma)
 - `.planning/inputs/client-questions/2026-08-27-editorial-evaluation-set.md` (20-query search evaluation set)
 - `.planning/ROADMAP.md` (Phase 3 boundaries, success criteria, and dependencies)
-**Status:** draft-held, awaiting owner reply
+**Status:** draft-held, awaiting owner reply — no remote/provider action is
+authorized
 
 ---
 
+## Current review — 2026-08-29
+
+This packet consolidates the owner/editorial inputs required for a future live
+Phase 3 activation. The repository has a local provenance migration and
+fail-closed recovery seams, and `npm run verify:phase3` is focused local
+regression evidence only. No remote D1 migration, Cloudflare binding, OAuth
+connection, YouTube call, R2 upload, queue/cron activation, or provider
+configuration has been performed or is implied by this packet.
+
+Repository planning records Phase 2 closed, but the current inventory does
+not prove a live Cloudflare Access application, protected `/ops` hostname, D1
+authorization lookup, or assigned operator seat. The source models those
+boundaries; it does not establish them. Repository Phase 1 remains public and
+is not gated by Cloudflare Access/Zero Trust.
+
+Use this packet with the detailed IP, editorial-evaluation, and share-rotation
+packets linked above. Submit sensitive connection details through an
+owner-managed secure channel; this repository may retain only redacted
+attestations, source hashes, or non-secret decision records.
+
 ## 1. Context & Why This Exists
 
-With the completion of Phase 2 (Platform Foundation + Authenticated Policy Boundary), the repository enforces a hardened, deny-by-default operator surface (`/ops`), D1-backed operator authorization, and a strictly scrubbed, append-only audit ledger (`audit_events`).
+Repository planning records Phase 2 as closed. In the current checkout, the
+source models a deny-by-default `/ops` surface, D1-backed operator
+authorization, and a scrubbed audit ledger, but no live Cloudflare Access/D1
+operator configuration is evidenced. Treat these as local source contracts,
+not a live operator-service receipt.
 
 Phase 3 builds the **Provenance Spine & Ingestion Engine**. Its objective is to construct a canonical, immutable, versioned evidence relational graph in Cloudflare D1 and R2 uniting:
 1. Canonical episode entities (`ep_<ulid>`) independent of platform re-uploads or title edits (`PROV-01`, `PROV-02`).
@@ -56,10 +84,10 @@ WTF OS implements a zero-waste sync architecture:
 
 | Field | Description / Instructions | Client Response / Value |
 |---|---|---|
-| **Main Channel ID** | 24-character YouTube Channel ID for `@WTFiswithNikhilKamath` (starts with `UC`) | ⧗ `UC...` |
-| **Clips / Secondary Channel ID** | 24-character YouTube Channel ID for `@NikhilKamathClips` (starts with `UC`) | ⧗ `UC...` |
+| **Approved primary channel** | Confirm the selection through an owner-managed secure channel; do not paste channel IDs or handles into Git | `[ ] Delivered securely` |
+| **Approved clips / secondary channel** | Confirm the selection through an owner-managed secure channel; do not paste channel IDs or handles into Git | `[ ] Delivered securely` |
 | **OAuth application readiness** | Owner confirms that an approved OAuth client and redirect host can be configured outside this repository | `[ ] Ready` / `[ ] Pending` |
-| **Consent account and scopes** | The organization account to authorize, required read-only scopes, and the designated revocation owner | ⧗ |
+| **Consent account and scopes** | Owner-managed secure record of the authorizing organization account, read-only scopes, and revocation owner; return only a redacted attestation here | ⧗ |
 | **Analytics scope decision** | Decide whether read-only YouTube Analytics is needed now or remains a separate future connection | `[ ] Metadata only` / `[ ] Include Analytics later` |
 | **Preferred Automated Sync Cadence** | Scheduled Worker cron frequency for YouTube catalog polling | `[ ] Every 6 Hours` (Recommended)<br>`[ ] Every 12 Hours`<br>`[ ] Daily (24 Hours)` |
 | **Enable Real-Time WebSub Webhook?** | PubSubHubbub push notifications for instant (<60s) new video detection | `[ ] Yes`<br>`[ ] No (Polling only is sufficient)` |
@@ -96,11 +124,11 @@ To ingest raw uncut audio and studio transcripts into the provenance spine, we r
 | Field | Description / Instructions | Client Response / Value |
 |---|---|---|
 | **Selected Uncut Staging Protocol** | Primary protocol for staging uncut audio and transcripts | `[ ] Option A (Direct R2 via /ops/upload)`<br>`[ ] Option B (Google Drive Shared Vault)`<br>`[ ] Option C (Frame.io Webhooks)` |
-| **Shared Vault Identifier / Folder ID** | If Option B or C: Shared Google Drive Folder ID or Frame.io Project ID | ⧗ |
+| **Shared Vault Identifier / Folder ID** | If Option B or C: supply through the owner-managed secure channel; record only a redacted reference here | ⧗ |
 | **Uncut File Naming Convention** | Standardized filename pattern used by video editors | ⧗ e.g., `WTF_EP{N}_{GUEST}_UNCUT_AUDIO.wav` |
-| **Master Mapping Sheet Link** | Authoritative sheet or manifest mapping uncut filenames to YouTube Video IDs | ⧗ (Link to Google Sheet or uploaded CSV) |
+| **Master Mapping Sheet Reference** | Authoritative mapping of uncut filenames to YouTube identities, supplied securely; repository records only a source hash/redacted reference | ⧗ |
 | **Raw Audio Retention Policy in R2** | How long extracted uncut audio (FLAC/Opus) should be retained in R2 | `[ ] Permanent` (Recommended for instant dual-playback)<br>`[ ] 365 Days`<br>`[ ] 90 Days (Purge audio, keep transcripts & alignments)` |
-| **Authorized Production Uploaders** | Operator emails authorized to upload uncut media in `/ops` | ⧗ (e.g., `aditi@allthingswtf.com`, `editor@allthingswtf.com`) |
+| **Authorized Production Uploaders** | Owner-managed roster of operators allowed to upload uncut media; repository records role/attestation only | ⧗ |
 
 ---
 
@@ -186,13 +214,13 @@ To prevent schema breakage and support both content brand reporting and show fil
 | Field | Description / Instructions | Client Response / Value |
 |---|---|---|
 | **Selected Taxonomy Reconciliation Model** | Choose how WTF OS models IP and Show categories in D1 | `[ ] Option 2: Two-Dimensional (Both 'ip' and 'show_title' stored)`<br>`[ ] Option 1: 5 Show Tabs only (Spec 6-brand list retired)`<br>`[ ] Option 3: Custom Taxonomy (Defined below)` |
-| **Master Episode Classification Link** | Link to catalogue spreadsheet with `ip` and `show_title` columns assigned for all 62 rows | ⧗ |
-| **Editorial Authority for Taxonomy Disputes** | Name and email of editorial lead who resolves ambiguous episode classifications | ⧗ Name: ____________________<br>Email: ____________________ |
+| **Master Episode Classification Reference** | Securely supplied source with `ip` and `show_title` columns for all 62 rows; repository records only a source hash/redacted reference | ⧗ |
+| **Editorial Authority for Taxonomy Disputes** | Owner-managed contact for ambiguous classifications; repository records a redacted role/attestation only | ⧗ |
 | **Handling of Retired or Legacy Shows** | How to handle discontinued formats (e.g. historical *WTF Online* episodes) | `[ ] Retain historical show tag with status = 'archived'`<br>`[ ] Remap to closest active show category`<br>`[ ] Mark as 'Special Episodes'` |
 
 ---
 
-## 6. Item 5: Golden Ten Evaluation Episodes for Timeline Sync (`PROV-13`, `PROV-14`)
+## 6. Item 5: Golden Ten Evaluation Episodes for Timeline Sync (`PROV-13`)
 
 ### Context
 Requirement `PROV-13` establishes a hard performance and precision acceptance gate:
@@ -204,7 +232,11 @@ To formally benchmark this engine during Phase 3 verification, we request approv
 
 ### Candidate Nomination Table (10 Episodes)
 
-Please confirm or replace the nominated episodes below. Each selected episode must have both the **published YouTube Video ID** and matching **uncut raw audio/media asset** available for testing.
+The rows below are illustrative slots, not owner-approved nominations. Confirm
+or replace them through the owner-managed secure channel. Each selected
+episode must have both the published YouTube identity and matching uncut
+audio/media available for testing; do not place video IDs, URLs, or private
+asset paths in Git.
 
 | Slot # | Show Category | Nominated Guest / Title | YouTube Video ID / URL | Uncut Asset Filename / Key | Language Mix | Editorial Cut Complexity | Client Confirmation |
 |---|---|---|---|---|---|---|---|
@@ -227,7 +259,10 @@ In alignment with Phase 2 requirements (`QUAL-05`, `QUAL-12`, `AUTH-10`):
 
 1. **Zero Raw Secret / Credential Storage**: No API keys, OAuth tokens, private bucket keys, or passwords will ever be stored in D1, git, client bundles, or unencrypted storage.
 2. **Zero Private Path Leakage**: Internal file paths (e.g. local machine checkouts, private Google Drive folder paths, Frame.io project IDs, S3 bucket ARNs) will **never** be exposed in public API responses, client DOM elements, or frontend errors. All assets are accessed via opaque ULID handles (`ast_<ulid>`) resolved server-side through authenticated `/ops` endpoints.
-3. **Role-Gated Media Ingestion**: Only authenticated operators with `super_admin` or `admin` roles can trigger YouTube sync jobs, upload uncut media, or activate transcript versions.
+3. **Role-Gated Media Ingestion**: When live activation is approved, only
+   authenticated operators with `super_admin` or `admin` roles may trigger
+   YouTube sync jobs, upload uncut media, or activate transcript versions. The
+   local source model is not proof that this live gate exists.
 4. **Append-Only Auditing**: Every ingestion trigger, asset upload, transcript activation, and alignment verification records an immutable event in D1 `audit_events` with actor ID, timestamp, entity ULID, and scrubbed metadata.
 
 ---
@@ -247,11 +282,15 @@ Until the owner/editorial team reviews this document, populates the response tab
 
 ## 9. Response Submission & Next Steps
 
-To unblock Phase 3 execution:
+To unblock live Phase 3 activation:
 1. Fill in the values in the structured tables across Items 1 through 5 above (or reply with a completed copy of this document / spreadsheet link).
 2. Approve the separate OAuth deployment/configuration task, including callback host, read-only scopes, authorized account, and revocation owner.
-3. Provide the link to the master episode mapping sheet with IP and uncut asset mappings.
-4. Confirm approval to proceed with Phase 3 execution waves (`03-01` through `03-06`).
+3. Provide the master episode mapping and uncut-asset mapping through the
+   owner-managed secure channel, then return a redacted source reference.
+4. Approve the bounded live activation task; do not treat the prior local
+   recovery or a filled form as authority to deploy.
 
 ---
-*Draft-held. Repository state and remote infrastructure remain strictly unchanged until each required value above is authorized by the repository owner.*
+*Draft-held. Repository state and remote infrastructure remain strictly
+unchanged until a newly approved live-activation task supplies the necessary
+owner decisions and execution authority.*

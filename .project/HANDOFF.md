@@ -1,5 +1,24 @@
 # Project handoff
 
+## 2026-08-29 Client-question status review
+
+**Status:** LOCAL DOCUMENTATION — the client-question index at
+`.planning/inputs/client-questions/README.md` separates active owner/editorial
+inputs from historical records. No provider, deployment, credential, or media
+action was taken.
+
+- Still open: canonical IP/show taxonomy and mapping, the editorial 20-query
+  evaluation set, third-party share rotation, and the consolidated Phase 3
+  live-activation inputs.
+- Historical/resolved: the filled Plan 02-12 authorization form is not current
+  Cloudflare runtime proof; the A+B+D shell choice shipped in PRs #12/#13; the
+  2026-08-27 git-state backlog is archival only.
+- The Phase 3 packet now distinguishes local regression/source recovery from
+  live activation, keeps YouTube OAuth-only, and directs sensitive connection
+  details to an owner-managed secure channel rather than Git.
+- Keep untracked `/ops/episodes` and `/ops/ingest` drafts out of commits and
+  release evidence until individually reviewed.
+
 ## 2026-08-29 Architecture inventory + Phase 1 Access boundary
 
 **Status:** LOCAL DOCUMENTATION — current repository architecture is recorded in [`docs/architecture/architecture.html`](../docs/architecture/architecture.html). No Cloudflare account, Access Application, policy, hostname, seat, D1 binding, OAuth account, calendar, MCP host, or OTA channel was configured or verified.

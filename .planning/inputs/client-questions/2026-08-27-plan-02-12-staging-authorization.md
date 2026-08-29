@@ -1,17 +1,38 @@
-# Owner authorization request · Plan 02-12 (Phase 2 close)
+# Historical owner authorization record · Plan 02-12 (Phase 2 close)
 
 **Drafted:** 2026-08-27
 **For:** Repository owner (9d9d / super_admin) — sheshnarayan.iyer@gmail.com
-**Blocks:** Closure of repository Phase 2 (Platform Foundation + Authenticated
-Policy Boundary), which in turn blocks all Phase 3+ implementation
+**Original gate:** Closure of repository Phase 2 (Platform Foundation +
+Authenticated Policy Boundary), which formerly gated later implementation
 authorization
 **Plan under gate:** `.planning/phases/02-platform-foundation-authenticated-policy-boundary/02-12-PLAN.md`
 **Related decisions:** D-03, D-04, D-18–D-20, D-23–D-26 (recorded in `.planning/STATE.md`)
-**Status:** draft-held, awaiting owner reply
+**Status:** historical authorization record — superseded as a current
+live-execution gate on 2026-08-29
 
 ---
 
-## Why this exists
+## Current review — 2026-08-29
+
+The form below is retained as the historical Plan 02-12 authorization record.
+Its hostnames, `OPS_*` names, commit hash, approval record, and receipts are
+planning/history references only; they do **not** prove a current Cloudflare
+Access application, policy, protected hostname, D1 binding, Worker route,
+secret, or real seat assignment.
+
+Repository planning records Phase 2 as closed, and the repository's public
+Phase 1 proof is explicitly independent of Cloudflare Zero Trust, Access
+Applications, policies, and D1 operator setup. Do not execute the remote
+commands preserved below from this historical form.
+
+Any future live operator rollout needs a new owner-approved Cloudflare Access
+activation packet covering real protected hostnames, environment isolation,
+Access applications and policies, issuer/audience/JWKS settings, actual asset
+bindings, real seat assignments, redacted verification evidence, rollback,
+and exact command scope. See `.project/HANDOFF.md` and
+`docs/architecture/architecture.html`.
+
+## Historical rationale
 
 Plan 02-12 is the single remaining plan in repository Phase 2 (34 of 35 done).
 It runs the manifest-gated staging demonstration, collects owner approval
@@ -82,7 +103,7 @@ D-24. When you sign off:
 | **Approver email** | sheshnarayan.iyer@gmail.com |
 | **Approval scope** covers 320/768/1440 responsive, keyboard/focus/accessibility, rollback/runbook, and all staging gates? (`yes` / `no`) | yes |
 
-## What happens after these values arrive
+## Historical plan behavior (not instructions to execute)
 
 1. Task 1 runs against the exact staging target and produces a sanitized
    create-only receipt at `.runtime/preflight/phase2-staging.json`. No IDs,
@@ -118,5 +139,5 @@ D-24. When you sign off:
   future owner-authorized step per D-04)
 
 ---
-*Draft-held. Repository state remains unchanged until each value above is
-filled in and the owner explicitly instructs execution.*
+*Historical record only. A newly approved live-activation task is required
+before any remote command, deployment, configuration, or credential action.*
