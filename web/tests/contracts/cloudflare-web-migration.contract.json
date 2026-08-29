@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "scope": "cloudflare-workers-preview-transport",
+  "authority": "owner-requested-cloudflare-migration-2026-08-29",
+  "protected_hashes": [
+    {
+      "path": "web/app/api/chat/route.ts",
+      "sha256": "1d4eeccdaaf21f153846e25e4c2337f0ba6549a95518dff324249760d81d7567"
+    }
+  ],
+  "invariants": {
+    "public_chat_contract": "unchanged response body and response header mapping",
+    "production_transport": "Cloudflare Worker service binding only",
+    "answer_service_url": "internal service-binding URL only",
+    "secret_boundary": "server-only Cloudflare Worker secret forwarded to the existing core Worker",
+    "client_ip": "derived from cf-connecting-ip and never returned to the browser",
+    "local_contract_tests": "deterministic HTTP stub is reached through a mocked service binding"
+  }
+}

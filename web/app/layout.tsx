@@ -7,11 +7,12 @@ import { PublicShell } from "@/components/patterns/PublicShell";
 import { WtfOsBoot } from "@/components/patterns/brand/WtfOsBoot";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000"
-  ),
+  // Set only once the approved Cloudflare custom origin exists. Keeping this
+  // unset for workers.dev previews prevents Vercel metadata from leaking into
+  // the Cloudflare-native deployment.
+  metadataBase: process.env.WTFMEDIA_APP_ORIGIN
+    ? new URL(process.env.WTFMEDIA_APP_ORIGIN)
+    : undefined,
   title: "wtfmedia · the catalogue, with a memory",
   description:
     "The internal media workspace for the WTF catalogue. Ask anything across 55 conversations and get answers in the guest's own words, cited to the second.",

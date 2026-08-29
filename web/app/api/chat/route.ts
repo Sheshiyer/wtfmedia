@@ -1,13 +1,19 @@
 import { NextRequest } from "next/server";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import type { ChatMessage } from "@/lib/nvidia";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-const EDGE_RAG_URL = process.env.CLOUDFLARE_RAG_URL || "https://wtfmedia-edge.sheshnarayan-iyer.workers.dev";
-const EDGE_SHARED_SECRET = process.env.CLOUDFLARE_EDGE_SHARED_SECRET;
+const EDGE_SHARED_SECRET = process.env.EDGE_SHARED_SECRET ?? process.env.CLOUDFLARE_EDGE_SHARED_SECRET;
 const MAX_MESSAGES = 8;
 const MAX_QUESTION_CHARS = 2_000;
+
+async function callAnswerService(request: Request): Promise<Response> {
+  const { env } = await getCloudflareContext({ async: true });
+  if (!env.WTFMEDIA_EDGE) throw new Error("wtfmedia_edge_binding_missing");
+  return env.WTFMEDIA_EDGE.fetch(request);
+}
 
 type EdgeSource = {
   n: number;
@@ -53,18 +59,18 @@ export async function POST(req: NextRequest) {
 
   let edge: Response;
   try {
-    edge = await fetch(`${EDGE_RAG_URL}/v1/chat`, {
+    edge = await callAnswerService(new Request("https://wtfmedia-edge.internal/v1/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Edge-Secret": EDGE_SHARED_SECRET,
-        "X-Client-IP": req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown",
+        "X-Client-IP": req.headers.get("cf-connecting-ip")?.trim() || "unknown",
         "X-Request-ID": crypto.randomUUID(),
       },
       body: JSON.stringify({ question: last.content }),
       cache: "no-store",
       signal: AbortSignal.timeout(25_000),
-    });
+    }));
   } catch {
     return Response.json({ error: "The answer service is temporarily unavailable. Please retry shortly." }, { status: 503 });
   }

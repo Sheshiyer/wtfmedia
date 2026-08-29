@@ -98,7 +98,14 @@ function EpisodeDrawer({ ep, onClose }: { ep: Episode; onClose: () => void }) {
     // prefer timestamped JSON → clickable blocks; fall back to plain text
     fetch(`/transcripts/${ep.video_id}.json`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((snips: { t: number; x: string }[]) => {
+      .then((value: unknown) => {
+        if (!Array.isArray(value) || !value.every((snippet): snippet is { t: number; x: string } => (
+          typeof snippet === "object" && snippet !== null &&
+          typeof snippet.t === "number" && typeof snippet.x === "string"
+        ))) {
+          throw new Error("invalid transcript snippets");
+        }
+        const snips = value;
         const out: Block[] = [];
         let cur: string[] = [];
         let start = snips[0]?.t ?? 0;

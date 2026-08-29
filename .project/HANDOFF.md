@@ -1,5 +1,30 @@
 # Project handoff
 
+## 2026-08-29 Cloudflare-native web Worker preview
+
+**Status:** SOURCE READY — direct owner request authorizes a separate
+Cloudflare preview Worker. No DNS, Vercel deletion, secret rotation, Access
+application, or production `/ops` cutover has occurred at this checkpoint.
+
+- `web/` now builds as the `wtfmedia-web` OpenNext Worker with static assets,
+  Cloudflare Images, a self-reference, and a least-privilege service binding
+  to the existing `wtfmedia-edge` Worker.
+- `/api/chat` preserves its public contract but uses the internal Worker
+  service binding. It needs an owner-managed `EDGE_SHARED_SECRET` on the new
+  web Worker before live answers can succeed; do not place the secret in
+  source or rotate the existing core secret during this migration.
+- The Vercel-specific metadata fallback and stale local-vector trace were
+  removed. The current frontend package is Next 15.5.24 with OpenNext 1.20.4
+  and Wrangler 4.125.0.
+- Passed locally: TypeScript, ESLint, focused `/api/chat` contracts (20),
+  OpenNext build, and an explicit `--profile 9d9d` Wrangler dry run.
+
+**Pick-up:** Read `docs/CLOUDFLARE-WEB-MIGRATION.md`. Deploy only with
+`npm --prefix web run cf:deploy:9d9d`; do not persistently activate a Wrangler
+profile. Keep Vercel as rollback until an owner-approved custom hostname,
+secret handoff, public/chat smoke checks, and `/ops` Access migration have
+passed.
+
 ## 2026-08-29 Client-question status review
 
 **Status:** LOCAL DOCUMENTATION — the client-question index at
