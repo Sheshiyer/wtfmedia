@@ -2,9 +2,11 @@
 
 ## 2026-08-29 Cloudflare-native web Worker preview
 
-**Status:** SOURCE READY — direct owner request authorizes a separate
-Cloudflare preview Worker. No DNS, Vercel deletion, secret rotation, Access
-application, or production `/ops` cutover has occurred at this checkpoint.
+**Status:** PREVIEW DEPLOYED — direct owner request authorized a separate
+Cloudflare preview Worker at
+`https://wtfmedia-web.sheshnarayan-iyer.workers.dev`. No DNS, Vercel deletion,
+secret rotation, Access application, or production `/ops` cutover has occurred
+at this checkpoint.
 
 - `web/` now builds as the `wtfmedia-web` OpenNext Worker with static assets,
   Cloudflare Images, a self-reference, and a least-privilege service binding
@@ -18,6 +20,10 @@ application, or production `/ops` cutover has occurred at this checkpoint.
   and Wrangler 4.125.0.
 - Passed locally: TypeScript, ESLint, focused `/api/chat` contracts (20),
   OpenNext build, and an explicit `--profile 9d9d` Wrangler dry run.
+- Live preview smoke: `/`, `/episodes`, and `/chat` return public HTML; the
+  preview metadata resolves to the preview host; `/api/chat` safely returns
+  its unconfigured 503 until the secret handoff; and direct `/ops` renders the
+  reauthentication recovery state.
 
 **Pick-up:** Read `docs/CLOUDFLARE-WEB-MIGRATION.md`. Deploy only with
 `npm --prefix web run cf:deploy:9d9d`; do not persistently activate a Wrangler

@@ -7,10 +7,10 @@ without granting the web runtime catalogue, queue, database, or AI bindings.
 
 ## 2. Current status
 
-The repository contains a buildable OpenNext Worker named `wtfmedia-web`.
-It is a preview-stage migration artifact until its deploy receipt, public
-smoke checks, secret handoff, custom hostname, and `/ops` Access checks are
-recorded.
+The repository contains an OpenNext Worker named `wtfmedia-web`, deployed as
+a preview at `https://wtfmedia-web.sheshnarayan-iyer.workers.dev`. Public
+route smoke checks passed. It remains a preview-stage migration artifact until
+the secret handoff, custom hostname, and `/ops` Access checks are recorded.
 
 ## 3. Why this is a Worker, not Pages
 
