@@ -24,6 +24,9 @@ PRODUCT.md
 .vercel
 .playwright-cli/
 
+# ephemeral multi-agent orchestration records; may contain prompts and machine-local paths
+.agents/
+
 # Cloudflare local runtime and generated bindings
 cloudflare/.wrangler/
 cloudflare/worker-configuration.d.ts

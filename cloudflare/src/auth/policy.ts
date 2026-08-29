@@ -1,14 +1,32 @@
 export const roles = ["super_admin", "admin", "editor"] as const;
-export const resources = ["control_room", "operators", "audit", "chat"] as const;
-export const actions = ["read", "write", "export", "manage", "transfer", "approve"] as const;
+export const resources = ["control_room", "operators", "audit", "chat", "assets", "episodes", "ingest", "transcripts"] as const;
+export const actions = ["read", "write", "export", "manage", "transfer", "approve", "create", "upload", "confirm"] as const;
 export type Role = typeof roles[number];
 export type Resource = typeof resources[number];
 export type Action = typeof actions[number];
 
 const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
-  super_admin: new Set(["control_room:read", "operators:read", "operators:manage", "operators:transfer", "operators:approve", "audit:read", "audit:export", "chat:read", "chat:write"]),
-  admin: new Set(["control_room:read", "operators:read", "operators:manage", "audit:read", "audit:export", "chat:read", "chat:write"]),
-  editor: new Set(["control_room:read", "chat:read", "chat:write"]),
+  super_admin: new Set([
+    "control_room:read", "operators:read", "operators:manage", "operators:transfer", "operators:approve",
+    "audit:read", "audit:export", "chat:read", "chat:write",
+    "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm", "assets:manage",
+    "episodes:read", "episodes:write", "episodes:create", "episodes:manage",
+    "ingest:read", "ingest:write", "ingest:create", "ingest:manage",
+    "transcripts:read", "transcripts:write", "transcripts:create", "transcripts:manage",
+  ]),
+  admin: new Set([
+    "control_room:read", "operators:read", "operators:manage", "audit:read", "audit:export", "chat:read", "chat:write",
+    "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm", "assets:manage",
+    "episodes:read", "episodes:write", "episodes:create", "episodes:manage",
+    "ingest:read", "ingest:write", "ingest:create", "ingest:manage",
+    "transcripts:read", "transcripts:write", "transcripts:create", "transcripts:manage",
+  ]),
+  editor: new Set([
+    "control_room:read", "chat:read", "chat:write",
+    "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm",
+    "episodes:read", "episodes:write", "ingest:read",
+    "transcripts:read", "transcripts:write",
+  ]),
 };
 
 const routeRequirements: Record<string, readonly [Resource, Action]> = {
@@ -16,6 +34,20 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/ops/production": ["control_room", "read"],
   "/ops/operators": ["operators", "read"],
   "/ops/audit": ["audit", "read"],
+  "/ops/ingest": ["ingest", "read"],
+  "/ops/episodes": ["episodes", "read"],
+  "/ops/api/episodes": ["episodes", "read"],
+  "/api/ops/episodes": ["episodes", "read"],
+  "/ops/api/ingest/jobs": ["ingest", "read"],
+  "/api/ops/ingest/jobs": ["ingest", "read"],
+  "/ops/api/ingest/youtube-sync": ["ingest", "create"],
+  "/api/ops/ingest/youtube-sync": ["ingest", "create"],
+  "/ops/api/assets/upload-intent": ["assets", "create"],
+  "/ops/api/assets/upload-stream": ["assets", "upload"],
+  "/ops/api/assets/confirm-upload": ["assets", "confirm"],
+  "/api/ops/assets/upload-intent": ["assets", "create"],
+  "/api/ops/assets/upload-stream": ["assets", "upload"],
+  "/api/ops/assets/confirm-upload": ["assets", "confirm"],
 };
 
 function includes<T extends string>(values: readonly T[], value: unknown): value is T {
@@ -31,7 +63,15 @@ export function decide(role: unknown, resource: unknown, action: unknown, option
 }
 
 export function policyForPath(pathname: string): readonly [Resource, Action] | null {
-  return routeRequirements[pathname] ?? null;
+  if (routeRequirements[pathname]) return routeRequirements[pathname];
+  if (pathname.startsWith("/ops/episodes/") || pathname.startsWith("/api/ops/episodes/") || pathname.startsWith("/ops/api/episodes/")) {
+    if (pathname.endsWith("/citation")) return ["episodes", "read"];
+    if (pathname.endsWith("/provenance")) return ["episodes", "read"];
+    if (pathname.endsWith("/activate")) return ["transcripts", "write"];
+    if (pathname.endsWith("/stage")) return ["transcripts", "write"];
+    return ["episodes", "read"];
+  }
+  return null;
 }
 
 export function canAccessPath(role: unknown, pathname: string): boolean {
@@ -42,6 +82,8 @@ export function canAccessPath(role: unknown, pathname: string): boolean {
 export function navigationFor(role: unknown) {
   const items = [{ label: "Control Room", href: "/ops" }];
   if (decide(role, "control_room", "read")) items.push({ label: "Production", href: "/ops/production" });
+  if (decide(role, "episodes", "read")) items.push({ label: "Episodes", href: "/ops/episodes" });
+  if (decide(role, "ingest", "create") || decide(role, "ingest", "manage")) items.push({ label: "Ingest", href: "/ops/ingest" });
   if (decide(role, "operators", "read")) items.push({ label: "Operators", href: "/ops/operators" });
   if (decide(role, "audit", "read")) items.push({ label: "Audit", href: "/ops/audit" });
   return items;
