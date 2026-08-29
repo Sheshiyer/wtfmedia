@@ -289,31 +289,47 @@ test('Interval Parser: normalizes both snake_case and camelCase intervals', () =
   assert.equal(normalized.confidence, 0.95);
 });
 
-test('Interval Parser: handles inverted timestamps safely by ordering start <= end', () => {
+test('Interval Parser: preserves inverted timestamps so validation can reject them', () => {
   const inverted = {
     uncutStartSec: 200,
     uncutEndSec: 50,
     pubStartSec: 300,
     pubEndSec: 100,
+    status: 'matched',
+    confidence: 1,
   };
   const normalized = normalizeInterval(inverted);
-  assert.equal(normalized.uncutStartSec, 50);
-  assert.equal(normalized.uncutEndSec, 200);
-  assert.equal(normalized.pubStartSec, 100);
-  assert.equal(normalized.pubEndSec, 300);
+  assert.equal(normalized.uncutStartSec, 200);
+  assert.equal(normalized.uncutEndSec, 50);
+  assert.equal(normalized.pubStartSec, 300);
+  assert.equal(normalized.pubEndSec, 100);
+  assert.deepEqual(parseAndValidateIntervals([inverted]), []);
+});
+
+test('Interval Parser: rejects incomplete records instead of defaulting to a matched interval', () => {
+  assert.deepEqual(parseAndValidateIntervals([{}]), []);
 });
 
 test('Interval Parser: sorts and re-indexes un-ordered interval arrays', () => {
   const unOrdered = [
-    { uncutStartSec: 500, uncutEndSec: 600, pubStartSec: 400, pubEndSec: 500, status: 'matched' },
-    { uncutStartSec: 0, uncutEndSec: 200, pubStartSec: 0, pubEndSec: 200, status: 'matched' },
-    { uncutStartSec: 200, uncutEndSec: 500, pubStartSec: 200, pubEndSec: 400, status: 'matched' },
+    { intervalIndex: 2, uncutStartSec: 500, uncutEndSec: 600, pubStartSec: 400, pubEndSec: 500, status: 'matched', confidence: 1 },
+    { intervalIndex: 0, uncutStartSec: 0, uncutEndSec: 200, pubStartSec: 0, pubEndSec: 200, status: 'matched', confidence: 1 },
+    { intervalIndex: 1, uncutStartSec: 200, uncutEndSec: 500, pubStartSec: 200, pubEndSec: 400, status: 'matched', confidence: 1 },
   ];
   const parsed = parseAndValidateIntervals(unOrdered);
   assert.equal(parsed.length, 3);
   assert.equal(parsed[0].uncutStartSec, 0);
   assert.equal(parsed[1].uncutStartSec, 200);
   assert.equal(parsed[2].uncutStartSec, 500);
+});
+
+test('Interval Parser: rejects overlapping coordinate intervals instead of guessing a mapping', () => {
+  const overlapping = [
+    { uncutStartSec: 0, uncutEndSec: 120, pubStartSec: 0, pubEndSec: 120, status: 'matched', confidence: 1 },
+    { uncutStartSec: 100, uncutEndSec: 200, pubStartSec: 120, pubEndSec: 220, status: 'matched', confidence: 1 },
+  ];
+
+  assert.deepEqual(parseAndValidateIntervals(overlapping), []);
 });
 
 // ---------------------------------------------------------------------------
@@ -356,9 +372,9 @@ test('TimelineEngine: non-linear slope scaling (e.g. condensed segment)', () => 
 
 test('TimelineEngine: cut moments return targetTimeSec = null with status cut_from_published', () => {
   const intervals = [
-    { uncutStartSec: 0, uncutEndSec: 100, pubStartSec: 0, pubEndSec: 100, status: 'matched' },
-    { uncutStartSec: 100, uncutEndSec: 200, pubStartSec: 100, pubEndSec: 100, status: 'cut_from_published' },
-    { uncutStartSec: 200, uncutEndSec: 300, pubStartSec: 100, pubEndSec: 200, status: 'matched' },
+    { uncutStartSec: 0, uncutEndSec: 100, pubStartSec: 0, pubEndSec: 100, status: 'matched', confidence: 1 },
+    { uncutStartSec: 100, uncutEndSec: 200, pubStartSec: 100, pubEndSec: 100, status: 'cut_from_published', confidence: 1 },
+    { uncutStartSec: 200, uncutEndSec: 300, pubStartSec: 100, pubEndSec: 200, status: 'matched', confidence: 1 },
   ];
   const engine = new TimelineEngine(intervals);
 
@@ -370,8 +386,8 @@ test('TimelineEngine: cut moments return targetTimeSec = null with status cut_fr
 
 test('TimelineEngine: added moments in published return targetTimeSec = null with status added_in_published', () => {
   const intervals = [
-    { uncutStartSec: 0, uncutEndSec: 0, pubStartSec: 0, pubEndSec: 30, status: 'added_in_published' },
-    { uncutStartSec: 0, uncutEndSec: 500, pubStartSec: 30, pubEndSec: 530, status: 'matched' },
+    { uncutStartSec: 0, uncutEndSec: 0, pubStartSec: 0, pubEndSec: 30, status: 'added_in_published', confidence: 1 },
+    { uncutStartSec: 0, uncutEndSec: 500, pubStartSec: 30, pubEndSec: 530, status: 'matched', confidence: 1 },
   ];
   const engine = new TimelineEngine(intervals);
 
@@ -383,7 +399,7 @@ test('TimelineEngine: added moments in published return targetTimeSec = null wit
 
 test('TimelineEngine: boundary edges and negative timestamps return unmapped', () => {
   const intervals = [
-    { uncutStartSec: 10, uncutEndSec: 100, pubStartSec: 10, pubEndSec: 100, status: 'matched' },
+    { uncutStartSec: 10, uncutEndSec: 100, pubStartSec: 10, pubEndSec: 100, status: 'matched', confidence: 1 },
   ];
   const engine = new TimelineEngine(intervals);
 
@@ -405,8 +421,8 @@ test('TimelineEngine: boundary edges and negative timestamps return unmapped', (
 
 test('TimelineEngine: exact boundary transitions at interval endpoints', () => {
   const intervals = [
-    { uncutStartSec: 0, uncutEndSec: 100, pubStartSec: 0, pubEndSec: 100, status: 'matched' },
-    { uncutStartSec: 100, uncutEndSec: 200, pubStartSec: 100, pubEndSec: 200, status: 'matched' },
+    { uncutStartSec: 0, uncutEndSec: 100, pubStartSec: 0, pubEndSec: 100, status: 'matched', confidence: 1 },
+    { uncutStartSec: 100, uncutEndSec: 200, pubStartSec: 100, pubEndSec: 200, status: 'matched', confidence: 1 },
   ];
   const engine = new TimelineEngine(intervals);
 

@@ -4,11 +4,6 @@ import { syncYouTubeChannel, type YouTubeSyncOptions, type YouTubeSyncResult } f
 
 const dayMilliseconds = 86_400_000;
 
-export const DEFAULT_YOUTUBE_CHANNELS: readonly string[] = Object.freeze([
-  "UC_6vmsXQvU_Y1O6iFqH1_Xw", // WTF is with Nikhil Kamath
-  "UCq-Fj5jknLsUf-MWSy4_brA", // Nikhil Kamath Clips / Secondary
-]);
-
 export function retentionDays(environment: Environment): 0 | 30 | 365 {
   if (environment === "production") return 365;
   if (environment === "staging") return 30;
@@ -56,18 +51,20 @@ export interface ScheduledSyncSummary {
  * Runs with KV ETag caching (<10 quota units/day) and idempotent D1 persistence.
  */
 export async function syncYouTubeChannels(
-  env: { WTFMEDIA_STATE?: any; YOUTUBE_API_KEY?: string; DB?: DB; YOUTUBE_CHANNELS?: string[] },
+  env: { WTFMEDIA_STATE?: any; DB?: DB; YOUTUBE_CHANNELS?: string[] },
   db?: DB,
   options?: {
     channels?: string[];
     scheduledAt?: Date;
     fetchFn?: typeof fetch;
     force?: boolean;
-    apiKey?: string;
+    oauthAccessToken?: string;
   }
 ): Promise<ScheduledSyncSummary> {
   const targetDb = db ?? env.DB;
-  const channels = options?.channels ?? env.YOUTUBE_CHANNELS ?? DEFAULT_YOUTUBE_CHANNELS;
+  // A scheduler never targets an implicit channel. The OAuth connection flow
+  // must persist its approved channel list into the runtime configuration.
+  const channels = options?.channels ?? env.YOUTUBE_CHANNELS ?? [];
 
   const results: YouTubeSyncResult[] = [];
   let syncedVideos = 0;
@@ -78,7 +75,7 @@ export async function syncYouTubeChannels(
     db: targetDb,
     fetchFn: options?.fetchFn,
     force: options?.force,
-    apiKey: options?.apiKey,
+    oauthAccessToken: options?.oauthAccessToken,
     scheduledAt: options?.scheduledAt ?? new Date(),
   };
 

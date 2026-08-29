@@ -164,6 +164,12 @@ function denied(status = 403, error = "unauthorized"): Response {
   return Response.json(safeOpsError(error as any), { status, headers: protectedResponseHeaders });
 }
 
+function uploadSecret(env: OpsEnv): string | null {
+  return typeof env.EDGE_SHARED_SECRET === "string" && env.EDGE_SHARED_SECRET.length > 0
+    ? env.EDGE_SHARED_SECRET
+    : null;
+}
+
 export interface UploadIntentInput {
   episodeId: string;
   assetType: SourceAssetType;
@@ -221,9 +227,9 @@ export async function handleAssetUploadIntent(
     return Response.json({ error: "episode_not_found" }, { status: 404, headers: protectedResponseHeaders });
   }
 
-  const secret = env.EDGE_SHARED_SECRET || env.OPS_ORIGIN_PROOF;
+  const secret = uploadSecret(env);
   if (!secret) {
-    return Response.json({ error: "server_misconfigured_secret" }, { status: 500, headers: protectedResponseHeaders });
+    return Response.json(safeOpsError("operator_unavailable"), { status: 503, headers: protectedResponseHeaders });
   }
 
   const targetKey = getAssetR2Key(episodeId, assetType, expectedSha256, ext);
@@ -259,24 +265,26 @@ export async function handleAssetUploadIntent(
 export async function handleAssetUploadStream(
   request: Request,
   env: OpsEnv,
-  context?: OperatorContext
+  context: OperatorContext
 ): Promise<Response> {
   if (request.method !== "PUT" && request.method !== "POST") {
     return Response.json(safeOpsError("bad_request"), { status: 405, headers: protectedResponseHeaders });
   }
 
-  const secret = env.EDGE_SHARED_SECRET || env.OPS_ORIGIN_PROOF;
-  if (!secret) {
-    return Response.json({ error: "server_misconfigured_secret" }, { status: 500, headers: protectedResponseHeaders });
+  if (!decide(context.role, "assets", "upload")) {
+    return denied(403, "unauthorized");
   }
 
-  // Extract ticket from header or query param
-  const url = new URL(request.url);
+  const secret = uploadSecret(env);
+  if (!secret) {
+    return Response.json(safeOpsError("operator_unavailable"), { status: 503, headers: protectedResponseHeaders });
+  }
+
+  // Tickets are carried in headers only so they cannot be logged in URLs.
   const ticketHeader =
     request.headers.get("x-upload-ticket") ||
     request.headers.get("X-Upload-Ticket") ||
-    request.headers.get("authorization")?.replace(/^Bearer /i, "") ||
-    url.searchParams.get("ticket");
+    request.headers.get("authorization")?.replace(/^Bearer /i, "");
 
   if (!ticketHeader) {
     return Response.json({ error: "missing_upload_ticket" }, { status: 401, headers: protectedResponseHeaders });
@@ -285,13 +293,16 @@ export async function handleAssetUploadStream(
   let ticket: UploadTicketPayload;
   try {
     ticket = await verifyUploadTicket(secret, ticketHeader);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "invalid_upload_ticket";
-    return Response.json({ error: message }, { status: 401, headers: protectedResponseHeaders });
+  } catch {
+    return Response.json(safeOpsError("unauthorized"), { status: 401, headers: protectedResponseHeaders });
   }
 
-  if (context && !decide(context.role, "assets", "upload")) {
+  if (ticket.operatorId !== context.operatorId) {
     return denied(403, "unauthorized");
+  }
+
+  if (!env.CATALOGUE?.put) {
+    return Response.json(safeOpsError("operator_unavailable"), { status: 503, headers: protectedResponseHeaders });
   }
 
   if (!request.body) {
@@ -311,9 +322,6 @@ export async function handleAssetUploadStream(
       if (value) {
         totalBytes += value.byteLength;
         if (totalBytes > maxLimit) {
-          if (env.CATALOGUE?.delete) {
-            await env.CATALOGUE.delete(ticket.targetKey).catch(() => {});
-          }
           return Response.json(
             { error: "size_limit_exceeded", maxAllowed: maxLimit, received: totalBytes },
             { status: 400, headers: protectedResponseHeaders }
@@ -322,7 +330,7 @@ export async function handleAssetUploadStream(
         chunks.push(value);
       }
     }
-  } catch (err) {
+  } catch {
     return Response.json({ error: "stream_read_error" }, { status: 400, headers: protectedResponseHeaders });
   }
 
@@ -337,21 +345,17 @@ export async function handleAssetUploadStream(
   // Check SHA-256
   const computedSha256 = await computeSha256(combinedBuffer);
   if (computedSha256.toLowerCase() !== ticket.expectedSha256.toLowerCase()) {
-    if (env.CATALOGUE?.delete) {
-      await env.CATALOGUE.delete(ticket.targetKey).catch(() => {});
-    }
     return Response.json(
-      {
-        error: "hash_mismatch",
-        expected: ticket.expectedSha256,
-        computed: computedSha256,
-      },
+      safeOpsError("bad_request"),
       { status: 400, headers: protectedResponseHeaders }
     );
   }
 
-  // Store into R2 CATALOGUE
-  if (env.CATALOGUE?.put) {
+  if (totalBytes !== ticket.byteSize) {
+    return Response.json(safeOpsError("bad_request"), { status: 400, headers: protectedResponseHeaders });
+  }
+
+  try {
     await env.CATALOGUE.put(ticket.targetKey, combinedBuffer, {
       httpMetadata: { contentType: ticket.mimeType },
       customMetadata: {
@@ -360,6 +364,8 @@ export async function handleAssetUploadStream(
         assetType: ticket.assetType,
       },
     });
+  } catch {
+    return Response.json(safeOpsError("operator_unavailable"), { status: 503, headers: protectedResponseHeaders });
   }
 
   return Response.json(
@@ -410,33 +416,43 @@ export async function handleAssetConfirmUpload(
     return Response.json({ error: "missing_upload_ticket" }, { status: 400, headers: protectedResponseHeaders });
   }
 
-  const secret = env.EDGE_SHARED_SECRET || env.OPS_ORIGIN_PROOF;
+  const secret = uploadSecret(env);
   if (!secret) {
-    return Response.json({ error: "server_misconfigured_secret" }, { status: 500, headers: protectedResponseHeaders });
+    return Response.json(safeOpsError("operator_unavailable"), { status: 503, headers: protectedResponseHeaders });
   }
 
   let ticket: UploadTicketPayload;
   try {
     ticket = await verifyUploadTicket(secret, uploadTicket);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "invalid_upload_ticket";
-    return Response.json({ error: message }, { status: 401, headers: protectedResponseHeaders });
+  } catch {
+    return Response.json(safeOpsError("unauthorized"), { status: 401, headers: protectedResponseHeaders });
+  }
+
+  if (ticket.operatorId !== context.operatorId) {
+    return denied(403, "unauthorized");
+  }
+
+  if (assetId !== undefined && assetId !== ticket.ticketId) {
+    return Response.json(safeOpsError("conflict"), { status: 409, headers: protectedResponseHeaders });
   }
 
   // Verify object existence in R2
-  let objectHead: { size?: number } | null = null;
-  if (env.CATALOGUE?.head) {
-    objectHead = await env.CATALOGUE.head(ticket.targetKey);
-    if (!objectHead) {
-      return Response.json(
-        { error: "asset_not_found_in_storage" },
-        { status: 400, headers: protectedResponseHeaders }
-      );
-    }
+  if (!env.CATALOGUE?.head) {
+    return Response.json(safeOpsError("operator_unavailable"), { status: 503, headers: protectedResponseHeaders });
+  }
+  const objectHead = await env.CATALOGUE.head(ticket.targetKey);
+  const storedSha256 = objectHead?.customMetadata?.sha256;
+  if (
+    !objectHead ||
+    objectHead.size !== ticket.byteSize ||
+    typeof storedSha256 !== "string" ||
+    storedSha256.toLowerCase() !== ticket.expectedSha256.toLowerCase()
+  ) {
+    return Response.json(safeOpsError("bad_request"), { status: 400, headers: protectedResponseHeaders });
   }
 
-  const finalAssetId = assetId || ticket.ticketId || assetUlid();
-  const byteSize = objectHead?.size ?? ticket.byteSize;
+  const finalAssetId = ticket.ticketId;
+  const byteSize = objectHead.size;
 
   // Insert into D1 source_assets
   const assetRecord = await createSourceAsset(env.DB, {
@@ -454,7 +470,7 @@ export async function handleAssetConfirmUpload(
   });
 
   // Write audit event to D1
-  await appendAudit(env.DB, {
+  const audited = await appendAudit(env.DB, {
     action: "asset_upload",
     entityType: "source_asset",
     entityId: assetRecord.id,
@@ -471,6 +487,9 @@ export async function handleAssetConfirmUpload(
       episodeId: assetRecord.episode_id,
     },
   });
+  if (!audited) {
+    return Response.json(safeOpsError("operator_unavailable"), { status: 503, headers: protectedResponseHeaders });
+  }
 
   // Return clean, privacy-safe DTO without leaking bucket names or raw filesystem paths
   return Response.json(

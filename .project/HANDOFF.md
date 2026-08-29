@@ -1,5 +1,24 @@
 # Project handoff
 
+## 2026-08-29 Phase 3 held recovery + agentic integration planning
+
+**Status:** LOCAL RECOVERY — previous safe checkpoint `399a83b`; the focused local regression suite is green and this follow-up is checkpointed locally. Phase 3 is not complete and no external system was changed.
+
+**Recovered locally**
+- Public citations now resolve only an approved YouTube identifier/timestamp. They do not expose catalogue snapshots, private media paths, hashes, or invented Uncut alignment/playback.
+- YouTube ingestion is OAuth-gated; a missing connection returns an explicit unavailable state before a job or audit mutation. API-key configuration is no longer requested in the Phase 3 owner-input packet.
+- Asset upload, transcript consumption, timeline parsing, and operator DTOs were tightened to fail closed around identity, vault availability, malformed alignment, raw errors, and internal job payloads.
+- `npm run verify:phase3` is now a read-only regression runner over the actual focused Worker tests, public provenance unit tests, web typecheck, and whitespace check. The previous self-grading simulator is retired and must not be used as completion evidence.
+- A repository-local, read-only WTF OS MCP/plugin scaffold is being added for release status, release history, and setup guidance only. It is not installed globally and does not contact Cloudflare.
+
+**Planning handoff**
+- GitHub planning issues: [#19 OAuth-only YouTube](https://github.com/Sheshiyer/wtfmedia/issues/19), [#20 social OAuth framework](https://github.com/Sheshiyer/wtfmedia/issues/20), [#21 production calendar](https://github.com/Sheshiyer/wtfmedia/issues/21), and [#22 WTF OS MCP/plugin](https://github.com/Sheshiyer/wtfmedia/issues/22).
+- Read `docs/handoffs/2026-08-29-agentic-integrations.md` and `docs/wtf-os-agentic-settings.md` before picking up one of those issues. They partition local MCP, future hosted MCP, Settings UX, release history, OTA, and calendar responsibilities so a separate developer can work without touching Phase 3 provenance code.
+
+**Owner gates / do not infer**
+- Do not deploy a Worker, bind D1/R2/Queues/KV, configure Cloudflare Access or OAuth, authorize a YouTube/social account, enable calendar sync, install/publish the plugin, or emit OTA updates from this worktree.
+- Phase 3 still needs the documented editorial inputs; deployless Worker-entrypoint coverage and safe queue/cron plus asset-confirm handoff; a true large-media R2 streaming/direct-upload design (the current bounded handler buffers its body); durable, single-use upload-ticket state; D1 alignment-persistence/YouTube ETag durability review; a real configured-asset integration test; and owner acceptance evidence.
+
 ## 2026-08-28 Production calendar chrome (truthful empty)
 
 **Status:** LOCAL IMPLEMENTATION — uncommitted on `main`. Preview: `http://127.0.0.1:3000/ops/production`.

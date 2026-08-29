@@ -22,7 +22,7 @@ import { stageAndActivateTranscriptVersion } from "./version-staging.ts";
 /**
  * Phonetic Hinglish vocabulary patterns (Latin script representation of common Hindi tokens).
  */
-const HINGLISH_TOKEN_REGEX = /\b(bhai|bhaiya|bhabhi|crore|crores|cr|lakh|lakhs|kya|nahi|nahin|na|yaar|matlab|acha|accha|achha|theek|thik|haan|suno|arre|are|arrey|kaise|kaisa|kaisi|karo|karna|karta|karte|karti|hoga|hogi|hoge|honge|hain|hai|tha|thi|the|mujhe|mera|meri|mere|tum|tumhe|tumhara|tumhari|aap|aapka|aapki|aapke|hum|humara|humari|humare|unka|unki|unke|unhe|use|isko|usko|kyun|kyu|bolo|bol|dekho|dekh|chalo|chal|paisa|paise|jugaad|desh|dost|waise|sabse|lekin|magar|aur|ab|kab|jab|tab|kuch|bahut|bohot|thoda|thodi|zyada|jyada|sahi|galat|beta|saab|sirf|kyuki|kyunki|samajh|samjha|samjhe|baat|baatein|shuru|khatam|vapis|wapas|dekhte|bolte|sunte|aisa|aise|aisi|yahan|wahan|kahan|idhar|udhar|kitna|kitne|kitni)\b/gi;
+const HINGLISH_TOKEN_REGEX = /\b(bhai|bhaiya|bhabhi|crore|crores|cr|lakh|lakhs|kya|nahi|nahin|na|yaar|matlab|acha|accha|achha|theek|thik|haan|suno|arre|are|arrey|kaise|kaisa|kaisi|karo|karna|karta|karte|karti|hoga|hogi|hoge|honge|hain|hai|tha|thi|mujhe|mera|meri|mere|tum|tumhe|tumhara|tumhari|aap|aapka|aapki|aapke|hum|humara|humari|humare|unka|unki|unke|unhe|use|isko|usko|kyun|kyu|bolo|bol|dekho|dekh|chalo|chal|paisa|paise|jugaad|desh|dost|waise|sabse|lekin|magar|aur|ab|kab|jab|tab|kuch|bahut|bohot|thoda|thodi|zyada|jyada|sahi|galat|beta|saab|sirf|kyuki|kyunki|samajh|samjha|samjhe|baat|baatein|shuru|khatam|vapis|wapas|dekhte|bolte|sunte|aisa|aise|aisi|yahan|wahan|kahan|idhar|udhar|kitna|kitne|kitni)\b/gi;
 
 /**
  * Devanagari Unicode Block: U+0900 to U+097F
@@ -33,7 +33,7 @@ const DEVANAGARI_ALL_REGEX = /[\u0900-\u097F]+/g;
 /**
  * Latin word tokenization regex
  */
-const LATIN_WORD_REGEX = /[A-Za-z0-9]+/g;
+const LATIN_WORD_REGEX = /[A-Za-z]+/g;
 
 /**
  * Classifies segment text into one of the canonical language codes:
@@ -87,7 +87,7 @@ export function classifyLanguage(
 
   // Code-switching detection:
   // If there are both Hinglish tokens and significant English words (e.g. 2+ non-hinglish words)
-  if (hinglishCount >= 1 && nonHinglishCount >= 2 && hinglishRatio < 0.65) {
+  if (hinglishCount >= 1 && nonHinglishCount >= 2 && hinglishRatio < 0.5) {
     return "mixed";
   }
 
@@ -402,6 +402,15 @@ export function parseTranscriptContent(
   return parseSrtTranscript(trimmed, defaultLanguage);
 }
 
+function safeTranscriptIngestError(error: unknown): string {
+  const message = error instanceof Error ? error.message : "";
+  if (message === "transcript_asset_unavailable") return message;
+  if (message === "transcript_asset_empty") return message;
+  if (message.startsWith("Invalid transcript")) return "invalid_transcript_content";
+  if (message.startsWith("Invalid segment")) return "invalid_transcript_timing";
+  return "transcript_ingest_failed";
+}
+
 /**
  * Cloudflare Worker Queue Consumer handler for processing transcript ingestion messages.
  */
@@ -420,8 +429,8 @@ export async function processTranscriptIngestMessage(
   const isQueueMessage = typeof (msg as any).ack === "function";
 
   if (!payload || !payload.jobId || !payload.episodeId || !payload.transcriptR2Key) {
-    const errorMsg = "Invalid transcript job payload: missing jobId, episodeId, or transcriptR2Key";
-    console.error(`[transcript-consumer] ${errorMsg}`);
+    const errorMsg = "invalid_transcript_job_payload";
+    console.error("[transcript-consumer] invalid transcript job payload");
     if (isQueueMessage) {
       (msg as QueueMessage).ack(); // Bad payload cannot be retried
     }
@@ -433,20 +442,20 @@ export async function processTranscriptIngestMessage(
     await updateIngestionJobStatus(env.DB, payload.jobId, {
       status: "running",
     });
-  } catch (err: any) {
-    console.warn(`[transcript-consumer] Failed to update job ${payload.jobId} to running:`, err.message);
+  } catch {
+    console.warn("[transcript-consumer] unable to mark job running");
   }
 
   try {
     // 2. Fetch raw transcript content from R2 Vault
     const r2Object = await env.CATALOGUE.get(payload.transcriptR2Key);
     if (!r2Object) {
-      throw new Error(`Transcript asset not found in R2 vault: ${payload.transcriptR2Key}`);
+      throw new Error("transcript_asset_unavailable");
     }
 
     const rawContent = await r2Object.text();
     if (!rawContent || !rawContent.trim()) {
-      throw new Error(`Transcript asset in R2 is empty: ${payload.transcriptR2Key}`);
+      throw new Error("transcript_asset_empty");
     }
 
     // 3. Parse segments and validate timing monotonicity
@@ -472,8 +481,8 @@ export async function processTranscriptIngestMessage(
       (msg as QueueMessage).ack();
     }
   } catch (error: any) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(`[transcript-consumer] Job ${payload.jobId} failed: ${errorMessage}`);
+    const errorMessage = safeTranscriptIngestError(error);
+    console.error(`[transcript-consumer] job failed: ${errorMessage}`);
 
     const maxAttempts = 5;
     const currentAttempt = (payload as any).attempts ? (payload as any).attempts + 1 : 1;
@@ -489,8 +498,10 @@ export async function processTranscriptIngestMessage(
         // Route to DLQ if available
         if (env.INGEST_DLQ && typeof env.INGEST_DLQ.send === "function") {
           await env.INGEST_DLQ.send({
-            payload,
-            error: errorMessage,
+            jobId: payload.jobId,
+            episodeId: payload.episodeId,
+            sourceAssetId: payload.sourceAssetId,
+            errorCode: errorMessage,
             failedAt: new Date().toISOString(),
             attempts: currentAttempt,
           });
@@ -509,8 +520,8 @@ export async function processTranscriptIngestMessage(
           (msg as QueueMessage).retry();
         }
       }
-    } catch (d1Err: any) {
-      console.error(`[transcript-consumer] Failed updating error state for job ${payload.jobId}:`, d1Err.message);
+    } catch {
+      console.error("[transcript-consumer] unable to persist failed job state");
     }
 
     throw error;

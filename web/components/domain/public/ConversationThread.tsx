@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { SourcePanel } from "./SourcePanel";
+import { SourcePanel, type SourceCitation } from "./SourcePanel";
 import { Button } from "@/components/ui/Button";
 
 /**
@@ -14,18 +14,12 @@ import { Button } from "@/components/ui/Button";
  *   - Abstention label: "the catalogue doesn't support that claim"
  *   - Loading: "looking through the catalogue"
  *   - Retry: "retry answer" (no model exposure)
+ *   - Published source moments remain usable while private playback is unavailable
  */
 
-interface Source {
-  episodeId?: string;
-  title?: string;
-  url?: string;
-  chunk?: string;
-  score?: number;
-  [key: string]: unknown;
-}
+export interface Source extends SourceCitation {}
 
-interface Message {
+export interface Message {
   role: "user" | "assistant";
   content: string;
   sources?: Source[];
@@ -65,7 +59,7 @@ function linkifyCitations(text: string): React.ReactNode[] {
   return parts;
 }
 
-interface ConversationThreadProps {
+export interface ConversationThreadProps {
   messages: Message[];
   loading: boolean;
   onRetry: () => void;
@@ -153,7 +147,7 @@ export function ConversationThread({
                 </div>
                 <div className="py-3">
                   <dt className="text-on-structure/55">source timing</dt>
-                  <dd className="mt-1 font-bold">only when verified</dd>
+                  <dd className="mt-1 font-bold">published moments, when supplied</dd>
                 </div>
               </dl>
             </aside>
@@ -175,7 +169,7 @@ export function ConversationThread({
                     {linkifyCitations(msg.content)}
                   </div>
 
-                  {/* Sources */}
+                  {/* Public source citations */}
                   {msg.sources && msg.sources.length > 0 && (
                     <SourcePanel sources={msg.sources} />
                   )}

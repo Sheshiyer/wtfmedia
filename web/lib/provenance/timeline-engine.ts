@@ -1,115 +1,26 @@
 /**
- * @file cloudflare/src/provenance/alignment-engine.ts
- * @description Cloudflare Worker & D1 Piecewise Continuous Linear Timeline Alignment Engine.
- * Implements O(log K) interval search, bidirectional coordinate conversion,
- * status classification, and mathematical symmetry verification.
+ * @file web/lib/provenance/timeline-engine.ts
+ * @description High-performance piecewise continuous linear timeline alignment engine.
+ * Provides O(log K) bidirectional coordinate conversion between Uncut studio time
+ * and Published YouTube video time with mathematical symmetry guarantee (|U(P(t)) - t| < 10^-3s).
  */
 
-export type TimelineSystem = 'uncut' | 'published';
+import type {
+  TimelineSystem,
+  IntervalStatus,
+  ConversionStatus,
+  TimelineInterval,
+  NormalizedTimelineInterval,
+  TimelineAlignmentRecord,
+  CoordinateConversionResult,
+  TimelineConversionOptions,
+  SymmetryCheckResult,
+} from './types';
 
-export type IntervalStatus =
-  | 'matched'
-  | 'cut_from_published'
-  | 'added_in_published'
-  | 'conflicted';
-
-export type AlignmentStatus =
-  | 'verified'
-  | 'unmapped'
-  | 'partial'
-  | 'stale'
-  | 'conflicted';
-
-export type AlignmentAlgorithm =
-  | 'dtw_forced_align'
-  | 'audio_fingerprint'
-  | 'manual_editor_anchor'
-  | 'identity'
-  | 'linear_segmented';
-
-export type ConversionStatus =
-  | 'matched'
-  | 'verified'
-  | 'cut_from_published'
-  | 'added_in_published'
-  | 'unmapped'
-  | 'conflicted';
-
-export interface TimelineInterval {
-  interval_index?: number;
-  intervalIndex?: number;
-  uncut_start_sec?: number;
-  uncutStartSec?: number;
-  uncut_end_sec?: number;
-  uncutEndSec?: number;
-  pub_start_sec?: number;
-  pubStartSec?: number;
-  pub_end_sec?: number;
-  pubEndSec?: number;
-  interval_status?: IntervalStatus;
-  status?: IntervalStatus;
-  confidence?: number;
-  note?: string;
-}
-
-export interface NormalizedTimelineInterval {
-  intervalIndex: number;
-  uncutStartSec: number;
-  uncutEndSec: number;
-  pubStartSec: number;
-  pubEndSec: number;
-  status: IntervalStatus;
-  confidence: number;
-  note?: string;
-}
-
-export interface TimelineAlignmentRecord {
-  id: string;
-  episodeId: string;
-  uncutAssetId?: string;
-  publishedAssetId?: string;
-  algorithm: AlignmentAlgorithm;
-  confidenceScore: number;
-  status: AlignmentStatus;
-  intervals: NormalizedTimelineInterval[];
-  metadata?: Record<string, unknown>;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface CoordinateConversionResult {
-  sourceTimeline: TimelineSystem;
-  targetTimeline: TimelineSystem;
-  sourceTimeSec: number;
-  targetTimeSec: number | null;
-  status: ConversionStatus;
-  intervalIndex: number | null;
-  confidence: number;
-  note?: string;
-  reason?: string;
-}
-
-export interface TimelineConversionOptions {
-  boundaryEpsilonSec?: number;
-  clampWithinEpsilon?: boolean;
-}
-
-export interface SymmetryCheckResult {
-  symmetric: boolean;
-  sampleCount: number;
-  maxDeviationSec: number;
-  meanDeviationSec: number;
-  toleranceSec: number;
-  failedSamples: Array<{
-    sourceSec: number;
-    convertedSec: number;
-    roundTripSec: number;
-    deviationSec: number;
-  }>;
-}
+export * from './types';
 
 /**
- * Normalizes any interval shape (camelCase or snake_case) into a canonical NormalizedTimelineInterval.
+ * Normalizes any raw or D1 snake_case / camelCase interval into a strict NormalizedTimelineInterval.
  */
 export function normalizeInterval(
   raw: Partial<TimelineInterval>,
@@ -120,7 +31,8 @@ export function normalizeInterval(
   const pubStart = Number(raw.pubStartSec ?? raw.pub_start_sec);
   const pubEnd = Number(raw.pubEndSec ?? raw.pub_end_sec);
   const intervalIndex = Number(raw.intervalIndex ?? raw.interval_index ?? fallbackIndex);
-  const status: IntervalStatus = (raw.status ?? raw.interval_status ?? '__invalid__') as IntervalStatus;
+  const status: IntervalStatus =
+    (raw.status ?? raw.interval_status ?? '__invalid__') as IntervalStatus;
   const confidence = Number(raw.confidence);
 
   return {
@@ -136,7 +48,8 @@ export function normalizeInterval(
 }
 
 /**
- * Parses and validates raw intervals, ensuring monotonicity and sorting.
+ * Parses and validates an array of interval objects.
+ * Enforces monotonicity, detects overlapping intervals, and sorts appropriately.
  */
 export function parseAndValidateIntervals(
   rawIntervals: Array<Partial<TimelineInterval>>
@@ -170,6 +83,7 @@ export function parseAndValidateIntervals(
   );
   if (invalid) return [];
 
+  // Sort primarily by uncutStartSec, then pubStartSec
   normalized.sort((a, b) => {
     if (a.uncutStartSec !== b.uncutStartSec) {
       return a.uncutStartSec - b.uncutStartSec;
@@ -204,7 +118,8 @@ export function parseAndValidateIntervals(
 }
 
 /**
- * Core Piecewise Continuous Timeline Alignment Engine.
+ * Piecewise continuous linear timeline alignment engine.
+ * Fast binary-search index over sorted piecewise segments.
  */
 export class TimelineEngine {
   private readonly _allIntervals: NormalizedTimelineInterval[];
@@ -222,10 +137,12 @@ export class TimelineEngine {
 
     this._allIntervals = parseAndValidateIntervals(rawList ?? []);
 
+    // Filter and sort for Uncut search (includes 'matched' and 'cut_from_published')
     this._uncutIntervals = this._allIntervals
       .filter((inv) => inv.status !== 'added_in_published' && inv.uncutEndSec >= inv.uncutStartSec)
       .sort((a, b) => a.uncutStartSec - b.uncutStartSec);
 
+    // Filter and sort for Published search (includes 'matched' and 'added_in_published')
     this._pubIntervals = this._allIntervals
       .filter((inv) => inv.status !== 'cut_from_published' && inv.pubEndSec >= inv.pubStartSec)
       .sort((a, b) => a.pubStartSec - b.pubStartSec);
@@ -240,10 +157,16 @@ export class TimelineEngine {
     );
   }
 
+  /**
+   * Returns all normalized intervals in order.
+   */
   public getIntervals(): NormalizedTimelineInterval[] {
     return [...this._allIntervals];
   }
 
+  /**
+   * Returns summary statistics of the loaded timeline.
+   */
   public getSummary() {
     return {
       totalUncutSec: this._totalUncutDuration,
@@ -256,6 +179,9 @@ export class TimelineEngine {
     };
   }
 
+  /**
+   * Performs O(log K) binary search to find the active interval for a timestamp.
+   */
   private _binarySearchInterval(
     intervals: NormalizedTimelineInterval[],
     timeSec: number,
@@ -280,6 +206,8 @@ export class TimelineEngine {
       } else if (timeSec > end + epsilon) {
         low = mid + 1;
       } else {
+        // Matched inside or at boundary [start - eps, end + eps]
+        // If query is exactly on boundary between two intervals, check next for preferred match
         if (mid + 1 < intervals.length) {
           const next = intervals[mid + 1];
           const nextStart = system === 'uncut' ? next.uncutStartSec : next.pubStartSec;
@@ -299,6 +227,9 @@ export class TimelineEngine {
     return null;
   }
 
+  /**
+   * Converts a coordinate between Uncut and Published timelines.
+   */
   public convert(
     sourceTimeline: TimelineSystem,
     timeSec: number,
@@ -308,6 +239,7 @@ export class TimelineEngine {
       sourceTimeline === 'uncut' ? 'published' : 'uncut';
     const epsilon = options?.boundaryEpsilonSec ?? 1e-4;
 
+    // Reject negative timestamps immediately
     if (timeSec < 0 || !Number.isFinite(timeSec)) {
       return {
         sourceTimeline,
@@ -338,6 +270,7 @@ export class TimelineEngine {
       };
     }
 
+    // Handle conflicted intervals
     if (interval.status === 'conflicted') {
       return {
         sourceTimeline,
@@ -347,10 +280,11 @@ export class TimelineEngine {
         status: 'conflicted',
         intervalIndex: interval.intervalIndex,
         confidence: 0,
-        reason: 'Interval marked as conflicted',
+        reason: 'Interval is marked as conflicted or ambiguous',
       };
     }
 
+    // Handle cut sections (present in Uncut, absent in Published)
     if (interval.status === 'cut_from_published') {
       if (sourceTimeline === 'uncut') {
         return {
@@ -376,6 +310,7 @@ export class TimelineEngine {
       };
     }
 
+    // Handle added sections (present in Published, absent in Uncut)
     if (interval.status === 'added_in_published') {
       if (sourceTimeline === 'published') {
         return {
@@ -401,6 +336,7 @@ export class TimelineEngine {
       };
     }
 
+    // Handle matched intervals (Exact Linear Interpolation)
     if (interval.status === 'matched') {
       const u0 = interval.uncutStartSec;
       const u1 = interval.uncutEndSec;
@@ -415,16 +351,19 @@ export class TimelineEngine {
         if (uSpan <= 0) {
           targetTime = p0;
         } else {
+          // Clamp timeSec within interval if minor epsilon overshoot
           const clampedTime = Math.max(u0, Math.min(u1, timeSec));
           const ratio = (clampedTime - u0) / uSpan;
           targetTime = p0 + ratio * pSpan;
         }
       } else {
+        // sourceTimeline === 'published'
         const pSpan = p1 - p0;
         const uSpan = u1 - u0;
         if (pSpan <= 0) {
           targetTime = u0;
         } else {
+          // Clamp timeSec within interval if minor epsilon overshoot
           const clampedTime = Math.max(p0, Math.min(p1, timeSec));
           const ratio = (clampedTime - p0) / pSpan;
           targetTime = u0 + ratio * uSpan;
@@ -455,6 +394,9 @@ export class TimelineEngine {
     };
   }
 
+  /**
+   * Helper shortcut: converts Uncut time to Published time.
+   */
   public convertUncutToPublished(
     uncutSec: number,
     options?: TimelineConversionOptions
@@ -462,6 +404,9 @@ export class TimelineEngine {
     return this.convert('uncut', uncutSec, options);
   }
 
+  /**
+   * Helper shortcut: converts Published time to Uncut time.
+   */
   public convertPublishedToUncut(
     pubSec: number,
     options?: TimelineConversionOptions
@@ -470,14 +415,18 @@ export class TimelineEngine {
   }
 }
 
-export const TimelineAlignmentEngine = TimelineEngine;
-
+/**
+ * Standard factory function to instantiate a TimelineEngine.
+ */
 export function createTimelineEngine(
   intervalsOrRecord: Array<Partial<TimelineInterval>> | TimelineAlignmentRecord
 ): TimelineEngine {
   return new TimelineEngine(intervalsOrRecord);
 }
 
+/**
+ * Functional stateless converter conforming to the interface in PROJECT.md and Plan 03-05.
+ */
 export function convertCoordinate(
   intervalsOrRecord: Array<Partial<TimelineInterval>> | TimelineAlignmentRecord,
   sourceTimeline: TimelineSystem,
@@ -488,6 +437,10 @@ export function convertCoordinate(
   return engine.convert(sourceTimeline, timeSec, options);
 }
 
+/**
+ * Verifies the mathematical symmetry guarantee: |U(P(t)) - t| < toleranceSec
+ * across all matched intervals for a given alignment.
+ */
 export function verifyMathematicalSymmetry(
   intervalsOrRecord: Array<Partial<TimelineInterval>> | TimelineAlignmentRecord,
   options: { sampleCountPerInterval?: number; toleranceSec?: number } = {}
@@ -495,7 +448,7 @@ export function verifyMathematicalSymmetry(
   const engine = new TimelineEngine(intervalsOrRecord);
   const intervals = engine.getIntervals().filter((i) => i.status === 'matched');
   const samplesPerInv = options.sampleCountPerInterval ?? 20;
-  const toleranceSec = options.toleranceSec ?? 1e-3;
+  const toleranceSec = options.toleranceSec ?? 1e-3; // 1 millisecond
 
   let maxDeviationSec = 0;
   let totalDeviationSec = 0;
@@ -512,6 +465,7 @@ export function verifyMathematicalSymmetry(
       const frac = (step + 0.5) / samplesPerInv;
       const originalPub = inv.pubStartSec + frac * pSpan;
 
+      // Round-trip 1: Published -> Uncut -> Published
       const toUncut = engine.convertPublishedToUncut(originalPub);
       if (toUncut.status === 'matched' && toUncut.targetTimeSec !== null) {
         const roundTripPub = engine.convertUncutToPublished(toUncut.targetTimeSec);
@@ -532,6 +486,7 @@ export function verifyMathematicalSymmetry(
         }
       }
 
+      // Round-trip 2: Uncut -> Published -> Uncut
       const uSpan = inv.uncutEndSec - inv.uncutStartSec;
       if (uSpan > 0) {
         const originalUncut = inv.uncutStartSec + frac * uSpan;
@@ -570,6 +525,9 @@ export function verifyMathematicalSymmetry(
   };
 }
 
+/**
+ * Creates an identity 1:1 timeline alignment for uncut episodes that had no post-production cuts.
+ */
 export function createIdentityAlignment(
   episodeId: string,
   durationSec: number
@@ -594,60 +552,5 @@ export function createIdentityAlignment(
   };
 }
 
-/**
- * Loads an alignment record and its intervals from Cloudflare D1.
- */
-export async function loadTimelineAlignment(
-  db: { prepare: (query: string) => { bind: (...args: unknown[]) => { first: <T>() => Promise<T | null>; all: <T>() => Promise<{ results: T[] }> } } },
-  episodeId: string
-): Promise<TimelineAlignmentRecord | null> {
-  const alnRow = await db
-    .prepare(
-      'SELECT id, episode_id, uncut_asset_id, published_asset_id, algorithm, confidence_score, status, metadata_json, created_at, updated_at FROM timeline_alignments WHERE episode_id = ? ORDER BY created_at DESC LIMIT 1'
-    )
-    .bind(episodeId)
-    .first<{
-      id: string;
-      episode_id: string;
-      uncut_asset_id?: string;
-      published_asset_id?: string;
-      algorithm: AlignmentAlgorithm;
-      confidence_score: number;
-      status: AlignmentStatus;
-      metadata_json?: string;
-      created_at: string;
-      updated_at: string;
-    }>();
-
-  if (!alnRow) return null;
-
-  const intervalRows = await db
-    .prepare(
-      'SELECT interval_index, uncut_start_sec, uncut_end_sec, pub_start_sec, pub_end_sec, interval_status, confidence FROM alignment_intervals WHERE alignment_id = ? ORDER BY interval_index ASC'
-    )
-    .bind(alnRow.id)
-    .all<{
-      interval_index: number;
-      uncut_start_sec: number;
-      uncut_end_sec: number;
-      pub_start_sec: number;
-      pub_end_sec: number;
-      interval_status: IntervalStatus;
-      confidence: number;
-    }>();
-
-  const intervals = parseAndValidateIntervals(intervalRows.results ?? []);
-
-  return {
-    id: alnRow.id,
-    episodeId: alnRow.episode_id,
-    uncutAssetId: alnRow.uncut_asset_id,
-    publishedAssetId: alnRow.published_asset_id,
-    algorithm: alnRow.algorithm,
-    confidenceScore: alnRow.confidence_score,
-    status: alnRow.status,
-    intervals,
-    createdAt: alnRow.created_at,
-    updatedAt: alnRow.updated_at,
-  };
-}
+/** Alias for compatibility with Plan 03-05 class naming */
+export const TimelineAlignmentEngine = TimelineEngine;

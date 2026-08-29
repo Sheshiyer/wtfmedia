@@ -448,6 +448,38 @@ export interface IngestionJobRecord {
   completed_at: string | null;
 }
 
+/**
+ * Operator-safe job ledger projection. Raw payloads, storage references, and
+ * caught provider errors stay inside the ingestion boundary.
+ */
+export interface IngestionJobDto {
+  id: string;
+  jobType: IngestionJobType;
+  episodeId: string | null;
+  sourceAssetId: string | null;
+  status: IngestionJobStatus;
+  attempts: number;
+  maxAttempts: number;
+  createdAt: string;
+  startedAt: string | null;
+  completedAt: string | null;
+}
+
+export function ingestionJobDto(record: IngestionJobRecord): IngestionJobDto {
+  return {
+    id: record.id,
+    jobType: record.job_type,
+    episodeId: record.episode_id,
+    sourceAssetId: record.source_asset_id,
+    status: record.status,
+    attempts: record.attempts,
+    maxAttempts: record.max_attempts,
+    createdAt: record.created_at,
+    startedAt: record.started_at,
+    completedAt: record.completed_at,
+  };
+}
+
 export type NewIngestionJobInput = {
   id?: string;
   jobType: IngestionJobType;

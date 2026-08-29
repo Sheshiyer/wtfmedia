@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "verify:phase3": "node scripts/verify_phase3_provenance.mjs",
+    "verify:phase3": "node scripts/verify_phase3_real.mjs",
     "verify:phase1": "npm --prefix web run verify:phase1",
     "verify:phase2": "npm --prefix web run verify:phase2"
   },

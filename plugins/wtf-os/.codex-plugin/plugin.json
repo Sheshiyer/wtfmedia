@@ -1,0 +1,23 @@
+{
+  "name": "wtf-os",
+  "version": "0.1.0",
+  "description": "Local read-only WTF OS status, release history, and setup guidance.",
+  "author": {
+    "name": "WTF Media"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Wtf Os",
+    "shortDescription": "Read local WTF OS status and setup guidance.",
+    "longDescription": "A stateless, repository-local MCP for WTF OS release status, release history, and safe client setup guidance. It does not manage Cloudflare, OAuth, calendars, or deployments.",
+    "developerName": "WTF Media",
+    "category": "Productivity",
+    "capabilities": [
+      "Read-only local MCP",
+      "Release status and history",
+      "Client setup guidance"
+    ],
+    "defaultPrompt": "Use the local WTF OS MCP only for read-only release status, history, and safe client setup guidance. Do not infer a hosted connection, credentials, or deployment authority."
+  },
+  "mcpServers": "./.mcp.json"
+}

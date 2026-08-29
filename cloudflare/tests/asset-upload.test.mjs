@@ -21,6 +21,13 @@ import { canAccessPath, decide } from "../src/auth/policy.ts";
 import { handleOpsRequest } from "../src/ops-router.ts";
 
 const MOCK_SECRET = "super-secret-edge-key-for-hmac-sha256-testing-0123456789";
+const ADMIN_CONTEXT = {
+  operatorId: 1,
+  email: "operator@example.test",
+  role: "admin",
+  environment: "local",
+  correlationId: "asset-upload-test",
+};
 
 function createMockDb() {
   const episodes = new Map([
@@ -60,6 +67,9 @@ function createMockDb() {
           return this;
         },
         async first() {
+          if (sql.includes("SELECT 1 AS ready FROM sqlite_master")) {
+            return { ready: 1 };
+          }
           if (sql.includes("COUNT(*) AS count FROM sqlite_master")) {
             return { count: 10 };
           }
@@ -299,7 +309,7 @@ test("storage_layout: file size limit verification", () => {
 
 test("storage_layout: computeSha256 and verifySha256 helpers", async () => {
   const sample = "hello world provenance test";
-  const expectedHash = "a7e112461faaa7282eb11d9d95f87f2ff8e7b99c089c1ff9e2b024479e08398e";
+  const expectedHash = "44c0c7e047c2d6714b5e9dccce7c97b9163353ed14fbcd0bc22b710566de9eb1";
   const computed = await computeSha256(sample);
   assert.equal(computed, expectedHash);
   assert.equal(await verifySha256(sample, expectedHash), true);
@@ -556,7 +566,7 @@ test("endpoints: PUT /ops/api/assets/upload-stream processes direct streaming up
     duplex: "half",
   });
 
-  const response = await handleAssetUploadStream(request, env);
+  const response = await handleAssetUploadStream(request, env, ADMIN_CONTEXT);
   assert.equal(response.status, 200);
   const result = await response.json();
   assert.equal(result.success, true);
@@ -569,7 +579,48 @@ test("endpoints: PUT /ops/api/assets/upload-stream processes direct streaming up
   assert.equal(await stored.text(), payloadText);
 });
 
-test("endpoints: PUT /ops/api/assets/upload-stream aborts and cleans up on hash mismatch", async () => {
+test("endpoints: PUT /ops/api/assets/upload-stream rejects a ticket issued to another operator", async () => {
+  const db = createMockDb();
+  const r2 = createMockR2();
+  const env = {
+    DB: db,
+    CATALOGUE: r2,
+    OPS_HOSTNAME: "ops.local.test",
+    OPS_ORIGIN: "https://origin.local.test",
+    OPS_ORIGIN_PROOF: "test-proof",
+    OPS_ENVIRONMENT: "local",
+    ACCESS_ISSUER: "https://issuer.test",
+    ACCESS_AUDIENCE: "audience",
+    ACCESS_JWKS_URL: "https://issuer.test/certs",
+    EDGE_SHARED_SECRET: MOCK_SECRET,
+  };
+  const bytes = new TextEncoder().encode("operator-bound upload ticket");
+  const sha256 = await computeSha256(bytes);
+  const targetKey = "episodes/ep_01TESTEPISODE000000000001/assets/uncut/audio_operator_bound.wav";
+  const { uploadTicket } = await createUploadTicket(MOCK_SECRET, {
+    ticketId: "ast_01TESTOTHEROPERATOR000001",
+    episodeId: "ep_01TESTEPISODE000000000001",
+    assetType: "uncut_audio",
+    targetKey,
+    expectedSha256: sha256,
+    byteSize: bytes.byteLength,
+    mimeType: "audio/wav",
+    operatorId: 2,
+  });
+  const request = new Request("https://ops.local.test/ops/api/assets/upload-stream", {
+    method: "PUT",
+    headers: { "X-Upload-Ticket": uploadTicket },
+    body: createReadableStreamFromBytes(bytes),
+    duplex: "half",
+  });
+
+  const response = await handleAssetUploadStream(request, env, ADMIN_CONTEXT);
+  assert.equal(response.status, 403);
+  assert.equal((await response.json()).error, "unauthorized");
+  assert.equal(await r2.head(targetKey), null);
+});
+
+test("endpoints: PUT /ops/api/assets/upload-stream preserves a canonical object on hash mismatch", async () => {
   const db = createMockDb();
   const r2 = createMockR2();
   const env = {
@@ -589,6 +640,9 @@ test("endpoints: PUT /ops/api/assets/upload-stream aborts and cleans up on hash 
   const expectedHash = "a7e112461faaa7282eb11d9d95f87f2ff8e7b99c089c1ff9e2b024479e08398e"; // different hash
 
   const targetKey = "episodes/ep_01TESTEPISODE000000000001/assets/uncut/audio_corrupt.wav";
+  await r2.put(targetKey, new TextEncoder().encode("existing canonical source"), {
+    httpMetadata: { contentType: "audio/wav" },
+  });
 
   const { uploadTicket } = await createUploadTicket(MOCK_SECRET, {
     ticketId: "ast_01TESTCORRUPT000000000001",
@@ -608,13 +662,61 @@ test("endpoints: PUT /ops/api/assets/upload-stream aborts and cleans up on hash 
     duplex: "half",
   });
 
-  const response = await handleAssetUploadStream(request, env);
+  const response = await handleAssetUploadStream(request, env, ADMIN_CONTEXT);
   assert.equal(response.status, 400);
   const result = await response.json();
-  assert.equal(result.error, "hash_mismatch");
+  assert.equal(result.error, "bad_request");
 
-  // Verify object was NOT retained in R2
-  assert.equal(await r2.head(targetKey), null);
+  const preserved = await r2.get(targetKey);
+  assert.ok(preserved);
+  assert.equal(await preserved.text(), "existing canonical source");
+});
+
+test("endpoints: PUT /ops/api/assets/upload-stream preserves a canonical object on size rejection", async () => {
+  const db = createMockDb();
+  const r2 = createMockR2();
+  const env = {
+    DB: db,
+    CATALOGUE: r2,
+    OPS_HOSTNAME: "ops.local.test",
+    OPS_ORIGIN: "https://origin.local.test",
+    OPS_ORIGIN_PROOF: "test-proof",
+    OPS_ENVIRONMENT: "local",
+    ACCESS_ISSUER: "https://issuer.test",
+    ACCESS_AUDIENCE: "audience",
+    ACCESS_JWKS_URL: "https://issuer.test/certs",
+    EDGE_SHARED_SECRET: MOCK_SECRET,
+  };
+  const targetKey = "episodes/ep_01TESTEPISODE000000000001/metadata/manifest_existing.json";
+  await r2.put(targetKey, new TextEncoder().encode("existing canonical metadata"), {
+    httpMetadata: { contentType: "application/json" },
+  });
+
+  const tooLarge = new Uint8Array(getMaxAssetSizeBytes("sidecar_metadata") + 1);
+  const { uploadTicket } = await createUploadTicket(MOCK_SECRET, {
+    ticketId: "ast_01TESTOVERSIZE00000000001",
+    episodeId: "ep_01TESTEPISODE000000000001",
+    assetType: "sidecar_metadata",
+    targetKey,
+    expectedSha256: "0".repeat(64),
+    byteSize: tooLarge.byteLength,
+    mimeType: "application/json",
+    operatorId: 1,
+  });
+
+  const request = new Request("https://ops.local.test/ops/api/assets/upload-stream", {
+    method: "PUT",
+    headers: { "X-Upload-Ticket": uploadTicket },
+    body: createReadableStreamFromBytes(tooLarge),
+    duplex: "half",
+  });
+
+  const response = await handleAssetUploadStream(request, env, ADMIN_CONTEXT);
+  assert.equal(response.status, 400);
+  assert.equal((await response.json()).error, "size_limit_exceeded");
+  const preserved = await r2.get(targetKey);
+  assert.ok(preserved);
+  assert.equal(await preserved.text(), "existing canonical metadata");
 });
 
 test("endpoints: POST /ops/api/assets/confirm-upload registers source_assets and writes audit event", async () => {
@@ -647,7 +749,10 @@ test("endpoints: POST /ops/api/assets/confirm-upload registers source_assets and
   const targetKey = `episodes/ep_01TESTEPISODE000000000001/assets/uncut/audio_${sha256.slice(0, 16)}.wav`;
 
   // Put object in R2 first
-  await r2.put(targetKey, payloadBytes, { httpMetadata: { contentType: "audio/wav" } });
+  await r2.put(targetKey, payloadBytes, {
+    httpMetadata: { contentType: "audio/wav" },
+    customMetadata: { sha256 },
+  });
 
   const { uploadTicket } = await createUploadTicket(MOCK_SECRET, {
     ticketId: "ast_01TESTCONFIRM00000000001",
@@ -692,6 +797,51 @@ test("endpoints: POST /ops/api/assets/confirm-upload registers source_assets and
   const auditEvent = db._auditEvents.find((e) => e.args.includes("asset_upload"));
   assert.ok(auditEvent);
   assert.ok(auditEvent.args.includes("ast_01TESTCONFIRM00000000001"));
+});
+
+test("endpoints: POST /ops/api/assets/confirm-upload rejects a same-size object with a mismatched hash", async () => {
+  const db = createMockDb();
+  const r2 = createMockR2();
+  const env = {
+    DB: db,
+    CATALOGUE: r2,
+    OPS_HOSTNAME: "ops.local.test",
+    OPS_ORIGIN: "https://origin.local.test",
+    OPS_ORIGIN_PROOF: "test-proof",
+    OPS_ENVIRONMENT: "local",
+    ACCESS_ISSUER: "https://issuer.test",
+    ACCESS_AUDIENCE: "audience",
+    ACCESS_JWKS_URL: "https://issuer.test/certs",
+    EDGE_SHARED_SECRET: MOCK_SECRET,
+  };
+  const payloadBytes = new TextEncoder().encode("same-sized different object");
+  const expectedSha256 = "a".repeat(64);
+  const targetKey = "episodes/ep_01TESTEPISODE000000000001/assets/uncut/audio_same_size.wav";
+  await r2.put(targetKey, payloadBytes, {
+    httpMetadata: { contentType: "audio/wav" },
+    customMetadata: { sha256: "b".repeat(64) },
+  });
+  const { uploadTicket } = await createUploadTicket(MOCK_SECRET, {
+    ticketId: "ast_01TESTSAMESIZE0000000001",
+    episodeId: "ep_01TESTEPISODE000000000001",
+    assetType: "uncut_audio",
+    targetKey,
+    expectedSha256,
+    byteSize: payloadBytes.byteLength,
+    mimeType: "audio/wav",
+    operatorId: 1,
+  });
+
+  const request = new Request("https://ops.local.test/ops/api/assets/confirm-upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ uploadTicket }),
+  });
+
+  const response = await handleAssetConfirmUpload(request, env, ADMIN_CONTEXT);
+  assert.equal(response.status, 400);
+  assert.equal((await response.json()).error, "bad_request");
+  assert.equal(db._sourceAssets.size, 0);
 });
 
 // --------------------------------------------------------------------------

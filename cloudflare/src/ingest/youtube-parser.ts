@@ -222,7 +222,7 @@ export function extractGuestAndShow(
   }
 
   // "Nikhil Kamath with [Guest]" or "[Show] with [Guest]"
-  const withMatch = safeTitle.match(/(?:with)\s+([A-Z][a-zA-Z\s\.\-]+?)(?:\s*(?:\||-|#|\(|\n|$))/);
+  const withMatch = safeTitle.match(/(?:with)\s+([A-Z][a-zA-Z\s\.\-]+?)(?:\s+(?:\||#|\()|\s+-\s+|\n|$)/);
   if (withMatch && guests.length === 0) {
     const parts = withMatch[1].split(/[,&/]| and /i);
     for (const part of parts) {
@@ -278,8 +278,13 @@ export function generateEpisodeSlug(title: string, externalId?: string): string 
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-  const idSuffix = externalId ? `-${externalId.slice(0, 11)}` : "";
-  const combined = `${base}${idSuffix}`.slice(0, 150).replace(/-+$/, "");
+  // Keep the complete external identity in the suffix so distinct provider IDs
+  // cannot collapse to the same slug after an arbitrary 11-character trim.
+  const idSuffix = externalId ? `-${externalId.slice(0, 64)}` : "";
+  const baseLimit = Math.max(2, 150 - idSuffix.length);
+  const combined = `${base.slice(0, baseLimit).replace(/-+$/, "")}${idSuffix}`
+    .slice(0, 150)
+    .replace(/-+$/, "");
 
   if (combined.length < 2) {
     return `ep-${externalId || "untitled"}`;

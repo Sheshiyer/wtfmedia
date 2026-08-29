@@ -726,17 +726,18 @@ Co-Host: arre bhai bilkul sahi bola aapne yaar.
 
       await assert.rejects(
         () => processTranscriptIngestMessage(queueMsg, env),
-        /Transcript asset not found in R2 vault/
+        /transcript_asset_unavailable/
       );
 
       // On 5th attempt (attempts >= max_attempts), job is failed and sent to DLQ
       assert.equal(ackCount, 1, "Terminal failure must ack queue message to stop retry storm");
       assert.equal(dlqMessages.length, 1, "Failed job must be routed to DLQ");
-      assert.equal(dlqMessages[0].payload.jobId, jobId);
+      assert.equal(dlqMessages[0].jobId, jobId);
+      assert.equal(JSON.stringify(dlqMessages[0]).includes(missingKey), false);
 
       const jobRow = await db.prepare("SELECT * FROM ingestion_jobs WHERE id = ?").bind(jobId).first();
       assert.equal(jobRow.status, "failed");
-      assert.ok(jobRow.error_message.includes("not found in R2"));
+      assert.equal(jobRow.error_message, "transcript_asset_unavailable");
     });
   });
 });

@@ -29,34 +29,19 @@ Before remote ingestion workers, D1 provenance migrations, and queue consumers a
 
 ---
 
-## 2. Item 1: YouTube Data API v3 Access & Channel Authorization (`INTG-07`, `PROV-10`)
+## 2. Item 1: YouTube OAuth Connection & Channel Authorization (`INTG-07`, `PROV-10`)
 
 ### Context
 WTF distributes video content across two primary YouTube properties:
 1. **Main Channel**: `@WTFiswithNikhilKamath` (Long-form flagship podcast discussions).
 2. **Clips & Secondary Channel**: `@NikhilKamathClips` (Shorts, highlight clips, and *People by WTF* segments).
 
-To automate idempotent metadata extraction (titles, descriptions, guest names, ISO-8601 durations, chapter markers, and official thumbnails) and maintain daily cached analytics without client-side API calls, the server-side ingestion adapter requires authorized read-only API access.
+To automate idempotent metadata extraction (titles, descriptions, guest names, ISO-8601 durations, chapter markers, and official thumbnails) and maintain daily cached analytics without client-side API calls, the server-side ingestion adapter requires an owner-authorized, read-only OAuth connection.
 
 ### Security & Secret Storage Instructions
-**Zero Credential Storage in Git**: API keys, OAuth tokens, and Google Cloud credentials must **never** be committed to git, written to markdown files, or shared in plain text.
+**Zero Credential Storage in Git**: OAuth client secrets, refresh tokens, authorization codes, redirect values, and account identifiers must **never** be committed to git, written to markdown files, or shared in plain text.
 
-Please provision the credentials directly into the Cloudflare Worker secret store using the Cloudflare Wrangler CLI:
-
-```bash
-# Navigate to the cloudflare worker package
-cd cloudflare
-
-# Put the read-only YouTube Data API v3 key into the worker environment
-npx wrangler secret put YOUTUBE_API_KEY
-# (When prompted, paste the Google Cloud API key)
-```
-
-If Google Cloud Service Account credentials are used for extended YouTube Analytics access (`INTG-07`):
-```bash
-npx wrangler secret put GOOGLE_SERVICE_ACCOUNT_JSON
-# (When prompted, paste the single-line JSON service account key)
-```
+The owner must approve a separate Cloudflare deployment/configuration task before any consent flow is enabled. That task will register the approved callback host, configure the OAuth client and encrypted secret storage outside this repository, restrict scopes to read-only access, and document revocation and account handoff. This recovery does not request, accept, or install credentials.
 
 ### Quota Optimization Architecture
 Standard YouTube Data API v3 projects receive a default quota of **10,000 units/day**. Standard search calls (`search.list`) cost **100 units/call** and would exhaust the daily limit in 100 calls.
@@ -73,8 +58,9 @@ WTF OS implements a zero-waste sync architecture:
 |---|---|---|
 | **Main Channel ID** | 24-character YouTube Channel ID for `@WTFiswithNikhilKamath` (starts with `UC`) | ⧗ `UC...` |
 | **Clips / Secondary Channel ID** | 24-character YouTube Channel ID for `@NikhilKamathClips` (starts with `UC`) | ⧗ `UC...` |
-| **`YOUTUBE_API_KEY` Secret Status** | Confirmed added to Cloudflare Worker via `wrangler secret put YOUTUBE_API_KEY` | `[ ] Confirmed Added` / `[ ] Pending` |
-| **Google Service Account JSON Status** | Confirmed added via `wrangler secret put GOOGLE_SERVICE_ACCOUNT_JSON` (if Analytics enabled) | `[ ] Confirmed Added` / `[ ] Not Applicable (API Key only)` |
+| **OAuth application readiness** | Owner confirms that an approved OAuth client and redirect host can be configured outside this repository | `[ ] Ready` / `[ ] Pending` |
+| **Consent account and scopes** | The organization account to authorize, required read-only scopes, and the designated revocation owner | ⧗ |
+| **Analytics scope decision** | Decide whether read-only YouTube Analytics is needed now or remains a separate future connection | `[ ] Metadata only` / `[ ] Include Analytics later` |
 | **Preferred Automated Sync Cadence** | Scheduled Worker cron frequency for YouTube catalog polling | `[ ] Every 6 Hours` (Recommended)<br>`[ ] Every 12 Hours`<br>`[ ] Daily (24 Hours)` |
 | **Enable Real-Time WebSub Webhook?** | PubSubHubbub push notifications for instant (<60s) new video detection | `[ ] Yes`<br>`[ ] No (Polling only is sufficient)` |
 | **Ingest YouTube Shorts as Separate Episodes?** | Ingest standalone Shorts as `content_bucket = 'clip'` | `[ ] Yes, ingest Shorts`<br>`[ ] No, long-form / full episodes only` |
@@ -98,7 +84,7 @@ To ingest raw uncut audio and studio transcripts into the provenance spine, we r
 #### Option B: Google Drive Shared Vault (`WTF_UNCUT_MASTERS/`)
 - **Mechanism**: The editorial team uploads audio and transcript files to a designated Google Drive shared folder. An asynchronous worker with Google Drive API read-only service account credentials polls or receives push notifications, verifies file SHA-256 hashes, and mirrors assets to R2.
 - **Advantages**: Integrates directly with existing Google Drive production folder workflows.
-- **Requirements**: Requires Google Service Account access to the shared folder.
+- **Requirements**: Requires an owner-approved, read-only Google Drive integration identity managed outside this repository.
 
 #### Option C: Frame.io Webhook Integration
 - **Mechanism**: A webhook endpoint (`/api/ingest/frameio-webhook`) listens for asset state changes in Frame.io (e.g. project tagged "Approved Uncut Master") and downloads the audio track directly to R2.
@@ -263,7 +249,7 @@ Until the owner/editorial team reviews this document, populates the response tab
 
 To unblock Phase 3 execution:
 1. Fill in the values in the structured tables across Items 1 through 5 above (or reply with a completed copy of this document / spreadsheet link).
-2. Set the `YOUTUBE_API_KEY` secret in Cloudflare via `cd cloudflare && npx wrangler secret put YOUTUBE_API_KEY`.
+2. Approve the separate OAuth deployment/configuration task, including callback host, read-only scopes, authorized account, and revocation owner.
 3. Provide the link to the master episode mapping sheet with IP and uncut asset mappings.
 4. Confirm approval to proceed with Phase 3 execution waves (`03-01` through `03-06`).
 

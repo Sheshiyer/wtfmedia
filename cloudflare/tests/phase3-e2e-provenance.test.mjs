@@ -195,42 +195,48 @@ function createMockProvenanceDb() {
     _ingestionJobs: ingestionJobs,
     _auditEvents: auditEvents,
     prepare(sql) {
+      const normalizedSql = sql.replace(/\s+/g, " ").trim();
       return {
+        sql,
+        args: [],
         bind(...args) {
           this.args = args;
           return this;
         },
         async first() {
-          if (sql.includes("COUNT(*) AS count FROM sqlite_master")) {
+          if (normalizedSql.includes("COUNT(*) AS count FROM sqlite_master")) {
             return { count: 10 };
           }
-          if (sql.includes("SELECT id") && sql.includes("FROM operators")) {
+          if (normalizedSql.includes("SELECT 1 AS ready FROM sqlite_master")) {
+            return { ready: 1 };
+          }
+          if (normalizedSql.includes("SELECT id") && normalizedSql.includes("FROM operators")) {
             return { id: 1, email: "operator@example.test", role: "admin", active: 1 };
           }
-          if (sql.includes("SELECT COUNT(*) AS count FROM episodes")) {
+          if (normalizedSql.includes("SELECT COUNT(*) AS count FROM episodes")) {
             return { count: episodes.size };
           }
-          if (sql.includes("SELECT * FROM episodes WHERE id = ?")) {
+          if (normalizedSql.includes("SELECT * FROM episodes WHERE id = ?")) {
             const id = this.args?.[0];
             return episodes.get(id) ?? null;
           }
-          if (sql.includes("SELECT * FROM transcript_versions WHERE id = ?")) {
+          if (normalizedSql.includes("SELECT * FROM transcript_versions WHERE id = ?")) {
             const id = this.args?.[0];
             return transcriptVersions.find((v) => v.id === id) ?? null;
           }
-          if (sql.includes("SELECT * FROM transcript_versions WHERE episode_id = ? AND is_active = 1")) {
+          if (normalizedSql.includes("SELECT * FROM transcript_versions WHERE episode_id = ? AND is_active = 1")) {
             const epId = this.args?.[0];
             return transcriptVersions.find((v) => v.episode_id === epId && v.is_active === 1) ?? null;
           }
-          if (sql.includes("SELECT * FROM transcript_segments WHERE transcript_version_id = ? AND segment_index = ?")) {
+          if (normalizedSql.includes("SELECT * FROM transcript_segments WHERE transcript_version_id = ? AND segment_index = ?")) {
             const [verId, sIdx] = this.args;
             return transcriptSegments.find((s) => s.transcript_version_id === verId && s.segment_index === sIdx) ?? null;
           }
-          if (sql.includes("SELECT * FROM timeline_alignments WHERE episode_id = ?")) {
+          if (normalizedSql.includes("SELECT * FROM timeline_alignments WHERE episode_id = ?")) {
             const epId = this.args?.[0];
             return timelineAlignments.find((a) => a.episode_id === epId) ?? null;
           }
-          if (sql.includes("INSERT INTO ingestion_jobs")) {
+          if (normalizedSql.includes("INSERT INTO ingestion_jobs")) {
             const [id, job_type, episode_id, source_asset_id, status, max_attempts, payload_json] = this.args;
             const rec = { id, job_type, episode_id, source_asset_id, status, max_attempts, payload_json, attempts: 1, created_at: new Date().toISOString() };
             ingestionJobs.push(rec);
@@ -239,37 +245,37 @@ function createMockProvenanceDb() {
           return null;
         },
         async run() {
-          if (sql.includes("INSERT INTO audit_events")) {
+          if (normalizedSql.includes("INSERT INTO audit_events")) {
             auditEvents.push({ sql, args: this.args });
             return { success: true };
           }
           return { success: true };
         },
         async all() {
-          if (sql.includes("SELECT * FROM episodes")) {
+          if (normalizedSql.includes("SELECT * FROM episodes")) {
             return { results: Array.from(episodes.values()) };
           }
-          if (sql.includes("SELECT * FROM episode_external_identities WHERE episode_id = ?")) {
+          if (normalizedSql.includes("SELECT * FROM episode_external_identities WHERE episode_id = ?")) {
             const epId = this.args?.[0];
             return { results: externalIdentities.filter((e) => e.episode_id === epId) };
           }
-          if (sql.includes("SELECT * FROM source_assets WHERE episode_id = ?")) {
+          if (normalizedSql.includes("SELECT * FROM source_assets WHERE episode_id = ?")) {
             const epId = this.args?.[0];
             return { results: sourceAssets.filter((a) => a.episode_id === epId) };
           }
-          if (sql.includes("SELECT * FROM transcript_versions WHERE episode_id = ?")) {
+          if (normalizedSql.includes("SELECT * FROM transcript_versions WHERE episode_id = ?")) {
             const epId = this.args?.[0];
             return { results: transcriptVersions.filter((v) => v.episode_id === epId) };
           }
-          if (sql.includes("SELECT * FROM transcript_segments WHERE transcript_version_id = ?")) {
+          if (normalizedSql.includes("SELECT * FROM transcript_segments WHERE transcript_version_id = ?")) {
             const verId = this.args?.[0];
             return { results: transcriptSegments.filter((s) => s.transcript_version_id === verId) };
           }
-          if (sql.includes("SELECT * FROM alignment_intervals WHERE alignment_id = ?")) {
+          if (normalizedSql.includes("SELECT * FROM alignment_intervals WHERE alignment_id = ?")) {
             const alnId = this.args?.[0];
             return { results: alignmentIntervals.filter((i) => i.alignment_id === alnId) };
           }
-          if (sql.includes("SELECT * FROM ingestion_jobs")) {
+          if (normalizedSql.includes("SELECT * FROM ingestion_jobs")) {
             return { results: ingestionJobs };
           }
           return { results: [] };
@@ -477,7 +483,7 @@ test("provenance_activation: POST /ops/api/episodes/:id/transcripts/activate swi
 // 6. YouTube Manual Sync & Quota Telemetry Tests (INTG-07, PROV-10)
 // --------------------------------------------------------------------------
 
-test("provenance_sync: POST /ops/api/ingest/youtube-sync records job and returns quota telemetry", async () => {
+test("provenance_sync: POST /ops/api/ingest/youtube-sync fails closed until OAuth is connected", async () => {
   const db = createMockProvenanceDb();
   const env = createTestEnv(db);
   const context = { operatorId: 1, role: "admin", environment: "local", correlationId: "corr-sync-001" };
@@ -489,18 +495,10 @@ test("provenance_sync: POST /ops/api/ingest/youtube-sync records job and returns
   });
 
   const response = await handleYouTubeSync(request, env, context);
-  assert.equal(response.status, 200);
-  const result = await response.json();
-  assert.equal(result.success, true);
-  assert.ok(result.jobId.startsWith("job_"));
-  assert.equal(result.status, "completed");
-  assert.equal(result.etagStatus, "cached");
-  assert.equal(result.quotaUnitsConsumed, 1);
-  assert.equal(result.remainingDailyQuota, 9990);
-
-  // Ingestion job was recorded
-  assert.equal(db._ingestionJobs.length, 1);
-  assert.equal(db._ingestionJobs[0].job_type, "youtube_metadata_sync");
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), { error: "youtube_oauth_not_configured" });
+  assert.equal(db._ingestionJobs.length, 0);
+  assert.equal(db._auditEvents.length, 0);
 });
 
 // --------------------------------------------------------------------------
@@ -511,7 +509,7 @@ test("provenance_router: handleOpsRequest routes all Phase 3 endpoints through Z
   const db = createMockProvenanceDb();
   const env = createTestEnv(db);
   const deps = {
-    verifyAccess: async () => ({ ok: true, email: "admin@example.test" }),
+    verifyAccess: async () => ({ ok: true, email: "operator@example.test" }),
   };
 
   // Route 1: GET /ops/api/episodes
@@ -537,5 +535,6 @@ test("provenance_router: handleOpsRequest routes all Phase 3 endpoints through Z
     body: JSON.stringify({ channelId: "UC_WTF_MAIN" }),
   });
   const syncRes = await handleOpsRequest(syncReq, env, deps);
-  assert.equal(syncRes.status, 200);
+  assert.equal(syncRes.status, 503);
+  assert.deepEqual(await syncRes.json(), { error: "youtube_oauth_not_configured" });
 });

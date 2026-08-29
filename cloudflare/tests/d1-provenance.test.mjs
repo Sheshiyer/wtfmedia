@@ -237,25 +237,21 @@ describe("Milestone 1: D1 Provenance Spine Schema & DAL", () => {
   });
 
   test("Foreign keys enforce cascading deletes across version DAG", () => {
-    succeeds("PRAGMA foreign_keys = ON;");
     const epId = episodeUlid();
-    succeeds(`INSERT INTO episodes (id, slug, title, ip, show_title) VALUES ('${epId}', 'slug-cascade-test', 'Cascade Test', 'WTF', 'WTF Show');`);
-    succeeds(`INSERT INTO source_assets (id, episode_id, asset_type, storage_key, content_sha256, mime_type) VALUES ('ast_01JN0000000000000000000003', '${epId}', 'uncut_audio', 'key', '${"e".repeat(64)}', 'audio/wav');`);
-    succeeds(`INSERT INTO transcript_versions (id, episode_id, version_number, source_asset_id, content_sha256, is_active, state) VALUES ('txv_01JN0000000000000000000003', '${epId}', 1, 'ast_01JN0000000000000000000003', '${"f".repeat(64)}', 0, 'staging');`);
-    succeeds(`INSERT INTO transcript_segments (id, transcript_version_id, segment_index, start_sec, end_sec, text) VALUES ('seg_01JN0000000000000000000001', 'txv_01JN0000000000000000000003', 0, 0.0, 10.0, 'Hello world');`);
-    succeeds(`INSERT INTO transcript_chunks (id, transcript_version_id, chunk_index, vector_id, text, token_count) VALUES ('chk_01JN0000000000000000000001', 'txv_01JN0000000000000000000003', 0, 'vec_1', 'Hello world', 2);`);
-
-    // Verify records exist
-    assert.equal(succeeds(`SELECT COUNT(*) FROM transcript_segments WHERE transcript_version_id = 'txv_01JN0000000000000000000003';`).trim(), "1");
-    assert.equal(succeeds(`SELECT COUNT(*) FROM transcript_chunks WHERE transcript_version_id = 'txv_01JN0000000000000000000003';`).trim(), "1");
-
-    // Delete episode
-    succeeds(`DELETE FROM episodes WHERE id = '${epId}';`);
-
-    // Verify cascade deleted transcript version, segments, and chunks
-    assert.equal(succeeds(`SELECT COUNT(*) FROM transcript_versions WHERE id = 'txv_01JN0000000000000000000003';`).trim(), "0");
-    assert.equal(succeeds(`SELECT COUNT(*) FROM transcript_segments WHERE id = 'seg_01JN0000000000000000000001';`).trim(), "0");
-    assert.equal(succeeds(`SELECT COUNT(*) FROM transcript_chunks WHERE id = 'chk_01JN0000000000000000000001';`).trim(), "0");
+    const cascadeProof = succeeds(`
+      PRAGMA foreign_keys = ON;
+      INSERT INTO episodes (id, slug, title, ip, show_title) VALUES ('${epId}', 'slug-cascade-test', 'Cascade Test', 'WTF', 'WTF Show');
+      INSERT INTO source_assets (id, episode_id, asset_type, storage_key, content_sha256, mime_type) VALUES ('ast_01JN0000000000000000000003', '${epId}', 'uncut_audio', 'key', '${"e".repeat(64)}', 'audio/wav');
+      INSERT INTO transcript_versions (id, episode_id, version_number, source_asset_id, content_sha256, is_active, state) VALUES ('txv_01JN0000000000000000000003', '${epId}', 1, 'ast_01JN0000000000000000000003', '${"f".repeat(64)}', 0, 'staging');
+      INSERT INTO transcript_segments (id, transcript_version_id, segment_index, start_sec, end_sec, text) VALUES ('seg_01JN0000000000000000000001', 'txv_01JN0000000000000000000003', 0, 0.0, 10.0, 'Hello world');
+      INSERT INTO transcript_chunks (id, transcript_version_id, chunk_index, vector_id, text, token_count) VALUES ('chk_01JN0000000000000000000001', 'txv_01JN0000000000000000000003', 0, 'vec_1', 'Hello world', 2);
+      DELETE FROM episodes WHERE id = '${epId}';
+      SELECT
+        (SELECT COUNT(*) FROM transcript_versions WHERE id = 'txv_01JN0000000000000000000003') AS versions,
+        (SELECT COUNT(*) FROM transcript_segments WHERE id = 'seg_01JN0000000000000000000001') AS segments,
+        (SELECT COUNT(*) FROM transcript_chunks WHERE id = 'chk_01JN0000000000000000000001') AS chunks;
+    `, true);
+    assert.deepEqual(JSON.parse(cascadeProof), [{ versions: 0, segments: 0, chunks: 0 }]);
   });
 
   test("DAL assertProvenanceMigrations validates all required tables", async () => {

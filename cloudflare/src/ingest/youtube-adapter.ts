@@ -38,7 +38,11 @@ export interface YouTubeVideoItem {
 }
 
 export interface YouTubeSyncOptions {
-  apiKey?: string;
+  /**
+   * Ephemeral OAuth access token supplied by the authorized connection layer.
+   * It is never read from client input or written to D1/KV by this adapter.
+   */
+  oauthAccessToken?: string;
   fetchFn?: typeof fetch;
   db?: DB;
   force?: boolean;
@@ -52,7 +56,7 @@ export interface YouTubeSyncResult {
   etag?: string | null;
   items: YouTubeVideoItem[];
   upsertedCount: number;
-  status: "completed" | "skipped_unchanged" | "quota_exhausted" | "failed";
+  status: "completed" | "skipped_unchanged" | "quota_exhausted" | "connection_required" | "failed";
   error?: string;
   jobId?: string;
 }
@@ -83,14 +87,25 @@ export function channelIdToUploadsPlaylistId(channelId: string): string {
  * Uses KV ETag caching (yt:etag:<channelId>) to skip processing with HTTP 304 (<10 quota units/day).
  */
 export async function syncYouTubeChannel(
-  env: { WTFMEDIA_STATE?: any; YOUTUBE_API_KEY?: string; DB?: DB },
+  env: { WTFMEDIA_STATE?: any; DB?: DB },
   channelId: string,
   options: YouTubeSyncOptions = {}
 ): Promise<YouTubeSyncResult> {
   const fetchImpl = options.fetchFn ?? fetch;
-  const apiKey = options.apiKey ?? env.YOUTUBE_API_KEY ?? "";
+  const oauthAccessToken = options.oauthAccessToken?.trim() ?? "";
   const db = options.db ?? env.DB;
   const maxResults = Math.min(options.maxResults ?? 50, 50);
+
+  if (!oauthAccessToken) {
+    return {
+      channelId,
+      changed: false,
+      items: [],
+      upsertedCount: 0,
+      status: "connection_required",
+      error: "YouTube OAuth authorization is not configured",
+    };
+  }
 
   // 1. Check for active quota backoff in KV
   if (env.WTFMEDIA_STATE) {
@@ -125,10 +140,10 @@ export async function syncYouTubeChannel(
   playlistUrl.searchParams.set("part", "snippet,contentDetails");
   playlistUrl.searchParams.set("playlistId", uploadsPlaylistId);
   playlistUrl.searchParams.set("maxResults", String(maxResults));
-  if (apiKey) playlistUrl.searchParams.set("key", apiKey);
 
   const playlistHeaders: Record<string, string> = {
     Accept: "application/json",
+    Authorization: `Bearer ${oauthAccessToken}`,
   };
   if (cachedEtag && !options.force) {
     playlistHeaders["If-None-Match"] = cachedEtag;
@@ -242,13 +257,15 @@ export async function syncYouTubeChannel(
     const videosUrl = new URL("https://www.googleapis.com/youtube/v3/videos");
     videosUrl.searchParams.set("part", "snippet,contentDetails,statistics");
     videosUrl.searchParams.set("id", chunk.join(","));
-    if (apiKey) videosUrl.searchParams.set("key", apiKey);
 
     let videosRes: Response;
     try {
       videosRes = await fetchImpl(videosUrl.toString(), {
         method: "GET",
-        headers: { Accept: "application/json" },
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${oauthAccessToken}`,
+        },
       });
     } catch (vErr: any) {
       return {

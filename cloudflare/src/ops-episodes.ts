@@ -27,13 +27,12 @@ import {
   listIngestionJobs,
   listSourceAssetsForEpisode,
   listTranscriptVersions,
-  recordIngestionJob,
   resolveCitation,
-  updateIngestionJobStatus,
 } from "./db/provenance.ts";
 import {
   episodeDto,
   externalIdentityDto,
+  ingestionJobDto,
   protectedResponseHeaders,
   safeOpsError,
   sourceAssetDto,
@@ -42,6 +41,7 @@ import {
   type EpisodeRecord,
   type ExternalIdentityDto,
   type IngestionJobRecord,
+  type IngestionJobDto,
   type ProductionStatus,
   type ResolvedCitationDTO,
   type SourceAssetDto,
@@ -65,7 +65,7 @@ export interface EpisodeProvenanceDTO {
     alignment: TimelineAlignmentRecord;
     intervals: any[];
   } | null;
-  ingestionJobs: IngestionJobRecord[];
+  ingestionJobs: IngestionJobDto[];
 }
 
 /**
@@ -143,11 +143,8 @@ export async function handleGetEpisodes(
       },
       { status: 200, headers: protectedResponseHeaders }
     );
-  } catch (err) {
-    return Response.json(
-      { error: "failed_to_list_episodes", message: err instanceof Error ? err.message : String(err) },
-      { status: 500, headers: protectedResponseHeaders }
-    );
+  } catch {
+    return Response.json(safeOpsError("operator_unavailable"), { status: 503, headers: protectedResponseHeaders });
   }
 }
 
@@ -214,15 +211,12 @@ export async function handleGetEpisodeProvenance(
       transcriptVersions,
       activeSegments,
       timelineAlignment,
-      ingestionJobs: ingestionJobsRes.results ?? [],
+      ingestionJobs: (ingestionJobsRes.results ?? []).map(ingestionJobDto),
     };
 
     return Response.json({ provenance }, { status: 200, headers: protectedResponseHeaders });
-  } catch (err) {
-    return Response.json(
-      { error: "failed_to_fetch_provenance", message: err instanceof Error ? err.message : String(err) },
-      { status: 500, headers: protectedResponseHeaders }
-    );
+  } catch {
+    return Response.json(safeOpsError("operator_unavailable"), { status: 503, headers: protectedResponseHeaders });
   }
 }
 
@@ -265,11 +259,8 @@ export async function handleResolveCitation(
     }
 
     return Response.json({ citation }, { status: 200, headers: protectedResponseHeaders });
-  } catch (err) {
-    return Response.json(
-      { error: "failed_to_resolve_citation", message: err instanceof Error ? err.message : String(err) },
-      { status: 500, headers: protectedResponseHeaders }
-    );
+  } catch {
+    return Response.json(safeOpsError("operator_unavailable"), { status: 503, headers: protectedResponseHeaders });
   }
 }
 
@@ -303,9 +294,17 @@ export async function handleActivateTranscriptVersion(
   }
 
   try {
+    const [targetVersion, previousVersion] = await Promise.all([
+      getTranscriptVersionById(env.DB, body.versionId),
+      getActiveTranscriptVersion(env.DB, episodeId),
+    ]);
+    if (!targetVersion || targetVersion.episode_id !== episodeId) {
+      return Response.json(safeOpsError("not_found"), { status: 404, headers: protectedResponseHeaders });
+    }
+
     await activateTranscriptVersion(env.DB, episodeId, body.versionId);
 
-    await appendAudit(env.DB, {
+    const audited = await appendAudit(env.DB, {
       action: "transcript_activate",
       entityType: "transcript_version",
       entityId: body.versionId,
@@ -315,20 +314,22 @@ export async function handleActivateTranscriptVersion(
       actorId: context.operatorId,
       role: context.role,
       metadata: {
+        scope: "operator_requested",
         episodeId,
-        versionId: body.versionId,
+        versionNumber: targetVersion.version_number,
+        previousVersionId: previousVersion?.id ?? "none",
       },
     });
+    if (!audited) {
+      return Response.json(safeOpsError("bad_request"), { status: 500, headers: protectedResponseHeaders });
+    }
 
     return Response.json(
       { success: true, episodeId, versionId: body.versionId, state: "active" },
       { status: 200, headers: protectedResponseHeaders }
     );
-  } catch (err) {
-    return Response.json(
-      { error: "failed_to_activate_version", message: err instanceof Error ? err.message : String(err) },
-      { status: 500, headers: protectedResponseHeaders }
-    );
+  } catch {
+    return Response.json(safeOpsError("operator_unavailable"), { status: 503, headers: protectedResponseHeaders });
   }
 }
 
@@ -355,18 +356,15 @@ export async function handleListIngestionJobs(
 
   try {
     const jobs = await listIngestionJobs(env.DB, { status, limit });
-    return Response.json({ jobs }, { status: 200, headers: protectedResponseHeaders });
-  } catch (err) {
-    return Response.json(
-      { error: "failed_to_list_jobs", message: err instanceof Error ? err.message : String(err) },
-      { status: 500, headers: protectedResponseHeaders }
-    );
+    return Response.json({ jobs: jobs.map(ingestionJobDto) }, { status: 200, headers: protectedResponseHeaders });
+  } catch {
+    return Response.json(safeOpsError("operator_unavailable"), { status: 503, headers: protectedResponseHeaders });
   }
 }
 
 /**
  * Handles POST /ops/api/ingest/youtube-sync.
- * Triggers manual synchronization with quota management and ETag caching.
+ * Fails closed until an owner-configured OAuth connection is available.
  */
 export async function handleYouTubeSync(
   request: Request,
@@ -381,58 +379,10 @@ export async function handleYouTubeSync(
     return denied(403, "unauthorized");
   }
 
-  let body: { channelId?: string; force?: boolean } = {};
-  try {
-    body = (await request.json()) as { channelId?: string; force?: boolean };
-  } catch {
-    // Body is optional
-  }
-
-  try {
-    const targetChannel = body.channelId || "UC_WTF_MAIN";
-    const job = await recordIngestionJob(env.DB, {
-      jobType: "youtube_metadata_sync",
-      status: "completed",
-      maxAttempts: 5,
-      payload: {
-        channelId: targetChannel,
-        triggeredBy: context.operatorId,
-        force: body.force ?? false,
-        syncedAt: new Date().toISOString(),
-      },
-    });
-
-    await appendAudit(env.DB, {
-      action: "youtube_sync",
-      entityType: "ingestion_job",
-      entityId: job.id,
-      outcome: "succeeded",
-      environment: context.environment,
-      correlationId: context.correlationId,
-      actorId: context.operatorId,
-      role: context.role,
-      metadata: {
-        channelId: targetChannel,
-        jobId: job.id,
-      },
-    });
-
-    return Response.json(
-      {
-        success: true,
-        jobId: job.id,
-        status: "completed",
-        etagStatus: "cached",
-        quotaUnitsConsumed: 1,
-        remainingDailyQuota: 9990,
-        syncedChannels: [targetChannel],
-      },
-      { status: 200, headers: protectedResponseHeaders }
-    );
-  } catch (err) {
-    return Response.json(
-      { error: "failed_to_trigger_youtube_sync", message: err instanceof Error ? err.message : String(err) },
-      { status: 500, headers: protectedResponseHeaders }
-    );
-  }
+  // A manual request must not manufacture a completed job, quota result, or
+  // audit receipt. OAuth consent and encrypted token storage are an owner gate.
+  return Response.json(
+    { error: "youtube_oauth_not_configured" },
+    { status: 503, headers: protectedResponseHeaders },
+  );
 }

@@ -3,30 +3,9 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AskComposer } from "./AskComposer";
-import { ConversationThread } from "./ConversationThread";
+import { ConversationThread, type Message, type Source } from "./ConversationThread";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
-
-/* ------------------------------------------------------------------ */
-/* Types                                                               */
-/* ------------------------------------------------------------------ */
-
-interface Source {
-  episodeId?: string;
-  title?: string;
-  url?: string;
-  chunk?: string;
-  score?: number;
-  [key: string]: unknown;
-}
-
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-  sources?: Source[];
-  model?: string;
-  fallback?: boolean;
-  abstained?: boolean;
-}
+import { parsePublicSourceHeader } from "@/lib/provenance/public-source-header";
 
 /* ------------------------------------------------------------------ */
 /* ChatInner (migrated — uses extracted components)                    */
@@ -81,14 +60,7 @@ function ChatInner() {
       const modelHeader = response.headers.get("X-Model");
       const fallbackHeader = response.headers.get("X-Fallback");
 
-      let sources: Source[] = [];
-      if (sourcesHeader) {
-        try {
-          sources = JSON.parse(sourcesHeader);
-        } catch {
-          // Malformed sources header — continue without sources
-        }
-      }
+      const sources: Source[] = parsePublicSourceHeader(sourcesHeader);
 
       // Stream the response body
       const reader = response.body?.getReader();
@@ -189,7 +161,7 @@ function ChatInner() {
           <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
             <span>catalogue scope</span>
             <span>source-backed answers</span>
-            <span>timing only when verified</span>
+            <span>published timing when verified</span>
           </div>
         }
       />

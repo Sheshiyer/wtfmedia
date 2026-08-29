@@ -157,10 +157,14 @@ function createMockYouTubeFetch({ initialEtag = "etag_v1_xyz", videos = [] }) {
   let videosCalls = 0;
   let quotaExhausted = false;
   let currentEtag = initialEtag;
+  const requestUrls = [];
+  const authorizationHeaders = [];
 
   const fetchFn = async (urlStr, options = {}) => {
     const url = new URL(urlStr);
     const ifNoneMatch = options.headers?.["If-None-Match"];
+    requestUrls.push(url.toString());
+    authorizationHeaders.push(options.headers?.Authorization ?? null);
 
     if (quotaExhausted) {
       return new Response(JSON.stringify({ error: { code: 403, message: "Quota Exceeded" } }), {
@@ -178,9 +182,14 @@ function createMockYouTubeFetch({ initialEtag = "etag_v1_xyz", videos = [] }) {
         });
       }
 
+      const uploadsPlaylistId = url.searchParams.get("playlistId") || "";
+      const targetChannelId = uploadsPlaylistId.startsWith("UU")
+        ? `UC${uploadsPlaylistId.slice(2)}`
+        : uploadsPlaylistId;
+      const channelVideos = videos.filter((video) => video.channelId === targetChannelId);
       const playlistResponse = {
         etag: currentEtag,
-        items: videos.map((v) => ({
+        items: channelVideos.map((v) => ({
           contentDetails: { videoId: v.id },
           snippet: {
             title: v.title,
@@ -246,6 +255,12 @@ function createMockYouTubeFetch({ initialEtag = "etag_v1_xyz", videos = [] }) {
     },
     get videosCalls() {
       return videosCalls;
+    },
+    get requestUrls() {
+      return [...requestUrls];
+    },
+    get authorizationHeaders() {
+      return [...authorizationHeaders];
     },
     setQuotaExhausted(val) {
       quotaExhausted = val;
@@ -410,6 +425,23 @@ describe("Milestone 3: YouTube Adapter & KV ETag Caching", () => {
     assert.equal(channelIdToUploadsPlaylistId("UU_6vmsXQvU_Y1O6iFqH1_Xw"), "UU_6vmsXQvU_Y1O6iFqH1_Xw");
   });
 
+  test("Adapter requires OAuth authorization before any YouTube request", async () => {
+    let requestCount = 0;
+    const result = await syncYouTubeChannel(
+      { WTFMEDIA_STATE: createMockKv() },
+      testChannelId,
+      {
+        fetchFn: async () => {
+          requestCount++;
+          return new Response("unexpected request", { status: 500 });
+        },
+      },
+    );
+
+    assert.equal(result.status, "connection_required");
+    assert.equal(requestCount, 0);
+  });
+
   test("Adapter performs initial sync, saves ETag in KV, and extracts videos", async () => {
     const kv = createMockKv();
     const mockVideos = [
@@ -429,9 +461,9 @@ describe("Milestone 3: YouTube Adapter & KV ETag Caching", () => {
     const mockApi = createMockYouTubeFetch({ initialEtag: "etag_initial_123", videos: mockVideos });
 
     const result = await syncYouTubeChannel(
-      { WTFMEDIA_STATE: kv, YOUTUBE_API_KEY: "test_key" },
+      { WTFMEDIA_STATE: kv },
       testChannelId,
-      { fetchFn: mockApi.fetchFn }
+      { fetchFn: mockApi.fetchFn, oauthAccessToken: "test-access-token" }
     );
 
     assert.equal(result.status, "completed");
@@ -440,6 +472,8 @@ describe("Milestone 3: YouTube Adapter & KV ETag Caching", () => {
     assert.equal(result.items.length, 1);
     assert.equal(result.items[0].id, "vid_101");
     assert.equal(result.items[0].durationSeconds, 2700);
+    assert.ok(mockApi.requestUrls.every((url) => !new URL(url).searchParams.has("key")));
+    assert.deepEqual(mockApi.authorizationHeaders, ["Bearer test-access-token", "Bearer test-access-token"]);
 
     // Verify ETag was stored in KV
     const storedEtag = await kv.get(`yt:etag:${testChannelId}`);
@@ -464,9 +498,9 @@ describe("Milestone 3: YouTube Adapter & KV ETag Caching", () => {
     const mockApi = createMockYouTubeFetch({ initialEtag: "etag_initial_123", videos: mockVideos });
 
     const result = await syncYouTubeChannel(
-      { WTFMEDIA_STATE: kv, YOUTUBE_API_KEY: "test_key" },
+      { WTFMEDIA_STATE: kv },
       testChannelId,
-      { fetchFn: mockApi.fetchFn }
+      { fetchFn: mockApi.fetchFn, oauthAccessToken: "test-access-token" }
     );
 
     assert.equal(result.status, "skipped_unchanged");
@@ -484,9 +518,9 @@ describe("Milestone 3: YouTube Adapter & KV ETag Caching", () => {
     mockApi.setQuotaExhausted(true);
 
     const result = await syncYouTubeChannel(
-      { WTFMEDIA_STATE: kv, YOUTUBE_API_KEY: "test_key" },
+      { WTFMEDIA_STATE: kv },
       testChannelId,
-      { fetchFn: mockApi.fetchFn }
+      { fetchFn: mockApi.fetchFn, oauthAccessToken: "test-access-token" }
     );
 
     assert.equal(result.status, "quota_exhausted");
@@ -501,9 +535,9 @@ describe("Milestone 3: YouTube Adapter & KV ETag Caching", () => {
     // Subsequent call should fast-exit without even calling the fetch API
     const priorCalls = mockApi.playlistCalls;
     const result2 = await syncYouTubeChannel(
-      { WTFMEDIA_STATE: kv, YOUTUBE_API_KEY: "test_key" },
+      { WTFMEDIA_STATE: kv },
       testChannelId,
-      { fetchFn: mockApi.fetchFn }
+      { fetchFn: mockApi.fetchFn, oauthAccessToken: "test-access-token" }
     );
 
     assert.equal(result2.status, "quota_exhausted");
@@ -562,11 +596,12 @@ describe("Milestone 3: Scheduled Sync & 3x Repeat Idempotency", () => {
     const mockApi = createMockYouTubeFetch({ initialEtag: "etag_sync_run_1", videos: allMockVideos });
 
     const summary = await syncYouTubeChannels(
-      { WTFMEDIA_STATE: kv, DB: d1, YOUTUBE_API_KEY: "key123" },
+      { WTFMEDIA_STATE: kv, DB: d1 },
       d1,
       {
         channels: [testChannel1, testChannel2],
         fetchFn: mockApi.fetchFn,
+        oauthAccessToken: "test-access-token",
       }
     );
 
@@ -602,12 +637,13 @@ describe("Milestone 3: Scheduled Sync & 3x Repeat Idempotency", () => {
     const mockApi = createMockYouTubeFetch({ initialEtag: "etag_sync_run_2", videos: allMockVideos });
 
     const summary = await syncYouTubeChannels(
-      { WTFMEDIA_STATE: kv, DB: d1, YOUTUBE_API_KEY: "key123" },
+      { WTFMEDIA_STATE: kv, DB: d1 },
       d1,
       {
         channels: [testChannel1, testChannel2],
         fetchFn: mockApi.fetchFn,
         force: true,
+        oauthAccessToken: "test-access-token",
       }
     );
 
@@ -629,12 +665,13 @@ describe("Milestone 3: Scheduled Sync & 3x Repeat Idempotency", () => {
     const mockApi = createMockYouTubeFetch({ initialEtag: "etag_sync_run_3", videos: allMockVideos });
 
     const summary = await syncYouTubeChannels(
-      { WTFMEDIA_STATE: kv, DB: d1, YOUTUBE_API_KEY: "key123" },
+      { WTFMEDIA_STATE: kv, DB: d1 },
       d1,
       {
         channels: [testChannel1, testChannel2],
         fetchFn: mockApi.fetchFn,
         force: true,
+        oauthAccessToken: "test-access-token",
       }
     );
 
@@ -667,12 +704,13 @@ describe("Milestone 3: Scheduled Sync & 3x Repeat Idempotency", () => {
     const mockApi = createMockYouTubeFetch({ initialEtag: "etag_sync_run_updated", videos: updatedMockVideos });
 
     await syncYouTubeChannels(
-      { WTFMEDIA_STATE: kv, DB: d1, YOUTUBE_API_KEY: "key123" },
+      { WTFMEDIA_STATE: kv, DB: d1 },
       d1,
       {
         channels: [testChannel1],
         fetchFn: mockApi.fetchFn,
         force: true,
+        oauthAccessToken: "test-access-token",
       }
     );
 
