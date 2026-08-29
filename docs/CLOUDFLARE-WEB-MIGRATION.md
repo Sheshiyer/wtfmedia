@@ -59,8 +59,9 @@ it is also used by the current upload-ticket boundary.
 ## 8. Public origin
 
 Set `WTFMEDIA_APP_ORIGIN` only after an approved Cloudflare custom host is
-known. It supplies canonical metadata. A workers.dev preview deliberately has
-no Vercel hostname fallback.
+known. It supplies canonical metadata. Until then, a workers.dev preview
+derives its metadata origin from the Cloudflare request host; it deliberately
+has no Vercel hostname fallback.
 
 ## 9. Local setup
 

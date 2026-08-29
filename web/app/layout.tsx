@@ -6,13 +6,7 @@ import { LegacyPublicShell } from "@/components/legacy/public/LegacyPublicShell"
 import { PublicShell } from "@/components/patterns/PublicShell";
 import { WtfOsBoot } from "@/components/patterns/brand/WtfOsBoot";
 
-export const metadata: Metadata = {
-  // Set only once the approved Cloudflare custom origin exists. Keeping this
-  // unset for workers.dev previews prevents Vercel metadata from leaking into
-  // the Cloudflare-native deployment.
-  metadataBase: process.env.WTFMEDIA_APP_ORIGIN
-    ? new URL(process.env.WTFMEDIA_APP_ORIGIN)
-    : undefined,
+const baseMetadata: Metadata = {
   title: "wtfmedia · the catalogue, with a memory",
   description:
     "The internal media workspace for the WTF catalogue. Ask anything across 55 conversations and get answers in the guest's own words, cited to the second.",
@@ -31,6 +25,24 @@ export const metadata: Metadata = {
     images: ["/brand/og-image.png"],
   },
 };
+
+function requestMetadataBase(requestHeaders: Headers): URL | undefined {
+  const configuredOrigin = process.env.WTFMEDIA_APP_ORIGIN?.trim();
+  if (configuredOrigin) return new URL(configuredOrigin);
+
+  // A Worker preview has no durable custom domain yet. Derive the canonical
+  // metadata origin from Cloudflare's request host rather than falling back to
+  // the retired Vercel deployment or localhost.
+  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
+  if (!host || !/^[a-z0-9.-]+(?::\d+)?$/i.test(host)) return undefined;
+  const isLocalhost = host.startsWith("localhost") || host.startsWith("127.");
+  const protocol = isLocalhost && requestHeaders.get("x-forwarded-proto") === "http" ? "http" : "https";
+  return new URL(`${protocol}://${host}`);
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return { ...baseMetadata, metadataBase: requestMetadataBase(await headers()) };
+}
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const variant = appUiVariant();
