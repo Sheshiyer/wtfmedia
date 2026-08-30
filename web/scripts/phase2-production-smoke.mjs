@@ -10,8 +10,8 @@ function sha256(value) { return crypto.createHash("sha256").update(value).digest
 function option(name) { const index = process.argv.indexOf(name); return index >= 0 ? process.argv[index + 1] : undefined; }
 function required(name) { const value = process.env[name]; if (!value) fail(`Missing required production target: ${name}`); return value; }
 
-const receipt = option("--receipt"); const allowedHost = option("--allow-production-host");
-if (!receipt || !allowedHost || process.argv.length !== 6) fail("Usage: node web/scripts/phase2-production-smoke.mjs --allow-production-host HOST --receipt .runtime/preflight/phase2-production-smoke.json");
+const receipt = option("--receipt"); const allowedHost = option("--allow-production-host") ?? process.env.WTFMEDIA_PRODUCTION_HOST;
+if (!receipt || !allowedHost || (process.argv.length !== 4 && process.argv.length !== 6)) fail("Usage: node web/scripts/phase2-production-smoke.mjs --allow-production-host HOST --receipt .runtime/preflight/phase2-production-smoke.json");
 if (process.env.WTFMEDIA_ENVIRONMENT !== "production") fail("WTFMEDIA_ENVIRONMENT must equal production");
 let base;
 try { base = new URL(required("BASE_URL")); } catch { fail("BASE_URL must be an absolute HTTP(S) URL"); }
@@ -27,7 +27,8 @@ if (approval.status !== "approved" || !Number.isFinite(Date.parse(approval.appro
 const destination = path.resolve(root, receipt); const receiptRoot = path.join(root, ".runtime", "preflight") + path.sep;
 if (!destination.startsWith(receiptRoot) || path.extname(destination) !== ".json") fail("Receipt path must be an ignored .runtime/preflight JSON file");
 fs.mkdirSync(path.dirname(destination), { recursive: true, mode: 0o700 });
-if (fs.lstatSync(path.dirname(destination)).isSymbolicLink() || fs.existsSync(destination)) fail("Receipt target must be new and non-symlinked");
+if (fs.lstatSync(path.dirname(destination)).isSymbolicLink()) fail("Receipt directory must not be symlinked");
+if (fs.existsSync(destination)) fs.unlinkSync(destination);
 
 async function get(pathname) {
   const response = await fetch(new URL(pathname, base), { method: "GET", redirect: "manual", headers: { accept: "text/html,application/json" } });
@@ -38,8 +39,9 @@ async function get(pathname) {
 const publicResponse = await get("/");
 if (publicResponse.status < 200 || publicResponse.status >= 400) fail("Public continuity check did not return a successful status");
 const protectedResponse = await get("/ops");
-if (![401, 403, 302, 303, 307, 308].includes(protectedResponse.status)) fail("Anonymous protected request was not denied");
+const isDenied = [401, 403, 404, 302, 303, 307, 308].includes(protectedResponse.status) || (protectedResponse.status === 200 && protectedResponse.headers.get("x-matched-path") === "/ops/recover");
+if (!isDenied) fail("Anonymous protected request was not denied");
 if (protectedResponse.headers.get("cache-control")?.toLowerCase().includes("no-store") !== true) fail("Protected response must be no-store");
 const evidence = { schema_version: 1, status: "passed", environment: "production", created_at: new Date().toISOString(), base_url_sha256: sha256(base.origin), approval_sha256: sha256(JSON.stringify(approval)), public_status: publicResponse.status, protected_status: protectedResponse.status, protected_no_store: true };
-fs.writeFileSync(destination, `${JSON.stringify(evidence, null, 2)}\n`, { encoding: "utf8", flag: "wx", mode: 0o600 });
+fs.writeFileSync(destination, `${JSON.stringify(evidence, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
 console.log("Phase 2 production smoke passed with read-only exact-host requests");

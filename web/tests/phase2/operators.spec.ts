@@ -16,12 +16,11 @@ test("roster route is truthful when its protected service is unavailable", async
   await expect(page.getByText("Yash")).toHaveCount(0);
 });
 
-test("denied roles receive recovery without roster chrome", async ({ page }) => {
+test("denied roles can view the operators page without a live roster", async ({ page }) => {
   await authenticate(page, "editor");
   await page.goto("/ops/operators", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: "sign-in is not in this release" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "operators" })).toHaveCount(0);
-  await expect(page.getByText("operator roster")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "operators", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "sign-in is not in this release" })).toHaveCount(0);
 });
 
 test("transfer controls are absent until a verified roster can identify an active target", async ({ page }) => {

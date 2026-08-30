@@ -118,7 +118,7 @@ export function AuditLedger({
                   <dd
                     className={
                       label === "correlation ID"
-                        ? "mt-1 font-mono text-xs"
+                        ? "mt-1 font-mono text-xs break-all"
                         : label === "timestamp"
                           ? "mt-1 tabular-nums"
                           : "mt-1"

@@ -10,7 +10,7 @@ import { test, expect } from "@playwright/test";
  * Covers:
  * - Cross-route navigation (Home → Episodes → Connections → Chat → Home)
  * - Back/Forward across routes
- * - Query preservation (/chat?q=..., /episodes?episode=..., /connections?connection=...)
+ * - Query preservation (/chat?q=..., /connections?connection=...)
  * - Selected episode/connection state
  * - Chat source navigation
  * - Exact /api/chat contracts (method, request shape, streaming, headers)
@@ -168,30 +168,27 @@ test.describe("query preservation", () => {
     expect(page.url()).toContain("q=");
   });
 
-  test("/episodes?episode= param opens drawer on load", async ({ page }) => {
-    // First get a valid episode ID
+  test("/episodes/[id] detail route survives navigation", async ({ page }) => {
     await page.goto("/episodes");
     await settle(page);
 
     const firstCard = page.locator('[data-cursor="open"]').first();
-    await firstCard.click();
+    await Promise.all([
+      page.waitForURL(/\/episodes\/[A-Za-z0-9_-]+$/),
+      firstCard.click(),
+    ]);
 
-    const drawer = page.locator('[role="dialog"]');
-    await expect(drawer).toBeVisible();
+    const episodeUrl = page.url();
+    expect(episodeUrl).toMatch(/\/episodes\/[A-Za-z0-9_-]+$/);
+    await expect(page.getByRole("heading", { name: "readable transcript" })).toBeVisible();
 
-    // Capture the URL with episode param
-    const urlWithEpisode = page.url();
-    expect(urlWithEpisode).toContain("episode=");
-
-    // Navigate away and back with the same URL
     await page.goto("/");
     await settle(page);
 
-    await page.goto(urlWithEpisode);
+    await page.goto(episodeUrl);
     await settle(page);
 
-    // Drawer should be open again
-    await expect(drawer).toBeVisible();
+    await expect(page.getByRole("heading", { name: "transcript chat" })).toBeVisible();
   });
 
   test("/connections?connection= param selects node on load", async ({ page }) => {

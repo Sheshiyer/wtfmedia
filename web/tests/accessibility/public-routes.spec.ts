@@ -226,51 +226,33 @@ test.describe("accessibility — Episodes (/episodes) @a11y", () => {
     }
   });
 
-  test("drawer has correct ARIA attributes", async ({ page }) => {
+  test("dedicated episode page has named source and transcript regions", async ({ page }) => {
     await page.goto("/episodes");
     await settle(page);
 
-    // Open drawer
-    const firstCard = page.locator('[data-cursor="open"]').first();
-    await firstCard.click();
+    const firstCard = page.locator('[data-cursor="open"]:visible').first();
+    await Promise.all([
+      page.waitForURL(/\/episodes\/[A-Za-z0-9_-]+$/),
+      firstCard.click(),
+    ]);
 
-    const drawer = page.locator('[role="dialog"]');
-    await expect(drawer).toBeVisible();
-
-    // Dialog should have aria-label or aria-labelledby
-    const hasLabel = await drawer.evaluate((el) => {
-      return !!(el.getAttribute("aria-label") || el.getAttribute("aria-labelledby"));
-    });
-    expect(hasLabel).toBe(true);
-
-    // Focus should be trapped in drawer
-    await page.keyboard.press("Tab");
-    const focusedInDrawer = await page.evaluate(() => {
-      const el = document.activeElement;
-      return el?.closest('[role="dialog"]') !== null;
-    });
-    expect(focusedInDrawer).toBe(true);
+    await expect(page.getByRole("region", { name: "episode source embeds" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "readable transcript" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "transcript chat" })).toBeVisible();
   });
 
-  test("keyboard: Escape closes drawer", async ({ page }) => {
+  test("keyboard: Enter opens dedicated episode page", async ({ page }) => {
     await page.goto("/episodes");
     await settle(page);
 
-    // Open drawer
-    const firstCard = page.locator('[data-cursor="open"]').first();
-    await firstCard.click();
+    const firstCard = page.locator('[data-cursor="open"]:visible').first();
+    await firstCard.focus();
+    await Promise.all([
+      page.waitForURL(/\/episodes\/[A-Za-z0-9_-]+$/),
+      page.keyboard.press("Enter"),
+    ]);
 
-    const drawer = page.locator('[role="dialog"]');
-    await expect(drawer).toBeVisible();
-
-    // Press Escape
-    await page.keyboard.press("Escape");
-
-    // Drawer should be closed
-    await expect(drawer).not.toBeVisible();
-
-    // Focus should return to the card
-    await expect(firstCard).toBeFocused();
+    await expect(page.locator('textarea[name="q"]')).toBeVisible();
   });
 
   test("reduced motion: no animations", async ({ page }) => {

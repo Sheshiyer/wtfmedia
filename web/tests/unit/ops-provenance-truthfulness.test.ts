@@ -9,7 +9,9 @@ describe("operator provenance truthfulness", () => {
     const source = fromWebRoot("components/domain/ops/episodes/EpisodesCatalogWorkspace.tsx");
 
     expect(source).not.toContain("mockEpisodes");
+    expect(source).not.toContain("catalogueEndpoint");
     expect(source).toContain("No episode data is shown.");
+    expect(source).toContain("this is a title map, not a live catalogue");
   });
 
   it("does not invent ingest jobs when the job endpoint is empty or missing", () => {

@@ -43,11 +43,11 @@ export const Mobile320: Story = {
   render: () => <PublicShell>{content("mobile workspace")}</PublicShell>,
   parameters: { viewport: { width: 320, height: 640 } },
   play: async ({ canvasElement }) => {
-    const controls = Array.from(canvasElement.querySelectorAll("button")).find(
-      (button) => button.textContent?.trim() === "controls",
-    );
-    if (!controls) {
-      throw new Error("Missing compact workspace controls trigger");
+    const primaryNav = canvasElement.querySelector("#wtf-application-navigation");
+    const operationsNav = canvasElement.querySelector('nav[aria-label="Operational destinations"]');
+    const logo = canvasElement.querySelector('a[aria-label="WTF OS"]');
+    if (!primaryNav || !operationsNav || !logo) {
+      throw new Error("Missing scroll-safe dock navigation");
     }
   },
 };

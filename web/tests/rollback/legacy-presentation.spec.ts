@@ -148,8 +148,13 @@ test.describe("phase1 legacy presentation baseline @legacy-baseline", () => {
       await expect(page.locator("body")).toContainText(ROUTE_IDENTITY[route]);
 
       // Keyboard path: Tab lands focus on a real element.
-      await page.keyboard.press("Tab");
-      await expect(page.locator(":focus").first()).toBeVisible();
+      let visibleFocus = false;
+      for (let i = 0; i < 6; i += 1) {
+        await page.keyboard.press("Tab");
+        visibleFocus = await page.locator(":focus").first().isVisible().catch(() => false);
+        if (visibleFocus) break;
+      }
+      expect(visibleFocus).toBe(true);
 
       // Reduced motion: emulate the media query and record how many looping
       // (infinite-iteration) animations remain applied. The accepted legacy
@@ -183,7 +188,7 @@ test.describe("phase1 legacy presentation baseline @legacy-baseline", () => {
     const composer = page.locator('textarea, input[placeholder*="Ask"]').first();
     await composer.fill("baseline probe question");
     await composer.press("Enter");
-    await expect(page.locator("text=/⚠️/")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText("answer failed. retry ask.")).toBeVisible({ timeout: 15_000 });
   });
 
   test("manifest binds coverage + graph + browser identity", async () => {

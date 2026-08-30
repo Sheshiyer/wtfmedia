@@ -1,0 +1,78 @@
+name: Architecture ledger
+
+on:
+  pull_request:
+    paths:
+      - "docs/architecture/**"
+      - "docs/CLOUDFLARE-INFRASTRUCTURE.md"
+      - "docs/PHASE2-OPERATIONS-RUNBOOK.md"
+      - "docs/wtf-os-agentic-settings.md"
+      - "docs/handoffs/**"
+      - "docs/superpowers/plans/**"
+      - "scripts/generate-architecture-ledger.mjs"
+      - "package.json"
+      - "web/app/**"
+      - "web/components/**"
+      - "web/lib/**"
+      - "web/scripts/**"
+      - "web/stories/**"
+      - "web/tests/**"
+      - "web/middleware.ts"
+      - "web/package.json"
+      - "cloudflare/src/**"
+      - "cloudflare/migrations/**"
+      - "cloudflare/config/**"
+      - "cloudflare/tests/**"
+      - "cloudflare/package.json"
+      - "cloudflare/wrangler.jsonc"
+      - "plugins/wtf-os/**"
+      - "scripts/**"
+      - "CHANGELOG.md"
+      - ".planning/**"
+      - ".project/HANDOFF.md"
+      - "ISA.md"
+      - ".github/workflows/**"
+  push:
+    paths:
+      - "docs/architecture/**"
+      - "docs/CLOUDFLARE-INFRASTRUCTURE.md"
+      - "docs/PHASE2-OPERATIONS-RUNBOOK.md"
+      - "docs/wtf-os-agentic-settings.md"
+      - "docs/handoffs/**"
+      - "docs/superpowers/plans/**"
+      - "scripts/generate-architecture-ledger.mjs"
+      - "package.json"
+      - "web/app/**"
+      - "web/components/**"
+      - "web/lib/**"
+      - "web/scripts/**"
+      - "web/stories/**"
+      - "web/tests/**"
+      - "web/middleware.ts"
+      - "web/package.json"
+      - "cloudflare/src/**"
+      - "cloudflare/migrations/**"
+      - "cloudflare/config/**"
+      - "cloudflare/tests/**"
+      - "cloudflare/package.json"
+      - "cloudflare/wrangler.jsonc"
+      - "plugins/wtf-os/**"
+      - "scripts/**"
+      - "CHANGELOG.md"
+      - ".planning/**"
+      - ".project/HANDOFF.md"
+      - "ISA.md"
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+jobs:
+  generated-ledger-is-current:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run docs:architecture:check

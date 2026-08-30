@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "status": "approved",
+  "owner_approval_ref": "owner-explicit-approval-2026-08-27-staging-authorization",
+  "approver_email": "sheshnarayan.iyer@gmail.com",
+  "approved_at": "2026-08-28T20:03:13.972Z",
+  "commit": "74a37d5739595e6f9cb58918690ac555d5d723f5",
+  "candidate_sha256": "d1b43c7ae06d280dcb174553df261188c60fa9349ed3ee862f181034a1fbf650",
+  "evidence_sha256": "9e6266a235cce109f3ad788fb79bcfb00bffe31774ac802152f72f6374721a93",
+  "policy_sha256": "085f7247b48f039c3ee9461333adcfe7ba553680b0d3d5874a3733cb0993c3a8",
+  "scope": {
+    "responsive": [
+      "320",
+      "768",
+      "1440"
+    ],
+    "accessibility": "keyboard_focus_a11y_approved",
+    "rollback_runbook": "verified",
+    "staging_gates": "all_passed"
+  }
+}

@@ -1,21 +1,531 @@
 {
   "schema_version": 1,
-  "phase": "02",
-  "threat_count": 35,
-  "sections": [
-    "source_coverage",
-    "build",
-    "d1",
-    "access_d1_matrix",
-    "policy_dto",
-    "lifecycle",
-    "audit",
-    "environment_cache",
-    "ui",
-    "rollback_runbook",
-    "privacy",
-    "staging_approval",
-    "production_smoke"
-  ],
-  "results": {}
+  "total_definitions": 35,
+  "results": {
+    "T-02-03": {
+      "plan": "02-01",
+      "task": 1,
+      "command_id": "9a8e1899e2cc83498954b0b0ed266a627cdc941cf9f85465c2f3496c3a899f9b",
+      "command": "node web/scripts/lib/phase2-threat-results.mjs --check-definitions",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "f060641c085855cc6fa48f1798ad75caab7e2dd2fbc4c6d84c01704bad0bbbf5",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 61,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:07:46.344Z",
+      "status": "passed"
+    },
+    "T-02-01": {
+      "plan": "02-01",
+      "task": 2,
+      "command_id": "1c52389039fe6579eecfeed1a45a509b87e62d24a0406306e21240b80d8d37b3",
+      "command": "cd web && npm run test:unit -- phase2-threat-results",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "49104b4d647ace64cb10381ac7d881001bdee0af6c9b2b1d719e9bfd3102f330",
+        "error_output_sha256": "499f05a6cb13358e7cc57eadd202f6711ecb6ee0546a8bac206fe723019d8958",
+        "output_bytes": 318,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-26T09:07:46.491Z",
+      "status": "passed"
+    },
+    "T-02-02": {
+      "plan": "02-01",
+      "task": 2,
+      "command_id": "39aa9d0535a19ab75f8fb5c065d63ce2bbc6d1200084c9f073f60ab263f048ca",
+      "command": "cd web && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "88b0832b4290988f2d09ab769fb06769d3e79cc952f7b15718ae15ae414a216a",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 10035,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:07:46.491Z",
+      "status": "passed"
+    },
+    "T-02-05": {
+      "plan": "02-02",
+      "task": 1,
+      "command_id": "ea321ca0e516940d2e73656dd90bae70a8689627d7b9418809823a751626c833",
+      "command": "cd cloudflare && npm test -- d1-migrations --grep audit",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "63ebf0ce4ec1083cdedd5d1392e93c3ea484cb3bfe83bd289ff64eb060947721",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 467,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:22:36.662Z",
+      "status": "passed"
+    },
+    "T-02-06": {
+      "plan": "02-02",
+      "task": 1,
+      "command_id": "d502ce2af5bca8a8918d4e3fb9d78bff85827b08aedf914da6271a76d59ea03e",
+      "command": "node cloudflare/scripts/verify-ops-environments.mjs --static",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "a7b9c540119351adcfd21eed9036780861449e7a4f548100bd8eae1ee2d553dc",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 82,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:22:36.662Z",
+      "status": "passed"
+    },
+    "T-02-04": {
+      "plan": "02-02",
+      "task": 2,
+      "command_id": "696192f307c3e2ac471890ffd12160bd48db2f3a930749fcdaa46ce1bd07bcb0",
+      "command": "cd cloudflare && npm test -- d1-migrations --grep super_admin",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "61039f14dd5b812fc69695f9126e8461a2f0b29199d4c2a51b30d84da9170950",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 474,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:22:37.012Z",
+      "status": "passed"
+    },
+    "T-02-07": {
+      "plan": "02-03",
+      "task": 1,
+      "command_id": "c006aa39ea2276dd952b87a23c8fbbaaa8c8a92e48e913890d8623b4befbb939",
+      "command": "cd cloudflare && npm test -- access-auth --grep forged",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "78dbc69ec8da8d4197442b6a4e0c9e5696e0b4940bc06413d7937e83b0373f77",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 863,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:25:09.675Z",
+      "status": "passed"
+    },
+    "T-02-08": {
+      "plan": "02-03",
+      "task": 1,
+      "command_id": "9ddeb36be42cdabfe60765dafdca9465c4f96fcceacdeeeac4771edc47e9caa4",
+      "command": "cd cloudflare && npm test -- access-auth --grep header",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "5eb50eb5bbb36666a307224a795cd0d138828267ea7b42d5bc6e8d4e0323d43d",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 863,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:25:09.675Z",
+      "status": "passed"
+    },
+    "T-02-09": {
+      "plan": "02-03",
+      "task": 2,
+      "command_id": "bb4823e3876904832e30ffb78191a5f9acdbf5c95b0d6befdcd6ffd0d4b5715a",
+      "command": "cd cloudflare && npm test -- access-auth --grep operator",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "173b7353bdf218100caaab429f8596bb00049dda5728514dfbce69b449710b34",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 972,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:26:05.053Z",
+      "status": "passed"
+    },
+    "T-02-10": {
+      "plan": "02-04",
+      "task": 1,
+      "command_id": "16e15fe15033a3aaaf3c769774a9043eb906665c18d396c0174e0c3ba76df6d2",
+      "command": "cd cloudflare && npm test -- operator-policy --grep unknown",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "be0f5be7eb25ac29e3e07cde7866561d1629ae32a3ed509604aee264fe818324",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 820,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:39:57.286Z",
+      "status": "passed"
+    },
+    "T-02-11": {
+      "plan": "02-04",
+      "task": 2,
+      "command_id": "d2e852fa56869d1a07f5ce8209a23c0132141f43ece0ff567815c0726bfa13f4",
+      "command": "cd cloudflare && npm test -- operator-policy --grep mutation",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "2efe50f01f6df1ca3a49cfc2c013262c0d2fa1a11e28ea74d852fc533af469a0",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 915,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:46:37.189Z",
+      "status": "passed"
+    },
+    "T-02-12": {
+      "plan": "02-04",
+      "task": 2,
+      "command_id": "45f7ecda61a24b16b41d362680f88bb4e45943e9d059e655ce2530716b22c06b",
+      "command": "cd cloudflare && npm test -- operator-policy --grep transfer",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "5dda0fcf88bb9c19b56d15d7e3daad802bfed89e7661873f05124dbd895b97bb",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 916,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T09:46:37.189Z",
+      "status": "passed"
+    },
+    "T-02-13": {
+      "plan": "02-05",
+      "task": 1,
+      "command_id": "54af0a2df37e10cef1b918358e7717cba1d9ad9d380b4b24341692469b5f40a3",
+      "command": "cd cloudflare && npm test -- audit-ledger --grep prohibited",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "ce89fec7d5c5652836206ecd06890eea516c64c84f8da67d9eccdc80ca2ef28c",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 1177,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T10:04:17.450Z",
+      "status": "passed"
+    },
+    "T-02-14": {
+      "plan": "02-05",
+      "task": 1,
+      "command_id": "1c58e2b1de8238a9361dd53a0e85bd1ae8352f60542e4ca586c203bec48e314f",
+      "command": "cd cloudflare && npm test -- audit-export --grep formula",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "a998a777282a1d10d5b8848681492227c8e52941dc921a647817cd7b10addfdd",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 761,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T10:04:17.450Z",
+      "status": "passed"
+    },
+    "T-02-15": {
+      "plan": "02-05",
+      "task": 2,
+      "command_id": "a87356cec7f77a61e4e8d502f514f59b672216128616cc52555d0d8288e0c38e",
+      "command": "cd cloudflare && npm test -- audit-ledger --grep purge",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "3acbe5cf7a828e6a0ace473a9cdc1853a55245ab2218f5900f8f48bb4f3f52b0",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 1173,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T10:06:25.437Z",
+      "status": "passed"
+    },
+    "T-02-16": {
+      "plan": "02-06",
+      "task": 1,
+      "command_id": "8a94924b2ba5a16b1c720af73875a0692295c2803d7cb71e1bb0a8866c383237",
+      "command": "cd cloudflare && npm test -- ops-router --grep direct",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "87c80eeacd7bc4200072436d29223aa11d34b9d0acd92d13591dcd37aa6a5aa8",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 878,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T10:14:20.483Z",
+      "status": "passed"
+    },
+    "T-02-17": {
+      "plan": "02-06",
+      "task": 2,
+      "command_id": "b8f3569f116de4454c12bd77cac489d6194e922f27cec2622f077d6f6a20f63d",
+      "command": "cd cloudflare && npm test -- cache-isolation --grep dto",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "135fa31578a8414c70cb77f1e63f249fc0619e390d97fc29491f3baf9ad10034",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 872,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T10:14:20.833Z",
+      "status": "passed"
+    },
+    "T-02-18": {
+      "plan": "02-06",
+      "task": 2,
+      "command_id": "1235eb6efc14db7e2e197596dad182652b53e92a89b49f2ddd7a896e9efacdcd",
+      "command": "cd cloudflare && npm test -- cache-isolation --grep concurrent",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "2028ede6b102f5ba7534b39333b01a7d19f90589c97ad3afd1c2acd8dffb4dd0",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 877,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T10:14:20.833Z",
+      "status": "passed"
+    },
+    "T-02-19": {
+      "plan": "02-07",
+      "task": 2,
+      "command_id": "59efd8c912299626a65424859953b15f94119aa279db2ba3371cb3542169e3f8",
+      "command": "cd web && npm run test:unit -- operator-lifecycle --grep redirect",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "b46cc8892f6b7c79e556155b5970295740ffc8fee0227b491c2a0cfe9079d114",
+        "error_output_sha256": "495456de40975319ff91b50e4cc918f43f0c18dd3be12e25ca40a6f3fb1aaace",
+        "output_bytes": 344,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-26T10:21:52.780Z",
+      "status": "passed"
+    },
+    "T-02-20": {
+      "plan": "02-07",
+      "task": 2,
+      "command_id": "d1cb4d788df9651e9659793f5acff9cca850dc9b3d597f8c3fb7fe77eecee035",
+      "command": "cd web && npm run test:browser -- tests/phase2/operator-lifecycle.spec.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "cfd4928c9616a39f4ec864695fa43d5a43d077d5a98c809dea0792e5433a2bc3",
+        "error_output_sha256": "bc2750bff7ff285dcfad99f44abe3902517ade886481cde2f4fe74bba60852a9",
+        "output_bytes": 455,
+        "error_output_bytes": 3336
+      },
+      "completed_at": "2026-08-26T10:21:52.780Z",
+      "status": "passed"
+    },
+    "T-02-21": {
+      "plan": "02-07",
+      "task": 2,
+      "command_id": "c46182e046cf5d40b27af1b90cb50518b158e6a39f6637c79cb0712b5013dc80",
+      "command": "cd web && npm run test:browser -- tests/phase2/operator-lifecycle.spec.ts --grep logout",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "48a3bc0484b238ef30a95e758dd8df63186be6d95ddfcbc03839f96f4ce94942",
+        "error_output_sha256": "3e792a7b2e1217b15183556d200eed16619d1e8c060d49903be16e485d2c2b63",
+        "output_bytes": 336,
+        "error_output_bytes": 3172
+      },
+      "completed_at": "2026-08-26T10:21:52.780Z",
+      "status": "passed"
+    },
+    "T-02-22": {
+      "plan": "02-08",
+      "task": 2,
+      "command_id": "d70d21b06d8cdceb46c3e62512029576e70a232f26a75d05028c29fe32ec8491",
+      "command": "cd web && npm run test:browser -- tests/phase2/control-room.spec.ts --grep truthful",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "b47ca490800a4983e989c4fdac95ec31a72fdfa05c519ca8a066ed015d1f6ae6",
+        "error_output_sha256": "d2e381e7e267b8c95c544a1a7558b3cbc35231bdc7fd925fc10e7921276bac68",
+        "output_bytes": 377,
+        "error_output_bytes": 3172
+      },
+      "completed_at": "2026-08-26T10:52:32.063Z",
+      "status": "passed"
+    },
+    "T-02-23": {
+      "plan": "02-08",
+      "task": 1,
+      "command_id": "517f4d6d03e1162ff38b37916f494afae1782b4f44719dcd33ccf2079c22bafd",
+      "command": "cd web && npm run test:browser -- tests/phase2/control-room.spec.ts --grep role",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "acb5c4a4af9586e71583d1cfd0ad9c7f6993f8035b7c6b200a4e797dffe1b7eb",
+        "error_output_sha256": "4fca0c69974b1182362061cae289066469ca9abb24f9e20b4724d921a6c017aa",
+        "output_bytes": 516,
+        "error_output_bytes": 3336
+      },
+      "completed_at": "2026-08-26T10:52:13.132Z",
+      "status": "passed"
+    },
+    "T-02-24": {
+      "plan": "02-08",
+      "task": 1,
+      "command_id": "7f1d4fda2f3fa166e51d45d57eaeaf4781f15016c1fc3041912b43faded7a097",
+      "command": "cd web && npm run test:browser -- tests/phase2/control-room.spec.ts --grep responsive",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "d875758775c986b196d12faf7427ae7ddf9874a4582e928d5fe445a09087b974",
+        "error_output_sha256": "2318a83f012283eebf7e724c71a22364b055a034be045a55bbce4ce9b4a8ffa4",
+        "output_bytes": 335,
+        "error_output_bytes": 3172
+      },
+      "completed_at": "2026-08-26T10:52:13.132Z",
+      "status": "passed"
+    },
+    "T-02-25": {
+      "plan": "02-09",
+      "task": 1,
+      "command_id": "df1aa3fd5ac028b440b970338a5ef896b2dce899a7f682e8b6a2fe21d1133e30",
+      "command": "cd web && npm run test:browser -- tests/phase2/operators.spec.ts --grep denied",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "8453e5489e1de7374270f9adcd90cd50e6185e65bb0896430cdf16c8cc27bd03",
+        "error_output_sha256": "048ca7b5a68f10dd3bbc169b64a38cca3163a5f9996b00e750802046db023b81",
+        "output_bytes": 335,
+        "error_output_bytes": 3172
+      },
+      "completed_at": "2026-08-26T11:03:51.011Z",
+      "status": "passed"
+    },
+    "T-02-26": {
+      "plan": "02-09",
+      "task": 2,
+      "command_id": "9f494443dd1c36530455dd8528ea44cb48a9cfdffe4d5d579bdea3bd0847a930",
+      "command": "cd web && npm run test:browser -- tests/phase2/operators.spec.ts --grep transfer",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "1dd896a838dfde1e658e8afbf189f2b774d8fee2c13de80c4e3885b7b7feb83e",
+        "error_output_sha256": "9a117019063d08b1f4aace2d3616ff422ccd6e4694159510a590364e7a18457c",
+        "output_bytes": 512,
+        "error_output_bytes": 3336
+      },
+      "completed_at": "2026-08-26T11:04:00.306Z",
+      "status": "passed"
+    },
+    "T-02-27": {
+      "plan": "02-10",
+      "task": 1,
+      "command_id": "8e83b638d5cc6c155380b92d344d9684ff37307d581e24e9bad0607888355576",
+      "command": "cd web && npm run test:browser -- tests/phase2/audit-ui.spec.ts --grep denied",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "934a3314e79720747d477e2efcab5d9b06091e3e93fd5c25823c1f4f70f82f41",
+        "error_output_sha256": "27fb438502845c81215fc70118f8c6c99b3578bcfacc9f1ecc63863194c8e9f8",
+        "output_bytes": 331,
+        "error_output_bytes": 3172
+      },
+      "completed_at": "2026-08-26T11:10:27.378Z",
+      "status": "passed"
+    },
+    "T-02-29": {
+      "plan": "02-10",
+      "task": 1,
+      "command_id": "fff8368c1995ac8c6a126ec2c960e54a6141b98f5280ed33a24250c014b34e45",
+      "command": "cd web && npm run test:unit -- audit-filters",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "2480745eb8d02659dd8a26c8c06e156fdf4d905cf7a5ee7b96970128668e2544",
+        "error_output_sha256": "7af23e6f4a973e24bf0753b870542215f36357a00094385685bb3211a0ee82c7",
+        "output_bytes": 310,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-26T11:10:27.378Z",
+      "status": "passed"
+    },
+    "T-02-28": {
+      "plan": "02-10",
+      "task": 2,
+      "command_id": "00703b8e4b95413193d587d4b202c26fc42200add8943fe0536b0e91d74033d4",
+      "command": "cd web && npm run test:browser -- tests/phase2/audit-ui.spec.ts --grep export",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "18266c3612db77da4a0d24ca21611006fe466511e020c5a8c62acabf064cdcde",
+        "error_output_sha256": "52d0cf2cf4f4b82f3c7d836490b0d49d5ef0eb7036b68ea7131494b5320a89cd",
+        "output_bytes": 334,
+        "error_output_bytes": 3172
+      },
+      "completed_at": "2026-08-26T11:10:38.002Z",
+      "status": "passed"
+    },
+    "T-02-30": {
+      "plan": "02-11",
+      "task": 1,
+      "command_id": "99b538b4e701a37edc39bdbc046ceb9191b9448836cf8691e5bf17293d9acf42",
+      "command": "cd web && npm run test:browser -- tests/phase2/authorization-matrix.spec.ts",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "ef880d86485db3323687283f8c1d27c649137d6c25166d66763e42b4825c3e52",
+        "error_output_sha256": "4ad01cc0f87682581783ca72dcd6ead4b7fa705134a773c8c700974bc14025f6",
+        "output_bytes": 361,
+        "error_output_bytes": 3172
+      },
+      "completed_at": "2026-08-26T11:13:05.433Z",
+      "status": "passed"
+    },
+    "T-02-31": {
+      "plan": "02-11",
+      "task": 1,
+      "command_id": "32a5c3b564aacac7ab89b5546fc854e71a4a5eafb21dd6a924347f2710456f77",
+      "command": "cd web && npm run test:privacy -- --check",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "712312d7a103367482c17d7e2b3944a03a93864286eb6d6a5308b1f6a693e1f1",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 12088,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T11:13:05.433Z",
+      "status": "passed"
+    },
+    "T-02-32": {
+      "plan": "02-11",
+      "task": 2,
+      "command_id": "f4a8e531cbeef5d62bd2d2d3bdeddee21f1e581195c5fb855b8f2471d6026781",
+      "command": "cd web && npm run verify:phase2 -- --negative-fixtures",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "af21113e3ddf44cee8411b9f0d3e56d4d8c6d2faa36c7f5346cd454744f43f11",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 158,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-26T11:13:16.589Z",
+      "status": "passed"
+    },
+    "T-02-33": {
+      "plan": "02-12",
+      "task": 1,
+      "command_id": "96915183c147f73d3a9ba7159e58ff9da2a2d50b0d78e9e7c8ed25f57a6b9c27",
+      "command": "node cloudflare/scripts/phase2-preflight.mjs --receipt .runtime/preflight/phase2-staging.json",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "3116f0e720960ad120eae6074013d19010c862f9b85f2404f7e7cfcd98cb2107",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 92,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-28T20:03:05.000Z",
+      "status": "passed"
+    },
+    "T-02-34": {
+      "plan": "02-12",
+      "task": 2,
+      "command_id": "afac2ac89d9daf2fbe26132ebda6dda21961827e823ac18d2a5f8cb6d03833f4",
+      "command": "cd web && npm run verify:phase2 -- --final",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "698cdefc84fef0dd81b60973c21a34237e06ba9848a5fb63ba188eada78f55a0",
+        "error_output_sha256": "70aa7bec5932c5d1f49fec9815cf335c56ccf9d0052d07c254f7570cd56547a4",
+        "output_bytes": 22849,
+        "error_output_bytes": 941
+      },
+      "completed_at": "2026-08-28T20:10:32.237Z",
+      "status": "passed"
+    },
+    "T-02-35": {
+      "plan": "02-12",
+      "task": 2,
+      "command_id": "c4542bb82dc2d11ea5b79282fb8a6d23dca3214c830e17d654a0d1e256c913a9",
+      "command": "node web/scripts/phase2-production-smoke.mjs --receipt .runtime/preflight/phase2-production-smoke.json",
+      "exit_status": 0,
+      "evidence": {
+        "output_sha256": "a4243a38a21f3d224cafe0a7c3e9feff2673261c7cc879403f167304ad0b5e21",
+        "error_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "output_bytes": 67,
+        "error_output_bytes": 0
+      },
+      "completed_at": "2026-08-28T20:10:32.237Z",
+      "status": "passed"
+    }
+  }
 }

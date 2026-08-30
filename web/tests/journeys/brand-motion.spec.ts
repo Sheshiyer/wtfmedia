@@ -6,9 +6,9 @@ import AxeBuilder from "@axe-core/playwright";
  *
  * Verifies the migrated brand effects wired into PublicShell:
  * - MigratedWordmarkMini in header (semantic tokens, not legacy WordmarkMini)
- * - PausableMarquee decorative band (token sparkles, pause-on-hover/focus)
+ * - Centered WTF OS dock with split public/operational rails
  * - OptionalPointerAccent (renders nothing on touch/reduced-motion)
- * - Reduced motion: marquee static, pointer accent hidden
+ * - Reduced motion: dock remains static, pointer accent hidden
  * - No horizontal overflow at 320/768/1440
  * - axe: no serious/critical violations
  * - Native cursor never hidden (even with pointer accent)
@@ -38,43 +38,36 @@ test.describe("brand motion journey", () => {
     await expect(page.locator("[data-wtf-os-boot]")).toHaveCount(0);
   });
 
-  // ─── PausableMarquee ───────────────────────────────────────────────
+  // ─── Centered Dock ─────────────────────────────────────────────────
 
-  test("PausableMarquee renders with aria-hidden", async ({ page }) => {
+  test("bottom dock renders the centered wordmark between split rails", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    // The migrated PausableMarquee has the "group" class (legacy Marquee does not).
-    // This disambiguates from the legacy .marquee-mask in page content.
-    const marqueeBand = page.locator('[data-wtf-shell="migrated"] .marquee-mask.group');
-    await expect(marqueeBand).toBeAttached();
-    await expect(marqueeBand).toHaveAttribute("aria-hidden");
+    const dock = page.locator(".wtf-bottom-pill");
+    await expect(dock).toBeVisible();
+    await expect(dock.getByRole("navigation", { name: "Application" })).toBeVisible();
+    await expect(dock.getByRole("navigation", { name: "Operational destinations" })).toBeVisible();
+    const logo = dock.getByRole("link", { name: "WTF OS" });
+    await expect(logo).toBeVisible();
+    await expect(logo.locator("[data-wtfos-wordmark-mini]")).toBeVisible();
   });
 
-  test("PausableMarquee uses token-driven sparkles", async ({ page }) => {
+  test("bottom dock keeps public and operational destinations readable", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    const marqueeBand = page.locator('[data-wtf-shell="migrated"] .marquee-mask.group');
-    const svgs = marqueeBand.locator("svg");
-    const count = await svgs.count();
-
-    // 4 items x 2 (doubled for loop) = 8 sparkles
-    expect(count).toBe(8);
-
-    // Each sparkle path uses a CSS variable fill
-    const firstPath = svgs.first().locator("path");
-    const fill = await firstPath.getAttribute("fill");
-    expect(fill).toMatch(/^var\(--wtf-/);
-  });
-
-  test("PausableMarquee has doubled items for seamless loop", async ({
-    page,
-  }) => {
-    await page.goto("/", { waitUntil: "domcontentloaded" });
-
-    const marqueeBand = page.locator('[data-wtf-shell="migrated"] .marquee-mask.group');
-    // Each item appears twice (doubled for loop)
-    const designItems = marqueeBand.locator("text=design");
-    await expect(designItems).toHaveCount(2);
+    const dock = page.locator(".wtf-bottom-pill");
+    for (const label of [
+      "the room",
+      "episodes",
+      "connections",
+      "ask wtf",
+      "control room",
+      "production",
+      "episode map",
+      "settings",
+    ]) {
+      await expect(dock.getByRole("link", { name: label, exact: true })).toBeVisible();
+    }
   });
 
   // ─── OptionalPointerAccent ─────────────────────────────────────────
@@ -105,19 +98,18 @@ test.describe("brand motion journey", () => {
 
   // ─── Reduced motion ────────────────────────────────────────────────
 
-  test("reduced motion: marquee animations stop", async ({ page }) => {
+  test("reduced motion: bottom dock has no running animation", async ({ page }) => {
     // Use Playwright's native reducedMotion emulation (not CDP)
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    // The marquee animation div should have animation: none via motion.css
-    const marqueeBand = page.locator('[data-wtf-shell="migrated"] .marquee-mask.group');
-    const animDiv = marqueeBand.locator("div").first();
-    const animationName = await animDiv.evaluate(
-      (el) => getComputedStyle(el).animationName
+    const animatedChildren = await page.locator(".wtf-bottom-pill").evaluate((dock) =>
+      Array.from(dock.querySelectorAll<HTMLElement>("*")).filter((el) => {
+        const style = getComputedStyle(el);
+        return style.animationName !== "none";
+      }).length
     );
-    // Under reduced motion, motion.css sets animation: none !important
-    expect(animationName).toBe("none");
+    expect(animatedChildren).toBe(0);
   });
 
   test("reduced motion: pointer accent disabled", async ({ page }) => {

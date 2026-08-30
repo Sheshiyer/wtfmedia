@@ -20,7 +20,7 @@ export interface AuditEvent {
   actor_subject_digest: string | null;
   effective_role: OperatorRole | null;
   action: AuditAction;
-  entity_type: "operator" | "audit" | "policy" | "control_room";
+  entity_type: "operator" | "audit" | "policy" | "control_room" | "episode" | "source_asset" | "transcript_version" | "ingestion_job";
   entity_id: string;
   outcome: "allowed" | "denied" | "succeeded" | "failed";
   environment: "local" | "staging" | "production";
@@ -43,7 +43,11 @@ export type AuditAction =
   | "operator_deactivate"
   | "settings_policy_change"
   | "audit_purge"
-  | "super_admin_handoff";
+  | "super_admin_handoff"
+  | "asset_upload"
+  | "ingest_trigger"
+  | "transcript_activate"
+  | "episode_update";
 
 export type DB = D1Database;
 

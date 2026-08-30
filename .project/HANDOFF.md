@@ -1,40 +1,368 @@
 # Project handoff
 
-## 2026-08-30 WTF OS public-room UI and copy consolidation
+## 2026-08-31 Bounded flow redesign on tuned WTF OS shell
 
-**Status:** LOCAL REVIEWED PR CANDIDATE — consolidated on
-`codex/wtfos-ui-copy-consolidation` from the separate UI and copy worktrees.
-This is a UI-only change; it does not provision, copy, cut over, deploy, or
-otherwise mutate Cloudflare resources.
+**Status:** LOCAL IMPLEMENTATION — not deployed, not committed. This pass keeps
+the current tuned root/WTF OS light design as the source of truth and changes
+only the approved flow furniture.
 
-- `/` is the public **the room** surface; `/ops` remains Control Room. The
-  public home no longer contains workspace state or evidence-receipt panels.
-- The responsive shell uses a dock on desktop and one compact controls surface
-  on mobile. The retired left navigation drawer is not restored.
-- `/settings` consolidates compact, closed-by-default workspace state, evidence
-  receipt, appearance, held connections, client setup, version `v0.1.3`, and
-  changelog sections. The dark evidence receipt now has a verified cream text
-  colour on its structural surface.
-- Connections lists begin compact and reveal all ideas, overlaps, and selected
-  source receipts only on request. The calendar supports browser-local sketches;
-  they do not create backend records and delete remains
-  unavailable.
-- No visual PNG baseline was regenerated. Those snapshots remain a future
-  owner-approval task, not current evidence.
+- Room: removed the obsolete dark evidence treatment; release context remains
+  in Settings.
+- Episodes: `/episodes` is now a catalogue/index only. Each episode opens a
+  dedicated `/episodes/[id]` public workspace with published embed, truthful
+  uncut availability, transcript, Ask WTF entry, and mapped connection
+  keywords. The detail header uses the compact page title scale, unavailable
+  uncut source cards are hidden, and transcript/keyword overflow is compacted
+  behind native show-more accordions after the first three items.
+- Ask WTF: composer is fixed above the dock, and evidence panels/rails use
+  high-contrast light surfaces.
+- Connections: graph remains the primary surface, paired with searchable
+  ideas/episode-title evidence; repeated grids and raw video-ID displays were
+  removed.
+- Control room: removed the fake refresh action; active operational
+  destinations remain surfaced through the split centered-logo dock.
+- Navigation: four public destinations, centered WTF OS mark, then four
+  operational destinations; mobile/tablet retain scroll-safe bottom navigation.
 
-**Verified locally:** `npm run typecheck`; `npm run lint`; `npm run test:unit`
-(49); `npm run test:components` (101); `npm run test:contracts` (78);
-`npm run test:a11y` (21); `npm run build`; and the
-216-check selected Playwright matrix at 320px and 1440px (no failure
-artifacts). Manual in-app-browser review covered the public room and Settings
-evidence receipt in dark mode without horizontal clipping.
+**Verified:** `npm run typecheck`; `npm run lint`; `npm run test:contracts`
+77/77; `npm run test:unit` 69/69; focused Playwright journey slice 36/36 across
+Episodes, URL state, Connections, and public routes; additional
+accessibility/focus/motion/theme/viewport slice 67/67; `npm run build`
+generated 68 pages including 55 static `/episodes/[id]` paths; production
+preview smoke on `http://127.0.0.1:5191` confirmed `/episodes` and
+`/episodes/SPLFyVyTI1A` return HTTP 200 on desktop/mobile with no horizontal
+overflow, catalogue cards present, detail transcript/chat present, compact H1
+rendering, no unavailable uncut component, and transcript/keyword accordions
+present.
 
-**Known baseline:** `npm run test:privacy -- --check` identifies ten catalogue
-document links that are already present, unchanged, on `origin/main`. They are
-not introduced by this UI branch.
+## 2026-08-31 Light active-build dock and settings roadmap
 
-**Boundaries:** no Cloudflare migration/cutover, credential, RBAC, backend
-calendar persistence, production deployment, or external data write occurred.
+**Status:** LOCAL IMPLEMENTATION — not deployed, not committed. The public and
+ops shells now use explicit light mode and a shared bottom floating navigation
+pill. The dock contains only active build surfaces: room, episodes,
+connections, ask wtf, control room, production, episode map, and settings.
+Held surfaces stay directly reachable but are moved out of primary navigation
+and shown as roadmap items on `/ops/settings`.
+
+- Removed the left panel / hamburger drawer as the primary shell navigation.
+- Moved ops release context to settings only; it is not repeated on every ops
+  page.
+- Public home and control room list active build items only.
+- `/ops/ingest`, `/ops/operators`, and `/ops/audit` remain truthful
+  coming-soon pages in public-link mode, without dead controls or inferred
+  backend data.
+
+**Verified:** `npm run typecheck`; `npm run lint`; focused unit contracts
+16/16; Playwright active-nav/settings roadmap/shell suite 40/40; light-theme
+journey 8/8; `npm run build`; live smoke on `http://127.0.0.1:5175/ops/settings`
+for desktop and mobile confirmed `data-wtf-theme="light"`, held routes absent
+from the dock, roadmap links present, one settings context strip, and no
+horizontal overflow.
+
+## 2026-08-30 Uncut direct timestamps on target preview
+
+**Status:** LIVE ON WORKERS.DEV — `wtfmedia-release-integration` @ `b88a1fd`.
+Secrets were not rotated. Hostname cutover stays held. No uncut corpus was
+invented or copied from published YouTube.
+
+- Uncut citations are `uncut:{id}` plus `M:SS`. No http URL. A YouTube URL
+  in metadata is never used as an uncut link.
+- Published Ask WTF still returns six YouTube sources with clocks.
+- Uncut toggle still falls back to named published sources
+  (`X-Uncut-Unavailable: true`) until approved `uncut/{hash}.txt` files exist.
+- Live: edge `c1ae291a-cd1b-4f17-9878-481087ad2c72`, web
+  `b8879f21-530d-40e9-bc2e-fa396bf47c14` at
+  `https://wtfmedia-web.connect2nikhai.workers.dev/chat`.
+
+## 2026-08-30 Uncut R2 upload blocked — no approved transcript files
+
+**Status:** BLOCKED ON CORPUS — operator script is ready in
+`wtfmedia-release-integration`; no `uncut/` objects were written. R2
+`wtfmedia-catalogue` is still 99 published objects. Published YouTube
+`.txt` files were not copied. Secrets were not rotated. Hostname cutover
+stays held.
+
+- 10 eligible Clean Cut candidates (quarantined rows excluded).
+- Catalogue sheet is readable; linked Drive transcript files 404 for this
+  Google account; Frame.io Clean Cuts stay unfetched.
+- Drop folder: integration `.planning/inputs/uncut-local/` (gitignored).
+- Apply path: `node scripts/put-uncut-and-enqueue.mjs --dir … --apply`
+  then enqueue with `INGEST_TOKEN` in the environment.
+
+## 2026-08-30 P0 dual-source Ask WTF joined to target preview
+
+**Status:** DONE ON CANONICAL PREVIEW — joined into
+`wtfmedia-release-integration` as `bd041a3` and deployed. This dirty
+`wtfmedia` checkout is not the live unit. Secrets were not rotated.
+Hostname cutover stays held.
+
+Live: `/chat` published is grounded with six published sources; uncut
+returns no sources and does not convert published timestamps.
+
+## 2026-08-30 Remaining priority: Ask WTF published + uncut first
+
+**Status:** EXECUTED FOR P0 — dual-source Ask WTF is on workers.dev. Remaining
+P0 stores: uncut assets still not activated; Settings integrations stay not
+configured. Hostname cutover stays held.
+
+- **P0:** join dual-source Ask WTF into the canonical preview (`be304bd`).
+  Published is already live. Uncut stays filtered and not activated.
+- **P0 stores:** KV ingest keys must not let uncut overwrite published
+  hashes; R2 published objects stay published; Vectorize filters
+  `source_mode` before composition; YouTube ingest = published; uncut
+  upload/ASR/activation stay fail-closed; Settings integrations stay not
+  configured.
+- **P1:** D1 calendar already live — do not regress.
+- **P3:** high-water / quiesce / `wtfhq.in` after P0.
+
+Do not deploy, rotate secrets, or pause `9d9d` from this note.
+
+## 2026-08-30 Remaining cutover planning after target preview
+
+**Status:** PLANNING ONLY — Codex completed the `wtfmedia` workers.dev preview
+from `wtfmedia-release-integration` @ `be304bd`. This checkout is not that
+deployed unit. No source quiesce, DNS, Custom Domain, or `default` mutation
+was performed here.
+
+HITL locked: cut over from `be304bd`; accept no-apex rollback to
+`https://wtfmedia-web.sheshnarayan-iyer.workers.dev/`.
+
+Read-only DNS probe: `wtfhq.in` zone visible; no Custom Domain attached;
+public apex/www still unanswered; DNS-record API still 403. Next remaining
+gates are high-water freeze, then a separately authorized quiesce/delta
+window, then Custom Domain attach.
+
+Gates are in
+[`2026-08-30-wtfos-internal-release-plan.md`](../docs/superpowers/plans/2026-08-30-wtfos-internal-release-plan.md).
+
+## 2026-08-30 Ungated current-release navigation
+
+**Status:** LOCAL IMPLEMENTATION IN THIS CHECKOUT — same shells and pages, not
+Access-gated. Not deployed. Not joined to `be304bd`.
+
+- Public and operator rails share `currentReleaseNavigation`: `/`, `/episodes`,
+  `/connections`, `/chat`, `/ops`, `/ops/production`, `/ops/episodes`,
+  `/ops/ingest`, `/ops/operators`, `/ops/audit`.
+- Missing HMAC no longer bounces page views to recover. Visitor context is
+  `public_link`. Mutation APIs (ingest admin, roster writes, audit export,
+  delete) stay fail-closed.
+- Home “what's open” lists the same destinations. Ingest, operators, and audit
+  stay `unavailable` but remain clickable.
+
+**Verified:** web typecheck; current-release-nav unit tests; Storybook
+MigratedHomePage / ControlRoom / PublicShell.
+
+**Not verified:** Playwright click-through of every destination (locator fix
+landed; the CI rebuild run did not complete). Do not treat ungated navigation
+as release evidence.
+
+## 2026-08-30 Ops episodes list from title map
+
+**Status:** LOCAL IMPLEMENTATION — `/ops/episodes` now renders the privacy-safe
+title map (59 mapped / 3 quarantined). Not a live catalogue. No Wrangler, D1,
+ingest, or 0006 overlap.
+
+- Fail closed if the map is missing, contains URLs, or drops a quarantined title.
+- Uncut stays `candidate` / `not-activated`. Quarantined rows are visible so
+  they remain excluded; there is no inspect/provenance action.
+
+**Verified:** web typecheck; title-map and provenance-truthfulness unit tests.
+
+## 2026-08-30 Dual-source Ask WTF contract + Excel title map (B1+B2)
+
+**Status:** LOCAL IMPLEMENTATION — no Wrangler writes, no D1 calendar/0006
+overlap, no secrets, no Worker deploy.
+
+- Ask WTF request now carries `sourceMode` (`published` default, `uncut`
+  explicit). Edge retrieval filters vector `source_mode` before composition.
+  Missing metadata is treated as published. A published timestamp is never
+  rewritten as uncut.
+- Public citations add `source_mode`, `mapping_status`, and `segment_id`.
+  The composer exposes a published/uncut toggle; uncut stays unavailable
+  unless a mapped uncut citation is returned.
+- Excel snapshots at `.planning/inputs/podcast-catalog/2026-08-27/` map 59
+  Internal rows to 62 transcript rows by exact title. Artifact:
+  `title-map.json` (hashes and statuses only, no URLs). Three quarantined
+  titles remain excluded. Internal clean-cut pointers are `candidate` and
+  `not-activated`.
+
+**Verified:** web typecheck; unit tests for source-mode and title map;
+Cloudflare `source-mode` tests 4/4; api-chat contracts 20/20; chat Storybook
+14/14.
+
+## 2026-08-30 Cloudflare target foundation execution
+
+**Status:** LIVE TARGET CREATE/COPY COMPLETE — Worker deployment and cutover
+held at reviewed-source, calendar, secret, DNS, final-delta, and rollback gates.
+
+- Executed from the existing
+  [`9d9d` migration inventory](../.planning/inputs/2026-08-30-9d9d-cloudflare-migration-inventory.md),
+  not a replacement plan. Every source read used `9d9d`, every target write
+  used `wtfmedia`, and `default` remained untouched.
+- Created target R2 `wtfmedia-catalogue`, KV `WTFMEDIA_STATE`, Vectorize
+  `wtfmedia-catalogue-v1`, queues `wtfmedia-ingest` and
+  `wtfmedia-ingest-dlq`, and D1 `wtfmedia-ops` without committing account IDs.
+- R2: 99 unique objects / 13,204,194 bytes. Fresh source/target enumeration and
+  all-object reads proved identical key sets, sizes, ETags, Standard storage,
+  metadata, and SHA-256. Wrangler's bucket aggregate is lagging at zero and is
+  recorded as stale rather than promoted over direct object evidence.
+- KV: 55 persistent keys copied; source/target key sets and values match. No KV
+  value was printed or retained in repository evidence.
+- Vectorize: 5,742 unique target IDs equal the complete source ID set; contract
+  is 1,024 dimensions with cosine distance.
+- D1: migrations `0001`–`0005` applied, five receipts, 16 tables, zero pending
+  repository migrations. The separately reviewed calendar migration is absent
+  and was not invented.
+- Queue shells are empty with zero producers and consumers. Their producer,
+  consumer, retry, concurrency, and DLQ settings remain coupled to the edge
+  deployment.
+- Target `wtfmedia-edge` and `wtfmedia-web` remain absent. No Pages project,
+  secret, DNS record, Custom Domain, Access policy, source resource, or
+  `default` resource was changed or deleted. Temporary local R2 readers were
+  stopped and did not create production Workers.
+
+**Critical deployment boundary:** the current root edge suite passes 120/121
+and fails the operator-navigation expectation after the Episodes link was
+added. The release-integration worktree is dirty and lacks its local declared
+dependency install; it is not a reviewed deployment unit. The calendar
+migration is absent, and `EDGE_SHARED_SECRET` / `INGEST_TOKEN` values are
+non-exportable and have not been recreated in the target. Do not deploy either
+Worker, attach queue consumers, quiesce source, or map `wtfhq.in` until these
+gates are resolved.
+
+## 2026-08-30 WTF OS copy pass (waves A–D)
+
+**Status:** LOCAL IMPLEMENTATION — copy only. No Cloudflare, deployment, Access,
+calendar backend, or registry mutation.
+
+Public `/` is now **the room**; `/ops` stays **control room**. Metadata names
+**wtf os** and drops hardcoded 55 / "guest's own words". Production is no
+longer labelled not-activated. Recover/sign-in/request-access no longer pretend
+Access is live. Ask WTF names published vs uncut. Ingest mock jobs are gone.
+
+**Verified:** web typecheck; focused unit tests; Storybook component suite for
+the rewritten stories; Playwright 54/54 on control-room, production, recover,
+operators, audit, home/chat rollback, and shell-drawer at 320/1440.
+
+**Did not do:** calendar persistence backend; making `/ops/production` reachable
+without ops context from the public home (production row is active, no href);
+visual baseline regeneration; live browser walk.
+
+**Next:** owner visual walk of `/`, `/chat`, `/ops`, `/ops/production`, and
+recover. Visual snapshots will fail until re-approved.
+
+## 2026-08-30 Cloudflare three-account reconciliation
+
+**Status:** LIVE READ-ONLY INVENTORY + LOCAL DOCUMENTATION — the target
+`wtfmedia` Wrangler profile was freshly reauthenticated; no Cloudflare write,
+deployment, data copy, DNS/domain change, or secret mutation occurred. Current
+release direction, the corrected source discrepancy ledger, and truthfulness
+repairs are recorded in
+[`2026-08-30-wtfos-internal-release-decisions.md`](../.planning/inputs/client-questions/2026-08-30-wtfos-internal-release-decisions.md)
+and
+[`2026-08-30-wtfos-internal-release-plan.md`](../docs/superpowers/plans/2026-08-30-wtfos-internal-release-plan.md).
+The read-only 9d9d source inventory and target mapping are in
+[`2026-08-30-9d9d-cloudflare-migration-inventory.md`](../.planning/inputs/2026-08-30-9d9d-cloudflare-migration-inventory.md).
+No provider, deployment, R2/D1/vector, calendar, Access, DNS, or hostname state
+changed.
+
+**Historical baseline:** target create/copy actions were subsequently executed;
+see the newer foundation receipt above. This section remains the pre-write
+inventory checkpoint.
+
+- Current release policy is a temporary ungated public link: anyone who knows
+  the URL may view WTF OS and list/create/update production-calendar records.
+  Delete and non-calendar administrative mutations remain unavailable or
+  protected. Fine-grained RBAC and Cloudflare Access are next-release work.
+- Three account roles are now explicit: `9d9d` is the read/copy source;
+  repository-bound `wtfmedia` is the target that owns the active `wtfhq.in`
+  zone; `default` is an unrelated Thoughtseed Labs control account with no WTF
+  resource match and must remain untouched.
+- Source evidence confirms administrable `wtfmedia-web` and `wtfmedia-edge`
+  settings/deployments, 99 R2 objects (13.2 MB), 55 persistent
+  `WTFMEDIA_STATE` keys, 5,742 vectors at 1,024 dimensions/cosine, and the
+  ingest/DLQ queues. Source D1 and WTF Pages are absent.
+- The target migration is clone-and-cutover, reusing the R2, KV, Vectorize,
+  queues, live Workers AI binding, and Ask WTF pipeline. NVIDIA is only a
+  code/planning seam in this inventory, not a proven live Cloudflare resource.
+- Target OAuth reauthentication succeeded, but R2 remains disabled
+  (Cloudflare code `10042`) and no R2 scope is granted; DNS-record reads are
+  also denied. Enable/authorize those capabilities and obtain a bounded owner
+  execution window before creating, copying, deploying, or cutting over.
+- Cutover consistency now uses two passes: initial bulk R2/KV/Vectorize
+  population, followed by a separately authorized source-ingress/producer
+  quiesce, queue settlement, and final R2/KV/Vectorize delta. Record and restore
+  the exact source Worker/queue before-state if that window aborts.
+- The verified emergency source endpoint is
+  `https://wtfmedia-web.sheshnarayan-iyer.workers.dev/` (HTTP 200). Current
+  rollback removes the target Custom Domain and restores the pre-cutover
+  no-apex state; it does not preserve same-host `wtfhq.in` continuity. Owner
+  acceptance or a separately rehearsed same-host rollback route is required.
+- The previous empty-KV, unresolved-edge-ownership, and generic-target-token
+  blocker statements are superseded by this checkpoint.
+- Corrected evidence: 59 Internal rows versus 62 transcript rows yields three,
+  not two, unmatched transcript titles: `Brain Armstrong`, `WEF - Economics`,
+  and `WTF is a Battery?`. They remain excluded from all data and UI outputs
+  pending a source-backed outcome.
+- The root operator episode drafts now fail closed: no mock catalogue, fixture
+  provenance, simulated transcript activation, or default verified alignment
+  is presented when the live source is absent.
+- Local verification passed: web typecheck; 54 unit tests; ESLint; privacy
+  scan (0 violations); and optimized Next build. An authenticated production
+  build browser pass returned 200 for episode catalogue/detail and production
+  calendar at 1440px and 320px with no console errors or failed requests.
+- The UI Wave 1 and Cloudflare web-migration worktrees remain separate and
+  uncommitted. Do not merge or deploy either as part of this checkpoint.
+
+## 2026-08-29 Client-question status review
+
+**Status:** LOCAL DOCUMENTATION — the client-question index at
+`.planning/inputs/client-questions/README.md` separates active owner/editorial
+inputs from historical records. No provider, deployment, credential, or media
+action was taken.
+
+- Still open: canonical IP/show taxonomy and mapping, the editorial 20-query
+  evaluation set, third-party share rotation, and the consolidated Phase 3
+  live-activation inputs.
+- Historical/resolved: the filled Plan 02-12 authorization form is not current
+  Cloudflare runtime proof; the A+B+D shell choice shipped in PRs #12/#13; the
+  2026-08-27 git-state backlog is archival only.
+- The Phase 3 packet now distinguishes local regression/source recovery from
+  live activation, keeps YouTube OAuth-only, and directs sensitive connection
+  details to an owner-managed secure channel rather than Git.
+- Keep untracked `/ops/episodes` and `/ops/ingest` drafts out of commits and
+  release evidence until individually reviewed.
+
+## 2026-08-29 Architecture inventory + Phase 1 Access boundary
+
+**Status:** LOCAL DOCUMENTATION — current repository architecture is recorded in [`docs/architecture/architecture.html`](../docs/architecture/architecture.html). No Cloudflare account, Access Application, policy, hostname, seat, D1 binding, OAuth account, calendar, MCP host, or OTA channel was configured or verified.
+
+- Repository Phase 1 remains a public compatibility/proof release; it is **not** gated by Cloudflare Zero Trust or Access provisioning.
+- The `/ops` UI, seat/RBAC schema, future Access JWT verifier, and loopback-only development context are modeled code, not evidence of a live protected application or assigned operator account.
+- `npm run docs:architecture:update` regenerates the HTML ledger and compact companion inventories from reviewed source facts; `npm run docs:architecture:check` is the deterministic freshness gate used by the architecture CI workflow.
+- The current inventory makes historical deployment/Phase 2 closure text visible as historical evidence only. The worker queue/cron, asset upload, OAuth, hosted MCP, calendar, release, and OTA holds remain explicit.
+- The editor navigation now remains at `/ops` and `/ops/production` while the Episode workspace is still an excluded draft; the public drawer Storybook contract verifies in-place YouTube playback and an explicitly unavailable Uncut control.
+- Focused lint/typecheck/unit/contract/component checks passed after that repair. The aggregate Phase 1 journey run remains a separate recovery item: it exposed ten migrated-shell/browser expectation failures before the run was stopped, so it is not represented as fresh Phase 1 acceptance evidence.
+- Keep untracked operator drafts outside commits and the canonical inventory until individually reviewed; do not infer deployment authority from this documentation update.
+
+## 2026-08-29 Phase 3 held recovery + agentic integration planning
+
+**Status:** LOCAL RECOVERY — previous safe checkpoint `399a83b`; the focused local regression suite is green and this follow-up is checkpointed locally. Phase 3 is not complete and no external system was changed.
+
+**Recovered locally**
+- Public citations now resolve only an approved YouTube identifier/timestamp. They do not expose catalogue snapshots, private media paths, hashes, or invented Uncut alignment/playback.
+- YouTube ingestion is OAuth-gated; a missing connection returns an explicit unavailable state before a job or audit mutation. API-key configuration is no longer requested in the Phase 3 owner-input packet.
+- Asset upload, transcript consumption, timeline parsing, and operator DTOs were tightened to fail closed around identity, vault availability, malformed alignment, raw errors, and internal job payloads.
+- `npm run verify:phase3` is now a read-only regression runner over the actual focused Worker tests, public provenance unit tests, web typecheck, and whitespace check. The previous self-grading simulator is retired and must not be used as completion evidence.
+- A repository-local, read-only WTF OS MCP/plugin scaffold is being added for release status, release history, and setup guidance only. It is not installed globally and does not contact Cloudflare.
+
+**Planning handoff**
+- GitHub planning issues: [#19 OAuth-only YouTube](https://github.com/Sheshiyer/wtfmedia/issues/19), [#20 social OAuth framework](https://github.com/Sheshiyer/wtfmedia/issues/20), [#21 production calendar](https://github.com/Sheshiyer/wtfmedia/issues/21), and [#22 WTF OS MCP/plugin](https://github.com/Sheshiyer/wtfmedia/issues/22).
+- Read `docs/handoffs/2026-08-29-agentic-integrations.md` and `docs/wtf-os-agentic-settings.md` before picking up one of those issues. They partition local MCP, future hosted MCP, Settings UX, release history, OTA, and calendar responsibilities so a separate developer can work without touching Phase 3 provenance code.
+
+**Owner gates / do not infer**
+- Do not deploy a Worker, bind D1/R2/Queues/KV, configure Cloudflare Access or OAuth, authorize a YouTube/social account, enable calendar sync, install/publish the plugin, or emit OTA updates from this worktree.
+- Phase 3 still needs the documented editorial inputs; deployless Worker-entrypoint coverage and safe queue/cron plus asset-confirm handoff; a true large-media R2 streaming/direct-upload design (the current bounded handler buffers its body); durable, single-use upload-ticket state; D1 alignment-persistence/YouTube ETag durability review; a real configured-asset integration test; and owner acceptance evidence.
 
 ## 2026-08-28 Production calendar chrome (truthful empty)
 

@@ -22,11 +22,11 @@ async function useSystemTheme(page: Page, theme: Theme) {
   await page.emulateMedia({ colorScheme: theme });
 }
 
-async function expectSystemTheme(page: Page, theme: Theme) {
+async function expectAppTheme(page: Page, theme: Theme) {
   const expected = colors[theme];
   const root = page.locator("html");
   await expect(root).toHaveAttribute("data-wtf-ui", "wtfos");
-  await expect(root).toHaveAttribute("data-wtf-theme", "system");
+  await expect(root).toHaveAttribute("data-wtf-theme", theme);
   await expect.poll(async () =>
     page.locator("body").evaluate((element) => getComputedStyle(element).backgroundColor),
   ).toBe(expected.canvas);
@@ -75,10 +75,10 @@ async function expectRaisedDialog(
   ).toContain(overlay);
 }
 
-test.describe("WTF OS system theme journeys", () => {
-  for (const theme of ["light", "dark"] as const) {
-    test(`public workspace routes render semantic ${theme} surfaces`, async ({ page }) => {
-      await useSystemTheme(page, theme);
+test.describe("WTF OS light theme journeys", () => {
+  for (const systemTheme of ["light", "dark"] as const) {
+    test(`public workspace routes keep light surfaces under ${systemTheme} system preference`, async ({ page }) => {
+      await useSystemTheme(page, systemTheme);
 
       for (const [path, heading] of [
         ["/", "the room"],
@@ -88,12 +88,12 @@ test.describe("WTF OS system theme journeys", () => {
       ] as const) {
         await page.goto(path, { waitUntil: "domcontentloaded" });
         await expect(page.getByRole("heading", { name: heading, exact: true }).first()).toBeVisible();
-        await expectSystemTheme(page, theme);
+        await expectAppTheme(page, "light");
       }
     });
 
-    test(`access recovery routes render semantic ${theme} surfaces`, async ({ page }) => {
-      await useSystemTheme(page, theme);
+    test(`access recovery routes keep light surfaces under ${systemTheme} system preference`, async ({ page }) => {
+      await useSystemTheme(page, systemTheme);
 
       for (const [path, heading] of [
         ["/sign-in", "sign-in is not in this release"],
@@ -102,52 +102,66 @@ test.describe("WTF OS system theme journeys", () => {
       ] as const) {
         await page.goto(path, { waitUntil: "domcontentloaded" });
         await expect(page.getByRole("heading", { name: heading })).toBeVisible();
-        await expectSystemTheme(page, theme);
+        await expectAppTheme(page, "light");
       }
     });
   }
 
-  test("episode drawer renders a raised dark surface over its semantic overlay", async ({ page }) => {
+  test("episode detail renders raised light surfaces under dark system preference", async ({ page }) => {
     await useSystemTheme(page, "dark");
     await page.goto("/episodes", { waitUntil: "domcontentloaded" });
-    await page.locator('[data-cursor="open"]').first().click();
-    await expectRaisedDialog(page, "dark", "rgba(14, 12, 11, 0.4)");
-    await expect(page.getByRole("button", { name: "Close drawer", exact: true })).toBeVisible();
+    const firstCard = page.locator('[data-cursor="open"]:visible').first();
+    await Promise.all([
+      page.waitForURL(/\/episodes\/[A-Za-z0-9_-]+$/),
+      firstCard.click(),
+    ]);
+
+    await expectAppTheme(page, "light");
+    const sourceCard = page.locator("article").filter({
+      has: page.getByRole("heading", { name: "youtube published version" }),
+    }).first();
+    await expect.poll(async () =>
+      sourceCard.evaluate((element) => getComputedStyle(element).backgroundColor),
+    ).toBe(colors.light.raised);
   });
 
-  test("connections redraws when the system theme changes without a reload", async ({ page }) => {
+  test("connections stay on the light palette when the system theme changes without a reload", async ({ page }) => {
     await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
     await page.goto("/connections", { waitUntil: "domcontentloaded" });
-    await expectSystemTheme(page, "light");
+    await expectAppTheme(page, "light");
 
     const canvas = page.locator('[data-testid="graph-canvas"] canvas');
     await expect(canvas).toBeVisible();
-    const lightPixels = await canvas.evaluate((element) => {
+    const lightGraphState = await canvas.evaluate((element) => {
       const graph = element as HTMLCanvasElement;
-      const image = graph.toDataURL("image/png");
-      let checksum = 0;
-      for (let index = 0; index < image.length; index += 97) {
-        checksum = (checksum + image.charCodeAt(index) * (index % 251 + 1)) % 2_147_483_647;
-      }
-      return `${image.length}:${checksum}`;
+      const style = getComputedStyle(document.documentElement);
+      const context = graph.getContext("2d", { willReadFrequently: true });
+      const pixels = context?.getImageData(0, 0, graph.width, graph.height).data;
+      return {
+        foreground: style.getPropertyValue("--wtf-foreground-rgb").trim(),
+        structure: style.getPropertyValue("--wtf-surface-structure-rgb").trim(),
+        hasInk: pixels ? pixels.some((value, index) => index % 4 !== 3 && value < 250) : false,
+      };
     });
 
     await useSystemTheme(page, "dark");
-    await expectSystemTheme(page, "dark");
-    const darkPixels = await canvas.evaluate((element) => {
+    await expectAppTheme(page, "light");
+    const darkGraphState = await canvas.evaluate((element) => {
       const graph = element as HTMLCanvasElement;
-      const image = graph.toDataURL("image/png");
-      let checksum = 0;
-      for (let index = 0; index < image.length; index += 97) {
-        checksum = (checksum + image.charCodeAt(index) * (index % 251 + 1)) % 2_147_483_647;
-      }
-      return `${image.length}:${checksum}`;
+      const style = getComputedStyle(document.documentElement);
+      const context = graph.getContext("2d", { willReadFrequently: true });
+      const pixels = context?.getImageData(0, 0, graph.width, graph.height).data;
+      return {
+        foreground: style.getPropertyValue("--wtf-foreground-rgb").trim(),
+        structure: style.getPropertyValue("--wtf-surface-structure-rgb").trim(),
+        hasInk: pixels ? pixels.some((value, index) => index % 4 !== 3 && value < 250) : false,
+      };
     });
 
-    expect(darkPixels).not.toBe(lightPixels);
+    expect(darkGraphState).toEqual(lightGraphState);
   });
 
-  test("operator confirmation dialogs remain raised and readable in dark mode", async ({ page }) => {
+  test("operator confirmation dialogs remain raised and readable under dark system preference", async ({ page }) => {
     await useSystemTheme(page, "dark");
     await page.route("**/api/ops/operators", (route) =>
       route.fulfill({
@@ -174,17 +188,17 @@ test.describe("WTF OS system theme journeys", () => {
     await authenticate(page, "super_admin");
     await page.goto("/ops/operators", { waitUntil: "domcontentloaded" });
     await page.getByRole("button", { name: "transfer seat" }).click();
-    await expectSystemTheme(page, "dark");
-    await expectRaisedDialog(page, "dark");
+    await expectAppTheme(page, "light");
+    await expectRaisedDialog(page, "light");
   });
 
-  test("audit export confirmation remains raised and readable in dark mode", async ({ page }) => {
+  test("audit export confirmation remains raised and readable under dark system preference", async ({ page }) => {
     await useSystemTheme(page, "dark");
     await page.route("**/api/ops/audit*", (route) => route.fulfill({ json: { records: [] } }));
     await authenticate(page, "admin");
     await page.goto("/ops/audit", { waitUntil: "domcontentloaded" });
     await page.getByRole("button", { name: "export audit records" }).click();
-    await expectSystemTheme(page, "dark");
-    await expectRaisedDialog(page, "dark");
+    await expectAppTheme(page, "light");
+    await expectRaisedDialog(page, "light");
   });
 });

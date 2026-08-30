@@ -16,8 +16,8 @@ export const EditorProjection: Story = {
     if (copy.includes("audit ledger")) {
       throw new Error("Editor status projection must not reveal Audit");
     }
-    if (canvasElement.querySelectorAll('[data-state="not-activated"]').length !== 3) {
-      throw new Error("Future workflow modules must be individually named");
+    if (canvasElement.querySelectorAll('[data-state="not-activated"]').length !== 0) {
+      throw new Error("Control room must not render inactive placeholder modules");
     }
     const promoted = canvasElement.querySelector('[data-promoted="true"]');
     if (promoted?.textContent?.toLowerCase().includes("production") !== true) {

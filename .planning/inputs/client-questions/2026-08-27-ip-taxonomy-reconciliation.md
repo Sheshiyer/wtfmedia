@@ -2,15 +2,30 @@
 
 **Drafted:** 2026-08-27
 **For:** Nikhai (SpaceBlanket.AI) → Nikhil Kamath Media Group / WTF editorial
-**Blocks:** Phase 3 episode schema authoring — `PROV-10` (ingest metadata
-includes IP) and later `KNOW-07` IP filters. `PROV-01` is only the stable
-internal episode ID and is not an IP field.
+**Blocks:** canonical catalogue backfill, authoritative IP/show filters and
+reporting, remote YouTube synchronization activation, and later `KNOW-07`
+acceptance. It does not block the already-local schema shape.
 **Related requirement:** `REQUIREMENTS.md` — `PROV-10` lists IP among ingest
-metadata; `KNOW-07` filters by IP. No committed `episodes.ip` column exists
-in `docs/superpowers/plans/2026-08-27-wtf-os-whole-app-shell.md`.
+metadata; `KNOW-07` filters by IP.
+**Current implementation:** the local Phase 3 source models non-null
+`episodes.ip` and `episodes.show_title`; no remote D1 migration, approved
+catalogue backfill, or owner-approved taxonomy exists.
 **Status:** draft-held, awaiting owner reply
 
 ---
+
+## Current review — 2026-08-29
+
+The owner has not selected a taxonomy model or supplied a canonical mapping.
+The newer Phase 3 packet's two-dimensional model is a proposal, not a
+decision. Local parser-derived labels and test/recovery fixtures are
+provisional only and must not be treated as editorial truth or persisted by a
+remote sync.
+
+Choose one model, then provide a versioned mapping for the 59 internal and 62
+transcript rows, the editorial dispute owner, and retired-value handling.
+Until then, do not backfill the catalogue, present meaningful IP aggregations,
+or activate a scheduled/manual sync that persists heuristic taxonomy.
 
 ## What we observed
 
@@ -88,8 +103,9 @@ actually organizes the catalogue and we align to that.
 
 ## What we will not do until this is answered
 
-- Author the Phase 3 `episodes` table schema
-- Add an `ip` field to the frontend filter surface
+- Backfill supplied catalogue records into the local `ip` / `show_title`
+  schema or treat parser-derived labels as authoritative
+- Add a meaningful `ip` filter surface or IP-derived aggregation
 - Emit any IP-derived aggregation (per-IP counts, per-IP performance,
   per-IP calendar filters — all mentioned in the spec §1.6, §2.2, §2.5)
 
@@ -100,4 +116,5 @@ A one-line answer picking an option, plus a link to the mapping sheet
 else is fine too — we will translate.
 
 ---
-*Draft-held. No decision made or implied by this document.*
+*Draft-held. No taxonomy decision is made or implied; local schema support is
+not a canonical backfill or live-provider authorization.*

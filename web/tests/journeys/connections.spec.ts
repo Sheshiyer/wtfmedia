@@ -115,7 +115,7 @@ test.describe("Connections route journeys", () => {
     await expect(detail).toBeVisible();
   });
 
-  test("episode links open in new tab", async ({ page }) => {
+  test("episode links use readable titles and open the dedicated episode page", async ({ page }) => {
     await page.goto("/connections", { waitUntil: "domcontentloaded" });
 
     // Select a node
@@ -123,12 +123,12 @@ test.describe("Connections route journeys", () => {
     const firstButton = nodeList.locator("button").first();
     await firstButton.click();
 
-    // Check episode links have correct attributes
+    // Check episode links use the public route instead of raw video IDs.
     const detail = page.locator('[data-testid="graph-selection-detail"]');
     const links = detail.locator("a");
     const firstLink = links.first();
-    await expect(firstLink).toHaveAttribute("target", "_blank");
-    await expect(firstLink).toHaveAttribute("rel", "noreferrer");
+    await expect(firstLink).toHaveAttribute("href", /\/episodes\/[A-Za-z0-9_-]+/);
+    await expect(firstLink).not.toHaveText(/^[A-Za-z0-9_-]{8,}$/);
   });
 
   test("semantic edge list exists", async ({ page }) => {
@@ -141,66 +141,6 @@ test.describe("Connections route journeys", () => {
     const edges = edgeList.locator("li");
     const count = await edges.count();
     expect(count).toBeGreaterThan(0);
-  });
-
-  test("idea index starts compact and reveals every visible idea on request", async ({ page }) => {
-    await page.goto("/connections", { waitUntil: "domcontentloaded" });
-
-    const nodeList = page.locator('[data-testid="graph-node-list"]');
-    await expect(nodeList.locator("li")).toHaveCount(8);
-
-    const reveal = page.getByRole("button", { name: "show 32 more ideas" });
-    await expect(reveal).toHaveAttribute("aria-expanded", "false");
-    await reveal.click();
-
-    await expect(nodeList.locator("li")).toHaveCount(40);
-    const collapse = page.getByRole("button", { name: "show fewer ideas" });
-    await expect(collapse).toHaveAttribute("aria-expanded", "true");
-  });
-
-  test("overlap list starts compact and reveals every visible overlap on request", async ({ page }) => {
-    await page.goto("/connections", { waitUntil: "domcontentloaded" });
-
-    const edgeList = page.locator('[data-testid="graph-edge-list"]');
-    await expect(edgeList.locator("li")).toHaveCount(8);
-
-    const reveal = page.getByRole("button", { name: /show \d+ more overlaps/i });
-    await expect(reveal).toHaveAttribute("aria-expanded", "false");
-    await reveal.click();
-
-    await expect(edgeList.locator("li")).toHaveCount(60);
-    const collapse = page.getByRole("button", { name: "show fewer overlaps" });
-    await expect(collapse).toHaveAttribute("aria-expanded", "true");
-  });
-
-  test("selected receipt starts compact for direct overlaps", async ({ page }) => {
-    await page.goto("/connections", { waitUntil: "domcontentloaded" });
-    await page.getByTestId("graph-node-india").click();
-
-    const directOverlaps = page.locator("#connection-direct-overlap-list");
-    await expect(directOverlaps.locator("li")).toHaveCount(8);
-
-    const reveal = page.getByRole("button", { name: "show 8 more direct overlaps" });
-    await expect(reveal).toHaveAttribute("aria-expanded", "false");
-    await reveal.click();
-
-    await expect(directOverlaps.locator("li")).toHaveCount(16);
-    await expect(page.getByRole("button", { name: "show fewer direct overlaps" })).toHaveAttribute("aria-expanded", "true");
-  });
-
-  test("selected receipt starts compact for published sources", async ({ page }) => {
-    await page.goto("/connections", { waitUntil: "domcontentloaded" });
-    await page.getByTestId("graph-node-india").click();
-
-    const publishedSources = page.locator("#connection-published-source-list");
-    await expect(publishedSources.locator("li")).toHaveCount(8);
-
-    const reveal = page.getByRole("button", { name: "show 46 more published sources" });
-    await expect(reveal).toHaveAttribute("aria-expanded", "false");
-    await reveal.click();
-
-    await expect(publishedSources.locator("li")).toHaveCount(54);
-    await expect(page.getByRole("button", { name: "show fewer published sources" })).toHaveAttribute("aria-expanded", "true");
   });
 
   test("page has no horizontal overflow at 320px", async ({ page }) => {

@@ -13,12 +13,8 @@ async function authenticate(page: Page, role: "admin" | "editor" = "admin") {
   await page.setExtraHTTPHeaders({ "x-wtf-ops-context": payload, "x-wtf-ops-proof": proof });
 }
 
-async function openOperationsControlsIfCompact(page: Page) {
-  if ((page.viewportSize()?.width ?? 1024) < 1024) {
-    await page.getByRole("button", { name: "controls", exact: true }).click();
-    return page.getByRole("dialog", { name: "workspace controls" });
-  }
-  return null;
+async function openOperationsNavIfCompact(page: Page) {
+  await expect(page.getByRole("button", { name: "open operations navigation", exact: true })).toHaveCount(0);
 }
 
 test("truthful role-projected Control Room shell shows only activated administration navigation", async ({ page }) => {
@@ -30,21 +26,17 @@ test("truthful role-projected Control Room shell shows only activated administra
   await expect(page.getByText("all systems operational")).toHaveCount(0);
   await expect(page.locator("[data-primary-action]")).toHaveCount(1);
   await expect(page.getByRole("link", { name: "open production" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "refresh status" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "refresh status" })).toHaveCount(0);
   const promoted = page.locator("[data-promoted=true]");
   await expect(promoted).toHaveCount(1);
   await expect(promoted).toContainText("do this next");
   await expect(promoted).toHaveAttribute("href", "/ops/production");
   await expect(promoted).not.toHaveClass(/bg-attention/);
-  const controls = await openOperationsControlsIfCompact(page);
-  if (controls) {
-    await expect(controls.getByRole("button", { name: "open operators" })).toBeVisible();
-    await expect(controls.getByRole("button", { name: "open audit" })).toBeVisible();
-  } else {
-    const navigation = page.getByRole("navigation", { name: "operations", exact: true });
-    await expect(navigation.getByRole("link", { name: "operators" })).toBeVisible();
-    await expect(navigation.getByRole("link", { name: "audit" })).toBeVisible();
-  }
+  await openOperationsNavIfCompact(page);
+  const operationsNavigation = page.getByRole("navigation", { name: "operational destinations", exact: true });
+  await expect(operationsNavigation.getByRole("link", { name: "settings" })).toBeVisible();
+  await expect(operationsNavigation.getByRole("link", { name: "operators" })).toHaveCount(0);
+  await expect(operationsNavigation.getByRole("link", { name: "audit" })).toHaveCount(0);
 });
 
 test("editor role exposes only the activated Control Room destination", async ({ page }) => {
@@ -56,30 +48,20 @@ test("editor role exposes only the activated Control Room destination", async ({
   await expect(promoted).toHaveCount(1);
   await expect(promoted).toContainText("production");
   await expect(promoted).toHaveAttribute("href", "/ops/production");
-  const controls = await openOperationsControlsIfCompact(page);
-  if (controls) {
-    await expect(controls.getByRole("button", { name: "open control room" })).toBeVisible();
-    await expect(controls.getByRole("button", { name: "open operators" })).toHaveCount(0);
-    await expect(controls.getByRole("button", { name: "open audit" })).toHaveCount(0);
-  } else {
-    const navigation = page.getByRole("navigation", { name: "operations", exact: true });
-    await expect(navigation.getByRole("link", { name: "control room" })).toBeVisible();
-    await expect(navigation.getByRole("link", { name: "operators" })).toHaveCount(0);
-    await expect(navigation.getByRole("link", { name: "audit" })).toHaveCount(0);
-  }
+  await openOperationsNavIfCompact(page);
+  const operationsNavigation = page.getByRole("navigation", { name: "operational destinations", exact: true });
+  await expect(operationsNavigation.getByRole("link", { name: "control room" })).toBeVisible();
+  await expect(operationsNavigation.getByRole("link", { name: "episode map" })).toBeVisible();
+  await expect(operationsNavigation.getByRole("link", { name: "settings" })).toBeVisible();
+  await expect(operationsNavigation.getByRole("link", { name: "operators" })).toHaveCount(0);
+  await expect(operationsNavigation.getByRole("link", { name: "audit" })).toHaveCount(0);
 });
 
 test("responsive shell has no horizontal overflow", async ({ page }) => {
   await authenticate(page);
   await page.setViewportSize({ width: 320, height: 640 });
   await page.goto("/ops", { waitUntil: "domcontentloaded" });
-  const menu = page.getByRole("button", { name: "controls", exact: true });
-  await expect(menu).toHaveAttribute("aria-expanded", "false");
-  await menu.click();
-  const dialog = page.getByRole("dialog", { name: "workspace controls" });
-  await expect(dialog).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(dialog).toHaveCount(0);
-  await expect(menu).toBeFocused();
+  await expect(page.getByRole("button", { name: "open operations navigation", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "operations", exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 });

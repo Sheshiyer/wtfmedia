@@ -5,44 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { AskComposer } from "./AskComposer";
 import { ConversationThread, type Message, type Source } from "./ConversationThread";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
-
-function readString(value: unknown): string | undefined {
-  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
-}
-
-function readTime(value: unknown): number | null {
-  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
-}
-
-/** Only the public citation fields cross the chat response boundary. */
-function parsePublicSources(value: string | null): Source[] {
-  if (!value) return [];
-
-  try {
-    const parsed: unknown = JSON.parse(value);
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed.flatMap((item): Source[] => {
-      if (!item || typeof item !== "object") return [];
-      const source = item as Record<string, unknown>;
-      const title = readString(source.title);
-      const episodeId = readString(source.episodeId);
-      const videoId = readString(source.video_id) ?? readString(source.videoId);
-      const url = readString(source.url);
-      if (!title && !episodeId && !videoId && !url) return [];
-
-      return [{
-        ...(title ? { title } : {}),
-        ...(episodeId ? { episodeId } : {}),
-        ...(videoId ? { videoId } : {}),
-        ...(url ? { url } : {}),
-        timeSec: readTime(source.t) ?? readTime(source.timestamp),
-      }];
-    });
-  } catch {
-    return [];
-  }
-}
+import { parsePublicSourceHeader } from "@/lib/provenance/public-source-header";
+import { parseSourceMode, type SourceMode } from "@/lib/provenance/source-mode";
 
 /* ------------------------------------------------------------------ */
 /* ChatInner (migrated — uses extracted components)                    */
@@ -54,6 +18,7 @@ function ChatInner() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [autoSubmitted, setAutoSubmitted] = useState(false);
+  const [sourceMode, setSourceMode] = useState<SourceMode>("published");
 
   /* Auto-submit from ?q= param (once) */
   useEffect(() => {
@@ -86,6 +51,7 @@ function ChatInner() {
             role: m.role,
             content: m.content,
           })),
+          sourceMode,
         }),
       });
 
@@ -97,7 +63,10 @@ function ChatInner() {
       const modelHeader = response.headers.get("X-Model");
       const fallbackHeader = response.headers.get("X-Fallback");
 
-      const sources = parsePublicSources(sourcesHeader);
+      const sources: Source[] = parsePublicSourceHeader(sourcesHeader).map((source) => ({
+        ...source,
+        sourceMode: parseSourceMode(response.headers.get("X-Source-Mode") ?? source.sourceMode),
+      }));
 
       // Stream the response body
       const reader = response.body?.getReader();
@@ -153,7 +122,8 @@ function ChatInner() {
         ...prev,
         {
           role: "assistant",
-          content: "answer failed. retry ask.",
+          content:
+            "answer failed. retry ask.",
         },
       ]);
     } finally {
@@ -191,13 +161,14 @@ function ChatInner() {
       <WorkspaceHeader
         eyebrow="get the moment"
         title="ask wtf"
-        summary="ask the catalogue. quoted evidence stays beside synthesis. published and uncut are named. unmapped time stays unmapped."
+        summary="ask the catalogue. quoted evidence stays beside synthesis. published and uncut stay named."
         accent="knowledge"
+        size="page"
         context={
-          <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
+          <div className="hidden flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary sm:flex">
             <span>catalogue scope</span>
             <span>source-backed answers</span>
-            <span>published or uncut, named</span>
+            <span>mapped time only</span>
           </div>
         }
       />
@@ -215,6 +186,8 @@ function ChatInner() {
         onChange={setInput}
         onSubmit={send}
         loading={loading}
+        sourceMode={sourceMode}
+        onSourceModeChange={setSourceMode}
       />
     </div>
   );

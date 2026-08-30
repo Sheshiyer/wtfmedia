@@ -1,5 +1,6 @@
 import type { DB } from "./db.ts";
 import { auditInsertStatement, encodeAudit, type Environment } from "./audit.ts";
+import { syncYouTubeChannel, type YouTubeSyncOptions, type YouTubeSyncResult } from "./ingest/youtube-adapter.ts";
 
 const dayMilliseconds = 86_400_000;
 
@@ -35,4 +36,79 @@ export async function purgeExpiredAudit(db: DB, environment: Environment, schedu
   } catch {
     return false;
   }
+}
+
+export interface ScheduledSyncSummary {
+  totalChannels: number;
+  syncedVideos: number;
+  unchangedChannels: number;
+  failedChannels: number;
+  results: YouTubeSyncResult[];
+}
+
+/**
+ * Cloudflare Worker scheduled cron handler for synchronizing approved YouTube channels.
+ * Runs with KV ETag caching (<10 quota units/day) and idempotent D1 persistence.
+ */
+export async function syncYouTubeChannels(
+  env: { WTFMEDIA_STATE?: any; DB?: DB; YOUTUBE_CHANNELS?: string[] },
+  db?: DB,
+  options?: {
+    channels?: string[];
+    scheduledAt?: Date;
+    fetchFn?: typeof fetch;
+    force?: boolean;
+    oauthAccessToken?: string;
+  }
+): Promise<ScheduledSyncSummary> {
+  const targetDb = db ?? env.DB;
+  // A scheduler never targets an implicit channel. The OAuth connection flow
+  // must persist its approved channel list into the runtime configuration.
+  const channels = options?.channels ?? env.YOUTUBE_CHANNELS ?? [];
+
+  const results: YouTubeSyncResult[] = [];
+  let syncedVideos = 0;
+  let unchangedChannels = 0;
+  let failedChannels = 0;
+
+  const syncOptions: YouTubeSyncOptions = {
+    db: targetDb,
+    fetchFn: options?.fetchFn,
+    force: options?.force,
+    oauthAccessToken: options?.oauthAccessToken,
+    scheduledAt: options?.scheduledAt ?? new Date(),
+  };
+
+  for (const channelId of channels) {
+    try {
+      const res = await syncYouTubeChannel(env, channelId, syncOptions);
+      results.push(res);
+
+      if (res.status === "completed") {
+        syncedVideos += res.upsertedCount;
+      } else if (res.status === "skipped_unchanged") {
+        unchangedChannels++;
+      } else {
+        failedChannels++;
+      }
+    } catch (err: any) {
+      failedChannels++;
+      results.push({
+        channelId,
+        changed: false,
+        items: [],
+        upsertedCount: 0,
+        status: "failed",
+        error: err?.message || String(err),
+      });
+    }
+  }
+
+  return {
+    totalChannels: channels.length,
+    syncedVideos,
+    unchangedChannels,
+    failedChannels,
+    results,
+  };
 }

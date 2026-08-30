@@ -1,5 +1,6 @@
 export function formatOpsRole(role: string): string {
   if (role === "super_admin") return "super admin";
+  if (role === "public_link") return "public link";
   return role;
 }
 

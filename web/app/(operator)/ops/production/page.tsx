@@ -1,15 +1,7 @@
-import { redirect } from "next/navigation";
 import { ProductionWorkspace } from "@/components/domain/ops/ProductionWorkspace";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
-import { requireVerifiedOpsContext } from "@/lib/ops/context";
-import { canAccessOpsPath } from "@/lib/ops/policy";
 
 export default async function ProductionPage() {
-  const context = await requireVerifiedOpsContext().catch(() => null);
-  if (!context || !canAccessOpsPath(context.role, "/ops/production")) {
-    redirect("/ops/recover?mode=reauthenticate");
-  }
-
   return (
     <div id="ops-main">
       <WorkspaceHeader

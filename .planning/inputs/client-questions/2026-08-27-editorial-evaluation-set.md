@@ -5,9 +5,21 @@
 **Blocks:** Phase 4 acceptance gate — `KNOW-08` in `REQUIREMENTS.md`
 **Referenced by:** client Phase 1/2 build spec v2.0 §1.5, and the "build note"
 inside that section
-**Status:** draft-held, awaiting reply
+**Status:** draft-held, awaiting reply — unchanged as of 2026-08-29
 
 ---
+
+## Current review — 2026-08-29
+
+No editorial-authored evaluation-set source has been received or ingested.
+This remains a Phase 4 search-quality acceptance dependency (`KNOW-08`), not
+a blocker for the local Phase 3 provenance recovery. Phase 3 transcript
+fixtures, playback work, and automated tests do not substitute for editorial
+retrieval evidence.
+
+When supplied, store the source-hashed, access-reviewed set at
+`.planning/inputs/editorial-eval/<date>.json`. Do not create synthetic queries
+or treat local transcript fixtures as editorial acceptance data.
 
 ## Why this exists
 

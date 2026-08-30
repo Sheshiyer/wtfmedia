@@ -6,10 +6,6 @@ export const productionColumns = [
 
 export type ProductionColumnId = (typeof productionColumns)[number]["id"];
 
-export const productionPinTones = ["attention", "editorial", "knowledge", "live"] as const;
-
-export type ProductionPinTone = (typeof productionPinTones)[number];
-
 export type ProductionPin = {
   id: string;
   note: string;
@@ -17,7 +13,6 @@ export type ProductionPin = {
   column: ProductionColumnId;
   owner: string | null;
   sketch: true;
-  tone: ProductionPinTone;
 };
 
 export type MonthCell = {
@@ -37,25 +32,6 @@ export const emptyProductionWorkspace = {
 
 export function isProductionColumnId(value: string): value is ProductionColumnId {
   return productionColumns.some((column) => column.id === value);
-}
-
-export function isProductionPinTone(value: string): value is ProductionPinTone {
-  return productionPinTones.includes(value as ProductionPinTone);
-}
-
-export function moveProductionPin(
-  pins: readonly ProductionPin[],
-  id: string,
-  patch: Pick<ProductionPin, "day" | "column">,
-): ProductionPin[] {
-  let changed = false;
-  const next = pins.map((pin) => {
-    if (pin.id !== id) return pin;
-    changed = true;
-    return { ...pin, ...patch };
-  });
-
-  return changed ? next : [...pins];
 }
 
 export function shiftMonth(year: number, month: number, delta: number) {
