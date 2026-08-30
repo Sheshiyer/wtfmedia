@@ -22,6 +22,7 @@ import {
   vectorRecordId,
   vectorSourceRef,
 } from "./catalogue/asset-map";
+import { extractTimestampLines } from "./catalogue/timestamps";
 
 export interface Env extends OpsEnv {
   AI: any;
@@ -169,6 +170,9 @@ async function ingest(job: TranscriptJob, env: Env) {
         console.warn("wtfmedia timestamp sidecar unreadable", { videoId: job.videoId });
       }
     }
+  } else if (sourceMode === "uncut") {
+    const inline = extractTimestampLines(text);
+    if (inline.length >= 3) parts = timestampedChunks(inline);
   }
   const source = vectorSourceRef(job.videoId, sourceMode);
   for (let offset = 0; offset < parts.length; offset += UPSERT_BATCH_SIZE) {

@@ -33,6 +33,11 @@ function formatPlaybackTimestamp(timeSec: number): string {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+function uncutDirectRef(videoId: string | undefined): string {
+  const token = (videoId || "").replace(/^(?:sha256:|uncut:)/i, "");
+  return token ? `uncut:${token.slice(0, 12)}` : "uncut";
+}
+
 export function SourcePanel({ sources }: SourcePanelProps) {
   const citationPlaybackTitleId = useId();
   const uncutPlaybackStatusId = useId();
@@ -66,7 +71,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
               </p>
               <p id={uncutPlaybackStatusId} className="mt-0.5 text-[11px] text-muted">
                 {sources.some((source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped")
-                  ? "uncut timestamps come from the response. no published time was converted."
+                  ? "uncut timestamps are direct M:SS from the response. no url. no published time was converted."
                   : "published moments are available. uncut stays unavailable until a mapped uncut source is returned."}
               </p>
             </div>
@@ -131,7 +136,14 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                       ? "timestamp unavailable"
                       : `${source.sourceMode === "uncut" ? "uncut" : "published"} ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
                   </span>
-                  {publishedHref ? (
+                  {source.sourceMode === "uncut" ? (
+                    <span
+                      className="font-mono text-[10px] text-muted"
+                      data-testid="uncut-direct-ref"
+                    >
+                      {uncutDirectRef(source.videoId)}
+                    </span>
+                  ) : publishedHref ? (
                     <a
                       href={publishedHref}
                       target="_blank"

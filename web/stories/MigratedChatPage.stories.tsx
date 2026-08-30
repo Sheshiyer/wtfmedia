@@ -275,3 +275,20 @@ export const UntimedSource: SourceStory = {
 export const EmptySources: SourceStory = {
   render: () => <SourcePanel sources={[]} />,
 };
+
+export const UncutDirectTimestamp: SourceStory = {
+  render: () => (
+    <SourcePanel
+      sources={[
+        {
+          videoId: "f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293",
+          title: "AI Minister: Omar Al Olama",
+          timeSec: 95,
+          sourceMode: "uncut",
+          mappingStatus: "mapped",
+          segmentId: "uncut:f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293:0",
+        },
+      ]}
+    />
+  ),
+};

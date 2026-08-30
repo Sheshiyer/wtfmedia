@@ -48,6 +48,9 @@ cloudflare/wrangler.target.generated.jsonc
 .planning/STATE.md.bak
 .planning/STATE.md.bak-*
 
+# operator-local uncut transcript drop folder (bodies never committed)
+.planning/inputs/uncut-local/
+
 # local/private Phase 3 source material and unverified generated receipts
 web/src/data/catalog-snapshot.json
 web/tests/security/phase3-threat-results/

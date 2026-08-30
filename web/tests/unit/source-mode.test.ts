@@ -68,4 +68,26 @@ describe("dual-source public DTO", () => {
     expect(resolveCitation({ ...sources[0], requestedMode: "uncut" }).activeTimeSec).toBeNull();
     expect(resolveCitation({ ...sources[0], requestedMode: "published" }).activeTimeSec).toBe(180);
   });
+
+  it("shows an uncut clock without a YouTube url", () => {
+    const sources = parsePublicSourceHeader(
+      encodeURIComponent(
+        JSON.stringify([
+          {
+            video_id: "f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293",
+            title: "AI Minister: Omar Al Olama",
+            t: 95,
+            source_mode: "uncut",
+            mapping_status: "mapped",
+            segment_id: "uncut:f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293:0",
+          },
+        ]),
+      ),
+    );
+    const resolved = resolveCitation({ ...sources[0], requestedMode: "uncut" });
+    expect(sources[0]?.url).toBeUndefined();
+    expect(resolved.activeTimeSec).toBe(95);
+    expect(resolved.youtubeVideoId).toBeNull();
+    expect(resolved.uncutMediaUrl).toBeNull();
+  });
 });

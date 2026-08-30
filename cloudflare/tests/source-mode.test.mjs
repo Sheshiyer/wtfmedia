@@ -63,6 +63,31 @@ describe("dual-source chat contract", () => {
     assert.equal(uncut[0].start, 480);
     assert.notEqual(uncut[0].start, published[0].start);
     assert.equal(uncut[0].mappingStatus, "mapped");
+    assert.equal(uncut[0].url, "uncut:abcdefghijk");
+    assert.equal(published[0].url.includes("youtube.com"), true);
+    assert.equal(uncut[0].url.startsWith("http"), false);
+  });
+
+  test("uncut citations never inherit a YouTube URL even if metadata.source is one", () => {
+    const citation = projectDualSourceCitation(
+      {
+        id: "uncut:hash:0",
+        score: 0.9,
+        metadata: {
+          video_id: "f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293",
+          title: "AI Minister: Omar Al Olama",
+          start: 95,
+          timestamped: true,
+          source: "https://www.youtube.com/watch?v=abcdefghijk",
+          source_mode: "uncut",
+        },
+      },
+      "uncut",
+      0,
+    );
+    assert.equal(citation?.url, "uncut:f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293");
+    assert.equal(citation?.start, 95);
+    assert.equal(citation?.timestamped, true);
   });
 
   test("a published timestamp is not projected as uncut", () => {

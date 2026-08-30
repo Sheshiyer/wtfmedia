@@ -42,6 +42,11 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
   return JSON.stringify(sources.map((source) => {
     const mode = source.sourceMode ?? sourceMode;
     const start = mode === sourceMode ? source.start : null;
+    const direct = mode === "uncut"
+      ? (typeof source.url === "string" && source.url.startsWith("uncut:")
+        ? source.url
+        : `uncut:${source.videoId}`)
+      : source.url;
     return {
       n: source.n,
       video_id: source.videoId,
@@ -49,10 +54,10 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
       score: source.score,
       t: start,
       time: start == null ? "" : new Date(start * 1_000).toISOString().slice(11, 19).replace(/^00:/, ""),
-      url: source.url,
+      url: mode === "uncut" ? undefined : direct,
       source_mode: mode,
       mapping_status: source.mappingStatus ?? (start == null ? "unmapped" : "mapped"),
-      segment_id: source.segmentId ?? null,
+      segment_id: source.segmentId ?? (mode === "uncut" ? `uncut:${source.videoId}` : null),
     };
   }));
 }

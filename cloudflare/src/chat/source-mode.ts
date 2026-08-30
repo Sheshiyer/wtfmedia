@@ -23,6 +23,25 @@ export type DualSourceCitation = {
   mappingStatus: MappingStatus;
 };
 
+function youtubeWatchUrl(videoId: string, start: number | null): string {
+  const base = `https://www.youtube.com/watch?v=${videoId}`;
+  return start == null ? base : `${base}&t=${Math.floor(start)}s`;
+}
+
+/**
+ * Published citations may carry a YouTube watch URL.
+ * Uncut citations are a direct catalogue ref (`uncut:{id}`), never an http URL.
+ */
+export function citationRef(
+  stored: SourceMode,
+  videoId: string,
+  start: number | null,
+  timestamped: boolean,
+): string {
+  if (stored === "uncut") return `uncut:${videoId}`;
+  return youtubeWatchUrl(videoId, timestamped ? start : null);
+}
+
 export function parseSourceMode(value: unknown): SourceMode {
   return value === "uncut" ? "uncut" : "published";
 }
@@ -73,10 +92,7 @@ export function projectDualSourceCitation(
     : start == null
       ? "unmapped"
       : "mapped";
-  const sourceUrl = text(metadata.source, `https://www.youtube.com/watch?v=${videoId}`);
-  const url = timestamped && start != null
-    ? `${sourceUrl}${sourceUrl.includes("?") ? "&" : "?"}t=${Math.floor(start)}s`
-    : sourceUrl;
+  const url = citationRef(stored, videoId, timestamped ? start : null, timestamped);
 
   return {
     n: index + 1,
