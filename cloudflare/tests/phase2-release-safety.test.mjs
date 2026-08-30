@@ -6,10 +6,15 @@ import test from "node:test";
 const root = fileURLToPath(new URL("../..", import.meta.url));
 
 function run(relativeScript, args = [], environment = {}) {
+  const env = { ...process.env, ...environment };
+  if (!("BASE_URL" in environment)) delete env.BASE_URL;
+  for (const key of Object.keys(env)) {
+    if (key.startsWith("WTFMEDIA_") && !(key in environment)) delete env[key];
+  }
   return spawnSync(process.execPath, [fileURLToPath(new URL(relativeScript, import.meta.url)), ...args], {
     cwd: root,
     encoding: "utf8",
-    env: { ...process.env, ...environment },
+    env,
   });
 }
 

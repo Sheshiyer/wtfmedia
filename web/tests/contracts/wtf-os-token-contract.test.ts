@@ -93,11 +93,7 @@ describe("WTF OS semantic shell substrate", () => {
         "bg-surface-raised",
         "text-secondary",
       ],
-      "components/shells/AppShell.tsx": [
-        "bg-surface-structure",
-        "text-on-structure",
-        "hover:text-on-attention",
-      ],
+      "components/shells/AppShell.tsx": ["bg-canvas", "text-foreground"],
       "components/domain/ops/OperatorActionDialog.tsx": [
         "bg-overlay/70",
         "bg-editorial",

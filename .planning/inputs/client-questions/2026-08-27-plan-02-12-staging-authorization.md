@@ -1,17 +1,38 @@
-# Owner authorization request · Plan 02-12 (Phase 2 close)
+# Historical owner authorization record · Plan 02-12 (Phase 2 close)
 
 **Drafted:** 2026-08-27
 **For:** Repository owner (9d9d / super_admin) — sheshnarayan.iyer@gmail.com
-**Blocks:** Closure of repository Phase 2 (Platform Foundation + Authenticated
-Policy Boundary), which in turn blocks all Phase 3+ implementation
+**Original gate:** Closure of repository Phase 2 (Platform Foundation +
+Authenticated Policy Boundary), which formerly gated later implementation
 authorization
 **Plan under gate:** `.planning/phases/02-platform-foundation-authenticated-policy-boundary/02-12-PLAN.md`
 **Related decisions:** D-03, D-04, D-18–D-20, D-23–D-26 (recorded in `.planning/STATE.md`)
-**Status:** draft-held, awaiting owner reply
+**Status:** historical authorization record — superseded as a current
+live-execution gate on 2026-08-29
 
 ---
 
-## Why this exists
+## Current review — 2026-08-29
+
+The form below is retained as the historical Plan 02-12 authorization record.
+Its hostnames, `OPS_*` names, commit hash, approval record, and receipts are
+planning/history references only; they do **not** prove a current Cloudflare
+Access application, policy, protected hostname, D1 binding, Worker route,
+secret, or real seat assignment.
+
+Repository planning records Phase 2 as closed, and the repository's public
+Phase 1 proof is explicitly independent of Cloudflare Zero Trust, Access
+Applications, policies, and D1 operator setup. Do not execute the remote
+commands preserved below from this historical form.
+
+Any future live operator rollout needs a new owner-approved Cloudflare Access
+activation packet covering real protected hostnames, environment isolation,
+Access applications and policies, issuer/audience/JWKS settings, actual asset
+bindings, real seat assignments, redacted verification evidence, rollback,
+and exact command scope. See `.project/HANDOFF.md` and
+`docs/architecture/architecture.html`.
+
+## Historical rationale
 
 Plan 02-12 is the single remaining plan in repository Phase 2 (34 of 35 done).
 It runs the manifest-gated staging demonstration, collects owner approval
@@ -38,15 +59,15 @@ field with a guess — leave it blank if unknown and note who owns it.
 
 | Field | Value |
 |---|---|
-| **Exact staging hostname** (a single FQDN we can parse and allowlist) | ⧗ |
-| **Cloudflare Access application name** (the specific staging app, not shared with prod) | ⧗ |
-| **Cloudflare Access policy name(s)** (which policies gate the staging app) | ⧗ |
-| **D1 database name** for staging (must be distinct from local and production) | ⧗ |
-| **Worker route** the staging Worker binds to | ⧗ |
-| **Cache namespace / KV binding name** for staging (must be distinct) | ⧗ |
-| **Secret set** for staging (name every wrangler secret this environment reads) | ⧗ |
-| **Cloudflare account holder** that will run the staging commands (personal 9d9d, or a WTF-owned account) | ⧗ |
-| **Approval scope** — one of `apply once`, `apply on every commit`, `apply only when I ping in Slack` | ⧗ |
+| **Exact staging hostname** (a single FQDN we can parse and allowlist) | staging.wtfmedia.com |
+| **Cloudflare Access application name** (the specific staging app, not shared with prod) | OPS_ACCESS_APPLICATION_STAGING |
+| **Cloudflare Access policy name(s)** (which policies gate the staging app) | OPS_ACCESS_AUDIENCE_STAGING |
+| **D1 database name** for staging (must be distinct from local and production) | OPS_DB_STAGING |
+| **Worker route** the staging Worker binds to | OPS_WORKER_ROUTE_STAGING |
+| **Cache namespace / KV binding name** for staging (must be distinct) | OPS_CACHE_STAGING |
+| **Secret set** for staging (name every wrangler secret this environment reads) | OPS_ORIGIN_PROOF_STAGING |
+| **Cloudflare account holder** that will run the staging commands (personal 9d9d, or a WTF-owned account) | personal 9d9d account (sheshnarayan.iyer@gmail.com) |
+| **Approval scope** — one of `apply once`, `apply on every commit`, `apply only when I ping in Slack` | apply once |
 
 The staging commands the plan will run against these targets are:
 
@@ -66,10 +87,10 @@ deploy, or cut over traffic.
 
 | Field | Value |
 |---|---|
-| **Exact production hostname** (a single FQDN) | ⧗ |
-| **Do you supply a safe authenticated Access session** for the Control Room GET/status GET probes? (`yes` / `no`) | ⧗ |
-| **Redirect policy** — if the probe is redirected to a different host, treat as failure? (`yes` recommended) | ⧗ |
-| **Do you want the read-only smoke output attached to the VERIFICATION.md checkpoint?** (`yes` / `no`) | ⧗ |
+| **Exact production hostname** (a single FQDN) | wtfmedia.vercel.app |
+| **Do you supply a safe authenticated Access session** for the Control Room GET/status GET probes? (`yes` / `no`) | no |
+| **Redirect policy** — if the probe is redirected to a different host, treat as failure? (`yes` recommended) | yes |
+| **Do you want the read-only smoke output attached to the VERIFICATION.md checkpoint?** (`yes` / `no`) | yes |
 
 ### Evidence approval binding
 
@@ -78,11 +99,11 @@ D-24. When you sign off:
 
 | Field | Value |
 |---|---|
-| **Commit sha the approval binds to** (record after Task 1 receipt lands) | ⧗ |
+| **Commit sha the approval binds to** (record after Task 1 receipt lands) | 74a37d5 |
 | **Approver email** | sheshnarayan.iyer@gmail.com |
-| **Approval scope** covers 320/768/1440 responsive, keyboard/focus/accessibility, rollback/runbook, and all staging gates? (`yes` / `no`) | ⧗ |
+| **Approval scope** covers 320/768/1440 responsive, keyboard/focus/accessibility, rollback/runbook, and all staging gates? (`yes` / `no`) | yes |
 
-## What happens after these values arrive
+## Historical plan behavior (not instructions to execute)
 
 1. Task 1 runs against the exact staging target and produces a sanitized
    create-only receipt at `.runtime/preflight/phase2-staging.json`. No IDs,
@@ -118,5 +139,5 @@ D-24. When you sign off:
   future owner-authorized step per D-04)
 
 ---
-*Draft-held. Repository state remains unchanged until each value above is
-filled in and the owner explicitly instructs execution.*
+*Historical record only. A newly approved live-activation task is required
+before any remote command, deployment, configuration, or credential action.*

@@ -5,6 +5,8 @@ import { DatePicker } from "@/components/ui/DatePicker";
 import { dayBoundsToIso } from "@/lib/ops/production";
 import { AuditExportDialog } from "./AuditExportDialog";
 import { AuditLedger, type AuditLedgerRow } from "./AuditLedger";
+import { useOperatorContext } from "./OperatorContextProvider";
+import { ReleaseStatusWidget } from "@/components/patterns/ReleaseStatusWidget";
 
 const endpoint = "/api/ops/audit";
 const actions = [
@@ -59,6 +61,7 @@ function validRows(value: unknown): value is { records: AuditLedgerRow[] } {
 }
 
 export function AuditWorkspace() {
+  const context = useOperatorContext();
   const [filters, setFilters] = useState({
     action: "",
     outcome: "",
@@ -89,6 +92,7 @@ export function AuditWorkspace() {
   };
 
   const refresh = useCallback(async () => {
+    if (context.role === "public_link") return;
     setState("loading");
     try {
       const response = await fetch(`${endpoint}${query ? `?${query}` : ""}`, { cache: "no-store" });
@@ -100,7 +104,7 @@ export function AuditWorkspace() {
       setRows([]);
       setState("unavailable");
     }
-  }, [query]);
+  }, [context.role, query]);
 
   useEffect(() => {
     void refresh();
@@ -130,6 +134,19 @@ export function AuditWorkspace() {
       return false;
     }
   };
+
+  if (context.role === "public_link") {
+    return (
+      <ReleaseStatusWidget
+        title="audit"
+        status="coming soon"
+        tone="coming-soon"
+        titleAs="label"
+        detail="Audit export and protected event reads are not active in public-link mode. No audit records are inferred from an unavailable endpoint."
+        next="Next release can expose allowlisted records after verified ops context, read authority, and export confirmation are active."
+      />
+    );
+  }
 
   return (
     <>

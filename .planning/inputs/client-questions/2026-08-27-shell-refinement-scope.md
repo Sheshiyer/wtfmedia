@@ -1,20 +1,31 @@
-# Owner decision · WTF OS shell refinement scope
+# Historical owner decision · WTF OS shell refinement scope
 
 **Drafted:** 2026-08-27
 **For:** Repository owner
-**Blocks:** the next code-level PR against the shell
-**Context:** the whole-app WTF OS shell exists in the **local working tree**
-(`web/components/shells/`, untracked on `origin/main` until
-`wtf-os-shell-materialize` lands). Committed `web/app/page.tsx` is still the
-pre-migration home. The next pass is **density, hierarchy, and operator
-affordance** inside the empty-Control-Room contract in Phase 2 decision D-19
-and `02-UI-SPEC.md` (no fake counts, no invented health).
-**Status:** draft-held. Owner pick recorded as A + B + D; no shell code ships
-in this planning folder.
+**Original blocker:** the next code-level PR against the shell
+**Status:** resolved historical decision record
 
 ---
 
-## Evidence surveyed
+## Current review — 2026-08-29
+
+The owner selected A + B + D on 2026-08-27. The public shell materialized in
+`d1e7ece` (PR #12), and the selected operator-shell convergence/refinements
+landed in `7a8efc2` (PR #13); both are ancestors of current `main`.
+
+- **A — shipped:** one role-appropriate promoted “do this next” action.
+- **B — shipped:** the active rail route uses `aria-current="page"` and the
+  attention treatment.
+- **D — shipped:** public and operator mobile drawers restore focus to their
+  trigger.
+- **C — not selected:** no rail identity strip was implemented.
+- **E — deferred:** it needs a separately scoped density decision.
+
+No owner action remains for the A + B + D decision. This is source and focused
+test evidence, not a replacement for the separate aggregate browser-journey
+recovery noted in `.project/HANDOFF.md`.
+
+## Historical evidence surveyed
 
 These paths describe the local uncommitted shell, not `origin/main`:
 
@@ -122,10 +133,10 @@ Reducing the 4-column row to a more compact 3-column layout is tempting but
 premature. Until we know how many rows a full Control Room shows in Phase 3
 (likely 8–14), the density decision has no anchor. Defer.
 
-## The ask
+## Historical request and recorded choice
 
-Pick one to start. If you pick a set, we ship them in the order listed above
-(A → B → C → D), each as its own reviewable PR against the current shell.
+The 2026-08-27 request asked the owner to pick a starting scope. The recorded
+outcome was A + B + D; the implementation order was A, B, then D.
 
 | Option | Pick |
 |---|---|
@@ -136,9 +147,8 @@ Pick one to start. If you pick a set, we ship them in the order listed above
 | None; wait for reference-design parity input | |
 | Different — describe below | |
 
-Local `AppRail` already implements B (`aria-current="page"` plus attention
-fill). Remaining code PRs after shell-materialize: A, then D. C is not in
-the pick.
+The outcome shipped B with the shell and A/D with operator-shell convergence.
+C is not in the pick.
 
 ## What we will not do beyond the pick
 
@@ -149,4 +159,5 @@ the pick.
 - No addition of a data-fetching path from the shell surface.
 
 ---
-*Draft-held. A + B + D is the recorded pick; B is already present locally.*
+*Resolved historical record. A + B + D shipped; C remains unselected and E
+remains deferred pending a new owner decision.*

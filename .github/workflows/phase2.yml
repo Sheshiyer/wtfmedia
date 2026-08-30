@@ -6,9 +6,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: '22', cache: npm, cache-dependency-path: web/package-lock.json }
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            web/package-lock.json
+            cloudflare/package-lock.json
       - run: npm ci
         working-directory: web
+      - run: npm ci
+        working-directory: cloudflare
       - run: npx playwright install chromium --with-deps
         working-directory: web
       - run: node scripts/verify-phase2.mjs

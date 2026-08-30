@@ -167,6 +167,15 @@ html[data-wtf-theme] .pill-solid:hover {
 }
 html[data-wtf-theme] .chip {
   border-color: var(--wtf-foreground);
+  color: var(--wtf-text-primary);
+}
+
+.wtf-bottom-pill {
+  scrollbar-width: none;
+}
+
+.wtf-bottom-pill::-webkit-scrollbar {
+  display: none;
 }
 
 .wtf-wordmark-plate {
@@ -214,6 +223,164 @@ html[data-wtf-theme="dark"] .wtf-wordmark-plate {
   padding: 3px 9px;
   border-radius: 9999px;
   border: 2px solid #1a1a1a;
+}
+
+/* ---------- ask wtf input motion ---------- */
+.wtf-input-star::before,
+.wtf-input-star::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  width: 180%;
+  height: 55%;
+  border-radius: 9999px;
+  opacity: 0.72;
+  background: radial-gradient(
+    circle,
+    rgb(var(--wtf-knowledge-rgb) / 0.95),
+    rgb(var(--wtf-attention-rgb) / 0.45) 18%,
+    transparent 42%
+  );
+  animation: wtf-star-border-bottom 6s linear infinite alternate;
+  pointer-events: none;
+}
+
+.wtf-input-star::before {
+  right: -140%;
+  bottom: -35%;
+}
+
+.wtf-input-star::after {
+  top: -35%;
+  left: -140%;
+  animation-name: wtf-star-border-top;
+}
+
+.wtf-input-star:focus-within::before,
+.wtf-input-star:focus-within::after {
+  animation-duration: 2.8s;
+  opacity: 0.95;
+}
+
+.wtf-type-rail {
+  display: grid;
+  min-height: 2.25rem;
+}
+
+.wtf-type-rail span {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transform: translateY(0.5rem);
+  animation: wtf-type-rail 12s ease-in-out infinite;
+}
+
+.wtf-type-rail span:nth-child(2) {
+  animation-delay: 4s;
+}
+
+.wtf-type-rail span:nth-child(3) {
+  animation-delay: 8s;
+}
+
+.wtf-decrypt-line {
+  animation: wtf-decrypt-soft 1.1s steps(8, end) both;
+}
+
+.wtf-question-lattice {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgb(var(--wtf-knowledge-rgb) / 0.9) 0 10%,
+    rgb(var(--wtf-attention-rgb) / 0.9) 10% 17%,
+    rgb(var(--wtf-information-rgb) / 0.9) 17% 24%,
+    transparent 24% 30%
+  );
+}
+
+.wtf-stagger-in {
+  opacity: 1;
+  transform: none;
+  animation: wtf-stagger-in 420ms var(--wtf-ease-out) both;
+}
+
+@keyframes wtf-star-border-bottom {
+  from {
+    transform: translateX(0);
+    opacity: 0.88;
+  }
+  to {
+    transform: translateX(-72%);
+    opacity: 0.25;
+  }
+}
+
+@keyframes wtf-star-border-top {
+  from {
+    transform: translateX(0);
+    opacity: 0.25;
+  }
+  to {
+    transform: translateX(72%);
+    opacity: 0.88;
+  }
+}
+
+@keyframes wtf-type-rail {
+  0%,
+  6% {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  12%,
+  28% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  34%,
+  100% {
+    opacity: 0;
+    transform: translateY(-0.35rem);
+  }
+}
+
+@keyframes wtf-decrypt-soft {
+  0% {
+    clip-path: inset(0 100% 0 0);
+    filter: blur(2px);
+  }
+  55% {
+    filter: blur(1px);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    filter: blur(0);
+  }
+}
+
+@keyframes wtf-stagger-in {
+  from {
+    opacity: 0.72;
+    transform: translateY(0.35rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wtf-input-star::before,
+  .wtf-input-star::after,
+  .wtf-type-rail span,
+  .wtf-decrypt-line,
+  .wtf-stagger-in {
+    animation: none;
+  }
+
+  .wtf-type-rail span:first-child,
+  .wtf-stagger-in {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* ---------- custom cursor ---------- */

@@ -24,6 +24,9 @@ PRODUCT.md
 .vercel
 .playwright-cli/
 
+# ephemeral multi-agent orchestration records; may contain prompts and machine-local paths
+.agents/
+
 # Cloudflare local runtime and generated bindings
 cloudflare/.wrangler/
 cloudflare/worker-configuration.d.ts
@@ -43,3 +46,8 @@ cloudflare/worker-configuration.d.ts
 # planning state backups (regenerate via GSD, do not commit)
 .planning/STATE.md.bak
 .planning/STATE.md.bak-*
+
+# local/private Phase 3 source material and unverified generated receipts
+web/src/data/catalog-snapshot.json
+web/tests/security/phase3-threat-results/
+.planning/phases/03-episode-ingestion-provenance-spine/03-02-SUMMARY.md

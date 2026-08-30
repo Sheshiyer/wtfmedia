@@ -14,6 +14,7 @@ import {
   type DB,
 } from "./db";
 import { handleOpsRequest, type OpsEnv } from "./ops-router";
+import { filterAndProjectMatches, parseSourceMode } from "./chat/source-mode";
 
 export interface Env extends OpsEnv {
   AI: any;
@@ -171,6 +172,7 @@ async function ingest(job: TranscriptJob, env: Env) {
         source: `https://www.youtube.com/watch?v=${job.videoId}`,
         start: part.start ?? null,
         timestamped: part.start != null,
+        source_mode: "published",
       },
     })));
     await upsertWithRetry(env, vectors);
@@ -185,18 +187,20 @@ async function chat(request: Request, env: Env) {
   }
   const contentLength = Number(request.headers.get("Content-Length") || "0");
   if (contentLength > MAX_BODY_BYTES) return reply(request, env, { error: "body_too_large" }, 413);
-  let payload: { question?: unknown };
+  let payload: { question?: unknown; sourceMode?: unknown };
   try { payload = await request.json(); } catch { return reply(request, env, { error: "invalid_json" }, 400); }
   if (typeof payload.question !== "string" || !payload.question.trim()) {
     return reply(request, env, { error: "question_required" }, 400);
   }
   const question = payload.question.trim();
+  const sourceMode = parseSourceMode(payload.sourceMode);
   if (question.length > MAX_QUESTION_CHARS) return reply(request, env, { error: "question_too_long" }, 400);
   if (requiresVerifiedMetadata(question)) {
     return reply(request, env, {
       answer: "I can’t verify catalogue-wide counts or ownership/role claims from transcript search. Try asking what a named guest said about a topic, or ask about a specific episode instead.",
       sources: [],
       grounded: false,
+      sourceMode,
     });
   }
   try {
@@ -204,30 +208,22 @@ async function chat(request: Request, env: Env) {
       topK: 12,
       returnMetadata: "all",
     });
-    const usedEpisodes = new Set<string>();
-    const sources = matches.matches
-      .filter((match: any) => match.score >= MIN_SCORE)
-      .filter((match: any) => {
-        const id = String(match.metadata?.video_id || "");
-        if (!id || usedEpisodes.has(id)) return false;
-        usedEpisodes.add(id);
-        return true;
-      })
-      .slice(0, 6)
-      .map((match: any, index: number) => ({
-        n: index + 1,
-        score: Number(match.score.toFixed(3)),
-        videoId: match.metadata.video_id,
-        title: match.metadata.title,
-        start: typeof match.metadata.start === "number" ? match.metadata.start : null,
-        timestamped: match.metadata.timestamped === true,
-        url: typeof match.metadata.start === "number" ? `${match.metadata.source}&t=${Math.floor(match.metadata.start)}s` : match.metadata.source,
-        text: match.metadata.text,
-      }));
+    const projected = filterAndProjectMatches(matches.matches ?? [], sourceMode, MIN_SCORE, 6);
+    const sources = projected.map((source) => {
+      const match = (matches.matches ?? []).find((item: { metadata?: { video_id?: string } }) => item.metadata?.video_id === source.videoId);
+      return { ...source, text: match?.metadata?.text };
+    });
     if (sources.length < 2) {
-      return reply(request, env, { answer: "I don’t have enough relevant evidence in the catalogue to answer that reliably.", sources, grounded: false });
+      return reply(request, env, {
+        answer: sourceMode === "uncut"
+          ? "uncut evidence is unavailable for this question. no timestamp was inferred from published sources."
+          : "I don’t have enough relevant evidence in the catalogue to answer that reliably.",
+        sources: sources.map(({ text: _text, ...source }) => source),
+        grounded: false,
+        sourceMode,
+      });
     }
-    const context = sources.map((source: any) => `[${source.n}] ${source.title}\n${source.text}`).join("\n\n---\n\n");
+    const context = sources.map((source) => `[${source.n}] ${source.title}\n${source.text}`).join("\n\n---\n\n");
     const result = await env.AI.run(ANSWER_MODEL, {
       messages: [
         { role: "system", content: SYSTEM },
@@ -243,11 +239,17 @@ async function chat(request: Request, env: Env) {
       console.warn("wtfmedia answer rejected: invalid citations", { sourceCount: sources.length, citations });
       return reply(request, env, {
         answer: "I couldn’t produce a properly cited answer from the retrieved evidence. Please rephrase or try again.",
-        sources: sources.map(({ text, ...source }: any) => source),
+        sources: sources.map(({ text: _text, ...source }) => source),
         grounded: false,
+        sourceMode,
       });
     }
-    return reply(request, env, { answer, sources: sources.map(({ text, ...source }: any) => source), grounded: true });
+    return reply(request, env, {
+      answer,
+      sources: sources.map(({ text: _text, ...source }) => source),
+      grounded: true,
+      sourceMode,
+    });
   } catch (error) {
     console.error("wtfmedia chat failed", { message: error instanceof Error ? error.message : "unknown" });
     return reply(request, env, { error: "retrieval_unavailable" }, 503);

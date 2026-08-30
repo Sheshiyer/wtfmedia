@@ -9,16 +9,10 @@ export function ProductionBoard({
   pins,
   selectedColumn,
   onSelectColumn,
-  selectedPinId,
-  onSelectPin,
-  onMovePin,
 }: {
   pins: readonly ProductionPin[];
   selectedColumn: ProductionColumnId;
   onSelectColumn: (column: ProductionColumnId) => void;
-  selectedPinId?: string;
-  onSelectPin?: (id: string) => void;
-  onMovePin?: (id: string, column: ProductionColumnId) => void;
 }) {
   return (
     <section
@@ -49,27 +43,13 @@ export function ProductionBoard({
                 not activated
               </span>
             </button>
-            <div
-              className="mt-3 flex min-h-[16rem] flex-col gap-3"
-              data-production-column={column.id}
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={(event) => {
-                event.preventDefault();
-                const pinId = event.dataTransfer.getData("text/plain");
-                if (pinId) onMovePin?.(pinId, column.id);
-              }}
-            >
+            <div className="mt-3 flex min-h-[16rem] flex-col gap-3">
               {columnPins.length ? (
-                columnPins.map((pin) => (
+                columnPins.map((pin, pinIndex) => (
                   <PostIt
                     key={pin.id}
                     pin={pin}
-                    selected={selectedPinId === pin.id}
-                    onSelect={onSelectPin}
-                    onDragStart={(event, id) => {
-                      event.dataTransfer.effectAllowed = "move";
-                      event.dataTransfer.setData("text/plain", id);
-                    }}
+                    tone={(pinIndex % 3) as 0 | 1 | 2}
                   />
                 ))
               ) : (

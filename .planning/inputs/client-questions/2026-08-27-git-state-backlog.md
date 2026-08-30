@@ -1,16 +1,28 @@
-# Session note · git-state backlog after 2026-08-27 cleanup
+# Historical snapshot · git-state backlog after 2026-08-27 cleanup
 
 **Written:** 2026-08-27
 **For:** whoever picks up the working tree next (owner or future session)
-**Purpose:** categorize the ~120 files that were dirty in the working tree
-at the end of the 2026-08-27 cleanup session, so each cluster can be
-turned into its own clean PR through `scripts/session-pr.sh` without
-context-switching to figure out what belongs together.
-**Status:** informational, not a decision
+**Purpose:** record the ~120-file dirty working tree observed at the end of
+the 2026-08-27 cleanup session.
+**Status:** superseded historical inventory — not a current work queue
 
 ---
 
-## What the 2026-08-27 session already shipped
+## Current review — 2026-08-29
+
+This snapshot is archival. Its highest-priority shell-materialization item
+landed as `d1e7ece` (PR #12), and the selected A/D refinements landed as
+`7a8efc2` (PR #13). Do not use its old file counts, branch suggestions, or
+claims about uncommitted shell code to select present work.
+
+For current scope, use `.project/HANDOFF.md` for the active handoff and safety
+boundaries, `.planning/STATE.md` for planning decisions, and
+`docs/architecture/architecture.html` for the evidence-led inventory. The
+currently untracked `/ops/episodes` and `/ops/ingest` paths are Phase 3 drafts
+and remain excluded from commits and release evidence until separately
+reviewed.
+
+## Historical state at the 2026-08-27 snapshot
 
 - Pushed 61 previously-unpushed commits from local `main` to `origin/main`.
 - `chore(gitignore)` commit adding `.wrangler/`, `.superset/`,
@@ -25,7 +37,7 @@ context-switching to figure out what belongs together.
 Nothing else was committed. Every path listed below is still in the
 working tree as of session end, untouched.
 
-## Highest-value follow-up (do this first)
+## Historical highest-value follow-up (completed)
 
 **`wtf/wtf-os-shell-materialize` — lands the local WTF OS shell on `main`.**
 
@@ -79,7 +91,7 @@ Files to include on this branch:
 
 Verification once staged: `npm --prefix web run typecheck && npm --prefix web run build`.
 
-## Suggested follow-up branches, ranked by isolation
+## Historical follow-up suggestions (do not start work from this note)
 
 Each row is a candidate `--slug` for `scripts/session-pr.sh`. Numbers are
 approximate file counts observed at session end.
@@ -137,7 +149,7 @@ unless you pass `--allow-dirty`. Since the tree is going to stay dirty
 across multiple follow-ups, `--allow-dirty` is expected for each of
 these branches — but pass it deliberately, not habitually.
 
-## What still needs owner input
+## Historical owner-input list (superseded by this directory's README)
 
 See the three drafts in this same folder — none of them have been
 answered yet:
@@ -152,6 +164,5 @@ code shipped for it yet):
 - `2026-08-27-shell-refinement-scope.md`
 
 ---
-*Informational only. This file does not authorize any of the follow-up
-branches above; each one still requires the caller to inspect diffs and
-verify.*
+*Historical snapshot only. It does not authorize present work; inspect current
+state before selecting any change.*

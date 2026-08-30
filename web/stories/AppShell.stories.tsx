@@ -75,7 +75,7 @@ export const OperatorProjection: Story = {
   },
 };
 
-export const MobileControls: Story = {
+export const MobileDrawer: Story = {
   args: {
     mode: "public",
     navigation: publicNavigation,
@@ -83,7 +83,7 @@ export const MobileControls: Story = {
   render: (args) => (
     <AppShell {...args}>
       <div className="p-4">
-        <h1>mobile workspace</h1>
+        <h1>mobile control room</h1>
       </div>
     </AppShell>
   ),
@@ -92,9 +92,11 @@ export const MobileControls: Story = {
     viewport: { width: 320, height: 640 },
   },
   play: async ({ canvasElement }) => {
-    const trigger = Array.from(canvasElement.querySelectorAll("button")).find(
-      (button) => button.textContent?.trim() === "controls",
-    );
-    if (!trigger) throw new Error("Missing mobile controls trigger");
+    const primaryNav = canvasElement.querySelector("#wtf-application-navigation");
+    const operationsNav = canvasElement.querySelector('nav[aria-label="Operational destinations"]');
+    const logo = canvasElement.querySelector('a[aria-label="WTF OS"]');
+    if (!primaryNav || !operationsNav || !logo) {
+      throw new Error("Mobile shell must keep scroll-safe dock navigation and centered logo");
+    }
   },
 };

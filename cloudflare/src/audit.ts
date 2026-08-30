@@ -59,6 +59,7 @@ const actions = new Set<AuditAction>([
   "protected_search", "protected_view", "audit_export",
   "operator_invite", "operator_role_change", "operator_deactivate",
   "settings_policy_change", "audit_purge", "super_admin_handoff",
+  "asset_upload", "ingest_trigger", "transcript_activate", "episode_update",
 ]);
 const roles = new Set<OperatorRole>(["super_admin", "admin", "editor"]);
 const outcomes = new Set<AuditOutcome>(["allowed", "denied", "succeeded", "failed"]);
@@ -77,6 +78,10 @@ const eventRules: Readonly<Record<AuditAction, EventRule>> = {
   settings_policy_change: { entityType: "policy", outcomes: ["succeeded", "failed"], metadataKeys: ["scope"] },
   audit_purge: { entityType: "audit", outcomes: ["succeeded", "failed"], metadataKeys: ["count", "scope"] },
   super_admin_handoff: { entityType: "operator", outcomes: ["succeeded", "failed"], metadataKeys: ["scope"] },
+  asset_upload: { entityType: "source_asset", outcomes: ["succeeded", "failed"], metadataKeys: ["scope", "byteSize", "mimeType", "assetType", "episodeId"] },
+  ingest_trigger: { entityType: "ingestion_job", outcomes: ["succeeded", "failed"], metadataKeys: ["scope", "jobType", "episodeId"] },
+  transcript_activate: { entityType: "transcript_version", outcomes: ["succeeded", "failed"], metadataKeys: ["scope", "episodeId", "versionNumber", "previousVersionId"] },
+  episode_update: { entityType: "episode", outcomes: ["succeeded", "failed"], metadataKeys: ["scope", "slug", "fieldCount"] },
 };
 
 const auditColumns = [

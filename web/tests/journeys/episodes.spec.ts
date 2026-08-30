@@ -1,157 +1,114 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * Plan 01-11 Task 2: Episodes route journey tests.
+ * Episodes route journey tests.
  *
- * Verifies:
- * - Page-ready state with episodes loaded
- * - Episode card activation and drawer open
- * - Drawer close via Escape, backdrop, and close button
- * - Back/Forward/Refresh share semantics
- * - Transcript states (loading, blocks, plain text, unavailable)
- * - Source link safety (noreferrer, target=_blank)
+ * Verifies the public catalogue + dedicated episode route contract:
+ * - /episodes renders browse cards only
+ * - one click opens /episodes/[id]
+ * - detail page shows published embed, transcript, transcript chat, keywords
+ * - Back returns to the catalogue
+ * - published YouTube links remain external and noreferrer
  */
 
 test.describe("Episodes route journeys", () => {
-  test("page loads with episodes grid", async ({ page }) => {
+  test("catalogue loads with episode links", async ({ page }) => {
     await page.goto("/episodes", { waitUntil: "domcontentloaded" });
 
-    // Should have episode cards
     const cards = page.locator('[data-cursor="open"]');
     const count = await cards.count();
     expect(count).toBeGreaterThan(0);
+    await expect(cards.first()).toHaveAttribute("href", /\/episodes\/[A-Za-z0-9_-]+/);
   });
 
-  test("clicking episode card opens drawer", async ({ page }) => {
+  test("clicking an episode opens the dedicated episode page", async ({ page }) => {
     await page.goto("/episodes", { waitUntil: "domcontentloaded" });
 
-    const firstCard = page.locator('[data-cursor="open"]').first();
-    await firstCard.click();
+    const firstCard = page.locator('[data-cursor="open"]:visible').first();
+    await Promise.all([
+      page.waitForURL(/\/episodes\/[A-Za-z0-9_-]+$/),
+      firstCard.click(),
+    ]);
 
-    // Drawer should be visible with dialog role
-    const drawer = page.locator('[role="dialog"]');
-    await expect(drawer).toBeVisible();
-
-    // Should have episode title as heading
-    const heading = drawer.locator("h2, [class*='font-label']");
-    await expect(heading).toBeVisible();
+    await expect(page).toHaveURL(/\/episodes\/[A-Za-z0-9_-]+$/);
+    await expect(page.getByRole("heading", { name: "readable transcript" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "transcript chat" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "mapped keywords" })).toBeVisible();
   });
 
-  test("drawer closes on Escape key", async ({ page }) => {
-    await page.goto("/episodes", { waitUntil: "domcontentloaded" });
+  test("dedicated page hides unavailable uncut source slot", async ({ page }) => {
+    await page.goto("/episodes/SPLFyVyTI1A", { waitUntil: "domcontentloaded" });
 
-    const firstCard = page.locator('[data-cursor="open"]').first();
-    await firstCard.click();
-
-    const drawer = page.locator('[role="dialog"]');
-    await expect(drawer).toBeVisible();
-
-    await page.keyboard.press("Escape");
-    await expect(drawer).not.toBeVisible();
+    await expect(page.getByRole("region", { name: "episode source embeds" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "youtube published version" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "uncut version" })).toHaveCount(0);
+    await expect(page.getByText("not activated")).toHaveCount(0);
   });
 
-  test("drawer closes on backdrop click", async ({ page }) => {
-    await page.goto("/episodes", { waitUntil: "domcontentloaded" });
+  test("transcript and keywords are compact with show-more accordions", async ({ page }) => {
+    await page.goto("/episodes/SPLFyVyTI1A", { waitUntil: "domcontentloaded" });
 
-    const firstCard = page.locator('[data-cursor="open"]').first();
-    await firstCard.click();
-
-    const drawer = page.locator('[role="dialog"]');
-    await expect(drawer).toBeVisible();
-
-    // Click the overlay/backdrop
-    const overlay = page.locator('[data-state="open"]').first();
-    await overlay.click({ position: { x: 10, y: 10 } });
-
-    // Drawer should close
-    await expect(drawer).not.toBeVisible();
+    await expect(page.getByText(/^show \d+ more transcript moments$/)).toBeVisible();
+    await expect(page.getByText(/^show \d+ more keywords$/)).toBeVisible();
   });
 
-  test("drawer close button is accessible", async ({ page }) => {
+  test("Back button returns to the catalogue", async ({ page }) => {
     await page.goto("/episodes", { waitUntil: "domcontentloaded" });
 
-    const firstCard = page.locator('[data-cursor="open"]').first();
-    await firstCard.click();
-
-    const closeButton = page.locator('[aria-label="Close drawer"]');
-    await expect(closeButton).toBeVisible();
-
-    // Close button should have minimum 44px touch target
-    const box = await closeButton.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box!.width).toBeGreaterThanOrEqual(44);
-    expect(box!.height).toBeGreaterThanOrEqual(44);
-  });
-
-  test("Back button closes drawer", async ({ page }) => {
-    await page.goto("/episodes", { waitUntil: "domcontentloaded" });
-
-    const firstCard = page.locator('[data-cursor="open"]').first();
-    await firstCard.click();
-
-    const drawer = page.locator('[role="dialog"]');
-    await expect(drawer).toBeVisible();
+    const firstCard = page.locator('[data-cursor="open"]:visible').first();
+    await Promise.all([
+      page.waitForURL(/\/episodes\/[A-Za-z0-9_-]+$/),
+      firstCard.click(),
+    ]);
+    await expect(page).toHaveURL(/\/episodes\/[A-Za-z0-9_-]+$/);
 
     await page.goBack();
-    await expect(drawer).not.toBeVisible();
+    await expect(page).toHaveURL(/\/episodes$/);
+    await expect(page.locator('[data-cursor="open"]').first()).toBeVisible();
   });
 
-  test("Forward button reopens drawer", async ({ page }) => {
+  test("refresh preserves the dedicated episode page", async ({ page }) => {
     await page.goto("/episodes", { waitUntil: "domcontentloaded" });
 
-    const firstCard = page.locator('[data-cursor="open"]').first();
-    await firstCard.click();
-
-    const drawer = page.locator('[role="dialog"]');
-    await expect(drawer).toBeVisible();
-
-    await page.goBack();
-    await expect(drawer).not.toBeVisible();
-
-    await page.goForward();
-    await expect(drawer).toBeVisible();
-  });
-
-  test("refresh preserves episode selection", async ({ page }) => {
-    await page.goto("/episodes", { waitUntil: "domcontentloaded" });
-
-    const firstCard = page.locator('[data-cursor="open"]').first();
-    await firstCard.click();
-
-    // URL should have episode param
+    const firstCard = page.locator('[data-cursor="open"]:visible').first();
+    await Promise.all([
+      page.waitForURL(/\/episodes\/[A-Za-z0-9_-]+$/),
+      firstCard.click(),
+    ]);
     const urlBefore = page.url();
-    expect(urlBefore).toContain("episode=");
+    expect(urlBefore).toMatch(/\/episodes\/[A-Za-z0-9_-]+$/);
 
     await page.reload({ waitUntil: "domcontentloaded" });
 
-    // Drawer should still be visible after refresh
-    const drawer = page.locator('[role="dialog"]');
-    await expect(drawer).toBeVisible();
+    await expect(page).toHaveURL(urlBefore);
+    await expect(page.getByRole("heading", { name: "readable transcript" })).toBeVisible();
   });
 
   test("Watch link opens in new tab with noreferrer", async ({ page }) => {
     await page.goto("/episodes", { waitUntil: "domcontentloaded" });
 
-    const firstCard = page.locator('[data-cursor="open"]').first();
-    await firstCard.click();
+    const firstCard = page.locator('[data-cursor="open"]:visible').first();
+    await Promise.all([
+      page.waitForURL(/\/episodes\/[A-Za-z0-9_-]+$/),
+      firstCard.click(),
+    ]);
 
-    const watchLink = page.getByRole("dialog").locator('a[href*="youtube.com"]').first();
-    if ((await watchLink.count()) > 0) {
-      await expect(watchLink).toHaveAttribute("target", "_blank");
-      expect(await watchLink.getAttribute("rel")).toContain("noreferrer");
-    }
+    const watchLink = page.locator('a[href*="youtube.com"]').first();
+    await expect(watchLink).toHaveAttribute("target", "_blank");
+    expect(await watchLink.getAttribute("rel")).toContain("noreferrer");
   });
 
-  test("Ask link navigates to chat", async ({ page }) => {
+  test("transcript chat form navigates to Ask WTF", async ({ page }) => {
     await page.goto("/episodes", { waitUntil: "domcontentloaded" });
 
-    const firstCard = page.locator('[data-cursor="open"]').first();
-    await firstCard.click();
+    const firstCard = page.locator('[data-cursor="open"]:visible').first();
+    await Promise.all([
+      page.waitForURL(/\/episodes\/[A-Za-z0-9_-]+$/),
+      firstCard.click(),
+    ]);
 
-    const askLink = page.locator('a[href*="/chat?q"]').first();
-    if ((await askLink.count()) > 0) {
-      const href = await askLink.getAttribute("href");
-      expect(href).toContain("/chat?q=");
-    }
+    const form = page.locator('form[action="/chat"]');
+    await expect(form).toBeVisible();
+    await expect(form.locator('textarea[name="q"]')).toContainText("map the transcript");
   });
 });

@@ -14,6 +14,7 @@ import type { Episode } from "@/lib/episodes";
 import { fmtDuration, fmtViews } from "@/lib/episodes";
 import { Drawer } from "@/components/ui/Drawer";
 import { Sparkle } from "@/components/Sparkle";
+import { resolvePublicEpisodeUncutState } from "@/lib/catalogue/public-episode-uncut";
 
 type TranscriptBlock = { t: number; text: string };
 
@@ -115,6 +116,7 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
     `About the episode "${episode.title}": give me the key takeaways and the most surprising thing said.`,
   )}`;
   const uncutStatusId = `uncut-status-${episode.video_id}`;
+  const uncutState = resolvePublicEpisodeUncutState(episode.title);
 
   const jumpToMoment = (seconds: number) => {
     setSeekSeconds(seconds);
@@ -149,7 +151,7 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
             aria-describedby={uncutStatusId}
             className="pill cursor-not-allowed bg-surface-subtle px-4 py-2 text-sm text-muted opacity-75"
           >
-            uncut unavailable
+            {uncutState.label}
           </button>
           <Link
             href={askHref}
@@ -161,7 +163,7 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
         </div>
 
         <p id={uncutStatusId} role="status" className="text-xs leading-relaxed text-secondary">
-          uncut is unavailable for this episode. no verified mapping yet.
+          {uncutState.detail}
         </p>
 
         {playerOpen ? (

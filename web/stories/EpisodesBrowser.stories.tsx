@@ -73,9 +73,9 @@ export const DrawerValidEpisode: Story = {
       expect.stringContaining("www.youtube-nocookie.com/embed/fixture-episode-001"),
     );
 
-    const uncut = body.getByRole("button", { name: "uncut unavailable" });
+    const uncut = body.getByRole("button", { name: "uncut not tracked" });
     await expect(uncut).toBeDisabled();
-    await expect(body.getByRole("status")).toHaveTextContent(/uncut is unavailable for this episode/i);
+    await expect(body.getByRole("status")).toHaveTextContent(/no privacy-safe title-map row/i);
 
     const askLink = body.getByRole("link", { name: /ask about this episode/ });
     await expect(askLink).toHaveAttribute("href");

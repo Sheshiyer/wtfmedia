@@ -122,6 +122,13 @@ describe("POST /api/chat — server-only edge authentication", () => {
     expect(stub.requestLog[0].hasSecretHeader).toBe(true);
     expect(stub.requestLog[0].hasClientIpHeader).toBe(true);
     expect(stub.requestLog[0].hasRequestIdHeader).toBe(true);
+    expect(stub.requestLog[0].sourceMode).toBe("published");
+  });
+
+  it("forwards an explicit uncut sourceMode without converting published times", async () => {
+    const { POST } = await importRoute();
+    await POST(chatRequest({ messages: [userMessage("hello")], sourceMode: "uncut" }));
+    expect(stub.requestLog[0].sourceMode).toBe("uncut");
   });
 });
 
@@ -150,13 +157,25 @@ describe("POST /api/chat — successful upstream answer", () => {
     expect(res.headers.get("X-Fallback")).toBe("false");
     expect(await res.text()).toBe("Grounded answer text.");
 
+    expect(res.headers.get("X-Source-Mode")).toBe("published");
     const sources = JSON.parse(decodeURIComponent(res.headers.get("X-Sources")!));
     expect(sources).toEqual([
-      { n: 1, video_id: "RSB58m7Xwhg", title: "Public Episode One", score: 0.91, t: 125, time: "02:05", url: "https://www.youtube.com/watch?v=RSB58m7Xwhg" },
-      { n: 2, video_id: "QdWHGjReLUo", title: "Public Episode Two", score: 0.77, t: null, time: "", url: "https://www.youtube.com/watch?v=QdWHGjReLUo" },
+      { n: 1, video_id: "RSB58m7Xwhg", title: "Public Episode One", score: 0.91, t: 125, time: "02:05", url: "https://www.youtube.com/watch?v=RSB58m7Xwhg", source_mode: "published", mapping_status: "mapped", segment_id: null },
+      { n: 2, video_id: "QdWHGjReLUo", title: "Public Episode Two", score: 0.77, t: null, time: "", url: "https://www.youtube.com/watch?v=QdWHGjReLUo", source_mode: "published", mapping_status: "unmapped", segment_id: null },
     ]);
     for (const source of sources) {
-      expect(Object.keys(source).sort()).toEqual(["n", "score", "t", "time", "title", "url", "video_id"]);
+      expect(Object.keys(source).sort()).toEqual([
+        "mapping_status",
+        "n",
+        "score",
+        "segment_id",
+        "source_mode",
+        "t",
+        "time",
+        "title",
+        "url",
+        "video_id",
+      ]);
     }
   });
 

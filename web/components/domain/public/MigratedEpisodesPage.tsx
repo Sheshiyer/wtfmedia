@@ -7,9 +7,8 @@ import { EpisodesContent } from "./EpisodesContent";
 /**
  * Server/Suspense boundary for the migrated Episodes route.
  *
- * The variant selector (`publicUiVariant()`) remains server-only.
- * The client query consumer (`EpisodesContent`) reads `?episode=` from
- * the URL and manages selection via push/replace history.
+ * The variant selector (`publicUiVariant()`) remains server-only. This page is
+ * a catalogue; each card links to a dedicated public episode workspace.
  */
 export default function MigratedEpisodesPage() {
   const groups = groupByPlaylist(data.entries);

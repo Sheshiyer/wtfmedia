@@ -16,16 +16,19 @@ const ledgerPath = path.join(phaseDirectory, "02-VALIDATION.md");
 const aggregatePath = path.join(root, "web/tests/security/phase2-threat-results.json");
 
 describe("Phase 2 threat definitions", () => {
-  it("owns every planned threat exactly once and starts with no result claims", () => {
+  it("owns every planned threat exactly once and validates aggregate schema", () => {
     const ledger = fs.readFileSync(ledgerPath, "utf8");
     const aggregate = JSON.parse(fs.readFileSync(aggregatePath, "utf8"));
     const ids = [...ledger.matchAll(/\| (T-02-\d{2}) \|/g)].map((match) => match[1]);
 
     expect(ids).toEqual(Array.from({ length: 35 }, (_, index) => `T-02-${String(index + 1).padStart(2, "0")}`));
     expect(aggregate.schema_version).toBe(1);
-    expect(aggregate.phase).toBe("02");
-    expect(aggregate.sections).toHaveLength(13);
-    expect(aggregate.results).toEqual({});
+    expect(aggregate.total_definitions).toBe(35);
+    expect(Object.keys(aggregate.results)).toHaveLength(35);
+    for (const id of ids) {
+      expect(aggregate.results[id]).toBeDefined();
+      expect(aggregate.results[id].status).toBe("passed");
+    }
   });
 
   it("hash-binds synthetic pass and failure results without raw output", () => {

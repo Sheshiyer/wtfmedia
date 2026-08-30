@@ -292,7 +292,7 @@ export function ConnectionGraph({
   return (
     <div
       className="relative overflow-hidden rounded-lg border-2 border-foreground bg-surface-raised"
-      style={{ height: "clamp(20rem, 48dvh, 35rem)" }}
+      style={{ height: 560 }}
     >
       <canvas ref={canvasRef} className="w-full h-full block touch-none" />
       <div className="absolute top-3 left-3 text-[11px] text-muted">

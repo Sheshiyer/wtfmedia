@@ -1,18 +1,10 @@
-import { redirect } from "next/navigation";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
-import { requireVerifiedOpsContext } from "@/lib/ops/context";
-import { canAccessOpsPath } from "@/lib/ops/policy";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function EpisodeProvenancePage({ params }: PageProps) {
-  const context = await requireVerifiedOpsContext().catch(() => null);
-  if (!context || !canAccessOpsPath(context.role, "/ops/episodes")) {
-    redirect("/ops/recover?mode=reauthenticate");
-  }
-
   const { id } = await params;
 
   return (

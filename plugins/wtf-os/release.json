@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "product": "WTF OS",
+  "version": "0.1.0",
+  "channel": "draft_held",
+  "releasedAt": null,
+  "status": "local_scaffold",
+  "mcp": {
+    "local": {
+      "enabled": true,
+      "mode": "read_only",
+      "transport": "stdio"
+    },
+    "remote": {
+      "enabled": false,
+      "reason": "Cloudflare Access/OAuth and an owner-approved Worker deployment are not configured."
+    }
+  },
+  "history": [
+    {
+      "version": "0.1.0",
+      "channel": "draft_held",
+      "status": "local_scaffold",
+      "releasedAt": null,
+      "notes": "Repository-local plugin package only; no hosted server, OAuth connection, calendar integration, or OTA release."
+    }
+  ]
+}

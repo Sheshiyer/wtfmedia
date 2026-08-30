@@ -101,6 +101,13 @@ async function settle(page: import("@playwright/test").Page) {
   await page.evaluate(() => document.fonts.ready);
 }
 
+async function openFirstEpisodeDetail(page: import("@playwright/test").Page) {
+  const href = await page.locator('[data-cursor="open"]').first().getAttribute("href");
+  expect(href).toMatch(/^\/episodes\/[^/]+$/);
+  await page.goto(href!);
+  await settle(page);
+}
+
 /** Mock /api/chat with a grounded answer. */
 function mockGroundedAnswer(page: import("@playwright/test").Page) {
   page.route("/api/chat", (route) => {
@@ -214,47 +221,48 @@ for (const viewport of VIEWPORTS) {
   });
 }
 
-/* ── drawer visual capture ───────────────────────────────────────────── */
+/* ── episode detail visual capture ───────────────────────────────────── */
 
-test.describe("visual capture — drawer states @visual", () => {
+test.describe("visual capture — episode detail states @visual", () => {
   test.beforeEach(async ({ page }) => {
     await lockToLoopback(page);
   });
 
-  test("Episode drawer open at 1440px", async ({ page }) => {
+  test("Episode detail open at 1440px", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/episodes");
     await settle(page);
 
-    // Open drawer
-    const firstCard = page.locator('[data-cursor="open"]').first();
-    await firstCard.click();
+    await openFirstEpisodeDetail(page);
 
-    const drawer = page.locator('[role="dialog"]');
-    await expect(drawer).toBeVisible();
+    await expect(page).toHaveURL(/\/episodes\/[^/]+$/);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByRole("region", { name: "episode source embeds" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "readable transcript" })).toBeVisible();
 
     await page.addStyleTag({
       content: "*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }",
     });
 
-    await captureVisual(page, "episodes-drawer-open-1440px.png");
+    await captureVisual(page, "episodes-detail-open-1440px.png");
   });
 
-  test("Episode drawer open at 320px", async ({ page }) => {
+  test("Episode detail open at 320px", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 });
     await page.goto("/episodes");
     await settle(page);
 
-    const firstCard = page.locator('[data-cursor="open"]').first();
-    await firstCard.click();
+    await openFirstEpisodeDetail(page);
 
-    const drawer = page.locator('[role="dialog"]');
-    await expect(drawer).toBeVisible();
+    await expect(page).toHaveURL(/\/episodes\/[^/]+$/);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByRole("region", { name: "episode source embeds" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "readable transcript" })).toBeVisible();
 
     await page.addStyleTag({
       content: "*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }",
     });
 
-    await captureVisual(page, "episodes-drawer-open-320px.png");
+    await captureVisual(page, "episodes-detail-open-320px.png");
   });
 });

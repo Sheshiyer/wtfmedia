@@ -2,27 +2,73 @@ import Image from "next/image";
 import Link from "next/link";
 import { data, thumbnailUrl } from "@/lib/episodes";
 import { LinkButton } from "@/components/ui/LinkButton";
+import { StatusLedger } from "@/components/patterns/StatusLedger";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
+import { ReleaseStatusWidget } from "@/components/patterns/ReleaseStatusWidget";
+
+const workspaceItems = [
+  {
+    label: "episodes",
+    state: "active" as const,
+    detail: "browse published conversations and open the transcript.",
+    href: "/episodes",
+  },
+  {
+    label: "connections",
+    state: "active" as const,
+    detail: "see which ideas keep showing up, with shared-episode receipts.",
+    href: "/connections",
+  },
+  {
+    label: "ask wtf",
+    state: "active" as const,
+    detail: "ask the catalogue and keep quoted evidence beside the answer.",
+    href: "/chat",
+  },
+  {
+    label: "production",
+    state: "active" as const,
+    detail: "list, create, and update records. delete is unavailable.",
+    href: "/ops/production",
+  },
+  {
+    label: "episode map",
+    state: "active" as const,
+    detail: "title map from the catalogue snapshot. not a live source.",
+    href: "/ops/episodes",
+  },
+  {
+    label: "control room",
+    state: "active" as const,
+    detail: "production records are live. ingest, seats, and access gates are not.",
+    href: "/ops",
+  },
+  {
+    label: "settings",
+    state: "active" as const,
+    detail: "release context, role, verification state, and roadmap.",
+    href: "/ops/settings",
+  },
+];
 
 export function MigratedHomePage() {
   const episodeCount = data.entry_count;
   const showCount = new Set(data.entries.map((entry) => entry.playlist_title)).size;
-  const spotlight = data.entries[0];
-  const recentEpisodes = data.entries.slice(1, 5);
+  const recentEpisodes = data.entries.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-canvas">
       <WorkspaceHeader
-        eyebrow="public room"
+        eyebrow="ask the catalogue and get the moment"
         title="the room"
-        summary="ask the catalogue, get the moment. published conversations, recurring ideas, and source-backed answers live here."
+        summary="published conversations, recurring ideas, and answers with receipts. a timestamp only when verified."
         accent="attention"
         context={
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
-            <span>public room</span>
+            <span>public workspace</span>
             <span>{episodeCount} indexed episodes</span>
             <span>{showCount} catalogue shows</span>
-            <span>source timing only when verified</span>
+            <span>published and uncut stay distinct</span>
           </div>
         }
         primaryAction={
@@ -37,51 +83,46 @@ export function MigratedHomePage() {
         }
       />
 
-      {spotlight && (
-        <section
-          data-testid="source-spotlight"
-          className="border-b-2 border-foreground bg-surface-structure px-4 py-8 text-on-structure sm:px-8 xl:px-12 xl:py-12"
-        >
-          <div className="mx-auto grid max-w-[var(--wtf-content-max)] gap-0 border-2 border-foreground bg-surface-raised text-foreground shadow-[6px_6px_0_var(--wtf-foreground)] lg:grid-cols-[minmax(0,1.2fr)_minmax(19rem,0.8fr)]">
-            <div className="relative min-h-72 overflow-hidden border-b-2 border-foreground bg-surface-structure lg:min-h-[30rem] lg:border-b-0 lg:border-r-2">
-              <Image
-                src={thumbnailUrl(spotlight.video_id)}
-                alt=""
-                fill
-                priority
-                sizes="(min-width: 1024px) 62vw, 100vw"
-                className="object-cover grayscale"
-                unoptimized
-              />
-              <span className="absolute left-4 top-4 border-2 border-foreground bg-attention px-2 py-1 font-label text-[11px] font-bold uppercase tracking-[0.1em] text-on-attention">
-                source spotlight
-              </span>
+      <div className="mx-auto grid max-w-[var(--wtf-content-max)] gap-8 px-4 py-8 sm:px-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.85fr)] xl:px-12 xl:py-12">
+        <StatusLedger
+          title="what's open"
+          eyebrow="now / next"
+          items={workspaceItems}
+        />
+
+        <aside className="border-2 border-foreground bg-canvas p-6 shadow-[6px_6px_0_var(--wtf-foreground)] xl:sticky xl:top-8 xl:self-start">
+          <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-secondary">
+            room rule
+          </p>
+          <h2 className="mt-3 font-display text-4xl font-extrabold lowercase leading-none text-foreground">
+            evidence stays readable.
+          </h2>
+          <p className="mt-5 font-body text-sm leading-relaxed text-secondary">
+            ask wtf keeps the episode beside the answer. published and uncut
+            are named. unmapped time stays unmapped.
+          </p>
+          <dl className="mt-8 divide-y divide-foreground/20 border-y-2 border-foreground font-label text-sm">
+            <div className="flex items-center justify-between gap-4 py-3">
+              <dt className="text-secondary">catalogue scope</dt>
+              <dd className="font-bold">{episodeCount} episodes</dd>
             </div>
-            <div className="flex flex-col justify-between gap-8 p-6 sm:p-8">
-              <div>
-                <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-muted">from the catalogue</p>
-                <h2 className="mt-3 font-display text-4xl font-extrabold lowercase leading-[0.9] tracking-[-0.04em] sm:text-5xl">
-                  {spotlight.title}
-                </h2>
-                <p className="mt-5 max-w-[46ch] font-body text-base leading-relaxed text-secondary">
-                  Start from a public episode record, follow the source material, then ask the catalogue without losing the evidence trail.
-                </p>
-              </div>
-              <div className="border-t-2 border-foreground/20 pt-5">
-                <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
-                  published source · {spotlight.playlist_title ?? "catalogue"}
-                </p>
-                <Link
-                  href={`/episodes?episode=${encodeURIComponent(spotlight.video_id)}`}
-                  className="mt-4 inline-flex min-h-11 items-center border-b-2 border-attention font-label text-sm font-bold lowercase text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information"
-                >
-                  open source receipt ↗
-                </Link>
-              </div>
+            <div className="flex items-center justify-between gap-4 py-3">
+              <dt className="text-secondary">answer mode</dt>
+              <dd className="font-bold">source-backed</dd>
             </div>
-          </div>
-        </section>
-      )}
+            <div className="flex items-center justify-between gap-4 py-3">
+              <dt className="text-secondary">missing evidence</dt>
+              <dd className="font-bold">shown plainly</dd>
+            </div>
+          </dl>
+          <Link
+            href="/connections"
+            className="mt-6 inline-flex min-h-11 items-center border-b-2 border-attention font-label text-sm font-bold lowercase text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
+          >
+            inspect recurring ideas ↗
+          </Link>
+        </aside>
+      </div>
 
       <section className="border-y-2 border-foreground bg-surface-subtle px-4 py-10 sm:px-8 xl:px-12">
         <div className="mx-auto max-w-[var(--wtf-content-max)]">
@@ -91,22 +132,22 @@ export function MigratedHomePage() {
                 source material
               </p>
               <h2 className="mt-1 font-display text-3xl font-extrabold lowercase sm:text-4xl">
-                source rail
+                conversations in the room
               </h2>
             </div>
             <Link
               href="/episodes"
               className="inline-flex min-h-11 items-center font-label text-sm font-bold lowercase underline decoration-2 underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information"
             >
-              open episode workspace ↗
+              open episodes ↗
             </Link>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-3">
             {recentEpisodes.map((episode, index) => (
               <Link
                 key={episode.video_id}
-                href={`/episodes?episode=${encodeURIComponent(episode.video_id)}`}
+                href={`/episodes/${encodeURIComponent(episode.video_id)}`}
                 className="group grid min-h-full grid-rows-[auto_1fr] border-2 border-foreground bg-surface-raised shadow-[4px_4px_0_var(--wtf-foreground)] transition-[transform,box-shadow] duration-fast hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_var(--wtf-foreground)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-information"
               >
                 <div className="relative aspect-video overflow-hidden border-b-2 border-foreground bg-surface-structure">
@@ -127,11 +168,48 @@ export function MigratedHomePage() {
                     {episode.title}
                   </h3>
                   <span className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
-                    open episode receipt ↗
+                    open episode
                   </span>
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-10 sm:px-8 xl:px-12">
+        <div className="mx-auto max-w-[var(--wtf-content-max)]">
+          <div className="mb-6">
+            <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-muted">
+              operating map
+            </p>
+          <h2 className="mt-1 font-display text-3xl font-extrabold lowercase sm:text-4xl">
+              active build surfaces
+            </h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <ReleaseStatusWidget
+              title="episode map"
+              status="visible"
+              tone="active"
+              detail="The 2026-08-27 title map is visible in public view. It is a snapshot, not a live catalogue."
+              next="Uncut pointers can be candidate or absent. Activation remains held until verified media and alignment exist."
+              href="/ops/episodes"
+            />
+            <ReleaseStatusWidget
+              title="production"
+              status="live"
+              tone="active"
+              detail="Production records are open for the current release. Delete remains unavailable."
+              href="/ops/production"
+            />
+            <ReleaseStatusWidget
+              title="settings"
+              status="roadmap"
+              tone="active"
+              detail="Environment, workspace, organization scope, role, verification state, and held-feature roadmap live here."
+              href="/ops/settings"
+            />
           </div>
         </div>
       </section>

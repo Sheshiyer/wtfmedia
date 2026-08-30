@@ -1,38 +1,23 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Public shell controls focus return", () => {
+test.describe("Public shell bottom navigation focus", () => {
   test.use({ viewport: { width: 320, height: 640 } });
 
-  test("pointer path restores focus to controls on Escape", async ({ page }) => {
+  test("bottom pill is persistent and keyboard reachable", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    const controls = page.getByRole("button", { name: "controls", exact: true });
-    await expect(controls).toBeVisible();
-    await controls.click();
-    const dialog = page.getByRole("dialog", { name: "workspace controls" });
-    await expect(dialog).toBeVisible();
-    await page.keyboard.press("Escape");
-    await expect(dialog).toHaveCount(0);
-    await expect(controls).toBeFocused();
-  });
 
-  test("keyboard path reaches controls, opens with Enter, and restores focus on Escape", async ({ page }) => {
-    await page.goto("/", { waitUntil: "domcontentloaded" });
-    const controls = page.getByRole("button", { name: "controls", exact: true });
+    await expect(page.getByRole("button", { name: "open navigation", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("dialog", { name: "application navigation" })).toHaveCount(0);
 
-    for (let i = 0; i < 12; i += 1) {
-      if (await controls.evaluate((element) => element === document.activeElement)) {
-        break;
-      }
+    const navigation = page.getByRole("navigation", { name: "Application", exact: true });
+    await expect(navigation).toBeVisible();
+    await expect(navigation.getByRole("link", { name: "the room", exact: true })).toBeVisible();
+
+    for (let index = 0; index < 12; index += 1) {
       await page.keyboard.press("Tab");
+      if ((await page.locator('nav[aria-label="Application"] :focus').count()) > 0) break;
     }
-    await expect(controls).toBeFocused();
 
-    await page.keyboard.press("Enter");
-    const dialog = page.getByRole("dialog", { name: "workspace controls" });
-    await expect(dialog).toBeVisible();
-
-    await page.keyboard.press("Escape");
-    await expect(dialog).toHaveCount(0);
-    await expect(controls).toBeFocused();
+    expect(await page.locator('nav[aria-label="Application"] :focus').count()).toBeGreaterThan(0);
   });
 });

@@ -3,6 +3,8 @@
 import { FormEvent, useEffect, useState } from "react";
 import { OperatorActionDialog } from "./OperatorActionDialog";
 import { OperatorRoster, type OperatorRosterRow } from "./OperatorRoster";
+import { useOperatorContext } from "./OperatorContextProvider";
+import { ReleaseStatusWidget } from "@/components/patterns/ReleaseStatusWidget";
 
 type Role = "super_admin" | "admin" | "editor";
 type Dialog = { action: "deactivate" | "transfer"; email: string } | null;
@@ -32,6 +34,7 @@ function validRoster(value: unknown): value is { operators: OperatorRosterRow[] 
 }
 
 export function OperatorsWorkspace({ role }: { role: Role }) {
+  const context = useOperatorContext();
   const [rows, setRows] = useState<OperatorRosterRow[]>([]);
   const [state, setState] = useState<"loading" | "ready" | "unavailable" | "measured-zero">("loading");
   const [notice, setNotice] = useState("");
@@ -52,8 +55,9 @@ export function OperatorsWorkspace({ role }: { role: Role }) {
   };
 
   useEffect(() => {
+    if (context.role === "public_link") return;
     void refresh();
-  }, []);
+  }, [context.role]);
 
   const mutate = async (body: Record<string, unknown>) => {
     try {
@@ -90,6 +94,19 @@ export function OperatorsWorkspace({ role }: { role: Role }) {
       event.currentTarget.reset();
     }
   };
+
+  if (context.role === "public_link") {
+    return (
+      <ReleaseStatusWidget
+        title="operators"
+        status="coming soon"
+        tone="coming-soon"
+        titleAs="label"
+        detail="Operator seats are not a live gate in this public-link release. No roster details or mutation controls are shown without a verified ops context."
+        next="Next release can activate this page after operator authority, roster reads, and seat mutations are backed by verified infrastructure."
+      />
+    );
+  }
 
   return (
     <>

@@ -3,7 +3,6 @@
 import { useOperatorContext } from "@/components/domain/ops/OperatorContextProvider";
 import { ControlRoomStatusLedger } from "@/components/domain/ops/ControlRoomStatusLedger";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
-import { Button } from "@/components/ui/Button";
 import { LinkButton } from "@/components/ui/LinkButton";
 
 export default function ControlRoomPage() {
@@ -25,16 +24,6 @@ export default function ControlRoomPage() {
           >
             open production
           </LinkButton>
-        }
-        tools={
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full rounded-control border-foreground"
-            onClick={() => window.location.reload()}
-          >
-            refresh status
-          </Button>
         }
       />
       <div className="mx-auto max-w-[var(--wtf-content-max)] px-4 py-8 sm:px-8 xl:px-12 xl:py-12">

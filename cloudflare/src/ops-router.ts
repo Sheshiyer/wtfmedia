@@ -5,6 +5,15 @@ import { decide, policyForPath } from "./auth/policy.ts";
 import type { DB } from "./db.ts";
 import { operatorContextDto, protectedResponseHeaders, safeOpsError } from "./dto.ts";
 import { approveOperatorInvitation, changeOperatorLifecycle, inviteApprovedOperator, listOperatorRoster, transferSuperAdmin } from "./operators.ts";
+import { handleAssetConfirmUpload, handleAssetUploadIntent, handleAssetUploadStream } from "./assets/upload-handler.ts";
+import {
+  handleActivateTranscriptVersion,
+  handleGetEpisodeProvenance,
+  handleGetEpisodes,
+  handleListIngestionJobs,
+  handleResolveCitation,
+  handleYouTubeSync,
+} from "./ops-episodes.ts";
 
 export type OpsEnvironment = "local" | "staging" | "production";
 export type OpsEnv = {
@@ -16,6 +25,8 @@ export type OpsEnv = {
   ACCESS_ISSUER: string;
   ACCESS_AUDIENCE: string;
   ACCESS_JWKS_URL: string;
+  CATALOGUE?: any;
+  EDGE_SHARED_SECRET?: string;
 };
 
 type OpsDependencies = {
@@ -31,8 +42,15 @@ function denied(): Response {
 function protectedPath(pathname: string): string | null {
   if (pathname === "/api/ops/operators") return "/ops/operators";
   if (pathname === "/api/ops/audit") return "/ops/audit";
+  if (pathname === "/ops/api/assets/upload-intent" || pathname === "/api/ops/assets/upload-intent") return "/ops/api/assets/upload-intent";
+  if (pathname === "/ops/api/assets/upload-stream" || pathname === "/api/ops/assets/upload-stream") return "/ops/api/assets/upload-stream";
+  if (pathname === "/ops/api/assets/confirm-upload" || pathname === "/api/ops/assets/confirm-upload") return "/ops/api/assets/confirm-upload";
+  if (pathname === "/ops/api/episodes" || pathname === "/api/ops/episodes") return "/ops/api/episodes";
+  if (pathname === "/ops/api/ingest/jobs" || pathname === "/api/ops/ingest/jobs") return "/ops/api/ingest/jobs";
+  if (pathname === "/ops/api/ingest/youtube-sync" || pathname === "/api/ops/ingest/youtube-sync") return "/ops/api/ingest/youtube-sync";
+  if (pathname.startsWith("/ops/api/episodes/") || pathname.startsWith("/api/ops/episodes/")) return pathname;
   if (pathname === "/ops") return pathname;
-  if (pathname === "/ops/operators" || pathname === "/ops/audit" || pathname === "/ops/production") return pathname;
+  if (pathname === "/ops/operators" || pathname === "/ops/audit" || pathname === "/ops/production" || pathname === "/ops/ingest" || pathname === "/ops/episodes" || pathname.startsWith("/ops/episodes/")) return pathname;
   return null;
 }
 
@@ -131,6 +149,40 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
     if (!audited) return denied();
     if (url.pathname === "/api/ops/operators") return operatorApi(request, env, context);
     if (url.pathname === "/api/ops/audit") return auditApi(request, env, context);
+    if (url.pathname === "/ops/api/assets/upload-intent" || url.pathname === "/api/ops/assets/upload-intent") {
+      return handleAssetUploadIntent(request, env, context);
+    }
+    if (url.pathname === "/ops/api/assets/upload-stream" || url.pathname === "/api/ops/assets/upload-stream") {
+      return handleAssetUploadStream(request, env, context);
+    }
+    if (url.pathname === "/ops/api/assets/confirm-upload" || url.pathname === "/api/ops/assets/confirm-upload") {
+      return handleAssetConfirmUpload(request, env, context);
+    }
+    if (url.pathname === "/ops/api/episodes" || url.pathname === "/api/ops/episodes") {
+      return handleGetEpisodes(request, env, context);
+    }
+    if (url.pathname === "/ops/api/ingest/jobs" || url.pathname === "/api/ops/ingest/jobs") {
+      return handleListIngestionJobs(request, env, context);
+    }
+    if (url.pathname === "/ops/api/ingest/youtube-sync" || url.pathname === "/api/ops/ingest/youtube-sync") {
+      return handleYouTubeSync(request, env, context);
+    }
+
+    const provenanceMatch = url.pathname.match(/^(?:\/ops)?\/api(?:\/ops)?\/episodes\/([^/]+)\/provenance$/);
+    if (provenanceMatch) {
+      return handleGetEpisodeProvenance(request, env, provenanceMatch[1], context);
+    }
+
+    const citationMatch = url.pathname.match(/^(?:\/ops)?\/api(?:\/ops)?\/episodes\/([^/]+)\/citation$/);
+    if (citationMatch) {
+      return handleResolveCitation(request, env, citationMatch[1], context);
+    }
+
+    const activateMatch = url.pathname.match(/^(?:\/ops)?\/api(?:\/ops)?\/episodes\/([^/]+)\/transcripts\/activate$/);
+    if (activateMatch) {
+      return handleActivateTranscriptVersion(request, env, activateMatch[1], context);
+    }
+
     const origin = new URL(env.OPS_ORIGIN);
     origin.pathname = url.pathname;
     origin.search = url.search;

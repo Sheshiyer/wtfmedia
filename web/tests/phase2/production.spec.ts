@@ -31,49 +31,15 @@ test("production chrome is empty and does not invent workflow counts", async ({ 
   await expect(page.getByLabel("owner")).toBeDisabled();
 });
 
-test("production copy stays local and does not claim a shared audit record", async ({ page }) => {
-  await authenticate(page);
-  await page.goto("/ops/production", { waitUntil: "domcontentloaded" });
-
-  await expect(page.getByText("local sketches stay in this browser tab and are not backend records.")).toBeVisible();
-  await expect(page.getByText(/shared audit record/i)).toHaveCount(0);
-});
-
-test("operator can place, drag, and move a colour-coded local sketch", async ({ page }) => {
-  await authenticate(page);
-  await page.goto("/ops/production", { waitUntil: "domcontentloaded" });
-
-  await page.getByLabel("day").fill("2026-08-29");
-  await page.getByLabel("colour / flow").selectOption("knowledge");
-  await page.getByLabel("production note").fill("source receipt check");
-  await page.getByRole("button", { name: "place local sketch" }).click();
-
-  const sketch = page.getByRole("button", { name: "select sketch source receipt check" });
-  await expect(sketch).toHaveAttribute("data-pin-tone", "knowledge");
-
-  await sketch.dragTo(page.locator('[data-calendar-day="2026-08-30"]'));
-  await page.getByLabel("day").fill("2026-08-31");
-  await page.getByLabel("column").selectOption("blocked");
-  await page.getByRole("button", { name: "move selected sketch" }).click();
-  await page.getByRole("button", { name: "board" }).click();
-
-  const blockedColumn = page.locator('[data-production-column="blocked"]');
-  await expect(blockedColumn.getByRole("button", { name: "select sketch source receipt check" })).toBeVisible();
-  await expect(blockedColumn.getByText("2026-08-31")).toBeVisible();
-});
-
-test("editor can open production chrome but not administration", async ({ page }) => {
+test("editor can open production chrome and administration pages", async ({ page }) => {
   await authenticate(page, "editor");
   await page.goto("/ops/production", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: "production" })).toBeVisible();
-  if ((page.viewportSize()?.width ?? 1024) < 1024) {
-    await page.getByRole("button", { name: "controls", exact: true }).click();
-    const controls = page.getByRole("dialog", { name: "workspace controls" });
-    await expect(controls.getByRole("button", { name: "open production" })).toBeVisible();
-    await expect(controls.getByRole("button", { name: "open operators" })).toHaveCount(0);
-    return;
-  }
-  const navigation = page.getByRole("navigation", { name: "operations", exact: true });
-  await expect(navigation.getByRole("link", { name: "production" })).toBeVisible();
-  await expect(navigation.getByRole("link", { name: "operators" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "open operations navigation", exact: true })).toHaveCount(0);
+  const rail = page.locator(".wtf-bottom-pill");
+  await expect(rail.getByRole("link", { name: "production", exact: true })).toBeVisible();
+  await expect(rail.getByRole("link", { name: "settings", exact: true })).toBeVisible();
+  await expect(rail.getByRole("link", { name: "operators", exact: true })).toHaveCount(0);
+  await expect(rail.getByRole("link", { name: "ingest", exact: true })).toHaveCount(0);
+  await expect(rail.getByRole("link", { name: "audit", exact: true })).toHaveCount(0);
 });

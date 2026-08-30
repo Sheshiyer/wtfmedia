@@ -36,7 +36,7 @@ test.describe("/ rollback proof", () => {
     await page.goto("/");
     await settle(page);
 
-    const eyebrow = page.getByText(/ask the catalogue, get the moment\./i);
+    const eyebrow = page.getByText("ask the catalogue and get the moment", { exact: true });
     await expect(eyebrow).toBeVisible();
 
     const heading = page.getByRole("heading", { name: "the room", exact: true });
@@ -48,8 +48,12 @@ test.describe("/ rollback proof", () => {
     await expect(primaryCta).toHaveAttribute("href", "/chat");
 
     await expect(page.locator('[data-wtf-shell="wtfos"]')).toBeAttached();
-    await expect(page.getByRole("heading", { name: "workspace state", exact: true })).toHaveCount(0);
-    await expect(page.getByRole("heading", { name: "source rail", exact: true })).toBeVisible();
+    await expect(page.locator('[data-state="active"]')).toHaveCount(7);
+    await expect(page.locator('[data-state="unavailable"]')).toHaveCount(0);
+    await expect(page.locator('[data-state="not-activated"]')).toHaveCount(0);
+    await expect(
+      page.getByRole("heading", { name: "conversations in the room" }),
+    ).toBeVisible();
   });
 
   test("legacy variant serves / with accepted content", async ({ page }) => {
@@ -124,10 +128,10 @@ test.describe("/ rollback proof", () => {
       await settle(page);
     }
 
-    // Secondary CTA → /episodes
-    const secondaryCta = page.locator('[data-testid="cta-secondary"]');
-    if (await secondaryCta.isVisible()) {
-      await secondaryCta.click();
+    // Source-material link → /episodes
+    const episodesLink = page.getByRole("link", { name: /open episodes/ });
+    if (await episodesLink.isVisible()) {
+      await episodesLink.click();
       await expect(page).toHaveURL(/\/episodes/);
     }
   });

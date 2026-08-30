@@ -14,10 +14,13 @@ function Field({
 }) {
   return (
     <div className="min-w-0 sm:border-l-2 sm:border-foreground/15 sm:px-5 sm:first:border-l-0 sm:first:pl-0">
-      <dt className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+      <dt
+        role="term"
+        className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-muted"
+      >
         {label}
       </dt>
-      <dd className="mt-1">
+      <dd role="definition" className="mt-1">
         {unknown ? (
           <span className="inline-flex min-h-7 items-center border-2 border-foreground/40 bg-surface-subtle px-2 font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">
             {value}

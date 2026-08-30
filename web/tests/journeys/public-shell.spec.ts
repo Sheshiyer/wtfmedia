@@ -5,7 +5,7 @@ import AxeBuilder from "@axe-core/playwright";
  * Plan 01-12 Task 3: Public shell route-matrix journey.
  *
  * Verifies the migrated PublicShell across all public routes at 320/768/1440:
- * - Shell structure (skip link, main target, dock/controls, scope marker)
+ * - Shell structure (skip link, main target, rail/drawer, scope marker)
  * - Keyboard tab order and skip-to-main flow
  * - aria-current on active route
  * - focus-visible indicators
@@ -48,18 +48,14 @@ test.describe("Public shell journey", () => {
         await expect(main).toBeAttached();
         await expect(main).toHaveAttribute("tabindex", "-1");
 
-        // Desktop dock navigation is present; compact screens use one controls trigger.
+        // Primary nav present
         const nav = page.locator('nav[aria-label="Application"]');
-        if (vp.width >= 1024) {
-          await expect(nav).toBeVisible();
-        }
+        await expect(nav).toBeAttached();
 
         // Every active application route presents a workspace header.
         await expect(page.locator("[data-workspace-header]")).toBeVisible();
 
-        if (vp.width < 1024) {
-          await expect(page.getByRole("button", { name: "controls", exact: true })).toBeVisible();
-        }
+        await expect(page.getByRole("button", { name: "open navigation", exact: true })).toHaveCount(0);
       });
     }
   }
@@ -81,13 +77,21 @@ test.describe("Public shell journey", () => {
     await expect(main).toBeAttached();
   });
 
-  test("keyboard tab order reaches dock links", async ({ page }) => {
-    test.skip((page.viewportSize()?.width ?? 1440) < 1024, "Desktop dock is persistent from 1024px.");
+  test("keyboard tab order reaches nav links", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    const firstLink = page.locator('nav[aria-label="Application"] a').first();
-    await firstLink.focus();
-    await expect(firstLink).toBeFocused();
+    // Tab order: skip link -> bottom-pill wordmark -> first workspace link.
+    await page.keyboard.press("Tab"); // skip link
+    await page.keyboard.press("Tab"); // WordmarkMini home link
+    await page.keyboard.press("Tab"); // first nav link
+
+    const focused = page.locator(":focus");
+    const tag = await focused.evaluate((el) => el.tagName.toLowerCase());
+    expect(tag).toBe("a");
+
+    // Should be within the nav
+    const inNav = await page.locator('nav[aria-label="Application"] :focus').count();
+    expect(inNav).toBeGreaterThan(0);
   });
 
   for (const route of ROUTES) {
@@ -111,11 +115,14 @@ test.describe("Public shell journey", () => {
   }
 
   test("focus-visible indicators on nav links", async ({ page }) => {
-    test.skip((page.viewportSize()?.width ?? 1440) < 1024, "Desktop dock focus is persistent from 1024px.");
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    const focused = page.locator('nav[aria-label="Application"] a').first();
-    await focused.focus();
+    // Tab to a nav link
+    await page.keyboard.press("Tab"); // skip link
+    await page.keyboard.press("Tab"); // wordmark
+    await page.keyboard.press("Tab"); // first nav link
+
+    const focused = page.locator(":focus");
     const boxShadow = await focused.evaluate(
       (el) => window.getComputedStyle(el).boxShadow
     );
@@ -199,10 +206,8 @@ test.describe("Public shell journey", () => {
     const wtfos = page.locator('[data-wtf-shell="wtfos"]');
     await expect(wtfos).toBeAttached();
 
-    if ((page.viewportSize()?.width ?? 1024) < 1024) {
-      await expect(page.getByRole("button", { name: "controls", exact: true })).toBeVisible();
-      return;
-    }
-    await expect(page.getByTestId("app-dock")).toBeVisible();
+    // The rail uses the converged control-room wordmark link.
+    const wordmark = page.locator('a[aria-label="WTF OS"]');
+    await expect(wordmark).toBeAttached();
   });
 });

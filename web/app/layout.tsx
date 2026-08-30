@@ -5,7 +5,6 @@ import { appUiVariant, themeForAppUiVariant } from "@/lib/public/public-ui-varia
 import { LegacyPublicShell } from "@/components/legacy/public/LegacyPublicShell";
 import { PublicShell } from "@/components/patterns/PublicShell";
 import { WtfOsBoot } from "@/components/patterns/brand/WtfOsBoot";
-import { AppearanceProvider } from "@/components/shells/AppearanceProvider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -46,11 +45,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       data-wtf-theme={themeForAppUiVariant(variant)}
     >
       <body className="min-h-screen flex flex-col overflow-x-hidden">
-        {variant === "wtfos" ? (
-          <AppearanceProvider>
-            {isOperatorRoute ? children : <><WtfOsBoot /><Shell>{children}</Shell></>}
-          </AppearanceProvider>
-        ) : isOperatorRoute ? children : <Shell>{children}</Shell>}
+        {isOperatorRoute ? (
+          children
+        ) : (
+          <>
+            {variant === "wtfos" && <WtfOsBoot />}
+            <Shell>{children}</Shell>
+          </>
+        )}
       </body>
     </html>
   );
