@@ -18,7 +18,7 @@ export type PublicChatSource = {
 
 export const PUBLIC_CHAT_SOURCE_FIELDS = ["n", "video_id", "title", "score", "t", "time", "url"] as const;
 
-export const PROTECTED_PUBLIC_ROUTES = ["/", "/episodes", "/connections", "/chat", "/api/chat"] as const;
+export const PROTECTED_PUBLIC_ROUTES = ["/", "/production", "/settings", "/episodes", "/connections", "/chat", "/api/chat"] as const;
 
 export const CHAT_QUERY_AUTOSUBMIT_EXAMPLES = [
   "/chat?q=What%20did%20they%20say%20about%20founders%3F",

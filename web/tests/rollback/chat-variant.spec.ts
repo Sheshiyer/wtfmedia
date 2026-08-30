@@ -44,9 +44,9 @@ test.describe("/chat rollback proof", () => {
     const submitButton = page.locator('button[type="submit"]');
     await expect(submitButton).toHaveText("ask wtf");
 
-    // Textarea placeholder says "ask the catalogue"
+    // Textarea placeholder asks for a moment, not a restated label.
     const textarea = page.locator("textarea");
-    await expect(textarea).toHaveAttribute("placeholder", "ask the catalogue");
+    await expect(textarea).toHaveAttribute("placeholder", "what moment are you after?");
 
     // Conversation thread is present
     const thread = page.locator('[data-testid="conversation-thread"]');

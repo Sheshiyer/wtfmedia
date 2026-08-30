@@ -16,12 +16,12 @@ export const EditorProjection: Story = {
     if (copy.includes("audit ledger")) {
       throw new Error("Editor status projection must not reveal Audit");
     }
-    if (canvasElement.querySelectorAll('[data-state="not-activated"]').length !== 4) {
+    if (canvasElement.querySelectorAll('[data-state="not-activated"]').length !== 3) {
       throw new Error("Future workflow modules must be individually named");
     }
     const promoted = canvasElement.querySelector('[data-promoted="true"]');
-    if (promoted?.textContent?.toLowerCase().includes("ask wtf") !== true) {
-      throw new Error("Editor next action must promote ask wtf");
+    if (promoted?.textContent?.toLowerCase().includes("production") !== true) {
+      throw new Error("Editor next action must promote production");
     }
   },
 };
@@ -29,12 +29,12 @@ export const EditorProjection: Story = {
 export const AdminProjection: Story = {
   args: { role: "admin" },
   play: async ({ canvasElement }) => {
-    if (!(canvasElement.textContent ?? "").includes("audit ledger")) {
+    if (!(canvasElement.textContent ?? "").includes("audit")) {
       throw new Error("Authorized administration projection must include Audit");
     }
     const promoted = canvasElement.querySelector('[data-promoted="true"]');
-    if (promoted?.textContent?.toLowerCase().includes("operator access") !== true) {
-      throw new Error("Admin next action must promote operator access");
+    if (promoted?.textContent?.toLowerCase().includes("production") !== true) {
+      throw new Error("Admin next action must promote production");
     }
   },
 };
@@ -43,8 +43,8 @@ export const SuperAdminProjection: Story = {
   args: { role: "super_admin" },
   play: async ({ canvasElement }) => {
     const promoted = canvasElement.querySelector('[data-promoted="true"]');
-    if (promoted?.textContent?.toLowerCase().includes("operator access") !== true) {
-      throw new Error("Super-admin next action must promote operator access");
+    if (promoted?.textContent?.toLowerCase().includes("production") !== true) {
+      throw new Error("Super-admin next action must promote production");
     }
   },
 };

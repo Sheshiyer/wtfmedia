@@ -2,65 +2,24 @@ import Image from "next/image";
 import Link from "next/link";
 import { data, thumbnailUrl } from "@/lib/episodes";
 import { LinkButton } from "@/components/ui/LinkButton";
-import { StatusLedger } from "@/components/patterns/StatusLedger";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
-
-const workspaceItems = [
-  {
-    label: "episodes",
-    state: "active" as const,
-    detail: "browse the current public episode projection and open its source material.",
-    href: "/episodes",
-  },
-  {
-    label: "connections",
-    state: "active" as const,
-    detail: "inspect recurring themes and ideas across the published conversations.",
-    href: "/connections",
-  },
-  {
-    label: "ask wtf",
-    state: "active" as const,
-    detail: "ask the catalogue and keep quoted evidence beside the answer.",
-    href: "/chat",
-  },
-  {
-    label: "production",
-    state: "not-activated" as const,
-    detail: "the production board and calendar are not activated in this release.",
-  },
-  {
-    label: "analytics",
-    state: "not-activated" as const,
-    detail: "platform reporting is not activated; no performance values are inferred.",
-  },
-  {
-    label: "people",
-    state: "not-activated" as const,
-    detail: "guest and relationship operations are not activated in this release.",
-  },
-  {
-    label: "integrations",
-    state: "not-activated" as const,
-    detail: "integration health is not observed from the public application.",
-  },
-];
 
 export function MigratedHomePage() {
   const episodeCount = data.entry_count;
   const showCount = new Set(data.entries.map((entry) => entry.playlist_title)).size;
-  const recentEpisodes = data.entries.slice(0, 3);
+  const spotlight = data.entries[0];
+  const recentEpisodes = data.entries.slice(1, 5);
 
   return (
     <div className="min-h-screen bg-canvas">
       <WorkspaceHeader
-        eyebrow="run the show from the source"
-        title="control room"
-        summary="one brain for the catalogue, its recurring ideas, and source-backed answers. receipts stay visible before they become actions."
+        eyebrow="public room"
+        title="the room"
+        summary="ask the catalogue, get the moment. published conversations, recurring ideas, and source-backed answers live here."
         accent="attention"
         context={
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
-            <span>public workspace</span>
+            <span>public room</span>
             <span>{episodeCount} indexed episodes</span>
             <span>{showCount} catalogue shows</span>
             <span>source timing only when verified</span>
@@ -78,47 +37,51 @@ export function MigratedHomePage() {
         }
       />
 
-      <div className="mx-auto grid max-w-[var(--wtf-content-max)] gap-8 px-4 py-8 sm:px-8 xl:grid-cols-[minmax(0,1.65fr)_minmax(18rem,0.75fr)] xl:px-12 xl:py-12">
-        <StatusLedger
-          title="workspace state"
-          eyebrow="now / next"
-          items={workspaceItems}
-        />
-
-        <aside className="border-2 border-foreground bg-surface-structure p-6 text-on-structure xl:sticky xl:top-8 xl:self-start">
-          <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-attention">
-            evidence receipt
-          </p>
-          <h2 className="mt-3 font-display text-4xl font-extrabold lowercase leading-none">
-            receipts become actions.
-          </h2>
-          <p className="mt-5 font-body text-sm leading-relaxed text-on-structure/70">
-            Ask WTF keeps source episodes beside the answer. A timestamp appears
-            only when the underlying source timing is verified; an unknown stays
-            unknown.
-          </p>
-          <dl className="mt-8 divide-y divide-foreground/20 border-y border-foreground/20 font-label text-sm">
-            <div className="flex items-center justify-between gap-4 py-3">
-              <dt className="text-on-structure/55">catalogue scope</dt>
-              <dd className="font-bold">{episodeCount} episodes</dd>
+      {spotlight && (
+        <section
+          data-testid="source-spotlight"
+          className="border-b-2 border-foreground bg-surface-structure px-4 py-8 text-on-structure sm:px-8 xl:px-12 xl:py-12"
+        >
+          <div className="mx-auto grid max-w-[var(--wtf-content-max)] gap-0 border-2 border-foreground bg-surface-raised text-foreground shadow-[6px_6px_0_var(--wtf-foreground)] lg:grid-cols-[minmax(0,1.2fr)_minmax(19rem,0.8fr)]">
+            <div className="relative min-h-72 overflow-hidden border-b-2 border-foreground bg-surface-structure lg:min-h-[30rem] lg:border-b-0 lg:border-r-2">
+              <Image
+                src={thumbnailUrl(spotlight.video_id)}
+                alt=""
+                fill
+                priority
+                sizes="(min-width: 1024px) 62vw, 100vw"
+                className="object-cover grayscale"
+                unoptimized
+              />
+              <span className="absolute left-4 top-4 border-2 border-foreground bg-attention px-2 py-1 font-label text-[11px] font-bold uppercase tracking-[0.1em] text-on-attention">
+                source spotlight
+              </span>
             </div>
-            <div className="flex items-center justify-between gap-4 py-3">
-              <dt className="text-on-structure/55">answer mode</dt>
-              <dd className="font-bold">source-backed</dd>
+            <div className="flex flex-col justify-between gap-8 p-6 sm:p-8">
+              <div>
+                <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-muted">from the catalogue</p>
+                <h2 className="mt-3 font-display text-4xl font-extrabold lowercase leading-[0.9] tracking-[-0.04em] sm:text-5xl">
+                  {spotlight.title}
+                </h2>
+                <p className="mt-5 max-w-[46ch] font-body text-base leading-relaxed text-secondary">
+                  Start from a public episode record, follow the source material, then ask the catalogue without losing the evidence trail.
+                </p>
+              </div>
+              <div className="border-t-2 border-foreground/20 pt-5">
+                <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
+                  published source · {spotlight.playlist_title ?? "catalogue"}
+                </p>
+                <Link
+                  href={`/episodes?episode=${encodeURIComponent(spotlight.video_id)}`}
+                  className="mt-4 inline-flex min-h-11 items-center border-b-2 border-attention font-label text-sm font-bold lowercase text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information"
+                >
+                  open source receipt ↗
+                </Link>
+              </div>
             </div>
-            <div className="flex items-center justify-between gap-4 py-3">
-              <dt className="text-on-structure/55">missing evidence</dt>
-              <dd className="font-bold">shown plainly</dd>
-            </div>
-          </dl>
-          <Link
-            href="/connections"
-            className="mt-6 inline-flex min-h-11 items-center border-b-2 border-attention font-label text-sm font-bold lowercase text-on-structure focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
-          >
-            inspect recurring ideas ↗
-          </Link>
-        </aside>
-      </div>
+          </div>
+        </section>
+      )}
 
       <section className="border-y-2 border-foreground bg-surface-subtle px-4 py-10 sm:px-8 xl:px-12">
         <div className="mx-auto max-w-[var(--wtf-content-max)]">
@@ -128,7 +91,7 @@ export function MigratedHomePage() {
                 source material
               </p>
               <h2 className="mt-1 font-display text-3xl font-extrabold lowercase sm:text-4xl">
-                conversations in the room
+                source rail
               </h2>
             </div>
             <Link
@@ -139,7 +102,7 @@ export function MigratedHomePage() {
             </Link>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
             {recentEpisodes.map((episode, index) => (
               <Link
                 key={episode.video_id}

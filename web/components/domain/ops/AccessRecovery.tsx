@@ -14,32 +14,38 @@ const content: Record<
 > = {
   reauthenticate: {
     eyebrow: "sign in",
-    heading: "let’s verify your access",
-    body: "protected workspace data has been cleared. sign in again to continue.",
-    primary: "sign in again",
-    primaryHref: "returnTo",
+    heading: "sign-in is not in this release",
+    body: "this url is open for viewing and production records. seats, access gates, and sign-in arrive next. no account was created.",
+    primary: "open wtf os",
+    primaryHref: "/",
   },
   unavailable: {
     eyebrow: "access",
-    heading: "operator access unavailable",
-    body: "we could not open the operator workspace. contact the owner if you believe you should have access.",
+    heading: "operations unavailable",
+    body: "the operator room could not be opened. the public rooms still work.",
+    primary: "open wtf os",
+    primaryHref: "/",
   },
   "verification-unavailable": {
     eyebrow: "access",
-    heading: "verification unavailable",
-    body: "we could not safely verify operator access. no protected workspace data was loaded.",
+    heading: "could not verify this session",
+    body: "no operator data was loaded. this release is not access-gated.",
     primary: "try again",
     primaryHref: "returnTo",
   },
   "signing-out": {
     eyebrow: "sign out",
     heading: "signing out",
-    body: "protected workspace data has been cleared.",
+    body: "local operator state was cleared.",
+    primary: "open wtf os",
+    primaryHref: "/",
   },
   "request-access": {
-    eyebrow: "request a seat",
-    heading: "need a seat?",
-    body: "seats are approved by the owner. this screen does not create an account or accept a password.",
+    eyebrow: "seats",
+    heading: "seats are not open yet",
+    body: "owner-approved seats and access gates are next release. this screen does not take a request or a password.",
+    primary: "open wtf os",
+    primaryHref: "/",
   },
 };
 
@@ -90,17 +96,12 @@ export function AccessRecovery({
               {state.primary}
             </Link>
           )}
-          <Link href="/" className={`${control} bg-canvas`}>
-            return to the catalogue
-          </Link>
-        </div>
-        {mode === "reauthenticate" && (
-          <p className="mt-6 font-body text-sm text-secondary">
-            <Link href="/request-access" className="underline decoration-2 underline-offset-4">
-              need a seat?
+          {primaryHref !== "/" && (
+            <Link href="/" className={`${control} bg-canvas`}>
+              open wtf os
             </Link>
-          </p>
-        )}
+          )}
+        </div>
       </section>
     </main>
   );

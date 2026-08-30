@@ -5,6 +5,7 @@ import { appUiVariant, themeForAppUiVariant } from "@/lib/public/public-ui-varia
 import { LegacyPublicShell } from "@/components/legacy/public/LegacyPublicShell";
 import { PublicShell } from "@/components/patterns/PublicShell";
 import { WtfOsBoot } from "@/components/patterns/brand/WtfOsBoot";
+import { AppearanceProvider } from "@/components/shells/AppearanceProvider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -12,21 +13,21 @@ export const metadata: Metadata = {
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000"
   ),
-  title: "wtfmedia · the catalogue, with a memory",
+  title: "wtf os · ask the catalogue, get the moment",
   description:
-    "The internal media workspace for the WTF catalogue. Ask anything across 55 conversations and get answers in the guest's own words, cited to the second.",
+    "ask the WTF catalogue. answers come with sources. a timestamp only when the mapping is verified.",
   openGraph: {
-    title: "wtfmedia · the catalogue, with a memory",
+    title: "wtf os",
     description:
-      "Ask the WTF catalogue anything. Cited, timestamped answers across 55 episodes. Built by spaceblanket.ai.",
+      "ask the catalogue and get the moment. published and uncut stay distinct. built by spaceblanket.ai.",
     images: ["/brand/og-image.png"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "wtfmedia",
+    title: "wtf os",
     description:
-      "Ask the WTF catalogue anything. Cited, timestamped. Built by spaceblanket.ai.",
+      "ask the catalogue. sources beside the answer. timestamps only when verified.",
     images: ["/brand/og-image.png"],
   },
 };
@@ -45,14 +46,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       data-wtf-theme={themeForAppUiVariant(variant)}
     >
       <body className="min-h-screen flex flex-col overflow-x-hidden">
-        {isOperatorRoute ? (
-          children
-        ) : (
-          <>
-            {variant === "wtfos" && <WtfOsBoot />}
-            <Shell>{children}</Shell>
-          </>
-        )}
+        {variant === "wtfos" ? (
+          <AppearanceProvider>
+            {isOperatorRoute ? children : <><WtfOsBoot /><Shell>{children}</Shell></>}
+          </AppearanceProvider>
+        ) : isOperatorRoute ? children : <Shell>{children}</Shell>}
       </body>
     </html>
   );

@@ -2,7 +2,14 @@ import "server-only";
 
 export const opsRoles = ["super_admin", "admin", "editor"] as const;
 export type OpsRole = typeof opsRoles[number];
-export const opsDestinations = ["/ops", "/ops/production", "/ops/operators", "/ops/audit"] as const;
+export const opsDestinations = [
+  "/ops",
+  "/ops/production",
+  "/ops/episodes",
+  "/ops/ingest",
+  "/ops/operators",
+  "/ops/audit",
+] as const;
 export type OpsDestination = typeof opsDestinations[number];
 
 const grants: Record<OpsRole, ReadonlySet<OpsDestination>> = {
@@ -24,6 +31,8 @@ export function activatedOpsNavigation(role: unknown): Array<{ label: string; hr
   return [
     { label: "Control Room", href: "/ops" },
     ...(canAccessOpsPath(role, "/ops/production") ? [{ label: "Production", href: "/ops/production" as const }] : []),
+    ...(canAccessOpsPath(role, "/ops/episodes") ? [{ label: "Episodes", href: "/ops/episodes" as const }] : []),
+    ...(canAccessOpsPath(role, "/ops/ingest") ? [{ label: "Ingest", href: "/ops/ingest" as const }] : []),
     ...(canAccessOpsPath(role, "/ops/operators") ? [{ label: "Operators", href: "/ops/operators" as const }] : []),
     ...(canAccessOpsPath(role, "/ops/audit") ? [{ label: "Audit", href: "/ops/audit" as const }] : []),
   ];

@@ -81,13 +81,13 @@ test.describe("WTF OS system theme journeys", () => {
       await useSystemTheme(page, theme);
 
       for (const [path, heading] of [
-        ["/", "control room"],
+        ["/", "the room"],
         ["/episodes", "episodes"],
         ["/connections", "connections"],
         ["/chat", "ask wtf"],
       ] as const) {
         await page.goto(path, { waitUntil: "domcontentloaded" });
-        await expect(page.getByRole("heading", { name: heading }).first()).toBeVisible();
+        await expect(page.getByRole("heading", { name: heading, exact: true }).first()).toBeVisible();
         await expectSystemTheme(page, theme);
       }
     });
@@ -96,9 +96,9 @@ test.describe("WTF OS system theme journeys", () => {
       await useSystemTheme(page, theme);
 
       for (const [path, heading] of [
-        ["/sign-in", "let’s verify your access"],
-        ["/request-access", "need a seat?"],
-        ["/ops/recover?mode=unavailable", "operator access unavailable"],
+        ["/sign-in", "sign-in is not in this release"],
+        ["/request-access", "seats are not open yet"],
+        ["/ops/recover?mode=unavailable", "operations unavailable"],
       ] as const) {
         await page.goto(path, { waitUntil: "domcontentloaded" });
         await expect(page.getByRole("heading", { name: heading })).toBeVisible();

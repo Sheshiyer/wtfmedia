@@ -43,7 +43,7 @@ export function OperatorContextStrip({ context }: { context: OperatorContextDto 
   return (
     <dl
       data-ops-context-strip
-      aria-label="verified operator context"
+      aria-label="operator context"
       className="border-b-2 border-foreground bg-canvas"
     >
       <div className="mx-auto flex max-w-[var(--wtf-content-max)] flex-col gap-3 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-y-3 sm:px-8 xl:px-12">

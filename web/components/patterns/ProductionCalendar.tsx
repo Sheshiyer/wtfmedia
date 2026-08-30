@@ -8,6 +8,7 @@ import {
   type MonthCell,
   type ProductionPin,
 } from "@/lib/ops/production";
+import { PostIt } from "@/components/patterns/PostIt";
 
 type ProductionCalendarProps = {
   year: number;
@@ -16,6 +17,9 @@ type ProductionCalendarProps = {
   pins: readonly ProductionPin[];
   onSelect: (iso: string) => void;
   onShift: (delta: number) => void;
+  selectedPinId?: string;
+  onSelectPin?: (id: string) => void;
+  onMovePin?: (id: string, day: string) => void;
 };
 
 function pinsForDay(pins: readonly ProductionPin[], iso: string) {
@@ -29,6 +33,9 @@ export function ProductionCalendar({
   pins,
   onSelect,
   onShift,
+  selectedPinId,
+  onSelectPin,
+  onMovePin,
 }: ProductionCalendarProps) {
   const cells = monthGrid(year, month);
 
@@ -63,6 +70,9 @@ export function ProductionCalendar({
             selected={selected === cell.iso}
             pins={pinsForDay(pins, cell.iso)}
             onSelect={onSelect}
+            selectedPinId={selectedPinId}
+            onSelectPin={onSelectPin}
+            onMovePin={onMovePin}
           />
         ))}
       </div>
@@ -75,36 +85,57 @@ function CalendarDay({
   selected,
   pins,
   onSelect,
+  selectedPinId,
+  onSelectPin,
+  onMovePin,
 }: {
   cell: MonthCell;
   selected: boolean;
   pins: readonly ProductionPin[];
   onSelect: (iso: string) => void;
+  selectedPinId?: string;
+  onSelectPin?: (id: string) => void;
+  onMovePin?: (id: string, day: string) => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={() => onSelect(cell.iso)}
-      aria-pressed={selected}
-      aria-label={`${cell.iso}${pins.length ? `, ${pins.length} sketches` : ""}`}
+    <div
+      data-calendar-day={cell.iso}
+      onDragOver={(event) => event.preventDefault()}
+      onDrop={(event) => {
+        event.preventDefault();
+        const pinId = event.dataTransfer.getData("text/plain");
+        if (pinId) onMovePin?.(pinId, cell.iso);
+      }}
       className={[
         "min-h-[5.5rem] min-w-0 border-b border-r border-foreground/30 p-2 text-left",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention",
         cell.inMonth ? "bg-canvas" : "bg-surface-subtle text-muted",
         selected ? "bg-attention/30" : "",
       ].join(" ")}
     >
-      <span className="font-label text-[11px] font-semibold tabular-nums">{cell.day}</span>
-      <span className="mt-2 flex flex-col gap-1">
+      <button
+        type="button"
+        onClick={() => onSelect(cell.iso)}
+        aria-pressed={selected}
+        aria-label={`${cell.iso}${pins.length ? `, ${pins.length} sketches` : ""}`}
+        className="font-label text-[11px] font-semibold tabular-nums focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
+      >
+        {cell.day}
+      </button>
+      <div className="mt-2 flex flex-col gap-1">
         {pins.map((pin) => (
-          <span
+          <PostIt
             key={pin.id}
-            className="block truncate border border-foreground bg-attention px-1 font-label text-[11px] text-on-attention"
-          >
-            {pin.note}
-          </span>
+            pin={pin}
+            compact
+            selected={selectedPinId === pin.id}
+            onSelect={onSelectPin}
+            onDragStart={(event, id) => {
+              event.dataTransfer.effectAllowed = "move";
+              event.dataTransfer.setData("text/plain", id);
+            }}
+          />
         ))}
-      </span>
-    </button>
+      </div>
+    </div>
   );
 }

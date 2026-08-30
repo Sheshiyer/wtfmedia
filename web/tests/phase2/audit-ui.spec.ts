@@ -17,7 +17,7 @@ test("ledger renders only its allowlisted envelope", async ({ page }) => {
 
 test("denied roles receive recovery without audit chrome", async ({ page }) => {
   await authenticate(page, "editor"); await page.goto("/ops/audit", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: "let’s verify your access" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "sign-in is not in this release" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "audit" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "export audit records" })).toHaveCount(0);
 });

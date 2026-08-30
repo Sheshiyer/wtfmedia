@@ -37,7 +37,7 @@ export function OperatorRoster({
         <h2 id="operator-roster-title" className="font-heading text-[23px] font-bold lowercase leading-[1.2]">
           operator roster
         </h2>
-        <p className="mt-3 font-body text-body">checking the protected operator service…</p>
+        <p className="mt-3 font-body text-body">loading operator roster</p>
       </section>
     );
   }

@@ -14,9 +14,9 @@ export default async function OperatorsPage() {
     <div id="ops-main">
       <WorkspaceHeader
         size="page"
-        eyebrow="access boundary"
+        eyebrow="seats"
         title="operators"
-        summary="manage approved operator access through the protected operator service."
+        summary="seats and access gates are not in this release. this roster is not a live gate."
         accent="attention"
       />
       <div className="mx-auto max-w-[var(--wtf-content-max)] px-4 py-8 sm:px-8 xl:px-12">
