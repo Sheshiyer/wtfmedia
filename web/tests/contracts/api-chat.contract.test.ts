@@ -154,8 +154,12 @@ describe("POST /api/chat — server-only edge authentication", () => {
 
   it("forwards an explicit uncut sourceMode without converting published times", async () => {
     const { POST } = await importRoute();
-    await POST(chatRequest({ messages: [userMessage("hello")], sourceMode: "uncut" }));
+    const res = await POST(chatRequest({ messages: [userMessage("hello")], sourceMode: "uncut" }));
     expect(stub.requestLog[0].sourceMode).toBe("uncut");
+    expect(res.headers.get("X-Source-Mode")).toBe("published");
+    expect(res.headers.get("X-Uncut-Unavailable")).toBe("true");
+    const sources = JSON.parse(decodeURIComponent(res.headers.get("X-Sources")!));
+    expect(sources.every((source: { source_mode: string }) => source.source_mode === "published")).toBe(true);
   });
 
   it("uses the Cloudflare service binding and forwarding-safe client IP in production", async () => {
@@ -205,6 +209,7 @@ describe("POST /api/chat — successful upstream answer", () => {
     expect(await res.text()).toBe("Grounded answer text.");
 
     expect(res.headers.get("X-Source-Mode")).toBe("published");
+    expect(res.headers.get("X-Uncut-Unavailable")).toBe("false");
     const sources = JSON.parse(decodeURIComponent(res.headers.get("X-Sources")!));
     expect(sources).toEqual([
       { n: 1, video_id: "RSB58m7Xwhg", title: "Public Episode One", score: 0.91, t: 125, time: "02:05", url: "https://www.youtube.com/watch?v=RSB58m7Xwhg", source_mode: "published", mapping_status: "mapped", segment_id: null },

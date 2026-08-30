@@ -96,8 +96,15 @@ export function startRagStub(options = {}) {
           return;
         }
         default: {
+          const uncutRequested = sourceMode === "uncut";
           res.writeHead(200, { "Content-Type": "application/json" }).end(
-            JSON.stringify({ answer: "Grounded answer text.", grounded: true, sources: groundedSources() })
+            JSON.stringify({
+              answer: "Grounded answer text.",
+              grounded: true,
+              sources: groundedSources(),
+              sourceMode: "published",
+              uncutUnavailable: uncutRequested,
+            })
           );
         }
       }

@@ -34,6 +34,7 @@ type EdgeAnswer = {
   sources?: EdgeSource[];
   grounded?: boolean;
   sourceMode?: SourceMode;
+  uncutUnavailable?: boolean;
   error?: string;
 };
 
@@ -100,6 +101,7 @@ export async function POST(req: NextRequest) {
       "Content-Type": "text/plain; charset=utf-8",
       "X-Sources": encodeURIComponent(sourceHeader(sources, responseMode)),
       "X-Source-Mode": responseMode,
+      "X-Uncut-Unavailable": result.uncutUnavailable ? "true" : "false",
       "X-Model": "cloudflare/llama-3.3-70b-instruct",
       "X-Fallback": result.grounded ? "false" : "true",
       "Cache-Control": "no-store",

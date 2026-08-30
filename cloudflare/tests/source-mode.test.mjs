@@ -5,6 +5,7 @@ import {
   filterAndProjectMatches,
   parseSourceMode,
   projectDualSourceCitation,
+  resolveRequestedSources,
   storedSourceMode,
 } from "../src/chat/source-mode.ts";
 
@@ -84,5 +85,39 @@ describe("dual-source chat contract", () => {
     assert.equal(citation?.start, null);
     assert.equal(citation?.timestamped, false);
     assert.equal(citation?.mappingStatus, "unavailable");
+  });
+
+  test("uncut with no uncut corpus uses published YouTube and does not relabel it", () => {
+    const matches = [
+      {
+        id: "pub-a",
+        score: 0.92,
+        metadata: {
+          video_id: "abcdefghijk",
+          title: "Published episode A",
+          start: 12,
+          timestamped: true,
+          source: "https://www.youtube.com/watch?v=abcdefghijk",
+        },
+      },
+      {
+        id: "pub-b",
+        score: 0.81,
+        metadata: {
+          video_id: "lmnopqrstuv",
+          title: "Published episode B",
+          start: 40,
+          timestamped: true,
+          source: "https://www.youtube.com/watch?v=lmnopqrstuv",
+        },
+      },
+    ];
+    const resolved = resolveRequestedSources(matches, "uncut", 0.45);
+    assert.equal(resolved.sourceMode, "published");
+    assert.equal(resolved.uncutUnavailable, true);
+    assert.equal(resolved.citations.length, 2);
+    assert.equal(resolved.citations[0].sourceMode, "published");
+    assert.equal(resolved.citations[0].start, 12);
+    assert.equal(resolved.citations[1].sourceMode, "published");
   });
 });

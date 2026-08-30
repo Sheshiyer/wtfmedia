@@ -87,7 +87,7 @@ export function AskComposer({
               ))}
             </div>
             <span id="ask-wtf-composer-help" className="font-label text-[11px] font-semibold uppercase tracking-[0.1em] text-muted sm:text-right">
-              enter to ask · shift + enter for a new line
+              youtube published · uncut only when mapped
             </span>
           </div>
         </div>

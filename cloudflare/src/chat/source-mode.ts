@@ -114,3 +114,33 @@ export function filterAndProjectMatches(
 
   return citations;
 }
+
+export type ResolvedChatSources = {
+  citations: DualSourceCitation[];
+  sourceMode: SourceMode;
+  uncutUnavailable: boolean;
+};
+
+/**
+ * Prefer the requested mode. If uncut has no corpus, use published YouTube
+ * and name it published. Never relabel a published timestamp as uncut.
+ */
+export function resolveRequestedSources(
+  matches: readonly VectorMatchLike[],
+  requested: SourceMode,
+  minScore: number,
+  limit = 6,
+): ResolvedChatSources {
+  const requestedHits = filterAndProjectMatches(matches, requested, minScore, limit);
+  if (requested !== "uncut") {
+    return { citations: requestedHits, sourceMode: "published", uncutUnavailable: false };
+  }
+  if (requestedHits.length >= 2) {
+    return { citations: requestedHits, sourceMode: "uncut", uncutUnavailable: false };
+  }
+  const publishedHits = filterAndProjectMatches(matches, "published", minScore, limit);
+  if (publishedHits.length >= 2) {
+    return { citations: publishedHits, sourceMode: "published", uncutUnavailable: true };
+  }
+  return { citations: requestedHits, sourceMode: "uncut", uncutUnavailable: true };
+}

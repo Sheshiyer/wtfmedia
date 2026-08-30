@@ -1,5 +1,15 @@
 # Project handoff
 
+## 2026-08-30 Ask WTF uncut falls back to published YouTube
+
+**Status:** TARGET PREVIEW UPDATED — the music question on uncut no longer
+dead-ends. Uncut still has no corpus, so chat answers from published YouTube
+and names it published. No timestamp is converted to uncut. Secrets not
+rotated. No DNS/cutover.
+
+Live: same question grounded in both modes; uncut sets `X-Uncut-Unavailable:
+true` and `X-Source-Mode: published` with six published sources.
+
 ## 2026-08-30 P0 dual-source Ask WTF joined to target preview
 
 **Status:** TARGET PREVIEW UPDATED — dual-source `sourceMode` and the

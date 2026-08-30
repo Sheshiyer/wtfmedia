@@ -15,7 +15,7 @@ import {
 } from "./db";
 import { handleOpsRequest, type OpsEnv } from "./ops-router";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar";
-import { filterAndProjectMatches, parseSourceMode } from "./chat/source-mode";
+import { parseSourceMode, resolveRequestedSources } from "./chat/source-mode";
 
 export interface Env extends OpsEnv {
   AI: any;
@@ -208,6 +208,7 @@ async function chat(request: Request, env: Env) {
       sources: [],
       grounded: false,
       sourceMode,
+      uncutUnavailable: false,
     });
   }
   try {
@@ -215,19 +216,20 @@ async function chat(request: Request, env: Env) {
       topK: 12,
       returnMetadata: "all",
     });
-    const projected = filterAndProjectMatches(matches.matches ?? [], sourceMode, MIN_SCORE, 6);
-    const sources = projected.map((source) => {
+    const resolved = resolveRequestedSources(matches.matches ?? [], sourceMode, MIN_SCORE, 6);
+    const sources = resolved.citations.map((source) => {
       const match = (matches.matches ?? []).find((item: { metadata?: { video_id?: string } }) => item.metadata?.video_id === source.videoId);
       return { ...source, text: match?.metadata?.text };
     });
     if (sources.length < 2) {
       return reply(request, env, {
-        answer: sourceMode === "uncut"
-          ? "uncut evidence is unavailable for this question. no timestamp was inferred from published sources."
+        answer: resolved.uncutUnavailable
+          ? "uncut is not activated and there is not enough published YouTube evidence for this question. no timestamp was inferred."
           : "I don’t have enough relevant evidence in the catalogue to answer that reliably.",
         sources: sources.map(({ text: _text, ...source }) => source),
         grounded: false,
-        sourceMode,
+        sourceMode: resolved.sourceMode,
+        uncutUnavailable: resolved.uncutUnavailable,
       });
     }
     const context = sources.map((source: any) => `[${source.n}] ${source.title}\n${source.text}`).join("\n\n---\n\n");
@@ -248,14 +250,16 @@ async function chat(request: Request, env: Env) {
         answer: "I couldn’t produce a properly cited answer from the retrieved evidence. Please rephrase or try again.",
         sources: sources.map(({ text: _text, ...source }) => source),
         grounded: false,
-        sourceMode,
+        sourceMode: resolved.sourceMode,
+        uncutUnavailable: resolved.uncutUnavailable,
       });
     }
     return reply(request, env, {
       answer,
       sources: sources.map(({ text: _text, ...source }) => source),
       grounded: true,
-      sourceMode,
+      sourceMode: resolved.sourceMode,
+      uncutUnavailable: resolved.uncutUnavailable,
     });
   } catch (error) {
     console.error("wtfmedia chat failed", { message: error instanceof Error ? error.message : "unknown" });

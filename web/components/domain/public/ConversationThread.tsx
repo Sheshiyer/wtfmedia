@@ -26,6 +26,7 @@ export interface Message {
   model?: string;
   fallback?: boolean;
   abstained?: boolean;
+  uncutUnavailable?: boolean;
 }
 
 function linkifyCitations(text: string): React.ReactNode[] {
@@ -172,6 +173,15 @@ export function ConversationThread({
                   <div className="border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary">
                     {linkifyCitations(msg.content)}
                   </div>
+
+                  {msg.uncutUnavailable && (
+                    <p
+                      className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-muted"
+                      data-testid="uncut-unavailable-notice"
+                    >
+                      uncut is not activated. these sources are published youtube. no published time was converted to uncut.
+                    </p>
+                  )}
 
                   {/* Public source citations */}
                   {msg.sources && msg.sources.length > 0 && (

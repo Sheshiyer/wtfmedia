@@ -62,6 +62,7 @@ function ChatInner() {
       const sourcesHeader = response.headers.get("X-Sources");
       const modelHeader = response.headers.get("X-Model");
       const fallbackHeader = response.headers.get("X-Fallback");
+      const uncutUnavailable = response.headers.get("X-Uncut-Unavailable") === "true";
 
       const sources: Source[] = parsePublicSourceHeader(sourcesHeader).map((source) => ({
         ...source,
@@ -83,6 +84,7 @@ function ChatInner() {
             sources,
             model: modelHeader || undefined,
             fallback: fallbackHeader === "true",
+            uncutUnavailable,
           },
         ]);
 
