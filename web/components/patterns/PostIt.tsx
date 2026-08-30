@@ -39,7 +39,7 @@ export function PostIt({
       ) : (
         <>
           <span className="block font-label text-[11px] font-semibold uppercase tracking-[0.08em] opacity-70">
-            {pin.sketch ? `${pin.tone} sketch` : pin.column}
+            {pin.sketch ? "local only · not synced" : pin.column}
           </span>
           <span className="mt-2 block font-body text-sm leading-snug">{pin.note}</span>
           <span className="mt-3 block font-label text-[11px] tabular-nums">{pin.day}</span>

@@ -16,14 +16,7 @@ type AppearanceContextValue = {
 const AppearanceContext = createContext<AppearanceContextValue | null>(null);
 
 function applyAppearancePreference(preference: AppearancePreference) {
-  const root = document.documentElement;
-  // A light-to-dark interpolation can briefly put text and its surface at
-  // nearly the same luminance. Apply a theme as one atomic visual state.
-  root.dataset.wtfThemeChanging = "true";
-  root.dataset.wtfTheme = preference;
-  window.requestAnimationFrame(() => {
-    delete root.dataset.wtfThemeChanging;
-  });
+  document.documentElement.dataset.wtfTheme = preference;
 }
 
 export function AppearanceProvider({ children }: { children: React.ReactNode }) {

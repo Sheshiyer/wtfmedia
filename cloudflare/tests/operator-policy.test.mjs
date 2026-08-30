@@ -24,6 +24,7 @@ test("unknown and tampered policy inputs deny", () => {
   assert.deepEqual(navigationFor("editor"), [
     { label: "Control Room", href: "/ops" },
     { label: "Production", href: "/ops/production" },
+    { label: "Episodes", href: "/ops/episodes" },
   ]);
 });
 

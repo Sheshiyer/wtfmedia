@@ -120,8 +120,8 @@ export function ConversationThread({
                 ask for the moment, not the mythology.
               </h2>
               <p className="mt-5 max-w-[52ch] font-body text-sm leading-relaxed text-secondary">
-                Ask across published conversations. The answer keeps its source
-                receipts nearby and leaves unsupported claims unresolved.
+                ask across published conversations. uncut is used only when a
+                verified mapping exists.
               </p>
               <div className="mt-7 border-l-4 border-knowledge bg-canvas px-4 py-3">
                 <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
@@ -146,8 +146,12 @@ export function ConversationThread({
                   <dd className="mt-1 font-bold">separate from synthesis</dd>
                 </div>
                 <div className="py-3">
-                  <dt className="text-on-structure/55">source timing</dt>
-                  <dd className="mt-1 font-bold">published moments, when supplied</dd>
+                  <dt className="text-on-structure/55">source</dt>
+                  <dd className="mt-1 font-bold">published or uncut, named</dd>
+                </div>
+                <div className="py-3">
+                  <dt className="text-on-structure/55">timing</dt>
+                  <dd className="mt-1 font-bold">only when mapped</dd>
                 </div>
               </dl>
             </aside>

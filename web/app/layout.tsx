@@ -8,21 +8,21 @@ import { WtfOsBoot } from "@/components/patterns/brand/WtfOsBoot";
 import { AppearanceProvider } from "@/components/shells/AppearanceProvider";
 
 const baseMetadata: Metadata = {
-  title: "wtfmedia · the catalogue, with a memory",
+  title: "wtf os · ask the catalogue, get the moment",
   description:
-    "The internal media workspace for the WTF catalogue. Ask anything across 55 conversations and get answers in the guest's own words, cited to the second.",
+    "ask the WTF catalogue. answers come with sources. a timestamp only when the mapping is verified.",
   openGraph: {
-    title: "wtfmedia · the catalogue, with a memory",
+    title: "wtf os",
     description:
-      "Ask the WTF catalogue anything. Cited, timestamped answers across 55 episodes. Built by spaceblanket.ai.",
+      "ask the catalogue and get the moment. published and uncut stay distinct. built by spaceblanket.ai.",
     images: ["/brand/og-image.png"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "wtfmedia",
+    title: "wtf os",
     description:
-      "Ask the WTF catalogue anything. Cited, timestamped. Built by spaceblanket.ai.",
+      "ask the catalogue. sources beside the answer. timestamps only when verified.",
     images: ["/brand/og-image.png"],
   },
 };
@@ -31,9 +31,8 @@ function requestMetadataBase(requestHeaders: Headers): URL | undefined {
   const configuredOrigin = process.env.WTFMEDIA_APP_ORIGIN?.trim();
   if (configuredOrigin) return new URL(configuredOrigin);
 
-  // A Worker preview has no durable custom domain yet. Derive the canonical
-  // metadata origin from Cloudflare's request host rather than falling back to
-  // the retired Vercel deployment or localhost.
+  // A Worker preview has no durable custom domain yet. Derive metadata from
+  // the current request host so preview and custom-domain URLs stay truthful.
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
   if (!host || !/^[a-z0-9.-]+(?::\d+)?$/i.test(host)) return undefined;
   const isLocalhost = host.startsWith("localhost") || host.startsWith("127.");

@@ -36,27 +36,20 @@ test.describe("/ rollback proof", () => {
     await page.goto("/");
     await settle(page);
 
-    // Eyebrow
-    const eyebrow = page.getByText("run the show from the source", { exact: true });
+    const eyebrow = page.getByText(/ask the catalogue, get the moment\./i);
     await expect(eyebrow).toBeVisible();
 
-    // Heading
-    const heading = page.getByRole("heading", { name: "control room" });
+    const heading = page.getByRole("heading", { name: "the room", exact: true });
     await expect(heading).toBeVisible();
 
-    // Primary CTA
     const primaryCta = page.locator('[data-testid="cta-primary"]');
     await expect(primaryCta).toBeVisible();
     await expect(primaryCta).toContainText("ask the catalogue");
     await expect(primaryCta).toHaveAttribute("href", "/chat");
 
-    // Canonical shell and truthful workspace state.
     await expect(page.locator('[data-wtf-shell="wtfos"]')).toBeAttached();
-    await expect(page.locator('[data-state="active"]')).toHaveCount(3);
-    await expect(page.locator('[data-state="not-activated"]')).toHaveCount(4);
-    await expect(
-      page.getByRole("heading", { name: "conversations in the room" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "workspace state", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "source rail", exact: true })).toBeVisible();
   });
 
   test("legacy variant serves / with accepted content", async ({ page }) => {

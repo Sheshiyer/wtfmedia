@@ -1,5 +1,23 @@
 # Project handoff
 
+## 2026-08-30 PR #23 merged baseline accepted for release integration
+
+**Status:** `origin/main` at `e0791f8` is the reviewed UI baseline. The
+`codex/wtfmedia-release-integration` worktree is the owner-confirmed canonical
+integration surface for the target-account Worker and calendar wave.
+
+- PR #23 supplies the public room, unified Settings, compact lists, dock
+  controls, theme repairs, and truthful browser-local production calendar UI.
+- Its recorded local checks passed TypeScript, lint, 49 unit, 101 component,
+  78 contract, 21 accessibility, production build, and 216 responsive browser
+  checks; the Vercel PR preview passed.
+- The existing Phase 2 `jose` failure is an install-state gate: `jose@6.2.10`
+  is declared in `cloudflare/package.json` on the merged baseline and must be
+  installed before the edge suite is used as deployment evidence.
+- This merge receipt alone does not claim a Cloudflare target deployment,
+  secret placement, D1 calendar backend, source quiesce, DNS change, or domain
+  cutover.
+
 ## 2026-08-30 Compact public lists and shared settings UI
 
 **Status:** LOCAL UI INTEGRATION — scoped to `codex/wtfmedia-release-integration`. No D1 record, calendar provider, asset transfer, Cloudflare resource, deployment, DNS record, secret, RBAC policy, or production state was changed.

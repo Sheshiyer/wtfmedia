@@ -13,13 +13,13 @@ export function MigratedHomePage() {
   return (
     <div className="min-h-screen bg-canvas">
       <WorkspaceHeader
-        eyebrow="run the show from the source"
-        title="control room"
-        summary="one brain for the catalogue, its recurring ideas, and source-backed answers. receipts stay visible before they become actions."
+        eyebrow="public room"
+        title="the room"
+        summary="ask the catalogue, get the moment. published conversations, recurring ideas, and source-backed answers live here."
         accent="attention"
         context={
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
-            <span>public workspace</span>
+            <span>public room</span>
             <span>{episodeCount} indexed episodes</span>
             <span>{showCount} catalogue shows</span>
             <span>source timing only when verified</span>

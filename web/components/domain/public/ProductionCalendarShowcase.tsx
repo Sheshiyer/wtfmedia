@@ -6,5 +6,5 @@ import { ProductionWorkspace } from "@/components/domain/ops/ProductionWorkspace
  * schedule, owner, asset, or provider state.
  */
 export function ProductionCalendarShowcase() {
-  return <ProductionWorkspace showcase />;
+  return <ProductionWorkspace />;
 }

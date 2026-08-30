@@ -26,7 +26,7 @@ export function AppearanceControl({ context = "structure" }: { context?: "struct
               aria-pressed={selected}
               onClick={() => setPreference(option)}
               className={[
-                "min-h-10 rounded-control border-2 px-2 font-label text-[11px] font-bold lowercase tracking-wide transition-[background-color,border-color,color,transform] duration-fast ease-out enabled:hover:-translate-y-px enabled:active:translate-y-0",
+                "min-h-10 border-2 px-2 font-label text-[11px] font-bold lowercase tracking-wide",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention focus-visible:ring-offset-2",
                 onStructure ? "focus-visible:ring-offset-surface-structure" : "focus-visible:ring-offset-canvas",
                 selected

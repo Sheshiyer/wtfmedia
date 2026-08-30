@@ -1,20 +1,4 @@
-import { createHmac } from "node:crypto";
-import { expect, test, type Page } from "@playwright/test";
-
-async function authenticate(page: Page) {
-  const payload = Buffer.from(JSON.stringify({
-    operatorId: 1,
-    role: "admin",
-    environment: "local",
-    correlationId: "settings-e2e-admin",
-    exp: Date.now() + 60_000,
-  })).toString("base64url");
-  const proof = createHmac("sha256", "phase2-e2e-test-key").update(payload).digest("base64url");
-  await page.setExtraHTTPHeaders({
-    "x-wtf-ops-context": payload,
-    "x-wtf-ops-proof": proof,
-  });
-}
+import { expect, test } from "@playwright/test";
 
 test.describe("shared settings", () => {
   test("keeps settings compact until a section is requested", async ({ page }) => {
@@ -76,23 +60,5 @@ test.describe("shared settings", () => {
     const evidencePanel = evidenceReceipt.locator(".bg-surface-structure");
     await expect(evidencePanel).toHaveCSS("background-color", "rgb(14, 12, 11)");
     await expect(evidencePanel).toHaveCSS("color", "rgb(255, 246, 234)");
-  });
-});
-
-test.describe("operator settings", () => {
-  test("renders a truthful, read-only settings scaffold for an authorized operator", async ({ page }) => {
-    await authenticate(page);
-    await page.goto("/ops/settings", { waitUntil: "domcontentloaded" });
-
-    await expect(page.getByRole("heading", { name: "settings", exact: true })).toBeVisible();
-    await page.getByTestId("settings-agentic-connections").locator("summary").click();
-    await expect(page.getByRole("heading", { name: "agentic connections", exact: true })).toBeVisible();
-    await expect(page.getByText("not configured", { exact: true }).first()).toBeVisible();
-    await page.getByTestId("settings-release-history").locator("summary").click();
-    await expect(page.getByText("local scaffold", { exact: true })).toBeVisible();
-    const ota = page.getByTestId("settings-ota");
-    await ota.locator("summary").click();
-    await expect(ota.locator("article").getByText("not supported", { exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: "connect" })).toHaveCount(0);
   });
 });

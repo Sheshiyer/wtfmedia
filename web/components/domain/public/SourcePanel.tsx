@@ -10,11 +10,14 @@
 
 import { useId } from "react";
 import Link from "next/link";
-import { resolveCitation } from "@/lib/provenance/catalog-mapping";
-import type { PublicSourceCitation } from "@/lib/provenance/public-source-header";
-import { formatPlaybackTimestamp } from "@/lib/provenance/useDualPlayback";
 
-export type SourceCitation = PublicSourceCitation;
+export type SourceCitation = {
+  episodeId?: string;
+  title?: string;
+  url?: string;
+  videoId?: string;
+  timeSec?: number | null;
+};
 
 export interface SourcePanelProps {
   sources: SourceCitation[];
@@ -26,6 +29,12 @@ function youtubeWatchUrl(videoId: string, timeSec: number | null): string {
   }
   const timestamp = Math.max(0, Math.floor(timeSec));
   return `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&t=${timestamp}s`;
+}
+
+function formatPlaybackTimestamp(timeSec: number): string {
+  const minutes = Math.floor(timeSec / 60);
+  const seconds = Math.floor(timeSec % 60);
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
 export function SourcePanel({ sources }: SourcePanelProps) {
@@ -44,7 +53,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
           <span className="font-bold text-attention">●</span>
           {sources.length} source{sources.length !== 1 ? "s" : ""} cited
         </span>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-secondary/70">
+        <span className="font-mono text-[10px] uppercase tracking-wider text-secondary">
           view sources
         </span>
       </summary>
@@ -57,15 +66,15 @@ export function SourcePanel({ sources }: SourcePanelProps) {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <p id={citationPlaybackTitleId} className="font-label text-[10px] font-bold uppercase tracking-[0.08em] text-secondary">
-                Citation playback
+                sources
               </p>
               <p id={uncutPlaybackStatusId} className="mt-0.5 text-[11px] text-muted">
-                Published YouTube moments are available. Uncut playback requires a verified asset connection.
+                published moments are available. uncut playback waits on a verified mapping.
               </p>
             </div>
             <div className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5">
               <span className="rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention">
-                Published · YouTube
+                published
               </span>
               <button
                 type="button"
@@ -73,7 +82,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 aria-describedby={uncutPlaybackStatusId}
                 className="cursor-not-allowed rounded px-2.5 py-1 text-[11px] text-muted opacity-70"
               >
-                Uncut · connection required
+                uncut unavailable
               </button>
             </div>
           </div>
@@ -81,14 +90,13 @@ export function SourcePanel({ sources }: SourcePanelProps) {
 
         <ul className="space-y-2.5 pl-1">
           {sources.map((source, index) => {
-            const resolved = resolveCitation(source);
-            const videoId = resolved.youtubeVideoId;
+            const videoId = source.videoId;
             const label = source.title || source.episodeId || "WTF episode";
             const episodeHref = source.episodeId
               ? `/episodes?id=${encodeURIComponent(source.episodeId)}`
               : null;
             const publishedHref = videoId
-              ? youtubeWatchUrl(videoId, resolved.activeTimeSec)
+              ? youtubeWatchUrl(videoId, source.timeSec ?? null)
               : null;
 
             return (
@@ -114,9 +122,9 @@ export function SourcePanel({ sources }: SourcePanelProps) {
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-secondary">
                   <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
-                    {resolved.activeTimeSec === null
-                      ? "YouTube · timestamp unavailable"
-                      : `YouTube: ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
+                    {source.timeSec === null || source.timeSec === undefined
+                      ? "timestamp unavailable"
+                      : `published ${formatPlaybackTimestamp(source.timeSec)}`}
                   </span>
                   {publishedHref ? (
                     <a
@@ -125,7 +133,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                       rel="noreferrer"
                       className="rounded bg-surface-structure px-2 py-0.5 text-[10px] text-on-structure hover:opacity-90"
                     >
-                      Watch on YouTube
+                      open published moment
                     </a>
                   ) : null}
                 </div>

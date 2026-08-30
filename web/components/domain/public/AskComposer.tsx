@@ -68,7 +68,7 @@ export function AskComposer({
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="ask the catalogue"
+            placeholder="what moment are you after?"
             rows={2}
             aria-label="Ask the catalogue"
             aria-describedby="ask-wtf-composer-help"

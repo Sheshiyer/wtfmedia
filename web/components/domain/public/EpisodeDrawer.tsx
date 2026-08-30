@@ -141,7 +141,7 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
             data-cursor="watch"
             className="pill bg-surface-raised px-4 py-2 text-sm text-foreground hover:bg-surface-structure hover:text-on-structure"
           >
-            {playerOpen ? "Hide YouTube player" : "Play on YouTube"}
+            {playerOpen ? "hide player" : "play published"}
           </button>
           <button
             type="button"
@@ -149,19 +149,19 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
             aria-describedby={uncutStatusId}
             className="pill cursor-not-allowed bg-surface-subtle px-4 py-2 text-sm text-muted opacity-75"
           >
-            Uncut · connection required
+            uncut unavailable
           </button>
           <Link
             href={askHref}
             data-cursor="ask!"
             className="pill pill-solid inline-flex items-center gap-1.5 px-4 py-2 text-sm"
           >
-            <Sparkle size={14} /> Ask about this episode
+            <Sparkle size={14} /> ask about this episode
           </Link>
         </div>
 
         <p id={uncutStatusId} role="status" className="text-xs leading-relaxed text-secondary">
-          Uncut playback will appear after a verified Cloudflare asset link and timeline alignment are approved for this episode.
+          uncut is unavailable for this episode. no verified mapping yet.
         </p>
 
         {playerOpen ? (
@@ -179,8 +179,8 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
 
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="mb-3 flex items-center gap-2">
-            <span className="eyebrow text-secondary">public transcript</span>
-            {blocks ? <span className="text-[11px] text-muted">· jump to a published YouTube moment</span> : null}
+            <span className="eyebrow text-secondary">published transcript</span>
+            {blocks ? <span className="text-[11px] text-muted">· jump to a published moment</span> : null}
           </div>
 
           {blocks === null && text === null && !loadError ? <p className="text-sm text-secondary">Loading transcript…</p> : null}
@@ -206,7 +206,7 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
                       rel="noreferrer"
                       className="mt-1 inline-block text-[11px] text-secondary underline hover:text-foreground"
                     >
-                      Open this moment on YouTube
+                      open published moment
                     </a>
                   </div>
                 </article>

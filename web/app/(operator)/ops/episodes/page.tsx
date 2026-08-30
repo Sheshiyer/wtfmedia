@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
-import { OperatorsWorkspace } from "@/components/domain/ops/OperatorsWorkspace";
+import { EpisodesCatalogWorkspace } from "@/components/domain/ops/episodes";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
 import { requireVerifiedOpsContext } from "@/lib/ops/context";
 import { canAccessOpsPath } from "@/lib/ops/policy";
 
-export default async function OperatorsPage() {
+export default async function EpisodesPage() {
   const context = await requireVerifiedOpsContext().catch(() => null);
-  if (!context || !canAccessOpsPath(context.role, "/ops/operators")) {
+  if (!context || !canAccessOpsPath(context.role, "/ops/episodes")) {
     redirect("/ops/recover?mode=reauthenticate");
   }
 
@@ -14,13 +14,13 @@ export default async function OperatorsPage() {
     <div id="ops-main">
       <WorkspaceHeader
         size="page"
-        eyebrow="seats"
-        title="operators"
-        summary="seats and access gates are not in this release. this roster is not a live gate."
+        eyebrow="episode records"
+        title="episodes"
+        summary="episode records from the live source only. no fixture catalogue. uncut stays uncut."
         accent="attention"
       />
       <div className="mx-auto max-w-[var(--wtf-content-max)] px-4 py-8 sm:px-8 xl:px-12">
-        <OperatorsWorkspace role={context.role} />
+        <EpisodesCatalogWorkspace />
       </div>
     </div>
   );

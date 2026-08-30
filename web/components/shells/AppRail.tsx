@@ -83,7 +83,7 @@ export function AppRail({
           <MigratedWordmarkMini plate />
         </Link>
         <p className="mt-4 font-label text-[11px] font-bold uppercase tracking-[0.18em] text-on-structure/55">
-          {mode === "operator" ? "verified operations" : "one brain · public"}
+          {mode === "operator" ? "operations" : "wtf os · public"}
         </p>
       </div>
 

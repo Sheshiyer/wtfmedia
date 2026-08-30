@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import type { RefObject } from "react";
 import { motion } from "motion/react";
 import { usePathname } from "next/navigation";
-import type { Ref } from "react";
 import { routeIsActive } from "@/lib/public/route-is-active";
 import type { AppNavItem } from "./AppRail";
 
@@ -11,7 +11,7 @@ type AppDockProps = {
   mode: "public" | "operator";
   navigation: readonly AppNavItem[];
   onOpenCommand: () => void;
-  commandTriggerRef: Ref<HTMLButtonElement>;
+  commandTriggerRef: RefObject<HTMLButtonElement | null>;
 };
 
 /**

@@ -2,15 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { PaperFolder } from "@/components/patterns/brand/PaperFolder";
-import { InternalBetaReview } from "@/components/domain/ops/InternalBetaReview";
 import { ProductionBoard } from "@/components/patterns/ProductionBoard";
 import { ProductionCalendar } from "@/components/patterns/ProductionCalendar";
 import { Button } from "@/components/ui/Button";
 import { DatePicker } from "@/components/ui/DatePicker";
 import {
-  emptyProductionWorkspace,
   isProductionColumnId,
-  isProductionPinTone,
   moveProductionPin,
   productionColumns,
   productionPinTones,
@@ -25,7 +22,7 @@ type View = "calendar" | "board";
 const field =
   "min-h-11 rounded-control border-2 border-foreground bg-canvas px-3 font-body text-body";
 
-export function ProductionWorkspace({ showcase = false }: { showcase?: boolean }) {
+export function ProductionWorkspace() {
   const now = useMemo(() => new Date(), []);
   const [view, setView] = useState<View>("calendar");
   const [year, setYear] = useState(now.getUTCFullYear());
@@ -35,9 +32,10 @@ export function ProductionWorkspace({ showcase = false }: { showcase?: boolean }
   const [tone, setTone] = useState<ProductionPinTone>("attention");
   const [note, setNote] = useState("");
   const [pins, setPins] = useState<ProductionPin[]>([]);
-  const [selectedPinId, setSelectedPinId] = useState<string | undefined>();
+  const [selectedPinId, setSelectedPinId] = useState<string>();
+  // These sketches are intentionally browser-local UI state, including in a
+  // production build. They never create a backend calendar record.
   const allowSketch = true;
-  const selectedPin = pins.find((pin) => pin.id === selectedPinId);
 
   const shift = (delta: number) => {
     const next = shiftMonth(year, month, delta);
@@ -48,58 +46,36 @@ export function ProductionWorkspace({ showcase = false }: { showcase?: boolean }
   const placeSketch = () => {
     const text = note.trim();
     if (!allowSketch || !selectedDay || !text) return;
-    const id = `sketch-${Date.now()}`;
-    setPins((current) => {
-      return [
-        ...current,
-        {
-          id,
-          note: text,
-          day: selectedDay,
-          column,
-          owner: null,
-          sketch: true,
-          tone,
-        },
-      ];
-    });
+    const id = `sketch-${pins.length + 1}`;
+    setPins((current) => [
+      ...current,
+      {
+        id,
+        note: text,
+        day: selectedDay,
+        column,
+        owner: null,
+        sketch: true,
+        tone,
+      },
+    ]);
     setSelectedPinId(id);
     setNote("");
   };
 
-  const movePin = (
-    id: string,
-    patch: Partial<Pick<ProductionPin, "day" | "column">>,
-  ) => {
-    setPins((current) => {
-      const pin = current.find((item) => item.id === id);
-      if (!pin) return current;
-      return moveProductionPin(current, id, {
-        day: patch.day ?? pin.day,
-        column: patch.column ?? pin.column,
-      });
-    });
+  const moveSelectedSketch = () => {
+    if (!allowSketch || !selectedPinId || !selectedDay) return;
+    setPins((current) => moveProductionPin(current, selectedPinId, { day: selectedDay, column }));
   };
-
-  const moveSelectedPin = () => {
-    if (!selectedPin || !selectedDay) return;
-    movePin(selectedPin.id, { day: selectedDay, column });
-  };
-
-  const sketchNotice = showcase
-    ? "local UI showcase · place and move visual sketches in this browser only. No schedule, owner, source, or provider is connected."
-    : "local only · not synced · no production record, owner, or calendar provider is activated.";
 
   return (
     <div className="space-y-8">
       <p className="max-w-[65ch] font-body text-body text-secondary">
-        {!showcase && emptyProductionWorkspace.state === "not-activated"
-          ? "the production board and calendar are not activated. "
-          : null}
-        {sketchNotice}
+        no episode records, owners, or counts are inferred. delete is unavailable.
+        {allowSketch
+          ? " local sketches stay in this browser tab and are not backend records."
+          : " calendar writes wait on a connected backend."}
       </p>
-
-      {!showcase ? <InternalBetaReview /> : null}
 
       <div className="flex flex-wrap gap-2">
         <Button
@@ -132,7 +108,10 @@ export function ProductionWorkspace({ showcase = false }: { showcase?: boolean }
               onShift={shift}
               selectedPinId={selectedPinId}
               onSelectPin={setSelectedPinId}
-              onMovePin={(id, day) => movePin(id, { day })}
+              onMovePin={(id, day) => setPins((current) => {
+                const pin = current.find((item) => item.id === id);
+                return pin ? moveProductionPin(current, id, { day, column: pin.column }) : current;
+              })}
             />
           ) : (
             <ProductionBoard
@@ -141,7 +120,10 @@ export function ProductionWorkspace({ showcase = false }: { showcase?: boolean }
               onSelectColumn={setColumn}
               selectedPinId={selectedPinId}
               onSelectPin={setSelectedPinId}
-              onMovePin={(id, nextColumn) => movePin(id, { column: nextColumn })}
+              onMovePin={(id, nextColumn) => setPins((current) => {
+                const pin = current.find((item) => item.id === id);
+                return pin ? moveProductionPin(current, id, { day: pin.day, column: nextColumn }) : current;
+              })}
             />
           )}
         </div>
@@ -181,6 +163,14 @@ export function ProductionWorkspace({ showcase = false }: { showcase?: boolean }
                 ))}
               </select>
             </label>
+            <label className="grid gap-1" htmlFor="pin-owner">
+              <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">
+                owner
+              </span>
+              <select id="pin-owner" disabled className={field} value="">
+                <option value="">no owner assigned</option>
+              </select>
+            </label>
             <label className="grid gap-1" htmlFor="pin-tone">
               <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">
                 colour / flow
@@ -188,52 +178,33 @@ export function ProductionWorkspace({ showcase = false }: { showcase?: boolean }
               <select
                 id="pin-tone"
                 value={tone}
-                onChange={(event) => {
-                  if (isProductionPinTone(event.target.value)) {
-                    setTone(event.target.value);
-                  }
-                }}
+                onChange={(event) => setTone(event.target.value as ProductionPinTone)}
                 className={field}
               >
-                {productionPinTones.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-1" htmlFor="pin-owner">
-              <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">
-                owner
-              </span>
-              <select id="pin-owner" disabled className={field} value="">
-                <option value="">no owners activated</option>
+                {productionPinTones.map((item) => <option key={item} value={item}>{item}</option>)}
               </select>
             </label>
             <label className="grid gap-1" htmlFor="pin-note">
               <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">
-                note
+                production note
               </span>
               <textarea
                 id="pin-note"
-                aria-label="production note"
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 rows={3}
                 maxLength={160}
                 disabled={!allowSketch}
-                placeholder="sketch a pin"
+                placeholder={allowSketch ? "add a production note" : "calendar backend is not connected"}
                 className={`${field} py-2`}
               />
             </label>
-            <Button type="submit" variant="attention" disabled={!selectedDay || !note.trim()}>
-              place local sketch
+            <Button type="submit" variant="attention" disabled={!allowSketch || !selectedDay || !note.trim()}>
+              {allowSketch ? "place local sketch" : "create record"}
             </Button>
-            {selectedPin ? (
-              <Button type="button" variant="ghost" onClick={moveSelectedPin} disabled={!selectedDay}>
-                move selected sketch
-              </Button>
-            ) : null}
+            <Button type="button" variant="ghost" disabled={!allowSketch || !selectedPinId || !selectedDay} onClick={moveSelectedSketch}>
+              move selected sketch
+            </Button>
           </form>
         </aside>
       </div>

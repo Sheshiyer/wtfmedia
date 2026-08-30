@@ -62,15 +62,14 @@ export default function MigratedConnectionsPage() {
   return (
     <div className="min-h-[100dvh] bg-canvas">
       <WorkspaceHeader
-        eyebrow="evidence map"
+        eyebrow="recurring ideas"
         title="connections"
-        summary="an idea atlas of source-backed topic overlaps. It maps recurring public themes, never claims relationships or hidden operational context."
+        summary="ideas that keep showing up across episodes. a mention is not a person, a job, or a relationship."
         accent="information"
         context={
           <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[0.6875rem] font-bold uppercase tracking-[0.12em] text-secondary">
-            <span>{data.nodes.length} public ideas</span>
-            <span>{data.edges.length} source-backed overlaps</span>
-            <span>select an idea for its source receipt</span>
+            <span>{data.nodes.length} ideas</span>
+            <span>{data.edges.length} shared-episode links</span>
           </div>
         }
       />
@@ -97,12 +96,12 @@ export default function MigratedConnectionsPage() {
             <ConnectionGraph nodes={visibleNodes} edges={visibleEdges} titles={connections.titles} selectedId={selectedId} onSelect={selectNode} />
           </div>
           <p className="font-label text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-secondary">
-            drag to inspect the atlas · select a visible node for its public source receipt
+            select an idea to inspect published source receipts
           </p>
         </section>
 
         <div className="grid gap-6 xl:grid-cols-[minmax(16rem,0.82fr)_minmax(20rem,1.18fr)]">
-          <section aria-label="connection ideas" className="border-2 border-foreground bg-surface-raised p-4 sm:p-5">
+          <section role="region" aria-label="Connection nodes" className="border-2 border-foreground bg-surface-raised p-4 sm:p-5">
             <div className="mb-4 flex items-baseline justify-between gap-4">
               <h2 className="font-display text-2xl text-foreground">idea index</h2>
               <span className="font-label text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-secondary">{visibleNodes.length} visible</span>

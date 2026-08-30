@@ -19,7 +19,7 @@ test("roster route is truthful when its protected service is unavailable", async
 test("denied roles receive recovery without roster chrome", async ({ page }) => {
   await authenticate(page, "editor");
   await page.goto("/ops/operators", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: "let’s verify your access" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "sign-in is not in this release" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "operators" })).toHaveCount(0);
   await expect(page.getByText("operator roster")).toHaveCount(0);
 });

@@ -14,23 +14,15 @@ type Story = StoryObj<typeof MigratedHomePage>;
 
 export const Default: Story = {};
 
-export const ControlRoomContract: Story = {
+export const PublicRoomContract: Story = {
   play: async ({ canvasElement }) => {
     if (!canvasElement.querySelector("[data-workspace-header]")) {
       throw new Error("Root workspace must use the shared workspace header");
     }
-    const ledger = canvasElement.querySelector('[aria-labelledby="workspace-state-title"]');
-    if (!ledger) throw new Error("Root workspace must expose the status ledger");
-    const active = ledger.querySelectorAll('[data-state="active"]');
-    const notActivated = ledger.querySelectorAll('[data-state="not-activated"]');
-    if (active.length !== 3) {
-      throw new Error(`Expected 3 active public workspaces, received ${active.length}`);
-    }
-    if (notActivated.length !== 4) {
-      throw new Error(`Expected 4 truthful future states, received ${notActivated.length}`);
-    }
+    const ledger = canvasElement.querySelector('[aria-labelledby="what\'s-open-title"]');
+    if (ledger) throw new Error("Workspace state belongs in compact settings, not the public room");
     const copy = canvasElement.textContent ?? "";
-    for (const forbidden of ["all systems operational", "0 tasks", "0 episodes"]) {
+    for (const forbidden of ["all systems operational", "0 tasks", "workspace state"]) {
       if (copy.includes(forbidden)) throw new Error(`Fabricated dashboard copy: ${forbidden}`);
     }
   },

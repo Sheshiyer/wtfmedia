@@ -17,15 +17,15 @@ export default function MigratedEpisodesPage() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-canvas">
       <WorkspaceHeader
-        eyebrow="source inventory"
+        eyebrow="published conversations"
         title="episodes"
-        summary="open a conversation, inspect the transcript, and keep the exact source beside every grounded moment."
+        summary="open an episode, read the transcript, and stay on the published source unless uncut is verified."
         accent="information"
         context={
           <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
             <span>{data.entry_count} indexed episodes</span>
             <span>{groups.length} catalogue shows</span>
-            <span>public projection</span>
+            <span>public catalogue</span>
           </div>
         }
         primaryAction={

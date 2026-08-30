@@ -2,7 +2,7 @@ import { publicUiVariant } from "@/lib/public/public-ui-variant";
 import LegacyEpisodesPage from "@/components/legacy/public/LegacyEpisodesPage";
 import MigratedEpisodesPage from "@/components/domain/public/MigratedEpisodesPage";
 
-export const metadata = { title: "Episodes · wtfmedia" };
+export const metadata = { title: "episodes · wtf os" };
 
 export default function EpisodesPage() {
   const variant = publicUiVariant();

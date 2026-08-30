@@ -6,7 +6,7 @@ test.describe("public production calendar showcase", () => {
 
     await expect(page).toHaveURL(/\/production$/);
     await expect(page.getByRole("heading", { name: "production calendar", exact: true })).toBeVisible();
-    await expect(page.getByText("local UI showcase", { exact: false })).toBeVisible();
+    await expect(page.getByText("local sketches stay in this browser tab", { exact: false })).toBeVisible();
     await expect(page.getByRole("region", { name: "production calendar" })).toBeVisible();
     await expect(page.getByRole("button", { name: "board", exact: true })).toBeVisible();
     await expect(page.getByLabel("production note")).toBeVisible();

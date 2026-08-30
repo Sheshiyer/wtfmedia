@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Public workspace controls focus return", () => {
+test.describe("Public shell controls focus return", () => {
   test.use({ viewport: { width: 320, height: 640 } });
 
   test("pointer path restores focus to controls on Escape", async ({ page }) => {

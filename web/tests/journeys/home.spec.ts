@@ -36,7 +36,7 @@ test.describe("WTF OS public home", () => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await settle(page);
 
-    await expect(page.getByRole("heading", { name: "control room", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "the room", exact: true })).toBeVisible();
     await expect(page.getByTestId("cta-primary")).toHaveAttribute("href", "/chat");
     await expect(page.getByRole("heading", { name: "workspace state", exact: true })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "source rail", exact: true })).toBeVisible();

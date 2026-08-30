@@ -16,11 +16,13 @@ function ratio(first: string, second: string) {
 }
 
 async function expectContrast(locator: Locator) {
-  const colors = await locator.evaluate((element) => {
-    const style = getComputedStyle(element);
-    return { color: style.color, background: style.backgroundColor };
-  });
-  expect(ratio(colors.color, colors.background), JSON.stringify(colors)).toBeGreaterThanOrEqual(4.5);
+  await expect.poll(async () => {
+    const colors = await locator.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return { color: style.color, background: style.backgroundColor };
+    });
+    return ratio(colors.color, colors.background);
+  }).toBeGreaterThanOrEqual(4.5);
 }
 
 async function setDarkPreference(page: Page) {
@@ -79,7 +81,7 @@ test.describe("WTF OS command dock and dark contrast", () => {
     await page.getByRole("button", { name: "controls", exact: true }).click();
 
     const controls = page.getByRole("dialog", { name: "workspace controls" });
-    const firstCommand = controls.getByRole("button", { name: "open control room", exact: true });
+    const firstCommand = controls.getByRole("button", { name: "open the room", exact: true });
     const colors = await firstCommand.evaluate((element) => {
       const root = getComputedStyle(document.documentElement);
       const drawerElement = element.closest('[role="dialog"]');

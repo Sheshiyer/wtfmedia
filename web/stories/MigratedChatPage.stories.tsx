@@ -158,7 +158,7 @@ export const SafeErrorThread: ThreadStory = {
           {
             role: "assistant",
             content:
-              "Something went wrong while looking through the catalogue. Please try again.",
+              "answer failed. retry ask.",
           },
         ]}
         loading={false}

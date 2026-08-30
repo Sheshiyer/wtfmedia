@@ -13,4 +13,3 @@ export function normalizeAppearancePreference(value: unknown): AppearancePrefere
 export function readAppearancePreference(value: unknown): AppearancePreference {
   return normalizeAppearancePreference(value);
 }
-

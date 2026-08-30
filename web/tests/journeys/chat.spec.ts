@@ -156,7 +156,7 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(page.locator('[data-testid="empty-state"]')).toBeVisible();
 
     const textarea = page.locator("textarea");
-    await expect(textarea).toHaveAttribute("placeholder", "ask the catalogue");
+    await expect(textarea).toHaveAttribute("placeholder", "what moment are you after?");
     await expect(textarea).toBeFocused();
 
     const submitButton = page.locator('button[type="submit"]');
@@ -287,7 +287,7 @@ test.describe("/chat journey — migrated variant", () => {
 
     // Safe error message — no infrastructure details
     const assistantMsg = page.locator('[data-testid="message-1"]');
-    await expect(assistantMsg).toContainText("Something went wrong");
+    await expect(assistantMsg).toContainText("answer failed. retry ask.");
 
     // No infrastructure vocabulary leaked
     const bodyText = await page.textContent("body");
