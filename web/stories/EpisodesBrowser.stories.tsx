@@ -54,7 +54,7 @@ export const DrawerValidEpisode: Story = {
     episode: validEpisode,
     onClose: fn(),
   },
-  play: async () => {
+  play: async ({ userEvent }) => {
     const body = within(document.body);
 
     // Drawer has accessible title
@@ -63,13 +63,21 @@ export const DrawerValidEpisode: Story = {
     });
     await expect(title).toBeInTheDocument();
 
-    // Watch link opens in new tab with safe rel
-    const watchLink = body.getByRole("link", { name: /Watch on YouTube/ });
-    await expect(watchLink).toHaveAttribute("target", "_blank");
-    await expect(watchLink).toHaveAttribute("rel", "noreferrer");
+    // Published YouTube playback opens in-place; it never implies that Uncut is available.
+    const youtubeToggle = body.getByRole("button", { name: "play published" });
+    await expect(youtubeToggle).toHaveAttribute("aria-expanded", "false");
+    await userEvent.click(youtubeToggle);
+    await expect(youtubeToggle).toHaveAttribute("aria-expanded", "true");
+    await expect(body.getByTitle("Published YouTube video: Synthetic public episode")).toHaveAttribute(
+      "src",
+      expect.stringContaining("www.youtube-nocookie.com/embed/fixture-episode-001"),
+    );
 
-    // Ask link navigates to chat
-    const askLink = body.getByRole("link", { name: /Ask about this episode/ });
+    const uncut = body.getByRole("button", { name: "uncut unavailable" });
+    await expect(uncut).toBeDisabled();
+    await expect(body.getByRole("status")).toHaveTextContent(/uncut is unavailable for this episode/i);
+
+    const askLink = body.getByRole("link", { name: /ask about this episode/ });
     await expect(askLink).toHaveAttribute("href");
     const href = askLink.getAttribute("href")!;
     await expect(href).toContain("/chat?q=");
@@ -121,8 +129,8 @@ export const DrawerTranscriptLoading: Story = {
   play: async () => {
     const body = within(document.body);
 
-    // Transcript section exists
-    const transcriptLabel = body.getByText("transcript");
+    // The published transcript section is present before a network result resolves.
+    const transcriptLabel = body.getByText("published transcript");
     await expect(transcriptLabel).toBeInTheDocument();
 
     // Loading state shows initially

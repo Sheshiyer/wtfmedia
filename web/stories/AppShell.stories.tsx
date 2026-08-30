@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { AppShell } from "@/components/shells/AppShell";
 
 const publicNavigation = [
-  { href: "/", label: "control room", section: "workspace" as const },
+  { href: "/", label: "the room", section: "workspace" as const },
   { href: "/episodes", label: "episodes", section: "workspace" as const },
   { href: "/connections", label: "connections", section: "workspace" as const },
   { href: "/chat", label: "ask wtf", section: "workspace" as const },
@@ -75,7 +75,7 @@ export const OperatorProjection: Story = {
   },
 };
 
-export const MobileDrawer: Story = {
+export const MobileControls: Story = {
   args: {
     mode: "public",
     navigation: publicNavigation,
@@ -83,7 +83,7 @@ export const MobileDrawer: Story = {
   render: (args) => (
     <AppShell {...args}>
       <div className="p-4">
-        <h1>mobile control room</h1>
+        <h1>mobile workspace</h1>
       </div>
     </AppShell>
   ),
@@ -92,9 +92,9 @@ export const MobileDrawer: Story = {
     viewport: { width: 320, height: 640 },
   },
   play: async ({ canvasElement }) => {
-    const trigger = canvasElement.querySelector<HTMLButtonElement>(
-      'button[aria-label="Open application navigation"]',
+    const trigger = Array.from(canvasElement.querySelectorAll("button")).find(
+      (button) => button.textContent?.trim() === "controls",
     );
-    if (!trigger) throw new Error("Missing mobile navigation trigger");
+    if (!trigger) throw new Error("Missing mobile controls trigger");
   },
 };

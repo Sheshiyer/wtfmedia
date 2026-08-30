@@ -20,10 +20,10 @@ export const StateVocabulary: Story = {
         href: "/episodes",
       },
       {
-        label: "production",
+        label: "analytics",
         state: "not-activated",
-        detail: "the production workflow is not activated.",
-        href: "/production",
+        detail: "platform reporting is not activated.",
+        href: "/analytics",
       },
       {
         label: "integration status",
@@ -67,9 +67,9 @@ export const Promoted: Story = {
         href: "/episodes",
       },
       {
-        label: "production",
+        label: "analytics",
         state: "not-activated",
-        detail: "the production workflow is not activated.",
+        detail: "platform reporting is not activated.",
       },
     ],
   },

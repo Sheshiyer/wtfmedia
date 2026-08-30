@@ -16,10 +16,12 @@ import { AppShell, type AppShellProps } from "@/components/shells/AppShell";
  */
 
 const navigation: AppShellProps["navigation"] = [
-  { href: "/", label: "control room", section: "workspace" },
+  { href: "/", label: "the room", section: "workspace" },
+  { href: "/production", label: "production", section: "workspace" },
+  { href: "/settings", label: "settings", section: "workspace" },
   { href: "/episodes", label: "episodes", section: "workspace" },
   { href: "/connections", label: "connections", section: "workspace" },
-  { href: "/chat", label: "ask wtf", section: "workspace" },
+  { href: "/chat", label: "source chat", section: "workspace" },
 ];
 
 export function PublicShell({ children }: { children: React.ReactNode }) {

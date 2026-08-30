@@ -143,6 +143,66 @@ test.describe("Connections route journeys", () => {
     expect(count).toBeGreaterThan(0);
   });
 
+  test("idea index starts compact and reveals every visible idea on request", async ({ page }) => {
+    await page.goto("/connections", { waitUntil: "domcontentloaded" });
+
+    const nodeList = page.locator('[data-testid="graph-node-list"]');
+    await expect(nodeList.locator("li")).toHaveCount(8);
+
+    const reveal = page.getByRole("button", { name: "show 32 more ideas" });
+    await expect(reveal).toHaveAttribute("aria-expanded", "false");
+    await reveal.click();
+
+    await expect(nodeList.locator("li")).toHaveCount(40);
+    const collapse = page.getByRole("button", { name: "show fewer ideas" });
+    await expect(collapse).toHaveAttribute("aria-expanded", "true");
+  });
+
+  test("overlap list starts compact and reveals every visible overlap on request", async ({ page }) => {
+    await page.goto("/connections", { waitUntil: "domcontentloaded" });
+
+    const edgeList = page.locator('[data-testid="graph-edge-list"]');
+    await expect(edgeList.locator("li")).toHaveCount(8);
+
+    const reveal = page.getByRole("button", { name: /show \d+ more overlaps/i });
+    await expect(reveal).toHaveAttribute("aria-expanded", "false");
+    await reveal.click();
+
+    await expect(edgeList.locator("li")).toHaveCount(60);
+    const collapse = page.getByRole("button", { name: "show fewer overlaps" });
+    await expect(collapse).toHaveAttribute("aria-expanded", "true");
+  });
+
+  test("selected receipt starts compact for direct overlaps", async ({ page }) => {
+    await page.goto("/connections", { waitUntil: "domcontentloaded" });
+    await page.getByTestId("graph-node-india").click();
+
+    const directOverlaps = page.locator("#connection-direct-overlap-list");
+    await expect(directOverlaps.locator("li")).toHaveCount(8);
+
+    const reveal = page.getByRole("button", { name: "show 8 more direct overlaps" });
+    await expect(reveal).toHaveAttribute("aria-expanded", "false");
+    await reveal.click();
+
+    await expect(directOverlaps.locator("li")).toHaveCount(16);
+    await expect(page.getByRole("button", { name: "show fewer direct overlaps" })).toHaveAttribute("aria-expanded", "true");
+  });
+
+  test("selected receipt starts compact for published sources", async ({ page }) => {
+    await page.goto("/connections", { waitUntil: "domcontentloaded" });
+    await page.getByTestId("graph-node-india").click();
+
+    const publishedSources = page.locator("#connection-published-source-list");
+    await expect(publishedSources.locator("li")).toHaveCount(8);
+
+    const reveal = page.getByRole("button", { name: "show 46 more published sources" });
+    await expect(reveal).toHaveAttribute("aria-expanded", "false");
+    await reveal.click();
+
+    await expect(publishedSources.locator("li")).toHaveCount(54);
+    await expect(page.getByRole("button", { name: "show fewer published sources" })).toHaveAttribute("aria-expanded", "true");
+  });
+
   test("page has no horizontal overflow at 320px", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 });
     await page.goto("/connections", { waitUntil: "domcontentloaded" });

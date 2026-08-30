@@ -27,6 +27,14 @@ describe("public-routes contract — protected routes manifest", () => {
     };
     expect(manifest.protected_routes).toEqual(Array.from(PROTECTED_PUBLIC_ROUTES));
   });
+
+  it("declares the local production calendar showcase as a public route", () => {
+    expect(PROTECTED_PUBLIC_ROUTES).toContain("/production");
+  });
+
+  it("declares browser-local settings as a public route", () => {
+    expect(PROTECTED_PUBLIC_ROUTES).toContain("/settings");
+  });
 });
 
 describe("public-routes contract — chat autosubmit examples", () => {

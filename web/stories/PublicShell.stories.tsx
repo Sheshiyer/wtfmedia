@@ -22,7 +22,7 @@ function content(title: string) {
 }
 
 export const ControlRoomDesktop: Story = {
-  render: () => <PublicShell>{content("control room")}</PublicShell>,
+  render: () => <PublicShell>{content("the room")}</PublicShell>,
   parameters: { viewport: { width: 1440, height: 900 } },
 };
 
@@ -43,8 +43,11 @@ export const Mobile320: Story = {
   render: () => <PublicShell>{content("mobile workspace")}</PublicShell>,
   parameters: { viewport: { width: 320, height: 640 } },
   play: async ({ canvasElement }) => {
-    if (!canvasElement.querySelector('button[aria-label="Open application navigation"]')) {
-      throw new Error("Missing mobile application navigation trigger");
+    const controls = Array.from(canvasElement.querySelectorAll("button")).find(
+      (button) => button.textContent?.trim() === "controls",
+    );
+    if (!controls) {
+      throw new Error("Missing compact workspace controls trigger");
     }
   },
 };

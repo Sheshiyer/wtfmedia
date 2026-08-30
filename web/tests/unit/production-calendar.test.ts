@@ -4,6 +4,7 @@ import {
   dayBoundsToIso,
   emptyProductionWorkspace,
   isProductionColumnId,
+  moveProductionPin,
   monthGrid,
   monthLabel,
   shiftMonth,
@@ -16,7 +17,7 @@ describe("production calendar model", () => {
     expect(cells[0]?.weekday).toBe(0);
     expect(cells.filter((cell) => cell.inMonth).map((cell) => cell.day)).toContain(1);
     expect(emptyProductionWorkspace.records).toEqual([]);
-    expect(emptyProductionWorkspace.state).toBe("not-activated");
+    expect(emptyProductionWorkspace.state).toBe("active");
   });
 
   it("shifts months in utc and formats bounds for closed date filters", () => {
@@ -32,5 +33,45 @@ describe("production calendar model", () => {
     expect(routeIsActive("/ops/production", "/ops")).toBe(false);
     expect(routeIsActive("/ops/production", "/ops/production")).toBe(true);
     expect(routeIsActive("/ops", "/ops")).toBe(true);
+  });
+
+  it("moves only the selected local sketch and retains its semantic tone", () => {
+    const pins = [
+      {
+        id: "research-brief",
+        note: "verify the source brief",
+        day: "2026-08-28",
+        column: "unscheduled" as const,
+        owner: null,
+        sketch: true as const,
+        tone: "knowledge" as const,
+      },
+      {
+        id: "edit-pass",
+        note: "cut review",
+        day: "2026-08-29",
+        column: "on-calendar" as const,
+        owner: null,
+        sketch: true as const,
+        tone: "editorial" as const,
+      },
+    ];
+
+    const moved = moveProductionPin(pins, "research-brief", {
+      day: "2026-08-30",
+      column: "blocked",
+    });
+
+    expect(moved).toEqual([
+      expect.objectContaining({
+        id: "research-brief",
+        day: "2026-08-30",
+        column: "blocked",
+        tone: "knowledge",
+      }),
+      pins[1],
+    ]);
+    expect(moved[1]).toBe(pins[1]);
+    expect(pins[0]?.day).toBe("2026-08-28");
   });
 });

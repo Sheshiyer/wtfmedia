@@ -4,6 +4,8 @@
   "base_sha": "0f806772acdb008eeb9fb88ec256cbc2c9db07d8",
   "protected_routes": [
     "/",
+    "/production",
+    "/settings",
     "/episodes",
     "/connections",
     "/chat",
@@ -120,8 +122,16 @@
   ],
   "navigation": [
     {
-      "label": "Control Room",
+      "label": "The Room",
       "destination": "/"
+    },
+    {
+      "label": "Production",
+      "destination": "/production"
+    },
+    {
+      "label": "Settings",
+      "destination": "/settings"
     },
     {
       "label": "Episodes",
@@ -141,11 +151,23 @@
       "kind": "public page",
       "query_behavior": "no route-owned query behavior",
       "navigation_destinations": [
+        "/production",
+        "/settings",
         "/chat",
         "/episodes",
         "/connections"
       ],
       "data_semantics": "public catalogue introduction and public episode/connection discovery"
+    },
+    "/production": {
+      "kind": "public page",
+      "query_behavior": "no route-owned query behavior",
+      "data_semantics": "browser-local production calendar and board UI showcase with no connected schedule, owner, asset, or provider data"
+    },
+    "/settings": {
+      "kind": "public page",
+      "query_behavior": "no route-owned query behavior",
+      "data_semantics": "shared display-only settings UI with browser-local appearance and held integration states"
     },
     "/episodes": {
       "kind": "public page",
@@ -215,6 +237,9 @@
       "public source links",
       "edge endpoint ids",
       "shared count"
+    ],
+    "settings": [
+      "browser-local appearance preference"
     ],
     "chat": [
       "visitor current question",

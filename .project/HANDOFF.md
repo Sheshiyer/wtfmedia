@@ -1,5 +1,41 @@
 # Project handoff
 
+## 2026-08-30 WTF OS public-room UI and copy consolidation
+
+**Status:** LOCAL REVIEWED PR CANDIDATE — consolidated on
+`codex/wtfos-ui-copy-consolidation` from the separate UI and copy worktrees.
+This is a UI-only change; it does not provision, copy, cut over, deploy, or
+otherwise mutate Cloudflare resources.
+
+- `/` is the public **the room** surface; `/ops` remains Control Room. The
+  public home no longer contains workspace state or evidence-receipt panels.
+- The responsive shell uses a dock on desktop and one compact controls surface
+  on mobile. The retired left navigation drawer is not restored.
+- `/settings` consolidates compact, closed-by-default workspace state, evidence
+  receipt, appearance, held connections, client setup, version `v0.1.3`, and
+  changelog sections. The dark evidence receipt now has a verified cream text
+  colour on its structural surface.
+- Connections lists begin compact and reveal all ideas, overlaps, and selected
+  source receipts only on request. The calendar supports browser-local sketches;
+  they do not create backend records and delete remains
+  unavailable.
+- No visual PNG baseline was regenerated. Those snapshots remain a future
+  owner-approval task, not current evidence.
+
+**Verified locally:** `npm run typecheck`; `npm run lint`; `npm run test:unit`
+(49); `npm run test:components` (101); `npm run test:contracts` (78);
+`npm run test:a11y` (21); `npm run build`; and the
+216-check selected Playwright matrix at 320px and 1440px (no failure
+artifacts). Manual in-app-browser review covered the public room and Settings
+evidence receipt in dark mode without horizontal clipping.
+
+**Known baseline:** `npm run test:privacy -- --check` identifies ten catalogue
+document links that are already present, unchanged, on `origin/main`. They are
+not introduced by this UI branch.
+
+**Boundaries:** no Cloudflare migration/cutover, credential, RBAC, backend
+calendar persistence, production deployment, or external data write occurred.
+
 ## 2026-08-28 Production calendar chrome (truthful empty)
 
 **Status:** LOCAL IMPLEMENTATION — uncommitted on `main`. Preview: `http://127.0.0.1:3000/ops/production`.

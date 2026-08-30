@@ -14,6 +14,13 @@ const config: Config = {
         "surface-subtle": "rgb(var(--wtf-surface-subtle-rgb) / <alpha-value>)",
         "surface-raised": "rgb(var(--wtf-surface-raised-rgb) / <alpha-value>)",
         "surface-structure": "rgb(var(--wtf-surface-structure-rgb) / <alpha-value>)",
+        // Text utility names already carry the `text-` prefix. These aliases
+        // emit `text-primary`, `text-secondary`, `text-muted`, and
+        // `text-on-structure` rather than the unintended `text-text-*` form.
+        primary: "rgb(var(--wtf-text-primary-rgb) / <alpha-value>)",
+        secondary: "rgb(var(--wtf-text-secondary-rgb) / <alpha-value>)",
+        muted: "rgb(var(--wtf-text-muted-rgb) / <alpha-value>)",
+        "on-structure": "rgb(var(--wtf-text-on-structure-rgb) / <alpha-value>)",
         "text-primary": "rgb(var(--wtf-text-primary-rgb) / <alpha-value>)",
         "text-secondary": "rgb(var(--wtf-text-secondary-rgb) / <alpha-value>)",
         "text-muted": "rgb(var(--wtf-text-muted-rgb) / <alpha-value>)",

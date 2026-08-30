@@ -5,50 +5,57 @@ type ControlRoomRole = "super_admin" | "admin" | "editor";
 export function ControlRoomStatusLedger({ role }: { role: ControlRoomRole }) {
   const canAdminister = role !== "editor";
   const items: StatusLedgerItem[] = [
-    ...(canAdminister
-      ? [
-          {
-            label: "operator access",
-            state: "verified" as const,
-            detail: "the current protected request and active operator role were verified.",
-            href: "/ops/operators",
-            observed: "observed now",
-            promoted: true,
-          },
-          {
-            label: "audit ledger",
-            state: "verified" as const,
-            detail: "administrative evidence is activated and authorized for this role.",
-            href: "/ops/audit",
-            observed: "authorized",
-          },
-        ]
-      : [
-          {
-            label: "operator access",
-            state: "verified" as const,
-            detail: "the current protected request and active operator role were verified.",
-            observed: "observed now",
-          },
-          {
-            label: "ask wtf",
-            state: "active" as const,
-            detail: "ask the catalogue and keep quoted evidence beside the answer.",
-            href: "/chat",
-            promoted: true,
-          },
-        ]),
     {
-      label: "public workspaces",
+      label: "production",
       state: "active",
-      detail: "episodes, connections, and Ask WTF are available in the public-safe application projection.",
+      detail: "list, create, and update records. delete is unavailable.",
+      href: "/ops/production",
+      promoted: true,
+    },
+    {
+      label: "public rooms",
+      state: "active",
+      detail: "episodes, connections, and ask wtf.",
       href: "/",
       observed: "routes active",
     },
     {
-      label: "production",
-      state: "not-activated",
-      detail: "the production board and calendar are not activated in this release.",
+      label: "ask wtf",
+      state: "active",
+      detail: "ask the catalogue and keep quoted evidence beside the answer.",
+      href: "/chat",
+    },
+    ...(canAdminister
+      ? [
+          {
+            label: "operators",
+            state: "unavailable" as const,
+            detail: "seats and access gates are not in this release. this roster is not a live gate.",
+            href: "/ops/operators",
+          },
+          {
+            label: "audit",
+            state: "unavailable" as const,
+            detail: "allowlisted admin events only. empty means empty.",
+            href: "/ops/audit",
+          },
+        ]
+      : [
+          {
+            label: "operators",
+            state: "unavailable" as const,
+            detail: "seats and access gates arrive next.",
+          },
+          {
+            label: "audit",
+            state: "unavailable" as const,
+            detail: "no audit records in this release.",
+          },
+        ]),
+    {
+      label: "ingest",
+      state: "unavailable",
+      detail: "ingest admin is not in this release.",
     },
     {
       label: "analytics",
@@ -77,7 +84,7 @@ export function ControlRoomStatusLedger({ role }: { role: ControlRoomRole }) {
   return (
     <StatusLedger
       title="the room is open"
-      eyebrow="verified / inactive"
+      eyebrow="open / not in this release"
       items={items}
       className="overflow-hidden rounded-panel"
     />

@@ -167,7 +167,6 @@ html[data-wtf-theme] .pill-solid:hover {
 }
 html[data-wtf-theme] .chip {
   border-color: var(--wtf-foreground);
-  color: var(--wtf-text-primary);
 }
 
 .wtf-wordmark-plate {

@@ -15,11 +15,11 @@ export const ControlRoom: Story = {
     size: "control-room",
     eyebrow: "run the show from the source",
     title: "control room",
-    summary: "your access is verified. workflow systems will appear here when they are activated.",
+    summary: "production records are live. ingest, seats, and access gates are not. missing evidence stays unnamed.",
     accent: "attention",
     primaryAction: (
-      <LinkButton href="/ops/operators" variant="attention">
-        review operator access
+      <LinkButton href="/ops/production" variant="attention">
+        open production
       </LinkButton>
     ),
   },
@@ -36,9 +36,9 @@ export const ControlRoom: Story = {
 export const OperatorsPage: Story = {
   args: {
     size: "page",
-    eyebrow: "access boundary",
+    eyebrow: "seats",
     title: "operators",
-    summary: "manage approved operator access through the protected operator service.",
+    summary: "seats and access gates are not in this release. this roster is not a live gate.",
     accent: "attention",
   },
 };
@@ -48,7 +48,7 @@ export const AuditPage: Story = {
     size: "page",
     eyebrow: "recorded evidence",
     title: "audit",
-    summary: "review only allowlisted administrative evidence.",
+    summary: "allowlisted admin events only. empty means empty. this is not an access log for a gate that is off.",
     accent: "information",
   },
 };

@@ -3,29 +3,45 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AskComposer } from "./AskComposer";
-import { ConversationThread } from "./ConversationThread";
+import { ConversationThread, type Message, type Source } from "./ConversationThread";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
 
-/* ------------------------------------------------------------------ */
-/* Types                                                               */
-/* ------------------------------------------------------------------ */
-
-interface Source {
-  episodeId?: string;
-  title?: string;
-  url?: string;
-  chunk?: string;
-  score?: number;
-  [key: string]: unknown;
+function readString(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
 }
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-  sources?: Source[];
-  model?: string;
-  fallback?: boolean;
-  abstained?: boolean;
+function readTime(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
+}
+
+/** Only the public citation fields cross the chat response boundary. */
+function parsePublicSources(value: string | null): Source[] {
+  if (!value) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.flatMap((item): Source[] => {
+      if (!item || typeof item !== "object") return [];
+      const source = item as Record<string, unknown>;
+      const title = readString(source.title);
+      const episodeId = readString(source.episodeId);
+      const videoId = readString(source.video_id) ?? readString(source.videoId);
+      const url = readString(source.url);
+      if (!title && !episodeId && !videoId && !url) return [];
+
+      return [{
+        ...(title ? { title } : {}),
+        ...(episodeId ? { episodeId } : {}),
+        ...(videoId ? { videoId } : {}),
+        ...(url ? { url } : {}),
+        timeSec: readTime(source.t) ?? readTime(source.timestamp),
+      }];
+    });
+  } catch {
+    return [];
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -81,14 +97,7 @@ function ChatInner() {
       const modelHeader = response.headers.get("X-Model");
       const fallbackHeader = response.headers.get("X-Fallback");
 
-      let sources: Source[] = [];
-      if (sourcesHeader) {
-        try {
-          sources = JSON.parse(sourcesHeader);
-        } catch {
-          // Malformed sources header — continue without sources
-        }
-      }
+      const sources = parsePublicSources(sourcesHeader);
 
       // Stream the response body
       const reader = response.body?.getReader();
@@ -144,8 +153,7 @@ function ChatInner() {
         ...prev,
         {
           role: "assistant",
-          content:
-            "⚠️ Something went wrong loading that answer. Try again in a moment.",
+          content: "answer failed. retry ask.",
         },
       ]);
     } finally {
@@ -181,15 +189,15 @@ function ChatInner() {
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
       <WorkspaceHeader
-        eyebrow="knowledge workspace"
+        eyebrow="get the moment"
         title="ask wtf"
-        summary="ask across the catalogue. synthesis and quoted evidence stay visually distinct, and missing source support remains explicit."
+        summary="ask the catalogue. quoted evidence stays beside synthesis. published and uncut are named. unmapped time stays unmapped."
         accent="knowledge"
         context={
           <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
             <span>catalogue scope</span>
             <span>source-backed answers</span>
-            <span>timing only when verified</span>
+            <span>published or uncut, named</span>
           </div>
         }
       />
