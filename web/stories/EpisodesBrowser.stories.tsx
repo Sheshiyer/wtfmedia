@@ -64,7 +64,7 @@ export const DrawerValidEpisode: Story = {
     await expect(title).toBeInTheDocument();
 
     // Published YouTube playback opens in-place; it never implies that Uncut is available.
-    const youtubeToggle = body.getByRole("button", { name: "Play on YouTube" });
+    const youtubeToggle = body.getByRole("button", { name: "play published" });
     await expect(youtubeToggle).toHaveAttribute("aria-expanded", "false");
     await userEvent.click(youtubeToggle);
     await expect(youtubeToggle).toHaveAttribute("aria-expanded", "true");
@@ -73,12 +73,11 @@ export const DrawerValidEpisode: Story = {
       expect.stringContaining("www.youtube-nocookie.com/embed/fixture-episode-001"),
     );
 
-    const uncut = body.getByRole("button", { name: "Uncut · connection required" });
+    const uncut = body.getByRole("button", { name: "uncut not tracked" });
     await expect(uncut).toBeDisabled();
-    await expect(body.getByRole("status")).toHaveTextContent(/verified Cloudflare asset link and timeline alignment/i);
+    await expect(body.getByRole("status")).toHaveTextContent(/no privacy-safe title-map row/i);
 
-    // Ask link navigates to chat
-    const askLink = body.getByRole("link", { name: /Ask about this episode/ });
+    const askLink = body.getByRole("link", { name: /ask about this episode/ });
     await expect(askLink).toHaveAttribute("href");
     const href = askLink.getAttribute("href")!;
     await expect(href).toContain("/chat?q=");
@@ -130,8 +129,8 @@ export const DrawerTranscriptLoading: Story = {
   play: async () => {
     const body = within(document.body);
 
-    // The public transcript section is present before a network result resolves.
-    const transcriptLabel = body.getByText("public transcript");
+    // The published transcript section is present before a network result resolves.
+    const transcriptLabel = body.getByText("published transcript");
     await expect(transcriptLabel).toBeInTheDocument();
 
     // Loading state shows initially

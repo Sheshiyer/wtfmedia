@@ -7,7 +7,6 @@ import { ProductionCalendar } from "@/components/patterns/ProductionCalendar";
 import { Button } from "@/components/ui/Button";
 import { DatePicker } from "@/components/ui/DatePicker";
 import {
-  emptyProductionWorkspace,
   isProductionColumnId,
   productionColumns,
   shiftMonth,
@@ -57,12 +56,10 @@ export function ProductionWorkspace() {
   return (
     <div className="space-y-8">
       <p className="max-w-[65ch] font-body text-body text-secondary">
-        {emptyProductionWorkspace.state === "not-activated"
-          ? "the production board and calendar are not activated. no episode records, owners, or counts are inferred."
-          : null}
+        no episode records, owners, or counts are inferred. delete is unavailable.
         {allowSketch
-          ? " local sketches stay in this browser tab and are not production records."
-          : null}
+          ? " local sketches stay in this browser tab and are not backend records."
+          : " calendar writes wait on a connected backend."}
       </p>
 
       <div className="flex flex-wrap gap-2">
@@ -144,7 +141,7 @@ export function ProductionWorkspace() {
                 owner
               </span>
               <select id="pin-owner" disabled className={field} value="">
-                <option value="">no owners activated</option>
+                <option value="">no owner assigned</option>
               </select>
             </label>
             <label className="grid gap-1" htmlFor="pin-note">
@@ -158,12 +155,12 @@ export function ProductionWorkspace() {
                 rows={3}
                 maxLength={160}
                 disabled={!allowSketch}
-                placeholder={allowSketch ? "sketch a pin" : "production records are not activated"}
+                placeholder={allowSketch ? "add a production note" : "calendar backend is not connected"}
                 className={`${field} py-2`}
               />
             </label>
             <Button type="submit" variant="attention" disabled={!allowSketch || !selectedDay || !note.trim()}>
-              place sketch
+              {allowSketch ? "place sketch" : "create record"}
             </Button>
           </form>
         </aside>

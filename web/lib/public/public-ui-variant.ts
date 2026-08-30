@@ -12,7 +12,7 @@
 
 export type AppUiVariant = "legacy" | "wtfos";
 export type PublicUiVariant = "legacy" | "migrated";
-export type WtfThemePreference = "system";
+export type WtfThemePreference = "light";
 
 export function appUiVariant(): AppUiVariant {
   return process.env.WTF_PUBLIC_UI_VARIANT === "legacy" ? "legacy" : "wtfos";
@@ -23,11 +23,11 @@ export function publicUiVariant(): PublicUiVariant {
 }
 
 /**
- * The adaptive token system is intentionally opt-in: legacy rollback keeps
- * its established light stylesheet while the active WTF OS follows the OS.
+ * The active WTF OS defaults to light mode across public and ops surfaces.
+ * Legacy rollback keeps its established light stylesheet without the marker.
  */
 export function themeForAppUiVariant(
   variant: AppUiVariant,
 ): WtfThemePreference | undefined {
-  return variant === "wtfos" ? "system" : undefined;
+  return variant === "wtfos" ? "light" : undefined;
 }

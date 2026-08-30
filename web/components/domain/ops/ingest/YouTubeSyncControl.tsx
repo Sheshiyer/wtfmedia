@@ -30,7 +30,7 @@ export function YouTubeSyncControl({ onSyncComplete }: { onSyncComplete?: () => 
   const [syncing, setSyncing] = useState(false);
   const [lastResult, setLastResult] = useState<YouTubeSyncResult | null>(null);
   const [statusMessage, setStatusMessage] = useState(
-    "OAuth connection required before catalog synchronization can run.",
+    "oauth connection required before a sync can run.",
   );
   const [isError, setIsError] = useState(false);
 
@@ -88,14 +88,14 @@ export function YouTubeSyncControl({ onSyncComplete }: { onSyncComplete?: () => 
       <div className="flex flex-col justify-between gap-4 border-b-2 border-foreground pb-4 sm:flex-row sm:items-center">
         <div>
           <span className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">
-            OAuth-gated ingestion
+            youtube sync
           </span>
           <h2 id="youtube-sync-heading" className="font-heading text-xl font-bold lowercase sm:text-2xl">
             youtube catalog sync
           </h2>
         </div>
         <span className="rounded border-2 border-editorial bg-editorial/10 px-2.5 py-1 font-mono text-xs font-semibold text-foreground">
-          Connection: not configured
+          connection: not configured
         </span>
       </div>
 
@@ -135,7 +135,7 @@ export function YouTubeSyncControl({ onSyncComplete }: { onSyncComplete?: () => 
             disabled={syncing}
             className="min-h-11 w-full border-2 border-foreground font-label text-sm font-bold uppercase tracking-wider text-on-attention shadow-[4px_4px_0_var(--wtf-foreground)]"
           >
-            {syncing ? "Checking connection…" : "Check YouTube sync connection"}
+            {syncing ? "checking connection" : "check youtube connection"}
           </Button>
         </div>
 
@@ -144,7 +144,7 @@ export function YouTubeSyncControl({ onSyncComplete }: { onSyncComplete?: () => 
             Sync status
           </h3>
           <p className="text-xs leading-relaxed text-secondary">
-            Quota, ETag, channel, and completion telemetry appear only after a real OAuth-authorized response.
+            channel and completion details appear only after a real authorized response.
           </p>
           <div
             role="status"

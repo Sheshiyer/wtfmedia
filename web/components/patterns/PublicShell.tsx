@@ -1,4 +1,5 @@
-import { AppShell, type AppShellProps } from "@/components/shells/AppShell";
+import { AppShell } from "@/components/shells/AppShell";
+import { currentReleaseNavigation } from "@/lib/public/current-release-nav";
 
 /**
  * Migrated public shell — repository-owned shell contract.
@@ -15,16 +16,9 @@ import { AppShell, type AppShellProps } from "@/components/shells/AppShell";
  * No imports from legacy Wordmark/Sparkle/Marquee/CustomCursor.
  */
 
-const navigation: AppShellProps["navigation"] = [
-  { href: "/", label: "control room", section: "workspace" },
-  { href: "/episodes", label: "episodes", section: "workspace" },
-  { href: "/connections", label: "connections", section: "workspace" },
-  { href: "/chat", label: "ask wtf", section: "workspace" },
-];
-
 export function PublicShell({ children }: { children: React.ReactNode }) {
   return (
-    <AppShell mode="public" navigation={navigation}>
+    <AppShell mode="public" navigation={currentReleaseNavigation}>
       {children}
     </AppShell>
   );

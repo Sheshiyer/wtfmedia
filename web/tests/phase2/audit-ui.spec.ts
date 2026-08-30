@@ -15,11 +15,10 @@ test("ledger renders only its allowlisted envelope", async ({ page }) => {
   await expect(page.getByText(/token|prompt|provider/i)).toHaveCount(0);
 });
 
-test("denied roles receive recovery without audit chrome", async ({ page }) => {
+test("denied roles can view the audit page without export authority", async ({ page }) => {
   await authenticate(page, "editor"); await page.goto("/ops/audit", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: "let’s verify your access" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "audit" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "export audit records" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "audit", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "sign-in is not in this release" })).toHaveCount(0);
 });
 
 test("export confirms filters without previewing audit rows", async ({ page }) => {

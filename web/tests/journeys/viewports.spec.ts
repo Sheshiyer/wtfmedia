@@ -97,7 +97,7 @@ for (const viewport of VIEWPORTS) {
       await settle(page);
 
       // Episode cards are visible
-      const cards = page.locator('[data-cursor="open"]');
+      const cards = page.locator('[data-cursor="open"]:visible');
       await expect(cards.first()).toBeVisible();
 
       // No horizontal overflow from cards

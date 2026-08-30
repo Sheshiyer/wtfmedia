@@ -1,0 +1,992 @@
+{
+  "snapshotAt": "2026-08-27",
+  "internalCount": 59,
+  "transcriptCount": 62,
+  "quarantinedCount": 3,
+  "mappedCount": 59,
+  "missingSourceCount": 0,
+  "quarantinedTitles": [
+    "Brain Armstrong",
+    "WEF - Economics",
+    "WTF is a Battery?"
+  ],
+  "rows": [
+    {
+      "title": "AI Minister: Omar Al Olama",
+      "status": "mapped",
+      "internal": {
+        "sheet": "special-episodes",
+        "sourceRow": 4,
+        "rowHash": "sha256:f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293"
+      },
+      "transcript": {
+        "sheet": "special-episode",
+        "sourceRow": 3,
+        "rowHash": "sha256:44e00ce01959ab7c6be9207c1d8688783db66871ad1e85e53a709ab12cfd75b8"
+      },
+      "uncutPointer": "candidate",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Ajay Banga",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 23,
+        "rowHash": "sha256:8bfc97d4f4df8037d0d856085cd2ab28bc0cab48bc744c8fb55df503cc77c2ea"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 22,
+        "rowHash": "sha256:373cedb6bdd83a5f7052399c24c1e772ea66689fd53315eb9e1478de146901b8"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "AR Rahman",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 17,
+        "rowHash": "sha256:fbea2a09b571f2faa1c7a3a425647558f16f800d24ea649d85e40cae613585e7"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 16,
+        "rowHash": "sha256:34747230d4b3f892143b34934ca8f5285a595ff06e10e23dce0f96140f6a5c34"
+      },
+      "uncutPointer": "candidate",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Arvind Srinivas",
+      "status": "mapped",
+      "internal": {
+        "sheet": "wtf-online",
+        "sourceRow": 3,
+        "rowHash": "sha256:08d79130c1329abb6079ebb929b52a32d585d70400f793eb400be9bb7c8fc4f6"
+      },
+      "transcript": {
+        "sheet": "online",
+        "sourceRow": 2,
+        "rowHash": "sha256:2cc7e49c996e768d7ad4dacdf9cb88a434d628f7a4ad95180fe152f73d29ab21"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Bill Gates",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 3,
+        "rowHash": "sha256:342777737988c606bc4ee31fe5241ef53eb3f0c1e51688bb6f43be987c0ef8a4"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 2,
+        "rowHash": "sha256:2288a61073a505034c0dcf60e4b8a62d9ddd2bd398ebf213353a0f3cf939e2c2"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Bill Gates #2",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 10,
+        "rowHash": "sha256:e39b4c95e259cd576b5bbda33ebba09c505afd3456a864a07b73af2593c243ef"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 9,
+        "rowHash": "sha256:c516408bf1fc53b37e5b4a7a187d66c987d1c1f390c61d60fff0068d71f29755"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Brain Armstrong",
+      "status": "quarantined",
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 25,
+        "rowHash": "sha256:7046b69b589e4000b282fcccc8da26e9bcce27a6e4e4d2f3ee1a3af9f04de91d"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Brett Adcock",
+      "status": "mapped",
+      "internal": {
+        "sheet": "wtf-online",
+        "sourceRow": 4,
+        "rowHash": "sha256:6eec93fa0a3d8a1cbc7bd3ab08e7d5c8ec1a396f41440686989f68551107d7c6"
+      },
+      "transcript": {
+        "sheet": "online",
+        "sourceRow": 3,
+        "rowHash": "sha256:3c4daddfe209508bf2d9e807fbdd4b9cd8348603db23a0ecc46f539f9e35bbb6"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Chamath Palihapitiya",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 21,
+        "rowHash": "sha256:78ea28751cec39e233ada281d3ed86ede360e1dc6280e01f97f06a8a0e8116a4"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 20,
+        "rowHash": "sha256:dec375372b7f89799bcff664cdac9ec8c0d00ff18e7a0bff98044fa4ae2341f3"
+      },
+      "uncutPointer": "candidate",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Christopher Luxon",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 9,
+        "rowHash": "sha256:d2803f7fcf94166a07152474b4000b5f6c1fd1b98acf643946e514df699aa096"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 8,
+        "rowHash": "sha256:55c08038b31a8a26152f4530ee8246168e1ec9c378d2f1ce1df1edfc050942be"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Dara Khosrowshahi",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 16,
+        "rowHash": "sha256:4d5733891cc9bdc612ef6abc9ff84ca6574a97ea56acf981ed049677fdde4dc6"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 15,
+        "rowHash": "sha256:fc347372a9fa02796264538eaff3d294feb9c57b03c0a096d8fe26846bb0a242"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Dario Amodei",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 20,
+        "rowHash": "sha256:e1db357f2eadded2938c951ed9398fd48f1ca89b71a0eb6cde0f5c8fce293d3e"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 19,
+        "rowHash": "sha256:b6dddb0d21cac63bda28bcb70de9b857482d2f1368c2f67f38d5a6da73843967"
+      },
+      "uncutPointer": "candidate",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Elon Musk",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 18,
+        "rowHash": "sha256:b18a0143a5ea588fe05044b4bdda81c1009697befb4cce2b80564050fc3df2af"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 17,
+        "rowHash": "sha256:b575d22fa921465596824ffc7e60bd34e41ada43ddf5979075f0d6a85ad4c935"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Howard Marks",
+      "status": "mapped",
+      "internal": {
+        "sheet": "wtf-is-finance",
+        "sourceRow": 5,
+        "rowHash": "sha256:f14d7705c545e5035cab2b9084d38cec679548c50367fe602e5efcefccb1d506"
+      },
+      "transcript": {
+        "sheet": "wtf-is-finance",
+        "sourceRow": 4,
+        "rowHash": "sha256:94a24bc8a5a964e74ab665459325b38437ea72d88bfdc55bac60a83b52d80fdb"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Kumar Birla",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 7,
+        "rowHash": "sha256:53e0b8ce9ebf7614ecc152dcc94395c83ba8a71169ca56efe6af7aa2408fe51b"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 6,
+        "rowHash": "sha256:7484e4737e64636b35b8e8440a84b7cbce300e310e90096a94de0a6881be3a2d"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Martin Escobari",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 24,
+        "rowHash": "sha256:ceb0952b62f71b432a1670ab96cadf06b1bcae1ab804aa8028356f1f6322b1df"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 23,
+        "rowHash": "sha256:cd663115c2cbf0105d6f7faf938c768da5e762cc232e098b47b77bbc9e126dcb"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Mati Staniszewski",
+      "status": "mapped",
+      "internal": {
+        "sheet": "wtf-online",
+        "sourceRow": 5,
+        "rowHash": "sha256:e6aae4c5b62771b98edf5c577301f76a2e4ab5c90989eb90cb9b5147f212baa8"
+      },
+      "transcript": {
+        "sheet": "online",
+        "sourceRow": 4,
+        "rowHash": "sha256:b666229f4f0e829220ef105994ab51ba867310bb507607fd3ce96637135015c3"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Nandan Nilekani",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 5,
+        "rowHash": "sha256:145602ade45c1aa495b0685186e9675ff9ba22204ecf0cdcf4176c1a62778562"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 4,
+        "rowHash": "sha256:1bfb82f1e41911d8d26b89d23106d8c87bdfbae3b6bae710ad178f28ad7b5b9c"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Narendra Modi",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 8,
+        "rowHash": "sha256:80ed236344b18666acff01aeea8b69ebde3db041027a26a3e09a1905a035b904"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 7,
+        "rowHash": "sha256:882d04963fa4c225374688f1ec6e7e411623d75efe276b5250d19652894bf032"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Neal Mohan",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 11,
+        "rowHash": "sha256:78b138c274fe8b9d49241e94fb830748774fa54a8761a170eb016b08a397ed19"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 10,
+        "rowHash": "sha256:77922d2e8ff9224dd63d5c4e0442a982ceb71c66b2bb04b5bd2ca541a56a44e4"
+      },
+      "uncutPointer": "candidate",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Nikesh Arora",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 13,
+        "rowHash": "sha256:4cabce056ae2c442ffe896373266e5f84ce60610c2d1cb3b77d32066e1528c1a"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 12,
+        "rowHash": "sha256:6a9a1a40aefc827d1ef15c923d175112e9485b1b81e74ce7b64b037c583d2551"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Nikos Christodoulides",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 25,
+        "rowHash": "sha256:32a24f305bcb4b2abbaaf0d8fe4a3e55cc4d32fd623f7bcb2384d4b22076dcc0"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 24,
+        "rowHash": "sha256:df47374587365da812e5e7037cce49313aa8a2968facef091ee245ffeaa02bc9"
+      },
+      "uncutPointer": "candidate",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Policing in Bangalore",
+      "status": "mapped",
+      "internal": {
+        "sheet": "special-episodes",
+        "sourceRow": 3,
+        "rowHash": "sha256:197809c7f0bcf68a2e8047b95306ea6d766a6bafb2a953835f33f9e3c3caec04"
+      },
+      "transcript": {
+        "sheet": "special-episode",
+        "sourceRow": 2,
+        "rowHash": "sha256:23ac46162cdf4872248772ca24ab958ecd1ca96646c94905e3af2b75177e7738"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Ranbir Kapoor",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 4,
+        "rowHash": "sha256:9f14bd56c335849caac24441eae045594f6fbaeeb4654e03bf0e5b54a640348a"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 3,
+        "rowHash": "sha256:2817851f332badaa292f5e2434608c4e647bd72abf7c90016942bfd54faf830a"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Ray Dalio",
+      "status": "mapped",
+      "internal": {
+        "sheet": "wtf-is-finance",
+        "sourceRow": 4,
+        "rowHash": "sha256:f02fefbb6af1012227189e36c197e45494f4a064a3dfd05d789ea207e89bdfec"
+      },
+      "transcript": {
+        "sheet": "wtf-is-finance",
+        "sourceRow": 3,
+        "rowHash": "sha256:90a91ae9cb17b14af0409b2684a60fad967b0806f8316da0f4c8c29ed93f867b"
+      },
+      "uncutPointer": "candidate",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Rishi Sunak x Akshata Murthy",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 22,
+        "rowHash": "sha256:e7463d444d68b01fde45a903fac596f591af4fedadb1a9eeeb35457d5dc4a1a2"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 21,
+        "rowHash": "sha256:459680c24a2220fda4771fb759298d7f1da2d1ff4a5298e7d1cdd2d37c7c9e4f"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Ruchir Sharma",
+      "status": "mapped",
+      "internal": {
+        "sheet": "wtf-is-finance",
+        "sourceRow": 3,
+        "rowHash": "sha256:f87f9c654a2479029fc57b091c6eafb5be234dcd196e74ca265d1bbbfb77aa77"
+      },
+      "transcript": {
+        "sheet": "wtf-is-finance",
+        "sourceRow": 2,
+        "rowHash": "sha256:870bb83cc4c45b6788c58ce3814dbcf1cc0a2c1afc3464c71df9638b9418f523"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Sam Altman",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 15,
+        "rowHash": "sha256:f6ba78af62dd21698777dce4890ded9c77436806edf57f47a533eb687505cb84"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 14,
+        "rowHash": "sha256:76b94e90bc008381117f73f8a39560b584d1a306b853e737c2a669fecf764aad"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Secrets of Social Media Success, Mental Health & Distribution Hacks",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 4,
+        "rowHash": "sha256:48d0237c7543dc977d00c1f29d34252891af8cf65f82b96e54d8deacfffa650f"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 3,
+        "rowHash": "sha256:1186056d5da91922c0abcfb5bb1830ec19ebaae671608cee2a4cb1e6744c9dcc"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Ted Sarandos",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 12,
+        "rowHash": "sha256:3431a401c908b60d4d73c2a34b6472b38f8ba3504e36754b31602a1d8f6f2d5a"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 11,
+        "rowHash": "sha256:ac6b6e8d02ec5965b7144573d85a86a02bccfac71a93c4296c329fa5bd5ae705"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "The Foundery",
+      "status": "mapped",
+      "internal": {
+        "sheet": "special-episodes",
+        "sourceRow": 6,
+        "rowHash": "sha256:d1ba7c8257524a4b45fc40786e980bf8b25c8afb9c1a6c074e9bc574a2748cd6"
+      },
+      "transcript": {
+        "sheet": "special-episode",
+        "sourceRow": 5,
+        "rowHash": "sha256:5842ba32629084898adc9582fcf123cefa1db098e3ebcaf25820b93b56779aea"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Vinod Khosla",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 14,
+        "rowHash": "sha256:8bddb0c5e26be400553af63a8cac820ceb21c89940c1b3e62a34a772a92cae64"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 13,
+        "rowHash": "sha256:e4bbdbf835b31607ba2c43892cb1d26ae9421041dae68f7b3e3a4c8b6d837a7a"
+      },
+      "uncutPointer": "candidate",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WEF - Economics",
+      "status": "quarantined",
+      "transcript": {
+        "sheet": "wtf-is-finance",
+        "sourceRow": 5,
+        "rowHash": "sha256:cde1afe21fadd202d8142b2b0c136e2ec658eafec11011eebee5f2a47b221649"
+      },
+      "uncutPointer": "candidate",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF are Indian Real Estate Giants Up To?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 22,
+        "rowHash": "sha256:0461cfd73c2241012189af9069e92be7dfd35d9c12ef35a0fa7852dbc16019ff"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 21,
+        "rowHash": "sha256:4f49378ee226b683d6be63a44e74b4c75aa04c982cb0f044e25a34406c4c2743"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF Bootcamp",
+      "status": "mapped",
+      "internal": {
+        "sheet": "special-episodes",
+        "sourceRow": 5,
+        "rowHash": "sha256:8587afb91e672d9b5f5bf4db094604411b990f5c6267371f7bbb3cc23399e58c"
+      },
+      "transcript": {
+        "sheet": "special-episode",
+        "sourceRow": 4,
+        "rowHash": "sha256:ae89e62c994c2c202368e1a29a90dafb91a1a735d845c91e121986640aeab1fa"
+      },
+      "uncutPointer": "candidate",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF does it take to Build Influence Today?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 15,
+        "rowHash": "sha256:36a2788f1e3730b15b57dcd3b8f7e92bf960fc8947d85a6ae3c2defa95947de8"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 14,
+        "rowHash": "sha256:43eeca5ee90905c6f8bc010c49206e5f61f767a5a7126fb4acba85e50400bf61"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF Goes into Building a Fashion, Beauty, or Home Brand?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 13,
+        "rowHash": "sha256:f5eb89f25c234333f825d77e67ac496971ba10c59ea11df34ae2d15cdc156bb9"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 12,
+        "rowHash": "sha256:c7f5d5e45af75208ddb755fc2522583f4f859cffc2b01bd66e8514eb8c5434cc"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is a Battery?",
+      "status": "quarantined",
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 28,
+        "rowHash": "sha256:bf52106a59edae7f17c955a808c09778a055730f03b43962087d82155691235b"
+      },
+      "uncutPointer": "candidate",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Alcohol Industry?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 20,
+        "rowHash": "sha256:2290cb78622265adeb7f80c9478bf1adaa79b10e145dbafe3c2d250ae1561ad3"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 19,
+        "rowHash": "sha256:1a0dbad2210b79f74e1722a8271a4c3fc8d8c37cb941ed2ce6253e7072fd0111"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Beverages?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 24,
+        "rowHash": "sha256:92a131596a3ba2fac460203a65685655dd529f8587bf5ecfb22d90bc6541b250"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 23,
+        "rowHash": "sha256:fe1d76f314ce2fa3df9eb80f95411fc0432752e8f29e4253098a06c098557dc5"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Biotech?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 9,
+        "rowHash": "sha256:25c9eb78845932749c226812a40167460f10acc24b19d8a752fdd87fd470511c"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 8,
+        "rowHash": "sha256:ad6a207924b1b77cad80e757494eeb9bff53271987a99bd3b6331c40d0776242"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is ChatGPT?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 6,
+        "rowHash": "sha256:00416ab8562bee2936ecc900288b7dbade5eba1ad3079a8a2beaf29c406e9f60"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 5,
+        "rowHash": "sha256:3f21c3b57dab9155602c659a917305b2fa9377637c884618119034dc4dea74c7"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Climate Change?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 17,
+        "rowHash": "sha256:018fae9edb1ae95826d9b80b1e42522a0f21ea50f27605b5d3ce508e364b0ebd"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 16,
+        "rowHash": "sha256:e9be84653844b786e0dc21d01488ca8ed9c5e77d4024aff4d26b36fa99945835"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Consumer Electronics?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 25,
+        "rowHash": "sha256:ef8cde31581c1da0a027918014d93e640da95f5bd67e737fb655cb7a7ec3ae29"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 24,
+        "rowHash": "sha256:a8b7119b8645d6ff2ae0eb865408a4b7eb3714b8e0495be38342a964758b4183"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is E-commerce?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 5,
+        "rowHash": "sha256:5a3ff2af64505e191774b40f0712d044812b035637e05827d5866e957cb22928"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 4,
+        "rowHash": "sha256:6eef86423371c98ea910d4e647506cc967bbee1d43dd09b59a90dadc7e5ba237"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is EdTech?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 7,
+        "rowHash": "sha256:0223163e8c776d349928ebc32085985805432dc4e08a5d952c8a033f2a3ca7de"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 6,
+        "rowHash": "sha256:37368c713446ef66ac4cfa217b6c84e44157c7391341178ffc2e0c3119ae1b11"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Entrepreneurship?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 18,
+        "rowHash": "sha256:0042dd6bab32a620f93f903f38b719624af44a2127add8d566e563bdde4f3704"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 17,
+        "rowHash": "sha256:afb567cc2c36321233fdc79ccc783a9c964ac8dc42728574b7184eaa5af65f6a"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Gaming?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 19,
+        "rowHash": "sha256:daf583a8d275359812337855cc4d752030509cd57cadb7e28da1aae34ca5d4c7"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 18,
+        "rowHash": "sha256:949b8f0ac8f172644b1deb5ec3645d9440a6a717bcc473798121c2ac9e1fc6ae"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Going on in the World of Content?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 10,
+        "rowHash": "sha256:90b67eeba70fe159c8ffebf31f393f9c8e35051a94812d4899921d17939e6567"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 9,
+        "rowHash": "sha256:cb935a2672ec546d10b35c8c5f639dcc3e7445096be9ef44a7d2a86f6cd8300e"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Happening with EV?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 16,
+        "rowHash": "sha256:8330144491e83e8d71b31cb39db9703601a4d205a6ee2f95463cbe34c22805a2"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 15,
+        "rowHash": "sha256:b48d41e68c36a49a026393162d0dbc0024e13950ee42c34b6c4b1e1201ed8f1c"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Health",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 8,
+        "rowHash": "sha256:899394256628701045e9ff5bd641e404474a02ae38217312436d1cff6e6fdc08"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 7,
+        "rowHash": "sha256:6d5d3890618f890451d1bfbdef0557b235a91872a1da7e33f36049f66023ada1"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Longevity?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 23,
+        "rowHash": "sha256:08e70f36c9c27af050cf741b85b92083ba948cda9f7eeaf3c353090dd15299ff"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 22,
+        "rowHash": "sha256:9e8f394a25f7693482ed69bcd53b6f4d03a62407cb274047feb905ab4e79057a"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is making it in Offbeat Careers?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 21,
+        "rowHash": "sha256:5e96434eb5061b9b35937b6896f883e5579b250c96ef814647ff7ee19a91312a"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 20,
+        "rowHash": "sha256:6d6af0290bf772836dbbbe997d3e41e98ede484ce4e25b3ad340942d6b8b2ed9"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Metaverse?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 3,
+        "rowHash": "sha256:197a7d1b697ae7fc355d4cc53986abb2f2b9151aaeea398369373659456c2519"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 2,
+        "rowHash": "sha256:c0d66697820f24b95a9819b5fada4c7014b08ef86f234c1055edc4c6979191c6"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Pharma?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 28,
+        "rowHash": "sha256:880e2f5026450035cc24607dddc8435888fb1a996c27e26cf1e6605af39b7177"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 27,
+        "rowHash": "sha256:2fd32605c99e7c34feb040cfe5f9ce0605379aa13478b9db6ebe3b7f3248245b"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Skincare?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 27,
+        "rowHash": "sha256:cabf797db25a66ca8db0edf4692d44703cfb23242022ae1cbe2704760e57fdf1"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 26,
+        "rowHash": "sha256:d3137cc7a2876f059ba2e85f9ce2e56473448e766a764fe56d5f786e083b2313"
+      },
+      "uncutPointer": "candidate",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is the Next Gen Thinking?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 12,
+        "rowHash": "sha256:d7528499453e73b2d9f43925fd4d458a3ff5ef233f7cc55456cc70370d355c87"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 11,
+        "rowHash": "sha256:da038e3865450248daa967d2c3fc6b8f77a847b57568d2ea0ba765ad4ddb67fb"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is The Restaurant Game?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 14,
+        "rowHash": "sha256:f9e48ac338da8d576833394442f27c23332eac539b1517a01a26932bf474741f"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 13,
+        "rowHash": "sha256:acfd20fd7089edc552f01d45c00f359ae311a17587841d91496477adb3176e27"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Venture Capital #2",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 26,
+        "rowHash": "sha256:b00f470894bb793c12704f24036677d84e1c451c91a14a8c3787a0379edc851f"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 25,
+        "rowHash": "sha256:081794fe60f720de33b41897db7465938ae99beaa2e2a1ec146cb689677de28f"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "WTF is Venture Capital?",
+      "status": "mapped",
+      "internal": {
+        "sheet": "podcasts-by-wtf",
+        "sourceRow": 11,
+        "rowHash": "sha256:82f9d4f8b589eeea0e3b3d56111a261a680b10324978bafe763ef634a29ddaeb"
+      },
+      "transcript": {
+        "sheet": "wtf-is-podcast",
+        "sourceRow": 10,
+        "rowHash": "sha256:4ff1b2447534888fc023329411eb5325e388072ab3a11643bab2cce539646af3"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Yann LeCunn",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 6,
+        "rowHash": "sha256:9a9f4bae293b34680cb47ff63cdb1a7b04fdcb8d0250833762a157df0563822f"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 5,
+        "rowHash": "sha256:cd1bdc8d1d78f74c1c0d191707368886c5cdb293c55335065aa69dbccac5d2c3"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    },
+    {
+      "title": "Yuval Noah Harari",
+      "status": "mapped",
+      "internal": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 19,
+        "rowHash": "sha256:748d06a19107651d3d5571ccce7f02cb090e3804af97567ade113080f0493b53"
+      },
+      "transcript": {
+        "sheet": "people-by-wtf",
+        "sourceRow": 18,
+        "rowHash": "sha256:0448e69d1879087cd631553829bc1e1106d69af7d9763accb0604f5bc2566d09"
+      },
+      "uncutPointer": "absent",
+      "uncutActivation": "not-activated"
+    }
+  ]
+}

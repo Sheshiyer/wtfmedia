@@ -36,36 +36,38 @@ export function SourcePanel({ sources }: SourcePanelProps) {
 
   return (
     <details
-      className="rounded-control border border-foreground/15 bg-surface-raised/40 p-2.5 text-xs text-muted"
+      className="rounded-control border-2 border-foreground bg-canvas p-3 text-xs text-secondary shadow-[4px_4px_0_var(--wtf-foreground)]"
       data-testid="source-panel"
     >
-      <summary className="flex cursor-pointer select-none items-center justify-between font-medium transition-colors hover:text-foreground">
+      <summary className="flex cursor-pointer select-none items-center justify-between gap-3 font-label font-bold lowercase text-foreground transition-colors hover:text-foreground">
         <span className="flex items-center gap-1.5">
           <span className="font-bold text-attention">●</span>
           {sources.length} source{sources.length !== 1 ? "s" : ""} cited
         </span>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-secondary/70">
+        <span className="font-mono text-[10px] uppercase tracking-wider text-secondary">
           view sources
         </span>
       </summary>
 
-      <div className="mt-3 space-y-3 border-t border-foreground/10 pt-2">
+      <div className="mt-3 space-y-3 border-t-2 border-foreground pt-3">
         <section
           aria-labelledby={citationPlaybackTitleId}
-          className="rounded-control border border-foreground/15 bg-canvas/70 p-2"
+          className="rounded-control border-2 border-foreground bg-surface-raised p-3"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <p id={citationPlaybackTitleId} className="font-label text-[10px] font-bold uppercase tracking-[0.08em] text-secondary">
-                Citation playback
+                sources
               </p>
               <p id={uncutPlaybackStatusId} className="mt-0.5 text-[11px] text-muted">
-                Published YouTube moments are available. Uncut playback requires a verified asset connection.
+                {sources.some((source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped")
+                  ? "uncut timestamps come from the response. no published time was converted."
+                  : "published moments are available. uncut stays unavailable until a mapped uncut source is returned."}
               </p>
             </div>
             <div className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5">
               <span className="rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention">
-                Published · YouTube
+                {sources[0]?.sourceMode === "uncut" ? "uncut" : "published"}
               </span>
               <button
                 type="button"
@@ -73,7 +75,9 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 aria-describedby={uncutPlaybackStatusId}
                 className="cursor-not-allowed rounded px-2.5 py-1 text-[11px] text-muted opacity-70"
               >
-                Uncut · connection required
+                {sources[0]?.sourceMode === "uncut" && sources[0]?.mappingStatus === "mapped"
+                  ? "uncut"
+                  : "uncut unavailable"}
               </button>
             </div>
           </div>
@@ -81,7 +85,10 @@ export function SourcePanel({ sources }: SourcePanelProps) {
 
         <ul className="space-y-2.5 pl-1">
           {sources.map((source, index) => {
-            const resolved = resolveCitation(source);
+            const resolved = resolveCitation({
+              ...source,
+              requestedMode: source.sourceMode ?? "published",
+            });
             const videoId = resolved.youtubeVideoId;
             const label = source.title || source.episodeId || "WTF episode";
             const episodeHref = source.episodeId
@@ -115,8 +122,8 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-secondary">
                   <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
                     {resolved.activeTimeSec === null
-                      ? "YouTube · timestamp unavailable"
-                      : `YouTube: ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
+                      ? "timestamp unavailable"
+                      : `published ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
                   </span>
                   {publishedHref ? (
                     <a
@@ -125,7 +132,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                       rel="noreferrer"
                       className="rounded bg-surface-structure px-2 py-0.5 text-[10px] text-on-structure hover:opacity-90"
                     >
-                      Watch on YouTube
+                      open published moment
                     </a>
                   ) : null}
                 </div>

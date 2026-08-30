@@ -33,7 +33,7 @@ export function UncutUploadDropzone({ onUploadComplete }: { onUploadComplete?: (
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const calculateSha256 = async (fileData: File): Promise<string> => {
-    setStatusMessage("Calculating cryptographic SHA-256 hash...");
+    setStatusMessage("checking the file");
     const buffer = await fileData.arrayBuffer();
     const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
@@ -85,7 +85,7 @@ export function UncutUploadDropzone({ onUploadComplete }: { onUploadComplete?: (
       setUploadProgress(25);
 
       // Step 2: Request Ephemeral HMAC Upload Ticket
-      setStatusMessage("Acquiring 15-minute ephemeral HMAC upload ticket...");
+      setStatusMessage("requesting an upload ticket");
       const intentRes = await fetch("/ops/api/assets/upload-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -111,7 +111,7 @@ export function UncutUploadDropzone({ onUploadComplete }: { onUploadComplete?: (
       setUploadProgress(50);
 
       // Step 3: Stream to R2 Vault
-      setStatusMessage("Streaming direct binary to Cloudflare R2 Vault...");
+      setStatusMessage("uploading the file");
       const streamRes = await fetch("/ops/api/assets/upload-stream", {
         method: "PUT",
         headers: {
@@ -121,7 +121,7 @@ export function UncutUploadDropzone({ onUploadComplete }: { onUploadComplete?: (
         body: file,
       });
       if (!streamRes.ok) {
-        throw new Error("Cloudflare asset upload failed. The asset was not confirmed in provenance.");
+        throw new Error("upload failed. the file was not confirmed.");
       }
 
       setUploadProgress(80);
@@ -139,7 +139,7 @@ export function UncutUploadDropzone({ onUploadComplete }: { onUploadComplete?: (
       });
 
       if (!confirmRes.ok) {
-        throw new Error("Cloudflare did not confirm the asset. No provenance success was recorded.");
+        throw new Error("the upload was not confirmed. no success was recorded.");
       }
       const confirmation = await confirmRes.json() as { asset?: ConfirmedAsset };
       const confirmedData = confirmation.asset;
@@ -148,7 +148,7 @@ export function UncutUploadDropzone({ onUploadComplete }: { onUploadComplete?: (
       }
 
       setUploadProgress(100);
-      setStatusMessage("Cloudflare confirmed the asset and registered its provenance.");
+      setStatusMessage("the file was confirmed. no extra provenance was inferred.");
       setConfirmedAsset(confirmedData);
       onUploadComplete?.(confirmedData);
     } catch (err) {
@@ -160,13 +160,13 @@ export function UncutUploadDropzone({ onUploadComplete }: { onUploadComplete?: (
 
   return (
     <section
-      aria-label="Direct Uncut Media Ingestion"
+      aria-label="uncut upload"
       className="space-y-6 rounded-panel border-2 border-foreground bg-surface-raised p-4 sm:p-6"
     >
       <div className="flex flex-col justify-between gap-2 border-b-2 border-foreground pb-4 sm:flex-row sm:items-center">
         <div>
           <span className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">
-            Direct R2 Vault Ingest (HMAC-SHA256)
+            uncut upload
           </span>
           <h2 className="font-heading text-xl font-bold lowercase sm:text-2xl">
             uncut media &amp; sidecar upload
@@ -177,21 +177,21 @@ export function UncutUploadDropzone({ onUploadComplete }: { onUploadComplete?: (
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="grid gap-1" htmlFor="uncut-episode-id">
           <span className="font-label text-[11px] font-bold uppercase tracking-[0.08em] text-secondary">
-            Canonical Episode ID
+            episode id
           </span>
           <input
             id="uncut-episode-id"
             type="text"
             value={episodeId}
             onChange={(e) => setEpisodeId(e.target.value)}
-            placeholder="Enter an approved canonical episode ID"
+            placeholder="approved episode id"
             className="min-h-11 rounded-control border-2 border-foreground bg-canvas px-3 font-mono text-xs text-foreground focus-visible:outline-attention"
           />
         </label>
 
         <label className="grid gap-1" htmlFor="uncut-asset-type">
           <span className="font-label text-[11px] font-bold uppercase tracking-[0.08em] text-secondary">
-            Source Asset Classification
+            source type
           </span>
           <select
             id="uncut-asset-type"
@@ -250,10 +250,10 @@ export function UncutUploadDropzone({ onUploadComplete }: { onUploadComplete?: (
         ) : (
           <div className="space-y-2">
             <p className="font-heading text-lg font-bold lowercase text-foreground">
-              drag &amp; drop studio asset or click to browse
+              drop a studio file, or browse
             </p>
             <p className="font-body text-xs text-muted max-w-sm">
-              Upload authorization and the Cloudflare R2 binding must be configured before a selected file can be streamed or registered.
+              upload is unavailable until an approved connection exists. no file is stored from this screen until then.
             </p>
           </div>
         )}
@@ -283,14 +283,14 @@ export function UncutUploadDropzone({ onUploadComplete }: { onUploadComplete?: (
       {confirmedAsset && (
         <div className="rounded-panel border-2 border-live bg-live/10 p-4 space-y-2 font-mono text-xs">
           <div className="flex items-center justify-between">
-            <strong className="font-heading text-sm text-live">✓ Asset Staged in Canonical Vault</strong>
+            <strong className="font-heading text-sm text-live">file confirmed</strong>
             <span className="rounded bg-canvas border border-foreground/30 px-2 py-0.5 text-[10px]">
               {confirmedAsset.id}
             </span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-secondary text-[11px]">
             <div>
-              <span className="text-muted">SHA-256: </span>
+              <span className="text-muted">fingerprint: </span>
               <span className="font-bold text-foreground break-all">{confirmedAsset.contentSha256}</span>
             </div>
             <div>
@@ -312,7 +312,7 @@ export function UncutUploadDropzone({ onUploadComplete }: { onUploadComplete?: (
             }}
             className="border-2 border-foreground text-xs font-bold uppercase"
           >
-            Clear File
+            clear file
           </Button>
         )}
         <Button
@@ -322,7 +322,7 @@ export function UncutUploadDropzone({ onUploadComplete }: { onUploadComplete?: (
           disabled={!file || !episodeId.trim() || uploading}
           className="min-h-11 border-2 border-foreground font-label text-sm font-bold uppercase tracking-wider text-on-attention shadow-[4px_4px_0_var(--wtf-foreground)]"
         >
-          {uploading ? "Uploading Direct to R2..." : "Start Ephemeral Direct Upload"}
+          {uploading ? "uploading" : "start upload"}
         </Button>
       </div>
     </section>

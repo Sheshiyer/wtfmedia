@@ -1,69 +1,41 @@
 import { StatusLedger, type StatusLedgerItem } from "@/components/patterns/StatusLedger";
 
-type ControlRoomRole = "super_admin" | "admin" | "editor";
+type ControlRoomRole = "super_admin" | "admin" | "editor" | "public_link";
 
-export function ControlRoomStatusLedger({ role }: { role: ControlRoomRole }) {
-  const canAdminister = role !== "editor";
+export function ControlRoomStatusLedger(_props: { role: ControlRoomRole }) {
   const items: StatusLedgerItem[] = [
-    ...(canAdminister
-      ? [
-          {
-            label: "operator access",
-            state: "verified" as const,
-            detail: "the current protected request and active operator role were verified.",
-            href: "/ops/operators",
-            observed: "observed now",
-            promoted: true,
-          },
-          {
-            label: "audit ledger",
-            state: "verified" as const,
-            detail: "administrative evidence is activated and authorized for this role.",
-            href: "/ops/audit",
-            observed: "authorized",
-          },
-        ]
-      : [
-          {
-            label: "operator access",
-            state: "verified" as const,
-            detail: "the current protected request and active operator role were verified.",
-            observed: "observed now",
-          },
-          {
-            label: "ask wtf",
-            state: "active" as const,
-            detail: "ask the catalogue and keep quoted evidence beside the answer.",
-            href: "/chat",
-            promoted: true,
-          },
-        ]),
     {
-      label: "public workspaces",
+      label: "production",
       state: "active",
-      detail: "episodes, connections, and Ask WTF are available in the public-safe application projection.",
+      detail: "list, create, and update records. delete is unavailable.",
+      href: "/ops/production",
+      promoted: true,
+    },
+    {
+      label: "episode map",
+      state: "active",
+      detail: "title map from the catalogue snapshot. not a live source.",
+      href: "/ops/episodes",
+    },
+    {
+      label: "public rooms",
+      state: "active",
+      detail: "episodes, connections, and ask wtf.",
       href: "/",
       observed: "routes active",
     },
     {
-      label: "production",
-      state: "not-activated",
-      detail: "the production board and calendar are not activated in this release.",
+      label: "ask wtf",
+      state: "active",
+      detail: "ask the catalogue and keep quoted evidence beside the answer.",
+      href: "/chat",
     },
     {
-      label: "analytics",
-      state: "not-activated",
-      detail: "platform reporting is not activated; no performance state is inferred.",
-    },
-    {
-      label: "people",
-      state: "not-activated",
-      detail: "guest and relationship operations are not activated in this release.",
-    },
-    {
-      label: "integrations",
-      state: "not-activated",
-      detail: "integration health is not observed from this workspace.",
+      label: "settings",
+      state: "active",
+      detail: "release context and roadmap for held operators, audit, ingest, and integrations.",
+      href: "/ops/settings",
+      observed: "roadmap lives here",
     },
   ];
 
@@ -77,7 +49,7 @@ export function ControlRoomStatusLedger({ role }: { role: ControlRoomRole }) {
   return (
     <StatusLedger
       title="the room is open"
-      eyebrow="verified / inactive"
+      eyebrow="active build"
       items={items}
       className="overflow-hidden rounded-panel"
     />

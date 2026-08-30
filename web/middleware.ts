@@ -27,16 +27,11 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Middleware may reject obvious direct access, but proof verification happens in server-only code.
-  if (!context || !proof) {
-    const recover = new URL("/ops/recover", request.url);
-    recover.searchParams.set("mode", "reauthenticate");
-    return NextResponse.rewrite(recover);
-  }
-
   const forwarded = new Headers(request.headers);
-  forwarded.set("x-wtf-ops-context", context);
-  forwarded.set("x-wtf-ops-proof", proof);
+  if (context && proof) {
+    forwarded.set("x-wtf-ops-context", context);
+    forwarded.set("x-wtf-ops-proof", proof);
+  }
   forwarded.set("x-wtf-route-kind", "ops");
   return NextResponse.next({ request: { headers: forwarded } });
 }

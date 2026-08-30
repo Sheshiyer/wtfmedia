@@ -54,6 +54,7 @@ export function startRagStub(options = {}) {
         parsed = undefined;
       }
       const question = parsed && typeof parsed === "object" ? parsed.question : undefined;
+      const sourceMode = parsed && typeof parsed === "object" ? parsed.sourceMode : undefined;
       const trigger = extractTrigger(question);
 
       requestLog.push({
@@ -62,6 +63,7 @@ export function startRagStub(options = {}) {
         hasRequestIdHeader: typeof req.headers["x-request-id"] === "string",
         questionLength: typeof question === "string" ? question.length : 0,
         trigger: trigger ?? "(none)",
+        sourceMode: sourceMode ?? "(none)",
       });
 
       switch (trigger) {

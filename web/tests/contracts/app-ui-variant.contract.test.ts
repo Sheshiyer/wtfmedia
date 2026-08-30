@@ -25,8 +25,8 @@ describe("WTF OS application version", () => {
     expect(publicUiVariant()).toBe("migrated");
   });
 
-  it("keeps legacy light while WTF OS follows the system theme", () => {
+  it("keeps legacy light while WTF OS explicitly uses light mode", () => {
     expect(themeForAppUiVariant("legacy")).toBeUndefined();
-    expect(themeForAppUiVariant("wtfos")).toBe("system");
+    expect(themeForAppUiVariant("wtfos")).toBe("light");
   });
 });

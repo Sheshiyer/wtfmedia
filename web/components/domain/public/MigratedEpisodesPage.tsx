@@ -7,9 +7,8 @@ import { EpisodesContent } from "./EpisodesContent";
 /**
  * Server/Suspense boundary for the migrated Episodes route.
  *
- * The variant selector (`publicUiVariant()`) remains server-only.
- * The client query consumer (`EpisodesContent`) reads `?episode=` from
- * the URL and manages selection via push/replace history.
+ * The variant selector (`publicUiVariant()`) remains server-only. This page is
+ * a catalogue; each card links to a dedicated public episode workspace.
  */
 export default function MigratedEpisodesPage() {
   const groups = groupByPlaylist(data.entries);
@@ -17,15 +16,15 @@ export default function MigratedEpisodesPage() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-canvas">
       <WorkspaceHeader
-        eyebrow="source inventory"
+        eyebrow="published conversations"
         title="episodes"
-        summary="open a conversation, inspect the transcript, and keep the exact source beside every grounded moment."
+        summary="open an episode, read the transcript, and stay on the published source unless uncut is verified."
         accent="information"
         context={
           <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
             <span>{data.entry_count} indexed episodes</span>
             <span>{groups.length} catalogue shows</span>
-            <span>public projection</span>
+            <span>public catalogue</span>
           </div>
         }
         primaryAction={

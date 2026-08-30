@@ -22,7 +22,7 @@ test("production chrome is empty and does not invent workflow counts", async ({ 
   await authenticate(page);
   await page.goto("/ops/production", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: "production" })).toBeVisible();
-  await expect(page.getByText("the production board and calendar are not activated")).toBeVisible();
+  await expect(page.getByText("no episode records, owners, or counts are inferred.")).toBeVisible();
   await expect(page.getByText("0 episodes")).toHaveCount(0);
   await expect(page.getByText("0 tasks")).toHaveCount(0);
   await expect(page.getByRole("region", { name: "production calendar" })).toBeVisible();
@@ -31,14 +31,15 @@ test("production chrome is empty and does not invent workflow counts", async ({ 
   await expect(page.getByLabel("owner")).toBeDisabled();
 });
 
-test("editor can open production chrome but not administration", async ({ page }) => {
+test("editor can open production chrome and administration pages", async ({ page }) => {
   await authenticate(page, "editor");
   await page.goto("/ops/production", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: "production" })).toBeVisible();
-  if ((page.viewportSize()?.width ?? 1024) < 1024) {
-    await page.getByRole("button", { name: "open operations navigation", exact: true }).click();
-  }
+  await expect(page.getByRole("button", { name: "open operations navigation", exact: true })).toHaveCount(0);
   const navigation = page.getByRole("navigation", { name: "operations", exact: true });
   await expect(navigation.getByRole("link", { name: "production" })).toBeVisible();
+  await expect(navigation.getByRole("link", { name: "settings" })).toBeVisible();
   await expect(navigation.getByRole("link", { name: "operators" })).toHaveCount(0);
+  await expect(navigation.getByRole("link", { name: "ingest" })).toHaveCount(0);
+  await expect(navigation.getByRole("link", { name: "audit" })).toHaveCount(0);
 });

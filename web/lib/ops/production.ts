@@ -25,7 +25,7 @@ export type MonthCell = {
 export const weekdayLabels = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 
 export const emptyProductionWorkspace = {
-  state: "not-activated" as const,
+  state: "active" as const,
   records: [] as const,
   owners: [] as const,
 };

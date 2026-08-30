@@ -4,10 +4,10 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: plan
-progress: 28/144
+progress: 39/155
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-08-29T15:34:00+05:30
+updated: 2026-08-30T16:31:07+05:30
 ---
 
 ## Problem
@@ -248,6 +248,20 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-143: Architecture code/config/version inputs have a deterministic documentation regeneration command and a CI freshness check (probe: generator check plus workflow source).
 - [x] ISC-144: Anti: the architecture ledger never represents a local HMAC fixture, modeled seat, package version, historic deployment note, or declared Worker binding as live Cloudflare Access or runtime proof (probe: ledger status and drift assertions).
 
+### Cloudflare estate inventory and migration boundary
+
+- [x] ISC-145: The inventory maps `9d9d` as source, repository-bound `wtfmedia` as target, and `default` as an unrelated control account (probe: Wrangler auth/profile and account readback).
+- [x] ISC-146: The account-wide `default` pass records service-family counts and finds no WTF-named resource, binding, route, domain, or zone (probe: redacted cross-service list/search receipts).
+- [x] ISC-147: Both source Workers expose readable settings and deployment history, superseding the earlier unresolved edge-administration claim (probe: `9d9d` Worker settings/deployment list).
+- [x] ISC-148: Source R2 pagination is handled explicitly and `wtfmedia-catalogue` is reconciled at 99 objects and 13.2 MB (probe: cursor-capable bucket list plus direct bucket info).
+- [x] ISC-149: Source `WTFMEDIA_STATE` is reconciled at 55 persistent `ingest`-prefix keys without reading values (probe: metadata-only KV key listing and aggregate count).
+- [x] ISC-150: Source Vectorize and queue contracts record 5,742 vectors at 1,024 dimensions/cosine plus the observed producer, consumer, retry, concurrency, wait, and DLQ settings (probe: read-only Vectorize and queue info).
+- [x] ISC-151: The target owns active zone `wtfhq.in`, has no WTF data-plane resources, returns R2-disabled code `10042`, and lacks DNS-record read authority (probe: target lists, R2 response, zone read, and public DNS).
+- [x] ISC-152: The action matrix explicitly holds Pages, Access/RBAC, NVIDIA provider activation, source deletion, and every `default` resource outside this migration (probe: inventory matrix assertion).
+- [x] ISC-153: Anti: the inventory pass performs no Cloudflare create, update, deploy, secret write, data copy, DNS/domain mutation, or deletion (probe: command ledger classification and unchanged-state receipts).
+- [x] ISC-154: The cutover plan uses an initial bulk copy followed by owner-authorized source quiesce, queue settlement, and a final R2/KV/Vectorize delta from a recorded high-water state (probe: ordered migration-step assertion).
+- [x] ISC-155: Rollback names the verified source Worker emergency URL, restores any quiesced source settings, and explicitly states that current no-apex recovery is not same-host continuity (probe: HTTP read plus rollback-contract assertion).
+
 ## Test Strategy
 
 | ISC range | Type | Check | Threshold | Tool |
@@ -265,6 +279,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-129..134 | design authority | reference lock, semantic palette, route split, migration map, foundation, and privacy boundary are explicit | 100% document probes | Markdown parser + bounded scans |
 | ISC-135..140 | client scope reconciliation | delivery tracks, blockers, stable requirement ownership, and preserved Phase 1 plans remain explicit | 100% document and Git probes | Markdown parser + coverage script + Git hashes |
 | ISC-141..144 | architecture evidence | current topology, Phase 1 Access exemption, deterministic regeneration, and no false live claim remain explicit | all source/check probes pass | generator + static HTML assertions + CI workflow parse |
+| ISC-145..155 | Cloudflare estate | profile topology, paginated source resources, target gaps, action boundaries, final-delta consistency, exact rollback, and no-mutation posture are explicit | all live read-only and document probes pass | Wrangler/API lists + public DNS/HTTP + bounded scans |
 
 ## Features
 
@@ -340,22 +355,29 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
   satisfies: [ISC-141, ISC-142, ISC-143, ISC-144]
   depends_on: [ProjectGovernanceSpine, ClientScopeReconciliation, QualityAndSafetyGates]
   parallelizable: false
+
+- name: CloudflareEstateMigrationBoundary
+  description: Live three-account inventory, source-to-target action matrix, capability gates, and no-mutation evidence
+  satisfies: [ISC-145, ISC-146, ISC-147, ISC-148, ISC-149, ISC-150, ISC-151, ISC-152, ISC-153, ISC-154, ISC-155]
+  depends_on: [ProjectGovernanceSpine, ArchitectureEvidenceLedger]
+  parallelizable: false
 ```
 
 ## Architecture
 
 <!-- arch-assets:start -->
 
-_Generated by `scripts/generate-architecture-ledger.mjs` from the reviewed source ledger._
+_Auto-maintained by `ArchitectureAssetsSync.hook.ts` on release events._
+_Last refreshed: 2026-08-29T10:11:39.123Z_
 
 | Asset | Status | How it's generated |
 |---|---|---|
-| [`docs/architecture/architecture-ledger.source.json`](docs/architecture/architecture-ledger.source.json) | ✓ current | reviewed semantic claims, status, evidence, owner, and next gate |
-| [`docs/architecture/architecture.html`](docs/architecture/architecture.html) | ✓ current | deterministic HTML ledger with inline SVG diagrams |
-| [`docs/architecture/SERVICES.md`](docs/architecture/SERVICES.md) | ✓ current | compact generated service inventory |
-| [`docs/architecture/DEPENDENCY-GRAPH.md`](docs/architecture/DEPENDENCY-GRAPH.md) | ✓ current | compact generated dependency graph |
+| [`docs/architecture/SERVICES.md`](docs/architecture/SERVICES.md) | ✓ current | auto (file scan) |
+| [`docs/architecture/DEPENDENCY-GRAPH.md`](docs/architecture/DEPENDENCY-GRAPH.md) | ✓ current | auto (file scan) |
+| [`docs/architecture/architecture.html`](docs/architecture/architecture.html) | ⚠ STALE — run `/refresh-architecture` | manual (LLM skill) |
+| [`docs/architecture/notebooklm-prompt.md`](docs/architecture/notebooklm-prompt.md) | ✗ not yet generated | manual (LLM skill) |
 
-**To refresh:** run `npm run docs:architecture:update`; CI runs `npm run docs:architecture:check` on architecture-affecting paths. The command never contacts a Cloudflare account or other external provider.
+**To refresh LLM-generated assets:** invoke `/refresh-architecture` in any Claude Code session.
 
 <!-- arch-assets:end -->
 
@@ -399,6 +421,11 @@ _Generated by `scripts/generate-architecture-ledger.mjs` from the reviewed sourc
 - 2026-08-26 13:59 IST: ❌ DEAD END: Tried the mandatory post-plan Advisor review — failed because the local OAuth session expired and could not refresh (don't retry inside this repository task).
 - 2026-08-29 15:12 IST: The owner clarified that repository Phase 1 public proof must not be gated on Cloudflare Zero Trust or Access Applications because neither is currently configured. The modeled operator UI, seats, RBAC, JWT verifier, and loopback-only local context remain a separate activation workstream; no local fixture, historic closure note, binding declaration, or package version counts as live Access evidence.
 - 2026-08-29 15:12 IST: The pre-build Advisor call for the architecture ledger was attempted and failed because the local OAuth session is expired. Credentials were not repaired. Repository evidence, a separate read-only inventory, and the user’s explicit authority govern the documentation decision.
+- 2026-08-30 15:17 IST: refined: The owner temporarily authorizes the current WTF OS release on an ungated public URL: anonymous visitors who know the URL may list, create, and edit production-calendar records. Cloudflare Access and fine-grained RBAC move to the next release; this exception does not expose ingestion, transcript activation, provider settings, secrets, destructive operations, or release approval.
+- 2026-08-30 16:22 IST: refined: Live read-only evidence resolves `9d9d` as source, repository-bound `wtfmedia` as the target owning `wtfhq.in`, and `default` as unrelated. Both source Workers are administrable; R2 remains 99 objects/13.2 MB; KV now has 55 persistent keys; Vectorize remains 5,742/1,024/cosine; ingest/DLQ queues are present; source D1 and WTF Pages are absent. The target OAuth profile is fresh, while R2 is disabled and DNS-record authority is unproven.
+- 2026-08-30 16:22 IST: The migration is capability-gated rather than generically token-gated. Target R2 enablement/authority, DNS/domain authority, fresh secrets, reviewed source, and a bounded owner-authorized execution window precede any create, copy, deployment, or cutover; `default` remains untouched and source data is retained, while source runtime settings may change only inside the separately authorized quiesce.
+- 2026-08-30 16:30 IST: Independent audit tightened cutover consistency: bulk copy is followed by a separately authorized source ingress/producer quiesce, queue settlement, and final R2/KV/Vectorize delta. Rollback uses the verified source Workers.dev endpoint while restoring quiesced settings; absent a separately rehearsed route, removing the target Custom Domain returns `wtfhq.in` to its pre-cutover no-apex state and is not same-host continuity.
+- 2026-08-30 16:22 IST: ❌ DEAD END: The required Advisor review was attempted after live reconciliation but the local Advisor OAuth session remains expired. It was not repaired or substituted with a false success; direct Cloudflare receipts and the ISA completeness/independent audit govern this checkpoint.
 
 ## Changelog
 
@@ -430,6 +457,10 @@ _Generated by `scripts/generate-architecture-ledger.mjs` from the reviewed sourc
   refuted by: the Phase 1 verifier is local-only, the Worker configuration omits Access/Application environment values, and the operations runbook still requires owner-supplied staging inputs
   learned: public Phase 1 remains independent while operator Access activation requires separate configuration and redacted runtime evidence
   criterion now: ISC-141 through ISC-144 bind the generated ledger, Phase 1 exemption, deterministic freshness check, and anti-false-live status boundary to probes
+- 2026-08-30 | conjectured: the source KV was empty, edge administration was unresolved, and a generic target management token was the only infrastructure blocker
+  refuted by: fresh profile-scoped lists show 55 persistent KV keys and readable edge settings/deployments; target OAuth reauthentication succeeds while R2 returns disabled code `10042` and DNS-record reads remain unauthorized
+  learned: this is a three-account, capability-gated clone-and-cutover; Pages and `default` are non-actions, while R2/KV/Vectorize/queues/D1/Workers and the final domain each need explicit evidence gates
+  criterion now: ISC-145 through ISC-155 bind the profile topology, paginated source truth, target gaps, action matrix, final-delta consistency, exact rollback, and no-mutation boundary to probes
 
 ## Verification
 
@@ -471,3 +502,14 @@ _Generated by `scripts/generate-architecture-ledger.mjs` from the reviewed sourc
 - ISC-143: lifecycle probe — `npm run docs:architecture:update` regenerates the HTML, services inventory, and dependency graph; `.github/workflows/architecture-ledger.yml` checks freshness across reviewed architecture code, configuration, tests, plans, documentation, and release metadata.
 - ISC-144: anti-false-live probe — the ledger labels source/config/history/plans separately, excludes untracked operator drafts from its fingerprint, and contains the current Access, OAuth, calendar, hosted MCP, and OTA holds.
 - Architecture audit and rendering evidence: independent read-only audit found and corrected untracked-source, evidence-coverage, duplicate-SVG-ID, and responsive-overflow defects; final static rendering confirmed no desktop or 390px root overflow, six contained diagrams, an accessible release-matrix scroller, offline rendering, and no external assets.
+- ISC-145 evidence: Wrangler auth lists three named profiles; `wtfmedia` is bound to this repository, while explicit account readbacks distinguish source, target, and control account roles without recording account identifiers in project artifacts.
+- ISC-146 evidence: the `default` sweep enumerated Workers, Pages, R2, KV, D1, Vectorize, queues, Durable Objects, Workflows, Hyperdrives, custom domains, zones, and adjacent services, with zero WTF match in names or exposed bindings.
+- ISC-147 evidence: source settings and deployment-history reads succeeded for both `wtfmedia-web` and `wtfmedia-edge`; edge health alone is no longer used as the administration claim.
+- ISC-148 evidence: the first Wrangler R2 page omitted the WTF bucket; a cursor-capable list returned 25 total buckets and direct bucket info reconciled `wtfmedia-catalogue` at 99 objects and 13.2 MB.
+- ISC-149 evidence: a metadata-only source KV list returned 55 keys, all persistent and sharing the safe aggregate prefix `ingest`; no value was requested or recorded.
+- ISC-150 evidence: fresh source reads report `wtfmedia-catalogue-v1` at 5,742 vectors, 1,024 dimensions, cosine, and record the ingest queue's producer/consumer, batch, retry, wait, concurrency, delay, and DLQ contract.
+- ISC-151 evidence: target zone read confirms `wtfhq.in` active; target service lists contain no WTF resources; R2 returns code `10042`; DNS-record API read returns permission denied; public DNS has no apex or `www` address answer.
+- ISC-152 evidence: the migration inventory's CREATE/COPY/UPDATE/HOLD matrix identifies Pages, Access/RBAC, NVIDIA activation, source deletion, and all `default` resources as held or out of scope.
+- ISC-153 evidence: every Cloudflare operation in the pass was an auth, list, info, settings, deployment-history, health, or public-DNS read. No create, put, deploy, secret write, copy, route/domain update, or delete command was issued.
+- ISC-154 evidence: the ordered migration contract separates an initial bulk R2/KV/Vectorize baseline from an owner-authorized source pause, queue settlement, recorded high-water state, final data delta, and abort/restore rule before domain attachment.
+- ISC-155 evidence: direct HTTP reads returned 200 for the source web Worker emergency URL and edge health. The rollback contract names the web URL, restores quiesced source settings, removes the target Custom Domain to recover the pre-cutover no-apex state, and blocks cutover unless that outage model is accepted or a same-host route is rehearsed.

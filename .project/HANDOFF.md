@@ -1,5 +1,94 @@
 # Project handoff
 
+## 2026-08-31 Bounded flow redesign on tuned WTF OS shell
+
+**Status:** LOCAL IMPLEMENTATION — not deployed, not committed. This pass keeps
+the current tuned root/WTF OS light design as the source of truth and changes
+only the approved flow furniture.
+
+- Room: removed the obsolete dark evidence treatment; release context remains
+  in Settings.
+- Episodes: `/episodes` is now a catalogue/index only. Each episode opens a
+  dedicated `/episodes/[id]` public workspace with published embed, truthful
+  uncut availability, transcript, Ask WTF entry, and mapped connection
+  keywords. The detail header uses the compact page title scale, unavailable
+  uncut source cards are hidden, and transcript/keyword overflow is compacted
+  behind native show-more accordions after the first three items.
+- Ask WTF: composer is fixed above the dock, and evidence panels/rails use
+  high-contrast light surfaces.
+- Connections: graph remains the primary surface, paired with searchable
+  ideas/episode-title evidence; repeated grids and raw video-ID displays were
+  removed.
+- Control room: removed the fake refresh action; active operational
+  destinations remain surfaced through the split centered-logo dock.
+- Navigation: four public destinations, centered WTF OS mark, then four
+  operational destinations; mobile/tablet retain scroll-safe bottom navigation.
+
+**Verified:** `npm run typecheck`; `npm run lint`; `npm run test:contracts`
+77/77; `npm run test:unit` 69/69; focused Playwright journey slice 36/36 across
+Episodes, URL state, Connections, and public routes; additional
+accessibility/focus/motion/theme/viewport slice 67/67; `npm run build`
+generated 68 pages including 55 static `/episodes/[id]` paths; production
+preview smoke on `http://127.0.0.1:5191` confirmed `/episodes` and
+`/episodes/SPLFyVyTI1A` return HTTP 200 on desktop/mobile with no horizontal
+overflow, catalogue cards present, detail transcript/chat present, compact H1
+rendering, no unavailable uncut component, and transcript/keyword accordions
+present.
+
+## 2026-08-31 Light active-build dock and settings roadmap
+
+**Status:** LOCAL IMPLEMENTATION — not deployed, not committed. The public and
+ops shells now use explicit light mode and a shared bottom floating navigation
+pill. The dock contains only active build surfaces: room, episodes,
+connections, ask wtf, control room, production, episode map, and settings.
+Held surfaces stay directly reachable but are moved out of primary navigation
+and shown as roadmap items on `/ops/settings`.
+
+- Removed the left panel / hamburger drawer as the primary shell navigation.
+- Moved ops release context to settings only; it is not repeated on every ops
+  page.
+- Public home and control room list active build items only.
+- `/ops/ingest`, `/ops/operators`, and `/ops/audit` remain truthful
+  coming-soon pages in public-link mode, without dead controls or inferred
+  backend data.
+
+**Verified:** `npm run typecheck`; `npm run lint`; focused unit contracts
+16/16; Playwright active-nav/settings roadmap/shell suite 40/40; light-theme
+journey 8/8; `npm run build`; live smoke on `http://127.0.0.1:5175/ops/settings`
+for desktop and mobile confirmed `data-wtf-theme="light"`, held routes absent
+from the dock, roadmap links present, one settings context strip, and no
+horizontal overflow.
+
+## 2026-08-30 Uncut direct timestamps on target preview
+
+**Status:** LIVE ON WORKERS.DEV — `wtfmedia-release-integration` @ `b88a1fd`.
+Secrets were not rotated. Hostname cutover stays held. No uncut corpus was
+invented or copied from published YouTube.
+
+- Uncut citations are `uncut:{id}` plus `M:SS`. No http URL. A YouTube URL
+  in metadata is never used as an uncut link.
+- Published Ask WTF still returns six YouTube sources with clocks.
+- Uncut toggle still falls back to named published sources
+  (`X-Uncut-Unavailable: true`) until approved `uncut/{hash}.txt` files exist.
+- Live: edge `c1ae291a-cd1b-4f17-9878-481087ad2c72`, web
+  `b8879f21-530d-40e9-bc2e-fa396bf47c14` at
+  `https://wtfmedia-web.connect2nikhai.workers.dev/chat`.
+
+## 2026-08-30 Uncut R2 upload blocked — no approved transcript files
+
+**Status:** BLOCKED ON CORPUS — operator script is ready in
+`wtfmedia-release-integration`; no `uncut/` objects were written. R2
+`wtfmedia-catalogue` is still 99 published objects. Published YouTube
+`.txt` files were not copied. Secrets were not rotated. Hostname cutover
+stays held.
+
+- 10 eligible Clean Cut candidates (quarantined rows excluded).
+- Catalogue sheet is readable; linked Drive transcript files 404 for this
+  Google account; Frame.io Clean Cuts stay unfetched.
+- Drop folder: integration `.planning/inputs/uncut-local/` (gitignored).
+- Apply path: `node scripts/put-uncut-and-enqueue.mjs --dir … --apply`
+  then enqueue with `INGEST_TOKEN` in the environment.
+
 ## 2026-08-30 P0 dual-source Ask WTF joined to target preview
 
 **Status:** DONE ON CANONICAL PREVIEW — joined into

@@ -115,7 +115,7 @@ test.describe("Connections route journeys", () => {
     await expect(detail).toBeVisible();
   });
 
-  test("episode links open in new tab", async ({ page }) => {
+  test("episode links use readable titles and open the dedicated episode page", async ({ page }) => {
     await page.goto("/connections", { waitUntil: "domcontentloaded" });
 
     // Select a node
@@ -123,12 +123,12 @@ test.describe("Connections route journeys", () => {
     const firstButton = nodeList.locator("button").first();
     await firstButton.click();
 
-    // Check episode links have correct attributes
+    // Check episode links use the public route instead of raw video IDs.
     const detail = page.locator('[data-testid="graph-selection-detail"]');
     const links = detail.locator("a");
     const firstLink = links.first();
-    await expect(firstLink).toHaveAttribute("target", "_blank");
-    await expect(firstLink).toHaveAttribute("rel", "noreferrer");
+    await expect(firstLink).toHaveAttribute("href", /\/episodes\/[A-Za-z0-9_-]+/);
+    await expect(firstLink).not.toHaveText(/^[A-Za-z0-9_-]{8,}$/);
   });
 
   test("semantic edge list exists", async ({ page }) => {

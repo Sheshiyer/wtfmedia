@@ -55,11 +55,7 @@ test.describe("Public shell journey", () => {
         // Every active application route presents a workspace header.
         await expect(page.locator("[data-workspace-header]")).toBeVisible();
 
-        if (vp.width < 1024) {
-          await expect(
-            page.getByRole("button", { name: "Open application navigation", exact: true }),
-          ).toBeVisible();
-        }
+        await expect(page.getByRole("button", { name: "open navigation", exact: true })).toHaveCount(0);
       });
     }
   }
@@ -82,12 +78,11 @@ test.describe("Public shell journey", () => {
   });
 
   test("keyboard tab order reaches nav links", async ({ page }) => {
-    test.skip((page.viewportSize()?.width ?? 1440) < 1024, "Desktop rail tab order is persistent from 1024px.");
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    // Desktop tab order: skip link → rail wordmark → first workspace link.
+    // Tab order: skip link -> bottom-pill wordmark -> first workspace link.
     await page.keyboard.press("Tab"); // skip link
-    await page.keyboard.press("Tab"); // WordmarkMini home link (header, outside nav)
+    await page.keyboard.press("Tab"); // WordmarkMini home link
     await page.keyboard.press("Tab"); // first nav link
 
     const focused = page.locator(":focus");
@@ -120,11 +115,11 @@ test.describe("Public shell journey", () => {
   }
 
   test("focus-visible indicators on nav links", async ({ page }) => {
-    test.skip((page.viewportSize()?.width ?? 1440) < 1024, "Desktop rail focus is persistent from 1024px.");
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     // Tab to a nav link
     await page.keyboard.press("Tab"); // skip link
+    await page.keyboard.press("Tab"); // wordmark
     await page.keyboard.press("Tab"); // first nav link
 
     const focused = page.locator(":focus");

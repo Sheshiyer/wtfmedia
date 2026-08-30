@@ -6,6 +6,7 @@ import { AskComposer } from "./AskComposer";
 import { ConversationThread, type Message, type Source } from "./ConversationThread";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
 import { parsePublicSourceHeader } from "@/lib/provenance/public-source-header";
+import { parseSourceMode, type SourceMode } from "@/lib/provenance/source-mode";
 
 /* ------------------------------------------------------------------ */
 /* ChatInner (migrated — uses extracted components)                    */
@@ -17,6 +18,7 @@ function ChatInner() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [autoSubmitted, setAutoSubmitted] = useState(false);
+  const [sourceMode, setSourceMode] = useState<SourceMode>("published");
 
   /* Auto-submit from ?q= param (once) */
   useEffect(() => {
@@ -49,6 +51,7 @@ function ChatInner() {
             role: m.role,
             content: m.content,
           })),
+          sourceMode,
         }),
       });
 
@@ -60,7 +63,10 @@ function ChatInner() {
       const modelHeader = response.headers.get("X-Model");
       const fallbackHeader = response.headers.get("X-Fallback");
 
-      const sources: Source[] = parsePublicSourceHeader(sourcesHeader);
+      const sources: Source[] = parsePublicSourceHeader(sourcesHeader).map((source) => ({
+        ...source,
+        sourceMode: parseSourceMode(response.headers.get("X-Source-Mode") ?? source.sourceMode),
+      }));
 
       // Stream the response body
       const reader = response.body?.getReader();
@@ -117,7 +123,7 @@ function ChatInner() {
         {
           role: "assistant",
           content:
-            "⚠️ Something went wrong loading that answer. Try again in a moment.",
+            "answer failed. retry ask.",
         },
       ]);
     } finally {
@@ -153,15 +159,16 @@ function ChatInner() {
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
       <WorkspaceHeader
-        eyebrow="knowledge workspace"
+        eyebrow="get the moment"
         title="ask wtf"
-        summary="ask across the catalogue. synthesis and quoted evidence stay visually distinct, and missing source support remains explicit."
+        summary="ask the catalogue. quoted evidence stays beside synthesis. published and uncut stay named."
         accent="knowledge"
+        size="page"
         context={
-          <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
+          <div className="hidden flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary sm:flex">
             <span>catalogue scope</span>
             <span>source-backed answers</span>
-            <span>published timing when verified</span>
+            <span>mapped time only</span>
           </div>
         }
       />
@@ -179,6 +186,8 @@ function ChatInner() {
         onChange={setInput}
         onSubmit={send}
         loading={loading}
+        sourceMode={sourceMode}
+        onSourceModeChange={setSourceMode}
       />
     </div>
   );

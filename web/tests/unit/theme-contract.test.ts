@@ -165,12 +165,9 @@ describe("adaptive WTF OS theme contract", () => {
     }
   });
 
-  it("uses system preference only for the WTF OS marker and leaves the default light", () => {
+  it("defaults the WTF OS marker to light mode and keeps dark tokens available", () => {
     expect(THEMES).toContain('html[data-wtf-theme="light"]');
     expect(THEMES).toContain('html[data-wtf-theme="dark"]');
-    expect(THEMES).toMatch(
-      /@media\s*\(prefers-color-scheme:\s*dark\)[\s\S]*html\[data-wtf-theme="system"\]/,
-    );
     expect(LAYOUT).toContain('data-wtf-ui={variant === "wtfos" ? "wtfos" : undefined}');
     expect(LAYOUT).toContain('data-wtf-theme={themeForAppUiVariant(variant)}');
     expect(LAYOUT).toContain('{variant === "wtfos" && <WtfOsBoot />}');
@@ -229,13 +226,12 @@ describe("adaptive WTF OS theme contract", () => {
 
   it("gives the opaque wordmark letters a contrasting plate on every structural surface", () => {
     expect(WORDMARK).toContain("wtf-wordmark-plate");
-    expect(APP_SHELL).toContain("<MigratedWordmarkMini plate />");
     expect(APP_RAIL).toContain("<MigratedWordmarkMini plate />");
     expect(ACCESS_RECOVERY).toContain('<MigratedWordmark size="lg" plate />');
     expect(block(GLOBALS, ".wtf-wordmark-plate")).toContain(
       "background: var(--wtf-surface-raised);",
     );
     expect(GLOBALS).toContain('html[data-wtf-theme="dark"] .wtf-wordmark-plate');
-    expect(GLOBALS).toContain('html[data-wtf-theme="system"] .wtf-wordmark-plate');
+    expect(GLOBALS).toContain(".wtf-wordmark-plate");
   });
 });

@@ -16,7 +16,7 @@ describe("production calendar model", () => {
     expect(cells[0]?.weekday).toBe(0);
     expect(cells.filter((cell) => cell.inMonth).map((cell) => cell.day)).toContain(1);
     expect(emptyProductionWorkspace.records).toEqual([]);
-    expect(emptyProductionWorkspace.state).toBe("not-activated");
+    expect(emptyProductionWorkspace.state).toBe("active");
   });
 
   it("shifts months in utc and formats bounds for closed date filters", () => {

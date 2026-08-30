@@ -36,24 +36,21 @@ test.describe("/ rollback proof", () => {
     await page.goto("/");
     await settle(page);
 
-    // Eyebrow
-    const eyebrow = page.getByText("run the show from the source", { exact: true });
+    const eyebrow = page.getByText("ask the catalogue and get the moment", { exact: true });
     await expect(eyebrow).toBeVisible();
 
-    // Heading
-    const heading = page.getByRole("heading", { name: "control room" });
+    const heading = page.getByRole("heading", { name: "the room", exact: true });
     await expect(heading).toBeVisible();
 
-    // Primary CTA
     const primaryCta = page.locator('[data-testid="cta-primary"]');
     await expect(primaryCta).toBeVisible();
     await expect(primaryCta).toContainText("ask the catalogue");
     await expect(primaryCta).toHaveAttribute("href", "/chat");
 
-    // Canonical shell and truthful workspace state.
     await expect(page.locator('[data-wtf-shell="wtfos"]')).toBeAttached();
-    await expect(page.locator('[data-state="active"]')).toHaveCount(3);
-    await expect(page.locator('[data-state="not-activated"]')).toHaveCount(4);
+    await expect(page.locator('[data-state="active"]')).toHaveCount(6);
+    await expect(page.locator('[data-state="unavailable"]')).toHaveCount(3);
+    await expect(page.locator('[data-state="not-activated"]')).toHaveCount(0);
     await expect(
       page.getByRole("heading", { name: "conversations in the room" }),
     ).toBeVisible();

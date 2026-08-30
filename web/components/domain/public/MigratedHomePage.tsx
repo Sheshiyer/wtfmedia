@@ -4,18 +4,19 @@ import { data, thumbnailUrl } from "@/lib/episodes";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { StatusLedger } from "@/components/patterns/StatusLedger";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
+import { ReleaseStatusWidget } from "@/components/patterns/ReleaseStatusWidget";
 
 const workspaceItems = [
   {
     label: "episodes",
     state: "active" as const,
-    detail: "browse the current public episode projection and open its source material.",
+    detail: "browse published conversations and open the transcript.",
     href: "/episodes",
   },
   {
     label: "connections",
     state: "active" as const,
-    detail: "inspect recurring themes and ideas across the published conversations.",
+    detail: "see which ideas keep showing up, with shared-episode receipts.",
     href: "/connections",
   },
   {
@@ -26,23 +27,27 @@ const workspaceItems = [
   },
   {
     label: "production",
-    state: "not-activated" as const,
-    detail: "the production board and calendar are not activated in this release.",
+    state: "active" as const,
+    detail: "list, create, and update records. delete is unavailable.",
+    href: "/ops/production",
   },
   {
-    label: "analytics",
-    state: "not-activated" as const,
-    detail: "platform reporting is not activated; no performance values are inferred.",
+    label: "episode map",
+    state: "active" as const,
+    detail: "title map from the catalogue snapshot. not a live source.",
+    href: "/ops/episodes",
   },
   {
-    label: "people",
-    state: "not-activated" as const,
-    detail: "guest and relationship operations are not activated in this release.",
+    label: "control room",
+    state: "active" as const,
+    detail: "production records are live. ingest, seats, and access gates are not.",
+    href: "/ops",
   },
   {
-    label: "integrations",
-    state: "not-activated" as const,
-    detail: "integration health is not observed from the public application.",
+    label: "settings",
+    state: "active" as const,
+    detail: "release context, role, verification state, and roadmap.",
+    href: "/ops/settings",
   },
 ];
 
@@ -54,16 +59,16 @@ export function MigratedHomePage() {
   return (
     <div className="min-h-screen bg-canvas">
       <WorkspaceHeader
-        eyebrow="run the show from the source"
-        title="control room"
-        summary="one brain for the catalogue, its recurring ideas, and source-backed answers. receipts stay visible before they become actions."
+        eyebrow="ask the catalogue and get the moment"
+        title="the room"
+        summary="published conversations, recurring ideas, and answers with receipts. a timestamp only when verified."
         accent="attention"
         context={
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
             <span>public workspace</span>
             <span>{episodeCount} indexed episodes</span>
             <span>{showCount} catalogue shows</span>
-            <span>source timing only when verified</span>
+            <span>published and uncut stay distinct</span>
           </div>
         }
         primaryAction={
@@ -78,42 +83,41 @@ export function MigratedHomePage() {
         }
       />
 
-      <div className="mx-auto grid max-w-[var(--wtf-content-max)] gap-8 px-4 py-8 sm:px-8 xl:grid-cols-[minmax(0,1.65fr)_minmax(18rem,0.75fr)] xl:px-12 xl:py-12">
+      <div className="mx-auto grid max-w-[var(--wtf-content-max)] gap-8 px-4 py-8 sm:px-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.85fr)] xl:px-12 xl:py-12">
         <StatusLedger
-          title="workspace state"
+          title="what's open"
           eyebrow="now / next"
           items={workspaceItems}
         />
 
-        <aside className="border-2 border-foreground bg-surface-structure p-6 text-on-structure xl:sticky xl:top-8 xl:self-start">
-          <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-attention">
-            evidence receipt
+        <aside className="border-2 border-foreground bg-canvas p-6 shadow-[6px_6px_0_var(--wtf-foreground)] xl:sticky xl:top-8 xl:self-start">
+          <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-secondary">
+            room rule
           </p>
-          <h2 className="mt-3 font-display text-4xl font-extrabold lowercase leading-none">
-            receipts become actions.
+          <h2 className="mt-3 font-display text-4xl font-extrabold lowercase leading-none text-foreground">
+            evidence stays readable.
           </h2>
-          <p className="mt-5 font-body text-sm leading-relaxed text-on-structure/70">
-            Ask WTF keeps source episodes beside the answer. A timestamp appears
-            only when the underlying source timing is verified; an unknown stays
-            unknown.
+          <p className="mt-5 font-body text-sm leading-relaxed text-secondary">
+            ask wtf keeps the episode beside the answer. published and uncut
+            are named. unmapped time stays unmapped.
           </p>
-          <dl className="mt-8 divide-y divide-foreground/20 border-y border-foreground/20 font-label text-sm">
+          <dl className="mt-8 divide-y divide-foreground/20 border-y-2 border-foreground font-label text-sm">
             <div className="flex items-center justify-between gap-4 py-3">
-              <dt className="text-on-structure/55">catalogue scope</dt>
+              <dt className="text-secondary">catalogue scope</dt>
               <dd className="font-bold">{episodeCount} episodes</dd>
             </div>
             <div className="flex items-center justify-between gap-4 py-3">
-              <dt className="text-on-structure/55">answer mode</dt>
+              <dt className="text-secondary">answer mode</dt>
               <dd className="font-bold">source-backed</dd>
             </div>
             <div className="flex items-center justify-between gap-4 py-3">
-              <dt className="text-on-structure/55">missing evidence</dt>
+              <dt className="text-secondary">missing evidence</dt>
               <dd className="font-bold">shown plainly</dd>
             </div>
           </dl>
           <Link
             href="/connections"
-            className="mt-6 inline-flex min-h-11 items-center border-b-2 border-attention font-label text-sm font-bold lowercase text-on-structure focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
+            className="mt-6 inline-flex min-h-11 items-center border-b-2 border-attention font-label text-sm font-bold lowercase text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
           >
             inspect recurring ideas ↗
           </Link>
@@ -135,7 +139,7 @@ export function MigratedHomePage() {
               href="/episodes"
               className="inline-flex min-h-11 items-center font-label text-sm font-bold lowercase underline decoration-2 underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information"
             >
-              open episode workspace ↗
+              open episodes ↗
             </Link>
           </div>
 
@@ -143,7 +147,7 @@ export function MigratedHomePage() {
             {recentEpisodes.map((episode, index) => (
               <Link
                 key={episode.video_id}
-                href={`/episodes?episode=${encodeURIComponent(episode.video_id)}`}
+                href={`/episodes/${encodeURIComponent(episode.video_id)}`}
                 className="group grid min-h-full grid-rows-[auto_1fr] border-2 border-foreground bg-surface-raised shadow-[4px_4px_0_var(--wtf-foreground)] transition-[transform,box-shadow] duration-fast hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_var(--wtf-foreground)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-information"
               >
                 <div className="relative aspect-video overflow-hidden border-b-2 border-foreground bg-surface-structure">
@@ -164,11 +168,48 @@ export function MigratedHomePage() {
                     {episode.title}
                   </h3>
                   <span className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
-                    open episode receipt ↗
+                    open episode
                   </span>
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-10 sm:px-8 xl:px-12">
+        <div className="mx-auto max-w-[var(--wtf-content-max)]">
+          <div className="mb-6">
+            <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-muted">
+              operating map
+            </p>
+          <h2 className="mt-1 font-display text-3xl font-extrabold lowercase sm:text-4xl">
+              active build surfaces
+            </h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <ReleaseStatusWidget
+              title="episode map"
+              status="visible"
+              tone="active"
+              detail="The 2026-08-27 title map is visible in public view. It is a snapshot, not a live catalogue."
+              next="Uncut pointers can be candidate or absent. Activation remains held until verified media and alignment exist."
+              href="/ops/episodes"
+            />
+            <ReleaseStatusWidget
+              title="production"
+              status="live"
+              tone="active"
+              detail="Production records are open for the current release. Delete remains unavailable."
+              href="/ops/production"
+            />
+            <ReleaseStatusWidget
+              title="settings"
+              status="roadmap"
+              tone="active"
+              detail="Environment, workspace, organization scope, role, verification state, and held-feature roadmap live here."
+              href="/ops/settings"
+            />
           </div>
         </div>
       </section>

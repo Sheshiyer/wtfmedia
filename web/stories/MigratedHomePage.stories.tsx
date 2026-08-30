@@ -19,15 +19,19 @@ export const ControlRoomContract: Story = {
     if (!canvasElement.querySelector("[data-workspace-header]")) {
       throw new Error("Root workspace must use the shared workspace header");
     }
-    const ledger = canvasElement.querySelector('[aria-labelledby="workspace-state-title"]');
+    const ledger = canvasElement.querySelector('[aria-labelledby="what\'s-open-title"]');
     if (!ledger) throw new Error("Root workspace must expose the status ledger");
     const active = ledger.querySelectorAll('[data-state="active"]');
+    const unavailable = ledger.querySelectorAll('[data-state="unavailable"]');
     const notActivated = ledger.querySelectorAll('[data-state="not-activated"]');
-    if (active.length !== 3) {
-      throw new Error(`Expected 3 active public workspaces, received ${active.length}`);
+    if (active.length !== 6) {
+      throw new Error(`Expected 6 active public workspaces, received ${active.length}`);
     }
-    if (notActivated.length !== 4) {
-      throw new Error(`Expected 4 truthful future states, received ${notActivated.length}`);
+    if (unavailable.length !== 3) {
+      throw new Error(`Expected 3 viewable administration pages, received ${unavailable.length}`);
+    }
+    if (notActivated.length !== 0) {
+      throw new Error(`Expected 0 not-activated public rows, received ${notActivated.length}`);
     }
     const copy = canvasElement.textContent ?? "";
     for (const forbidden of ["all systems operational", "0 tasks", "0 episodes"]) {

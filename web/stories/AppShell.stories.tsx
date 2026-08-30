@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { AppShell } from "@/components/shells/AppShell";
 
 const publicNavigation = [
-  { href: "/", label: "control room", section: "workspace" as const },
+  { href: "/", label: "the room", section: "workspace" as const },
   { href: "/episodes", label: "episodes", section: "workspace" as const },
   { href: "/connections", label: "connections", section: "workspace" as const },
   { href: "/chat", label: "ask wtf", section: "workspace" as const },
@@ -93,7 +93,7 @@ export const MobileDrawer: Story = {
   },
   play: async ({ canvasElement }) => {
     const trigger = canvasElement.querySelector<HTMLButtonElement>(
-      'button[aria-label="Open application navigation"]',
+      'button[aria-label="open navigation"]',
     );
     if (!trigger) throw new Error("Missing mobile navigation trigger");
   },
