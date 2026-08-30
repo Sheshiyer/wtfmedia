@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 status: complete
 stopped_at: Phase 1 and Phase 2 complete and verified; Phase 3+ planned and inactive awaiting owner authorization
-last_updated: "2026-08-28T20:15:00.000Z"
-last_activity: 2026-08-28
+last_updated: "2026-08-30T13:17:06.000Z"
+last_activity: 2026-08-30
 progress:
   total_phases: 10
   completed_phases: 2
@@ -24,14 +24,19 @@ See: `.planning/PROJECT.md` (updated 2026-08-20)
 its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
-**Current focus:** Phase 01 & Phase 02 Complete — Ready for Phase 03 Authorization
+**Current focus:** target workers.dev preview deployed; source final delta and
+`wtfhq.in` cutover remain held
 
 ## Current Position
 
 Phase: 02 (Platform Foundation + Authenticated Policy Boundary) — COMPLETE ✓
 Plan: 12 of 12
 Status: Complete — Staging authorized, preflight executed, owner approval bound, read-only production smoke verified
-Last activity: 2026-08-28
+Last activity: 2026-08-30
+
+Release overlay: target `wtfmedia-edge`, `wtfmedia-web`, and D1 calendar are
+live on workers.dev under the temporary public-release contract. This does not
+advance inactive GSD Phases 3–10 or authorize source quiesce/domain cutover.
 
 Progress: [██████████] 100%
 
@@ -107,6 +112,9 @@ Progress: [██████████] 100%
 - [Phase 02]: Plan 02-12 staging preflight executed under exact target parameters, hash-bound owner approval recorded in phase2-approval.json, read-only exact-host production smoke verified against wtfmedia.vercel.app, and Phase 2 closed with full 35/35 threat mitigation.
 - [Current inventory 2026-08-29]: Repository Phase 1 is a public compatibility/proof release and is explicitly independent of Cloudflare Zero Trust, Access Applications, Access policies, and D1 operator provisioning. Its acceptance remains local, credential-free, and network-independent; the operator boundary is a later workstream.
 - [Current inventory 2026-08-29]: The operator UI, role/seat model, JWT verifier, D1 authorization design, and loopback-only local development context exist in source, but this checkout does not prove a live Access Application, policy, protected hostname, Access issuer/audience/JWKS, environment binding, or real seat assignment. Historical Phase 2 closure language is retained as record, not current runtime proof. See `docs/architecture/architecture.html`.
+- [Target preview 2026-08-30]: The owner-confirmed canonical release-integration worktree is deployed to the mapped `wtfmedia` account as `wtfmedia-edge` and `wtfmedia-web`; target resource bindings, paired fresh secrets, edge health, direct-call denial, service-bound RAG, and responsive public UI have live workers.dev receipts.
+- [Target preview 2026-08-30]: D1 migration `0006_public_calendar.sql` is applied. Anyone with the preview URL may list/create/update through the same-origin web boundary; creates are idempotent, updates are revision-guarded, mutation receipts are append-only, and delete/verified actor attribution remain unavailable.
+- [Target preview 2026-08-30]: `9d9d` stayed read-only and `default` stayed untouched. No Pages, Access/RBAC, Custom Domain, DNS, source quiesce/final delta, or source deletion is authorized by the preview receipt.
 
 ### Pending Todos
 
@@ -114,6 +122,8 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
 
 1. **Client inputs for Phase 3–4** — IP taxonomy, 20-query editorial set, Frame.io/Drive/Zset share rotation. These block Phases 3–4.
 2. **Phase 3 Authorization** — Owner explicit authorization required before activating Phase 3 (Provenance & Catalogue Ingestion).
+3. **Cloudflare final delta** — Separately authorize source-ingress quiesce, queue settlement, and final R2/KV/Vectorize reconciliation.
+4. **Hostname cutover** — Prove DNS/custom-domain authority and rollback acceptance before attaching `wtfhq.in`.
 
 ### Blockers/Concerns
 

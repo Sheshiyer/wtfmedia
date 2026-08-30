@@ -28,7 +28,7 @@ describe("public-routes contract — protected routes manifest", () => {
     expect(manifest.protected_routes).toEqual(Array.from(PROTECTED_PUBLIC_ROUTES));
   });
 
-  it("declares the local production calendar showcase as a public route", () => {
+  it("declares the shared target D1 production calendar as a public route", () => {
     expect(PROTECTED_PUBLIC_ROUTES).toContain("/production");
   });
 

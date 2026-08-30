@@ -44,7 +44,7 @@ test.describe("shared settings", () => {
     await expect(release.locator("summary")).toContainText("v0.1.3");
     await release.locator("summary").click();
     await expect(page.getByRole("heading", { name: "changelog", exact: true })).toBeVisible();
-    await expect(page.getByText("Local worktree snapshot — not a signed or published release.", { exact: true })).toBeVisible();
+    await expect(page.getByText("Target Cloudflare preview snapshot — workers.dev only; no custom-domain cutover or signed production release.", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: /configure|connect|save|apply/i })).toHaveCount(0);
   });
 

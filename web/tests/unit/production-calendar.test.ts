@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { routeIsActive } from "@/lib/public/route-is-active";
 import {
+  calendarRangeForDays,
+  kolkataDayToUtc,
+  utcToKolkataDay,
+} from "@/lib/ops/calendar";
+import {
   dayBoundsToIso,
   emptyProductionWorkspace,
   isProductionColumnId,
@@ -20,29 +25,13 @@ describe("production calendar model", () => {
     expect(emptyProductionWorkspace.state).toBe("active");
   });
 
-  it("declares the confirmed internal-beta gaps for review without calling either resolved", () => {
-    const workspace = emptyProductionWorkspace as unknown as {
-      betaDiscrepancies?: Array<{
-        id: string;
-        affectedField: string;
-        status: string;
-      }>;
-    };
-
-    expect(workspace.betaDiscrepancies).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: "cloudflare-test-dependency",
-          affectedField: "local jose dependency",
-          status: "needs-review",
-        }),
-        expect.objectContaining({
-          id: "ops-episodes-policy-drift",
-          affectedField: "/ops/episodes policy boundary",
-          status: "needs-review",
-        }),
-      ]),
-    );
+  it("normalizes Kolkata calendar days to bounded UTC query instants", () => {
+    expect(kolkataDayToUtc("2026-08-30")).toBe("2026-08-29T18:30:00.000Z");
+    expect(utcToKolkataDay("2026-08-29T18:30:00.000Z")).toBe("2026-08-30");
+    expect(calendarRangeForDays("2026-08-01", "2026-08-31")).toEqual({
+      from: "2026-07-31T18:30:00.000Z",
+      to: "2026-08-31T18:30:00.000Z",
+    });
   });
 
   it("shifts months in utc and formats bounds for closed date filters", () => {

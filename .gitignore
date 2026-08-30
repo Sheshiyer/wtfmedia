@@ -30,6 +30,7 @@ PRODUCT.md
 # Cloudflare local runtime and generated bindings
 cloudflare/.wrangler/
 cloudflare/worker-configuration.d.ts
+cloudflare/wrangler.target.generated.jsonc
 # Root-level wrangler runtime cache (not the cloudflare/ workspace)
 .wrangler/
 

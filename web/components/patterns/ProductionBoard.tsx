@@ -46,7 +46,7 @@ export function ProductionBoard({
             >
               <span>{column.label}</span>
               <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em]">
-                not activated
+                {columnPins.length} {columnPins.length === 1 ? "record" : "records"}
               </span>
             </button>
             <div

@@ -6,7 +6,7 @@ import { data } from "@/lib/episodes";
 const connections = [
   { name: "hosted MCP", detail: "requires an owner-approved endpoint and server-side verification record." },
   { name: "analytics provider", detail: "requires OAuth scope, revocation ownership, and an audited projection." },
-  { name: "calendar projection", detail: "requires a canonical schedule, timezone, conflict, and retention decision." },
+  { name: "external calendar provider", detail: "target D1 is active, while provider sync, OAuth, and external calendar administration remain held." },
 ] as const;
 
 const setupTemplates = [
@@ -36,7 +36,7 @@ const workspaceItems: readonly StatusLedgerItem[] = [
   {
     label: "production",
     state: "active",
-    detail: "open the local production calendar and board showcase before its records are wired.",
+    detail: "open the shared target D1 production calendar and board; list, create, and update are active while delete is unavailable.",
     href: "/production",
   },
   {
@@ -149,17 +149,17 @@ export function SettingsWorkspace() {
         <div className="mt-5 grid gap-4 md:grid-cols-2">{setupTemplates.map((template) => <StateCard key={template.name} title={template.name} detail={template.detail} state="awaiting approval" />)}</div>
       </SettingsDisclosure>
 
-      <SettingsDisclosure testId="settings-release-history" eyebrow="release record" title="release and history" meta="v0.1.3">
-        <p className="max-w-[60ch] font-body text-body text-secondary">Local worktree snapshot — not a signed or published release.</p>
+      <SettingsDisclosure testId="settings-release-history" eyebrow="release record" title="release and history" meta="v0.1.3 · target preview">
+        <p className="max-w-[60ch] font-body text-body text-secondary">Target Cloudflare preview snapshot — workers.dev only; no custom-domain cutover or signed production release.</p>
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
-          <StateCard title="v0.1.3" detail="Repository package version only; no channel, manifest, approver, or rollback event is active here." state="local scaffold" />
+          <StateCard title="v0.1.3" detail="Package version deployed to target preview Workers; custom domain, approver, signed manifest, and rollback cutover are not active." state="target preview" />
           <section aria-labelledby="settings-changelog-heading" className="border-2 border-foreground bg-surface-raised p-4">
             <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">local change record</p>
             <h3 id="settings-changelog-heading" className="mt-1 font-heading text-xl font-bold lowercase">changelog</h3>
             <ul className="mt-4 space-y-3 border-t-2 border-foreground/15 pt-4 font-body text-sm leading-relaxed text-secondary">
               <li>Settings consolidates workspace state and evidence receipts into compact, closed-by-default sections.</li>
               <li>Connections lists reveal the complete public atlas only when requested.</li>
-              <li>Production calendar and board remain browser-local planning UI until records are wired.</li>
+              <li>Production calendar and board now use shared target D1 records; edits are anonymous and delete remains unavailable.</li>
             </ul>
           </section>
         </div>

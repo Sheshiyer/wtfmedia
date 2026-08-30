@@ -14,6 +14,7 @@ import {
   type DB,
 } from "./db";
 import { handleOpsRequest, type OpsEnv } from "./ops-router";
+import { allowCalendarRequest, handleCalendarRequest } from "./calendar";
 
 export interface Env extends OpsEnv {
   AI: any;
@@ -26,6 +27,8 @@ export interface Env extends OpsEnv {
   RATE_LIMIT_PER_MINUTE: string;
   INGEST_TOKEN: string;
   EDGE_SHARED_SECRET: string;
+  CALENDAR_READ_RATE_LIMIT_PER_MINUTE?: string;
+  CALENDAR_WRITE_RATE_LIMIT_PER_MINUTE?: string;
 }
 
 type TranscriptJob = {
@@ -381,6 +384,19 @@ export default {
     }
     if (url.pathname === "/ops" || url.pathname.startsWith("/ops/")) {
       return handleOpsRequest(request, env);
+    }
+    if (url.pathname === "/v1/calendar" || url.pathname.startsWith("/v1/calendar/")) {
+      if (!env.EDGE_SHARED_SECRET || request.headers.get("X-Edge-Secret") !== env.EDGE_SHARED_SECRET) {
+        return reply(request, env, { error: "unauthorized" }, 401);
+      }
+      try {
+        if (!(await allowCalendarRequest(request, env))) {
+          return reply(request, env, { error: "rate_limited" }, 429);
+        }
+      } catch {
+        return reply(request, env, { error: "calendar_unavailable" }, 503);
+      }
+      return handleCalendarRequest(request, env);
     }
     if (request.method === "POST" && url.pathname === "/v1/chat") {
       if (!env.EDGE_SHARED_SECRET || request.headers.get("X-Edge-Secret") !== env.EDGE_SHARED_SECRET) return reply(request, env, { error: "unauthorized" }, 401);

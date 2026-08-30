@@ -1,9 +1,8 @@
 import { ProductionWorkspace } from "@/components/domain/ops/ProductionWorkspace";
 
 /**
- * UI-only public projection of the production planner. It deliberately
- * reuses the local calendar and board interactions without importing any
- * schedule, owner, asset, or provider state.
+ * Public projection of the target D1 production planner. Provider sync,
+ * deletion, and verified identity attribution remain outside this release.
  */
 export function ProductionCalendarShowcase() {
   return <ProductionWorkspace />;

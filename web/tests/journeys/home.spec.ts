@@ -40,7 +40,7 @@ test.describe("WTF OS public home", () => {
     await expect(page.getByTestId("cta-primary")).toHaveAttribute("href", "/chat");
     await expect(page.getByRole("heading", { name: "workspace state", exact: true })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "source rail", exact: true })).toBeVisible();
-    await expect(page.getByText("open the local production calendar and board showcase before its records are wired.")).toHaveCount(0);
+    await expect(page.getByText("open the shared target D1 production calendar and board", { exact: false })).toHaveCount(0);
   });
 
   test("keeps navigation routes available from the dock or compact controls", async ({ page }) => {

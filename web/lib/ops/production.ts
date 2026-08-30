@@ -10,113 +10,13 @@ export const productionPinTones = ["attention", "editorial", "knowledge", "live"
 
 export type ProductionPinTone = (typeof productionPinTones)[number];
 
-export const betaReviewDispositions = [
-  "needs-review",
-  "acknowledged",
-  "owner-decision",
-  "hold",
-] as const;
-
-export type BetaReviewDisposition = (typeof betaReviewDispositions)[number];
-
-export type BetaDiscrepancy = {
-  id: "cloudflare-test-dependency" | "ops-episodes-policy-drift";
-  title: string;
-  source: string;
-  scope: string;
-  affectedField: string;
-  observation: string;
-  recommendation: string;
-  status: "needs-review";
-};
-
-export type BetaReviewRecord = {
-  discrepancyId: BetaDiscrepancy["id"];
-  disposition: BetaReviewDisposition;
-  note: string;
-};
-
-export const betaReviewStorageKey = "wtfmedia:production-beta-review";
-
-export const internalBetaDiscrepancies: readonly BetaDiscrepancy[] = [
-  {
-    id: "cloudflare-test-dependency",
-    title: "Cloudflare suite dependency is unavailable locally",
-    source: "unfiltered local Cloudflare suite",
-    scope: "isolated Cloudflare test workspace",
-    affectedField: "local jose dependency",
-    observation: "The suite cannot load its auth-focused tests because the local jose module is absent.",
-    recommendation: "Restore the isolated workspace dependency, then rerun the unfiltered suite before treating this check as complete.",
-    status: "needs-review",
-  },
-  {
-    id: "ops-episodes-policy-drift",
-    title: "An unreviewed episode route appears in policy discovery",
-    source: "unfiltered local Cloudflare suite",
-    scope: "operator route policy",
-    affectedField: "/ops/episodes policy boundary",
-    observation: "The current policy test sees the unreviewed /ops/episodes draft outside the approved operations route baseline.",
-    recommendation: "Keep the draft outside release evidence or review its policy change as a separate, bounded work item.",
-    status: "needs-review",
-  },
-];
-
-function isBetaDiscrepancyId(value: string): value is BetaDiscrepancy["id"] {
-  return internalBetaDiscrepancies.some((item) => item.id === value);
-}
-
-export function isBetaReviewDisposition(value: string): value is BetaReviewDisposition {
-  return betaReviewDispositions.includes(value as BetaReviewDisposition);
-}
-
-export function readBetaReviewRecords(value: string | null): BetaReviewRecord[] {
-  if (!value) return [];
-
-  try {
-    const parsed: unknown = JSON.parse(value);
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed.flatMap((item): BetaReviewRecord[] => {
-      if (!item || typeof item !== "object") return [];
-      const record = item as Record<string, unknown>;
-      if (
-        typeof record.discrepancyId !== "string" ||
-        typeof record.disposition !== "string" ||
-        typeof record.note !== "string" ||
-        !isBetaDiscrepancyId(record.discrepancyId) ||
-        !isBetaReviewDisposition(record.disposition)
-      ) {
-        return [];
-      }
-
-      return [
-        {
-          discrepancyId: record.discrepancyId,
-          disposition: record.disposition,
-          note: record.note.trim().slice(0, 500),
-        },
-      ];
-    });
-  } catch {
-    return [];
-  }
-}
-
-export function upsertBetaReviewRecord(
-  records: readonly BetaReviewRecord[],
-  next: BetaReviewRecord,
-): BetaReviewRecord[] {
-  const remaining = records.filter((record) => record.discrepancyId !== next.discrepancyId);
-  return [...remaining, next];
-}
-
 export type ProductionPin = {
   id: string;
   note: string;
   day: string;
   column: ProductionColumnId;
   owner: string | null;
-  sketch: true;
+  sketch: boolean;
   tone: ProductionPinTone;
 };
 

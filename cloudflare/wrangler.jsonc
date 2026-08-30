@@ -8,7 +8,9 @@
   "observability": { "enabled": true },
   "vars": {
     "ALLOWED_ORIGIN": "https://wtfmedia.vercel.app",
-    "RATE_LIMIT_PER_MINUTE": "20"
+    "RATE_LIMIT_PER_MINUTE": "20",
+    "CALENDAR_READ_RATE_LIMIT_PER_MINUTE": "60",
+    "CALENDAR_WRITE_RATE_LIMIT_PER_MINUTE": "12"
   },
   "ai": { "binding": "AI" },
   "vectorize": [

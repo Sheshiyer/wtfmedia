@@ -1,5 +1,47 @@
 # Project handoff
 
+## 2026-08-30 Target Cloudflare preview and D1 calendar live
+
+**Status:** TARGET PREVIEW DEPLOYED — the owner-confirmed canonical
+`codex/wtfmedia-release-integration` worktree is reconciled with PR #23 and is
+deployed through the mapped `wtfmedia` profile. This is workers.dev preview
+proof, not `wtfhq.in` cutover.
+
+- Target `wtfmedia-edge` is live with R2 `wtfmedia-catalogue`, KV
+  `WTFMEDIA_STATE`, Vectorize `wtfmedia-catalogue-v1`, D1 `wtfmedia-ops`,
+  Workers AI, and `wtfmedia-ingest` bindings. The queue lists one edge producer
+  and one edge consumer; the target DLQ remains configured.
+- Target `wtfmedia-web` is live as an OpenNext Worker with static assets,
+  Images, self-reference, and a least-privilege service binding to the edge
+  Worker. No Pages project was created.
+- D1 migration `0006_public_calendar.sql` adds the public calendar tables,
+  indexes, revision/no-delete enforcement, and append-only mutation receipts.
+  Public list/create/update crosses only the same-origin web API and paired
+  server secret; delete remains unavailable.
+- Fresh paired edge/web shared authority and ingest authority were generated in
+  private mode-restricted temporary files for each deploy, placed through
+  Wrangler, then overwritten and removed locally. No secret or account-scoped
+  identifier is committed.
+- Live verification passed: edge health 200; direct calendar/chat/ingest 401;
+  web root 200; one grounded Ask WTF response with six catalogue sources;
+  calendar create/update/reload; and D1 readback. The retained operational
+  preview record is `on-calendar`, revision 3, with three append-only receipts.
+  One extra anonymous update receipt cannot be attributed by design; the final
+  record fields are unchanged and no identity is inferred.
+- Browser verification at compact and desktop widths found the persisted
+  record, responsive calendar controls, no horizontal overflow, and no console
+  warnings/errors. It exposed one stale local-only sentence; a failing browser
+  assertion was added, the production/Settings/manifest copy was corrected,
+  and the paired Workers were redeployed with another fresh secret rotation.
+- Fresh verification: edge 127/127; web typecheck and lint; 59 unit, 101
+  component, and 84 contract tests; focused production journeys; Next build;
+  OpenNext build; and `git diff --check`.
+
+**Held next:** keep `9d9d` read-only until a separately authorized quiesce and
+final R2/KV/Vectorize delta. Do not touch `default`. Do not attach `wtfhq.in`,
+change DNS, create Access/RBAC, create Pages, or delete source resources until
+their recorded gates are separately satisfied.
+
 ## 2026-08-30 PR #23 merged baseline accepted for release integration
 
 **Status:** `origin/main` at `e0791f8` is the reviewed UI baseline. The

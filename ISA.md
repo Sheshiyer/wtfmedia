@@ -259,11 +259,11 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-151: Authorized Settings renders appearance, connections, client setup, release, and OTA sections (probe: browser role assertions).
 - [x] ISC-152: Settings renders unavailable connections as not configured rather than connected (probe: browser text assertion).
 - [x] ISC-153: Anti: Settings serializes no credential, endpoint, OAuth value, or provider response (probe: privacy scan and page assertion).
-- [x] ISC-154: A local production sketch stores one explicit semantic tone (probe: unit test).
-- [x] ISC-155: Moving a local production sketch preserves its semantic tone (probe: unit test).
-- [x] ISC-156: Pointer movement changes only local production planner state (probe: browser assertion).
-- [x] ISC-157: Keyboard users can move a selected sketch through the pin well (probe: browser assertion).
-- [x] ISC-158: Production planner views state that sketches are local only and not synced (probe: browser text assertion).
+- [x] ISC-154: A shared target D1 production record stores one explicit semantic tone (probe: unit plus live readback).
+- [x] ISC-155: Moving a shared production record preserves its semantic tone and advances its revision (probe: browser/API assertion).
+- [x] ISC-156: Pointer movement sends one revision-guarded update and refetches every planner view (probe: browser assertion).
+- [x] ISC-157: Keyboard users can update a selected record through labelled editor controls without a delete action (probe: browser assertion).
+- [x] ISC-158: Production planner views state that records use target D1, anonymous edits are not attributable, and delete is unavailable (probe: browser text assertion).
 - [x] ISC-159: The desktop WTF OS shell exposes route navigation through a label-visible dock and has no fixed left rail (probe: desktop DOM assertion).
 - [x] ISC-160: The global Ask WTF controls surface opens from the desktop dock and keyboard shortcut, then navigates to an allowed workspace (probe: browser journey).
 - [x] ISC-161: Global controls may update only local appearance or route a source question to `/chat` (probe: component/browser contract).
@@ -272,9 +272,21 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-164: Anti: Connections renders no established/emerging/strongest ranking panels or fabricated relationship claim (probe: DOM assertion and public projection contract).
 - [x] ISC-165: Rendered desktop dock, atlas index, and selected source receipt meet WCAG AA contrast in explicit dark mode (probe: browser contrast journey).
 - [x] ISC-166: The mobile menu, global Ask WTF trigger, and Connections page remain contained at 320 CSS pixels (probe: browser viewport journey).
-- [x] ISC-167: The internal beta review lane names the observed Cloudflare dependency and operator-policy discrepancies with their source, scope, field, observation, and recommended action (probe: unit and browser assertions).
-- [x] ISC-168: An operator can store a beta disposition and note for one discrepancy through a browser reload (probe: browser journey).
-- [x] ISC-169: Anti: a beta review record claims no D1, Cloudflare, shared-audit, or release-gate persistence (probe: rendered copy assertion).
+- [x] ISC-167: Anti: the retired browser-local beta discrepancy lane is absent from current public and operator production surfaces (probe: source and browser assertion).
+- [x] ISC-168: A target calendar mutation persists through D1 and a fresh API/browser reload (probe: live create/update/readback).
+- [x] ISC-169: Calendar copy distinguishes anonymous operational receipts from verified-person audit or release approval (probe: rendered copy assertion).
+
+### Target Cloudflare preview execution
+
+- [x] ISC-170: Every Cloudflare mutation uses the explicit `wtfmedia` profile while `9d9d` remains read-only and `default` remains untouched (probe: command/deployment receipts).
+- [x] ISC-171: Target-generated account/resource identifiers live only in an ignored mode-600 Wrangler configuration (probe: ignore, mode, and secret scan).
+- [x] ISC-172: Fresh edge/web shared authority is generated and placed as one pair, with temporary secret files destroyed after deployment (probe: deploy-script contract plus protected-call checks).
+- [x] ISC-173: D1 migration `0006` enforces bounded calendar records, monotonic revisions, append-only receipts, and no delete (probe: local migration suite plus remote schema/readback).
+- [x] ISC-174: Anonymous calendar writes cross only the same-origin web API and server-side edge service binding; direct edge access denies without authority (probe: contract tests plus live 401/200 checks).
+- [x] ISC-175: Target `wtfmedia-edge` binds R2, KV, Vectorize, D1, queue, and Workers AI while `wtfmedia-web` binds assets, Images, self-reference, and edge service (probe: deployment binding receipts).
+- [x] ISC-176: A live Ask WTF request returns a grounded answer with catalogue sources after paired secret rotation (probe: workers.dev integration receipt).
+- [x] ISC-177: The live production page preserves D1 truth, clean console state, and viewport containment at compact and desktop widths (probe: in-app-browser screenshots, DOM, and metrics).
+- [x] ISC-178: Anti: preview execution creates no Pages project, Access/RBAC policy, DNS/custom domain, source quiesce, or source deletion (probe: mutation ledger and post-deploy inventory).
 
 ## Test Strategy
 
@@ -293,7 +305,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-129..134 | design authority | reference lock, semantic palette, route split, migration map, foundation, and privacy boundary are explicit | 100% document probes | Markdown parser + bounded scans |
 | ISC-135..140 | client scope reconciliation | delivery tracks, blockers, stable requirement ownership, and preserved Phase 1 plans remain explicit | 100% document and Git probes | Markdown parser + coverage script + Git hashes |
 | ISC-141..144 | architecture evidence | current topology, Phase 1 Access exemption, deterministic regeneration, and no false live claim remain explicit | all source/check probes pass | generator + static HTML assertions + CI workflow parse |
-| ISC-145..169 | UI Wave 1 | local appearance/planner, internal beta review, responsive shell, truthful Settings, public atlas, safe controls, contrast, and viewport containment | 100% focused browser/unit/privacy assertions | Vitest + Playwright + privacy scan |
+| ISC-145..178 | UI Wave 1 + target preview | appearance, D1 planner, responsive shell, truthful Settings, public atlas, safe controls, target bindings, secret boundary, and viewport containment | 100% focused tests plus live preview receipts | Vitest + Playwright + in-app browser + Wrangler |
 
 ## Features
 
@@ -439,6 +451,8 @@ _Generated by `scripts/generate-architecture-ledger.mjs` from the reviewed sourc
 - 2026-08-29 19:10 IST: refined: UI Wave 1 additionally replaces the fixed desktop rail with a token-bound ReactBits-Dock-derived navigation surface, reduces Connections to one public idea atlas, and separates global local controls from public source chat. The refinement is additive; Cloudflare, secrets, privileged commands, uncut media, retrieval tuning, OAuth, and calendar sync remain independently gated.
 - 2026-08-29 19:10 IST: The required pre-build Advisor call for this additive refinement was attempted and failed because the local OAuth session remains expired. The noesis-plan combo separately returned bounded 429 capacity failures. Neither credential nor provider state was changed; design/product audits and deterministic repository probes are the local evidence basis.
 - 2026-08-29 20:47 IST: refined: Confirmed local Cloudflare test and policy discrepancies are shown in an authenticated internal-beta review lane, with field-level context, a proposed disposition, and a browser-local note. This is review evidence only: it neither repairs the dependency/policy nor creates a D1, Cloudflare, release, or shared-audit record.
+- 2026-08-30 18:47 IST: superseded: The browser-local production and beta-review acceptance criteria are replaced by the owner-authorized target-preview contract. Target D1 is canonical for public calendar list/create/update; edits remain anonymous, revisioned, and append-only, while delete, Access/RBAC, provider sync, and verified actor attribution remain unavailable.
+- 2026-08-30 18:47 IST: Target `wtfmedia-edge` and `wtfmedia-web` are deployed from the canonical release-integration worktree with target-owned bindings and freshly paired secrets. Live health, denial, RAG, calendar persistence, responsive layout, and clean-console receipts satisfy ISC-170 through ISC-178; source quiesce/final delta and `wtfhq.in` cutover remain separate gates.
 
 ## Changelog
 

@@ -18,52 +18,122 @@ async function authenticate(page: Page, role: "admin" | "editor" = "admin") {
   });
 }
 
+async function mockCalendar(page: Page) {
+  let revision = 0;
+  let records: Array<Record<string, unknown>> = [];
+  await page.route("**/api/calendar**", async (route) => {
+    const request = route.request();
+    const method = request.method();
+    if (method === "GET") {
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: records }) });
+      return;
+    }
+    if (method === "POST") {
+      const body = request.postDataJSON();
+      revision = 1;
+      const event = {
+        id: `cal_${"a".repeat(32)}`,
+        ...body,
+        revision,
+        createdAt: "2026-08-30T00:00:00.000Z",
+        updatedAt: "2026-08-30T00:00:00.000Z",
+      };
+      records = [event];
+      await route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify({ event, idempotent: false }) });
+      return;
+    }
+    if (method === "PATCH") {
+      const body = request.postDataJSON();
+      const current = records[0];
+      if (!current || body.revision !== current.revision) {
+        await route.fulfill({ status: 409, contentType: "application/json", body: JSON.stringify({ error: "revision_conflict", currentRevision: current?.revision ?? 0 }) });
+        return;
+      }
+      revision += 1;
+      const event = { ...current, ...body, revision, updatedAt: "2026-08-30T00:01:00.000Z" };
+      delete event.idempotencyKey;
+      records = [event];
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ event }) });
+      return;
+    }
+    await route.fulfill({ status: 405, contentType: "application/json", body: JSON.stringify({ error: "method_not_allowed" }) });
+  });
+}
+
 test("production chrome is empty and does not invent workflow counts", async ({ page }) => {
   await authenticate(page);
+  await mockCalendar(page);
   await page.goto("/ops/production", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: "production" })).toBeVisible();
-  await expect(page.getByText("no episode records, owners, or counts are inferred.")).toBeVisible();
+  await expect(page.getByText("records shown here come from the target D1 calendar.", { exact: false })).toBeVisible();
   await expect(page.getByText("0 episodes")).toHaveCount(0);
   await expect(page.getByText("0 tasks")).toHaveCount(0);
   await expect(page.getByRole("region", { name: "production calendar" })).toBeVisible();
   await page.getByRole("button", { name: "board" }).click();
   await expect(page.getByRole("region", { name: "production board" })).toBeVisible();
-  await expect(page.getByLabel("owner")).toBeDisabled();
+  await expect(page.getByLabel("owner label")).toBeEnabled();
 });
 
-test("production copy stays local and does not claim a shared audit record", async ({ page }) => {
+test("production copy states the temporary anonymous D1 policy", async ({ page }) => {
   await authenticate(page);
+  await mockCalendar(page);
   await page.goto("/ops/production", { waitUntil: "domcontentloaded" });
 
-  await expect(page.getByText("local sketches stay in this browser tab and are not backend records.")).toBeVisible();
-  await expect(page.getByText(/shared audit record/i)).toHaveCount(0);
+  const policyCopy = page.locator("p").filter({ hasText: "records shown here come from the target D1 calendar" });
+  await expect(policyCopy).toContainText("edits are anonymous and cannot be attributed to a verified person.");
+  await expect(policyCopy).toContainText("delete is unavailable.");
 });
 
-test("operator can place, drag, and move a colour-coded local sketch", async ({ page }) => {
+test("operator can create, drag, and update a response-backed calendar record", async ({ page }) => {
   await authenticate(page);
+  await mockCalendar(page);
   await page.goto("/ops/production", { waitUntil: "domcontentloaded" });
 
   await page.getByLabel("day").fill("2026-08-29");
   await page.getByLabel("colour / flow").selectOption("knowledge");
   await page.getByLabel("production note").fill("source receipt check");
-  await page.getByRole("button", { name: "place local sketch" }).click();
+  await page.getByRole("button", { name: "create record" }).click();
+  await expect(page.getByText("calendar record saved in D1", { exact: false })).toBeVisible();
 
-  const sketch = page.getByRole("button", { name: "select sketch source receipt check" });
-  await expect(sketch).toHaveAttribute("data-pin-tone", "knowledge");
+  await page.reload({ waitUntil: "domcontentloaded" });
+  const record = page.getByRole("button", { name: "select record source receipt check" });
+  await expect(record).toHaveAttribute("data-pin-tone", "knowledge");
+  await record.click();
 
-  await sketch.dragTo(page.locator('[data-calendar-day="2026-08-30"]'));
+  await record.dragTo(page.locator('[data-calendar-day="2026-08-30"]'));
   await page.getByLabel("day").fill("2026-08-31");
   await page.getByLabel("column").selectOption("blocked");
-  await page.getByRole("button", { name: "move selected sketch" }).click();
+  await page.getByRole("button", { name: "update selected record" }).click();
   await page.getByRole("button", { name: "board" }).click();
 
   const blockedColumn = page.locator('[data-production-column="blocked"]');
-  await expect(blockedColumn.getByRole("button", { name: "select sketch source receipt check" })).toBeVisible();
+  await expect(blockedColumn.getByRole("button", { name: "select record source receipt check" })).toBeVisible();
   await expect(blockedColumn.getByText("2026-08-31")).toBeVisible();
+});
+
+test("failed calendar creation preserves the form and reports server truth", async ({ page }) => {
+  await authenticate(page);
+  await page.route("**/api/calendar**", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [] }) });
+      return;
+    }
+    await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ error: "calendar_unavailable" }) });
+  });
+  await page.goto("/ops/production", { waitUntil: "domcontentloaded" });
+  await page.getByLabel("day").fill("2026-08-29");
+  await page.getByLabel("production note").fill("keep this input");
+  await page.getByRole("button", { name: "create record" }).click();
+
+  await expect(page.locator('p[role="alert"]')).toContainText("your changes were not saved");
+  await expect(page.getByLabel("day")).toHaveValue("2026-08-29");
+  await expect(page.getByLabel("production note")).toHaveValue("keep this input");
+  await expect(page.getByRole("button", { name: "select record keep this input" })).toHaveCount(0);
 });
 
 test("editor can open production chrome but not administration", async ({ page }) => {
   await authenticate(page, "editor");
+  await mockCalendar(page);
   await page.goto("/ops/production", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: "production" })).toBeVisible();
   if ((page.viewportSize()?.width ?? 1024) < 1024) {

@@ -116,7 +116,7 @@ function CalendarDay({
         type="button"
         onClick={() => onSelect(cell.iso)}
         aria-pressed={selected}
-        aria-label={`${cell.iso}${pins.length ? `, ${pins.length} sketches` : ""}`}
+        aria-label={`${cell.iso}${pins.length ? `, ${pins.length} records` : ""}`}
         className="font-label text-[11px] font-semibold tabular-nums focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
       >
         {cell.day}

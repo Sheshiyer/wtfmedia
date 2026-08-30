@@ -20,6 +20,12 @@ import { NextRequest } from "next/server";
 import { startRagStub, triggerQuestion, DUMMY_SHARED_SECRET } from "../support/rag-stub.mjs";
 import http from "node:http";
 
+const { getCloudflareContext } = vi.hoisted(() => ({
+  getCloudflareContext: vi.fn(),
+}));
+
+vi.mock("@opennextjs/cloudflare", () => ({ getCloudflareContext }));
+
 /** @type {Awaited<ReturnType<typeof startRagStub>>} */
 let stub: Awaited<ReturnType<typeof startRagStub>>;
 
@@ -31,14 +37,30 @@ afterEach(async () => {
   await stub.close();
   vi.unstubAllEnvs();
   vi.resetModules();
+  getCloudflareContext.mockReset();
 });
+
+function serviceBinding(url: string) {
+  return {
+    async fetch(input: Request | URL | string, init?: RequestInit) {
+      const incoming = input instanceof Request ? input : new Request(input, init);
+      const target = new URL(incoming.url);
+      return fetch(new URL(target.pathname, url), {
+        method: incoming.method,
+        headers: incoming.headers,
+        body: incoming.method === "GET" || incoming.method === "HEAD" ? undefined : await incoming.arrayBuffer(),
+        signal: incoming.signal,
+      });
+    },
+  };
+}
 
 async function importRoute(opts: { ragUrl?: string; sharedSecret?: string } = {}) {
   const ragUrl = opts.ragUrl ?? stub.url;
   const sharedSecret = "sharedSecret" in opts ? opts.sharedSecret : DUMMY_SHARED_SECRET;
   vi.resetModules();
-  vi.stubEnv("CLOUDFLARE_RAG_URL", ragUrl);
   vi.stubEnv("CLOUDFLARE_EDGE_SHARED_SECRET", sharedSecret ?? "");
+  getCloudflareContext.mockResolvedValue({ env: { WTFMEDIA_EDGE: serviceBinding(ragUrl) } });
   return import("@/app/api/chat/route");
 }
 

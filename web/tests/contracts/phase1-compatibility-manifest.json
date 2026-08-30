@@ -162,7 +162,7 @@
     "/production": {
       "kind": "public page",
       "query_behavior": "no route-owned query behavior",
-      "data_semantics": "browser-local production calendar and board UI showcase with no connected schedule, owner, asset, or provider data"
+      "data_semantics": "shared target D1 production calendar and board with anonymous list, create, and update; delete, verified identity attribution, and external provider sync remain unavailable"
     },
     "/settings": {
       "kind": "public page",

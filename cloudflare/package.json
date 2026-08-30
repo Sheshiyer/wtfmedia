@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "target:config": "node scripts/generate-target-config.mjs",
+    "target:dry-run": "node ../scripts/wrangler-profile.mjs wtfmedia deploy --dry-run --config wrangler.target.generated.jsonc",
+    "target:deploy": "node scripts/deploy-target.mjs",
     "types": "wrangler types",
     "test": "node scripts/test.mjs"
   },
