@@ -1,5 +1,105 @@
 # Project handoff
 
+## 2026-08-30 Compact public lists and shared settings UI
+
+**Status:** LOCAL UI INTEGRATION — scoped to `codex/wtfmedia-release-integration`. No D1 record, calendar provider, asset transfer, Cloudflare resource, deployment, DNS record, secret, RBAC policy, or production state was changed.
+
+- `/connections` now shows eight ideas and eight overlaps by default, with accessible reveal/collapse controls. A selected source receipt also starts its direct overlaps and published sources compact before revealing the complete public list.
+- The public home page no longer renders the workspace-state matrix or its paired evidence-receipt panel. It moves directly from the source spotlight to the source rail.
+- `/settings` uses the existing `SettingsWorkspace` UI instead of maintaining a separate public settings screen. It exposes browser-local appearance and truthful held integration states only; there are no configure, connect, save, or apply actions. `/ops/settings` retains the same shared UI behind its existing route gate.
+- The desktop dock and compact controls include Settings. The compact controls surface is navigation and source-chat only; appearance and declarative capability inventory are removed from it.
+- Verified locally: TypeScript; ESLint; privacy scan (0 violations across 271 bounded files); `git diff --check`; focused route/token contracts (10/10); targeted Connections, home, settings, and controls Playwright at 320px (24/24 plus 2 viewport-inapplicable skips), 768px (24/24 plus 2 skips), and 1440px (26/26); and Next production build. Fresh in-app-browser review of `/`, `/settings`, `/connections`, and `/production` found no horizontal overflow or console warnings/errors.
+- The broad `npm run test:contracts` is not a fresh green proof: its four `rag-latency` cases return the safe unconfigured 503 rather than the test fixture's expected 200. That external/RAG condition is outside this UI-only change.
+
+**Review next:** review the local integration candidate at `/`, `/connections`, `/settings`, and `/production`. Do not infer provider wiring, credential setup, RBAC enforcement, merge, Cloudflare cutover, or release authorization from this checkpoint.
+
+## 2026-08-30 Public production-calendar UI showcase
+
+**Status:** LOCAL UI INTEGRATION — scoped to `codex/wtfmedia-release-integration`. No D1 record, calendar provider, asset transfer, Cloudflare resource, deployment, DNS record, secret, or production state was changed.
+
+- Public `/production` now projects the existing calendar and board as a browser-local visual showcase. It supports local planning sketches only and expressly states that schedules, owners, assets, and providers are not connected.
+- `production` is available from the desktop navigation dock and compact workspace controls. The public home workspace directs reviewers to this local showcase.
+- The existing operator `/ops/production` stays the separate restricted workspace; its internal beta-review cards are not rendered on the public showcase.
+- Verified locally: TypeScript; ESLint; unit tests (56/56, with the pre-existing post-completion hanging-process warning); production/home Playwright across 320px, 768px, and 1440px (15/15); Next production build; privacy scan (0 violations across 270 files); `git diff --check`; and direct local preview at `/production` from both the dock and the route. The local server returned `GET /production 200`.
+
+**Review next:** review the local UI candidate at `/production`. Do not infer D1/calendar/provider wiring, asset migration, merge, Cloudflare cutover, or release authorization from this checkpoint.
+
+## 2026-08-30 Chat control and appearance repair
+
+**Status:** LOCAL IMPLEMENTATION — scoped to `codex/wtfmedia-release-integration`. No source worktree, Cloudflare resource, deployment, DNS record, provider, secret, or production state was changed.
+
+- The public Ask WTF composer now reflows its label, help text, field, and action without horizontal clipping; its action is full-width on compact screens and a stable 128px control at wider sizes.
+- Shared buttons now have consistent interaction transitions and an explicit semantic disabled surface. The public retry fallback is concise and does not expose internal-handoff wording in the chat transcript.
+- Appearance controls retain the same visual language and apply atomically, preventing any low-contrast frame while a persisted or newly selected theme takes effect.
+- The obsolete compact left navigation drawer and hamburger trigger are retired across public and operator shells. Compact navigation, appearance, public-workspace, and sign-out paths are all available from the existing right-side workspace controls surface.
+- Verified locally: typecheck; ESLint; unit tests (56/56); focused controls/appearance/operator Playwright (16/16); chat Playwright at 320px, 768px, and 1440px (48/48); privacy scan (0 violations across 268 files); and `git diff --check`. The unit runner reports its pre-existing post-completion hanging-process warning after all tests pass.
+
+**Review next:** visual review the local integration candidate. Do not infer merge, release, Cloudflare migration, or production authorization from this checkpoint.
+
+## 2026-08-30 Reviewable internal-release integration
+
+**Status:** LOCAL REVIEW BRANCH — `codex/wtfmedia-release-integration` combines the separate Cloudflare web-migration delta and the uncommitted UI Wave 1 delta above their shared `568022a` base. It is not committed, merged, deployed, or connected to a provider. Neither source worktree was modified.
+
+- The merged package graph keeps the Cloudflare migration's Next 15.5.24, OpenNext 1.20.4, and Wrangler 4.125.0 with UI Wave 1's `motion@12.23.24` Dock dependency.
+- Desktop uses the intended label-visible bottom dock. The mobile navigation drawer is now entirely the structural dark surface with token-backed cream inactive labels and markers; a rendered 320px check measured 16.26:1 contrast with no horizontal overflow.
+- The source-labelled beta review cards remain browser-local only and do not represent a D1, Cloudflare, shared-audit, or release-approval record.
+- The intake record at `.planning/inputs/client-questions/2026-08-30-internal-release-evidence-intake.md` captures the three quarantined rows, a synthetic 20-query evaluator pack, and ten blank alignment-evidence intake cases. No synthetic row is an authored answer key or alignment proof.
+- Verified locally: clean dependency install; TypeScript; ESLint; privacy scan (0 violations across 268 bounded files); unit tests (56/56); `/api/chat` contracts (20/20); Next production build; OpenNext Cloudflare build; and focused 320px/1440px production + shell Playwright (14 passed, 2 intended desktop-dock skips).
+
+**Review next:** provide the three Q-row outcomes, replace synthetic evaluator entries with a client-authored answer key, complete ten evidence references, and separately authorize the Phase 3 Access implementation. Do not use this review branch as deployment or activation authority.
+
+## 2026-08-29 Cloudflare-native web Worker preview
+
+**Status:** PREVIEW DEPLOYED — direct owner request authorized a separate
+Cloudflare preview Worker at
+`https://wtfmedia-web.sheshnarayan-iyer.workers.dev`. No DNS, Vercel deletion,
+secret rotation, Access application, or production `/ops` cutover has occurred
+at this checkpoint.
+
+- `web/` now builds as the `wtfmedia-web` OpenNext Worker with static assets,
+  Cloudflare Images, a self-reference, and a least-privilege service binding
+  to the existing `wtfmedia-edge` Worker.
+- `/api/chat` preserves its public contract but uses the internal Worker
+  service binding. It needs an owner-managed `EDGE_SHARED_SECRET` on the new
+  web Worker before live answers can succeed; do not place the secret in
+  source or rotate the existing core secret during this migration.
+- The Vercel-specific metadata fallback and stale local-vector trace were
+  removed. The current frontend package is Next 15.5.24 with OpenNext 1.20.4
+  and Wrangler 4.125.0.
+- Passed locally: TypeScript, ESLint, focused `/api/chat` contracts (20),
+  OpenNext build, and an explicit `--profile 9d9d` Wrangler dry run.
+- Live preview smoke: `/`, `/episodes`, and `/chat` return public HTML; the
+  preview metadata resolves to the preview host; `/api/chat` safely returns
+  its unconfigured 503 until the secret handoff; and direct `/ops` renders the
+  reauthentication recovery state.
+
+**Pick-up:** Read `docs/CLOUDFLARE-WEB-MIGRATION.md`. Deploy only with
+`npm --prefix web run cf:deploy:9d9d`; do not persistently activate a Wrangler
+profile. Keep Vercel as rollback until an owner-approved custom hostname,
+secret handoff, public/chat smoke checks, and `/ops` Access migration have
+passed.
+
+## 2026-08-29 Internal beta discrepancy-review checkpoint
+
+**Status:** LOCAL IMPLEMENTATION — isolated `codex/wtfmedia-ui-wave1` branch only. No Cloudflare suite dependency, operator-policy draft, D1 record, deployment, provider, secret, or primary-checkout state was changed.
+
+- `/ops/production` now exposes two source-labelled review cards for the observed local `jose` dependency gap and the unreviewed `/ops/episodes` policy boundary.
+- Each card shows source, scope, affected field, observed condition, and recommended next action. An operator can select a disposition and add a note, which persists only in that browser's local storage.
+- The UI expressly says `not a shared audit record` and prohibits credentials, tokens, private media, and raw transcripts; it does not claim a release approval or a Cloudflare/D1 action.
+- Verified: targeted Vitest 5/5; typecheck; authenticated production Playwright 8/8 across 320px and 1440px; local desktop/narrow rendered review. The only test adjustment gave the existing planner note a unique accessible name (`production note`) so it remains distinct from a beta `review note`.
+
+**Next action:** Owner review can disposition the two gaps in beta. Repairing the local test dependency or reviewing the `/ops/episodes` policy draft remains separately scoped work; do not use a local beta record as closure evidence.
+
+## 2026-08-29 Additive UI Wave 1 refinement checkpoint
+
+**Status:** LOCAL IMPLEMENTATION — isolated branch `codex/wtfmedia-ui-wave1`; no merge, deploy, secret, provider, Cloudflare, or primary-checkout mutation.
+
+- The desktop fixed rail is replaced by a label-visible, ReactBits-Dock-derived navigation dock; the mobile drawer remains the accessible small-screen navigation.
+- `/connections` is reduced to one searchable public idea atlas with a semantic index and selected public source receipt. It does not infer ranking, relationships, ownership, or operational state.
+- Global Ask WTF controls may navigate, change only browser-local appearance, and route a source question to public `/chat`. The capability register is intentionally declarative: it exposes no endpoint, credential, model/provider response, privileged Worker action, or false connection state.
+- `motion@12.23.24` is added solely for the Dock interaction. The legacy rollback, public URLs, cloud runtime, existing Wave 1 draft work, and all separately gated integrations remain unchanged.
+- Verified locally: typecheck, 6 focused unit tests, combined 320px/1440px Playwright (48 passed; 2 intentional mobile-project skips for desktop-only Dock checks), privacy scan (0 violations), build, and diff whitespace check. Matching UI Wave 1 ISCs are recorded in `ISA.md`. Do not treat this local UI evidence as Cloudflare or provider activation proof.
+
 ## 2026-08-29 Client-question status review
 
 **Status:** LOCAL DOCUMENTATION — the client-question index at

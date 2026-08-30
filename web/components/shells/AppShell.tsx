@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { AppRail, type AppNavItem } from "./AppRail";
-import { Drawer } from "@/components/ui/Drawer";
-import { IconButton } from "@/components/ui/IconButton";
+import type { AppNavItem } from "./AppRail";
+import { AppDock } from "./AppDock";
+import { GlobalCommandSurface } from "./GlobalCommandSurface";
 import { SkipLink } from "@/components/ui/SkipLink";
 import { MigratedWordmarkMini } from "@/components/patterns/brand/MigratedWordmark";
 
@@ -11,23 +11,28 @@ export type AppShellProps = {
   children: React.ReactNode;
   navigation: readonly AppNavItem[];
   mode: "public" | "operator";
-  utility?: React.ReactNode;
 };
 
 export function AppShell({
   children,
   navigation,
   mode,
-  utility,
 }: AppShellProps) {
-  const [navigationOpen, setNavigationOpen] = useState(false);
-  const menuTrigger = useRef<HTMLButtonElement>(null);
-  const isOperator = mode === "operator";
+  const [commandOpen, setCommandOpen] = useState(false);
+  const mobileCommandTriggerRef = useRef<HTMLButtonElement>(null);
+  const desktopCommandTriggerRef = useRef<HTMLButtonElement>(null);
 
-  const handleNavigationOpenChange = (open: boolean) => {
-    setNavigationOpen(open);
+  const handleCommandOpenChange = (open: boolean) => {
+    setCommandOpen(open);
+
     if (!open) {
-      requestAnimationFrame(() => menuTrigger.current?.focus());
+      requestAnimationFrame(() => {
+        const desktopControls = window.matchMedia("(min-width: 1024px)").matches;
+        const trigger = desktopControls
+          ? desktopCommandTriggerRef.current
+          : mobileCommandTriggerRef.current;
+        trigger?.focus();
+      });
     }
   };
 
@@ -35,77 +40,29 @@ export function AppShell({
     <div
       data-wtf-shell="wtfos"
       data-shell-mode={mode}
-      className="min-h-screen bg-canvas text-foreground"
+      className="min-h-[100dvh] bg-canvas text-foreground"
     >
       <SkipLink targetId="wtf-main">skip to workspace</SkipLink>
 
-      <div data-wtf-shell="migrated" className="min-h-screen">
-        <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 border-r-2 border-foreground bg-surface-structure lg:block">
-          <AppRail
-            mode={mode}
-            navigation={navigation}
-            utility={utility}
-          />
-        </aside>
-
+      <div data-wtf-shell="migrated" className="min-h-[100dvh]">
         <header className="sticky top-0 z-40 flex min-h-16 items-center justify-between border-b-2 border-foreground bg-surface-structure px-4 text-on-structure lg:hidden">
           <MigratedWordmarkMini plate />
-          <IconButton
-            ref={menuTrigger}
-            aria-label={
-              isOperator
-                ? "open operations navigation"
-                : "Open application navigation"
-            }
-            aria-expanded={navigationOpen}
-            aria-controls={
-              isOperator
-                ? "wtf-operations-navigation"
-                : "wtf-application-navigation"
-            }
-            onClick={() => setNavigationOpen(true)}
-            className="border-foreground/50 text-on-structure hover:border-attention hover:bg-attention hover:text-on-attention"
+          <button
+            ref={mobileCommandTriggerRef}
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded={commandOpen}
+            onClick={() => setCommandOpen(true)}
+            className="min-h-11 border-2 border-knowledge bg-knowledge px-3 font-label text-[0.6875rem] font-bold lowercase tracking-[0.08em] text-on-knowledge hover:border-attention hover:bg-attention hover:text-on-attention focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention focus-visible:ring-offset-2 focus-visible:ring-offset-surface-structure"
           >
-            <span aria-hidden="true" className="grid gap-1">
-              <span className="block h-0.5 w-5 bg-current" />
-              <span className="block h-0.5 w-5 bg-current" />
-              <span className="block h-0.5 w-5 bg-current" />
-            </span>
-          </IconButton>
+            controls
+          </button>
         </header>
 
-        <Drawer
-          open={navigationOpen}
-          onOpenChange={handleNavigationOpenChange}
-          title={isOperator ? "operations navigation" : "application navigation"}
-          description={
-            isOperator
-              ? "authorized operations destinations"
-              : "open a WTF OS workspace"
-          }
-          side="left"
-        >
-          <div
-            id={
-              isOperator
-                ? "wtf-operations-navigation"
-                : "wtf-application-navigation"
-            }
-            className="-mx-6 -mb-6 -mt-4 h-[calc(100vh-5rem)]"
-          >
-            <AppRail
-              mode={mode}
-              navigation={navigation}
-              utility={utility}
-              onNavigate={() => handleNavigationOpenChange(false)}
-            />
-          </div>
-        </Drawer>
-
-        <div className="relative min-h-screen overflow-hidden lg:pl-60">
+        <div className="relative min-h-[100dvh] pb-24 lg:pb-28">
           <div
             aria-hidden="true"
-            className="pointer-events-none fixed inset-0 z-0 lg:left-60"
+            className="pointer-events-none fixed inset-0 z-0"
             style={{
               opacity: "var(--wtf-texture-dot-opacity)",
               backgroundImage:
@@ -117,11 +74,23 @@ export function AppShell({
           <main
             id="wtf-main"
             tabIndex={-1}
-            className="relative z-10 min-h-screen focus:outline-none"
+            className="relative z-10 min-h-[100dvh] focus:outline-none"
           >
             {children}
           </main>
         </div>
+        <AppDock
+          mode={mode}
+          navigation={navigation}
+          onOpenCommand={() => setCommandOpen(true)}
+          commandTriggerRef={desktopCommandTriggerRef}
+        />
+        <GlobalCommandSurface
+          open={commandOpen}
+          onOpenChange={handleCommandOpenChange}
+          navigation={navigation}
+          mode={mode}
+        />
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import {
   dayBoundsToIso,
   emptyProductionWorkspace,
   isProductionColumnId,
+  moveProductionPin,
   monthGrid,
   monthLabel,
   shiftMonth,
@@ -19,6 +20,31 @@ describe("production calendar model", () => {
     expect(emptyProductionWorkspace.state).toBe("not-activated");
   });
 
+  it("declares the confirmed internal-beta gaps for review without calling either resolved", () => {
+    const workspace = emptyProductionWorkspace as unknown as {
+      betaDiscrepancies?: Array<{
+        id: string;
+        affectedField: string;
+        status: string;
+      }>;
+    };
+
+    expect(workspace.betaDiscrepancies).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "cloudflare-test-dependency",
+          affectedField: "local jose dependency",
+          status: "needs-review",
+        }),
+        expect.objectContaining({
+          id: "ops-episodes-policy-drift",
+          affectedField: "/ops/episodes policy boundary",
+          status: "needs-review",
+        }),
+      ]),
+    );
+  });
+
   it("shifts months in utc and formats bounds for closed date filters", () => {
     expect(shiftMonth(2026, 0, -1)).toEqual({ year: 2025, month: 11 });
     expect(monthLabel(2026, 7)).toMatch(/august/i);
@@ -32,5 +58,45 @@ describe("production calendar model", () => {
     expect(routeIsActive("/ops/production", "/ops")).toBe(false);
     expect(routeIsActive("/ops/production", "/ops/production")).toBe(true);
     expect(routeIsActive("/ops", "/ops")).toBe(true);
+  });
+
+  it("moves only the selected local sketch and retains its semantic tone", () => {
+    const pins = [
+      {
+        id: "research-brief",
+        note: "verify the source brief",
+        day: "2026-08-28",
+        column: "unscheduled" as const,
+        owner: null,
+        sketch: true as const,
+        tone: "knowledge" as const,
+      },
+      {
+        id: "edit-pass",
+        note: "cut review",
+        day: "2026-08-29",
+        column: "on-calendar" as const,
+        owner: null,
+        sketch: true as const,
+        tone: "editorial" as const,
+      },
+    ];
+
+    const moved = moveProductionPin(pins, "research-brief", {
+      day: "2026-08-30",
+      column: "blocked",
+    });
+
+    expect(moved).toEqual([
+      expect.objectContaining({
+        id: "research-brief",
+        day: "2026-08-30",
+        column: "blocked",
+        tone: "knowledge",
+      }),
+      pins[1],
+    ]);
+    expect(moved[1]).toBe(pins[1]);
+    expect(pins[0]?.day).toBe("2026-08-28");
   });
 });

@@ -69,7 +69,10 @@ export function AppRail({
     });
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-surface-structure text-on-structure">
+    <div
+      className="flex h-full min-h-0 flex-col bg-surface-structure text-on-structure"
+      style={{ color: "rgb(var(--wtf-text-on-structure-rgb))" }}
+    >
       <div className="border-b-2 border-foreground/20 px-5 py-6">
         <Link
           href={mode === "operator" ? "/ops" : "/"}

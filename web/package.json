@@ -7,6 +7,11 @@
     "dev:ops": "WTF_PUBLIC_UI_VARIANT=migrated WTFMEDIA_OPS_ORIGIN_PROOF=phase2-e2e-test-key WTFMEDIA_OPS_LOCAL_ROLE=super_admin next dev",
     "build": "next build",
     "start": "next start",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:preview": "npm run cf:build && wrangler dev --config wrangler.jsonc",
+    "cf:typegen": "wrangler types --config wrangler.jsonc --env-interface CloudflareEnv",
+    "cf:deploy": "npm run cf:build && wrangler deploy --config wrangler.jsonc",
+    "cf:deploy:9d9d": "npm run cf:build && env -u CF_API_TOKEN -u CLOUDFLARE_API_TOKEN -u CF_ACCOUNT_ID -u CLOUDFLARE_ACCOUNT_ID wrangler deploy --config wrangler.jsonc --profile 9d9d",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test:unit": "node scripts/test-unit.mjs",
@@ -26,8 +31,9 @@
   },
   "dependencies": {
     "@radix-ui/react-dialog": "1.1.23",
-    "eslint-config-next": "^15.5.19",
-    "next": "^15.5.19",
+    "eslint-config-next": "15.5.24",
+    "motion": "12.23.24",
+    "next": "15.5.24",
     "ogl": "^1.0.11",
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -38,6 +44,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
     "@lhci/cli": "0.15.1",
+    "@opennextjs/cloudflare": "1.20.4",
     "@playwright/test": "1.62.1",
     "@storybook/addon-a11y": "10.5.9",
     "@storybook/addon-vitest": "10.5.9",
@@ -53,6 +60,7 @@
     "tailwindcss": "3.4.17",
     "typescript": "5.7.3",
     "vite": "8.2.1",
-    "vitest": "4.1.11"
+    "vitest": "4.1.11",
+    "wrangler": "4.125.0"
   }
 }

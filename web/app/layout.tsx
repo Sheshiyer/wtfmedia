@@ -5,13 +5,9 @@ import { appUiVariant, themeForAppUiVariant } from "@/lib/public/public-ui-varia
 import { LegacyPublicShell } from "@/components/legacy/public/LegacyPublicShell";
 import { PublicShell } from "@/components/patterns/PublicShell";
 import { WtfOsBoot } from "@/components/patterns/brand/WtfOsBoot";
+import { AppearanceProvider } from "@/components/shells/AppearanceProvider";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000"
-  ),
+const baseMetadata: Metadata = {
   title: "wtfmedia · the catalogue, with a memory",
   description:
     "The internal media workspace for the WTF catalogue. Ask anything across 55 conversations and get answers in the guest's own words, cited to the second.",
@@ -31,6 +27,24 @@ export const metadata: Metadata = {
   },
 };
 
+function requestMetadataBase(requestHeaders: Headers): URL | undefined {
+  const configuredOrigin = process.env.WTFMEDIA_APP_ORIGIN?.trim();
+  if (configuredOrigin) return new URL(configuredOrigin);
+
+  // A Worker preview has no durable custom domain yet. Derive the canonical
+  // metadata origin from Cloudflare's request host rather than falling back to
+  // the retired Vercel deployment or localhost.
+  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
+  if (!host || !/^[a-z0-9.-]+(?::\d+)?$/i.test(host)) return undefined;
+  const isLocalhost = host.startsWith("localhost") || host.startsWith("127.");
+  const protocol = isLocalhost && requestHeaders.get("x-forwarded-proto") === "http" ? "http" : "https";
+  return new URL(`${protocol}://${host}`);
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return { ...baseMetadata, metadataBase: requestMetadataBase(await headers()) };
+}
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const variant = appUiVariant();
   const Shell = variant === "wtfos" ? PublicShell : LegacyPublicShell;
@@ -45,14 +59,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       data-wtf-theme={themeForAppUiVariant(variant)}
     >
       <body className="min-h-screen flex flex-col overflow-x-hidden">
-        {isOperatorRoute ? (
-          children
-        ) : (
-          <>
-            {variant === "wtfos" && <WtfOsBoot />}
-            <Shell>{children}</Shell>
-          </>
-        )}
+        {variant === "wtfos" ? (
+          <AppearanceProvider>
+            {isOperatorRoute ? children : <><WtfOsBoot /><Shell>{children}</Shell></>}
+          </AppearanceProvider>
+        ) : isOperatorRoute ? children : <Shell>{children}</Shell>}
       </body>
     </html>
   );

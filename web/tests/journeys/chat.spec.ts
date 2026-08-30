@@ -29,6 +29,27 @@ async function settle(page: import("@playwright/test").Page) {
   await page.evaluate(() => document.fonts.ready);
 }
 
+async function expectComposerControlsToFit(page: import("@playwright/test").Page) {
+  const textarea = page.locator("textarea");
+  const submit = page.locator('button[type="submit"]');
+  const [textareaBox, submitBox] = await Promise.all([
+    textarea.boundingBox(),
+    submit.boundingBox(),
+  ]);
+  const viewport = page.viewportSize();
+
+  expect(viewport).not.toBeNull();
+  expect(textareaBox).not.toBeNull();
+  expect(submitBox).not.toBeNull();
+
+  const width = viewport!.width;
+  expect(textareaBox!.x).toBeGreaterThanOrEqual(0);
+  expect(textareaBox!.x + textareaBox!.width).toBeLessThanOrEqual(width);
+  expect(submitBox!.x).toBeGreaterThanOrEqual(0);
+  expect(submitBox!.x + submitBox!.width).toBeLessThanOrEqual(width);
+  expect(submitBox!.height).toBeGreaterThanOrEqual(44);
+}
+
 /** Mock /api/chat with a streaming text response. */
 function mockChatStream(
   page: import("@playwright/test").Page,
@@ -131,6 +152,7 @@ test.describe("/chat journey — migrated variant", () => {
 
     await expect(page.locator('[data-testid="ask-composer"]')).toBeVisible();
     await expect(page.locator('[data-testid="conversation-thread"]')).toBeVisible();
+    await expectComposerControlsToFit(page);
     await expect(page.locator('[data-testid="empty-state"]')).toBeVisible();
 
     const textarea = page.locator("textarea");
@@ -456,6 +478,7 @@ test.describe("/chat journey — migrated variant", () => {
 
     await expect(page.locator('[data-testid="ask-composer"]')).toBeVisible();
     await expect(page.locator('[data-testid="conversation-thread"]')).toBeVisible();
+    await expectComposerControlsToFit(page);
   });
 
   test("composer and thread are visible at 768px", async ({ page }) => {
@@ -465,6 +488,7 @@ test.describe("/chat journey — migrated variant", () => {
 
     await expect(page.locator('[data-testid="ask-composer"]')).toBeVisible();
     await expect(page.locator('[data-testid="conversation-thread"]')).toBeVisible();
+    await expectComposerControlsToFit(page);
   });
 
   test("composer and thread are visible at 1440px", async ({ page }) => {
@@ -474,5 +498,6 @@ test.describe("/chat journey — migrated variant", () => {
 
     await expect(page.locator('[data-testid="ask-composer"]')).toBeVisible();
     await expect(page.locator('[data-testid="conversation-thread"]')).toBeVisible();
+    await expectComposerControlsToFit(page);
   });
 });

@@ -5,7 +5,7 @@ import AxeBuilder from "@axe-core/playwright";
  * Plan 01-12 Task 3: Public shell route-matrix journey.
  *
  * Verifies the migrated PublicShell across all public routes at 320/768/1440:
- * - Shell structure (skip link, main target, rail/drawer, scope marker)
+ * - Shell structure (skip link, main target, dock/controls, scope marker)
  * - Keyboard tab order and skip-to-main flow
  * - aria-current on active route
  * - focus-visible indicators
@@ -57,7 +57,7 @@ test.describe("Public shell journey", () => {
 
         if (vp.width < 1024) {
           await expect(
-            page.getByRole("button", { name: "Open application navigation", exact: true }),
+            page.getByRole("button", { name: "controls", exact: true }),
           ).toBeVisible();
         }
       });
@@ -82,10 +82,10 @@ test.describe("Public shell journey", () => {
   });
 
   test("keyboard tab order reaches nav links", async ({ page }) => {
-    test.skip((page.viewportSize()?.width ?? 1440) < 1024, "Desktop rail tab order is persistent from 1024px.");
+    test.skip((page.viewportSize()?.width ?? 1440) < 1024, "Desktop dock tab order is persistent from 1024px.");
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    // Desktop tab order: skip link → rail wordmark → first workspace link.
+    // Desktop tab order: skip link → first dock workspace link.
     await page.keyboard.press("Tab"); // skip link
     await page.keyboard.press("Tab"); // WordmarkMini home link (header, outside nav)
     await page.keyboard.press("Tab"); // first nav link

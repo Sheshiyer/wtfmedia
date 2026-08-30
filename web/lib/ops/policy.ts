@@ -9,6 +9,7 @@ export const opsDestinations = [
   "/ops/ingest",
   "/ops/operators",
   "/ops/audit",
+  "/ops/settings",
 ] as const;
 export type OpsDestination = typeof opsDestinations[number];
 
@@ -35,5 +36,6 @@ export function activatedOpsNavigation(role: unknown): Array<{ label: string; hr
     ...(canAccessOpsPath(role, "/ops/ingest") ? [{ label: "Ingest", href: "/ops/ingest" as const }] : []),
     ...(canAccessOpsPath(role, "/ops/operators") ? [{ label: "Operators", href: "/ops/operators" as const }] : []),
     ...(canAccessOpsPath(role, "/ops/audit") ? [{ label: "Audit", href: "/ops/audit" as const }] : []),
+    ...(canAccessOpsPath(role, "/ops/settings") ? [{ label: "Settings", href: "/ops/settings" as const }] : []),
   ];
 }

@@ -4,10 +4,10 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: plan
-progress: 28/144
+progress: 50/166
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-08-29T15:34:00+05:30
+updated: 2026-08-29T20:49:00+05:30
 ---
 
 ## Problem
@@ -248,6 +248,34 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-143: Architecture code/config/version inputs have a deterministic documentation regeneration command and a CI freshness check (probe: generator check plus workflow source).
 - [x] ISC-144: Anti: the architecture ledger never represents a local HMAC fixture, modeled seat, package version, historic deployment note, or declared Worker binding as live Cloudflare Access or runtime proof (probe: ledger status and drift assertions).
 
+### UI Wave 1 delivery
+
+- [x] ISC-145: An active WTF OS shell exposes system, light, and dark appearance choices (probe: browser role assertions).
+- [x] ISC-146: An appearance choice persists only the preference value across reload (probe: browser reload assertion).
+- [x] ISC-147: An invalid persisted appearance value resolves to system (probe: unit test).
+- [x] ISC-148: The public mobile drawer exposes the same appearance choices as the desktop rail (probe: 320px browser assertion).
+- [x] ISC-149: The public home renders an existing catalogue record as a labelled source spotlight (probe: browser assertion).
+- [x] ISC-150: Anti: the public home introduces no synthetic owner, production state, metric, or timestamp (probe: public projection contract).
+- [x] ISC-151: Authorized Settings renders appearance, connections, client setup, release, and OTA sections (probe: browser role assertions).
+- [x] ISC-152: Settings renders unavailable connections as not configured rather than connected (probe: browser text assertion).
+- [x] ISC-153: Anti: Settings serializes no credential, endpoint, OAuth value, or provider response (probe: privacy scan and page assertion).
+- [x] ISC-154: A local production sketch stores one explicit semantic tone (probe: unit test).
+- [x] ISC-155: Moving a local production sketch preserves its semantic tone (probe: unit test).
+- [x] ISC-156: Pointer movement changes only local production planner state (probe: browser assertion).
+- [x] ISC-157: Keyboard users can move a selected sketch through the pin well (probe: browser assertion).
+- [x] ISC-158: Production planner views state that sketches are local only and not synced (probe: browser text assertion).
+- [x] ISC-159: The desktop WTF OS shell exposes route navigation through a label-visible dock and has no fixed left rail (probe: desktop DOM assertion).
+- [x] ISC-160: The global Ask WTF controls surface opens from the desktop dock and keyboard shortcut, then navigates to an allowed workspace (probe: browser journey).
+- [x] ISC-161: Global controls may update only local appearance or route a source question to `/chat` (probe: component/browser contract).
+- [x] ISC-162: Anti: global controls expose no credential, endpoint, provider response, privileged Worker action, or false connected state (probe: privacy scan and page assertion).
+- [x] ISC-163: Connections renders one searchable public idea atlas with a semantic index and selected source receipt (probe: browser journey).
+- [x] ISC-164: Anti: Connections renders no established/emerging/strongest ranking panels or fabricated relationship claim (probe: DOM assertion and public projection contract).
+- [x] ISC-165: Rendered desktop dock, atlas index, and selected source receipt meet WCAG AA contrast in explicit dark mode (probe: browser contrast journey).
+- [x] ISC-166: The mobile menu, global Ask WTF trigger, and Connections page remain contained at 320 CSS pixels (probe: browser viewport journey).
+- [x] ISC-167: The internal beta review lane names the observed Cloudflare dependency and operator-policy discrepancies with their source, scope, field, observation, and recommended action (probe: unit and browser assertions).
+- [x] ISC-168: An operator can store a beta disposition and note for one discrepancy through a browser reload (probe: browser journey).
+- [x] ISC-169: Anti: a beta review record claims no D1, Cloudflare, shared-audit, or release-gate persistence (probe: rendered copy assertion).
+
 ## Test Strategy
 
 | ISC range | Type | Check | Threshold | Tool |
@@ -265,6 +293,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-129..134 | design authority | reference lock, semantic palette, route split, migration map, foundation, and privacy boundary are explicit | 100% document probes | Markdown parser + bounded scans |
 | ISC-135..140 | client scope reconciliation | delivery tracks, blockers, stable requirement ownership, and preserved Phase 1 plans remain explicit | 100% document and Git probes | Markdown parser + coverage script + Git hashes |
 | ISC-141..144 | architecture evidence | current topology, Phase 1 Access exemption, deterministic regeneration, and no false live claim remain explicit | all source/check probes pass | generator + static HTML assertions + CI workflow parse |
+| ISC-145..169 | UI Wave 1 | local appearance/planner, internal beta review, responsive shell, truthful Settings, public atlas, safe controls, contrast, and viewport containment | 100% focused browser/unit/privacy assertions | Vitest + Playwright + privacy scan |
 
 ## Features
 
@@ -340,6 +369,12 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
   satisfies: [ISC-141, ISC-142, ISC-143, ISC-144]
   depends_on: [ProjectGovernanceSpine, ClientScopeReconciliation, QualityAndSafetyGates]
   parallelizable: false
+
+- name: UIWave1Delivery
+  description: Isolated first product-polish slice for appearance, public home, truthful Settings, local production planning, internal beta review, responsive navigation, public atlas, safe controls, and handoff evidence
+  satisfies: [ISC-145, ISC-146, ISC-147, ISC-148, ISC-149, ISC-150, ISC-151, ISC-152, ISC-153, ISC-154, ISC-155, ISC-156, ISC-157, ISC-158, ISC-159, ISC-160, ISC-161, ISC-162, ISC-163, ISC-164, ISC-165, ISC-166, ISC-167, ISC-168, ISC-169]
+  depends_on: [BrandTokenFoundation, OperatorComponentLibrary, ControlRoomShell]
+  parallelizable: false
 ```
 
 ## Architecture
@@ -399,6 +434,11 @@ _Generated by `scripts/generate-architecture-ledger.mjs` from the reviewed sourc
 - 2026-08-26 13:59 IST: ❌ DEAD END: Tried the mandatory post-plan Advisor review — failed because the local OAuth session expired and could not refresh (don't retry inside this repository task).
 - 2026-08-29 15:12 IST: The owner clarified that repository Phase 1 public proof must not be gated on Cloudflare Zero Trust or Access Applications because neither is currently configured. The modeled operator UI, seats, RBAC, JWT verifier, and loopback-only local context remain a separate activation workstream; no local fixture, historic closure note, binding declaration, or package version counts as live Access evidence.
 - 2026-08-29 15:12 IST: The pre-build Advisor call for the architecture ledger was attempted and failed because the local OAuth session is expired. Credentials were not repaired. Repository evidence, a separate read-only inventory, and the user’s explicit authority govern the documentation decision.
+- 2026-08-29 18:44 IST: refined: UI Wave 1 is isolated to an appearance preference, public-home composition, truthful Settings scaffold, local-only production planner, and delivery documentation. Cloudflare chat activation, provenance/uncut playback, retrieval tuning, OAuth, calendar sync, and release activation remain separately owner-gated.
+- 2026-08-29 18:44 IST: The required pre-build Advisor call for UI Wave 1 was attempted and failed because the local OAuth session is expired. Credentials were not repaired; the approved design, explicit owner authorization, and repository probes govern the bounded implementation.
+- 2026-08-29 19:10 IST: refined: UI Wave 1 additionally replaces the fixed desktop rail with a token-bound ReactBits-Dock-derived navigation surface, reduces Connections to one public idea atlas, and separates global local controls from public source chat. The refinement is additive; Cloudflare, secrets, privileged commands, uncut media, retrieval tuning, OAuth, and calendar sync remain independently gated.
+- 2026-08-29 19:10 IST: The required pre-build Advisor call for this additive refinement was attempted and failed because the local OAuth session remains expired. The noesis-plan combo separately returned bounded 429 capacity failures. Neither credential nor provider state was changed; design/product audits and deterministic repository probes are the local evidence basis.
+- 2026-08-29 20:47 IST: refined: Confirmed local Cloudflare test and policy discrepancies are shown in an authenticated internal-beta review lane, with field-level context, a proposed disposition, and a browser-local note. This is review evidence only: it neither repairs the dependency/policy nor creates a D1, Cloudflare, release, or shared-audit record.
 
 ## Changelog
 
@@ -430,6 +470,10 @@ _Generated by `scripts/generate-architecture-ledger.mjs` from the reviewed sourc
   refuted by: the Phase 1 verifier is local-only, the Worker configuration omits Access/Application environment values, and the operations runbook still requires owner-supplied staging inputs
   learned: public Phase 1 remains independent while operator Access activation requires separate configuration and redacted runtime evidence
   criterion now: ISC-141 through ISC-144 bind the generated ledger, Phase 1 exemption, deterministic freshness check, and anti-false-live status boundary to probes
+- 2026-08-29 | conjectured: an internal beta must hide known failures until a durable operational ledger is available
+  refuted by: hiding the local dependency and policy discrepancies removes the human decision context while a fake shared record would overstate system authority
+  learned: internal beta can expose bounded, source-labelled discrepancies and preserve only browser-local review input while the durable audit path remains gated
+  criterion now: ISC-167 through ISC-169 bind visible discrepancy context, local reload persistence, and the anti-false-audit boundary to probes
 
 ## Verification
 
@@ -471,3 +515,12 @@ _Generated by `scripts/generate-architecture-ledger.mjs` from the reviewed sourc
 - ISC-143: lifecycle probe — `npm run docs:architecture:update` regenerates the HTML, services inventory, and dependency graph; `.github/workflows/architecture-ledger.yml` checks freshness across reviewed architecture code, configuration, tests, plans, documentation, and release metadata.
 - ISC-144: anti-false-live probe — the ledger labels source/config/history/plans separately, excludes untracked operator drafts from its fingerprint, and contains the current Access, OAuth, calendar, hosted MCP, and OTA holds.
 - Architecture audit and rendering evidence: independent read-only audit found and corrected untracked-source, evidence-coverage, duplicate-SVG-ID, and responsive-overflow defects; final static rendering confirmed no desktop or 390px root overflow, six contained diagrams, an accessible release-matrix scroller, offline rendering, and no external assets.
+- UI Wave 1 baseline: isolated worktree `codex/wtfmedia-ui-wave1` was created from `main` at `568022a`; after lockfile-resolved web dependencies were installed, `npm --prefix web run typecheck` exited 0. No external runtime state changed.
+- ISC-145 through ISC-158: focused unit and browser evidence passed for persisted appearance, truthful Settings, source-led home, and local-only production planner at 320px and 1440px; `npm run test:privacy -- --check` reported zero violations.
+- ISC-159 through ISC-161: the `shell-controls` browser journey opened the desktop dock through `Meta+K`, exposed labelled safe commands, changed local appearance, and navigated to `/connections`; desktop navigation retains the existing `Application`/`operations` accessible route labels.
+- ISC-162: privacy scan reported `0` violations across `265` bounded files; the capability register contains only declared state/copy and no endpoint, credential, provider output, or action control.
+- ISC-163 and ISC-164: Connections journey tests passed at 320px and 1440px for graph/list parity, keyboard selection, selected published-source links, and viewport containment; the atlas contains one index/receipt/overlap presentation instead of ranking panels.
+- ISC-165: explicit-dark browser journey measured rendered contrast at or above 4.5:1 for the desktop dock, atlas index, and selected source receipt.
+- ISC-166: mobile browser journey verified the Ask WTF header trigger, navigation drawer, and no document horizontal overflow at 320px.
+- Build evidence: `npm run typecheck`, focused Vitest (6 tests), combined Playwright (48 passed, 2 intentional desktop-only skips across 320px and 1440px), privacy scan, and `npm run build` all exited zero. The build reported `/connections` at 14.2 kB and `/chat` at 53.4 kB first-route size; no deployment occurred.
+- ISC-167 through ISC-169: the production unit contract confirms both observed gaps remain `needs-review`; the authenticated production browser journey records a `hold` disposition and note locally, survives reload, and keeps the explicit not-shared-audit boundary. The complete production suite passed 8/8 at 320px and 1440px. A local rendered review found two contained desktop cards and a one-column narrow layout with no document overflow.

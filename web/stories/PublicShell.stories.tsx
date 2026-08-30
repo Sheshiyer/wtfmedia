@@ -43,8 +43,8 @@ export const Mobile320: Story = {
   render: () => <PublicShell>{content("mobile workspace")}</PublicShell>,
   parameters: { viewport: { width: 320, height: 640 } },
   play: async ({ canvasElement }) => {
-    if (!canvasElement.querySelector('button[aria-label="Open application navigation"]')) {
-      throw new Error("Missing mobile application navigation trigger");
+    if (!Array.from(canvasElement.querySelectorAll("button")).some((button) => button.textContent?.trim() === "controls")) {
+      throw new Error("Missing compact workspace controls trigger");
     }
   },
 };

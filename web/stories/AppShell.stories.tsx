@@ -75,7 +75,7 @@ export const OperatorProjection: Story = {
   },
 };
 
-export const MobileDrawer: Story = {
+export const MobileControls: Story = {
   args: {
     mode: "public",
     navigation: publicNavigation,
@@ -92,9 +92,9 @@ export const MobileDrawer: Story = {
     viewport: { width: 320, height: 640 },
   },
   play: async ({ canvasElement }) => {
-    const trigger = canvasElement.querySelector<HTMLButtonElement>(
-      'button[aria-label="Open application navigation"]',
+    const trigger = Array.from(canvasElement.querySelectorAll("button")).find(
+      (button) => button.textContent?.trim() === "controls",
     );
-    if (!trigger) throw new Error("Missing mobile navigation trigger");
+    if (!trigger) throw new Error("Missing compact workspace controls trigger");
   },
 };

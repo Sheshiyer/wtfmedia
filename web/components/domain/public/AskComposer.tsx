@@ -49,19 +49,19 @@ export function AskComposer({
         e.preventDefault();
         onSubmit();
       }}
-      className="border-t-2 border-foreground bg-surface-raised px-4 py-4 sm:px-8"
+      className="border-t-2 border-foreground bg-surface-raised px-4 py-3 sm:px-6 lg:px-8"
       data-testid="ask-composer"
     >
       <div className="mx-auto max-w-4xl">
-        <div className="mb-2 flex items-end justify-between gap-4">
+        <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
           <label htmlFor="ask-wtf-composer" className="font-label text-sm font-bold lowercase">
             ask the catalogue
           </label>
-          <span className="font-label text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">
+          <span id="ask-wtf-composer-help" className="font-label text-[11px] font-semibold uppercase tracking-[0.1em] text-muted sm:text-right">
             enter to ask · shift + enter for a new line
           </span>
         </div>
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
           <textarea
             id="ask-wtf-composer"
             ref={textareaRef}
@@ -71,13 +71,14 @@ export function AskComposer({
             placeholder="ask the catalogue"
             rows={2}
             aria-label="Ask the catalogue"
-            className="min-h-14 flex-1 resize-none rounded-control border-2 border-foreground bg-canvas px-4 py-3 font-body text-sm text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-knowledge"
+            aria-describedby="ask-wtf-composer-help"
+            className="min-h-14 min-w-0 flex-1 resize-none rounded-control border-2 border-foreground bg-canvas px-4 py-3 font-body text-sm text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-knowledge"
           />
           <Button
             type="submit"
             disabled={disabled || loading || !value.trim()}
             loading={loading}
-            className="min-w-32 border-foreground bg-knowledge text-on-knowledge hover:bg-knowledge sm:self-stretch"
+            className="w-full shrink-0 border-foreground bg-knowledge text-on-knowledge hover:bg-knowledge sm:w-32 sm:min-w-32 sm:self-stretch"
           >
             ask wtf
           </Button>

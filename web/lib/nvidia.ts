@@ -31,7 +31,7 @@ export async function embedQuery(text: string): Promise<Float32Array> {
   if (!res.ok) {
     throw new Error(`embed ${res.status}: ${await res.text()}`);
   }
-  const json = await res.json();
+  const json = await res.json() as { data: Array<{ embedding: number[] }> };
   return Float32Array.from(json.data[0].embedding as number[]);
 }
 

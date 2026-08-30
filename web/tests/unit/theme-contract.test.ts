@@ -173,7 +173,8 @@ describe("adaptive WTF OS theme contract", () => {
     );
     expect(LAYOUT).toContain('data-wtf-ui={variant === "wtfos" ? "wtfos" : undefined}');
     expect(LAYOUT).toContain('data-wtf-theme={themeForAppUiVariant(variant)}');
-    expect(LAYOUT).toContain('{variant === "wtfos" && <WtfOsBoot />}');
+    expect(LAYOUT).toContain('const isOperatorRoute = routeKind === "ops" || routeKind === "ops-recovery";');
+    expect(LAYOUT).toContain('{isOperatorRoute ? children : <><WtfOsBoot /><Shell>{children}</Shell></>}');
     expect(MOTION).toContain('html[data-wtf-ui="wtfos"]');
     expect(MOTION).not.toContain("data-public-ui-variant");
   });

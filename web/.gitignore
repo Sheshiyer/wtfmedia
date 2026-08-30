@@ -1,5 +1,7 @@
 node_modules/
 .next/
+.open-next/
+worker-configuration.d.ts
 out/
 .env
 .env*.local

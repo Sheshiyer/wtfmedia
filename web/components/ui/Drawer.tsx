@@ -16,6 +16,8 @@ export interface DrawerProps {
   description?: string;
   /** Side the drawer slides from (default: right) */
   side?: "left" | "right";
+  /** Visual surface for a navigation drawer (default keeps paper panels). */
+  tone?: "paper" | "structure";
 }
 
 /**
@@ -36,10 +38,16 @@ export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(
       children,
       description,
       side = "right",
+      tone = "paper",
       ...props
     },
     ref,
   ) {
+    const isStructure = tone === "structure";
+    const structureTextStyle = isStructure
+      ? { color: "rgb(var(--wtf-text-on-structure-rgb))" }
+      : undefined;
+
     return (
       <Dialog.Root open={open} onOpenChange={onOpenChange}>
         <Dialog.Portal>
@@ -52,7 +60,8 @@ export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(
             ref={ref}
             aria-describedby={description ? "drawer-description" : undefined}
             className={[
-              "fixed z-50 gap-4 bg-surface-raised border-l-2 border-foreground",
+              "fixed z-50 gap-4 border-l-2 border-foreground",
+              isStructure ? "bg-surface-structure" : "bg-surface-raised",
               "shadow-lg shadow-foreground/10",
               "transition ease-in-out",
               "data-[state=open]:animate-in data-[state=closed]:animate-out",
@@ -70,18 +79,30 @@ export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(
             ]
               .filter(Boolean)
               .join(" ")}
+            style={
+              isStructure
+                ? {
+                    backgroundColor: "rgb(var(--wtf-surface-structure-rgb))",
+                    color: "rgb(var(--wtf-text-on-structure-rgb))",
+                  }
+                : undefined
+            }
             {...props}
           >
             <div className="flex flex-col h-full p-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <Dialog.Title className="font-label text-lg font-bold text-foreground">
+                  <Dialog.Title
+                    className="font-label text-lg font-bold text-foreground"
+                    style={structureTextStyle}
+                  >
                     {title}
                   </Dialog.Title>
                   {description && (
                     <Dialog.Description
                       id="drawer-description"
                       className="mt-1 text-sm text-secondary"
+                      style={structureTextStyle}
                     >
                       {description}
                     </Dialog.Description>
@@ -98,6 +119,7 @@ export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(
                     "focus-visible:ring-2 ring-canvas focus-visible:ring-offset-2",
                     "focus-visible:ring-offset-foreground",
                   ].join(" ")}
+                  style={structureTextStyle}
                 >
                   <span aria-hidden="true" className="text-lg font-bold">
                     ×

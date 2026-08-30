@@ -53,7 +53,11 @@ function ChatInner() {
       });
 
       if (!response.ok) {
-        throw new Error(`Chat request failed: ${response.status}`);
+        throw new Error(
+          response.status === 503
+            ? "The source-answering service is awaiting its secure handoff."
+            : `Chat request failed: ${response.status}`,
+        );
       }
 
       const sourcesHeader = response.headers.get("X-Sources");
@@ -116,8 +120,7 @@ function ChatInner() {
         ...prev,
         {
           role: "assistant",
-          content:
-            "⚠️ Something went wrong loading that answer. Try again in a moment.",
+          content: "⚠️ Something went wrong loading that answer. Try again in a moment.",
         },
       ]);
     } finally {
@@ -155,13 +158,13 @@ function ChatInner() {
       <WorkspaceHeader
         eyebrow="knowledge workspace"
         title="ask wtf"
-        summary="ask across the catalogue. synthesis and quoted evidence stay visually distinct, and missing source support remains explicit."
+        summary="public source answers across the catalogue. Global workspace controls are separate, and this chat never exposes infrastructure actions, configuration, or credentials."
         accent="knowledge"
         context={
           <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
-            <span>catalogue scope</span>
+            <span>public catalogue scope</span>
             <span>source-backed answers</span>
-            <span>published timing when verified</span>
+            <span>global controls separate</span>
           </div>
         }
       />

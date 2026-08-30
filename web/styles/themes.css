@@ -26,6 +26,15 @@
   --wtf-state-production-provisional: var(--wtf-production);
 }
 
+/* Theme changes are semantic-state changes, not a decorative cross-fade.
+   Prevent short-lived low-contrast frames while persisted appearance loads
+   or a user chooses a new appearance. */
+html[data-wtf-theme-changing] *,
+html[data-wtf-theme-changing] *::before,
+html[data-wtf-theme-changing] *::after {
+  transition: none !important;
+}
+
 html[data-wtf-theme="light"] {
   color-scheme: light;
 }

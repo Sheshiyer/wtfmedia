@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WTF Media — UI Wave 1 handoff</title>
+    <style>
+      :root { --paper:#fff6ea; --ink:#1a1a1a; --yellow:#f1b333; --purple:#6758a5; --green:#0c9367; --red:#c53b3a; }
+      * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; }
+      main { max-width:1200px; margin:auto; padding:32px; } .eyebrow { font-size:.75rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+      h1,h2 { line-height:.95; letter-spacing:-.045em; } h1 { font-size:clamp(3rem,9vw,8rem); margin:.3rem 0 1rem; } h2 { font-size:clamp(1.8rem,4vw,3.4rem); }
+      .grid { display:grid; gap:18px; grid-template-columns:repeat(12,1fr); } .panel { border:2px solid var(--ink); background:#fff; padding:22px; box-shadow:6px 6px 0 var(--ink); }
+      .hero { grid-column:span 8; background:var(--ink); color:var(--paper); } .stamp { grid-column:span 4; background:var(--yellow); }
+      .full { grid-column:1/-1; } .half { grid-column:span 6; } .third { grid-column:span 4; } .live { border-left:8px solid var(--green); } .held { border-left:8px solid var(--purple); }
+      ol { padding-left:1.3rem; } code { background:#f0eadf; padding:.1rem .3rem; } .label { display:inline-block; border:2px solid currentColor; padding:.2rem .5rem; font-size:.75rem; font-weight:800; text-transform:uppercase; }
+      @media (max-width:720px) { main{padding:16px}.hero,.stamp,.half,.third{grid-column:1/-1}.panel{box-shadow:4px 4px 0 var(--ink)} }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">WTF Media / delivery handoff</p>
+      <h1>receipts<br />become actions.</h1>
+      <div class="grid">
+        <section class="panel hero"><span class="label">Wave 1 + additive refinement</span><h2>Make the current WTF OS feel like a real product without faking its future.</h2><p>Shared appearance, a responsive command dock, an editorial home, truthful Settings, a public idea atlas, safe Ask WTF controls, and a local production planner land together. Cloudflare, OAuth, uncut media, rankings, and calendar sync do not.</p></section>
+        <aside class="panel stamp"><p class="eyebrow">Direction locked</p><h2>WTF OS printroom</h2><p>Cream paper. Ink structure. Tactile depth. One semantic accent at a time.</p></aside>
+        <section class="panel half live"><p class="eyebrow">Ships in Wave 1</p><ol><li>System, light, and dark appearance.</li><li>ReactBits-Dock-derived desktop navigation and mobile drawer.</li><li>Searchable Connections idea atlas and source receipts.</li><li>Global Ask WTF controls for safe local actions only.</li><li>Asymmetric source-first home and local coloured production sketches.</li><li>Internal-beta review cards for known local discrepancies.</li></ol></section>
+        <section class="panel half held"><p class="eyebrow">Held behind evidence</p><ol><li>Secret-backed Cloudflare chat.</li><li>Verified uncut dual playback.</li><li>Editorial ranking rubric and re-indexing.</li><li>Canonical calendar sync and provider OAuth.</li></ol></section>
+        <section class="panel third"><p class="eyebrow">Home</p><h2>Source spotlight</h2><p>Current catalogue records only. No synthetic production data.</p></section>
+        <section class="panel third"><p class="eyebrow">Settings</p><h2>Truthful by default</h2><p>Not configured means not configured. Copy panels never execute.</p></section>
+        <section class="panel third"><p class="eyebrow">Ask WTF</p><h2>Useful, bounded controls</h2><p>Global navigation and local appearance are available. Public chat, infrastructure, and secrets remain separate.</p></section>
+        <section class="panel full"><p class="eyebrow">Internal beta review</p><p>Known local test and policy discrepancies can be examined with source, scope, field, a proposed disposition, and a browser-local note. That review is visible by design, but it is not a D1 audit record, Cloudflare action, or release approval.</p></section>
+        <section class="panel full"><p class="eyebrow">Next owner gates</p><p>Approve the secure chat handoff, final hostnames/Access path, asset mapping, editorial evaluation rubric, canonical schedule rules, and integration/OAuth ownership before activating the deferred surfaces.</p></section>
+      </div>
+    </main>
+  </body>
+</html>

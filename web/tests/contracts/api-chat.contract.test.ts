@@ -1,10 +1,9 @@
 /**
  * Compatibility proof for web/app/api/chat/route.ts.
  *
- * Route source is frozen for Phase 1 (see phase1-baseline-approval.json).
- * These tests assert existing behavior; they never modify route.ts and
- * never call a live service — the upstream Worker is replaced by the
- * deterministic local stub in web/tests/support/rag-stub.mjs.
+ * The public response contract is preserved during the Cloudflare Worker
+ * migration. These tests never call a live service — the upstream Worker is
+ * replaced by the deterministic local stub in web/tests/support/rag-stub.mjs.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -15,11 +14,35 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { startRagStub, triggerQuestion, DUMMY_SHARED_SECRET } from "../support/rag-stub.mjs";
 
+const { getCloudflareContext } = vi.hoisted(() => ({
+  getCloudflareContext: vi.fn(),
+}));
+
+vi.mock("@opennextjs/cloudflare", () => ({ getCloudflareContext }));
+
 const here = path.dirname(fileURLToPath(import.meta.url));
 const WEB_ROOT = path.resolve(here, "../..");
 
 /** @type {Awaited<ReturnType<typeof startRagStub>>} */
 let stub: Awaited<ReturnType<typeof startRagStub>>;
+
+type EdgeBinding = {
+  fetch(input: Request | URL | string, init?: RequestInit): Promise<Response>;
+};
+
+function stubEdgeBinding(url: string): EdgeBinding {
+  return {
+    async fetch(input, init) {
+      const incoming = input instanceof Request ? input : new Request(input, init);
+      const target = new URL(incoming.url);
+      return fetch(new URL(target.pathname, url), {
+        method: incoming.method,
+        headers: incoming.headers,
+        body: incoming.method === "GET" || incoming.method === "HEAD" ? undefined : await incoming.arrayBuffer(),
+      });
+    },
+  };
+}
 
 beforeEach(async () => {
   stub = await startRagStub();
@@ -29,14 +52,18 @@ afterEach(async () => {
   await stub.close();
   vi.unstubAllEnvs();
   vi.resetModules();
+  getCloudflareContext.mockReset();
 });
 
-async function importRoute(opts: { ragUrl?: string; sharedSecret?: string } = {}) {
-  const ragUrl = opts.ragUrl ?? stub.url;
+async function importRoute(opts: {
+  sharedSecret?: string;
+  edgeBinding?: EdgeBinding;
+} = {}) {
   const sharedSecret = "sharedSecret" in opts ? opts.sharedSecret : DUMMY_SHARED_SECRET;
   vi.resetModules();
-  vi.stubEnv("CLOUDFLARE_RAG_URL", ragUrl);
-  vi.stubEnv("CLOUDFLARE_EDGE_SHARED_SECRET", sharedSecret ?? "");
+  vi.stubEnv("EDGE_SHARED_SECRET", sharedSecret ?? "");
+  vi.stubEnv("CLOUDFLARE_EDGE_SHARED_SECRET", "");
+  getCloudflareContext.mockResolvedValue({ env: { WTFMEDIA_EDGE: opts.edgeBinding ?? stubEdgeBinding(stub.url) } });
   return import("@/app/api/chat/route");
 }
 
@@ -123,6 +150,26 @@ describe("POST /api/chat — server-only edge authentication", () => {
     expect(stub.requestLog[0].hasClientIpHeader).toBe(true);
     expect(stub.requestLog[0].hasRequestIdHeader).toBe(true);
   });
+
+  it("uses the Cloudflare service binding and forwarding-safe client IP in production", async () => {
+    const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      answer: "Grounded answer text.",
+      grounded: true,
+      sources: [],
+    }), { headers: { "content-type": "application/json" } }));
+    const { POST } = await importRoute({ edgeBinding: { fetch } });
+    const res = await POST(chatRequest(
+      { messages: [userMessage("hello")] },
+      { "cf-connecting-ip": "198.51.100.16", "x-forwarded-for": "203.0.113.4" },
+    ));
+
+    expect(res.status).toBe(200);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    const upstream = fetch.mock.calls[0][0] as Request;
+    expect(upstream.url).toBe("https://wtfmedia-edge.internal/v1/chat");
+    expect(upstream.headers.get("X-Edge-Secret")).toBe(DUMMY_SHARED_SECRET);
+    expect(upstream.headers.get("X-Client-IP")).toBe("198.51.100.16");
+  });
 });
 
 describe("POST /api/chat — upstream failure branches", () => {
@@ -191,10 +238,10 @@ describe("POST /api/chat — security boundary", () => {
   });
 });
 
-describe("route.ts compatibility freeze", () => {
-  it("matches the owner-approved baseline hash — no diff permitted without a reviewed manifest change", () => {
-    const approval = JSON.parse(fs.readFileSync(path.join(WEB_ROOT, "tests/contracts/phase1-baseline-approval.json"), "utf8"));
-    const expected = approval.approved_protected_hashes.find((entry: { path: string }) => entry.path === "web/app/api/chat/route.ts");
+describe("route.ts Cloudflare migration freeze", () => {
+  it("matches the reviewed Worker-transport contract hash", () => {
+    const approval = JSON.parse(fs.readFileSync(path.join(WEB_ROOT, "tests/contracts/cloudflare-web-migration.contract.json"), "utf8"));
+    const expected = approval.protected_hashes.find((entry: { path: string }) => entry.path === "web/app/api/chat/route.ts");
     expect(expected).toBeDefined();
     const actual = crypto.createHash("sha256").update(fs.readFileSync(path.join(WEB_ROOT, "app/api/chat/route.ts"))).digest("hex");
     expect(actual).toBe(expected.sha256);

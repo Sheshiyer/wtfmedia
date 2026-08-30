@@ -30,6 +30,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       disabled,
       children,
       className = "",
+      style,
       ...props
     },
     ref,
@@ -49,7 +50,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           "font-label text-sm font-bold tracking-wide",
           "rounded-[var(--wtf-radius-control)]",
           "border-2 border-foreground",
-          "transition-[transform,box-shadow] duration-fast ease-out",
+          "transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-fast ease-out",
+          "enabled:hover:-translate-y-px enabled:active:translate-y-0",
           "focus-visible:outline-none",
           "focus-visible:ring-2 ring-canvas focus-visible:ring-offset-2",
           "focus-visible:ring-offset-foreground",
@@ -63,13 +65,23 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           variant === "attention" &&
             "bg-attention text-on-attention hover:bg-attention active:bg-attention",
           // Disabled state
-          isDisabled && "opacity-50 cursor-not-allowed",
+          "disabled:cursor-not-allowed disabled:opacity-100",
           // Loading state
           loading && "relative",
           className,
         ]
           .filter(Boolean)
           .join(" ")}
+        style={
+          isDisabled
+            ? {
+                ...style,
+                backgroundColor: "var(--wtf-surface-subtle)",
+                borderColor: "rgb(var(--wtf-foreground-rgb) / 0.4)",
+                color: "var(--wtf-text-muted)",
+              }
+            : style
+        }
         {...props}
       >
         {loading && (
