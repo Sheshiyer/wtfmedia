@@ -16,6 +16,12 @@ import {
 import { handleOpsRequest, type OpsEnv } from "./ops-router";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar";
 import { parseSourceMode, resolveRequestedSources } from "./chat/source-mode";
+import {
+  ingestStateKey,
+  parseJobSourceMode,
+  vectorRecordId,
+  vectorSourceRef,
+} from "./catalogue/asset-map";
 
 export interface Env extends OpsEnv {
   AI: any;
@@ -38,6 +44,7 @@ type TranscriptJob = {
   transcriptKey: string;
   timestampsKey?: string;
   contentHash: string;
+  sourceMode?: "published" | "uncut";
 };
 
 const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
@@ -143,12 +150,9 @@ function requiresVerifiedMetadata(question: string) {
     || /\b(?:recur(?:ring|s)?|repeat(?:s|ed|ing)?|appear(?:s|ances?|ing)?|mentioned|occur(?:s|rence)?|most)\b[\s\S]{0,100}\b(?:\d+\s*\+?\s*(?:episodes?|conversations?)|across|throughout)\b/i.test(question);
 }
 
-function ingestStateKey(videoId: string, sourceMode: "published" | "uncut" = "published") {
-  return sourceMode === "uncut" ? `ingest:uncut:${videoId}` : `ingest:${videoId}`;
-}
-
 async function ingest(job: TranscriptJob, env: Env) {
-  const stateKey = ingestStateKey(job.videoId, "published");
+  const sourceMode = parseJobSourceMode(job.sourceMode);
+  const stateKey = ingestStateKey(job.videoId, sourceMode);
   const previousHash = await env.WTFMEDIA_STATE.get(stateKey);
   if (previousHash === job.contentHash) return;
   const object = await env.CATALOGUE.get(job.transcriptKey);
@@ -166,20 +170,21 @@ async function ingest(job: TranscriptJob, env: Env) {
       }
     }
   }
+  const source = vectorSourceRef(job.videoId, sourceMode);
   for (let offset = 0; offset < parts.length; offset += UPSERT_BATCH_SIZE) {
     const batch = parts.slice(offset, offset + UPSERT_BATCH_SIZE);
     const vectors = await Promise.all(batch.map(async (part, index) => ({
-      id: `${job.videoId}:${offset + index}`,
+      id: vectorRecordId(job.videoId, offset + index, sourceMode),
       values: await vectorFor(env, part.text),
       metadata: {
         video_id: job.videoId,
         title: job.title.slice(0, 500),
         chunk: offset + index,
         text: part.text,
-        source: `https://www.youtube.com/watch?v=${job.videoId}`,
+        source,
         start: part.start ?? null,
         timestamped: part.start != null,
-        source_mode: "published",
+        source_mode: sourceMode,
       },
     })));
     await upsertWithRetry(env, vectors);
@@ -417,6 +422,8 @@ export default {
       let payload: { jobs?: TranscriptJob[] };
       try { payload = await request.json(); } catch { return reply(request, env, { error: "invalid_json" }, 400); }
       if (!Array.isArray(payload.jobs) || payload.jobs.length === 0 || payload.jobs.length > 100) return reply(request, env, { error: "invalid_jobs" }, 400);
+      const invalidUncut = payload.jobs.some((job) => parseJobSourceMode(job.sourceMode) === "uncut" && !String(job.transcriptKey || "").startsWith("uncut/"));
+      if (invalidUncut) return reply(request, env, { error: "invalid_uncut_key" }, 400);
       await env.INGEST_QUEUE.sendBatch(payload.jobs.map((body) => ({ body })));
       return reply(request, env, { queued: payload.jobs.length }, 202);
     }

@@ -99,7 +99,8 @@ export function SourcePanel({ sources }: SourcePanelProps) {
             const episodeHref = source.episodeId
               ? `/episodes?id=${encodeURIComponent(source.episodeId)}`
               : null;
-            const publishedHref = videoId
+            const publishedHref =
+              videoId && resolved.youtubeVideoId && source.sourceMode !== "uncut"
               ? youtubeWatchUrl(videoId, resolved.activeTimeSec)
               : null;
 

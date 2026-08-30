@@ -1,5 +1,22 @@
 # Project handoff
 
+## 2026-08-30 Uncut Cloudflare asset map wired into ingest and chat
+
+**Status:** TARGET PREVIEW UPDATED — inventory-aligned keys for published
+YouTube and uncut. No uncut objects were uploaded. Chat still answers uncut
+requests from published YouTube and names them published until
+`uncut/<hash>.txt` exists.
+
+| Surface | Published | Uncut |
+|---|---|---|
+| R2 | `transcripts/{videoId}.txt` | `uncut/{rowHash}.txt` |
+| KV | `ingest:{videoId}` | `ingest:uncut:{id}` |
+| Vectorize | `{videoId}:{chunk}` | `uncut:{id}:{chunk}` |
+| Queue job | `sourceMode: published` | `sourceMode: uncut` and key must start `uncut/` |
+
+12 title-map candidates reserve uncut keys. 3 quarantined titles get none.
+Enqueue rejects uncut jobs that point at published keys.
+
 ## 2026-08-30 Ask WTF uncut falls back to published YouTube
 
 **Status:** TARGET PREVIEW UPDATED — the music question on uncut no longer

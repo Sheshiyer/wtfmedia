@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { TitleMapRow, TitleMapStatus, TitleMapTable, UncutPointer } from "@/lib/catalogue/excel-title-map";
+import { mapTitleTableAssets } from "@/lib/catalogue/asset-map";
 
 export type { TitleMapTable };
 
@@ -43,16 +44,17 @@ export function TitleMapWorkspace({ table }: { table: TitleMapTable | null }) {
 
   return (
     <div className="space-y-6">
-      <dl className="grid gap-3 rounded-panel border-2 border-foreground bg-surface-raised p-4 font-label text-sm sm:grid-cols-4">
+      <dl className="grid gap-3 rounded-panel border-2 border-foreground bg-surface-raised p-4 font-label text-sm sm:grid-cols-5">
         <Count label="mapped" value={table.mappedCount} />
         <Count label="quarantined" value={table.quarantinedCount} />
         <Count label="missing source" value={table.missingSourceCount} />
+        <Count label="uncut keys" value={mapTitleTableAssets(table).filter((row) => row.uncutKey).length} />
         <Count label="snapshot" value={table.snapshotAt} />
       </dl>
 
       <p className="max-w-[65ch] font-body text-sm text-secondary">
-        this is a title map, not a live catalogue. uncut pointers stay candidate and not activated.
-        quarantined titles are listed only so they stay excluded.
+        this is a title map, not a live catalogue. uncut r2 keys are reserved as uncut/&lt;hash&gt;.txt
+        and stay not activated until those objects exist. quarantined titles stay excluded.
       </p>
 
       <div className="grid gap-3 rounded-panel border-2 border-foreground bg-surface-raised p-4 sm:grid-cols-[1fr_160px_160px] items-end">
