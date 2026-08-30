@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: complete
-stopped_at: Phase 1 and Phase 2 complete and verified; Phase 3+ planned and inactive awaiting owner authorization
-last_updated: "2026-08-28T20:15:00.000Z"
-last_activity: 2026-08-28
+status: active
+stopped_at: Phase 1 and Phase 2 complete; three-account Cloudflare inventory reconciled; target R2 enablement and owner-authorized execution remain
+last_updated: "2026-08-30T19:55:00.000Z"
+last_activity: 2026-08-30
 progress:
   total_phases: 10
   completed_phases: 2
@@ -24,7 +24,9 @@ See: `.planning/PROJECT.md` (updated 2026-08-20)
 its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
-**Current focus:** Phase 01 & Phase 02 Complete — Ready for Phase 03 Authorization
+**Current focus:** P0 dual-source Ask WTF is live on the target workers.dev
+preview. Uncut remains filtered and not activated. `wtfhq.in` cutover stays
+held.
 
 ## Current Position
 
@@ -33,7 +35,9 @@ Plan: 12 of 12
 Status: Complete — Staging authorized, preflight executed, owner approval bound, read-only production smoke verified
 Last activity: 2026-08-28
 
-Progress: [██████████] 100%
+Authorized-plan cohort: [██████████] 100% — 35 of 35 currently
+authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
+10 phases complete; this 100% is not milestone completion.
 
 ## Phase 1: COMPLETE ✓
 ## Phase 2: COMPLETE ✓
@@ -107,20 +111,50 @@ Progress: [██████████] 100%
 - [Phase 02]: Plan 02-12 staging preflight executed under exact target parameters, hash-bound owner approval recorded in phase2-approval.json, read-only exact-host production smoke verified against wtfmedia.vercel.app, and Phase 2 closed with full 35/35 threat mitigation.
 - [Current inventory 2026-08-29]: Repository Phase 1 is a public compatibility/proof release and is explicitly independent of Cloudflare Zero Trust, Access Applications, Access policies, and D1 operator provisioning. Its acceptance remains local, credential-free, and network-independent; the operator boundary is a later workstream.
 - [Current inventory 2026-08-29]: The operator UI, role/seat model, JWT verifier, D1 authorization design, and loopback-only local development context exist in source, but this checkout does not prove a live Access Application, policy, protected hostname, Access issuer/audience/JWKS, environment binding, or real seat assignment. Historical Phase 2 closure language is retained as record, not current runtime proof. See `docs/architecture/architecture.html`.
+- [Current release 2026-08-30]: The owner temporarily authorizes an ungated public URL. Anonymous visitors may view WTF OS and list/create/update production-calendar records; anonymous delete, ingestion control, transcript activation, provider configuration, secrets, and release approval remain outside the exception. Cloudflare Access and fine-grained RBAC move to the next release.
+- [Cloudflare migration 2026-08-30]: Live evidence resolves three accounts: `9d9d` is the retained read/copy source, repository-bound `wtfmedia` is the target that owns `wtfhq.in`, and `default` is unrelated and untouched. The initial target foundation wave is complete: R2 reconciles at 99 objects / 13,204,194 bytes with all-object hash equality; KV reconciles at 55 keys with value equality and no logged values; Vectorize reconciles at 5,742 unique matching IDs, 1,024 dimensions, and cosine; both queue shells exist; and D1 has migrations `0001`–`0005` applied. Target Workers, queue bindings, the calendar migration, secrets, domain/DNS, final delta, and cutover remain gated. See `.planning/inputs/2026-08-30-9d9d-cloudflare-migration-inventory.md`.
 
 ### Pending Todos
 
 Phase 1 and Phase 2 are complete. Future roadmap execution:
 
 1. **Client inputs for Phase 3–4** — IP taxonomy, 20-query editorial set, Frame.io/Drive/Zset share rotation. These block Phases 3–4.
-2. **Phase 3 Authorization** — Owner explicit authorization required before activating Phase 3 (Provenance & Catalogue Ingestion).
+2. **Bounded Phase 3 release slice** — The owner authorizes reuse/migration of
+   the existing Ask WTF storage, retrieval, and ingestion foundation plus the
+   published/uncut source-mode extension. Unverified source rows, generated
+   timestamps, and provider activation remain fail-closed.
+3. **Target Cloudflare cutover** — Initial target resources and bulk
+   R2/KV/Vectorize reconciliation are complete. Add the reviewed calendar
+   migration; deploy reviewed Workers with fresh secrets and queue bindings;
+   and attach
+   `wtfhq.in` only after preview gates, owner-authorized source quiesce/final
+   delta, rollback acceptance/rehearsal, and explicit cutover authorization pass.
 
 ### Blockers/Concerns
 
 - Phase 1 (21 requirements) and Phase 2 (15 requirements) are 100% complete and verified.
 - YouTube access, episode inventory, uncut mapping, Hindi behavior, and the editorial query set block Phases 3–4.
 - Research inputs and vendor/export/orchestration decisions block Phase 5; calendar, analytics-access, reporting, and clip-trigger decisions block Phases 6–9.
-- Phases 3–10 remain inactive until the recorded owner-authorization gate passes.
+- The current owner decision supersedes the blanket Phase 3 inactivity line
+  only for the four named release deliverables: WTF OS UI, published/uncut
+  transcript retrieval, persistent production calendar, and settings hygiene.
+  Unrelated Phase 3–10 scope remains inactive.
+- The repository-bound target OAuth and R2 authority now pass and the initial
+  target create/copy window is complete. DNS-record reads remain denied. Fresh
+  target secrets, reviewed integrated source, the calendar migration, and the
+  deployment/cutover gates still block Workers and hostname activation.
+- Source D1 and WTF Pages are absent. The live edge settings and deployments
+  are administrable through `9d9d`; target D1 must be created and both Workers
+  must be redeployed from reviewed source.
+- Source consistency requires a bounded, separately authorized pause of new
+  ingestion/producers, queue settlement, and a final R2/KV/Vectorize delta.
+  Before that window, source remains read-only.
+- The verified source Workers.dev URL is an emergency endpoint, but current
+  domain rollback restores the pre-cutover no-apex state rather than same-host
+  continuity. Owner acceptance or a separately rehearsed same-host route is a
+  cutover gate.
+- Cloudflare Access/RBAC is deliberately deferred and is not a blocker for the
+  short-lived public-link release.
 
 ## Deferred Items
 
@@ -130,7 +164,11 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
 
 ## Session Continuity
 
-Last session: 2026-08-28
-Stopped at: Phase 1 & Phase 2 100% complete and verified. All planning documents, requirement matrices, verification reports, and threat ledgers finalized and committed.
+Last session: 2026-08-30
+Stopped at: Initial target Cloudflare foundation created and bulk R2/KV/
+Vectorize data reconciled; D1 migrations `0001`–`0005` applied. Workers,
+calendar persistence, secrets, queue bindings, final delta, and hostname remain.
 Resume file: `.project/HANDOFF.md`
-Resume: Ready for owner review and Phase 3 authorization.
+Resume: Resolve the reviewed integration source and failing edge expectation,
+add the reviewed calendar migration, establish fresh target secrets, then
+deploy edge/web previews before any source quiesce or hostname cutover.
