@@ -7,6 +7,7 @@
  * Uncut playback or dual-timeline alignment can be rendered.
  */
 
+import { publicTimestampForMode, type MappingStatus, type SourceMode } from "./source-mode";
 import { createTimelineEngine, parseAndValidateIntervals } from "./timeline-engine";
 import type {
   DualPlaybackCoordinate,
@@ -162,6 +163,9 @@ export function resolveCitation(citation: {
   timeSec?: number;
   startTimeSec?: number;
   t?: number;
+  sourceMode?: SourceMode;
+  mappingStatus?: MappingStatus;
+  requestedMode?: SourceMode;
 }): {
   episode: CatalogEpisodeMapping | null;
   activeTimeSec: number | null;
@@ -170,12 +174,19 @@ export function resolveCitation(citation: {
   intervals: NormalizedTimelineInterval[];
   isUncutOnly: false;
 } {
+  const requested = citation.requestedMode ?? citation.sourceMode ?? "published";
   const explicitTime =
     parseTimestamp(citation.timestampSec) ??
     parseTimestamp(citation.timeSec) ??
     parseTimestamp(citation.startTimeSec) ??
     parseTimestamp(citation.t);
-  const activeTimeSec = explicitTime ?? extractTimestampFromUrl(citation.url ?? "");
+  const urlTime = extractTimestampFromUrl(citation.url ?? "");
+  const activeTimeSec = publicTimestampForMode({
+    requested,
+    citationMode: citation.sourceMode ?? requested,
+    mappingStatus: citation.mappingStatus,
+    timeSec: explicitTime ?? urlTime,
+  });
   const candidateVideoId = citation.videoId ?? citation.video_id;
   const explicitVideoId = candidateVideoId && isYouTubeVideoId(candidateVideoId)
     ? candidateVideoId

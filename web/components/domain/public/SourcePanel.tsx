@@ -10,14 +10,10 @@
 
 import { useId } from "react";
 import Link from "next/link";
+import { resolveCitation } from "@/lib/provenance/catalog-mapping";
+import type { PublicSourceCitation } from "@/lib/provenance/public-source-header";
 
-export type SourceCitation = {
-  episodeId?: string;
-  title?: string;
-  url?: string;
-  videoId?: string;
-  timeSec?: number | null;
-};
+export type SourceCitation = PublicSourceCitation;
 
 export interface SourcePanelProps {
   sources: SourceCitation[];
@@ -69,12 +65,14 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 sources
               </p>
               <p id={uncutPlaybackStatusId} className="mt-0.5 text-[11px] text-muted">
-                published moments are available. uncut playback waits on a verified mapping.
+                {sources.some((source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped")
+                  ? "uncut timestamps come from the response. no published time was converted."
+                  : "published moments are available. uncut stays unavailable until a mapped uncut source is returned."}
               </p>
             </div>
             <div className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5">
               <span className="rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention">
-                published
+                {sources[0]?.sourceMode === "uncut" ? "uncut" : "published"}
               </span>
               <button
                 type="button"
@@ -82,7 +80,9 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 aria-describedby={uncutPlaybackStatusId}
                 className="cursor-not-allowed rounded px-2.5 py-1 text-[11px] text-muted opacity-70"
               >
-                uncut unavailable
+                {sources[0]?.sourceMode === "uncut" && sources[0]?.mappingStatus === "mapped"
+                  ? "uncut"
+                  : "uncut unavailable"}
               </button>
             </div>
           </div>
@@ -90,13 +90,17 @@ export function SourcePanel({ sources }: SourcePanelProps) {
 
         <ul className="space-y-2.5 pl-1">
           {sources.map((source, index) => {
-            const videoId = source.videoId;
+            const resolved = resolveCitation({
+              ...source,
+              requestedMode: source.sourceMode ?? "published",
+            });
+            const videoId = resolved.youtubeVideoId;
             const label = source.title || source.episodeId || "WTF episode";
             const episodeHref = source.episodeId
               ? `/episodes?id=${encodeURIComponent(source.episodeId)}`
               : null;
             const publishedHref = videoId
-              ? youtubeWatchUrl(videoId, source.timeSec ?? null)
+              ? youtubeWatchUrl(videoId, resolved.activeTimeSec)
               : null;
 
             return (
@@ -122,9 +126,9 @@ export function SourcePanel({ sources }: SourcePanelProps) {
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-secondary">
                   <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
-                    {source.timeSec === null || source.timeSec === undefined
+                    {resolved.activeTimeSec === null || resolved.activeTimeSec === undefined
                       ? "timestamp unavailable"
-                      : `published ${formatPlaybackTimestamp(source.timeSec)}`}
+                      : `${source.sourceMode === "uncut" ? "uncut" : "published"} ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
                   </span>
                   {publishedHref ? (
                     <a

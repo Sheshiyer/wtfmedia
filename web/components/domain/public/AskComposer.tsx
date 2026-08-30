@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
+import type { SourceMode } from "@/lib/provenance/source-mode";
 
 /**
  * AskComposer — persistent labelled composer for the chat route.
@@ -20,6 +21,8 @@ interface AskComposerProps {
   onSubmit: () => void;
   disabled?: boolean;
   loading?: boolean;
+  sourceMode?: SourceMode;
+  onSourceModeChange?: (mode: SourceMode) => void;
 }
 
 export function AskComposer({
@@ -28,6 +31,8 @@ export function AskComposer({
   onSubmit,
   disabled = false,
   loading = false,
+  sourceMode = "published",
+  onSourceModeChange,
 }: AskComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -57,9 +62,34 @@ export function AskComposer({
           <label htmlFor="ask-wtf-composer" className="font-label text-sm font-bold lowercase">
             ask the catalogue
           </label>
-          <span id="ask-wtf-composer-help" className="font-label text-[11px] font-semibold uppercase tracking-[0.1em] text-muted sm:text-right">
-            enter to ask · shift + enter for a new line
-          </span>
+          <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+            <div
+              className="inline-flex rounded-control border-2 border-foreground bg-canvas p-0.5"
+              role="group"
+              aria-label="source mode"
+            >
+              {(["published", "uncut"] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  aria-pressed={sourceMode === mode}
+                  disabled={disabled || loading}
+                  onClick={() => onSourceModeChange?.(mode)}
+                  className={[
+                    "min-h-8 px-2.5 font-label text-[11px] font-bold lowercase",
+                    sourceMode === mode
+                      ? "bg-knowledge text-on-knowledge"
+                      : "text-muted hover:text-foreground",
+                  ].join(" ")}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+            <span id="ask-wtf-composer-help" className="font-label text-[11px] font-semibold uppercase tracking-[0.1em] text-muted sm:text-right">
+              enter to ask · shift + enter for a new line
+            </span>
+          </div>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
           <textarea

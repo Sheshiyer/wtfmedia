@@ -1,5 +1,32 @@
 # Project handoff
 
+## 2026-08-30 P0 dual-source Ask WTF joined to target preview
+
+**Status:** TARGET PREVIEW UPDATED — dual-source `sourceMode` and the
+privacy-safe title map are on `wtfmedia-release-integration` and deployed
+to workers.dev. Secrets were not rotated. No DNS, Custom Domain, source
+quiesce, Pages, Access, or `default` mutation.
+
+- Edge filters Vectorize `source_mode` before composition. Missing metadata
+  is published. A published timestamp is never rewritten as uncut.
+- YouTube ingest still writes `ingest:{videoId}` and stamps
+  `source_mode: "published"`. Uncut would use `ingest:uncut:{videoId}` and
+  is not activated.
+- `/chat` exposes published/uncut. Uncut stays unavailable until mapped
+  uncut citations exist.
+- Title map (59 mapped / 3 quarantined, no URLs) renders on `/ops/episodes`
+  above the existing live-catalogue empty state.
+
+**Live verify (browser UA, no answer bodies retained):**
+- `GET /chat` 200; published/uncut controls present
+- `GET` edge `/v1/health` 200; direct `/v1/chat` 401
+- `POST /api/chat` published: 200, `X-Source-Mode: published`,
+  `X-Fallback: false`, 6 published sources
+- `POST /api/chat` uncut: 200, `X-Source-Mode: uncut`, fallback true,
+  0 sources
+
+**Held:** `wtfhq.in` attach, source high-water/quiesce, uncut activation.
+
 ## 2026-08-30 Target Cloudflare preview and D1 calendar live
 
 **Status:** TARGET PREVIEW DEPLOYED — the owner-confirmed canonical

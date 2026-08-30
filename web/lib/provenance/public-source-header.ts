@@ -7,6 +7,8 @@
  * client components.
  */
 
+import { isMappingStatus, parseSourceMode, type MappingStatus, type SourceMode } from "./source-mode";
+
 export interface PublicSourceCitation {
   episodeId?: string;
   videoId?: string;
@@ -14,6 +16,9 @@ export interface PublicSourceCitation {
   url?: string;
   score?: number;
   timeSec?: number;
+  sourceMode?: SourceMode;
+  mappingStatus?: MappingStatus;
+  segmentId?: string;
 }
 
 type SourceRecord = Record<string, unknown>;
@@ -69,6 +74,13 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
     nonNegativeNumber(raw.timestampSec) ??
     nonNegativeNumber(raw.startTimeSec) ??
     nonNegativeNumber(raw.t);
+  const sourceMode = parseSourceMode(raw.sourceMode ?? raw.source_mode);
+  const mappingStatus = isMappingStatus(raw.mappingStatus)
+    ? raw.mappingStatus
+    : isMappingStatus(raw.mapping_status)
+      ? raw.mapping_status
+      : undefined;
+  const segmentId = textField(raw.segmentId ?? raw.segment_id);
 
   if (episodeId) source.episodeId = episodeId;
   if (videoId) source.videoId = videoId;
@@ -76,6 +88,9 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
   if (url) source.url = url;
   if (score !== undefined) source.score = score;
   if (timeSec !== undefined) source.timeSec = timeSec;
+  if (raw.sourceMode != null || raw.source_mode != null) source.sourceMode = sourceMode;
+  if (mappingStatus) source.mappingStatus = mappingStatus;
+  if (segmentId) source.segmentId = segmentId;
 
   return Object.keys(source).length > 0 ? source : null;
 }

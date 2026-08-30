@@ -1,0 +1,88 @@
+import assert from "node:assert/strict";
+import { describe, test } from "node:test";
+
+import {
+  filterAndProjectMatches,
+  parseSourceMode,
+  projectDualSourceCitation,
+  storedSourceMode,
+} from "../src/chat/source-mode.ts";
+
+describe("dual-source chat contract", () => {
+  test("unknown or missing sourceMode defaults to published", () => {
+    assert.equal(parseSourceMode(undefined), "published");
+    assert.equal(parseSourceMode("published"), "published");
+    assert.equal(parseSourceMode("uncut"), "uncut");
+    assert.equal(parseSourceMode("studio"), "published");
+  });
+
+  test("legacy vectors without source_mode are published", () => {
+    assert.equal(storedSourceMode({}), "published");
+    assert.equal(storedSourceMode({ source_mode: "uncut" }), "uncut");
+  });
+
+  test("uncut queries drop published matches and never convert their timestamps", () => {
+    const matches = [
+      {
+        id: "pub-1",
+        score: 0.9,
+        metadata: {
+          video_id: "abcdefghijk",
+          title: "Published episode",
+          chunk: 0,
+          source: "https://www.youtube.com/watch?v=abcdefghijk",
+          start: 120,
+          timestamped: true,
+        },
+      },
+      {
+        id: "uncut-1",
+        score: 0.88,
+        metadata: {
+          video_id: "abcdefghijk",
+          title: "Published episode",
+          chunk: 0,
+          source: "https://www.youtube.com/watch?v=abcdefghijk",
+          start: 480,
+          timestamped: true,
+          source_mode: "uncut",
+        },
+      },
+    ];
+
+    const published = filterAndProjectMatches(matches, "published", 0.45);
+    assert.equal(published.length, 1);
+    assert.equal(published[0].sourceMode, "published");
+    assert.equal(published[0].start, 120);
+    assert.equal(published[0].mappingStatus, "mapped");
+
+    const uncut = filterAndProjectMatches(matches, "uncut", 0.45);
+    assert.equal(uncut.length, 1);
+    assert.equal(uncut[0].sourceMode, "uncut");
+    assert.equal(uncut[0].start, 480);
+    assert.notEqual(uncut[0].start, published[0].start);
+    assert.equal(uncut[0].mappingStatus, "mapped");
+  });
+
+  test("a published timestamp is not projected as uncut", () => {
+    const citation = projectDualSourceCitation(
+      {
+        id: "pub-2",
+        score: 0.91,
+        metadata: {
+          video_id: "abcdefghijk",
+          title: "Published episode",
+          start: 12,
+          timestamped: true,
+          source: "https://www.youtube.com/watch?v=abcdefghijk",
+        },
+      },
+      "uncut",
+      0,
+    );
+    assert.equal(citation?.sourceMode, "published");
+    assert.equal(citation?.start, null);
+    assert.equal(citation?.timestamped, false);
+    assert.equal(citation?.mappingStatus, "unavailable");
+  });
+});
