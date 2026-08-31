@@ -58,7 +58,17 @@ mismatched.jobs[0].transcriptKey = `uncut/${"c".repeat(64)}.txt`;
 const mismatchReceipt = inspectEpisodeScopeManifests(mapping, mismatched);
 assert.equal(mismatchReceipt.manifestReady, false);
 assert.deepEqual(mismatchReceipt.issues, [
+  "mismatched_job_content_hash:1",
   "mismatched_job_transcript_key:1",
+  "missing_mapped_job:1",
+]);
+
+const staleContentHash = structuredClone(jobs);
+staleContentHash.jobs[0].contentHash = "c".repeat(64);
+const staleHashReceipt = inspectEpisodeScopeManifests(mapping, staleContentHash);
+assert.equal(staleHashReceipt.manifestReady, false);
+assert.deepEqual(staleHashReceipt.issues, [
+  "mismatched_job_content_hash:1",
   "missing_mapped_job:1",
 ]);
 

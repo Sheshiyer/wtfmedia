@@ -1345,10 +1345,17 @@ team-owned UI and was not edited.
 - The PR #28-compatible web adapter forwards the public episode ID through
   `/api/chat` without redesigning the team-owned UI.
 - Read-only manifest reconciliation found 49 mapped jobs from 52 rows, with 3
-  held. The safe preflight passed without printing private identifiers.
-- Verification passed: 150/150 Cloudflare tests, 14/14 source-mode tests,
-  19/19 transcript-ingest tests, 4/4 queue-admission tests, both script tests,
-  Worker bundle dry-run, `git diff --check`, and final read-only review.
+  held. The original job manifest carried 49 stale generic content hashes, so
+  the new preflight rejects it. A private generated activation plan instead
+  re-hashes the 49 local text assets, verifies each mapped storage key and
+  metadata digest, and normalizes only the queue content hash.
+- `main` retained a calendar import after its reviewed module, migration, and
+  tests disappeared. Those exact release-integration files are restored so the
+  edge bundle can deploy without altering the calendar contract.
+- Verification passed: 149/149 Cloudflare tests, 14/14 source-mode tests,
+  19/19 transcript-ingest tests, 4/4 queue-admission tests, manifest and
+  activation script tests, Worker bundle dry-run, `git diff --check`, and
+  final read-only review.
 
 The owner approved production on 2026-08-31. Source is committed locally and
 the compatibility receipt is updated. Live Vectorize still needs the

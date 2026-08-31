@@ -19,6 +19,13 @@ versioning; the web application version is held in `web/package.json`.
 
 - Added episode-scoped Ask WTF retrieval from dedicated episode workspaces,
   while preserving separate public episode and private uncut asset identities.
+- Added a fail-closed activation preflight that verifies mapped uncut bytes,
+  storage keys, and content hashes before production upload or ingestion.
+
+### Fixed
+
+- Restored the reviewed calendar Worker module and migration still imported by
+  `main`, returning the edge bundle to a deployable state.
 
 ## [0.1.3] - 2026-08-11
 

@@ -49,6 +49,7 @@ export function inspectEpisodeScopeManifests(mappingDocument, jobsDocument) {
   let invalidJobSourceMode = 0;
   let invalidTranscriptKey = 0;
   let invalidContentHash = 0;
+  let mismatchedJobContentHash = 0;
   let mismatchedJobTranscriptKey = 0;
   const jobStorageIds = [];
 
@@ -62,14 +63,20 @@ export function inspectEpisodeScopeManifests(mappingDocument, jobsDocument) {
     const storageId = transcriptKeyValid ? transcriptKey.slice("uncut/".length, -".txt".length) : "";
     const expectedStorageId = mappingByVideoId.get(videoId);
     const transcriptKeyMatchesMapping = Boolean(expectedStorageId && storageId === expectedStorageId);
-    const contentHashValid = HASH64.test(String(job?.contentHash ?? ""));
+    const contentHash = String(job?.contentHash ?? "");
+    const contentHashValid = HASH64.test(contentHash);
+    const contentHashMatchesStorage = Boolean(storageId && contentHash === storageId);
     if (!videoIdValid) invalidJobVideoId += 1;
     if (!sourceModeValid) invalidJobSourceMode += 1;
     if (!transcriptKeyValid) invalidTranscriptKey += 1;
     if (transcriptKeyValid && videoIdValid && !transcriptKeyMatchesMapping) mismatchedJobTranscriptKey += 1;
     if (!contentHashValid) invalidContentHash += 1;
+    if (contentHashValid && transcriptKeyValid && !contentHashMatchesStorage) mismatchedJobContentHash += 1;
     if (storageId) jobStorageIds.push(storageId);
-    if (videoIdValid && sourceModeValid && transcriptKeyValid && contentHashValid && transcriptKeyMatchesMapping) {
+    if (
+      videoIdValid && sourceModeValid && transcriptKeyValid && contentHashValid &&
+      transcriptKeyMatchesMapping && contentHashMatchesStorage
+    ) {
       validJobVideoIds.add(videoId);
     }
   }
@@ -84,6 +91,7 @@ export function inspectEpisodeScopeManifests(mappingDocument, jobsDocument) {
   issue(issues, "invalid_job_transcript_key", invalidTranscriptKey);
   issue(issues, "invalid_job_video_id", invalidJobVideoId);
   issue(issues, "invalid_mapping_storage_hash", invalidMappingStorageHash);
+  issue(issues, "mismatched_job_content_hash", mismatchedJobContentHash);
   issue(issues, "mismatched_job_transcript_key", mismatchedJobTranscriptKey);
   issue(issues, "missing_mapped_job", [...mappedVideoIds].filter((videoId) => !validJobVideoIds.has(videoId)).length);
   issue(issues, "unexpected_job_video_id", allJobVideoIds.filter((videoId) => !mappedVideoIds.has(videoId)).length);
