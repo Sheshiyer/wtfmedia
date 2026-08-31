@@ -35,13 +35,15 @@ type EdgeAnswer = {
   grounded?: boolean;
   sourceMode?: SourceMode;
   uncutUnavailable?: boolean;
+  model?: string;
+  modelFallback?: boolean;
   error?: string;
 };
 
 function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
   return JSON.stringify(sources.map((source) => {
     const mode = source.sourceMode ?? sourceMode;
-    const start = mode === sourceMode ? source.start : null;
+    const start = sourceMode === "both" || mode === sourceMode ? source.start : null;
     const direct = mode === "uncut"
       ? (typeof source.url === "string" && source.url.startsWith("uncut:")
         ? source.url
@@ -90,12 +92,21 @@ export async function POST(req: NextRequest) {
       cache: "no-store",
       signal: AbortSignal.timeout(25_000),
     }));
-  } catch {
+  } catch (error) {
+    console.error("wtfmedia web chat transport failed", {
+      message: error instanceof Error ? error.message : "unknown",
+      sourceMode,
+    });
     return Response.json({ error: "The answer service is temporarily unavailable. Please retry shortly." }, { status: 503 });
   }
 
   const result = await edge.json().catch(() => undefined) as EdgeAnswer | undefined;
   if (!edge.ok || !result || typeof result.answer !== "string") {
+    console.error("wtfmedia web chat rejected edge response", {
+      status: edge.status,
+      edgeError: result?.error ?? "invalid_body",
+      sourceMode,
+    });
     return Response.json({ error: "The answer service is temporarily unavailable. Please retry shortly." }, { status: 503 });
   }
   const sources = Array.isArray(result.sources) ? result.sources : [];
@@ -107,8 +118,8 @@ export async function POST(req: NextRequest) {
       "X-Sources": encodeURIComponent(sourceHeader(sources, responseMode)),
       "X-Source-Mode": responseMode,
       "X-Uncut-Unavailable": result.uncutUnavailable ? "true" : "false",
-      "X-Model": "cloudflare/llama-3.3-70b-instruct",
-      "X-Fallback": result.grounded ? "false" : "true",
+      "X-Model": result.model ?? "cloudflare/llama-3.3-70b-instruct",
+      "X-Fallback": result.grounded && !result.modelFallback ? "false" : "true",
       "Cache-Control": "no-store",
     },
   });

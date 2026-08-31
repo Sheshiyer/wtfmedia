@@ -1,5 +1,52 @@
 # Project handoff
 
+## 2026-08-31 Ask WTF Cloudflare source-mode hardening
+
+**Status:** PROD DEPLOYED — chat service binding, `both` mode, model fallback,
+and sanitized error logs are live. Secrets were not exposed or rotated. No DNS
+or corpus enqueue occurred.
+
+- Edge now accepts `published`, `uncut`, and `both`; `both` returns mixed
+  evidence without relabeling source modes.
+- Uncut requests fall back to published evidence only when uncut evidence is
+  sparse or unavailable.
+- Answer synthesis tries the configured Cloudflare AI model chain, logs
+  sanitized failures, and returns a cited extractive fallback when synthesis
+  returns invalid citations.
+- Web chat logs sanitized edge transport/rejection failures and forwards
+  `X-Model` / `X-Fallback` headers.
+- Deployed `wtfmedia-edge`
+  `df3ad7d5-6534-475d-a43c-388a5c21a10d`.
+- Deployed `wtfmedia-web`
+  `99812da9-86f2-42df-bd37-0319a23ad47b`.
+
+### Verification
+
+```bash
+cd cloudflare && npm test
+# 141 passing
+
+cd web && npm run typecheck && npm run lint
+# passed
+
+curl -sS https://wtfhq.in/api/chat ...
+# published: 200, sourceMode=published, mapped YouTube citations
+# uncut: 200, truthful published fallback when uncut unavailable
+# both: 200, mixed uncut + published evidence returned
+```
+
+Cloudflare receipts: Vectorize `wtfmedia-catalogue-v1` has 6,354 vectors,
+including 612 `source_mode=uncut` vectors; queue `wtfmedia-ingest` has producer
+and consumer attached to `worker:wtfmedia-edge`; concrete uncut vector lookup
+succeeded for `u:8bddb0c5e26be400553af63a8cac820ceb21c89940c1b3e6:4`.
+
+Remaining gap: uncut asset storage is not fully reconciled. The expected R2
+object for the sampled uncut hash was missing, `ingest:uncut:` KV keys were
+empty in the target namespace, `.planning/inputs/uncut-local` only contains
+`.gitignore`, and `UNCUT_DIR` was unset. Do not claim "all uncut assets
+ingested" until an approved uncut transcript corpus is supplied and
+R2/KV/Vectorize receipts agree.
+
 ## 2026-08-30 Uncut Cloudflare asset map wired into ingest and chat
 
 **Status:** TARGET PREVIEW UPDATED — inventory-aligned keys for published

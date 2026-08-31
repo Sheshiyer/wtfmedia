@@ -49,7 +49,10 @@ type TranscriptJob = {
 };
 
 const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
-const ANSWER_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+const ANSWER_MODELS = [
+  "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "@cf/meta/llama-3.1-8b-instruct-fast",
+];
 const MAX_BODY_BYTES = 16_000;
 const MAX_QUESTION_CHARS = 2_000;
 const MAX_CHUNK_CHARS = 1_100;
@@ -134,6 +137,42 @@ async function upsertWithRetry(env: Env, vectors: unknown[]) {
     }
   }
   throw lastError;
+}
+
+async function answerWithFallback(env: Env, messages: unknown[]) {
+  const failures: string[] = [];
+  for (const model of ANSWER_MODELS) {
+    try {
+      const result = await env.AI.run(model, {
+        messages,
+        max_tokens: 600,
+        temperature: 0.1,
+      });
+      const answer = typeof result === "string" ? result : result?.response;
+      if (typeof answer !== "string" || !answer.trim()) throw new Error("empty answer response");
+      if (failures.length) console.warn("wtfmedia answer model fallback used", { model, failedAttempts: failures.length });
+      return { answer, model, fallback: failures.length > 0 };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "unknown";
+      failures.push(`${model}:${message}`);
+      console.warn("wtfmedia answer model failed", { model, message });
+    }
+  }
+  throw new Error(`answer models unavailable: ${failures.length}`);
+}
+
+function citedEvidenceFallback(sources: Array<{ n: number; title: string; text?: string }>) {
+  const lines = sources.slice(0, 3).map((source) => {
+    const excerpt = String(source.text || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 260);
+    return `[${source.n}] ${source.title}: ${excerpt}${excerpt.length === 260 ? "..." : ""}`;
+  });
+  return [
+    "I found relevant evidence, but the synthesis model did not return valid citations. Here are the closest cited excerpts instead:",
+    ...lines,
+  ].join("\n\n");
 }
 
 async function rateLimit(request: Request, env: Env) {
@@ -242,25 +281,22 @@ async function chat(request: Request, env: Env) {
       });
     }
     const context = sources.map((source: any) => `[${source.n}] ${source.title}\n${source.text}`).join("\n\n---\n\n");
-    const result = await env.AI.run(ANSWER_MODEL, {
-      messages: [
+    const answered = await answerWithFallback(env, [
         { role: "system", content: SYSTEM },
         { role: "user", content: `CONTEXT:\n${context}\n\nQUESTION: ${question}` },
-      ],
-      max_tokens: 600,
-      temperature: 0.1,
-    });
-    const answer = typeof result === "string" ? result : result?.response;
-    if (typeof answer !== "string" || !answer.trim()) throw new Error("empty answer response");
+      ]);
+    const answer = answered.answer;
     const citations = [...answer.matchAll(/\[(\d+)\]/g)].map((match) => Number(match[1]));
     if (citations.length === 0 || citations.some((citation) => citation < 1 || citation > sources.length)) {
       console.warn("wtfmedia answer rejected: invalid citations", { sourceCount: sources.length, citations });
       return reply(request, env, {
-        answer: "I couldn’t produce a properly cited answer from the retrieved evidence. Please rephrase or try again.",
+        answer: citedEvidenceFallback(sources),
         sources: sources.map(({ text: _text, ...source }) => source),
-        grounded: false,
+        grounded: true,
         sourceMode: resolved.sourceMode,
         uncutUnavailable: resolved.uncutUnavailable,
+        model: answered.model,
+        modelFallback: true,
       });
     }
     return reply(request, env, {
@@ -269,9 +305,14 @@ async function chat(request: Request, env: Env) {
       grounded: true,
       sourceMode: resolved.sourceMode,
       uncutUnavailable: resolved.uncutUnavailable,
+      model: answered.model,
+      modelFallback: answered.fallback,
     });
   } catch (error) {
-    console.error("wtfmedia chat failed", { message: error instanceof Error ? error.message : "unknown" });
+    console.error("wtfmedia chat failed", {
+      message: error instanceof Error ? error.message : "unknown",
+      sourceMode,
+    });
     return reply(request, env, { error: "retrieval_unavailable" }, 503);
   }
 }

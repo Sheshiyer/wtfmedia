@@ -145,4 +145,59 @@ describe("dual-source chat contract", () => {
     assert.equal(resolved.citations[0].start, 12);
     assert.equal(resolved.citations[1].sourceMode, "published");
   });
+
+  test("both mode returns uncut and published evidence without relabeling either", () => {
+    const matches = [
+      {
+        id: "uncut:hash-a:0",
+        score: 0.95,
+        metadata: {
+          video_id: "hash-a",
+          title: "Uncut episode",
+          start: 95,
+          timestamped: true,
+          source_mode: "uncut",
+        },
+      },
+      {
+        id: "pub-a",
+        score: 0.9,
+        metadata: {
+          video_id: "abcdefghijk",
+          title: "Published episode",
+          start: 12,
+          timestamped: true,
+          source: "https://www.youtube.com/watch?v=abcdefghijk",
+        },
+      },
+    ];
+    const resolved = resolveRequestedSources(matches, "both", 0.45);
+    assert.equal(resolved.sourceMode, "both");
+    assert.equal(resolved.uncutUnavailable, false);
+    assert.equal(resolved.citations.length, 2);
+    assert.equal(resolved.citations[0].sourceMode, "uncut");
+    assert.equal(resolved.citations[0].url.startsWith("uncut:"), true);
+    assert.equal(resolved.citations[1].sourceMode, "published");
+    assert.equal(resolved.citations[1].url.includes("youtube.com"), true);
+  });
+
+  test("both mode reports uncut unavailable when only published evidence exists", () => {
+    const resolved = resolveRequestedSources([
+      {
+        id: "pub-a",
+        score: 0.9,
+        metadata: {
+          video_id: "abcdefghijk",
+          title: "Published episode",
+          start: 12,
+          timestamped: true,
+          source: "https://www.youtube.com/watch?v=abcdefghijk",
+        },
+      },
+    ], "both", 0.45);
+    assert.equal(resolved.sourceMode, "both");
+    assert.equal(resolved.uncutUnavailable, true);
+    assert.equal(resolved.citations.length, 1);
+    assert.equal(resolved.citations[0].sourceMode, "published");
+  });
 });
