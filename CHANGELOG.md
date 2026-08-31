@@ -3,6 +3,16 @@
 All notable user-facing releases are recorded here. Versions follow semantic
 versioning; the web application version is held in `web/package.json`.
 
+## [Unreleased]
+
+### Changed
+
+- Adopted the owner-approved WTF OS shell contract: a header wordmark and
+  keyboard-safe operations disclosure above a scroll-safe application dock.
+- Added a deterministic development-only local RAG fallback for `/api/chat`
+  while preserving the Cloudflare service-binding production path and source
+  headers.
+
 ## [0.1.3] - 2026-08-11
 
 ### Fixed

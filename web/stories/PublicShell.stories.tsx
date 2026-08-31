@@ -44,10 +44,11 @@ export const Mobile320: Story = {
   parameters: { viewport: { width: 320, height: 640 } },
   play: async ({ canvasElement }) => {
     const primaryNav = canvasElement.querySelector("#wtf-application-navigation");
-    const operationsNav = canvasElement.querySelector('nav[aria-label="Operational destinations"]');
-    const logo = canvasElement.querySelector('a[aria-label="WTF OS"]');
-    if (!primaryNav || !operationsNav || !logo) {
-      throw new Error("Missing scroll-safe dock navigation");
+    const operationsNav = canvasElement.querySelector('nav[aria-label="Operations"]');
+    const logo = canvasElement.querySelector('header a[aria-label="WTF OS"]');
+    const toggle = canvasElement.querySelector("[data-navigation-toggle]");
+    if (!primaryNav || !operationsNav || !logo || !toggle) {
+      throw new Error("Missing header controls or scroll-safe dock navigation");
     }
   },
 };

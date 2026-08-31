@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import type { ChatMessage } from "@/lib/nvidia";
+import { chatStream, embedQuery, type ChatMessage } from "@/lib/nvidia";
 import { parseSourceMode, type SourceMode } from "@/lib/provenance/source-mode";
+import { isReady, search } from "@/lib/vectors";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -64,6 +65,47 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
   }));
 }
 
+/** Local-only RAG path for `next dev`; production remains Cloudflare-only. */
+async function localAnswer(question: string, sourceMode: SourceMode): Promise<Response> {
+  if (!isReady()) return Response.json({ error: "local_catalogue_unavailable" }, { status: 503 });
+  if (sourceMode === "uncut") {
+    return new Response("uncut is unavailable in local mode; switch to published.", {
+      status: 200,
+      headers: { "Content-Type": "text/plain; charset=utf-8", "X-Sources": encodeURIComponent("[]"), "X-Source-Mode": "uncut", "X-Uncut-Unavailable": "true", "X-Model": "nvidia-local", "X-Fallback": "true" },
+    });
+  }
+  const hits = search(await embedQuery(question), 6);
+  if (hits.length === 0) return Response.json({ error: "local_catalogue_unavailable" }, { status: 503 });
+  const sources: EdgeSource[] = hits.map((hit, index) => ({
+    n: index + 1,
+    score: hit.score,
+    videoId: hit.video_id,
+    title: hit.title,
+    url: `https://www.youtube.com/watch?v=${hit.video_id}`,
+    start: hit.start ?? null,
+    timestamped: hit.start != null,
+    sourceMode: "published",
+    mappingStatus: hit.start == null ? "unmapped" : "mapped",
+    segmentId: `local:${hit.video_id}:${hit.chunk_idx}`,
+  }));
+  const context = hits.map((hit, index) => `[${index + 1}] ${hit.title}\n${hit.text}`).join("\n\n---\n\n");
+  const stream = await chatStream([
+    { role: "system", content: "Answer only from the supplied transcript excerpts. Cite every factual sentence with [1], [2], etc. If the excerpts do not answer the question, say so plainly." },
+    { role: "user", content: `CONTEXT:\n${context}\n\nQUESTION: ${question}` },
+  ], { maxTokens: 600, temperature: 0.1 });
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Sources": encodeURIComponent(sourceHeader(sources, "published")),
+      "X-Source-Mode": "published",
+      "X-Uncut-Unavailable": sourceMode === "both" ? "true" : "false",
+      "X-Model": "nvidia-local",
+      "X-Fallback": "false",
+      "Cache-Control": "no-store",
+    },
+  });
+}
+
 export async function POST(req: NextRequest) {
   let body: { messages?: ChatMessage[]; sourceMode?: unknown };
   try {
@@ -76,7 +118,16 @@ export async function POST(req: NextRequest) {
   if (!last?.content?.trim()) return new Response("no user message", { status: 400 });
   if (last.content.length > MAX_QUESTION_CHARS) return new Response("question too long", { status: 400 });
   const sourceMode = parseSourceMode(body.sourceMode);
-  if (!EDGE_SHARED_SECRET) return Response.json({ error: "The answer service is not configured." }, { status: 503 });
+  if (!EDGE_SHARED_SECRET) {
+    if (process.env.NODE_ENV !== "production" && process.env.NVIDIA_API_KEY) {
+      try { return await localAnswer(last.content, sourceMode); }
+      catch (error) {
+        console.error("local NVIDIA RAG failed", error instanceof Error ? error.message : "unknown");
+        return Response.json({ error: "local_answer_unavailable" }, { status: 503 });
+      }
+    }
+    return Response.json({ error: "The answer service is not configured." }, { status: 503 });
+  }
 
   let edge: Response;
   try {

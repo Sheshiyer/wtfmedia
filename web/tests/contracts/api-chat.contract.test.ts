@@ -27,6 +27,8 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await stub.close();
+  vi.doUnmock("@/lib/nvidia");
+  vi.doUnmock("@/lib/vectors");
   vi.unstubAllEnvs();
   vi.resetModules();
 });
@@ -46,6 +48,56 @@ async function importRoute(opts: { ragUrl?: string; sharedSecret?: string } = {}
     }),
   }));
   return import("@/app/api/chat/route");
+}
+
+const LOCAL_HITS = [
+  {
+    video_id: "LOCAL123",
+    title: "Local Episode",
+    chunk_idx: 4,
+    start: 42,
+    text: "A deterministic local transcript excerpt.",
+    score: 0.88,
+  },
+];
+
+function localStream(text: string): ReadableStream<Uint8Array> {
+  return new ReadableStream({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode(text));
+      controller.close();
+    },
+  });
+}
+
+async function importLocalRoute(opts: {
+  ready?: boolean;
+  hits?: typeof LOCAL_HITS;
+  embedError?: Error;
+  chatError?: Error;
+} = {}) {
+  const embedQuery = vi.fn(async () => {
+    if (opts.embedError) throw opts.embedError;
+    return new Float32Array([1, 0, 0]);
+  });
+  const chatStream = vi.fn(async () => {
+    if (opts.chatError) throw opts.chatError;
+    return localStream("Local grounded answer.");
+  });
+  vi.resetModules();
+  vi.stubEnv("EDGE_SHARED_SECRET", "");
+  vi.stubEnv("CLOUDFLARE_EDGE_SHARED_SECRET", "");
+  vi.stubEnv("NVIDIA_API_KEY", "local-test-key");
+  vi.doMock("@opennextjs/cloudflare", () => ({
+    getCloudflareContext: async () => ({ env: {} }),
+  }));
+  vi.doMock("@/lib/vectors", () => ({
+    isReady: () => opts.ready ?? true,
+    search: () => opts.hits ?? LOCAL_HITS,
+  }));
+  vi.doMock("@/lib/nvidia", () => ({ embedQuery, chatStream }));
+  const route = await import("@/app/api/chat/route");
+  return { ...route, embedQuery, chatStream };
 }
 
 function chatRequest(body: unknown, headers: Record<string, string> = {}) {
@@ -200,6 +252,74 @@ describe("POST /api/chat — successful upstream answer", () => {
     const res = await POST(chatRequest({ messages: [userMessage(triggerQuestion("sources-not-array"))] }));
     expect(res.status).toBe(200);
     expect(decodeURIComponent(res.headers.get("X-Sources")!)).toBe("[]");
+  });
+});
+
+describe("POST /api/chat — approved local development fallback", () => {
+  it("answers from the local published catalogue with cited metadata", async () => {
+    const { POST } = await importLocalRoute();
+    const res = await POST(chatRequest({ messages: [userMessage("local question")] }));
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe("Local grounded answer.");
+    expect(res.headers.get("X-Model")).toBe("nvidia-local");
+    expect(res.headers.get("X-Source-Mode")).toBe("published");
+    expect(res.headers.get("X-Fallback")).toBe("false");
+    const sources = JSON.parse(decodeURIComponent(res.headers.get("X-Sources")!));
+    expect(sources).toEqual([
+      {
+        n: 1,
+        video_id: "LOCAL123",
+        title: "Local Episode",
+        score: 0.88,
+        t: 42,
+        time: "00:42",
+        url: "https://www.youtube.com/watch?v=LOCAL123",
+        source_mode: "published",
+        mapping_status: "mapped",
+        segment_id: "local:LOCAL123:4",
+      },
+    ]);
+  });
+
+  it("returns an explicit unavailable response for local uncut mode", async () => {
+    const { POST, embedQuery, chatStream } = await importLocalRoute();
+    const res = await POST(chatRequest({ messages: [userMessage("uncut question")], sourceMode: "uncut" }));
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe("uncut is unavailable in local mode; switch to published.");
+    expect(res.headers.get("X-Source-Mode")).toBe("uncut");
+    expect(res.headers.get("X-Uncut-Unavailable")).toBe("true");
+    expect(decodeURIComponent(res.headers.get("X-Sources")!)).toBe("[]");
+    expect(embedQuery).not.toHaveBeenCalled();
+    expect(chatStream).not.toHaveBeenCalled();
+  });
+
+  it("uses published evidence and marks uncut unavailable for local both mode", async () => {
+    const { POST } = await importLocalRoute();
+    const res = await POST(chatRequest({ messages: [userMessage("both sources")], sourceMode: "both" }));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("X-Source-Mode")).toBe("published");
+    expect(res.headers.get("X-Uncut-Unavailable")).toBe("true");
+    expect(await res.text()).toBe("Local grounded answer.");
+  });
+
+  it("fails closed when the local catalogue is missing", async () => {
+    const { POST, embedQuery } = await importLocalRoute({ ready: false });
+    const res = await POST(chatRequest({ messages: [userMessage("missing catalogue")] }));
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: "local_catalogue_unavailable" });
+    expect(embedQuery).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["retrieval", { embedError: new Error("provider detail must stay server-side") }],
+    ["generation", { chatError: new Error("model detail must stay server-side") }],
+  ])("returns a generic local error when %s fails", async (_label, options) => {
+    const { POST } = await importLocalRoute(options);
+    const res = await POST(chatRequest({ messages: [userMessage("provider failure")] }));
+    expect(res.status).toBe(503);
+    const body = await res.text();
+    expect(body).toBe(JSON.stringify({ error: "local_answer_unavailable" }));
+    expect(body).not.toContain("server-side");
   });
 });
 

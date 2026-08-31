@@ -69,7 +69,9 @@ export function WorkspaceHeader({
     >
       <div className="mx-auto max-w-[var(--wtf-content-max)]">
         {context && (
-          <div className="mb-6 border-b border-foreground/20 pb-4">{context}</div>
+          <div className="mb-5 border-b border-foreground/20 pb-3 lg:fixed lg:left-56 lg:top-9 lg:z-40 lg:mb-0 lg:w-fit lg:max-w-[calc(100vw-24rem)] lg:border-b-0 lg:p-0">
+            {context}
+          </div>
         )}
         <div className="grid items-end gap-6 lg:grid-cols-[minmax(0,1fr)_auto]">
           <div className="max-w-4xl">

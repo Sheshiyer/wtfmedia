@@ -6,7 +6,8 @@ import AxeBuilder from "@axe-core/playwright";
  *
  * Verifies the migrated brand effects wired into PublicShell:
  * - MigratedWordmarkMini in header (semantic tokens, not legacy WordmarkMini)
- * - Centered WTF OS dock with split public/operational rails
+ * - Header wordmark plus operations disclosure
+ * - Scroll-safe bottom application dock
  * - OptionalPointerAccent (renders nothing on touch/reduced-motion)
  * - Reduced motion: dock remains static, pointer accent hidden
  * - No horizontal overflow at 320/768/1440
@@ -38,34 +39,36 @@ test.describe("brand motion journey", () => {
     await expect(page.locator("[data-wtf-os-boot]")).toHaveCount(0);
   });
 
-  // ─── Centered Dock ─────────────────────────────────────────────────
+  // ─── Header and Dock ───────────────────────────────────────────────
 
-  test("bottom dock renders the centered wordmark between split rails", async ({ page }) => {
+  test("header owns the wordmark and bottom dock owns application navigation", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    const header = page.locator("header").first();
+    await expect(header.getByRole("link", { name: "WTF OS" })).toBeVisible();
+    await expect(header.getByRole("button", { name: "Open operations navigation" })).toBeVisible();
+    await expect(header.locator('nav[aria-label="Operations"]')).toBeAttached();
 
     const dock = page.locator(".wtf-bottom-pill");
     await expect(dock).toBeVisible();
     await expect(dock.getByRole("navigation", { name: "Application" })).toBeVisible();
-    await expect(dock.getByRole("navigation", { name: "Operational destinations" })).toBeVisible();
-    const logo = dock.getByRole("link", { name: "WTF OS" });
-    await expect(logo).toBeVisible();
-    await expect(logo.locator("[data-wtfos-wordmark-mini]")).toBeVisible();
+    await expect(dock.getByRole("link", { name: "WTF OS" })).toHaveCount(0);
   });
 
-  test("bottom dock keeps public and operational destinations readable", async ({ page }) => {
+  test("operations disclosure keeps role-projected destinations readable", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
+    const header = page.locator("header").first();
+    await header.getByRole("button", { name: "Open operations navigation" }).click();
+    const operations = header.getByRole("navigation", { name: "Operations" });
+    await expect(operations).toBeVisible();
+
+    for (const label of ["control room", "production", "episode map", "settings"]) {
+      await expect(operations.getByRole("link", { name: label, exact: true })).toBeVisible();
+    }
+
     const dock = page.locator(".wtf-bottom-pill");
-    for (const label of [
-      "the room",
-      "episodes",
-      "connections",
-      "ask wtf",
-      "control room",
-      "production",
-      "episode map",
-      "settings",
-    ]) {
+    for (const label of ["the room", "episodes", "connections", "ask wtf"]) {
       await expect(dock.getByRole("link", { name: label, exact: true })).toBeVisible();
     }
   });

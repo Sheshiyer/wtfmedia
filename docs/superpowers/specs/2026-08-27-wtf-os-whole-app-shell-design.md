@@ -287,10 +287,26 @@ Static claims are prohibited when the UI implies a live observation. Specificall
 
 ## 12. Responsive, Accessibility, and Motion
 
-- 1440px: persistent 240px rail and dense two-column workspace where content supports it.
-- 768px: rail becomes an accessible drawer; content stays structured and readable.
-- 320px: single column, full-width dominant action, no page overflow, no clipped context.
-- Navigation drawer traps and restores focus, closes with Escape, and exposes exactly the same permitted destinations as desktop.
+### Current release navigation contract (owner-approved 2026-08-31)
+
+- The shell uses a fixed top header for the WTF OS wordmark and an operations
+  disclosure, plus a fixed bottom application dock.
+- The wordmark is the first header link and always uses its structural contrast
+  plate. The operations button exposes `aria-expanded` and
+  `aria-controls="wtf-operations-navigation"`.
+- The disclosure contains only the supplied role-projected operational links.
+  It opens on activation, moves focus to its first link, closes on Escape or an
+  outside pointer, and restores focus to the button on Escape.
+- The bottom dock contains the supplied workspace links in one `Application`
+  navigation landmark. Operational links are not duplicated there.
+- At 1440px, 768px, and 320px the header and dock remain visible, the
+  disclosure is width-capped, and the page has no horizontal overflow.
+
+The centered-logo bottom dock and persistent-rail/drawer arrangement are
+historical proposals, not the current release contract. A future drawer may
+reuse the same role-projected destinations only with a separately reviewed
+contract.
+
 - Main content has a skip target and route changes leave a visible, logical focus destination.
 - All controls use semantic links/buttons and 44px touch targets where pointer precision cannot be assumed.
 - Canvas graphs have an equivalent semantic list/table.

@@ -13,8 +13,13 @@ async function authenticate(page: Page, role: "admin" | "editor" = "admin") {
   await page.setExtraHTTPHeaders({ "x-wtf-ops-context": payload, "x-wtf-ops-proof": proof });
 }
 
-async function openOperationsNavIfCompact(page: Page) {
-  await expect(page.getByRole("button", { name: "open operations navigation", exact: true })).toHaveCount(0);
+async function openOperationsNav(page: Page) {
+  const toggle = page.locator("[data-navigation-toggle]");
+  await expect(toggle).toBeVisible();
+  if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
+  const operationsNavigation = page.locator('nav[aria-label="Operations"]:visible').first();
+  await expect(operationsNavigation).toBeVisible();
+  return operationsNavigation;
 }
 
 test("truthful role-projected Control Room shell shows only activated administration navigation", async ({ page }) => {
@@ -32,8 +37,7 @@ test("truthful role-projected Control Room shell shows only activated administra
   await expect(promoted).toContainText("do this next");
   await expect(promoted).toHaveAttribute("href", "/ops/production");
   await expect(promoted).not.toHaveClass(/bg-attention/);
-  await openOperationsNavIfCompact(page);
-  const operationsNavigation = page.getByRole("navigation", { name: "operational destinations", exact: true });
+  const operationsNavigation = await openOperationsNav(page);
   await expect(operationsNavigation.getByRole("link", { name: "settings" })).toBeVisible();
   await expect(operationsNavigation.getByRole("link", { name: "operators" })).toHaveCount(0);
   await expect(operationsNavigation.getByRole("link", { name: "audit" })).toHaveCount(0);
@@ -48,8 +52,7 @@ test("editor role exposes only the activated Control Room destination", async ({
   await expect(promoted).toHaveCount(1);
   await expect(promoted).toContainText("production");
   await expect(promoted).toHaveAttribute("href", "/ops/production");
-  await openOperationsNavIfCompact(page);
-  const operationsNavigation = page.getByRole("navigation", { name: "operational destinations", exact: true });
+  const operationsNavigation = await openOperationsNav(page);
   await expect(operationsNavigation.getByRole("link", { name: "control room" })).toBeVisible();
   await expect(operationsNavigation.getByRole("link", { name: "episode map" })).toBeVisible();
   await expect(operationsNavigation.getByRole("link", { name: "settings" })).toBeVisible();
@@ -61,7 +64,8 @@ test("responsive shell has no horizontal overflow", async ({ page }) => {
   await authenticate(page);
   await page.setViewportSize({ width: 320, height: 640 });
   await page.goto("/ops", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("button", { name: "open operations navigation", exact: true })).toHaveCount(0);
-  await expect(page.getByRole("navigation", { name: "operations", exact: true })).toBeVisible();
+  await expect(page.locator("[data-navigation-toggle]")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Workspace", exact: true })).toBeVisible();
+  await openOperationsNav(page);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 });
