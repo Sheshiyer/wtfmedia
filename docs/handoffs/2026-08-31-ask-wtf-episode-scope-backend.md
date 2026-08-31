@@ -28,6 +28,9 @@ deployment, and Cloudflare data activation remain pending at this checkpoint.
 - Upload/enqueue and edge admission reject invalid or duplicate public/private
   identities. The inventory preflight also proves each YouTube ID is paired to
   the expected hash-addressed R2 key before reporting ready.
+- Queue admission and the consumer independently require the exact available
+  D1 source-asset row for the public YouTube episode, R2 key, and content hash;
+  a missing receipt fails closed before queue mutation or vector staging.
 - Published and uncut object-key contracts are exact. A private `uncut/` key
   cannot enter the queue as published or through an omitted/unknown mode.
 
@@ -64,7 +67,7 @@ remain outside scope. The three held inventory rows remain held.
 Cloudflare full test suite                           150/150 passed
 Episode/source-mode tests                            14/14 passed
 Structured transcript-ingest tests                   19/19 passed
-Queue admission tests                                 3/3 passed
+Queue admission tests                                 4/4 passed
 Uncut identity planning test                         passed
 Episode-scope manifest preflight test                passed
 Wrangler Worker deployment dry-run                   passed

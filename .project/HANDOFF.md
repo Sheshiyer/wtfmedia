@@ -1336,6 +1336,9 @@ team-owned UI and was not edited.
   `source_mode` vector metadata. Batch admission rejects duplicate or
   mismatched public/private identities, including an uncut object key labeled
   as published or submitted without a mode.
+- Queue admission and the consumer also require an exact available D1
+  source-asset receipt for the public episode, R2 key, and content hash before
+  queue mutation or vector staging.
 - Text-only uncut chat may use untimed evidence without timeline alignment.
   Synced playback and timestamp projection remain unavailable until trusted
   alignments exist.
@@ -1344,7 +1347,7 @@ team-owned UI and was not edited.
 - Read-only manifest reconciliation found 49 mapped jobs from 52 rows, with 3
   held. The safe preflight passed without printing private identifiers.
 - Verification passed: 150/150 Cloudflare tests, 14/14 source-mode tests,
-  19/19 transcript-ingest tests, 3/3 queue-admission tests, both script tests,
+  19/19 transcript-ingest tests, 4/4 queue-admission tests, both script tests,
   Worker bundle dry-run, `git diff --check`, and final read-only review.
 
 The owner approved production on 2026-08-31. Source is committed locally and

@@ -28,7 +28,11 @@ import {
   vectorRecordId,
   vectorSourceRef,
 } from "./catalogue/asset-map";
-import { admitTranscriptJobs, type TranscriptJob } from "./catalogue/job-admission";
+import {
+  admitTranscriptJobs,
+  assertCatalogueJobSourceAsset,
+  type TranscriptJob,
+} from "./catalogue/job-admission";
 import { extractTimestampLines } from "./catalogue/timestamps";
 
 export interface Env extends OpsEnv {
@@ -197,6 +201,7 @@ async function ingest(job: TranscriptJob, env: Env) {
     job.sourceAssetId,
   );
   if (!identity) throw new Error(`${sourceMode}_identity_invalid`);
+  await assertCatalogueJobSourceAsset(job, env.DB);
   const stateKey = ingestStateKey(identity.sourceAssetId, sourceMode);
   const previousHash = await env.WTFMEDIA_STATE.get(stateKey);
   if (previousHash === job.contentHash) return;
@@ -481,7 +486,7 @@ export default {
       if (request.headers.get("X-Ingest-Token") !== env.INGEST_TOKEN) return reply(request, env, { error: "unauthorized" }, 401);
       let payload: { jobs?: TranscriptJob[] };
       try { payload = await request.json(); } catch { return reply(request, env, { error: "invalid_json" }, 400); }
-      const admission = await admitTranscriptJobs(payload.jobs, env.INGEST_QUEUE);
+      const admission = await admitTranscriptJobs(payload.jobs, env.INGEST_QUEUE, env.DB);
       return admission.ok
         ? reply(request, env, { queued: admission.queued }, 202)
         : reply(request, env, { error: admission.error }, 400);
