@@ -601,6 +601,7 @@ Co-Host: arre bhai bilkul sahi bola aapne yaar.
   describe("6. Queue Consumer Integration & DLQ Error Handling", () => {
     let episodeId;
     let sourceAssetId;
+    let sourceAssetR2Key;
 
     before(async () => {
       episodeId = episodeUlid();
@@ -613,11 +614,12 @@ Co-Host: arre bhai bilkul sahi bola aapne yaar.
       });
 
       sourceAssetId = assetUlid();
+      sourceAssetR2Key = `episodes/${episodeId}/assets/audio.wav`;
       await createSourceAsset(db, {
         id: sourceAssetId,
         episodeId,
         assetType: "uncut_audio",
-        storageKey: `episodes/${episodeId}/assets/audio.wav`,
+        storageKey: sourceAssetR2Key,
         contentSha256: "0000000000000000000000000000000000000000000000000000000000000000",
         mimeType: "audio/wav",
       });
@@ -641,6 +643,7 @@ Co-Host: arre bhai bilkul sahi bola aapne yaar.
           { start: 4, end: 8, speaker: "Guest", text: "bhai 10 crore startup funding discussion." },
         ],
       });
+      await r2.put(sourceAssetR2Key, "synthetic uncut source bytes");
       await r2.put(transcriptR2Key, rawJson);
 
       let ackCalled = false;
@@ -682,6 +685,7 @@ Co-Host: arre bhai bilkul sahi bola aapne yaar.
     test("retries when transcript is missing and fails over to DLQ after max attempts", async () => {
       const jobId = jobUlid();
       const missingKey = `episodes/${episodeId}/transcripts/non_existent.json`;
+      await r2.put(sourceAssetR2Key, "synthetic uncut source bytes");
 
       await createIngestionJob(db, {
         id: jobId,
@@ -738,6 +742,86 @@ Co-Host: arre bhai bilkul sahi bola aapne yaar.
       const jobRow = await db.prepare("SELECT * FROM ingestion_jobs WHERE id = ?").bind(jobId).first();
       assert.equal(jobRow.status, "failed");
       assert.equal(jobRow.error_message, "transcript_asset_unavailable");
+    });
+
+    test("fails before vector staging when declared uncut source R2 object is missing", async () => {
+      const missingSourceEpisodeId = episodeUlid();
+      const missingSourceAssetId = assetUlid();
+      const jobId = jobUlid();
+      const transcriptR2Key = `episodes/${missingSourceEpisodeId}/transcripts/orphaned.json`;
+      const vectorCountBefore = vectorize._store.size;
+
+      await upsertEpisode(db, {
+        id: missingSourceEpisodeId,
+        slug: `test-m4-missing-source-${Date.now()}`,
+        title: "Missing Source Asset Episode",
+        ip: "WTF Main",
+        showTitle: "WTF Podcast",
+      });
+
+      await createSourceAsset(db, {
+        id: missingSourceAssetId,
+        episodeId: missingSourceEpisodeId,
+        assetType: "uncut_audio",
+        storageKey: `episodes/${missingSourceEpisodeId}/assets/missing-audio.wav`,
+        contentSha256: "1111111111111111111111111111111111111111111111111111111111111111",
+        mimeType: "audio/wav",
+      });
+
+      await createIngestionJob(db, {
+        id: jobId,
+        jobType: "asr_transcription",
+        episodeId: missingSourceEpisodeId,
+        sourceAssetId: missingSourceAssetId,
+        status: "pending",
+        maxAttempts: 5,
+      });
+
+      await r2.put(transcriptR2Key, JSON.stringify({
+        segments: [
+          { start: 0, end: 3, speaker: "Host", text: "This transcript exists without the declared uncut source asset." },
+        ],
+      }));
+
+      let ackCount = 0;
+      const queueMsg = {
+        attempts: 4,
+        body: {
+          jobId,
+          episodeId: missingSourceEpisodeId,
+          sourceAssetId: missingSourceAssetId,
+          transcriptR2Key,
+          coordinateSystem: "uncut",
+          engine: "whisper_large_v3",
+          engineVersion: "1.0",
+          diarizationEnabled: true,
+          attempts: 4,
+        },
+        ack() {
+          ackCount++;
+        },
+        retry() {},
+      };
+
+      const env = {
+        DB: db,
+        CATALOGUE: r2,
+        VECTORIZE: vectorize,
+        AI: ai,
+        INGEST_DLQ: mockDlq,
+      };
+
+      await assert.rejects(
+        () => processTranscriptIngestMessage(queueMsg, env),
+        /source_asset_unavailable/
+      );
+
+      assert.equal(ackCount, 1, "Terminal source-asset failure must ack queue message");
+      assert.equal(vectorize._store.size, vectorCountBefore, "Missing source object must not stage new vectors");
+
+      const jobRow = await db.prepare("SELECT * FROM ingestion_jobs WHERE id = ?").bind(jobId).first();
+      assert.equal(jobRow.status, "failed");
+      assert.equal(jobRow.error_message, "source_asset_unavailable");
     });
   });
 });

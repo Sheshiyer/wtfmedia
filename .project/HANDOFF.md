@@ -122,6 +122,125 @@ stays held.
 - Apply path: `node scripts/put-uncut-and-enqueue.mjs --dir … --apply`
   then enqueue with `INGEST_TOKEN` in the environment.
 
+## 2026-08-31 D1 source-asset receipt populated for approved corpus
+
+**Status:** LIVE TARGET RECEIPT — D1 provenance is no longer empty for the
+approved Ask WTF corpus. No Vectorize, KV, R2, Worker, DNS, or secret mutation
+was performed in this pass.
+
+- Populated target `wtfmedia-ops` through a temporary ignored Wrangler config
+  using the live target D1 UUID and the private target API token. Token values,
+  account identifiers, and SQL text bodies were not written to repository
+  artifacts.
+- D1 readback now shows 63 `episodes`, 63 `source_assets`, 63
+  `transcription_runs`, 63 `transcript_versions`, 6,354
+  `transcript_segments`, 6,354 `transcript_chunks`, and 63 completed
+  `ingestion_jobs`.
+- Published receipt: 55 active `published` transcript versions and 5,742 D1
+  chunks, matching the 55 R2 `transcripts/*.txt` objects and 5,742 published
+  Vectorize IDs.
+- Uncut receipt: 8 active `uncut` transcript versions and 612 D1 chunks,
+  matching the 8 R2 `uncut/*.txt` objects, 8 `ingest:uncut:*` KV keys, and 612
+  uncut Vectorize IDs.
+- The four deferred sheet exceptions remain intentionally out of the clean
+  spreadsheet-ingest claim: `WTF is a Battery?`, `WEF - Economics`,
+  `The Foundery`, and the `Brain Armstrong` transcript-row mismatch.
+
+**Interpretation:** The stronger D1 `source_assets` receipt path is now green
+for the approved, currently queryable R2/KV/Vectorize corpus. This is a
+provenance receipt import over already-processed assets, not an ASR rerun, not
+a Vectorize rebuild, and not approval of the deferred sheet rows or any missing
+approved uncut corpus outside the 8 hash-addressed uncut text assets.
+
+## 2026-08-31 Approved transcript ingest reconciliation, deferred exceptions held
+
+**Status:** LIVE TARGET RECEIPT — owner authorized proceeding with Cloudflare
+asset reconciliation for YouTube/published transcripts and the already-present
+uncut text assets, while deferring `WTF is a Battery?`, `WEF - Economics`,
+`The Foundery`, and the `Brain Armstrong` transcript-row mismatch.
+
+- Target account access was verified through the private target API token in
+  `.env` without printing token values. The shell's default Wrangler OAuth was
+  the unrelated Thoughtseed Labs account, so target commands used the
+  repository's ignored target token/account variables instead.
+- R2 `wtfmedia-catalogue` contains 107 objects / 14,436,290 bytes: 55
+  `transcripts/*.txt`, 43 `timestamps/*.json`, 8 `uncut/*.txt`, and 1
+  manifest object.
+- The 55 target R2 published transcript objects exactly match the 55 local
+  `web/src/data/episodes.json` video IDs. No published transcript object is
+  missing or extra. The 43 target timestamp sidecars exactly match the 43 local
+  sidecars.
+- KV `WTFMEDIA_STATE` contains 63 `ingest:` keys in the approved scope: 55
+  published `ingest:<videoId>` keys and 8 `ingest:uncut:<hash>` keys. The 8
+  uncut KV hashes match the 8 target R2 `uncut/*.txt` object hashes.
+- Vectorize `wtfmedia-catalogue-v1` reports 6,354 vector IDs: 5,742 published
+  `videoId:chunk` vectors covering all 55 local YouTube episodes, plus 612
+  uncut-shaped `u:<hash>:<chunk>` vectors.
+- Live `https://wtfhq.in/api/chat` accepted the production `messages` +
+  `sourceMode` body shape. `published` returned six published citations via
+  cited fallback, `uncut` returned three uncut citations, and `both` returned a
+  mixed published/uncut answer with six citations.
+- Negative deferred-title probes for the four held rows returned 200 with
+  fallback/source results, but none cited the deferred title as a clean matched
+  source.
+
+**Superseded by later receipt:** D1 provenance was empty at this checkpoint.
+The later 2026-08-31 D1 source-asset receipt populated D1 for the approved
+currently queryable corpus. Full sheet ingestion and all uncut assets still
+exclude the four deferred rows and any unapproved uncut corpus.
+
+## 2026-08-31 Ask WTF product goal live; full uncut ingest receipt held
+
+**Status:** PROD OPERATOR-VERIFIED — source changes committed and pushed on
+`codex/wtfmedia-release-integration` as `d88ca88`; PR #25 is open but not
+mergeable cleanly because the integration branch carries older drift against
+`main`. This checkout has not force-merged, deployed, or reconciled that drift.
+
+- Product goal is green: live `https://wtfhq.in/api/chat` answers `published`
+  with mapped YouTube citations, `uncut` with truthful published fallback when
+  uncut evidence is unavailable, and `both` with mixed uncut and published
+  evidence.
+- Deployment receipts supplied by the operator: `wtfmedia-edge`
+  `df3ad7d5-6534-475d-a43c-388a5c21a10d`; `wtfmedia-web`
+  `99812da9-86f2-42df-bd37-0319a23ad47b`.
+- Runtime store receipts supplied by the operator: Vectorize has 6,354 total
+  vectors including 612 uncut vectors; `wtfmedia-ingest` has both producer and
+  consumer attached to `worker:wtfmedia-edge`; model fallback, cited evidence
+  fallback, and sanitized edge/web error logs are live.
+- Stronger ingest claim remains held: the sampled uncut vector's expected R2
+  object was missing; `ingest:uncut:` KV keys were empty; local
+  `.planning/inputs/uncut-local` has no approved corpus beyond `.gitignore`;
+  `UNCUT_DIR` is unset.
+
+**Interpretation:** Ask WTF can be queried across YouTube/published and uncut
+source modes and works as intended for the product goal. Do not mark **all
+uncut assets fully ingested** until R2, KV, and Vectorize reconcile from an
+approved uncut corpus or an explicitly approved explained delta.
+
+## 2026-08-31 Uncut source-asset ingest guard
+
+**Status:** LOCAL IMPLEMENTATION — no Wrangler writes, no Cloudflare ingest,
+no R2/KV/Vectorize mutation, no deployment.
+
+- Transcript queue ingestion now verifies the declared D1 `source_assets` row
+  and its R2 object before reading the generated transcript object or staging
+  vectors.
+- Missing, unavailable, non-R2, wrong-episode, or absent backing source assets
+  fail as `source_asset_unavailable`; the queue can DLQ terminal failures
+  without leaking storage keys.
+- The previous vector-only success shape is now blocked: a transcript object can
+  exist, but Vectorize staging does not start unless the source asset object is
+  also present.
+
+**Verified:** `npm --prefix cloudflare test -- transcript-ingest`; Cloudflare
+Phase 3 focused tests inside `npm run verify:phase3`; public provenance unit
+tests inside `npm run verify:phase3`; `git diff --check` inside
+`npm run verify:phase3`.
+
+**Not verified:** full `npm run verify:phase3` still fails at web TypeScript
+because stale generated `.next/types` reference absent route files in this
+checkout. No generated `.next` files were deleted in this pass.
+
 ## 2026-08-30 P0 dual-source Ask WTF joined to target preview
 
 **Status:** DONE ON CANONICAL PREVIEW — joined into

@@ -7,7 +7,8 @@
 
 import type { DB } from "../db.ts";
 import type { PrimaryLanguage } from "../dto.ts";
-import { updateIngestionJobStatus } from "../db/provenance.ts";
+import { getSourceAssetById, updateIngestionJobStatus } from "../db/provenance.ts";
+import type { SourceAssetRecord } from "../dto.ts";
 import type {
   DiarizedSegmentInput,
   DiarizedWord,
@@ -404,11 +405,34 @@ export function parseTranscriptContent(
 
 function safeTranscriptIngestError(error: unknown): string {
   const message = error instanceof Error ? error.message : "";
+  if (message === "source_asset_unavailable") return message;
   if (message === "transcript_asset_unavailable") return message;
   if (message === "transcript_asset_empty") return message;
   if (message.startsWith("Invalid transcript")) return "invalid_transcript_content";
   if (message.startsWith("Invalid segment")) return "invalid_transcript_timing";
   return "transcript_ingest_failed";
+}
+
+async function verifyDeclaredSourceAsset(
+  payload: TranscriptIngestJobPayload,
+  env: { DB: DB; CATALOGUE: R2BucketBinding }
+): Promise<SourceAssetRecord> {
+  const sourceAsset = await getSourceAssetById(env.DB, payload.sourceAssetId);
+  if (
+    !sourceAsset
+    || sourceAsset.episode_id !== payload.episodeId
+    || sourceAsset.storage_driver !== "r2"
+    || sourceAsset.availability !== "available"
+  ) {
+    throw new Error("source_asset_unavailable");
+  }
+
+  const sourceObject = await env.CATALOGUE.get(sourceAsset.storage_key);
+  if (!sourceObject) {
+    throw new Error("source_asset_unavailable");
+  }
+
+  return sourceAsset;
 }
 
 /**
@@ -428,7 +452,7 @@ export async function processTranscriptIngestMessage(
   const payload: TranscriptIngestJobPayload = "body" in msg ? msg.body : msg;
   const isQueueMessage = typeof (msg as any).ack === "function";
 
-  if (!payload || !payload.jobId || !payload.episodeId || !payload.transcriptR2Key) {
+  if (!payload || !payload.jobId || !payload.episodeId || !payload.sourceAssetId || !payload.transcriptR2Key) {
     const errorMsg = "invalid_transcript_job_payload";
     console.error("[transcript-consumer] invalid transcript job payload");
     if (isQueueMessage) {
@@ -447,7 +471,9 @@ export async function processTranscriptIngestMessage(
   }
 
   try {
-    // 2. Fetch raw transcript content from R2 Vault
+    // 2. Prove the declared source asset and generated transcript object both exist in R2.
+    await verifyDeclaredSourceAsset(payload, env);
+
     const r2Object = await env.CATALOGUE.get(payload.transcriptR2Key);
     if (!r2Object) {
       throw new Error("transcript_asset_unavailable");
