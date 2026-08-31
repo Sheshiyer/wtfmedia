@@ -41,13 +41,16 @@ Ask WTF supports three source modes:
 - `uncut`: approved uncut transcript evidence.
 - `both`: combined retrieval over both approved corpora.
 
-Release receipt as of 2026-08-31:
+Release receipt as of 2026-09-01:
 
 - 55 published transcript assets are reconciled across R2/KV/Vectorize/D1.
-- 8 approved uncut text assets are reconciled across R2/KV/Vectorize/D1.
-- D1 `wtfmedia-ops` records 63 available source assets, 63 active transcript
-  versions, 6,354 active chunks, and 63 completed ingestion jobs.
+- 49 approved mapped uncut text assets are reconciled across R2/KV/Vectorize/D1.
+- KV receipts are 55/55 published plus 49/49 mapped uncut; Vectorize reports
+  11,948 records with `source_mode` and `video_id` indexes.
+- Queue backlog is 0 and the DLQ remains at its preserved baseline of 18.
 - Live `/api/chat` returns HTTP 200 across `published`, `uncut`, and `both`.
+- The 49-item mapping proves episode membership, not trusted cross-timeline
+  alignment or synchronized uncut playback.
 
 Deferred from the clean ingestion claim: `WTF is a Battery?`,
 `WEF - Economics`, `The Foundery`, and the `Brain Armstrong` transcript-row
@@ -148,10 +151,11 @@ Vectorize, and D1 provide retrieval, inference, ingestion, and provenance while
 the browser keeps the same citation response contract. The legacy local index
 remains a rebuild reference; see [the infrastructure design](docs/CLOUDFLARE-INFRASTRUCTURE.md), [migration plan](docs/CLOUDFLARE-MIGRATION-PLAN.md), and [agent onboarding](docs/AGENT-ONBOARDING.md).
 
-The corpus provenance receipt records 63 approved source assets: 55 published
-transcripts and 8 approved uncut text assets. Of the published episodes, 43
-have verified caption timing and can produce a `youtube?t=` citation; the other
-12 deliberately link only to the source video. See the [production evaluation](docs/PRODUCTION-EVALUATION.md).
+The bounded corpus receipt covers 55 published transcripts and 49 approved
+mapped uncut text assets. Mapping proves episode membership, not trusted
+cross-timeline alignment. Of the published episodes, 43 have verified caption
+timing and can produce a `youtube?t=` citation; the other 12 deliberately link
+only to the source video. See the [production evaluation](docs/PRODUCTION-EVALUATION.md).
 <!-- readme-gen:end:architecture -->
 
 ---

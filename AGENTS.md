@@ -31,9 +31,10 @@ This repository is `wtfmedia`.
 - Cloudflare target resources are `wtfmedia-edge`, `wtfmedia-web`,
   `wtfmedia-catalogue`, `WTFMEDIA_STATE`, `wtfmedia-catalogue-v1`,
   `wtfmedia-ops`, `wtfmedia-ingest`, and `wtfmedia-ingest-dlq`.
-- Current approved corpus receipt: 55 published transcript assets, 8 approved
-  uncut text assets, 63 available D1 source assets, 63 active transcript
-  versions, 6,354 active chunks, and 63 completed ingestion jobs.
+- Current approved corpus receipt: 55 published transcript assets, 49 approved
+  mapped uncut text assets, 55/55 published plus 49/49 uncut KV receipts, and
+  11,948 Vectorize records indexed by `source_mode` and `video_id`. D1 verifies
+  all 49 mapped uncut assets; mapping is not trusted timeline alignment.
 - Deferred sheet exceptions stay out of "fully ingested" claims:
   `WTF is a Battery?`, `WEF - Economics`, `The Foundery`, and the
   `Brain Armstrong` transcript-row mismatch.

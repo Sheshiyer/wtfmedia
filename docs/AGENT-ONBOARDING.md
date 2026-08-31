@@ -46,15 +46,19 @@ tokens are operator-local and must not be committed or printed.
 
 ## Current corpus receipt
 
-Approved/queryable corpus as of the 2026-08-31 release:
+Approved/queryable corpus as of the 2026-09-01 release:
 
 - 55 published YouTube transcript text assets.
 - 43 published timestamp sidecars.
-- 8 approved uncut text assets.
-- 63 KV `ingest:` receipts.
-- 6,354 Vectorize records: 5,742 published and 612 uncut.
-- 63 D1 source assets, 63 active transcript versions, 6,354 active transcript
-  chunks, and 63 completed ingestion jobs.
+- 49 approved uncut text assets mapped to public episode IDs.
+- 104 KV `ingest:` receipts: 55/55 published plus 49/49 mapped uncut.
+- 11,948 Vectorize records with `source_mode` and `video_id` indexes.
+- D1 provenance verifies all 49 mapped uncut assets.
+- Queue backlog 0; DLQ held at its pre-release baseline of 18.
+
+The 49-item mapping proves episode membership and evidence availability. It
+does not prove trusted cross-timeline alignment, synchronized seeking, or
+browser-playable uncut media.
 
 Deferred from the clean ingestion claim:
 

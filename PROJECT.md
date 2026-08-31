@@ -46,11 +46,12 @@ approved uncut transcript corpus.
 - Ingest queue: `wtfmedia-ingest`
 - Ingest DLQ: `wtfmedia-ingest-dlq`
 
-Fresh release receipt recorded on 2026-08-31: D1 has 63 available
-`source_assets`, 63 active transcript versions, 6,354 active transcript
-chunks, and 63 completed ingestion jobs for the approved queryable corpus.
-R2/KV/Vectorize are reconciled for 55 published transcript assets and 8
-approved uncut text assets. The deferred sheet exceptions are `WTF is a
+Fresh release receipt recorded on 2026-09-01: R2/D1 verify all 49 approved
+mapped uncut assets, KV receipts are 55/55 published plus 49/49 mapped uncut,
+and Vectorize reports 11,948 records with `source_mode` and `video_id`
+indexes. Queue backlog is 0 and the DLQ is at its preserved baseline of 18.
+The mapping proves episode membership, not trusted cross-timeline alignment
+or synchronized uncut playback. The deferred sheet exceptions are `WTF is a
 Battery?`, `WEF - Economics`, `The Foundery`, and the `Brain Armstrong`
 transcript-row mismatch.
 
