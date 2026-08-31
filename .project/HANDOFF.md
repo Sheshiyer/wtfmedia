@@ -1,5 +1,28 @@
 # Project handoff
 
+## 2026-08-31 PR #28 navigation and chat-route contract
+
+**Status:** OWNER-APPROVED LOCAL SCOPE — navigation contract and chat-route
+manifest only. No login, shared password, per-user history, Cloudflare
+mutation, deploy, ingest enqueue, or secret rotation is included.
+
+- The current release shell uses a fixed header wordmark plus an operations
+  disclosure and a scroll-safe bottom application dock. Workspace links remain
+  in the dock; role-projected operational links are exposed only through the
+  disclosure.
+- The disclosure is a labelled button/navigation pair, moves focus to its first
+  link when opened, closes on Escape or an outside pointer, and restores focus
+  to the toggle on Escape. Responsive proof covers 320, 768, and 1440 pixels.
+- The local NVIDIA/vector fallback in `/api/chat` is a separately approved
+  development-only route change. Its protected baseline hash is updated in the
+  compatibility approval receipt; production remains Cloudflare service-bound.
+- The linked authentication/history request is explicitly deferred to a
+  separate identity and persistence feature with its own approval packet.
+
+**Next gate:** rerun the focused navigation, contract, architecture, and
+Phase 1/2 checks, then use the repository PR prepare/merge pipeline. Runtime
+and production receipts remain separate from this source merge.
+
 ## 2026-08-31 Release onboarding docs refresh
 
 **Status:** LOCAL DOCUMENTATION UPDATE — no Cloudflare mutation, no deploy,

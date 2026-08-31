@@ -18,16 +18,18 @@ const heldDestinations = [
 ] as const;
 
 async function openCurrentNav(page: Page) {
-  await expect(page.getByRole("button", { name: "open operations navigation", exact: true })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "open navigation", exact: true })).toHaveCount(0);
+  const toggle = page.locator("[data-navigation-toggle]:visible").first();
+  await expect(toggle).toBeVisible();
+  if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
+  await expect(page.locator('nav[aria-label="Operations"]:visible').first()).toBeVisible();
 }
 
-function currentRail(page: Page) {
-  return page.locator(".wtf-bottom-pill");
+function currentNavigation(page: Page) {
+  return page.locator(".wtf-bottom-pill, nav[aria-label='Operations']");
 }
 
 function railLink(page: Page, label: string) {
-  return currentRail(page).getByRole("link", { name: label, exact: true }).first();
+  return currentNavigation(page).getByRole("link", { name: label, exact: true }).first();
 }
 
 test("ungated release can open ops pages without an access proof", async ({ page }) => {

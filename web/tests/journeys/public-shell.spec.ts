@@ -80,10 +80,11 @@ test.describe("Public shell journey", () => {
   test("keyboard tab order reaches nav links", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    // Tab order: skip link -> bottom-pill wordmark -> first workspace link.
+    // Tab order: skip link -> header wordmark -> operations toggle -> application link.
     await page.keyboard.press("Tab"); // skip link
-    await page.keyboard.press("Tab"); // WordmarkMini home link
-    await page.keyboard.press("Tab"); // first nav link
+    await page.keyboard.press("Tab"); // header wordmark
+    await page.keyboard.press("Tab"); // operations toggle
+    await page.keyboard.press("Tab"); // first application link
 
     const focused = page.locator(":focus");
     const tag = await focused.evaluate((el) => el.tagName.toLowerCase());
@@ -92,6 +93,30 @@ test.describe("Public shell journey", () => {
     // Should be within the nav
     const inNav = await page.locator('nav[aria-label="Application"] :focus').count();
     expect(inNav).toBeGreaterThan(0);
+  });
+
+  test("operations disclosure exposes a labelled relationship and restores focus", async ({ page }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    const toggle = page.locator("[data-navigation-toggle]");
+    const operations = page.locator('nav[aria-label="Operations"]');
+    await expect(toggle).toHaveAttribute("aria-controls", "wtf-operations-navigation");
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(operations).toBeHidden();
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await expect(operations).toBeVisible();
+    await expect(operations.getByRole("link").first()).toBeFocused();
+
+    await page.keyboard.press("Escape");
+    await expect(operations).toBeHidden();
+    await expect(toggle).toBeFocused();
+
+    await toggle.click();
+    await expect(operations).toBeVisible();
+    await page.mouse.click(8, 300);
+    await expect(operations).toBeHidden();
   });
 
   for (const route of ROUTES) {
@@ -117,9 +142,10 @@ test.describe("Public shell journey", () => {
   test("focus-visible indicators on nav links", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    // Tab to a nav link
+    // Tab through the header controls to an application link
     await page.keyboard.press("Tab"); // skip link
     await page.keyboard.press("Tab"); // wordmark
+    await page.keyboard.press("Tab"); // operations toggle
     await page.keyboard.press("Tab"); // first nav link
 
     const focused = page.locator(":focus");
