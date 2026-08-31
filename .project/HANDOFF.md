@@ -1,5 +1,30 @@
 # Project handoff
 
+## 2026-08-31 Production web 0.1.4 canary
+
+**Status:** LIVE — the approved web-only release is deployed and passed its
+post-deploy canary. This receipt is tied to the exact merged source commit;
+the edge Worker, authentication, transcript ingest, DNS, and secrets were not
+changed.
+
+- Release: `v0.1.4`, merge commit
+  `d47c2d2410fa091d930f431ba413abb20cb100b6` from PR #29.
+- Cloudflare web version:
+  `8f19a895-9827-469c-8716-543adc375932`; deployment
+  `69b2bf46-8fd5-43cd-82f3-e37773c5da7d` is serving 100% traffic.
+- Live probes: `https://wtfhq.in/` returned HTTP 200 with the new application
+  and operations navigation markers; edge health returned HTTP 200; published,
+  uncut, and both chat requests returned HTTP 200 with valid `X-Sources`,
+  `X-Fallback`, `X-Source-Mode`, and `X-Uncut-Unavailable` headers.
+- Browser canary confirmed the operations disclosure opens, moves focus to
+  `/ops`, closes on Escape, and restores focus to its toggle.
+- Rollback target: prior web version
+  `99812da9-86f2-42df-bd37-0319a23ad47b`.
+
+**Next gate:** any authentication/history, uncut alignment/citation, edge
+configuration, corpus ingest, DNS, or secret change requires its own approved
+workstream and production receipt.
+
 ## 2026-08-31 PR #28 navigation and chat-route contract
 
 **Status:** OWNER-APPROVED LOCAL SCOPE — navigation contract and chat-route
