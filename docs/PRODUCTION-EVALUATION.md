@@ -1,15 +1,19 @@
 # Production RAG evaluation
 
-Release: `wtfmedia-web` v0.1.1 — 2026-08-11
+Release: WTF OS / Ask WTF Cloudflare release — refreshed 2026-08-31
 
-Run `node scripts/evaluate_production_rag.mjs` to probe the public Vercel endpoint.
+Use focused local suites plus live `/api/chat` probes to validate the public
+Cloudflare-backed path.
 
 | Check | Expected behavior | Latest result |
 | --- | --- | --- |
-| Grounded answer | HTTP 200, inline citation, expected episode source | Pass |
+| Published mode | HTTP 200, `X-Sources` contains published sources | Pass |
+| Uncut mode | HTTP 200, `X-Sources` contains uncut sources or truthful fallback | Pass |
+| Both mode | HTTP 200, `X-Sources` can mix published and uncut sources | Pass |
 | Ownership guard | Tanmay ownership claim abstains with no invented source | Pass |
 | Timestamp honesty | Source timing is finite or absent, never guessed | Pass |
 | Edge boundary | Direct unauthenticated Worker chat returns HTTP 401 | Pass |
+| D1 receipt | Available source assets, active versions/chunks, completed jobs match approved corpus | Pass |
 
 ## Corpus provenance
 
@@ -19,15 +23,25 @@ Run `node scripts/evaluate_production_rag.mjs` to probe the public Vercel endpoi
 SHA-256, byte count, embedding model/dimensions, and timestamp-sidecar
 availability per episode.
 
-Current coverage is 55 episodes: 43 have timestamp sidecars and 12 fallback
-transcripts have no timing. A citation uses `youtube?t=` only for a retrieved
-passage with a verified caption start time; otherwise it links to the video.
+Current published coverage is 55 episodes: 43 have timestamp sidecars and
+12 fallback transcripts have no timing. A citation uses `youtube?t=` only for a
+retrieved passage with a verified caption start time; otherwise it links to the
+video.
+
+Current approved uncut coverage is 8 hash-addressed uncut text assets. These
+are queryable through `uncut` and `both` source modes, but they are not a claim
+that every Google Drive spreadsheet row or every possible uncut source has been
+processed.
+
+The deferred rows are `WTF is a Battery?`, `WEF - Economics`, `The Foundery`,
+and the `Brain Armstrong` transcript-row mismatch.
 
 ## Security boundary
 
-The browser calls Vercel only. Vercel forwards a client-IP hint and request ID
-to Cloudflare with a rotated server-only shared secret; the Worker rejects all
-direct chat callers without it. Ingestion uses a separate Worker secret.
+The browser calls the public web route. The web route forwards trusted request
+metadata to the edge RAG path with a server-only shared secret; direct chat
+callers without that secret are rejected. Ingestion uses a separate Worker
+secret.
 
 ## Next evaluation expansion
 
@@ -36,3 +50,4 @@ direct chat callers without it. Ingestion uses a separate Worker secret.
 - Run this suite in CI before production deployment.
 - Add an authenticated operational status endpoint for queue/DLQ and ingestion
   completeness; never expose it publicly.
+- Tie every production deploy receipt back to the exact `main` commit SHA.

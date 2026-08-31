@@ -2,7 +2,8 @@
 
 This repository is `wtfmedia`.
 
-1. Read `PROJECT.md` and `.project/HANDOFF.md` before starting work.
+1. Read `README.md`, `PROJECT.md`, `.project/HANDOFF.md`, and
+   `docs/AGENT-ONBOARDING.md` before starting work.
 2. Treat the Thoughtseed Labs vault as referenced knowledge, never as a
    runtime dependency or a place to copy private notes, transcripts, or
    seed corpora.
@@ -17,10 +18,40 @@ This repository is `wtfmedia`.
 6. Record a bounded checkpoint in `.project/HANDOFF.md` when a reviewed
    change is ready for another client to pick up.
 
-This packet is draft-held. Identity recording does not authorize
-relocation, registry writes, session migration, or deployment changes;
-those remain manifest-gated and require this packet to first be reviewed
-and moved to `reviewed-held`.
+## Current project facts for agents
+
+- WTF OS and Ask WTF are the product center. Ask WTF must answer from retrieved
+  transcript evidence or fall back truthfully; never claim the model cannot
+  hallucinate.
+- Production domain: `https://wtfhq.in`.
+- Production chat contract: browser/web calls `/api/chat` with
+  `messages: [{ role, content }]` and `sourceMode` of `published`, `uncut`, or
+  `both`. The response body is streamed/plain text; source metadata is exposed
+  through `X-Sources` and fallback state through `X-Fallback`.
+- Cloudflare target resources are `wtfmedia-edge`, `wtfmedia-web`,
+  `wtfmedia-catalogue`, `WTFMEDIA_STATE`, `wtfmedia-catalogue-v1`,
+  `wtfmedia-ops`, `wtfmedia-ingest`, and `wtfmedia-ingest-dlq`.
+- Current approved corpus receipt: 55 published transcript assets, 8 approved
+  uncut text assets, 63 available D1 source assets, 63 active transcript
+  versions, 6,354 active chunks, and 63 completed ingestion jobs.
+- Deferred sheet exceptions stay out of "fully ingested" claims:
+  `WTF is a Battery?`, `WEF - Economics`, `The Foundery`, and the
+  `Brain Armstrong` transcript-row mismatch.
+- The latest ingest hardening requires a declared available D1 source asset and
+  backing R2 object before vector staging. If that receipt is missing, fail
+  closed as `source_asset_unavailable`.
+
+## Boundaries
+
+Merging to `main` does not by itself prove Cloudflare production is running the
+same source commit. Verify production separately with Wrangler deployment
+receipts and live API probes. Do not deploy, rotate secrets, mutate DNS,
+enqueue live ingest, or broaden the corpus unless the user explicitly asks for
+that action in the current task.
+
+This packet is active for repository work, but relocation, registry writes,
+session migration, provider changes, and production cutovers remain
+manifest-gated.
 
 <!-- temperance:project-rail:start -->
 ## Temperance project rail
@@ -50,4 +81,3 @@ temperance-batch --foreground --tasks .planning/next-wave-tasks.json --concurren
 
 Manifest: `.temperance/project.json` (schema temperance.project.v1)
 <!-- temperance:project-rail:end -->
-

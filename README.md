@@ -14,20 +14,45 @@
 <div align="center">
 
 ![License](https://img.shields.io/badge/license-internal-1A1A1A?style=flat-square)
-![Status](https://img.shields.io/badge/status-proof%20of%20concept-F1B333?style=flat-square&labelColor=1A1A1A)
-![Deploy](https://img.shields.io/badge/UI-Vercel-000?style=flat-square&logo=vercel)
+![Status](https://img.shields.io/badge/status-live%20release-0C9367?style=flat-square&labelColor=1A1A1A)
+![Deploy](https://img.shields.io/badge/UI-Cloudflare-F38020?style=flat-square&logo=cloudflare&logoColor=white)
 ![Edge RAG](https://img.shields.io/badge/edge%20RAG-Cloudflare-F38020?style=flat-square&logo=cloudflare&logoColor=white)
-![AI](https://img.shields.io/badge/AI-NVIDIA%20NIM-0C9367?style=flat-square&logo=nvidia&logoColor=white)
+![AI](https://img.shields.io/badge/AI-Workers%20AI-F38020?style=flat-square&logo=cloudflare&logoColor=white)
 ![Last Commit](https://img.shields.io/github/last-commit/Sheshiyer/wtfmedia?style=flat-square)
 
 <p align="center">
-  <img src="https://skillicons.dev/icons?i=nextjs,react,ts,tailwind,py,vercel&theme=light" alt="Tech Stack" />
+  <img src="https://skillicons.dev/icons?i=nextjs,react,ts,tailwind,py,cloudflare&theme=light" alt="Tech Stack" />
 </p>
 
 </div>
 <!-- readme-gen:end:badges -->
 
 > Every WTF podcast conversation, turned into an operating system. **wtfmedia** indexes the catalogue, then lets the team ask grounded questions with source-backed answers. Exact-moment links are shown only where transcript timestamps are available.
+
+---
+
+## Current Release
+
+The current production release is the WTF OS web app on `https://wtfhq.in` with
+Ask WTF backed by Cloudflare R2, KV, Vectorize, D1, Queues, and Workers AI.
+Ask WTF supports three source modes:
+
+- `published`: published YouTube transcript evidence.
+- `uncut`: approved uncut transcript evidence.
+- `both`: combined retrieval over both approved corpora.
+
+Release receipt as of 2026-08-31:
+
+- 55 published transcript assets are reconciled across R2/KV/Vectorize/D1.
+- 8 approved uncut text assets are reconciled across R2/KV/Vectorize/D1.
+- D1 `wtfmedia-ops` records 63 available source assets, 63 active transcript
+  versions, 6,354 active chunks, and 63 completed ingestion jobs.
+- Live `/api/chat` returns HTTP 200 across `published`, `uncut`, and `both`.
+
+Deferred from the clean ingestion claim: `WTF is a Battery?`,
+`WEF - Economics`, `The Foundery`, and the `Brain Armstrong` transcript-row
+mismatch. Do not describe those rows as fully ingested until the sheet and
+source-asset mismatches are resolved.
 
 ---
 
@@ -43,21 +68,21 @@ An experimental view of recurring themes and ideas across the catalogue. It is n
 <td width="50%" valign="top">
 
 ### 💬 Ask WTF
-The live Fast path is bounded RAG with source citations. It abstains from unsupported role, ownership, and corpus-wide recurrence claims instead of inferring them from a handful of excerpts.
+The live path is bounded RAG with source citations over `published`, `uncut`, and `both` modes. It retrieves evidence, validates citation metadata, and falls back truthfully when synthesis citations are weak.
 
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
 
-### 🧠 NVIDIA NIM throughout
-`nv-embedqa-e5-v5` retrieval, a ranked picker of chat models (`llama-3.3-70b` default), the connections labeller, and the crew, all on NIM. Key stays server-side.
+### 🧠 Cloudflare-native retrieval
+Workers AI handles Cloudflare-side embedding and answer inference. R2 stores source text, KV records ingest state, Vectorize serves retrieval, D1 records provenance, and Queues handle ingestion.
 
 </td>
 <td width="50%" valign="top">
 
 ### 🎬 Production library
-55 episodes across the current catalogue — real thumbnails and transcript sources. Timestamp links are conditional on per-source timing data.
+55 published episodes across the current catalogue, with 43 timestamp sidecars and 12 fallback transcript-only sources. Timestamp links are conditional on per-source timing data.
 
 </td>
 </tr>
@@ -85,7 +110,17 @@ cd web && npm install
 NVIDIA_API_KEY=nvapi-xxxx npm run dev            # http://localhost:3000
 ```
 
-> **Environment:** the app needs `NVIDIA_API_KEY` at runtime (server-side only). On Vercel, set it as a project env var. Get a key at [build.nvidia.com](https://build.nvidia.com).
+> **Environment:** legacy local rebuild scripts still use `NVIDIA_API_KEY`.
+> Production Ask WTF uses Cloudflare bindings/secrets. Never commit `.env`
+> values, Cloudflare API tokens, Worker secrets, transcript payloads, or local
+> machine paths.
+
+## Agent Pickup
+
+Start with [docs/AGENT-ONBOARDING.md](docs/AGENT-ONBOARDING.md), then read
+`PROJECT.md`, `AGENTS.md`, and `.project/HANDOFF.md`. Those files explain the
+current release receipts, Cloudflare resource names, source-mode chat contract,
+deferred corpus rows, and gated actions.
 
 ---
 
@@ -99,18 +134,24 @@ NVIDIA_API_KEY=nvapi-xxxx npm run dev            # http://localhost:3000
 ```mermaid
 graph LR
     A[📄 curated transcripts] --> B[✂️ chunk + provenance]
-    B --> C[🔢 embed · nv-embedqa-e5-v5]
-    C --> D[(🗄️ vector store)]
+    B --> C[🔢 embed · Workers AI]
+    C --> D[(🗄️ Vectorize)]
     E[🙋 question] --> F[🔢 embed query]
     F --> D
     D --> G[🔀 cosine top-k]
-    G --> H[🧠 llama-3.3-70b · NVIDIA NIM]
+    G --> H[🧠 Workers AI answer model]
     H --> I[💬 Ask WTF · evidence-linked]
 ```
 
-The Vercel UI now calls the Cloudflare edge RAG provider server-to-server. Workers AI, R2, Queue, KV, and Vectorize provide retrieval and inference while the browser keeps the same citation response contract. The legacy local index remains a rebuild reference; see [the infrastructure design](docs/CLOUDFLARE-INFRASTRUCTURE.md) and [migration plan](docs/CLOUDFLARE-MIGRATION-PLAN.md).
+The public web app now runs through Cloudflare. Workers AI, R2, Queue, KV,
+Vectorize, and D1 provide retrieval, inference, ingestion, and provenance while
+the browser keeps the same citation response contract. The legacy local index
+remains a rebuild reference; see [the infrastructure design](docs/CLOUDFLARE-INFRASTRUCTURE.md), [migration plan](docs/CLOUDFLARE-MIGRATION-PLAN.md), and [agent onboarding](docs/AGENT-ONBOARDING.md).
 
-The corpus provenance manifest records 55 source records and their hashes. Of these, 43 have verified caption timing and can produce a `youtube?t=` citation; the other 12 deliberately link only to the source video. See the [production evaluation](docs/PRODUCTION-EVALUATION.md).
+The corpus provenance receipt records 63 approved source assets: 55 published
+transcripts and 8 approved uncut text assets. Of the published episodes, 43
+have verified caption timing and can produce a `youtube?t=` citation; the other
+12 deliberately link only to the source video. See the [production evaluation](docs/PRODUCTION-EVALUATION.md).
 <!-- readme-gen:end:architecture -->
 
 ---
@@ -138,8 +179,10 @@ The corpus provenance manifest records 55 source records and their hashes. Of th
 │   ├── 📂 components/             # product UI, wordmark, and episode components
 │   ├── 📂 lib/                    # nvidia, vectors, episodes, modules, guests
 │   └── 📂 src/data/              # episodes.json + vectors.json (committed)
-├── 📂 cloudflare/                 # Shadow edge RAG Worker + Cloudflare bindings
-├── 📂 docs/                       # Infrastructure and staged migration plan
+├── 📂 cloudflare/                 # Edge RAG Worker + Cloudflare bindings
+├── 📂 docs/                       # Infrastructure, onboarding, release/eval notes
+├── 📂 .project/                   # Agent handoff and project packet
+├── 📂 .planning/                  # GSD planning state and phase evidence
 └── 📄 README.md
 ```
 <!-- readme-gen:end:tree -->
@@ -151,14 +194,16 @@ The corpus provenance manifest records 55 source records and their hashes. Of th
 
 | Category | Status | Score |
 |:---------|:------:|------:|
-| Feature (Ask WTF) | ████████████████████ | 100% |
+| Feature (Ask WTF) | ████████████████████ | live |
 | Type Safety (strict TS) | ████████████████████ | 100% |
 | Pipeline reproducible | ████████████████████ | 100% |
-| Tests/evals | ░░░░░░░░░░░░░░░░░░ | 0% |
-| Edge migration | ████████░░░░░░░░░░░░ | Shadow pilot |
-| Docs | ██████████████████░░ | 90% |
+| Tests/evals | ████████████████░░░░ | focused release checks |
+| Edge migration | ████████████████████ | production path live |
+| Docs | ██████████████████░░ | release refresh |
 
-> **Stage: proof of concept.** The Vercel UI and Cloudflare-backed RAG route are live. Full-corpus ingestion continues idempotently; provenance, evaluation, and additional edge protections remain the next hardening release.
+> **Stage: live release with gated expansion.** The approved queryable corpus is
+> reconciled across the Cloudflare retrieval/provenance path. Full sheet closure
+> still excludes the four deferred transcript/source mismatches listed above.
 <!-- readme-gen:end:health -->
 
 ---

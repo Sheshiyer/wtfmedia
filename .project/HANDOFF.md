@@ -1,5 +1,32 @@
 # Project handoff
 
+## 2026-08-31 Release onboarding docs refresh
+
+**Status:** LOCAL DOCUMENTATION UPDATE — no Cloudflare mutation, no deploy,
+no ingest enqueue, no secret rotation.
+
+- Updated `README.md` to describe the live WTF OS / Ask WTF Cloudflare release
+  instead of the older proof-of-concept/Vercel-centered status.
+- Updated `PROJECT.md` with current project goals, production resource names,
+  corpus receipt counts, deferred transcript exceptions, and real verification
+  commands.
+- Updated `AGENTS.md` with agent pickup rules, the `/api/chat` source-mode
+  contract, Cloudflare resource map, current corpus receipt, ingest fail-closed
+  rule, and gated actions.
+- Added `docs/AGENT-ONBOARDING.md` as the quick-start map for other engineers
+  and agents: goals, production contract, Cloudflare resources, current corpus
+  receipt, file map, verification commands, and mutation gates.
+- Refreshed `docs/CLOUDFLARE-INFRASTRUCTURE.md`,
+  `docs/CLOUDFLARE-MIGRATION-PLAN.md`, and
+  `docs/PRODUCTION-EVALUATION.md` so they no longer imply the current product
+  is only a shadow/Vercel proof of concept.
+
+**Interpretation:** The repo now has a clearer handoff surface for team members
+and agents. This documentation does not change the current production caveat:
+live Ask WTF and the approved corpus receipts are green, while deploy receipts
+still need to be tied exactly to the latest `main` commit before claiming the
+prod worker code is at that commit.
+
 ## 2026-08-31 Bounded flow redesign on tuned WTF OS shell
 
 **Status:** LOCAL IMPLEMENTATION — not deployed, not committed. This pass keeps

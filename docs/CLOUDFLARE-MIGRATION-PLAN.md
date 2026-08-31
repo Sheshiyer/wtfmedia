@@ -3,10 +3,20 @@
 This plan addresses the reliability and grounding gaps in the original
 Vercel-hosted, static-vector implementation without risking the live user path.
 
+## Current status
+
+The migration is live for the approved Ask WTF query path. `wtfhq.in` serves
+the WTF OS web app, and `/api/chat` can query `published`, `uncut`, and `both`
+source modes against Cloudflare-backed R2/KV/Vectorize/D1 receipts.
+
+The remaining migration work is not "make Ask WTF work"; it is hardening and
+expansion: deployment receipts tied exactly to `main`, more evaluation, WAF /
+Turnstile policy, queue/DLQ observability, and closure of deferred transcript
+sheet mismatches.
+
 ## Target state
 
-- Vercel continues to host the current UI while Cloudflare Worker serves a
-  shadow RAG API.
+- Cloudflare serves the current UI and the Ask WTF backend path.
 - R2 holds transcript source artifacts; Queue makes ingestion retryable;
   Vectorize is a rebuildable search projection; KV holds short-lived state.
 - Workers AI owns Cloudflare-side embedding and answer inference.
@@ -33,7 +43,7 @@ Vercel-hosted, static-vector implementation without risking the live user path.
 
 ## Non-goals for this release
 
-- Moving the UI or public hostname from Vercel.
 - Automatic crawling of third-party video platforms.
 - Replacing verified catalogue metadata with LLM extraction.
 - Claiming exact timestamps for untimestamped fallback transcript text.
+- Claiming the four deferred spreadsheet/source exceptions are fully ingested.

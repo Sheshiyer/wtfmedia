@@ -1,36 +1,56 @@
 # Cloudflare edge RAG infrastructure
 
-Status: **historical deployment record** — 2026-08-11
+Status: **current production path plus historical notes** — refreshed
+2026-08-31
 
-> **Current-inventory note (2026-08-29):** This document records a prior edge
-> RAG deployment narrative. It was not live-probed during the current recovery,
-> so it does not prove current Worker bindings, Cloudflare Access Applications,
-> policies, operator seats, or protected hostnames. The evidence-led current
-> inventory is [`docs/architecture/architecture.html`](architecture/architecture.html).
+> **Current-inventory note (2026-08-31):** Ask WTF is live on
+> `https://wtfhq.in/api/chat` through Cloudflare-backed retrieval. The current
+> release receipt is also recorded in `.project/HANDOFF.md` and
+> `docs/AGENT-ONBOARDING.md`.
 
-The public product remains served by Vercel, with its chat API proxying to a
-dedicated Cloudflare Worker. Cloudflare keeps the durable retrieval and
-inference boundary isolated from the UI deployment.
+The public product is the WTF OS web app served through Cloudflare, with a
+server-side Ask WTF path backed by Cloudflare storage, retrieval, inference,
+and provenance resources.
 
 ## What exists
 
 | Resource | Name | Responsibility |
 | --- | --- | --- |
+| Worker | `wtfmedia-web` | Public web app and `/api/chat` route |
 | Worker | `wtfmedia-edge` | Edge API, validation, rate limiting, retrieval, answer generation, and queue consumer |
-| Vectorize | `wtfmedia-catalogue-v1` | Cosine similarity index, 1,024 dimensions; indexed on `video_id` |
+| Vectorize | `wtfmedia-catalogue-v1` | Cosine similarity index, 1,024 dimensions; indexed with source-mode metadata |
 | Workers AI | Worker binding | BGE Large query/index embeddings and Llama 3.3 70B answers |
-| R2 | `wtfmedia-catalogue` | Immutable transcript objects and future crawl snapshots |
+| R2 | `wtfmedia-catalogue` | Published transcripts, timestamp sidecars, uncut text, and manifests |
 | KV | `WTFMEDIA_STATE` | Rate-limit windows, ingestion idempotency, and pipeline state |
+| D1 | `wtfmedia-ops` | Source assets, transcript versions/chunks, ingestion jobs, ops provenance |
 | Queue | `wtfmedia-ingest` | Transcript-to-vector ingestion work |
 | Queue DLQ | `wtfmedia-ingest-dlq` | Jobs that exhausted five delivery attempts |
 
-The Worker’s shadow URL is `https://wtfmedia-edge.sheshnarayan-iyer.workers.dev`.
-It is consumed server-to-server by `wtfmedia.vercel.app`; browsers do not
-receive an ingestion credential or Cloudflare account token.
+Browsers do not receive ingestion credentials or Cloudflare account tokens.
+Runtime code reaches Cloudflare storage through bindings; operator account
+tokens stay local.
+
+## Current release receipt
+
+As of the 2026-08-31 release, the approved queryable corpus is reconciled:
+
+- R2 `wtfmedia-catalogue`: 55 published transcripts, 43 timestamp sidecars,
+  8 approved uncut text assets, and 1 manifest object.
+- KV `WTFMEDIA_STATE`: 63 approved `ingest:` receipts, split across
+  55 published and 8 uncut assets.
+- Vectorize `wtfmedia-catalogue-v1`: 6,354 vectors, split across
+  5,742 published and 612 uncut records.
+- D1 `wtfmedia-ops`: 63 available source assets, 63 active transcript versions,
+  6,354 active transcript chunks, and 63 completed ingestion jobs.
+
+The four deferred spreadsheet/source exceptions remain outside the clean
+ingestion claim: `WTF is a Battery?`, `WEF - Economics`, `The Foundery`, and
+the `Brain Armstrong` transcript-row mismatch.
 
 ## Request path
 
-`POST /v1/chat` accepts a bounded question, applies an IP/window limit in KV,
+`POST /api/chat` accepts a bounded message list and a `sourceMode`
+(`published`, `uncut`, or `both`). The backend applies an IP/window limit in KV,
 embeds it with Workers AI, searches Vectorize, keeps one passage per episode,
 then asks the answer model to cite only the returned numbered evidence. It
 returns a generic error code rather than a provider response body. Retrieval
@@ -40,8 +60,8 @@ The recorded pilot had the following explicit guardrails:
 
 - 1,500-character question cap and JSON/content-type validation.
 - 20 requests per minute per IP by default (tune after real traffic data).
-- Direct Worker chat calls are rejected; only the Vercel server can present the
-  rotated shared edge secret.
+- Direct edge chat calls are rejected unless the trusted server path presents
+  the rotated shared edge secret.
 - Score floor of `0.45`, top 12 candidate retrieval, maximum six distinct
   source episodes.
 - Refusal for unsupported ownership, founder, recurrence, or corpus-wide-count
@@ -51,18 +71,21 @@ The recorded pilot had the following explicit guardrails:
 
 ## Ingestion path
 
-1. An operator stores an approved transcript at `R2/transcripts/<video-id>.txt`.
+1. An operator stores an approved source artifact in R2.
 2. The operator sends an idempotent job to `wtfmedia-ingest`.
-3. The Worker chunks text, generates 1,024-dimensional BGE Large vectors,
+3. The Worker verifies the declared D1 `source_assets` row and backing R2
+   object before staging vectors.
+4. The Worker chunks text, generates 1,024-dimensional BGE Large vectors,
    and upserts Vectorize records with title, source URL, and transcript text.
-4. It records the transcript content hash in KV. An unchanged transcript is
+5. It records the transcript content hash in KV. An unchanged transcript is
    skipped on later jobs.
-5. Failed jobs retry up to five times and then land in `wtfmedia-ingest-dlq`
+6. Failed jobs retry up to five times and then land in `wtfmedia-ingest-dlq`
    for inspection and replay.
 
 R2 and queues are the source-of-truth handoff; Vectorize can be rebuilt from
-them. The corpus has 55 transcript objects and 43 timestamp sidecars. The
-timestamp-aware backfill is idempotent and continues through the queue.
+them. D1 is the provenance receipt. The current approved corpus has 55
+published transcript objects, 43 published timestamp sidecars, and 8 approved
+uncut text objects.
 
 ## Crawl policy
 
