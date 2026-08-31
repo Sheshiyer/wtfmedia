@@ -110,5 +110,6 @@ test.describe("Episodes route journeys", () => {
     const form = page.locator('form[action="/chat"]');
     await expect(form).toBeVisible();
     await expect(form.locator('textarea[name="q"]')).toContainText("map the transcript");
+    await expect(form.locator('input[name="episodeId"]')).toHaveValue(/[A-Za-z0-9_-]{11}/);
   });
 });

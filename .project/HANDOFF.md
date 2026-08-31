@@ -1318,3 +1318,51 @@ is needed.
 
 No deployment, registry, credential, production, or legacy-variant mutation
 occurred in this wave.
+
+## 2026-08-31 Ask WTF episode-scoped production release (source ready)
+
+**Scope:** backend and Cloudflare retrieval contract only. PR #28 remains the
+team-owned UI and was not edited.
+
+- Release branch `codex/release-episode-scope` is based on `origin/main` at
+  `fef9dedd`; the reviewed backend commit was transplanted without the older
+  integration branch's unrelated drift.
+- `/v1/chat` now accepts an optional public YouTube `episodeId`, applies a
+  `video_id` Vectorize filter before `topK`, and post-filters returned matches
+  so episode scope fails closed instead of broadening to unrelated evidence.
+- Uncut R2 storage and citations remain hash/asset-addressed, while the mapped
+  public YouTube identity is carried separately for episode retrieval.
+  Structured ingest now emits `episode_id`, `video_id`, `source_asset_id`, and
+  `source_mode` vector metadata. Batch admission rejects duplicate or
+  mismatched public/private identities, including an uncut object key labeled
+  as published or submitted without a mode.
+- Queue admission and the consumer also require an exact available D1
+  source-asset receipt for the public episode, R2 key, and content hash before
+  queue mutation or vector staging.
+- Published jobs keep the D1 transcript asset hash in `sourceContentHash` while
+  their idempotency `contentHash` may additionally cover a timestamp sidecar;
+  this preserves all 43 timed published jobs during the post-index re-upsert.
+- Text-only uncut chat may use untimed evidence without timeline alignment.
+  Synced playback and timestamp projection remain unavailable until trusted
+  alignments exist.
+- The PR #28-compatible web adapter forwards the public episode ID through
+  `/api/chat` without redesigning the team-owned UI.
+- Read-only manifest reconciliation found 49 mapped jobs from 52 rows, with 3
+  held. The original job manifest carried 49 stale generic content hashes, so
+  the new preflight rejects it. A private generated activation plan instead
+  re-hashes the 49 local text assets, verifies each mapped storage key and
+  metadata digest, and normalizes only the queue content hash.
+- `main` retained a calendar import after its reviewed module, migration, and
+  tests disappeared. Those exact release-integration files are restored so the
+  edge bundle can deploy without altering the calendar contract.
+- Verification passed: 149/149 Cloudflare tests, 14/14 source-mode tests,
+  19/19 transcript-ingest tests, 4/4 queue-admission tests, manifest and
+  activation script tests, Worker bundle dry-run, `git diff --check`, and
+  final read-only review.
+
+The owner approved production on 2026-08-31. Source is committed locally and
+the compatibility receipt is updated. Live Vectorize still needs the
+`video_id` metadata index before intended vectors are re-upserted. No push,
+merge, deploy, upload, enqueue, DNS, secret, or live-data mutation had occurred
+at this checkpoint. Full evidence and operator gates are recorded in
+`docs/handoffs/2026-08-31-ask-wtf-episode-scope-backend.md`.

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "authority": "current-dirty-worktree-pending-owner-approval",
-  "base_sha": "0f806772acdb008eeb9fb88ec256cbc2c9db07d8",
+  "authority": "owner-approved-production-release-2026-08-31-episode-scoped-ask-wtf",
+  "base_sha": "fef9dedd5c90dea242af192b0c6d543ed6de40e3",
   "protected_routes": [
     "/",
     "/episodes",
@@ -47,7 +47,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "43ed48fa234928b9cf1f51d47a8026f786c255a85a42db5f6b7fc2715c9b7b1a",
+      "sha256": "32ece5dd33bf84bf4bed8e1a24f295a8effbf0556fc17e6bd66d3d237af4f004",
       "mode": "100644",
       "type": "file",
       "worktree_status": " M"
@@ -77,7 +77,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "43ed48fa234928b9cf1f51d47a8026f786c255a85a42db5f6b7fc2715c9b7b1a",
+      "sha256": "32ece5dd33bf84bf4bed8e1a24f295a8effbf0556fc17e6bd66d3d237af4f004",
       "mode": "100644",
       "type": "file",
       "worktree_status": " M"
@@ -159,7 +159,7 @@
           "Escape"
         ],
         "refresh_back_share": "open episode is not reproduced",
-        "ask_destination": "/chat?q=<encoded episode question>"
+        "ask_destination": "/chat?q=<encoded episode question>&episodeId=<public YouTube id>"
       },
       "data_semantics": "episodes grouped by existing playlist title with public transcript fallback"
     },
@@ -175,6 +175,7 @@
         "value_selection": "URLSearchParams.get first value",
         "non_empty_value": "auto-submit exactly once per mounted page",
         "empty_or_absent_value": "no automatic submission",
+        "episode_parameter": "an optional valid 11-character public YouTube id is retained and forwarded; invalid values are omitted by the client",
         "unrelated_parameters": "left in the URL and ignored by the current page"
       },
       "data_semantics": "visitor question, public answer text, and cited public sources"
@@ -182,7 +183,7 @@
     "/api/chat": {
       "kind": "public POST endpoint",
       "query_behavior": "none",
-      "data_semantics": "server-authenticated edge retrieval projected into the browser compatibility contract"
+      "data_semantics": "server-authenticated edge retrieval with an optional validated public episode scope, projected into the browser compatibility contract"
     }
   },
   "public_field_allowlists": {
@@ -232,6 +233,11 @@
     "method": "POST",
     "request": {
       "accepted_body_member": "messages",
+      "optional_body_members": [
+        "sourceMode",
+        "episodeId"
+      ],
+      "episode_id_rule": "episodeId must be an 11-character public YouTube id when present",
       "non_array_messages": "treated as an empty message list",
       "history_window": "last 8 messages only",
       "selected_question": "last user-role message in the retained window",
@@ -242,7 +248,7 @@
       "client_model_member": "sent by the current client but ignored by the current route"
     },
     "upstream_boundary": {
-      "request_body": "selected question only",
+      "request_body": "selected question, parsed source mode, and optional validated public episode id",
       "timeout_ms": 25000,
       "route_max_duration_seconds": 30,
       "cache": "no-store",
@@ -269,6 +275,13 @@
         "status": 400,
         "body_kind": "plain text",
         "safe_body": "question too long",
+        "upstream_called": false
+      },
+      {
+        "case": "episodeId is present but is not a public YouTube id",
+        "status": 400,
+        "body_kind": "plain text",
+        "safe_body": "invalid episode id",
         "upstream_called": false
       },
       {

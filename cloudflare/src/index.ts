@@ -15,13 +15,24 @@ import {
 } from "./db";
 import { handleOpsRequest, type OpsEnv } from "./ops-router";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar";
-import { parseSourceMode, resolveRequestedSources } from "./chat/source-mode";
+import {
+  buildVectorQueryOptions,
+  parseEpisodeId,
+  parseSourceMode,
+  resolveEpisodeScopedSources,
+} from "./chat/source-mode";
 import {
   ingestStateKey,
   parseJobSourceMode,
+  resolveCatalogueJobIdentity,
   vectorRecordId,
   vectorSourceRef,
 } from "./catalogue/asset-map";
+import {
+  admitTranscriptJobs,
+  assertCatalogueJobSourceAsset,
+  type TranscriptJob,
+} from "./catalogue/job-admission";
 import { extractTimestampLines } from "./catalogue/timestamps";
 
 export interface Env extends OpsEnv {
@@ -38,15 +49,6 @@ export interface Env extends OpsEnv {
   CALENDAR_READ_RATE_LIMIT_PER_MINUTE?: string;
   CALENDAR_WRITE_RATE_LIMIT_PER_MINUTE?: string;
 }
-
-type TranscriptJob = {
-  videoId: string;
-  title: string;
-  transcriptKey: string;
-  timestampsKey?: string;
-  contentHash: string;
-  sourceMode?: "published" | "uncut";
-};
 
 const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
 const ANSWER_MODELS = [
@@ -192,7 +194,15 @@ function requiresVerifiedMetadata(question: string) {
 
 async function ingest(job: TranscriptJob, env: Env) {
   const sourceMode = parseJobSourceMode(job.sourceMode);
-  const stateKey = ingestStateKey(job.videoId, sourceMode);
+  const identity = resolveCatalogueJobIdentity(
+    job.videoId,
+    job.transcriptKey,
+    sourceMode,
+    job.sourceAssetId,
+  );
+  if (!identity) throw new Error(`${sourceMode}_identity_invalid`);
+  await assertCatalogueJobSourceAsset(job, env.DB);
+  const stateKey = ingestStateKey(identity.sourceAssetId, sourceMode);
   const previousHash = await env.WTFMEDIA_STATE.get(stateKey);
   if (previousHash === job.contentHash) return;
   const object = await env.CATALOGUE.get(job.transcriptKey);
@@ -213,14 +223,15 @@ async function ingest(job: TranscriptJob, env: Env) {
     const inline = extractTimestampLines(text);
     if (inline.length >= 3) parts = timestampedChunks(inline);
   }
-  const source = vectorSourceRef(job.videoId, sourceMode);
+  const source = vectorSourceRef(identity.sourceAssetId, sourceMode);
   for (let offset = 0; offset < parts.length; offset += UPSERT_BATCH_SIZE) {
     const batch = parts.slice(offset, offset + UPSERT_BATCH_SIZE);
     const vectors = await Promise.all(batch.map(async (part, index) => ({
-      id: vectorRecordId(job.videoId, offset + index, sourceMode),
+      id: vectorRecordId(identity.sourceAssetId, offset + index, sourceMode),
       values: await vectorFor(env, part.text),
       metadata: {
-        video_id: job.videoId,
+        video_id: identity.publicVideoId,
+        source_asset_id: identity.sourceAssetId,
         title: job.title.slice(0, 500),
         chunk: offset + index,
         text: part.text,
@@ -242,13 +253,17 @@ async function chat(request: Request, env: Env) {
   }
   const contentLength = Number(request.headers.get("Content-Length") || "0");
   if (contentLength > MAX_BODY_BYTES) return reply(request, env, { error: "body_too_large" }, 413);
-  let payload: { question?: unknown; sourceMode?: unknown };
+  let payload: { question?: unknown; sourceMode?: unknown; episodeId?: unknown };
   try { payload = await request.json(); } catch { return reply(request, env, { error: "invalid_json" }, 400); }
   if (typeof payload.question !== "string" || !payload.question.trim()) {
     return reply(request, env, { error: "question_required" }, 400);
   }
   const question = payload.question.trim();
   const sourceMode = parseSourceMode(payload.sourceMode);
+  const episodeId = parseEpisodeId(payload.episodeId);
+  if (payload.episodeId !== undefined && episodeId === null) {
+    return reply(request, env, { error: "invalid_episode_id" }, 400);
+  }
   if (question.length > MAX_QUESTION_CHARS) return reply(request, env, { error: "question_too_long" }, 400);
   if (requiresVerifiedMetadata(question)) {
     return reply(request, env, {
@@ -260,20 +275,25 @@ async function chat(request: Request, env: Env) {
     });
   }
   try {
-    const matches = await env.VECTORIZE.query(await vectorFor(env, question), {
-      topK: 12,
-      returnMetadata: "all",
-    });
-    const resolved = resolveRequestedSources(matches.matches ?? [], sourceMode, MIN_SCORE, 6);
+    const matches = await env.VECTORIZE.query(
+      await vectorFor(env, question),
+      buildVectorQueryOptions(episodeId),
+    );
+    const rawMatches = matches.matches ?? [];
+    const resolved = resolveEpisodeScopedSources(rawMatches, sourceMode, episodeId, MIN_SCORE, 6);
     const sources = resolved.citations.map((source) => {
-      const match = (matches.matches ?? []).find((item: { metadata?: { video_id?: string } }) => item.metadata?.video_id === source.videoId);
+      const match = rawMatches.find((item: { id?: unknown }) => String(item.id ?? "") === source.segmentId);
       return { ...source, text: match?.metadata?.text };
     });
     if (sources.length < 2) {
       return reply(request, env, {
         answer: resolved.uncutUnavailable
-          ? "uncut is not activated and there is not enough published YouTube evidence for this question. no timestamp was inferred."
-          : "I don’t have enough relevant evidence in the catalogue to answer that reliably.",
+          ? episodeId
+            ? "No approved uncut evidence is mapped to this episode, and there is not enough published evidence to answer reliably. no timestamp was inferred."
+            : "uncut is not activated and there is not enough published YouTube evidence for this question. no timestamp was inferred."
+          : episodeId
+            ? "I don’t have enough relevant evidence in this episode to answer that reliably."
+            : "I don’t have enough relevant evidence in the catalogue to answer that reliably.",
         sources: sources.map(({ text: _text, ...source }) => source),
         grounded: false,
         sourceMode: resolved.sourceMode,
@@ -466,11 +486,10 @@ export default {
       if (request.headers.get("X-Ingest-Token") !== env.INGEST_TOKEN) return reply(request, env, { error: "unauthorized" }, 401);
       let payload: { jobs?: TranscriptJob[] };
       try { payload = await request.json(); } catch { return reply(request, env, { error: "invalid_json" }, 400); }
-      if (!Array.isArray(payload.jobs) || payload.jobs.length === 0 || payload.jobs.length > 100) return reply(request, env, { error: "invalid_jobs" }, 400);
-      const invalidUncut = payload.jobs.some((job) => parseJobSourceMode(job.sourceMode) === "uncut" && !String(job.transcriptKey || "").startsWith("uncut/"));
-      if (invalidUncut) return reply(request, env, { error: "invalid_uncut_key" }, 400);
-      await env.INGEST_QUEUE.sendBatch(payload.jobs.map((body) => ({ body })));
-      return reply(request, env, { queued: payload.jobs.length }, 202);
+      const admission = await admitTranscriptJobs(payload.jobs, env.INGEST_QUEUE, env.DB);
+      return admission.ok
+        ? reply(request, env, { queued: admission.queued }, 202)
+        : reply(request, env, { error: admission.error }, 400);
     }
     return reply(request, env, { error: "not_found" }, 404);
   },

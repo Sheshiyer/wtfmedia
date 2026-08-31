@@ -14,6 +14,8 @@ import { parseSourceMode, type SourceMode } from "@/lib/provenance/source-mode";
 
 function ChatInner() {
   const searchParams = useSearchParams();
+  const episodeParam = searchParams.get("episodeId")?.trim() ?? "";
+  const episodeId = /^[A-Za-z0-9_-]{11}$/.test(episodeParam) ? episodeParam : null;
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -52,6 +54,7 @@ function ChatInner() {
             content: m.content,
           })),
           sourceMode,
+          ...(episodeId ? { episodeId } : {}),
         }),
       });
 
@@ -166,7 +169,7 @@ function ChatInner() {
         size="page"
         context={
           <div className="hidden flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary sm:flex">
-            <span>catalogue scope</span>
+            <span>{episodeId ? "episode scope" : "catalogue scope"}</span>
             <span>source-backed answers</span>
             <span>mapped time only</span>
           </div>

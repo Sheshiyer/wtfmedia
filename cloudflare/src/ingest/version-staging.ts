@@ -150,7 +150,7 @@ export async function generateChunkEmbeddings(
   episodeId: string,
   versionId: string,
   versionNumber: number,
-  options?: { embeddingModel?: string; batchSize?: number }
+  options?: StageTranscriptVersionOptions
 ): Promise<VectorizeRecord[]> {
   const model = options?.embeddingModel ?? DEFAULT_EMBEDDING_MODEL;
   const batchSize = options?.batchSize ?? DEFAULT_BATCH_SIZE;
@@ -187,11 +187,19 @@ export async function generateChunkEmbeddings(
       const chunk = batch[j];
       const vector = embeddings[j];
 
+      const publicVideoId = typeof options?.publicVideoId === "string"
+        && /^[A-Za-z0-9_-]{11}$/.test(options.publicVideoId)
+        ? options.publicVideoId
+        : undefined;
       records.push({
         id: chunk.vectorId,
         values: vector,
         metadata: {
           episodeId,
+          episode_id: episodeId,
+          ...(publicVideoId ? { video_id: publicVideoId } : {}),
+          ...(options?.sourceAssetId ? { source_asset_id: options.sourceAssetId } : {}),
+          source_mode: options?.sourceMode ?? "published",
           versionId,
           versionNumber,
           chunkId: chunk.id,
@@ -285,7 +293,12 @@ export async function stageAndActivateTranscriptVersion(
       payload.episodeId,
       versionId,
       nextVersionNumber,
-      options
+      {
+        ...options,
+        publicVideoId: payload.publicVideoId,
+        sourceAssetId: payload.sourceAssetId,
+        sourceMode: coordinateSystem,
+      }
     );
 
     // Upsert staged vectors into Vectorize

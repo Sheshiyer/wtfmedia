@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "status": "approved",
-  "approval_scope": "ask-wtf-cloudflare-service-binding-source-mode-and-local-development-fallbacks",
-  "owner_approval_ref": "owner-explicit-approval-2026-08-31-chat-route-manifest-update",
+  "approval_scope": "ask-wtf-cloudflare-service-binding-source-mode-local-fallbacks-and-episode-scope",
+  "owner_approval_ref": "owner-explicit-production-approval-2026-08-31-episode-scoped-ask-wtf",
   "manifest_path": "web/tests/contracts/phase1-compatibility-manifest.json",
-  "manifest_sha256": "91af632adc8f38319a69e6ba3a8653d44051ae5ccde32e7ff9ed215bdcbbd9eb",
-  "base_sha": "0f806772acdb008eeb9fb88ec256cbc2c9db07d8",
+  "manifest_sha256": "b07fab99f71d88cedc69bbe360581e8ecd41ada2a6b0950ce55f88ecd3a63093",
+  "base_sha": "fef9dedd5c90dea242af192b0c6d543ed6de40e3",
   "approved_protected_hashes": [
     {
       "path": "web/app/layout.tsx",
@@ -29,7 +29,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "3aa6c1cec81aa8bbf1ed5e15b78c08210001f7464cf3f32c9bd103a2ecaeff84"
+      "sha256": "32ece5dd33bf84bf4bed8e1a24f295a8effbf0556fc17e6bd66d3d237af4f004"
     }
   ],
   "streaming_contract": {
