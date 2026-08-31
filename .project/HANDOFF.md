@@ -1366,3 +1366,64 @@ the compatibility receipt is updated. Live Vectorize still needs the
 merge, deploy, upload, enqueue, DNS, secret, or live-data mutation had occurred
 at this checkpoint. Full evidence and operator gates are recorded in
 `docs/handoffs/2026-08-31-ask-wtf-episode-scope-backend.md`.
+
+## 2026-08-31 Ask WTF episode-scoped production completion
+
+**Scope:** backend, Cloudflare corpus activation, and the minimal PR #28 web
+adapter. Team-owned UI design remained unchanged.
+
+- PR #32 merged as `a706b67`; its squash tree is identical to reviewed head
+  `d812759`. PR #33 merged the Vectorize record-ID hotfix as `4349b98`; its
+  squash tree is identical to reviewed head `2240c3c`. PR #34 merged the
+  both-mode evidence-balancing hotfix as `b62fb1f`; its squash tree is
+  identical to reviewed head `33f98f4`.
+- The `video_id` Vectorize metadata index was created under mutation
+  `aee5e299-588c-4d58-9780-0f3f9e87dcd8` before any intended vector was
+  re-upserted.
+- All 49 approved mapped uncut text objects were hash-verified and uploaded to
+  the existing catalogue bucket. D1 then proved 49 targets, 49 public YouTube
+  identities, and 49 exact available source-asset receipts.
+- The existing 55 published jobs were re-upserted so their vectors carry
+  `video_id`, and the 49 mapped uncut jobs were activated without creating
+  timeline alignments or displacing published active transcript versions.
+- Five uncut jobs initially reached the DLQ because a full hash plus namespace
+  exceeded Vectorize's 64-byte record-ID limit. The hotfix preserves the full
+  SHA-256 identity as base64url, passed 151/151 Cloudflare tests, and deployed
+  as edge version `978d2d8d-3322-4e95-975f-e549dcada263` in deployment
+  `6d115890-ebe3-46a5-945e-a6be5fb4401d`. Exactly those five activation
+  messages were matched, replayed, and removed; the DLQ returned to its
+  pre-release backlog of 18.
+- Ingest completed with queue backlog 0, the DLQ unchanged at 18, and exact KV
+  membership of 55/55 published plus 49/49 mapped uncut jobs. Vectorize ended
+  at 11,948 vectors with both `source_mode` and `video_id` string indexes.
+- The first web cut, version `334f4252-e71d-4b8b-b070-a4e5908b991a`, returned
+  HTTP 500 on every public route because a symlinked dependency tree caused
+  OpenNext to leave a dynamic middleware-manifest require in the Worker
+  bundle. It was immediately rolled back under deployment
+  `5ee9e63a-90d1-4a28-a42f-8cf4b4b13be0`. A clean local dependency restore
+  changed no package or lockfile; the rebuilt bundle passed remote preview.
+- The final web cut is version `90099f42-13b6-4a4e-8d97-bd93b9f953fa` in
+  deployment `c981ac0a-c141-439b-a222-14ed28764d7f`. Web rollback remains
+  version `8f19a895-9827-469c-8716-543adc375932` in deployment
+  `5ee9e63a-90d1-4a28-a42f-8cf4b4b13be0`.
+- Live both-mode evidence initially exposed uncut crowding at the six-citation
+  limit. PR #34 reserves capacity for each available mode, passed 152/152
+  Cloudflare tests, and deployed as edge version
+  `75b96e1f-6fa6-4182-bbdd-99047399de64` in deployment
+  `04e2a1a9-d796-41d9-bad5-3d952c8f206c`. Edge rollback is version
+  `978d2d8d-3322-4e95-975f-e549dcada263` in deployment
+  `6d115890-ebe3-46a5-945e-a6be5fb4401d`.
+- Final live probes passed: home, episodes, and mapped detail returned 200;
+  the detail form carried the public episode scope; published returned two
+  grounded scoped citations, uncut returned six, and both returned six across
+  both modes. An unmapped episode stayed scoped and truthfully reported uncut
+  unavailable while using published evidence.
+
+### Held boundaries
+
+- No DNS, secret, Access/auth, ingest-token, provider credential, or unrelated
+  Worker mutation occurred.
+- Uncut evidence is chat-retrievable only where an approved mapping exists.
+  Trusted timeline alignment and synced uncut playback remain unavailable.
+- Root ISA and architecture work stayed in the user's dirty checkout and was
+  neither staged nor rewritten.
