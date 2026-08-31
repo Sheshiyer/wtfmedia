@@ -269,6 +269,40 @@ describe("dual-source chat contract", () => {
     assert.equal(resolved.citations[1].url.includes("youtube.com"), true);
   });
 
+  test("episode-scoped both mode reserves room for published evidence when uncut matches dominate", () => {
+    const uncut = Array.from({ length: 6 }, (_, index) => ({
+      id: `uncut:hash-${index}:${index}`,
+      score: 0.99 - index * 0.01,
+      metadata: {
+        video_id: "abcdefghijk",
+        source_asset_id: `hash-${index}`,
+        title: "Uncut episode",
+        source_mode: "uncut",
+      },
+    }));
+    const published = Array.from({ length: 2 }, (_, index) => ({
+      id: `pub-${index}`,
+      score: 0.9 - index * 0.01,
+      metadata: {
+        video_id: "abcdefghijk",
+        title: "Published episode",
+        source: "https://www.youtube.com/watch?v=abcdefghijk",
+      },
+    }));
+
+    const resolved = resolveEpisodeScopedSources(
+      [...uncut, ...published],
+      "both",
+      "abcdefghijk",
+      0.45,
+      6,
+    );
+
+    assert.equal(resolved.citations.length, 6);
+    assert.equal(resolved.citations.some((citation) => citation.sourceMode === "uncut"), true);
+    assert.equal(resolved.citations.some((citation) => citation.sourceMode === "published"), true);
+  });
+
   test("both mode reports uncut unavailable when only published evidence exists", () => {
     const resolved = resolveRequestedSources([
       {
