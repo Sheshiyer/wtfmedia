@@ -8,7 +8,7 @@ const uncutJob = {
   videoId: "RSB58m7Xwhg",
   sourceAssetId: privateHash,
   transcriptKey: `uncut/${privateHash}.txt`,
-  contentHash: "b".repeat(64),
+  contentHash: privateHash,
   sourceMode: "uncut",
 };
 const availableSourceAsset = { id: "ast_available" };
@@ -23,11 +23,12 @@ function queueSpy() {
   };
 }
 
-function sourceAssetDb(result) {
+function sourceAssetDb(result, bindings = []) {
   return {
     prepare() {
       return {
-        bind() {
+        bind(...values) {
+          bindings.push(values);
           return {
             first: async () => result,
           };
@@ -45,6 +46,29 @@ describe("catalogue job admission", () => {
       { ok: true, queued: 1 },
     );
     assert.equal(spy.batches.length, 1);
+  });
+
+  test("published sidecar idempotency keeps the transcript asset hash distinct", async () => {
+    const spy = queueSpy();
+    const bindings = [];
+    const publishedJob = {
+      videoId: "RSB58m7Xwhg",
+      title: "Example",
+      transcriptKey: "transcripts/RSB58m7Xwhg.txt",
+      timestampsKey: "timestamps/RSB58m7Xwhg.json",
+      sourceContentHash: privateHash,
+      contentHash: "b".repeat(64),
+      sourceMode: "published",
+    };
+    assert.deepEqual(
+      await admitTranscriptJobs(
+        [publishedJob],
+        spy.queue,
+        sourceAssetDb(availableSourceAsset, bindings),
+      ),
+      { ok: true, queued: 1 },
+    );
+    assert.equal(bindings[0][2], privateHash);
   });
 
   test("uncut storage key cannot enter as published or unspecified", async () => {

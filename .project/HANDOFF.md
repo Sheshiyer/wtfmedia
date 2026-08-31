@@ -1339,6 +1339,9 @@ team-owned UI and was not edited.
 - Queue admission and the consumer also require an exact available D1
   source-asset receipt for the public episode, R2 key, and content hash before
   queue mutation or vector staging.
+- Published jobs keep the D1 transcript asset hash in `sourceContentHash` while
+  their idempotency `contentHash` may additionally cover a timestamp sidecar;
+  this preserves all 43 timed published jobs during the post-index re-upsert.
 - Text-only uncut chat may use untimed evidence without timeline alignment.
   Synced playback and timestamp projection remain unavailable until trusted
   alignments exist.

@@ -10,6 +10,7 @@ export type TranscriptJob = {
   title: string;
   transcriptKey: string;
   timestampsKey?: string;
+  sourceContentHash?: string;
   contentHash: string;
   sourceMode?: "published" | "uncut";
 };
@@ -41,7 +42,12 @@ export async function assertCatalogueJobSourceAsset(
     sourceMode,
     job.sourceAssetId,
   );
-  if (!identity || !/^[a-f0-9]{64}$/.test(job.contentHash)) {
+  const sourceContentHash = job.sourceContentHash ?? job.contentHash;
+  if (
+    !identity ||
+    !/^[a-f0-9]{64}$/.test(job.contentHash) ||
+    !/^[a-f0-9]{64}$/.test(sourceContentHash)
+  ) {
     throw new Error("source_asset_unavailable");
   }
   const row = await db.prepare(`
@@ -58,7 +64,7 @@ export async function assertCatalogueJobSourceAsset(
   `).bind(
     identity.publicVideoId,
     job.transcriptKey,
-    job.contentHash,
+    sourceContentHash,
   ).first<{ id: string }>();
   if (!row?.id) throw new Error("source_asset_unavailable");
 }

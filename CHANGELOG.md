@@ -26,6 +26,8 @@ versioning; the web application version is held in `web/package.json`.
 
 - Restored the reviewed calendar Worker module and migration still imported by
   `main`, returning the edge bundle to a deployable state.
+- Kept transcript source hashes separate from timestamp-inclusive ingestion
+  idempotency hashes, so published sidecars still pass D1 provenance checks.
 
 ## [0.1.3] - 2026-08-11
 
