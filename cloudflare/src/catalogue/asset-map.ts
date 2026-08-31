@@ -39,8 +39,19 @@ export function ingestStateKey(id: string, sourceMode: CatalogueSourceMode = "pu
   return sourceMode === "uncut" ? `ingest:uncut:${id}` : `ingest:${id}`;
 }
 
+function compactVectorIdentity(id: string): string {
+  if (!HASH64.test(id)) return id;
+  const bytes = id.match(/.{2}/g)?.map((pair) => Number.parseInt(pair, 16)) ?? [];
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
 export function vectorRecordId(id: string, chunk: number, sourceMode: CatalogueSourceMode = "published"): string {
-  return sourceMode === "uncut" ? `uncut:${id}:${chunk}` : `${id}:${chunk}`;
+  // Vectorize record ids are capped at 64 bytes. Base64url retains every bit
+  // of a full SHA-256 source identity while leaving room for the chunk suffix.
+  return sourceMode === "uncut" ? `uncut:${compactVectorIdentity(id)}:${chunk}` : `${id}:${chunk}`;
 }
 
 export function vectorSourceRef(id: string, sourceMode: CatalogueSourceMode): string {

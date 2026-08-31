@@ -77,6 +77,18 @@ describe("catalogue asset map", () => {
     );
   });
 
+  test("full-hash uncut vector ids fit Vectorize's 64-byte limit", () => {
+    const firstHash = "a".repeat(64);
+    const secondHash = `${"a".repeat(63)}b`;
+    const firstId = vectorRecordId(firstHash, 12345, "uncut");
+    const secondId = vectorRecordId(secondHash, 12345, "uncut");
+
+    assert.ok(Buffer.byteLength(firstId, "utf8") <= 64);
+    assert.ok(Buffer.byteLength(secondId, "utf8") <= 64);
+    assert.notEqual(firstId, secondId);
+    assert.match(firstId, /:12345$/);
+  });
+
   test("jobs default to published and reject URL-bearing hashes", () => {
     assert.equal(parseJobSourceMode(undefined), "published");
     assert.equal(parseJobSourceMode("uncut"), "uncut");
