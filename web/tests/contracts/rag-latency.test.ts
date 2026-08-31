@@ -30,15 +30,31 @@ beforeEach(async () => {
 afterEach(async () => {
   await stub.close();
   vi.unstubAllEnvs();
+  vi.restoreAllMocks();
   vi.resetModules();
 });
 
-async function importRoute(opts: { ragUrl?: string; sharedSecret?: string } = {}) {
+async function importRoute(
+  opts: {
+    ragUrl?: string;
+    sharedSecret?: string;
+    edgeFetch?: (request: Request) => Promise<Response> | Response;
+  } = {}
+) {
   const ragUrl = opts.ragUrl ?? stub.url;
   const sharedSecret = "sharedSecret" in opts ? opts.sharedSecret : DUMMY_SHARED_SECRET;
+  const edgeFetch = opts.edgeFetch ?? ((request: Request) => fetch(`${ragUrl}/v1/chat`, request));
   vi.resetModules();
-  vi.stubEnv("CLOUDFLARE_RAG_URL", ragUrl);
   vi.stubEnv("CLOUDFLARE_EDGE_SHARED_SECRET", sharedSecret ?? "");
+  vi.doMock("@opennextjs/cloudflare", () => ({
+    getCloudflareContext: async () => ({
+      env: {
+        WTFMEDIA_EDGE: {
+          fetch: edgeFetch,
+        },
+      },
+    }),
+  }));
   return import("@/app/api/chat/route");
 }
 
@@ -144,34 +160,31 @@ describe("controlled RAG latency (local stub only)", () => {
     }
   });
 
-  it("proves the 25s upstream timeout yields the safe 503 before an unbounded wait", async () => {
-    // Hanging stub: never responds. The route must abort at 25s and surface
-    // its safe 503. To keep this test fast we shrink the timeout window via
-    // a hanging server plus vitest's own bound — but the route hard-codes
-    // 25_000 ms, so we assert the contract outcome rather than racing it:
-    // the hanging stub guarantees the timeout path executes; the assertion
-    // is that the round trip terminates (bounded) with the safe error.
-    const hangServer = http.createServer(() => {
-      /* intentionally never responds */
+  it("proves the 25s upstream timeout is wired to the safe 503 path", async () => {
+    // Hanging service binding: never resolves until the route's timeout signal
+    // aborts the request. The signal is controlled here so CI proves the
+    // 25_000 ms configuration without spending 25-50 seconds on this case.
+    const controller = new AbortController();
+    const timeoutSpy = vi.spyOn(AbortSignal, "timeout").mockReturnValue(controller.signal);
+    const { POST } = await importRoute({
+      edgeFetch: (request) =>
+        new Promise<Response>((_resolve, reject) => {
+          request.signal?.addEventListener(
+            "abort",
+            () => reject(request.signal?.reason ?? new DOMException("Timed out", "AbortError")),
+            { once: true }
+          );
+          setTimeout(() => controller.abort(new DOMException("Timed out", "AbortError")), 0);
+        }),
     });
-    hangServer.on("clientError", (_err, socket) => socket.destroy());
-    await new Promise<void>((resolve) => hangServer.listen(0, "127.0.0.1", resolve));
-    const address = hangServer.address();
-    if (!address || typeof address === "string") throw new Error("no hanging stub port");
-    try {
-      const { POST } = await importRoute({ ragUrl: `http://127.0.0.1:${address.port}` });
-      const started = performance.now();
-      const res = await POST(chatRequest(triggerQuestion("default-grounded")));
-      const elapsed = Math.round(performance.now() - started);
-      expect(res.status).toBe(503);
-      expect(await res.json()).toEqual({
-        error: "The answer service is temporarily unavailable. Please retry shortly.",
-      });
-      // Bounded by AbortSignal.timeout(25_000) plus local overhead.
-      expect(elapsed).toBeLessThanOrEqual(30_000);
-      expect(elapsed).toBeGreaterThanOrEqual(24_000);
-    } finally {
-      await new Promise((r) => hangServer.close(r));
-    }
-  }, 40_000);
+    const started = performance.now();
+    const res = await POST(chatRequest(triggerQuestion("default-grounded")));
+    const elapsed = Math.round(performance.now() - started);
+    expect(timeoutSpy).toHaveBeenCalledWith(25_000);
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({
+      error: "The answer service is temporarily unavailable. Please retry shortly.",
+    });
+    expect(elapsed).toBeLessThanOrEqual(5_000);
+  });
 });

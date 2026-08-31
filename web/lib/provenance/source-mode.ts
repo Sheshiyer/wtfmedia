@@ -1,15 +1,15 @@
-export const SOURCE_MODES = ["published", "uncut"] as const;
+export const SOURCE_MODES = ["published", "uncut", "both"] as const;
 export type SourceMode = (typeof SOURCE_MODES)[number];
 
 export const MAPPING_STATUSES = ["mapped", "unmapped", "unavailable", "conflicted"] as const;
 export type MappingStatus = (typeof MAPPING_STATUSES)[number];
 
 export function parseSourceMode(value: unknown): SourceMode {
-  return value === "uncut" ? "uncut" : "published";
+  return value === "uncut" || value === "both" ? value : "published";
 }
 
 export function isSourceMode(value: unknown): value is SourceMode {
-  return value === "published" || value === "uncut";
+  return value === "published" || value === "uncut" || value === "both";
 }
 
 export function isMappingStatus(value: unknown): value is MappingStatus {
@@ -32,6 +32,11 @@ export function publicTimestampForMode(opts: {
   timeSec?: number | null;
 }): number | null {
   const mode = parseSourceMode(opts.citationMode ?? opts.requested);
+  if (opts.requested === "both") {
+    if (opts.mappingStatus && opts.mappingStatus !== "mapped") return null;
+    const time = opts.timeSec;
+    return typeof time === "number" && Number.isFinite(time) && time >= 0 ? time : null;
+  }
   if (mode !== opts.requested) return null;
   if (opts.mappingStatus && opts.mappingStatus !== "mapped") return null;
   const time = opts.timeSec;

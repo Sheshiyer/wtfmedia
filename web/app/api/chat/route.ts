@@ -1,14 +1,20 @@
 import { NextRequest } from "next/server";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import type { ChatMessage } from "@/lib/nvidia";
 import { parseSourceMode, type SourceMode } from "@/lib/provenance/source-mode";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-const EDGE_RAG_URL = process.env.CLOUDFLARE_RAG_URL || "https://wtfmedia-edge.sheshnarayan-iyer.workers.dev";
-const EDGE_SHARED_SECRET = process.env.CLOUDFLARE_EDGE_SHARED_SECRET;
+const EDGE_SHARED_SECRET = process.env.EDGE_SHARED_SECRET ?? process.env.CLOUDFLARE_EDGE_SHARED_SECRET;
 const MAX_MESSAGES = 8;
 const MAX_QUESTION_CHARS = 2_000;
+
+async function callAnswerService(request: Request): Promise<Response> {
+  const { env } = await getCloudflareContext({ async: true });
+  if (!env.WTFMEDIA_EDGE) throw new Error("wtfmedia_edge_binding_missing");
+  return env.WTFMEDIA_EDGE.fetch(request);
+}
 
 type EdgeSource = {
   n: number;
@@ -28,13 +34,21 @@ type EdgeAnswer = {
   sources?: EdgeSource[];
   grounded?: boolean;
   sourceMode?: SourceMode;
+  uncutUnavailable?: boolean;
+  model?: string;
+  modelFallback?: boolean;
   error?: string;
 };
 
 function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
   return JSON.stringify(sources.map((source) => {
     const mode = source.sourceMode ?? sourceMode;
-    const start = mode === sourceMode ? source.start : null;
+    const start = sourceMode === "both" || mode === sourceMode ? source.start : null;
+    const direct = mode === "uncut"
+      ? (typeof source.url === "string" && source.url.startsWith("uncut:")
+        ? source.url
+        : `uncut:${source.videoId}`)
+      : source.url;
     return {
       n: source.n,
       video_id: source.videoId,
@@ -42,10 +56,10 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
       score: source.score,
       t: start,
       time: start == null ? "" : new Date(start * 1_000).toISOString().slice(11, 19).replace(/^00:/, ""),
-      url: source.url,
+      url: mode === "uncut" ? undefined : direct,
       source_mode: mode,
       mapping_status: source.mappingStatus ?? (start == null ? "unmapped" : "mapped"),
-      segment_id: source.segmentId ?? null,
+      segment_id: source.segmentId ?? (mode === "uncut" ? `uncut:${source.videoId}` : null),
     };
   }));
 }
@@ -66,24 +80,33 @@ export async function POST(req: NextRequest) {
 
   let edge: Response;
   try {
-    edge = await fetch(`${EDGE_RAG_URL}/v1/chat`, {
+    edge = await callAnswerService(new Request("https://wtfmedia-edge.internal/v1/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Edge-Secret": EDGE_SHARED_SECRET,
-        "X-Client-IP": req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown",
+        "X-Client-IP": req.headers.get("cf-connecting-ip")?.trim() || "unknown",
         "X-Request-ID": crypto.randomUUID(),
       },
       body: JSON.stringify({ question: last.content, sourceMode }),
       cache: "no-store",
       signal: AbortSignal.timeout(25_000),
+    }));
+  } catch (error) {
+    console.error("wtfmedia web chat transport failed", {
+      message: error instanceof Error ? error.message : "unknown",
+      sourceMode,
     });
-  } catch {
     return Response.json({ error: "The answer service is temporarily unavailable. Please retry shortly." }, { status: 503 });
   }
 
   const result = await edge.json().catch(() => undefined) as EdgeAnswer | undefined;
   if (!edge.ok || !result || typeof result.answer !== "string") {
+    console.error("wtfmedia web chat rejected edge response", {
+      status: edge.status,
+      edgeError: result?.error ?? "invalid_body",
+      sourceMode,
+    });
     return Response.json({ error: "The answer service is temporarily unavailable. Please retry shortly." }, { status: 503 });
   }
   const sources = Array.isArray(result.sources) ? result.sources : [];
@@ -94,8 +117,9 @@ export async function POST(req: NextRequest) {
       "Content-Type": "text/plain; charset=utf-8",
       "X-Sources": encodeURIComponent(sourceHeader(sources, responseMode)),
       "X-Source-Mode": responseMode,
-      "X-Model": "cloudflare/llama-3.3-70b-instruct",
-      "X-Fallback": result.grounded ? "false" : "true",
+      "X-Uncut-Unavailable": result.uncutUnavailable ? "true" : "false",
+      "X-Model": result.model ?? "cloudflare/llama-3.3-70b-instruct",
+      "X-Fallback": result.grounded && !result.modelFallback ? "false" : "true",
       "Cache-Control": "no-store",
     },
   });

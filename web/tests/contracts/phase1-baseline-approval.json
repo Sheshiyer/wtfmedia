@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "status": "approved",
-  "approval_scope": "phase-01-plan-01-task-3-authoritative-compatibility-baseline-reapproval-after-page-drift",
-  "owner_approval_ref": "owner-explicit-approval-2026-08-22-phase-01-rebaseline-current-worktree",
+  "approval_scope": "ask-wtf-cloudflare-service-binding-and-source-mode-fallbacks",
+  "owner_approval_ref": "owner-explicit-approval-2026-08-31-clean-source-reconciliation",
   "manifest_path": "web/tests/contracts/phase1-compatibility-manifest.json",
   "manifest_sha256": "91af632adc8f38319a69e6ba3a8653d44051ae5ccde32e7ff9ed215bdcbbd9eb",
   "base_sha": "0f806772acdb008eeb9fb88ec256cbc2c9db07d8",
@@ -29,7 +29,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "75987d7b9cfbcd094f82b8462e0088679f192a61d1cf7fb96fefe6e098186e7c"
+      "sha256": "231a86d79d444df58706d8b0398e74e26734a2e3b2a661124e2b683107063d8f"
     }
   ],
   "streaming_contract": {

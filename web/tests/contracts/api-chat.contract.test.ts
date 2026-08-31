@@ -35,8 +35,16 @@ async function importRoute(opts: { ragUrl?: string; sharedSecret?: string } = {}
   const ragUrl = opts.ragUrl ?? stub.url;
   const sharedSecret = "sharedSecret" in opts ? opts.sharedSecret : DUMMY_SHARED_SECRET;
   vi.resetModules();
-  vi.stubEnv("CLOUDFLARE_RAG_URL", ragUrl);
   vi.stubEnv("CLOUDFLARE_EDGE_SHARED_SECRET", sharedSecret ?? "");
+  vi.doMock("@opennextjs/cloudflare", () => ({
+    getCloudflareContext: async () => ({
+      env: {
+        WTFMEDIA_EDGE: {
+          fetch: (request: Request) => fetch(`${ragUrl}/v1/chat`, request),
+        },
+      },
+    }),
+  }));
   return import("@/app/api/chat/route");
 }
 

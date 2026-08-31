@@ -35,6 +35,39 @@ overflow, catalogue cards present, detail transcript/chat present, compact H1
 rendering, no unavailable uncut component, and transcript/keyword accordions
 present.
 
+## 2026-08-31 Clean Ask WTF Cloudflare reconciliation branch
+
+**Status:** CLEAN PR BRANCH READY — `codex/ask-wtf-cloudflare-fallbacks`
+starts from `origin/main` (`4175ac9`) and carries only the deployed Ask WTF
+Cloudflare/web service-binding reconciliation, source-mode fallbacks, generated
+architecture ledger refresh, and reproducible OpenNext/Wrangler web build
+files. No new corpus ingest, secret rotation, DNS mutation, or production
+cutover was performed in this branch.
+
+Verified on the clean worktree:
+
+```bash
+cd cloudflare && npm test
+# 129 passing
+
+cd web && npm run typecheck && npm run lint && npm run cf:build
+# passed
+
+cd web && npm run test:unit -- tests/unit/source-mode.test.ts
+# 3 passing
+
+cd web && npm run test:contracts -- tests/contracts/api-chat.contract.test.ts
+# 20 passing
+
+npm run docs:architecture:check
+# current: 424 inputs, 4e5faa190841ccc1bfcf41248a3b450ac87f72a3ab3872cccc4e1d5c9be3574d
+```
+
+Remaining runtime gap remains unchanged from the production check: Vectorize
+contains uncut vectors, but uncut R2/KV corpus receipts are not fully
+reconciled. Do not claim all uncut assets ingested until an approved transcript
+corpus is supplied and R2/KV/Vectorize agree.
+
 ## 2026-08-31 Light active-build dock and settings roadmap
 
 **Status:** LOCAL IMPLEMENTATION — not deployed, not committed. The public and
