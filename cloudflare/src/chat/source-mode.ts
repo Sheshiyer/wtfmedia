@@ -210,8 +210,14 @@ export function resolveRequestedSources(
     }
     const publishedHits = filterAndProjectMatches(matches, "published", minScore, limit, dedupeByEpisode);
     const uncutHits = filterAndProjectMatches(matches, "uncut", minScore, limit, dedupeByEpisode);
+    const reservedPerMode = Math.max(1, Math.floor(limit / 2));
     const usedSegments = new Set<string>();
-    const citations = [...uncutHits, ...publishedHits]
+    const citations = [
+      ...uncutHits.slice(0, reservedPerMode),
+      ...publishedHits.slice(0, reservedPerMode),
+      ...uncutHits.slice(reservedPerMode),
+      ...publishedHits.slice(reservedPerMode),
+    ]
       .filter((citation) => {
         if (usedSegments.has(citation.segmentId)) return false;
         usedSegments.add(citation.segmentId);
