@@ -58,7 +58,7 @@
     },
     {
       "surface": "Web application",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "channel": "local source",
       "status": "implemented_source",
       "meaning": "The web package defines the build and verifier surface; historic changelog entries are not current deployment proof."
