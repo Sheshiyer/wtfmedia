@@ -1319,13 +1319,14 @@ is needed.
 No deployment, registry, credential, production, or legacy-variant mutation
 occurred in this wave.
 
-## 2026-08-31 Ask WTF episode-scoped backend (review-ready local branch)
+## 2026-08-31 Ask WTF episode-scoped production release (source ready)
 
 **Scope:** backend and Cloudflare retrieval contract only. PR #28 remains the
 team-owned UI and was not edited.
 
-- Branch `codex/ask-wtf-edge-backend` is based on
-  `origin/codex/wtfmedia-release-integration` at `d88ca88`.
+- Release branch `codex/release-episode-scope` is based on `origin/main` at
+  `fef9dedd`; the reviewed backend commit was transplanted without the older
+  integration branch's unrelated drift.
 - `/v1/chat` now accepts an optional public YouTube `episodeId`, applies a
   `video_id` Vectorize filter before `topK`, and post-filters returned matches
   so episode scope fails closed instead of broadening to unrelated evidence.
@@ -1338,15 +1339,17 @@ team-owned UI and was not edited.
 - Text-only uncut chat may use untimed evidence without timeline alignment.
   Synced playback and timestamp projection remain unavailable until trusted
   alignments exist.
+- The PR #28-compatible web adapter forwards the public episode ID through
+  `/api/chat` without redesigning the team-owned UI.
 - Read-only manifest reconciliation found 49 mapped jobs from 52 rows, with 3
   held. The safe preflight passed without printing private identifiers.
 - Verification passed: 150/150 Cloudflare tests, 14/14 source-mode tests,
   19/19 transcript-ingest tests, 3/3 queue-admission tests, both script tests,
   Worker bundle dry-run, `git diff --check`, and final read-only review.
 
-Production remains held: live Vectorize has no `video_id` metadata index;
-after an approved index creation, intended vectors require a post-index
-re-upsert. The PR #28 web adapter must also forward `episodeId`. No commit,
-push, merge, deploy, upload, enqueue, DNS, secret, or live-data mutation was
-performed. Full evidence and operator gates are recorded in
+The owner approved production on 2026-08-31. Source is committed locally and
+the compatibility receipt is updated. Live Vectorize still needs the
+`video_id` metadata index before intended vectors are re-upserted. No push,
+merge, deploy, upload, enqueue, DNS, secret, or live-data mutation had occurred
+at this checkpoint. Full evidence and operator gates are recorded in
 `docs/handoffs/2026-08-31-ask-wtf-episode-scope-backend.md`.

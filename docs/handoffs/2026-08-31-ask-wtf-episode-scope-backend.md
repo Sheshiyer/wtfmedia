@@ -2,15 +2,15 @@
 
 ## Ownership and branch boundary
 
-This work is confined to `codex/ask-wtf-edge-backend`, based on
-`origin/codex/wtfmedia-release-integration` at `d88ca88`. PR #28 and its public
-UI remain team-owned: no visual component, route layout, or theme file was
-changed here.
+The production release branch is `codex/release-episode-scope`, based on
+`origin/main` at `fef9dedd`. PR #28 and its public UI remain team-owned. The
+only web changes are the narrow episode-id adapter, its compatibility receipt,
+and regression coverage; no visual layout or theme was redesigned.
 
 The branch implements the backend contract needed for an episode page to ask
 questions against the episode's approved published and uncut transcript
-evidence. It has not been committed, pushed, merged, deployed, or applied to
-Cloudflare.
+evidence. The backend and web adapter are committed locally; push, merge,
+deployment, and Cloudflare data activation remain pending at this checkpoint.
 
 ## Identity and retrieval contract
 
@@ -43,21 +43,20 @@ Cloudflare/YouTube identity and matching uncut jobs, while 3 remain held. The
 preflight manifest is internally consistent and does not expose titles, URLs,
 hashes, or object keys in its output.
 
-Production is not ready for episode scoping yet:
+Production activation sequence:
 
 1. The live `wtfmedia-catalogue-v1` metadata indexes currently include only
    `source_mode`; `video_id` is absent.
-2. An owner-approved change must create the `video_id` metadata index, then
-   re-upsert the intended vectors after that index exists.
+2. The owner approved production on 2026-08-31. Create the `video_id` metadata
+   index, then re-upsert the intended vectors only after the index exists.
 3. The production D1/vector receipts still need reconciliation around the
    canonical public episode identity. No live corpus mutation was performed.
-4. The PR #28 web adapter must forward the page's YouTube ID as `episodeId`
-   when it calls the edge `/v1/chat` endpoint. That integration is deliberately
-   outside this backend-only branch.
+4. The narrow PR #28-compatible web adapter now forwards the page's YouTube ID
+   as `episodeId` through `/api/chat` to edge `/v1/chat`.
 
-Creating the index, uploading R2 objects, enqueuing ingest, re-upserting
-vectors, deploying Workers, or changing DNS/secrets all remain separate
-owner-approved operations.
+The approved operation covers source merge, index creation, mapped-asset
+activation, vector re-upsert, and edge/web deployment. DNS and secret changes
+remain outside scope. The three held inventory rows remain held.
 
 ## Verification receipt
 
