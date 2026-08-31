@@ -97,6 +97,31 @@ export function startRagStub(options = {}) {
           );
           return;
         }
+        case "estimated-uncut": {
+          res.writeHead(200, { "Content-Type": "application/json" }).end(
+            JSON.stringify({
+              answer: "Grounded answer text.",
+              grounded: true,
+              sourceMode: "uncut",
+              uncutUnavailable: false,
+              sources: [{
+                n: 1,
+                videoId: "RSB58m7Xwhg",
+                title: "Uncut source",
+                score: 0.91,
+                start: 125,
+                timestamped: true,
+                timestampOrigin: "published_alignment",
+                timestampConfidence: 0.86,
+                sourceMode: "uncut",
+                mappingStatus: "mapped",
+                segmentId: "uncut:asset-hash:0",
+                url: "uncut:asset-hash",
+              }],
+            })
+          );
+          return;
+        }
         default: {
           res.writeHead(200, { "Content-Type": "application/json" }).end(
             JSON.stringify({ answer: "Grounded answer text.", grounded: true, sources: groundedSources() })

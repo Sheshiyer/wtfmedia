@@ -33,7 +33,13 @@ import {
   assertCatalogueJobSourceAsset,
   type TranscriptJob,
 } from "./catalogue/job-admission";
-import { extractTimestampLines } from "./catalogue/timestamps";
+import {
+  extractTimestampLines,
+  normalizeTimestampLine,
+  type TimestampLine,
+  type TimestampOrigin,
+} from "./catalogue/timestamps";
+import { loadCatalogueIngestInput } from "./catalogue/ingest-input";
 
 export interface Env extends OpsEnv {
   AI: any;
@@ -61,8 +67,12 @@ const MAX_CHUNK_CHARS = 1_100;
 const MIN_SCORE = 0.45;
 const UPSERT_BATCH_SIZE = 8;
 const UPSERT_ATTEMPTS = 5;
-type Passage = { text: string; start?: number };
-type TimestampLine = { t: number; x: string };
+type Passage = {
+  text: string;
+  start?: number;
+  timestampOrigin?: TimestampOrigin;
+  timestampConfidence?: number;
+};
 
 const SYSTEM = `You are the WTF Media research assistant. Answer only from the supplied excerpts.
 Every factual sentence needs a matching [source] citation. A mention of a person or company does not prove
@@ -103,18 +113,27 @@ function timestampedChunks(lines: TimestampLine[]): Passage[] {
   const result: Passage[] = [];
   let text = "";
   let start: number | undefined;
-  for (const line of lines) {
-    const words = typeof line.x === "string" ? line.x.replace(/\s+/g, " ").trim() : "";
-    if (!words || !Number.isFinite(line.t)) continue;
+  let timestampOrigin: TimestampOrigin | undefined;
+  let timestampConfidence: number | undefined;
+  for (const rawLine of lines) {
+    const line = normalizeTimestampLine(rawLine);
+    if (!line) continue;
+    const words = line.x;
     if (text && text.length + words.length + 1 > MAX_CHUNK_CHARS) {
-      result.push({ text, start });
+      result.push({ text, start, timestampOrigin, timestampConfidence });
       text = "";
       start = undefined;
+      timestampOrigin = undefined;
+      timestampConfidence = undefined;
     }
-    if (start == null) start = line.t;
+    if (!text && line.t != null && line.origin && line.confidence != null) {
+      start = line.t;
+      timestampOrigin = line.origin;
+      timestampConfidence = line.confidence;
+    }
     text += `${text ? " " : ""}${words}`;
   }
-  if (text) result.push({ text, start });
+  if (text) result.push({ text, start, timestampOrigin, timestampConfidence });
   return result;
 }
 
@@ -205,20 +224,12 @@ async function ingest(job: TranscriptJob, env: Env) {
   const stateKey = ingestStateKey(identity.sourceAssetId, sourceMode);
   const previousHash = await env.WTFMEDIA_STATE.get(stateKey);
   if (previousHash === job.contentHash) return;
-  const object = await env.CATALOGUE.get(job.transcriptKey);
-  if (!object) throw new Error(`missing transcript object: ${job.transcriptKey}`);
-  const text = await object.text();
+  const input = await loadCatalogueIngestInput(job, env.CATALOGUE);
+  const text = input.text;
   let parts = chunks(text);
-  if (job.timestampsKey) {
-    const timestamps = await env.CATALOGUE.get(job.timestampsKey);
-    if (timestamps) {
-      try {
-        const parsed = await timestamps.json<TimestampLine[]>();
-        if (Array.isArray(parsed)) parts = timestampedChunks(parsed);
-      } catch {
-        console.warn("wtfmedia timestamp sidecar unreadable", { videoId: job.videoId });
-      }
-    }
+  if (input.timestamps) {
+    parts = timestampedChunks(input.timestamps);
+    if (parts.length === 0) throw new Error(`unreadable timestamp sidecar: ${job.timestampsKey}`);
   } else if (sourceMode === "uncut") {
     const inline = extractTimestampLines(text);
     if (inline.length >= 3) parts = timestampedChunks(inline);
@@ -238,6 +249,8 @@ async function ingest(job: TranscriptJob, env: Env) {
         source,
         start: part.start ?? null,
         timestamped: part.start != null,
+        timestamp_origin: part.timestampOrigin ?? null,
+        timestamp_confidence: part.timestampConfidence ?? null,
         source_mode: sourceMode,
       },
     })));

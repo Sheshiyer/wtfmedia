@@ -38,10 +38,10 @@ test("editor can open production chrome and administration pages", async ({ page
   const toggle = page.locator("[data-navigation-toggle]");
   await expect(toggle).toBeVisible();
   await toggle.click();
-  const operations = page.getByRole("navigation", { name: "Operations", exact: true });
-  await expect(operations.getByRole("link", { name: "production", exact: true })).toBeVisible();
-  await expect(operations.getByRole("link", { name: "settings", exact: true })).toBeVisible();
-  await expect(operations.getByRole("link", { name: "operators", exact: true })).toHaveCount(0);
-  await expect(operations.getByRole("link", { name: "ingest", exact: true })).toHaveCount(0);
-  await expect(operations.getByRole("link", { name: "audit", exact: true })).toHaveCount(0);
+  const application = page.getByRole("navigation", { name: "Application", exact: true });
+  await expect(application.getByRole("link", { name: "production", exact: true })).toBeVisible();
+  await expect(application.getByRole("link", { name: "settings", exact: true })).toBeVisible();
+  await expect(application.getByRole("link", { name: "operators", exact: true })).toHaveCount(0);
+  await expect(application.getByRole("link", { name: "ingest", exact: true })).toHaveCount(0);
+  await expect(application.getByRole("link", { name: "audit", exact: true })).toHaveCount(0);
 });

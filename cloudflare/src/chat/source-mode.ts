@@ -4,6 +4,7 @@ export type StoredSourceMode = Exclude<SourceMode, "both">;
 
 export const MAPPING_STATUSES = ["mapped", "unmapped", "unavailable", "conflicted"] as const;
 export type MappingStatus = (typeof MAPPING_STATUSES)[number];
+export type TimestampOrigin = "source_native" | "published_alignment";
 
 export type VectorMatchLike = {
   id?: unknown;
@@ -24,7 +25,11 @@ export type DualSourceCitation = {
   start: number | null;
   timestamped: boolean;
   mappingStatus: MappingStatus;
+  timestampOrigin: TimestampOrigin | null;
+  timestampConfidence: number | null;
 };
+
+const MIN_ESTIMATED_TIMESTAMP_CONFIDENCE = 0.8;
 
 function youtubeWatchUrl(videoId: string, start: number | null): string {
   const base = `https://www.youtube.com/watch?v=${videoId}`;
@@ -102,6 +107,31 @@ function nonNegativeNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
 }
 
+function unitIntervalNumber(value: unknown): number | null {
+  const number = nonNegativeNumber(value);
+  return number != null && number <= 1 ? number : null;
+}
+
+function timestampProvenance(
+  metadata: Record<string, unknown>,
+  start: number | null,
+  sameMode: boolean,
+): { origin: TimestampOrigin; confidence: number } | null {
+  if (!sameMode || start == null || metadata.timestamped !== true) return null;
+  const rawOrigin = metadata.timestamp_origin ?? metadata.timestampOrigin;
+  const rawConfidence = metadata.timestamp_confidence ?? metadata.timestampConfidence;
+  if (rawOrigin == null) {
+    return { origin: "source_native", confidence: 1 };
+  }
+  if (rawOrigin !== "source_native" && rawOrigin !== "published_alignment") return null;
+  const confidence = rawConfidence == null ? 1 : unitIntervalNumber(rawConfidence);
+  if (confidence == null) return null;
+  if (rawOrigin === "published_alignment" && confidence < MIN_ESTIMATED_TIMESTAMP_CONFIDENCE) {
+    return null;
+  }
+  return { origin: rawOrigin, confidence };
+}
+
 function text(value: unknown, fallback = ""): string {
   return typeof value === "string" && value.trim().length > 0 ? value : fallback;
 }
@@ -135,9 +165,11 @@ export function projectDualSourceCitation(
     match.id,
     typeof chunk === "number" ? `${videoId}:${chunk}` : `${videoId}:${index}`,
   );
-  const start = nonNegativeNumber(metadata.start);
+  const rawStart = nonNegativeNumber(metadata.start);
   const sameMode = requested === "both" || stored === requested;
-  const timestamped = metadata.timestamped === true && sameMode && start != null;
+  const provenance = timestampProvenance(metadata, rawStart, sameMode);
+  const start = provenance ? rawStart : null;
+  const timestamped = provenance != null;
   const mappingStatus: MappingStatus = !sameMode
     ? "unavailable"
     : start == null
@@ -158,6 +190,8 @@ export function projectDualSourceCitation(
     start: timestamped ? start : null,
     timestamped,
     mappingStatus,
+    timestampOrigin: provenance?.origin ?? null,
+    timestampConfidence: provenance?.confidence ?? null,
   };
 }
 

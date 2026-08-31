@@ -275,6 +275,31 @@ describe("POST /api/chat — successful upstream answer", () => {
     expect(res.status).toBe(200);
     expect(decodeURIComponent(res.headers.get("X-Sources")!)).toBe("[]");
   });
+
+  it("preserves estimated uncut timestamp provenance in the public source header", async () => {
+    const { POST } = await importRoute();
+    const res = await POST(chatRequest({
+      messages: [userMessage(triggerQuestion("estimated-uncut"))],
+      sourceMode: "uncut",
+    }));
+
+    expect(res.headers.get("X-Uncut-Unavailable")).toBe("false");
+    expect(JSON.parse(decodeURIComponent(res.headers.get("X-Sources")!))).toEqual([
+      {
+        n: 1,
+        video_id: "RSB58m7Xwhg",
+        title: "Uncut source",
+        score: 0.91,
+        t: 125,
+        time: "02:05",
+        source_mode: "uncut",
+        mapping_status: "mapped",
+        timestamp_origin: "published_alignment",
+        timestamp_confidence: 0.86,
+        segment_id: "uncut:asset-hash:0",
+      },
+    ]);
+  });
 });
 
 describe("POST /api/chat — approved local development fallback", () => {

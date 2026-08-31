@@ -4,10 +4,10 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: plan
-progress: 39/155
+progress: 53/171
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-01T00:00:00+05:30
+updated: 2026-09-01T02:55:58+05:30
 ---
 
 ## Problem
@@ -262,6 +262,25 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-154: The cutover plan uses an initial bulk copy followed by owner-authorized source quiesce, queue settlement, and a final R2/KV/Vectorize delta from a recorded high-water state (probe: ordered migration-step assertion).
 - [x] ISC-155: Rollback names the verified source Worker emergency URL, restores any quiesced source settings, and explicitly states that current no-apex recovery is not same-host continuity (probe: HTTP read plus rollback-contract assertion).
 
+### Ask WTF source-drawer hotfix
+
+- [x] ISC-156: Returned uncut citations render with an `uncut` source label (probe: component behavior test).
+- [x] ISC-157: The source summary omits `uncut unavailable` when any returned citation is uncut (probe: component behavior test).
+- [x] ISC-158: Published citations render the API-provided timestamp when `t` is finite (probe: component behavior test).
+- [x] ISC-159: `timestamp unavailable` renders only when a citation has no finite timestamp (probe: component behavior test).
+- [x] ISC-160: Published source links retain readable text against their background (probe: browser contrast and computed-style check).
+- [x] ISC-161: Uncut citations never inherit a YouTube destination from their mapped episode (probe: source-link contract test).
+- [x] ISC-162: Expanded source drawers do not overlap answer text at desktop width (probe: browser bounding-box assertion).
+- [DEFERRED-VERIFY] ISC-163: Header wordmark and single top application disclosure do not overlap workspace content at desktop width (probe: owner browser bounding-box assertion; follow-up: owner visual acceptance after branch push).
+- [DEFERRED-VERIFY] ISC-164: Conversation content and the repositioned composer remain non-overlapping at mobile width after the bottom navigation pill is removed (probe: owner browser bounding-box assertion; follow-up: owner visual acceptance after branch push).
+- [x] ISC-165: Anti: the hotfix performs no edge, corpus, vector, database, ingest, auth, DNS, or secret mutation (probe: Git path classification plus deployment ledger).
+- [x] ISC-166: The repaired Ask WTF flow produces no uncaught browser error or failed application request (probe: in-app browser console and network diagnostics).
+- [x] ISC-167: Uncut citations prefer a finite source-native Frame.io transcript timestamp when that timestamp can be retrieved and reconciled to the approved source asset (probe: timestamp-sidecar provenance fixture plus retrieval contract).
+- [x] ISC-168: When source-native timing is unavailable, published-to-uncut transcript alignment may expose only a clearly approximate uncut timestamp with an explicit confidence score (probe: deterministic alignment fixtures plus citation-presentation test).
+- [x] ISC-169: Approximate uncut timestamps below the accepted confidence threshold fail closed as `timestamp unavailable`, and published YouTube coordinates are never relabeled as exact uncut coordinates (probe: low-confidence and cross-mode anti-regression tests).
+- [x] ISC-170: The authoritative `X-Uncut-Unavailable` response header controls the unavailable state; returned uncut evidence and unavailable messaging cannot appear simultaneously (probe: response-header and component behavior tests).
+- [x] ISC-171: Anti: public or committed alignment artifacts contain only approved aggregate timing, confidence, identifiers, and hashes; transcript text is permitted only in external chmod-0600 private sidecars, while Frame.io URLs, signed stream URLs, cookies, tokens, and credentials remain outside Git (probe: fixture-schema, permission, path-boundary, and privacy scans).
+
 ## Test Strategy
 
 | ISC range | Type | Check | Threshold | Tool |
@@ -280,6 +299,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-135..140 | client scope reconciliation | delivery tracks, blockers, stable requirement ownership, and preserved Phase 1 plans remain explicit | 100% document and Git probes | Markdown parser + coverage script + Git hashes |
 | ISC-141..144 | architecture evidence | current topology, Phase 1 Access exemption, deterministic regeneration, and no false live claim remain explicit | all source/check probes pass | generator + static HTML assertions + CI workflow parse |
 | ISC-145..155 | Cloudflare estate | profile topology, paginated source resources, target gaps, action boundaries, final-delta consistency, exact rollback, and no-mutation posture are explicit | all live read-only and document probes pass | Wrangler/API lists + public DNS/HTTP + bounded scans |
+| ISC-156..171 | Ask WTF source drawer | returned mode/timestamp truth, exact-or-approximate uncut provenance, readable controls, and non-overlapping responsive layout remain intact | all behavior, alignment, privacy, bounding-box, contrast, console, and network probes pass | unit/contracts + alignment fixtures + in-app browser screenshots and diagnostics |
 
 ## Features
 
@@ -361,6 +381,12 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
   satisfies: [ISC-145, ISC-146, ISC-147, ISC-148, ISC-149, ISC-150, ISC-151, ISC-152, ISC-153, ISC-154, ISC-155]
   depends_on: [ProjectGovernanceSpine, ArchitectureEvidenceLedger]
   parallelizable: false
+
+- name: AskWTFSourceDrawerHotfix
+  description: Preserve returned citation mode and exact-or-approximate timing provenance while repairing source-drawer, header, and composer layout defects
+  satisfies: [ISC-156, ISC-157, ISC-158, ISC-159, ISC-160, ISC-161, ISC-162, ISC-163, ISC-164, ISC-165, ISC-166, ISC-167, ISC-168, ISC-169, ISC-170, ISC-171]
+  depends_on: [EvidenceNativeKnowledge, QualityAndSafetyGates]
+  parallelizable: false
 ```
 
 ## Architecture
@@ -427,6 +453,8 @@ _Last refreshed: 2026-08-29T10:11:39.123Z_
 - 2026-08-30 16:30 IST: Independent audit tightened cutover consistency: bulk copy is followed by a separately authorized source ingress/producer quiesce, queue settlement, and final R2/KV/Vectorize delta. Rollback uses the verified source Workers.dev endpoint while restoring quiesced settings; absent a separately rehearsed route, removing the target Custom Domain returns `wtfhq.in` to its pre-cutover no-apex state and is not same-host continuity.
 - 2026-08-30 16:22 IST: ❌ DEAD END: The required Advisor review was attempted after live reconciliation but the local Advisor OAuth session remains expired. It was not repaired or substituted with a false success; direct Cloudflare receipts and the ISA completeness/independent audit govern this checkpoint.
 - 2026-09-01 00:00 IST: refined: The owner-approved episode-scoped production receipt is now the latest runtime evidence. Published, approved mapped uncut, and combined Ask WTF retrieval are live with `episodeId`/`video_id` scope; 55/55 published and 49/49 mapped uncut receipts reconcile across KV and Vectorize reports 11,948 vectors. This is a bounded release slice, not completion of the full provenance/search phases; trusted timeline alignment, synchronized uncut playback, and evaluation gates remain open.
+- 2026-09-01 01:53 IST: refined: The client requires useful uncut navigation even when a source-native timecode is temporarily absent. The hotfix therefore prefers reconciled Frame.io transcript timecodes and permits confidence-scored published-to-uncut alignment only as an explicitly approximate fallback; low-confidence results remain unavailable, and no published coordinate may masquerade as exact uncut time.
+- 2026-09-01 02:56 IST: refined: Query mode `both` is not citation provenance. Each returned citation must prove `published` or `uncut` from its own metadata or a safe direct reference; unknown per-citation mode is dropped. Private sidecars are transcript- and episode-bound, strictly validated again by the Worker, and cannot replace the verified transcript corpus.
 
 ## Changelog
 
@@ -466,6 +494,10 @@ _Last refreshed: 2026-08-29T10:11:39.123Z_
   refuted by: the production receipt and focused source-mode proofs show an optional public `episodeId` scope, pre-`topK` `video_id` filtering, source-aware citations, truthful unmapped behavior, and separate published/uncut locators
   learned: the completed slice can be carried as additive evidence over the existing public route and API while the full provenance, alignment, playback, search-evaluation, and analytics criteria remain pending
   criterion now: ISC-88 has release evidence for episode-scoped retrieval, while no broader ISC is marked complete without its own acceptance probe
+- 2026-09-01 | conjectured: the source-drawer defect could be closed by rendering current uncut citations more accurately without changing timing data
+  refuted by: live uncut responses return `t: null` for every citation, while approved Frame.io shares expose source-native transcript clocks and the repository already owns a confidence-aware piecewise timeline engine
+  learned: timestamp usefulness needs a provenance ladder: reconciled source-native time first, clearly approximate published-to-uncut alignment second, and an unavailable state below the confidence gate
+  criterion now: ISC-167 through ISC-171 bind native timing, estimated timing, confidence failure, authoritative availability, and private-data exclusion to executable probes
 
 ## Verification
 
@@ -520,3 +552,7 @@ _Last refreshed: 2026-08-29T10:11:39.123Z_
 - ISC-155 evidence: direct HTTP reads returned 200 for the source web Worker emergency URL and edge health. The rollback contract names the web URL, restores quiesced source settings, removes the target Custom Domain to recover the pre-cutover no-apex state, and blocks cutover unless that outage model is accepted or a same-host route is rehearsed.
 - Episode-scoped production receipt (2026-08-31): final web version `90099f42-13b6-4a4e-8d97-bd93b9f953fa` and edge version `75b96e1f-6fa6-4182-bbdd-99047399de64` passed live home, episodes, mapped-detail, and mapped `published`/`uncut`/`both` chat probes. KV membership was 55/55 published plus 49/49 mapped uncut; Vectorize reported 11,948 vectors with `source_mode` and `video_id` indexes; queue backlog was 0 and DLQ returned to baseline 18. The first web bundle's HTTP 500 was rolled back, the corrected preview passed, and no auth, DNS, secret, or unrelated UI boundary changed.
 - Episode-scope contract proof: focused Cloudflare source-mode tests pass for public YouTube ID validation, pre-`topK` `video_id` filtering, stale-match rejection, unmapped-episode truthfulness, mixed-source citation identity, and the rule that uncut citations never inherit YouTube timestamps. Trusted cross-timeline alignment and synchronized playback remain unverified by design.
+- ISC-156 through ISC-170 evidence: 83/83 web unit tests, 86/86 contracts, and 101/101 Storybook component tests pass; deterministic source-panel tests preserve published/uncut per-citation truth, render finite published clocks and confidence-labelled approximate uncut clocks, reject low confidence, and obey the authoritative unavailable header. Previous in-app browser probes measured zero drawer/composer overlap, no horizontal overflow, readable semantic colors, and zero console or application-request failures. ISC-163 and ISC-164 remain deferred for owner visual acceptance of the newly consolidated top navigation and removed bottom pill.
+- ISC-167 through ISC-169 evidence: source-native clock fixtures preserve exact provenance and untimed inserts; published-to-uncut anchors calibrate speech rate, account for inserted/removed words, remain monotonic, and never label projected time exact. The 49-job approved activation inventory produced 38 private sidecars with 4,021 chunks, 1,955 confidence-qualified estimates, 2,066 unavailable chunks, 48.6197% estimated coverage, and zero monotonic violations.
+- ISC-165 and ISC-171 evidence: the upload/enqueue preflight remained dry-run and planned 49/49 mapped jobs, 38 with bound sidecars, three unrelated directory rows skipped, and zero issues. Sidecars are atomically written outside the repository under 0700/0600 permissions with symlink/realpath refusal, cryptographically bound to source bytes and episode identity, strictly revalidated by the Worker, and excluded from public receipts; the bounded privacy scan reported zero violations across 281 files.
+- Hotfix build evidence: Cloudflare passed 168/168 tests and a Wrangler dry-run bundle at 159.65 KiB; web lint, typecheck, 83/83 unit tests, 86/86 contracts, Next production build, and OpenNext build passed. The deterministic architecture freshness check covers the complete staged hotfix input set.

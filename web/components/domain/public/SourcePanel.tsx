@@ -1,43 +1,51 @@
 /**
  * Public source citations for Ask WTF.
  *
- * Public citations can deep-link to a published YouTube moment. Uncut playback
- * is intentionally shown as unavailable until a trusted Worker projection
- * provides a signed asset link and verified timeline alignment.
+ * Published citations can deep-link to a YouTube source when the citation
+ * carries public video identity. Uncut citations remain evidence-only unless a
+ * trusted Worker projection supplies a signed asset link.
  */
 
 "use client";
 
 import { useId } from "react";
 import Link from "next/link";
-import { resolveCitation } from "@/lib/provenance/catalog-mapping";
 import type { PublicSourceCitation } from "@/lib/provenance/public-source-header";
-import { formatPlaybackTimestamp } from "@/lib/provenance/useDualPlayback";
+import { getSourcePanelPresentation } from "@/lib/provenance/source-panel-presentation";
 
 export type SourceCitation = PublicSourceCitation;
 
 export interface SourcePanelProps {
   sources: SourceCitation[];
+  uncutUnavailable?: boolean;
 }
 
-function youtubeWatchUrl(videoId: string, timeSec: number | null): string {
-  if (timeSec === null) {
-    return `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
-  }
-  const timestamp = Math.max(0, Math.floor(timeSec));
-  return `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&t=${timestamp}s`;
-}
-
-export function SourcePanel({ sources }: SourcePanelProps) {
+export function SourcePanel({ sources, uncutUnavailable = false }: SourcePanelProps) {
   const citationPlaybackTitleId = useId();
-  const uncutPlaybackStatusId = useId();
+  const citationStatusId = useId();
 
   if (!sources || sources.length === 0) return null;
+  const presentation = getSourcePanelPresentation(sources, { uncutUnavailable });
 
   return (
     <details
-      className="rounded-control border-2 border-foreground bg-canvas p-3 text-xs text-secondary shadow-[4px_4px_0_var(--wtf-foreground)]"
+      className="scroll-mt-20 rounded-control border-2 border-foreground bg-canvas p-3 text-xs text-secondary shadow-[4px_4px_0_var(--wtf-foreground)]"
       data-testid="source-panel"
+      onToggle={(event) => {
+        const panel = event.currentTarget;
+        if (!panel.open) return;
+        requestAnimationFrame(() => {
+          const composer = document.querySelector<HTMLElement>('[data-testid="ask-composer"]');
+          if (!composer || panel.getBoundingClientRect().bottom <= composer.getBoundingClientRect().top - 8) {
+            return;
+          }
+          const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          panel.scrollIntoView({
+            block: "start",
+            behavior: reducedMotion ? "auto" : "smooth",
+          });
+        });
+      }}
     >
       <summary className="flex cursor-pointer select-none items-center justify-between gap-3 font-label font-bold lowercase text-foreground transition-colors hover:text-foreground">
         <span className="flex items-center gap-1.5">
@@ -59,80 +67,63 @@ export function SourcePanel({ sources }: SourcePanelProps) {
               <p id={citationPlaybackTitleId} className="font-label text-[10px] font-bold uppercase tracking-[0.08em] text-secondary">
                 sources
               </p>
-              <p id={uncutPlaybackStatusId} className="mt-0.5 text-[11px] text-muted">
-                {sources.some((source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped")
-                  ? "uncut timestamps come from the response. no published time was converted."
-                  : "published moments are available. uncut stays unavailable until a mapped uncut source is returned."}
+              <p id={citationStatusId} className="mt-0.5 text-[11px] text-muted">
+                {presentation.status}
               </p>
             </div>
-            <div className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5">
-              <span className="rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention">
-                {sources[0]?.sourceMode === "uncut" ? "uncut" : "published"}
-              </span>
-              <button
-                type="button"
-                disabled
-                aria-describedby={uncutPlaybackStatusId}
-                className="cursor-not-allowed rounded px-2.5 py-1 text-[11px] text-muted opacity-70"
-              >
-                {sources[0]?.sourceMode === "uncut" && sources[0]?.mappingStatus === "mapped"
-                  ? "uncut"
-                  : "uncut unavailable"}
-              </button>
-            </div>
+            {presentation.modes.length > 0 ? (
+              <div className="flex flex-wrap gap-2" aria-describedby={citationStatusId}>
+                {presentation.modes.map((mode) => (
+                  <span
+                    key={mode}
+                    className="rounded border border-foreground/20 bg-surface-subtle px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-foreground"
+                  >
+                    {mode}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
         </section>
 
         <ul className="space-y-2.5 pl-1">
-          {sources.map((source, index) => {
-            const resolved = resolveCitation({
-              ...source,
-              requestedMode: source.sourceMode ?? "published",
-            });
-            const videoId = resolved.youtubeVideoId;
-            const label = source.title || source.episodeId || "WTF episode";
-            const episodeHref = source.episodeId
-              ? `/episodes?id=${encodeURIComponent(source.episodeId)}`
-              : null;
-            const publishedHref = videoId
-              ? youtubeWatchUrl(videoId, resolved.activeTimeSec)
-              : null;
-
+          {presentation.citations.map((citation, index) => {
             return (
               <li
-                key={`${source.episodeId ?? source.videoId ?? source.url ?? "source"}-${index}`}
+                key={`${citation.key}-${index}`}
                 className="space-y-1.5 rounded border border-foreground/10 bg-canvas/40 p-2 transition-colors hover:bg-canvas/70"
               >
                 <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <div className="flex min-w-0 flex-1 items-center gap-1.5">
                     <span className="font-mono text-[10px] font-bold text-attention">[{index + 1}]</span>
-                    {episodeHref ? (
+                    {citation.episodeHref ? (
                       <Link
-                        href={episodeHref}
+                        href={citation.episodeHref}
                         className="truncate font-medium text-foreground underline decoration-foreground/30 hover:decoration-foreground"
                       >
-                        {label}
+                        {citation.label}
                       </Link>
                     ) : (
-                      <span className="truncate font-medium text-foreground">{label}</span>
+                      <span className="truncate font-medium text-foreground">{citation.label}</span>
                     )}
                   </div>
+                  <span className="rounded border border-foreground/15 bg-surface-subtle px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-secondary">
+                    {citation.mode}
+                  </span>
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-secondary">
                   <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
-                    {resolved.activeTimeSec === null
-                      ? "timestamp unavailable"
-                      : `published ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
+                    {citation.timestampLabel}
                   </span>
-                  {publishedHref ? (
+                  {citation.href && citation.linkLabel ? (
                     <a
-                      href={publishedHref}
+                      href={citation.href}
                       target="_blank"
                       rel="noreferrer"
                       className="rounded bg-surface-structure px-2 py-0.5 text-[10px] text-on-structure hover:opacity-90"
                     >
-                      open published moment
+                      {citation.linkLabel}
                     </a>
                   ) : null}
                 </div>

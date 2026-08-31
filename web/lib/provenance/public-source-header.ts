@@ -9,6 +9,9 @@
 
 import { isMappingStatus, parseSourceMode, type MappingStatus, type SourceMode } from "./source-mode";
 
+export const TIMESTAMP_ORIGINS = ["source_native", "published_alignment"] as const;
+export type TimestampOrigin = (typeof TIMESTAMP_ORIGINS)[number];
+
 export interface PublicSourceCitation {
   episodeId?: string;
   videoId?: string;
@@ -18,6 +21,8 @@ export interface PublicSourceCitation {
   timeSec?: number;
   sourceMode?: SourceMode;
   mappingStatus?: MappingStatus;
+  timestampOrigin?: TimestampOrigin;
+  timestampConfidence?: number;
   segmentId?: string;
 }
 
@@ -38,6 +43,15 @@ function nonNegativeNumber(value: unknown): number | undefined {
   }
 
   return undefined;
+}
+
+function unitIntervalNumber(value: unknown): number | undefined {
+  const number = nonNegativeNumber(value);
+  return number !== undefined && number <= 1 ? number : undefined;
+}
+
+function timestampOrigin(value: unknown): TimestampOrigin | undefined {
+  return value === "source_native" || value === "published_alignment" ? value : undefined;
 }
 
 function parseHeaderJson(header: string): unknown {
@@ -80,6 +94,8 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
     : isMappingStatus(raw.mapping_status)
       ? raw.mapping_status
       : undefined;
+  const origin = timestampOrigin(raw.timestampOrigin ?? raw.timestamp_origin);
+  const confidence = unitIntervalNumber(raw.timestampConfidence ?? raw.timestamp_confidence);
   const segmentId = textField(raw.segmentId ?? raw.segment_id);
 
   if (episodeId) source.episodeId = episodeId;
@@ -90,6 +106,8 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
   if (timeSec !== undefined) source.timeSec = timeSec;
   if (raw.sourceMode != null || raw.source_mode != null) source.sourceMode = sourceMode;
   if (mappingStatus) source.mappingStatus = mappingStatus;
+  if (origin) source.timestampOrigin = origin;
+  if (confidence !== undefined) source.timestampConfidence = confidence;
   if (segmentId) source.segmentId = segmentId;
 
   return Object.keys(source).length > 0 ? source : null;

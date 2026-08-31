@@ -93,7 +93,13 @@ export function resolveCatalogueJobIdentity(
 }
 
 export function validateCatalogueJobBatch(
-  jobs: readonly { videoId?: unknown; transcriptKey?: unknown; sourceMode?: unknown; sourceAssetId?: unknown }[],
+  jobs: readonly {
+    videoId?: unknown;
+    transcriptKey?: unknown;
+    timestampsKey?: unknown;
+    sourceMode?: unknown;
+    sourceAssetId?: unknown;
+  }[],
 ): string | null {
   const uncutVideoIds = new Set<string>();
   const uncutSourceAssetIds = new Set<string>();
@@ -106,6 +112,16 @@ export function validateCatalogueJobBatch(
       job.sourceAssetId,
     );
     if (!identity) return sourceMode === "uncut" ? "invalid_uncut_identity" : "invalid_published_identity";
+    if (job.timestampsKey != null) {
+      const expectedTimestampsKey = sourceMode === "uncut"
+        ? uncutTimestampsKey(identity.sourceAssetId)
+        : publishedTimestampsKey(identity.publicVideoId);
+      if (job.timestampsKey !== expectedTimestampsKey) {
+        return sourceMode === "uncut"
+          ? "invalid_uncut_timestamps_identity"
+          : "invalid_published_timestamps_identity";
+      }
+    }
     if (sourceMode !== "uncut") continue;
     if (uncutVideoIds.has(identity.publicVideoId)) return "duplicate_uncut_video_id";
     if (uncutSourceAssetIds.has(identity.sourceAssetId)) return "duplicate_uncut_source_asset";

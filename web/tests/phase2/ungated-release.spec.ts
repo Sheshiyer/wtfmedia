@@ -21,11 +21,11 @@ async function openCurrentNav(page: Page) {
   const toggle = page.locator("[data-navigation-toggle]:visible").first();
   await expect(toggle).toBeVisible();
   if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
-  await expect(page.locator('nav[aria-label="Operations"]:visible').first()).toBeVisible();
+  await expect(page.locator('nav[aria-label="Application"]:visible').first()).toBeVisible();
 }
 
 function currentNavigation(page: Page) {
-  return page.locator(".wtf-bottom-pill, nav[aria-label='Operations']");
+  return page.locator("nav[aria-label='Application']");
 }
 
 function railLink(page: Page, label: string) {

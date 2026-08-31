@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AskComposer } from "./AskComposer";
 import { ConversationThread, type Message, type Source } from "./ConversationThread";
+import { applyResponseSourceMode } from "@/lib/provenance/source-panel-presentation";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
 import { parsePublicSourceHeader } from "@/lib/provenance/public-source-header";
 import { parseSourceMode, type SourceMode } from "@/lib/provenance/source-mode";
@@ -65,11 +66,13 @@ function ChatInner() {
       const sourcesHeader = response.headers.get("X-Sources");
       const modelHeader = response.headers.get("X-Model");
       const fallbackHeader = response.headers.get("X-Fallback");
+      const uncutUnavailableHeader = response.headers.get("X-Uncut-Unavailable");
+      const responseSourceMode = parseSourceMode(response.headers.get("X-Source-Mode"));
 
-      const sources: Source[] = parsePublicSourceHeader(sourcesHeader).map((source) => ({
-        ...source,
-        sourceMode: parseSourceMode(response.headers.get("X-Source-Mode") ?? source.sourceMode),
-      }));
+      const sources: Source[] = applyResponseSourceMode(
+        parsePublicSourceHeader(sourcesHeader),
+        responseSourceMode,
+      );
 
       // Stream the response body
       const reader = response.body?.getReader();
@@ -86,6 +89,7 @@ function ChatInner() {
             sources,
             model: modelHeader || undefined,
             fallback: fallbackHeader === "true",
+            uncutUnavailable: uncutUnavailableHeader === "true",
           },
         ]);
 
@@ -120,7 +124,8 @@ function ChatInner() {
           return updated;
         });
       }
-    } catch {
+    } catch (error) {
+      console.error("Ask WTF request failed", error);
       setMessages((prev) => [
         ...prev,
         {

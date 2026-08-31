@@ -165,6 +165,55 @@ describe("dual-source chat contract", () => {
     assert.equal(citation?.timestamped, true);
   });
 
+  test("projects confidence-labelled estimated uncut timestamps and rejects low confidence", () => {
+    const strong = projectDualSourceCitation(
+      {
+        id: "uncut:estimated:0",
+        score: 0.91,
+        metadata: {
+          video_id: "RSB58m7Xwhg",
+          source_asset_id: "private-asset-a",
+          title: "Estimated uncut source",
+          start: 125,
+          timestamped: true,
+          timestamp_origin: "published_alignment",
+          timestamp_confidence: 0.86,
+          source_mode: "uncut",
+        },
+      },
+      "uncut",
+      0,
+    );
+    assert.equal(strong?.start, 125);
+    assert.equal(strong?.timestamped, true);
+    assert.equal(strong?.timestampOrigin, "published_alignment");
+    assert.equal(strong?.timestampConfidence, 0.86);
+
+    const weak = projectDualSourceCitation(
+      {
+        id: "uncut:estimated:1",
+        score: 0.91,
+        metadata: {
+          video_id: "RSB58m7Xwhg",
+          source_asset_id: "private-asset-a",
+          title: "Weak estimated uncut source",
+          start: 125,
+          timestamped: true,
+          timestamp_origin: "published_alignment",
+          timestamp_confidence: 0.79,
+          source_mode: "uncut",
+        },
+      },
+      "uncut",
+      0,
+    );
+    assert.equal(weak?.start, null);
+    assert.equal(weak?.timestamped, false);
+    assert.equal(weak?.mappingStatus, "unmapped");
+    assert.equal(weak?.timestampOrigin, null);
+    assert.equal(weak?.timestampConfidence, null);
+  });
+
   test("uncut citations fail closed without an opaque source identity", () => {
     assert.equal(projectDualSourceCitation({
       id: "uncut:bad:0",

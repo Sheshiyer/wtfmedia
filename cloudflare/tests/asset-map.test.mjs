@@ -67,6 +67,7 @@ describe("catalogue asset map", () => {
       videoId: "FPV5fAkqyBs",
       sourceAssetId: "f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293",
       transcriptKey: "uncut/f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293.txt",
+      timestampsKey: "uncut/f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293.timestamps.json",
       sourceMode: "uncut",
     };
     assert.equal(validateCatalogueJobBatch([valid]), null);
@@ -74,6 +75,10 @@ describe("catalogue asset map", () => {
     assert.equal(
       validateCatalogueJobBatch([{ ...valid, sourceAssetId: "a".repeat(64) }]),
       "invalid_uncut_identity",
+    );
+    assert.equal(
+      validateCatalogueJobBatch([{ ...valid, timestampsKey: `uncut/${"a".repeat(64)}.timestamps.json` }]),
+      "invalid_uncut_timestamps_identity",
     );
   });
 

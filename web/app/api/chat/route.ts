@@ -28,6 +28,8 @@ type EdgeSource = {
   timestamped: boolean;
   sourceMode?: SourceMode;
   mappingStatus?: "mapped" | "unmapped" | "unavailable" | "conflicted";
+  timestampOrigin?: "source_native" | "published_alignment";
+  timestampConfidence?: number;
   segmentId?: string;
 };
 
@@ -51,6 +53,16 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
         ? source.url
         : `uncut:${source.videoId}`)
       : source.url;
+    const timestampOrigin = source.timestampOrigin === "source_native"
+      || source.timestampOrigin === "published_alignment"
+      ? source.timestampOrigin
+      : undefined;
+    const timestampConfidence = typeof source.timestampConfidence === "number"
+      && Number.isFinite(source.timestampConfidence)
+      && source.timestampConfidence >= 0
+      && source.timestampConfidence <= 1
+      ? source.timestampConfidence
+      : undefined;
     return {
       n: source.n,
       video_id: source.videoId,
@@ -61,6 +73,8 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
       url: mode === "uncut" ? undefined : direct,
       source_mode: mode,
       mapping_status: source.mappingStatus ?? (start == null ? "unmapped" : "mapped"),
+      timestamp_origin: timestampOrigin,
+      timestamp_confidence: timestampConfidence,
       segment_id: source.segmentId ?? (mode === "uncut" ? `uncut:${source.videoId}` : null),
     };
   }));

@@ -80,43 +80,88 @@ test.describe("Public shell journey", () => {
   test("keyboard tab order reaches nav links", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    // Tab order: skip link -> header wordmark -> operations toggle -> application link.
+    // Tab order: skip link -> header wordmark -> application toggle.
     await page.keyboard.press("Tab"); // skip link
     await page.keyboard.press("Tab"); // header wordmark
-    await page.keyboard.press("Tab"); // operations toggle
-    await page.keyboard.press("Tab"); // first application link
+    await page.keyboard.press("Tab"); // application toggle
+    await page.keyboard.press("Enter");
 
-    const focused = page.locator(":focus");
-    const tag = await focused.evaluate((el) => el.tagName.toLowerCase());
-    expect(tag).toBe("a");
-
-    // Should be within the nav
-    const inNav = await page.locator('nav[aria-label="Application"] :focus').count();
-    expect(inNav).toBeGreaterThan(0);
+    await expect(page.locator('nav[aria-label="Application"] a').first()).toBeFocused();
   });
 
-  test("operations disclosure exposes a labelled relationship and restores focus", async ({ page }) => {
+  test("application disclosure exposes a labelled relationship and restores focus", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     const toggle = page.locator("[data-navigation-toggle]");
-    const operations = page.locator('nav[aria-label="Operations"]');
-    await expect(toggle).toHaveAttribute("aria-controls", "wtf-operations-navigation");
+    const navigation = page.locator('nav[aria-label="Application"]');
+    await expect(toggle).toHaveAttribute("aria-controls", "wtf-application-navigation");
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
-    await expect(operations).toBeHidden();
+    await expect(navigation).toBeHidden();
 
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
-    await expect(operations).toBeVisible();
-    await expect(operations.getByRole("link").first()).toBeFocused();
+    await expect(navigation).toBeVisible();
+    await expect(navigation.getByRole("link").first()).toBeFocused();
 
     await page.keyboard.press("Escape");
-    await expect(operations).toBeHidden();
+    await expect(navigation).toBeHidden();
     await expect(toggle).toBeFocused();
 
     await toggle.click();
-    await expect(operations).toBeVisible();
+    await expect(navigation).toBeVisible();
     await page.mouse.click(8, 300);
-    await expect(operations).toBeHidden();
+    await expect(navigation).toBeHidden();
+  });
+
+  test("floating logo and menu reserve an opaque safe area above workspace content", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/chat", { waitUntil: "domcontentloaded" });
+
+    const metrics = await page.evaluate(() => {
+      const rail = document.querySelector<HTMLElement>("[data-top-app-rail]");
+      const main = document.querySelector<HTMLElement>("#wtf-main");
+      if (!rail || !main) throw new Error("shell rail unavailable");
+      const railRect = rail.getBoundingClientRect();
+      const mainRect = main.getBoundingClientRect();
+      const background = getComputedStyle(rail).backgroundColor;
+      const alphaMatch = background.match(/rgba?\([^)]*[,\s/]\s*([\d.]+)\s*\)$/);
+      const alpha = background.startsWith("rgba")
+        ? Number(alphaMatch?.[1] ?? 0)
+        : background === "transparent"
+          ? 0
+          : 1;
+      return {
+        railBottom: railRect.bottom,
+        mainTop: mainRect.top,
+        backgroundAlpha: alpha,
+      };
+    });
+
+    expect(metrics.mainTop).toBeGreaterThanOrEqual(metrics.railBottom);
+    expect(metrics.backgroundAlpha).toBeGreaterThanOrEqual(0.9);
+  });
+
+  test("top disclosure is the only application navigation surface", async ({ page }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    await expect(page.locator(".wtf-bottom-pill")).toHaveCount(0);
+    const toggle = page.getByRole("button", { name: "Open application navigation" });
+    await toggle.click();
+
+    const navigation = page.getByRole("navigation", { name: "Application", exact: true });
+    await expect(navigation).toBeVisible();
+    for (const label of [
+      "the room",
+      "episodes",
+      "connections",
+      "ask wtf",
+      "control room",
+      "production",
+      "episode map",
+      "settings",
+    ]) {
+      await expect(navigation.getByRole("link", { name: label, exact: true })).toBeVisible();
+    }
   });
 
   for (const route of ROUTES) {
@@ -142,13 +187,13 @@ test.describe("Public shell journey", () => {
   test("focus-visible indicators on nav links", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    // Tab through the header controls to an application link
+    // Tab through the header controls, then open the application menu.
     await page.keyboard.press("Tab"); // skip link
     await page.keyboard.press("Tab"); // wordmark
-    await page.keyboard.press("Tab"); // operations toggle
-    await page.keyboard.press("Tab"); // first nav link
+    await page.keyboard.press("Tab"); // application toggle
+    await page.keyboard.press("Enter");
 
-    const focused = page.locator(":focus");
+    const focused = page.locator('nav[aria-label="Application"] :focus');
     const boxShadow = await focused.evaluate(
       (el) => window.getComputedStyle(el).boxShadow
     );

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "status": "approved",
-  "approval_scope": "ask-wtf-cloudflare-service-binding-source-mode-local-fallbacks-and-episode-scope",
-  "owner_approval_ref": "owner-explicit-production-approval-2026-08-31-episode-scoped-ask-wtf",
+  "approval_scope": "ask-wtf-cloudflare-service-binding-source-mode-episode-scope-and-timestamp-provenance-hotfix",
+  "owner_approval_ref": "owner-requested-ask-wtf-uncut-timestamp-hotfix-2026-09-01",
   "manifest_path": "web/tests/contracts/phase1-compatibility-manifest.json",
   "manifest_sha256": "b07fab99f71d88cedc69bbe360581e8ecd41ada2a6b0950ce55f88ecd3a63093",
   "base_sha": "fef9dedd5c90dea242af192b0c6d543ed6de40e3",
@@ -29,8 +29,11 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "32ece5dd33bf84bf4bed8e1a24f295a8effbf0556fc17e6bd66d3d237af4f004"
+      "sha256": "ff580a0c9f61246ba87171df02e5acde56a7f714c3df46a9d232ffa512a9567b"
     }
+  ],
+  "approved_additive_changes": [
+    "X-Sources may expose timestamp_origin and timestamp_confidence for truthful exact-versus-estimated citation presentation"
   ],
   "streaming_contract": {
     "proxy": "awaits the complete Worker JSON response before constructing a plain-text Response",

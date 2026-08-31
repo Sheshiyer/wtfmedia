@@ -1522,3 +1522,50 @@ adapter. Team-owned UI design remained unchanged.
   Trusted timeline alignment and synced uncut playback remain unavailable.
 - Root ISA and architecture work stayed in the user's dirty checkout and was
   neither staged nor rewritten.
+
+## 2026-09-01 Ask WTF source-drawer and timing hotfix — local release candidate
+
+**Scope:** isolated branch `codex/ask-wtf-source-drawer-hotfix`; public Ask WTF
+source presentation, responsive shell repair, and fail-closed uncut timing
+preparation. Production and the shared dirty checkout remain unchanged.
+
+- Published citations retain finite published timestamps and readable YouTube
+  links. Uncut citations retain their own source identity and never inherit a
+  YouTube destination. A `both` query no longer manufactures per-citation
+  `both` provenance.
+- Source-native uncut clocks remain exact. When they are absent, deterministic
+  published-to-uncut lexical alignment may emit only `estimated uncut ~MM:SS`
+  with an explicit confidence of at least 80%; weaker passages remain
+  `timestamp unavailable`.
+- Private alignment sidecars preserve untimed inserts, are written atomically
+  outside Git under 0700/0600 permissions, and are bound to the transcript
+  digest, public episode identity, and sidecar digest. Symlink and realpath
+  escapes fail closed.
+- The uploader and Worker both reject missing, unreadable, mismatched,
+  replacement-text, non-monotonic, low-confidence, or provenance-omitting
+  sidecars before vector or idempotency-state mutation.
+- The approved 49-job activation inventory produced 38 private sidecars:
+  4,021 chunks, 1,955 estimated, 2,066 unavailable, 48.6197% estimated
+  coverage, and zero monotonic violations. The upload/enqueue preflight planned
+  49 jobs, 38 with sidecars, with zero issues; it remained dry-run.
+- The floating bottom navigation pill is intentionally disabled. Its four
+  public and four operator destinations now share one top application
+  disclosure; Escape, outside-click dismissal, and focus restoration remain
+  covered by automated interaction contracts. The Ask WTF composer occupies
+  the reclaimed safe-area-aware bottom space.
+- Verification passed: Cloudflare 168/168, web unit 83/83, contracts 86/86,
+  generator/uploader 7/7, Storybook components 101/101, lint, typecheck,
+  privacy 0/281, Next production build, OpenNext build, Worker dry-run,
+  architecture freshness, and diff whitespace. A clean local dependency
+  restore resolved `@opennextjs/cloudflare@1.20.4` without changing either
+  package manifest or lockfile.
+- Previous source-drawer desktop/mobile probes recorded no overlap, horizontal
+  overflow, console errors, or failed application requests. Final visual
+  acceptance of the new single-top-navigation shell remains owner-held after
+  the branch push.
+
+**Held boundary:** branch commit and push are authorized for owner visual
+testing. No PR, merge, deployment, R2 upload, queue enqueue, Vectorize/KV/D1
+write, DNS, auth, or secret mutation is authorized by this checkpoint. A
+production promotion requires a fresh explicit owner authorization and must
+upload each verified sidecar before enqueueing its matching combined hash.

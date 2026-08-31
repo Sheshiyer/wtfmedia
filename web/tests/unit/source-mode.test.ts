@@ -48,6 +48,8 @@ describe("dual-source public DTO", () => {
             t: 180,
             source_mode: "published",
             mapping_status: "mapped",
+            timestamp_origin: "published_alignment",
+            timestamp_confidence: 0.86,
             segment_id: "UKag4LVAEdU:0",
             private_path: "must-not-reach-the-ui",
           },
@@ -62,6 +64,8 @@ describe("dual-source public DTO", () => {
         timeSec: 180,
         sourceMode: "published",
         mappingStatus: "mapped",
+        timestampOrigin: "published_alignment",
+        timestampConfidence: 0.86,
         segmentId: "UKag4LVAEdU:0",
       },
     ]);

@@ -25,6 +25,7 @@ export interface Message {
   sources?: Source[];
   model?: string;
   fallback?: boolean;
+  uncutUnavailable?: boolean;
   abstained?: boolean;
 }
 
@@ -179,7 +180,10 @@ export function ConversationThread({
 
                   {/* Public source citations */}
                   {msg.sources && msg.sources.length > 0 && (
-                    <SourcePanel sources={msg.sources} />
+                    <SourcePanel
+                      sources={msg.sources}
+                      uncutUnavailable={msg.uncutUnavailable}
+                    />
                   )}
 
                   {/* Abstention label */}
