@@ -1,5 +1,57 @@
 # Project handoff
 
+## 2026-09-01 Production web 0.2.0 release
+
+**Status:** LIVE — the owner-approved semantic minor release is deployed to
+`wtfmedia-web` and passed its exact-tag preview plus post-deploy production
+canary. This receipt supersedes the web deployment identifiers in the Ask WTF
+episode-scoped completion receipt below; its corpus and held-boundary facts
+remain current.
+
+- Release: annotated tag `v0.2.0` resolves to merge commit
+  `c11ddd58548675aa9c1fc3c5d9f7f62b52f8c408` from PR
+  [#36](https://github.com/Sheshiyer/wtfmedia/pull/36). The merged tree is
+  identical to reviewed candidate `c4c8e5053ed000719e1eeb89909ade82c8e5409e`.
+- Cloudflare web version
+  `67635664-33d8-414b-bd53-de859eb7cc69` is deployed as
+  `ab4b12c3-2562-4df0-9252-7bfdd62c9f7c` with 100% traffic.
+- Rollback target: prior web version
+  `90099f42-13b6-4a4e-8d97-bd93b9f953fa`, deployment
+  `c981ac0a-c141-439b-a222-14ed28764d7f`.
+- The release tag was rebuilt through OpenNext and passed a remote Cloudflare
+  preview before deployment: home, `/episodes`, mapped detail
+  `/episodes/SPLFyVyTI1A`, and episode-scoped `published`, `uncut`, and `both`
+  chat all returned HTTP 200.
+- The live canary repeated those checks on `https://wtfhq.in`. Published chat
+  returned three scoped published sources with truthful model-fallback state;
+  uncut returned six scoped uncut sources; both returned six scoped sources
+  spanning uncut and published. Edge health returned HTTP 200.
+- `wtfmedia-edge` was not deployed. It remains version
+  `75b96e1f-6fa6-4182-bbdd-99047399de64`, deployment
+  `04e2a1a9-d796-41d9-bad5-3d952c8f206c`.
+- Auth/Access, edge source, ingest, queues, D1, KV, R2, Vectorize, DNS, secrets,
+  and dependency definitions were untouched. Root user-owned ISA/architecture
+  and catalogue work remained preserved.
+- Repository gates passed on the exact reviewed candidate: Phase 1 aggregate,
+  Phase 2, Phase 3, architecture, privacy, full edge tests, web lint,
+  typecheck, unit and contract suites, production build, and remote preview.
+  The Temperance plan combo was rate-limited and advisor OAuth had expired;
+  direct evidence gates passed without substituting those unavailable checks.
+
+### Held boundaries
+
+- Mapping an uncut asset to a public episode is not trusted cross-timeline
+  alignment. Trusted alignment, synchronized playback, evaluation, analytics,
+  and the operator provenance workspace remain open workstreams.
+- This was a web-only version cut and deployment. Do not infer an edge, data,
+  auth, ingest, DNS, secret, or corpus mutation from this receipt.
+
+### Next action
+
+Plan the remaining Phase 3/4 work as a separately authorized slice. Do not
+move the `v0.2.0` tag or rerun deployment, rollback, ingest, or activation from
+this handoff.
+
 ## 2026-09-01 Ask WTF episode-scoped production completion
 
 **Status:** PRODUCTION COMPLETE — owner-approved final receipt for the bounded
