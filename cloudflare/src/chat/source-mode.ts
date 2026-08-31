@@ -1,5 +1,6 @@
-export const SOURCE_MODES = ["published", "uncut"] as const;
+export const SOURCE_MODES = ["published", "uncut", "both"] as const;
 export type SourceMode = (typeof SOURCE_MODES)[number];
+export type StoredSourceMode = Exclude<SourceMode, "both">;
 
 export const MAPPING_STATUSES = ["mapped", "unmapped", "unavailable", "conflicted"] as const;
 export type MappingStatus = (typeof MAPPING_STATUSES)[number];
@@ -23,12 +24,31 @@ export type DualSourceCitation = {
   mappingStatus: MappingStatus;
 };
 
-export function parseSourceMode(value: unknown): SourceMode {
-  return value === "uncut" ? "uncut" : "published";
+function youtubeWatchUrl(videoId: string, start: number | null): string {
+  const base = `https://www.youtube.com/watch?v=${videoId}`;
+  return start == null ? base : `${base}&t=${Math.floor(start)}s`;
 }
 
-export function storedSourceMode(metadata: Record<string, unknown> | null | undefined): SourceMode {
-  return parseSourceMode(metadata?.sourceMode ?? metadata?.source_mode);
+/**
+ * Published citations may carry a YouTube watch URL.
+ * Uncut citations are a direct catalogue ref (`uncut:{id}`), never an http URL.
+ */
+export function citationRef(
+  stored: StoredSourceMode,
+  videoId: string,
+  start: number | null,
+  timestamped: boolean,
+): string {
+  if (stored === "uncut") return `uncut:${videoId}`;
+  return youtubeWatchUrl(videoId, timestamped ? start : null);
+}
+
+export function parseSourceMode(value: unknown): SourceMode {
+  return value === "uncut" || value === "both" ? value : "published";
+}
+
+export function storedSourceMode(metadata: Record<string, unknown> | null | undefined): StoredSourceMode {
+  return parseSourceMode(metadata?.sourceMode ?? metadata?.source_mode) === "uncut" ? "uncut" : "published";
 }
 
 export function matchPassesSourceFilter(
@@ -66,17 +86,14 @@ export function projectDualSourceCitation(
     typeof chunk === "number" ? `${videoId}:${chunk}` : `${videoId}:${index}`,
   );
   const start = nonNegativeNumber(metadata.start);
-  const sameMode = stored === requested;
+  const sameMode = requested === "both" || stored === requested;
   const timestamped = metadata.timestamped === true && sameMode && start != null;
   const mappingStatus: MappingStatus = !sameMode
     ? "unavailable"
     : start == null
       ? "unmapped"
       : "mapped";
-  const sourceUrl = text(metadata.source, `https://www.youtube.com/watch?v=${videoId}`);
-  const url = timestamped && start != null
-    ? `${sourceUrl}${sourceUrl.includes("?") ? "&" : "?"}t=${Math.floor(start)}s`
-    : sourceUrl;
+  const url = citationRef(stored, videoId, timestamped ? start : null, timestamped);
 
   return {
     n: index + 1,
@@ -113,4 +130,52 @@ export function filterAndProjectMatches(
   }
 
   return citations;
+}
+
+export type ResolvedChatSources = {
+  citations: DualSourceCitation[];
+  sourceMode: SourceMode;
+  uncutUnavailable: boolean;
+};
+
+/**
+ * Prefer the requested mode. If uncut has no corpus, use published YouTube
+ * and name it published. Never relabel a published timestamp as uncut.
+ */
+export function resolveRequestedSources(
+  matches: readonly VectorMatchLike[],
+  requested: SourceMode,
+  minScore: number,
+  limit = 6,
+): ResolvedChatSources {
+  const requestedHits = filterAndProjectMatches(matches, requested, minScore, limit);
+  if (requested !== "uncut") {
+    if (requested !== "both") {
+      return { citations: requestedHits, sourceMode: "published", uncutUnavailable: false };
+    }
+    const publishedHits = filterAndProjectMatches(matches, "published", minScore, limit);
+    const uncutHits = filterAndProjectMatches(matches, "uncut", minScore, limit);
+    const usedSegments = new Set<string>();
+    const citations = [...uncutHits, ...publishedHits]
+      .filter((citation) => {
+        if (usedSegments.has(citation.segmentId)) return false;
+        usedSegments.add(citation.segmentId);
+        return true;
+      })
+      .slice(0, limit)
+      .map((citation, index) => ({ ...citation, n: index + 1 }));
+    return {
+      citations,
+      sourceMode: "both",
+      uncutUnavailable: uncutHits.length === 0,
+    };
+  }
+  if (requestedHits.length >= 2) {
+    return { citations: requestedHits, sourceMode: "uncut", uncutUnavailable: false };
+  }
+  const publishedHits = filterAndProjectMatches(matches, "published", minScore, limit);
+  if (publishedHits.length >= 2) {
+    return { citations: publishedHits, sourceMode: "published", uncutUnavailable: true };
+  }
+  return { citations: requestedHits, sourceMode: "uncut", uncutUnavailable: true };
 }

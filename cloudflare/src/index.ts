@@ -14,7 +14,15 @@ import {
   type DB,
 } from "./db";
 import { handleOpsRequest, type OpsEnv } from "./ops-router";
-import { filterAndProjectMatches, parseSourceMode } from "./chat/source-mode";
+import { allowCalendarRequest, handleCalendarRequest } from "./calendar";
+import { parseSourceMode, resolveRequestedSources } from "./chat/source-mode";
+import {
+  ingestStateKey,
+  parseJobSourceMode,
+  vectorRecordId,
+  vectorSourceRef,
+} from "./catalogue/asset-map";
+import { extractTimestampLines } from "./catalogue/timestamps";
 
 export interface Env extends OpsEnv {
   AI: any;
@@ -27,6 +35,8 @@ export interface Env extends OpsEnv {
   RATE_LIMIT_PER_MINUTE: string;
   INGEST_TOKEN: string;
   EDGE_SHARED_SECRET: string;
+  CALENDAR_READ_RATE_LIMIT_PER_MINUTE?: string;
+  CALENDAR_WRITE_RATE_LIMIT_PER_MINUTE?: string;
 }
 
 type TranscriptJob = {
@@ -35,10 +45,14 @@ type TranscriptJob = {
   transcriptKey: string;
   timestampsKey?: string;
   contentHash: string;
+  sourceMode?: "published" | "uncut";
 };
 
 const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
-const ANSWER_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+const ANSWER_MODELS = [
+  "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "@cf/meta/llama-3.1-8b-instruct-fast",
+];
 const MAX_BODY_BYTES = 16_000;
 const MAX_QUESTION_CHARS = 2_000;
 const MAX_CHUNK_CHARS = 1_100;
@@ -125,6 +139,42 @@ async function upsertWithRetry(env: Env, vectors: unknown[]) {
   throw lastError;
 }
 
+async function answerWithFallback(env: Env, messages: unknown[]) {
+  const failures: string[] = [];
+  for (const model of ANSWER_MODELS) {
+    try {
+      const result = await env.AI.run(model, {
+        messages,
+        max_tokens: 600,
+        temperature: 0.1,
+      });
+      const answer = typeof result === "string" ? result : result?.response;
+      if (typeof answer !== "string" || !answer.trim()) throw new Error("empty answer response");
+      if (failures.length) console.warn("wtfmedia answer model fallback used", { model, failedAttempts: failures.length });
+      return { answer, model, fallback: failures.length > 0 };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "unknown";
+      failures.push(`${model}:${message}`);
+      console.warn("wtfmedia answer model failed", { model, message });
+    }
+  }
+  throw new Error(`answer models unavailable: ${failures.length}`);
+}
+
+function citedEvidenceFallback(sources: Array<{ n: number; title: string; text?: string }>) {
+  const lines = sources.slice(0, 3).map((source) => {
+    const excerpt = String(source.text || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 260);
+    return `[${source.n}] ${source.title}: ${excerpt}${excerpt.length === 260 ? "..." : ""}`;
+  });
+  return [
+    "I found relevant evidence, but the synthesis model did not return valid citations. Here are the closest cited excerpts instead:",
+    ...lines,
+  ].join("\n\n");
+}
+
 async function rateLimit(request: Request, env: Env) {
   const ip = request.headers.get("X-Client-IP") || request.headers.get("CF-Connecting-IP") || "unknown";
   const window = Math.floor(Date.now() / 60_000);
@@ -141,7 +191,8 @@ function requiresVerifiedMetadata(question: string) {
 }
 
 async function ingest(job: TranscriptJob, env: Env) {
-  const stateKey = `ingest:${job.videoId}`;
+  const sourceMode = parseJobSourceMode(job.sourceMode);
+  const stateKey = ingestStateKey(job.videoId, sourceMode);
   const previousHash = await env.WTFMEDIA_STATE.get(stateKey);
   if (previousHash === job.contentHash) return;
   const object = await env.CATALOGUE.get(job.transcriptKey);
@@ -158,21 +209,25 @@ async function ingest(job: TranscriptJob, env: Env) {
         console.warn("wtfmedia timestamp sidecar unreadable", { videoId: job.videoId });
       }
     }
+  } else if (sourceMode === "uncut") {
+    const inline = extractTimestampLines(text);
+    if (inline.length >= 3) parts = timestampedChunks(inline);
   }
+  const source = vectorSourceRef(job.videoId, sourceMode);
   for (let offset = 0; offset < parts.length; offset += UPSERT_BATCH_SIZE) {
     const batch = parts.slice(offset, offset + UPSERT_BATCH_SIZE);
     const vectors = await Promise.all(batch.map(async (part, index) => ({
-      id: `${job.videoId}:${offset + index}`,
+      id: vectorRecordId(job.videoId, offset + index, sourceMode),
       values: await vectorFor(env, part.text),
       metadata: {
         video_id: job.videoId,
         title: job.title.slice(0, 500),
         chunk: offset + index,
         text: part.text,
-        source: `https://www.youtube.com/watch?v=${job.videoId}`,
+        source,
         start: part.start ?? null,
         timestamped: part.start != null,
-        source_mode: "published",
+        source_mode: sourceMode,
       },
     })));
     await upsertWithRetry(env, vectors);
@@ -201,6 +256,7 @@ async function chat(request: Request, env: Env) {
       sources: [],
       grounded: false,
       sourceMode,
+      uncutUnavailable: false,
     });
   }
   try {
@@ -208,50 +264,55 @@ async function chat(request: Request, env: Env) {
       topK: 12,
       returnMetadata: "all",
     });
-    const projected = filterAndProjectMatches(matches.matches ?? [], sourceMode, MIN_SCORE, 6);
-    const sources = projected.map((source) => {
+    const resolved = resolveRequestedSources(matches.matches ?? [], sourceMode, MIN_SCORE, 6);
+    const sources = resolved.citations.map((source) => {
       const match = (matches.matches ?? []).find((item: { metadata?: { video_id?: string } }) => item.metadata?.video_id === source.videoId);
       return { ...source, text: match?.metadata?.text };
     });
     if (sources.length < 2) {
       return reply(request, env, {
-        answer: sourceMode === "uncut"
-          ? "uncut evidence is unavailable for this question. no timestamp was inferred from published sources."
+        answer: resolved.uncutUnavailable
+          ? "uncut is not activated and there is not enough published YouTube evidence for this question. no timestamp was inferred."
           : "I don’t have enough relevant evidence in the catalogue to answer that reliably.",
         sources: sources.map(({ text: _text, ...source }) => source),
         grounded: false,
-        sourceMode,
+        sourceMode: resolved.sourceMode,
+        uncutUnavailable: resolved.uncutUnavailable,
       });
     }
-    const context = sources.map((source) => `[${source.n}] ${source.title}\n${source.text}`).join("\n\n---\n\n");
-    const result = await env.AI.run(ANSWER_MODEL, {
-      messages: [
+    const context = sources.map((source: any) => `[${source.n}] ${source.title}\n${source.text}`).join("\n\n---\n\n");
+    const answered = await answerWithFallback(env, [
         { role: "system", content: SYSTEM },
         { role: "user", content: `CONTEXT:\n${context}\n\nQUESTION: ${question}` },
-      ],
-      max_tokens: 600,
-      temperature: 0.1,
-    });
-    const answer = typeof result === "string" ? result : result?.response;
-    if (typeof answer !== "string" || !answer.trim()) throw new Error("empty answer response");
+      ]);
+    const answer = answered.answer;
     const citations = [...answer.matchAll(/\[(\d+)\]/g)].map((match) => Number(match[1]));
     if (citations.length === 0 || citations.some((citation) => citation < 1 || citation > sources.length)) {
       console.warn("wtfmedia answer rejected: invalid citations", { sourceCount: sources.length, citations });
       return reply(request, env, {
-        answer: "I couldn’t produce a properly cited answer from the retrieved evidence. Please rephrase or try again.",
+        answer: citedEvidenceFallback(sources),
         sources: sources.map(({ text: _text, ...source }) => source),
-        grounded: false,
-        sourceMode,
+        grounded: true,
+        sourceMode: resolved.sourceMode,
+        uncutUnavailable: resolved.uncutUnavailable,
+        model: answered.model,
+        modelFallback: true,
       });
     }
     return reply(request, env, {
       answer,
       sources: sources.map(({ text: _text, ...source }) => source),
       grounded: true,
-      sourceMode,
+      sourceMode: resolved.sourceMode,
+      uncutUnavailable: resolved.uncutUnavailable,
+      model: answered.model,
+      modelFallback: answered.fallback,
     });
   } catch (error) {
-    console.error("wtfmedia chat failed", { message: error instanceof Error ? error.message : "unknown" });
+    console.error("wtfmedia chat failed", {
+      message: error instanceof Error ? error.message : "unknown",
+      sourceMode,
+    });
     return reply(request, env, { error: "retrieval_unavailable" }, 503);
   }
 }
@@ -384,6 +445,19 @@ export default {
     if (url.pathname === "/ops" || url.pathname.startsWith("/ops/")) {
       return handleOpsRequest(request, env);
     }
+    if (url.pathname === "/v1/calendar" || url.pathname.startsWith("/v1/calendar/")) {
+      if (!env.EDGE_SHARED_SECRET || request.headers.get("X-Edge-Secret") !== env.EDGE_SHARED_SECRET) {
+        return reply(request, env, { error: "unauthorized" }, 401);
+      }
+      try {
+        if (!(await allowCalendarRequest(request, env))) {
+          return reply(request, env, { error: "rate_limited" }, 429);
+        }
+      } catch {
+        return reply(request, env, { error: "calendar_unavailable" }, 503);
+      }
+      return handleCalendarRequest(request, env);
+    }
     if (request.method === "POST" && url.pathname === "/v1/chat") {
       if (!env.EDGE_SHARED_SECRET || request.headers.get("X-Edge-Secret") !== env.EDGE_SHARED_SECRET) return reply(request, env, { error: "unauthorized" }, 401);
       return chat(request, env);
@@ -393,6 +467,8 @@ export default {
       let payload: { jobs?: TranscriptJob[] };
       try { payload = await request.json(); } catch { return reply(request, env, { error: "invalid_json" }, 400); }
       if (!Array.isArray(payload.jobs) || payload.jobs.length === 0 || payload.jobs.length > 100) return reply(request, env, { error: "invalid_jobs" }, 400);
+      const invalidUncut = payload.jobs.some((job) => parseJobSourceMode(job.sourceMode) === "uncut" && !String(job.transcriptKey || "").startsWith("uncut/"));
+      if (invalidUncut) return reply(request, env, { error: "invalid_uncut_key" }, 400);
       await env.INGEST_QUEUE.sendBatch(payload.jobs.map((body) => ({ body })));
       return reply(request, env, { queued: payload.jobs.length }, 202);
     }
