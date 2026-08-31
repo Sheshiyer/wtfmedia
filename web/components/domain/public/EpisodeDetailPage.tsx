@@ -234,6 +234,7 @@ export function EpisodeDetailPage({ episode, ideas }: EpisodeDetailPageProps) {
                 transcript chat
               </h2>
               <form action="/chat" method="get" className="mt-3 space-y-3">
+                <input type="hidden" name="episodeId" value={episode.video_id} />
                 <textarea
                   name="q"
                   defaultValue={askDefault}

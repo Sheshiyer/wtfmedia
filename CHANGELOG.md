@@ -15,7 +15,10 @@ versioning; the web application version is held in `web/package.json`.
 
 ## [Unreleased]
 
-No changes yet.
+### Added
+
+- Added episode-scoped Ask WTF retrieval from dedicated episode workspaces,
+  while preserving separate public episode and private uncut asset identities.
 
 ## [0.1.3] - 2026-08-11
 

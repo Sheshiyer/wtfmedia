@@ -10,6 +10,7 @@ export const maxDuration = 30;
 const EDGE_SHARED_SECRET = process.env.EDGE_SHARED_SECRET ?? process.env.CLOUDFLARE_EDGE_SHARED_SECRET;
 const MAX_MESSAGES = 8;
 const MAX_QUESTION_CHARS = 2_000;
+const PUBLIC_EPISODE_ID = /^[A-Za-z0-9_-]{11}$/;
 
 async function callAnswerService(request: Request): Promise<Response> {
   const { env } = await getCloudflareContext({ async: true });
@@ -66,7 +67,7 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
 }
 
 /** Local-only RAG path for `next dev`; production remains Cloudflare-only. */
-async function localAnswer(question: string, sourceMode: SourceMode): Promise<Response> {
+async function localAnswer(question: string, sourceMode: SourceMode, episodeId: string | null): Promise<Response> {
   if (!isReady()) return Response.json({ error: "local_catalogue_unavailable" }, { status: 503 });
   if (sourceMode === "uncut") {
     return new Response("uncut is unavailable in local mode; switch to published.", {
@@ -74,7 +75,9 @@ async function localAnswer(question: string, sourceMode: SourceMode): Promise<Re
       headers: { "Content-Type": "text/plain; charset=utf-8", "X-Sources": encodeURIComponent("[]"), "X-Source-Mode": "uncut", "X-Uncut-Unavailable": "true", "X-Model": "nvidia-local", "X-Fallback": "true" },
     });
   }
-  const hits = search(await embedQuery(question), 6);
+  const hits = search(await embedQuery(question), episodeId ? 48 : 6)
+    .filter((hit) => episodeId == null || hit.video_id === episodeId)
+    .slice(0, 6);
   if (hits.length === 0) return Response.json({ error: "local_catalogue_unavailable" }, { status: 503 });
   const sources: EdgeSource[] = hits.map((hit, index) => ({
     n: index + 1,
@@ -107,7 +110,7 @@ async function localAnswer(question: string, sourceMode: SourceMode): Promise<Re
 }
 
 export async function POST(req: NextRequest) {
-  let body: { messages?: ChatMessage[]; sourceMode?: unknown };
+  let body: { messages?: ChatMessage[]; sourceMode?: unknown; episodeId?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -118,9 +121,15 @@ export async function POST(req: NextRequest) {
   if (!last?.content?.trim()) return new Response("no user message", { status: 400 });
   if (last.content.length > MAX_QUESTION_CHARS) return new Response("question too long", { status: 400 });
   const sourceMode = parseSourceMode(body.sourceMode);
+  const episodeId = typeof body.episodeId === "string" && PUBLIC_EPISODE_ID.test(body.episodeId.trim())
+    ? body.episodeId.trim()
+    : null;
+  if (body.episodeId !== undefined && episodeId === null) {
+    return new Response("invalid episode id", { status: 400 });
+  }
   if (!EDGE_SHARED_SECRET) {
     if (process.env.NODE_ENV !== "production" && process.env.NVIDIA_API_KEY) {
-      try { return await localAnswer(last.content, sourceMode); }
+      try { return await localAnswer(last.content, sourceMode, episodeId); }
       catch (error) {
         console.error("local NVIDIA RAG failed", error instanceof Error ? error.message : "unknown");
         return Response.json({ error: "local_answer_unavailable" }, { status: 503 });
@@ -139,7 +148,7 @@ export async function POST(req: NextRequest) {
         "X-Client-IP": req.headers.get("cf-connecting-ip")?.trim() || "unknown",
         "X-Request-ID": crypto.randomUUID(),
       },
-      body: JSON.stringify({ question: last.content, sourceMode }),
+      body: JSON.stringify({ question: last.content, sourceMode, ...(episodeId ? { episodeId } : {}) }),
       cache: "no-store",
       signal: AbortSignal.timeout(25_000),
     }));

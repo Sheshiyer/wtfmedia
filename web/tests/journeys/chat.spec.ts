@@ -180,6 +180,23 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(assistantMsg).toContainText("Hello world.");
   });
 
+  test("forwards episode scope from the episode workspace query", async ({ page }) => {
+    let requestBody: { episodeId?: string } | undefined;
+    await page.route("/api/chat", (route) => {
+      requestBody = route.request().postDataJSON() as { episodeId?: string };
+      route.fulfill({
+        status: 200,
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+        body: "Episode-scoped answer.",
+      });
+    });
+
+    await page.goto("/chat?q=map%20this%20episode&episodeId=SPLFyVyTI1A");
+    await expect(page.locator('[data-testid="message-1"]')).toBeVisible({ timeout: 10000 });
+
+    expect(requestBody?.episodeId).toBe("SPLFyVyTI1A");
+  });
+
   /* ── sources ───────────────────────────────────────────────────────── */
 
   test("decodes X-Sources header and shows source panel", async ({ page }) => {

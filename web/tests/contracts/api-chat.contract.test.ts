@@ -190,6 +190,28 @@ describe("POST /api/chat — server-only edge authentication", () => {
     await POST(chatRequest({ messages: [userMessage("hello")], sourceMode: "uncut" }));
     expect(stub.requestLog[0].sourceMode).toBe("uncut");
   });
+
+  it("forwards a valid public episodeId to the edge service", async () => {
+    const { POST } = await importRoute();
+    await POST(chatRequest({
+      messages: [userMessage("hello")],
+      sourceMode: "both",
+      episodeId: "SPLFyVyTI1A",
+    }));
+    expect(stub.requestLog).toHaveLength(1);
+    expect(stub.requestLog[0].episodeId).toBe("SPLFyVyTI1A");
+  });
+
+  it("rejects a non-public episodeId before calling the edge service", async () => {
+    const { POST } = await importRoute();
+    const res = await POST(chatRequest({
+      messages: [userMessage("hello")],
+      episodeId: "uncut/private-object-key",
+    }));
+    expect(res.status).toBe(400);
+    expect(await res.text()).toBe("invalid episode id");
+    expect(stub.requestLog).toEqual([]);
+  });
 });
 
 describe("POST /api/chat — upstream failure branches", () => {
