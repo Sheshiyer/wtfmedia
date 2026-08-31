@@ -11,6 +11,8 @@ export type VectorMatchLike = {
   metadata?: Record<string, unknown> | null;
 };
 
+const YOUTUBE_VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
+
 export type DualSourceCitation = {
   n: number;
   score: number;
@@ -47,6 +49,44 @@ export function parseSourceMode(value: unknown): SourceMode {
   return value === "uncut" || value === "both" ? value : "published";
 }
 
+/**
+ * Public episode routes are keyed by the published YouTube video id.
+ * Internal row hashes and storage keys are deliberately not valid scopes.
+ */
+export function parseEpisodeId(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim();
+  return YOUTUBE_VIDEO_ID.test(normalized) ? normalized : null;
+}
+
+export function buildVectorQueryOptions(episodeId: string | null) {
+  return episodeId
+    ? {
+        topK: 12,
+        returnMetadata: "all" as const,
+        filter: { video_id: { $eq: episodeId } },
+      }
+    : {
+        topK: 12,
+        returnMetadata: "all" as const,
+      };
+}
+
+/**
+ * Re-check the requested scope after Vectorize returns. This prevents a
+ * missing or stale metadata index from broadening an episode query.
+ */
+export function filterMatchesByEpisodeId<T extends VectorMatchLike>(
+  matches: readonly T[],
+  episodeId: string | null,
+): readonly T[] {
+  if (!episodeId) return matches;
+  return matches.filter((match) => {
+    const metadata = match.metadata ?? {};
+    return metadata.video_id === episodeId || metadata.videoId === episodeId;
+  });
+}
+
 export function storedSourceMode(metadata: Record<string, unknown> | null | undefined): StoredSourceMode {
   return parseSourceMode(metadata?.sourceMode ?? metadata?.source_mode) === "uncut" ? "uncut" : "published";
 }
@@ -64,6 +104,16 @@ function nonNegativeNumber(value: unknown): number | null {
 
 function text(value: unknown, fallback = ""): string {
   return typeof value === "string" && value.trim().length > 0 ? value : fallback;
+}
+
+function uncutSourceIdentity(metadata: Record<string, unknown>, publicVideoId: string): string | null {
+  const explicit = text(metadata.source_asset_id ?? metadata.sourceAssetId);
+  if (explicit && explicit !== publicVideoId && explicit.length <= 128 && !/^https?:/i.test(explicit)) {
+    return explicit;
+  }
+  const source = text(metadata.source);
+  const match = /^uncut:([^/\s:][^\s]{0,127})$/.exec(source);
+  return match && match[1] !== publicVideoId ? match[1] : null;
 }
 
 /**
@@ -93,7 +143,9 @@ export function projectDualSourceCitation(
     : start == null
       ? "unmapped"
       : "mapped";
-  const url = citationRef(stored, videoId, timestamped ? start : null, timestamped);
+  const citationIdentity = stored === "uncut" ? uncutSourceIdentity(metadata, videoId) : videoId;
+  if (!citationIdentity) return null;
+  const url = citationRef(stored, citationIdentity, timestamped ? start : null, timestamped);
 
   return {
     n: index + 1,
@@ -114,6 +166,7 @@ export function filterAndProjectMatches(
   requested: SourceMode,
   minScore: number,
   limit = 6,
+  dedupeByEpisode = true,
 ): DualSourceCitation[] {
   const usedEpisodes = new Set<string>();
   const citations: DualSourceCitation[] = [];
@@ -123,8 +176,8 @@ export function filterAndProjectMatches(
     if (!matchPassesSourceFilter(match, requested)) continue;
     const projected = projectDualSourceCitation(match, requested, citations.length);
     if (!projected) continue;
-    if (usedEpisodes.has(projected.videoId)) continue;
-    usedEpisodes.add(projected.videoId);
+    if (dedupeByEpisode && usedEpisodes.has(projected.videoId)) continue;
+    if (dedupeByEpisode) usedEpisodes.add(projected.videoId);
     citations.push(projected);
     if (citations.length >= limit) break;
   }
@@ -147,14 +200,16 @@ export function resolveRequestedSources(
   requested: SourceMode,
   minScore: number,
   limit = 6,
+  options: { dedupeByEpisode?: boolean } = {},
 ): ResolvedChatSources {
-  const requestedHits = filterAndProjectMatches(matches, requested, minScore, limit);
+  const dedupeByEpisode = options.dedupeByEpisode ?? true;
+  const requestedHits = filterAndProjectMatches(matches, requested, minScore, limit, dedupeByEpisode);
   if (requested !== "uncut") {
     if (requested !== "both") {
       return { citations: requestedHits, sourceMode: "published", uncutUnavailable: false };
     }
-    const publishedHits = filterAndProjectMatches(matches, "published", minScore, limit);
-    const uncutHits = filterAndProjectMatches(matches, "uncut", minScore, limit);
+    const publishedHits = filterAndProjectMatches(matches, "published", minScore, limit, dedupeByEpisode);
+    const uncutHits = filterAndProjectMatches(matches, "uncut", minScore, limit, dedupeByEpisode);
     const usedSegments = new Set<string>();
     const citations = [...uncutHits, ...publishedHits]
       .filter((citation) => {
@@ -173,9 +228,22 @@ export function resolveRequestedSources(
   if (requestedHits.length >= 2) {
     return { citations: requestedHits, sourceMode: "uncut", uncutUnavailable: false };
   }
-  const publishedHits = filterAndProjectMatches(matches, "published", minScore, limit);
+  const publishedHits = filterAndProjectMatches(matches, "published", minScore, limit, dedupeByEpisode);
   if (publishedHits.length >= 2) {
     return { citations: publishedHits, sourceMode: "published", uncutUnavailable: true };
   }
   return { citations: requestedHits, sourceMode: "uncut", uncutUnavailable: true };
+}
+
+export function resolveEpisodeScopedSources(
+  matches: readonly VectorMatchLike[],
+  requested: SourceMode,
+  episodeId: string | null,
+  minScore: number,
+  limit = 6,
+): ResolvedChatSources {
+  const scopedMatches = filterMatchesByEpisodeId(matches, episodeId);
+  return resolveRequestedSources(scopedMatches, requested, minScore, limit, {
+    dedupeByEpisode: episodeId == null,
+  });
 }

@@ -12,6 +12,8 @@ export interface TranscriptIngestJobPayload {
   jobId: string;
   episodeId: string;
   sourceAssetId: string;
+  /** Published YouTube identity used by public episode-scoped retrieval. */
+  publicVideoId?: string;
   transcriptR2Key: string;
   coordinateSystem: CoordinateSystem;
   engine: TranscriptionEngine;
@@ -75,6 +77,10 @@ export interface VectorizeRecord {
   values: number[];
   metadata: {
     episodeId: string;
+    episode_id: string;
+    video_id?: string;
+    source_asset_id?: string;
+    source_mode: CoordinateSystem;
     versionId: string;
     versionNumber: number;
     chunkId: string;
@@ -94,6 +100,9 @@ export interface StageTranscriptVersionOptions {
   chunkOverlap?: number; // default 150 characters
   embeddingModel?: string; // default @cf/baai/bge-large-en-v1.5
   batchSize?: number; // default 8
+  publicVideoId?: string;
+  sourceAssetId?: string;
+  sourceMode?: CoordinateSystem;
 }
 
 /**

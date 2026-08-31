@@ -455,11 +455,19 @@ Co-Host: arre bhai bilkul sahi bola aapne yaar.
         },
       ];
 
-      const records = await generateChunkEmbeddings(ai, chunks, "ep1", "txv1", 1);
+      const records = await generateChunkEmbeddings(ai, chunks, "ep1", "txv1", 1, {
+        publicVideoId: "RSB58m7Xwhg",
+        sourceAssetId: "ast_01",
+        sourceMode: "uncut",
+      });
       assert.equal(records.length, 1);
       assert.equal(records[0].id, "vec_ep1_v1_chk1");
       assert.equal(records[0].values.length, 1024);
       assert.equal(records[0].metadata.episodeId, "ep1");
+      assert.equal(records[0].metadata.episode_id, "ep1");
+      assert.equal(records[0].metadata.video_id, "RSB58m7Xwhg");
+      assert.equal(records[0].metadata.source_asset_id, "ast_01");
+      assert.equal(records[0].metadata.source_mode, "uncut");
       assert.equal(records[0].metadata.versionNumber, 1);
     });
   });

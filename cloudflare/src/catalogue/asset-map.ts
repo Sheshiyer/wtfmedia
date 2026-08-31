@@ -8,6 +8,9 @@
 export type CatalogueSourceMode = "published" | "uncut";
 
 const HASH = /^(?:sha256:)?([a-f0-9]{16,64})$/i;
+const HASH64 = /^[a-f0-9]{64}$/;
+const YOUTUBE_VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
+const UNCUT_TRANSCRIPT_KEY = /^uncut\/([a-f0-9]{64})\.txt$/;
 
 export function hashToken(value: string): string | null {
   const match = HASH.exec(value.trim());
@@ -46,4 +49,57 @@ export function vectorSourceRef(id: string, sourceMode: CatalogueSourceMode): st
 
 export function parseJobSourceMode(value: unknown): CatalogueSourceMode {
   return value === "uncut" ? "uncut" : "published";
+}
+
+export type CatalogueJobIdentity = {
+  publicVideoId: string;
+  sourceAssetId: string;
+};
+
+/**
+ * Keep the public episode join separate from the privacy-safe asset identity.
+ * Published jobs use the same YouTube id for both; uncut jobs derive their
+ * private identity from the hash-addressed R2 key.
+ */
+export function resolveCatalogueJobIdentity(
+  videoId: unknown,
+  transcriptKey: unknown,
+  sourceMode: CatalogueSourceMode,
+  declaredSourceAssetId?: unknown,
+): CatalogueJobIdentity | null {
+  const publicVideoId = String(videoId ?? "").trim();
+  if (!YOUTUBE_VIDEO_ID.test(publicVideoId)) return null;
+  if (sourceMode === "published") {
+    if (String(transcriptKey ?? "").trim() !== publishedTranscriptKey(publicVideoId)) return null;
+    if (declaredSourceAssetId != null && declaredSourceAssetId !== publicVideoId) return null;
+    return { publicVideoId, sourceAssetId: publicVideoId };
+  }
+  const match = UNCUT_TRANSCRIPT_KEY.exec(String(transcriptKey ?? "").trim());
+  if (!match || !HASH64.test(match[1])) return null;
+  const sourceAssetId = match[1];
+  if (declaredSourceAssetId != null && declaredSourceAssetId !== sourceAssetId) return null;
+  return { publicVideoId, sourceAssetId };
+}
+
+export function validateCatalogueJobBatch(
+  jobs: readonly { videoId?: unknown; transcriptKey?: unknown; sourceMode?: unknown; sourceAssetId?: unknown }[],
+): string | null {
+  const uncutVideoIds = new Set<string>();
+  const uncutSourceAssetIds = new Set<string>();
+  for (const job of jobs) {
+    const sourceMode = parseJobSourceMode(job.sourceMode);
+    const identity = resolveCatalogueJobIdentity(
+      job.videoId,
+      job.transcriptKey,
+      sourceMode,
+      job.sourceAssetId,
+    );
+    if (!identity) return sourceMode === "uncut" ? "invalid_uncut_identity" : "invalid_published_identity";
+    if (sourceMode !== "uncut") continue;
+    if (uncutVideoIds.has(identity.publicVideoId)) return "duplicate_uncut_video_id";
+    if (uncutSourceAssetIds.has(identity.sourceAssetId)) return "duplicate_uncut_source_asset";
+    uncutVideoIds.add(identity.publicVideoId);
+    uncutSourceAssetIds.add(identity.sourceAssetId);
+  }
+  return null;
 }
