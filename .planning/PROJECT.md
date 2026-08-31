@@ -62,6 +62,9 @@ must resolve before dependent implementation or estimation.
   from the repository-owned corpus.
 - ✓ Public visitors can read available transcript material and receive cited,
   streaming Ask WTF answers from the existing retrieval path.
+- ✓ The bounded production slice connects episode-detail `episodeId` to
+  episode-scoped published, approved uncut, and combined Ask WTF retrieval
+  with source-aware citations and truthful unmapped-episode behavior.
 - ✓ Public visitors can explore real episode/theme connections through the
   existing graph projection.
 - ✓ The shipping product expresses the WTF identity through its multicolor
@@ -117,6 +120,10 @@ must resolve before dependent implementation or estimation.
   delivery order around production access, both-channel and uncut ingestion,
   transcript alignment, exact-moment retrieval, four-tier cited research,
   production scheduling, platform reporting, and editor-owned clip shortlists.
+- The 2026-08-31 bounded production receipt closes episode-scoped retrieval and
+  approved mapped-uncut activation only. Trusted uncut timeline alignment,
+  synchronized playback, evaluated search, daily YouTube observations, and the
+  remaining operator workspaces stay in their original roadmap phases.
 - NotebookLM is treated as a workflow pattern to reproduce through governed
   source-grounded retrieval, not as an available consumer API integration.
 - `DESIGN.md` is the design authority and migration input. `ISA.md` is the

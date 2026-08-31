@@ -24,6 +24,11 @@ intelligence, and migration closure.
   Phases 1–2 pass their acceptance gates and the owner explicitly authorizes
   the next work.
 
+- **Completed bounded release exception (owner-approved 2026-08-31):** the
+  episode-scoped published/uncut/both Ask WTF retrieval slice and its approved
+  49-item uncut activation are live and verified. This is evidence for a
+  bounded Phase 3/4 slice, not acceptance of the complete phases below.
+
 - Reconciliation of the client specification changes planning scope only. It
   does not authorize dependency installation, implementation, deployment,
   domains, accounts, provider spend, source access, or external-service writes.
@@ -72,6 +77,30 @@ source-access, language, evaluation, and workflow blockers below are resolved.
 
 No dependent plan may guess around an unresolved row. It must either stop at
 the prerequisite gate or implement an honest unavailable state.
+
+## Delivered bounded release slice — 2026-08-31
+
+The following production behavior is complete and recorded in the canonical
+handoff (`.project/HANDOFF.md`):
+
+- `/episodes/[id]` passes the mapped public YouTube `episodeId` into Ask WTF.
+- Episode-scoped Vectorize retrieval filters by `video_id` before `topK` and
+  fails closed if returned metadata is stale or unrelated.
+- Published citations retain YouTube identity and trusted timestamps; uncut
+  citations retain hash/asset identity and never inherit published timestamps.
+- `published`, `uncut`, and `both` return grounded mapped-episode answers;
+  unmapped episodes remain scoped and report uncut unavailability truthfully.
+- Approved corpus receipts are 55/55 published and 49/49 mapped uncut in KV,
+  11,948 vectors with `source_mode` and `video_id` indexes, queue backlog 0,
+  and DLQ baseline 18.
+- The final web and edge deployments, rollback recovery, and PR #32–#35
+  receipts are recorded without changing the team-owned UI design, auth,
+  DNS, secrets, or unrelated infrastructure.
+
+This slice does not satisfy the complete Phase 3/4 criteria. Trusted uncut
+timeline alignment, synchronized uncut playback, the ten-episode alignment
+evaluation, the twenty-query editorial search evaluation, hybrid search
+filters, and daily YouTube performance observations remain open work.
 
 ## Milestone Invariants
 
@@ -193,6 +222,11 @@ the prerequisite gate or implement an honest unavailable state.
 **Requirements**: PROV-01, PROV-02, PROV-03, PROV-04, PROV-05, PROV-06, PROV-07, PROV-08, PROV-09, PROV-10, PROV-11, PROV-12, PROV-13, INTG-07
 **Success Criteria**:
 
+**Bounded slice delivered:** approved published and mapped uncut assets are
+queryable with episode-scoped provenance metadata. The complete phase remains
+open until the canonical operator workspace, version inspection, and trusted
+alignment evidence are accepted.
+
   1. Both approved YouTube channels and supplied uncut assets ingest idempotently through visible asynchronous jobs.
   2. Episode metadata preserves stable identity, IP, channel, language, guests, content bucket, dates, duration, thumbnail, description, and chapters.
   3. Source-bound transcript segments retain timing, speaker, language, text, version, and asset provenance without private-path disclosure.
@@ -209,6 +243,11 @@ the prerequisite gate or implement an honest unavailable state.
 **Execution authorization**: Planned / inactive
 **Requirements**: PROV-14, KNOW-01, KNOW-02, KNOW-03, KNOW-04, KNOW-05, KNOW-06, KNOW-07, KNOW-08, ANLY-06, QUAL-11
 **Success Criteria**:
+
+**Bounded slice delivered:** mapped episode-scoped `published`, `uncut`, and
+`both` Ask WTF retrieval is live with source-aware citations and truthful
+unavailable behavior. The complete phase remains open pending evaluated search,
+timeline alignment, synchronized playback, and cached YouTube observations.
 
   1. Hybrid keyword, exact-phrase, and semantic search supports the approved filters, ten-result pagination, highlighted evidence, and honest low-confidence handling.
   2. At least eighty percent of the twenty editorial queries place the correct moment in the top three; median remains below three seconds and p95 below six.

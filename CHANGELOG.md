@@ -3,6 +3,32 @@
 All notable user-facing releases are recorded here. Versions follow semantic
 versioning; the web application version is held in `web/package.json`.
 
+## [Unreleased]
+
+## [0.2.0] - 2026-09-01
+
+### Added
+
+- Added episode-scoped Ask WTF retrieval from dedicated episode workspaces,
+  while preserving separate public episode and private uncut asset identities.
+- Added a fail-closed activation preflight that verifies mapped uncut bytes,
+  storage keys, and content hashes before production upload or ingestion.
+
+### Changed
+
+- Reconciled canonical planning and ISA evidence with the bounded production
+  release while keeping the broader provenance, alignment, playback, search,
+  analytics, and operator-workspace gates explicitly open.
+- Updated current-release onboarding to the verified 55 published, 49 mapped
+  uncut, and 11,948-vector receipt without claiming timeline alignment.
+
+### Fixed
+
+- Restored the reviewed calendar Worker module and migration still imported by
+  `main`, returning the edge bundle to a deployable state.
+- Kept transcript source hashes separate from timestamp-inclusive ingestion
+  idempotency hashes, so published sidecars still pass D1 provenance checks.
+
 ## [0.1.4] - 2026-08-31
 
 ### Changed
@@ -12,22 +38,6 @@ versioning; the web application version is held in `web/package.json`.
 - Added a deterministic development-only local RAG fallback for `/api/chat`
   while preserving the Cloudflare service-binding production path and source
   headers.
-
-## [Unreleased]
-
-### Added
-
-- Added episode-scoped Ask WTF retrieval from dedicated episode workspaces,
-  while preserving separate public episode and private uncut asset identities.
-- Added a fail-closed activation preflight that verifies mapped uncut bytes,
-  storage keys, and content hashes before production upload or ingestion.
-
-### Fixed
-
-- Restored the reviewed calendar Worker module and migration still imported by
-  `main`, returning the edge bundle to a deployable state.
-- Kept transcript source hashes separate from timestamp-inclusive ingestion
-  idempotency hashes, so published sidecars still pass D1 provenance checks.
 
 ## [0.1.3] - 2026-08-11
 

@@ -1,5 +1,48 @@
 # Project handoff
 
+## 2026-09-01 Ask WTF episode-scoped production completion
+
+**Status:** PRODUCTION COMPLETE — owner-approved final receipt for the bounded
+episode integration slice. This receipt is now the canonical handoff for the
+released behavior; it does not close the broader Phase 3–4 roadmap.
+
+- Episode pages pass the mapped public YouTube `episodeId` into Ask WTF.
+- All 49 approved mapped uncut assets are verified in R2 and D1. KV receipts
+  are 55/55 published and 49/49 uncut. Vectorize reports 11,948 vectors with
+  `source_mode` and `video_id` indexes. Queue backlog is 0 and the DLQ is back
+  at its pre-release baseline of 18.
+- Live mapped-episode chat passed for `published`, `uncut`, and `both`, with
+  grounded episode-scoped sources. An unmapped episode remained scoped and
+  truthfully reported uncut unavailable without retrieving unrelated evidence.
+- Home, `/episodes`, and mapped episode-detail pages returned HTTP 200.
+- Final web version `90099f42-13b6-4a4e-8d97-bd93b9f953fa` is deployed as
+  `c981ac0a-c141-439b-a222-14ed28764d7f`. Final edge version
+  `75b96e1f-6fa6-4182-bbdd-99047399de64` is deployed as
+  `04e2a1a9-d796-41d9-bad5-3d952c8f206c`.
+- The reviewed changes and final receipt merged through PRs [#32](https://github.com/Sheshiyer/wtfmedia/pull/32), [#33](https://github.com/Sheshiyer/wtfmedia/pull/33), [#34](https://github.com/Sheshiyer/wtfmedia/pull/34), and [#35](https://github.com/Sheshiyer/wtfmedia/pull/35).
+- Two defects were recovered without losing availability: five oversized
+  Vectorize IDs were repaired and replayed, and the first web bundle was
+  rolled back after HTTP 500s. The corrected bundle passed remote preview
+  before the final cut.
+
+### Held boundaries
+
+- Trusted uncut timeline alignment and synchronized uncut playback remain
+  unavailable; episode membership is not evidence of cross-timeline alignment.
+- Auth/Access, DNS, secrets, ingest credentials, and team-owned UI design were
+  untouched. Root ISA/architecture WIP remains preserved.
+- The full Phase 3/4 acceptance gates remain open: canonical internal
+  provenance workspace, ten-episode alignment evaluation, twenty-query search
+  evaluation, hybrid search filters, synchronized playback, and cached
+  YouTube performance observations.
+
+### Next action
+
+Planning reconciliation is recorded in `.planning/STATE.md`,
+`.planning/ROADMAP.md`, `.planning/REQUIREMENTS.md`, and `ISA.md`. Plan the
+remaining Phase 3/4 work as a separate owner-authorized slice. Do not rerun
+activation, reindexing, rollback, or deployment from this handoff.
+
 ## 2026-08-31 Production web 0.1.4 canary
 
 **Status:** LIVE — the approved web-only release is deployed and passed its

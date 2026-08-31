@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Phase 1 and Phase 2 complete; three-account Cloudflare inventory reconciled; target R2 enablement and owner-authorized execution remain
-last_updated: "2026-08-30T19:55:00.000Z"
-last_activity: 2026-08-30
+stopped_at: Episode-scoped Ask WTF production slice complete; broader Phase 3/4 acceptance remains planned
+last_updated: "2026-09-01T00:00:00.000Z"
+last_activity: 2026-09-01
 progress:
   total_phases: 10
   completed_phases: 2
@@ -24,16 +24,18 @@ See: `.planning/PROJECT.md` (updated 2026-08-20)
 its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
-**Current focus:** P0 dual-source Ask WTF is live on the target workers.dev
-preview. Uncut remains filtered and not activated. `wtfhq.in` cutover stays
-held.
+**Current focus:** The bounded episode-scoped Ask WTF production slice is live
+and verified on `wtfhq.in`: published, approved uncut, and combined retrieval
+are scoped by public YouTube `episodeId`. Trusted uncut timeline alignment,
+synchronized playback, and the broader Phase 3/4 evaluation gates remain
+planned and explicitly open.
 
 ## Current Position
 
 Phase: 02 (Platform Foundation + Authenticated Policy Boundary) — COMPLETE ✓
 Plan: 12 of 12
 Status: Complete — Staging authorized, preflight executed, owner approval bound, read-only production smoke verified
-Last activity: 2026-08-28
+Last activity: 2026-09-01 — bounded episode-scoped production receipt reconciled; no Phase 3 plan activated
 
 Authorized-plan cohort: [██████████] 100% — 35 of 35 currently
 authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
@@ -49,6 +51,12 @@ authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
 
 - **Planned / inactive:** Phases 3–10. Implementation requires Phases 1–2
   acceptance plus explicit owner authorization.
+
+- **Completed bounded release exception (owner-approved 2026-08-31):** the
+  episode-scoped published/uncut/both Ask WTF retrieval slice, approved 49-item
+  uncut activation, Vectorize metadata indexing, and production web/edge
+  deployment are complete. This exception does not authorize or complete the
+  remaining Phase 3–10 requirements.
 
 ## Performance Metrics
 
@@ -113,46 +121,62 @@ authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
 - [Current inventory 2026-08-29]: The operator UI, role/seat model, JWT verifier, D1 authorization design, and loopback-only local development context exist in source, but this checkout does not prove a live Access Application, policy, protected hostname, Access issuer/audience/JWKS, environment binding, or real seat assignment. Historical Phase 2 closure language is retained as record, not current runtime proof. See `docs/architecture/architecture.html`.
 - [Current release 2026-08-30]: The owner temporarily authorizes an ungated public URL. Anonymous visitors may view WTF OS and list/create/update production-calendar records; anonymous delete, ingestion control, transcript activation, provider configuration, secrets, and release approval remain outside the exception. Cloudflare Access and fine-grained RBAC move to the next release.
 - [Cloudflare migration 2026-08-30]: Live evidence resolves three accounts: `9d9d` is the retained read/copy source, repository-bound `wtfmedia` is the target that owns `wtfhq.in`, and `default` is unrelated and untouched. The initial target foundation wave is complete: R2 reconciles at 99 objects / 13,204,194 bytes with all-object hash equality; KV reconciles at 55 keys with value equality and no logged values; Vectorize reconciles at 5,742 unique matching IDs, 1,024 dimensions, and cosine; both queue shells exist; and D1 has migrations `0001`–`0005` applied. Target Workers, queue bindings, the calendar migration, secrets, domain/DNS, final delta, and cutover remain gated. See `.planning/inputs/2026-08-30-9d9d-cloudflare-migration-inventory.md`.
+- [Episode-scoped Ask WTF release 2026-08-31]: Owner-approved production receipt confirms 55/55 published and 49/49 mapped uncut KV memberships, 11,948 Vectorize vectors with `source_mode` and `video_id` indexes, queue backlog 0, DLQ baseline 18, and grounded live `published`, `uncut`, and `both` chat for mapped episodes. Web version `90099f42-13b6-4a4e-8d97-bd93b9f953fa` and edge version `75b96e1f-6fa6-4182-bbdd-99047399de64` are the final deployed versions. This is a bounded production slice, not proof of trusted timeline alignment or synchronized uncut playback.
+
+### Completed bounded release slice
+
+- Episode detail now carries its mapped public YouTube `episodeId` into Ask
+  WTF; episode-scoped retrieval filters Vectorize by `video_id` before `topK`
+  and post-filters stale/unrelated matches.
+- Published citations retain YouTube identity and trusted timestamps. Uncut
+  citations retain hash/asset identity and never inherit a YouTube timestamp.
+  `both` preserves both source modes in one grounded response.
+- The approved 49-item uncut corpus is verified across R2, D1, KV, and
+  Vectorize. The release also repaired five oversized vector IDs and replayed
+  only those messages; no broader queue reset occurred.
+- The first web bundle was rolled back after HTTP 500s. A corrected OpenNext
+  bundle passed remote preview before the final production deployment.
+- Remaining acceptance is intentionally open: canonical operator provenance
+  workspace, ten-episode alignment evaluation, twenty-query editorial search
+  evaluation, synchronized uncut playback, and daily YouTube analytics.
 
 ### Pending Todos
 
 Phase 1 and Phase 2 are complete. Future roadmap execution:
 
 1. **Client inputs for Phase 3–4** — IP taxonomy, 20-query editorial set, Frame.io/Drive/Zset share rotation. These block Phases 3–4.
-2. **Bounded Phase 3 release slice** — The owner authorizes reuse/migration of
-   the existing Ask WTF storage, retrieval, and ingestion foundation plus the
-   published/uncut source-mode extension. Unverified source rows, generated
-   timestamps, and provider activation remain fail-closed.
-3. **Target Cloudflare cutover** — Initial target resources and bulk
-   R2/KV/Vectorize reconciliation are complete. Add the reviewed calendar
-   migration; deploy reviewed Workers with fresh secrets and queue bindings;
-   and attach
-   `wtfhq.in` only after preview gates, owner-authorized source quiesce/final
-   delta, rollback acceptance/rehearsal, and explicit cutover authorization pass.
+2. **Close the remaining Phase 3/4 gates** — The bounded episode-scoped
+   production slice is complete. Plan the canonical internal provenance
+   workspace, source/version inspection, ten-episode trusted alignment
+   evaluation, twenty-query editorial search evaluation, hybrid filters, and
+   synchronized playback as separate owner-authorized work.
+3. **Broader platform and analytics work** — Access/RBAC, daily YouTube
+   analytics, research, production operations, source adapters, reporting,
+   clip intelligence, and migration closure remain planned/inactive. Do not
+   infer their completion from the episode release.
 
 ### Blockers/Concerns
 
 - Phase 1 (21 requirements) and Phase 2 (15 requirements) are 100% complete and verified.
-- YouTube access, episode inventory, uncut mapping, Hindi behavior, and the editorial query set block Phases 3–4.
+- YouTube access, the approved episode inventory, and the 49-item uncut mapping
+  are resolved for the bounded release slice. Trusted timeline alignment,
+  synchronized uncut playback, Hindi behavior, and the editorial query set
+  still block full Phase 3/4 acceptance.
 - Research inputs and vendor/export/orchestration decisions block Phase 5; calendar, analytics-access, reporting, and clip-trigger decisions block Phases 6–9.
 - The current owner decision supersedes the blanket Phase 3 inactivity line
   only for the four named release deliverables: WTF OS UI, published/uncut
   transcript retrieval, persistent production calendar, and settings hygiene.
   Unrelated Phase 3–10 scope remains inactive.
-- The repository-bound target OAuth and R2 authority now pass and the initial
-  target create/copy window is complete. DNS-record reads remain denied. Fresh
-  target secrets, reviewed integrated source, the calendar migration, and the
-  deployment/cutover gates still block Workers and hostname activation.
-- Source D1 and WTF Pages are absent. The live edge settings and deployments
-  are administrable through `9d9d`; target D1 must be created and both Workers
-  must be redeployed from reviewed source.
-- Source consistency requires a bounded, separately authorized pause of new
-  ingestion/producers, queue settlement, and a final R2/KV/Vectorize delta.
-  Before that window, source remains read-only.
-- The verified source Workers.dev URL is an emergency endpoint, but current
-  domain rollback restores the pre-cutover no-apex state rather than same-host
-  continuity. Owner acceptance or a separately rehearsed same-host route is a
-  cutover gate.
+- The episode-scoped web and edge deployments are now complete and verified;
+  the final versions and rollback targets are recorded in `.project/HANDOFF.md`.
+  DNS, Access/RBAC, secrets, ingest credentials, and unrelated Workers remain
+  outside this release and require separate authority.
+- The approved corpus receipt is reconciled for 55 published and 49 mapped
+  uncut assets. Do not broaden the claim to deferred sheet rows or treat
+  episode membership as timeline alignment.
+- Trusted timeline alignment and synchronized uncut playback remain blocked on
+  authoritative alignment data and the ten-episode evaluation set. Hybrid
+  search quality remains blocked on the twenty-query editorial evaluation set.
 - Cloudflare Access/RBAC is deliberately deferred and is not a blocker for the
   short-lived public-link release.
 
@@ -164,11 +188,11 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
 
 ## Session Continuity
 
-Last session: 2026-08-30
-Stopped at: Initial target Cloudflare foundation created and bulk R2/KV/
-Vectorize data reconciled; D1 migrations `0001`–`0005` applied. Workers,
-calendar persistence, secrets, queue bindings, final delta, and hostname remain.
+Last session: 2026-09-01
+Stopped at: Episode-scoped Ask WTF production completion. Published, approved
+uncut, and combined mapped-episode chat passed live; final web/edge versions,
+rollback, corpus, queue, and deferred-boundary receipts are recorded.
 Resume file: `.project/HANDOFF.md`
-Resume: Resolve the reviewed integration source and failing edge expectation,
-add the reviewed calendar migration, establish fresh target secrets, then
-deploy edge/web previews before any source quiesce or hostname cutover.
+Resume: Plan the remaining Phase 3/4 provenance, alignment, search-evaluation,
+and dual-playback work as a separate owner-authorized slice. Do not rerun the
+completed activation or deployment from this state.
