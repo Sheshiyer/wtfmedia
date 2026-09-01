@@ -14,6 +14,15 @@ requirements assigned to **Phase 1** and **Phase 2** may be executed first.
 Phases 3–10 remain planned, not implementation-authorized, until Phases 1–2 pass
 their acceptance gates and the owner explicitly proceeds.
 
+**Bounded release note (2026-08-31):** The owner-approved episode-scoped Ask
+WTF slice was released as a narrow exception over the existing public contract:
+mapped published and uncut evidence is queryable by public `episodeId`, and
+`published`, `uncut`, and `both` return source-aware grounded results. This
+receipt does not activate the remaining Phase 3–10 requirements or change any
+requirement checkbox. Trusted timeline alignment, synchronized uncut playback,
+evaluated search, daily YouTube observations, and the broader operator
+workspaces remain separately gated.
+
 Client-facing “Phase 1” and “Phase 2” are delivery tracks, not aliases for the
 repository's numbered execution phases. Client Phase 1 closes across repository
 Phases 2–4 after the Phase 1 proof harness; client Phase 2 closes across

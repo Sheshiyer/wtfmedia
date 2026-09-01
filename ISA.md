@@ -7,7 +7,7 @@ phase: plan
 progress: 39/155
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-08-30T16:31:07+05:30
+updated: 2026-09-01T00:00:00+05:30
 ---
 
 ## Problem
@@ -368,7 +368,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 <!-- arch-assets:start -->
 
 _Auto-maintained by `ArchitectureAssetsSync.hook.ts` on release events._
-_Last refreshed: 2026-08-29T10:11:39.123Z_
+_Last refreshed: 2026-08-31T19:33:20.952Z_
 
 | Asset | Status | How it's generated |
 |---|---|---|
@@ -426,6 +426,7 @@ _Last refreshed: 2026-08-29T10:11:39.123Z_
 - 2026-08-30 16:22 IST: The migration is capability-gated rather than generically token-gated. Target R2 enablement/authority, DNS/domain authority, fresh secrets, reviewed source, and a bounded owner-authorized execution window precede any create, copy, deployment, or cutover; `default` remains untouched and source data is retained, while source runtime settings may change only inside the separately authorized quiesce.
 - 2026-08-30 16:30 IST: Independent audit tightened cutover consistency: bulk copy is followed by a separately authorized source ingress/producer quiesce, queue settlement, and final R2/KV/Vectorize delta. Rollback uses the verified source Workers.dev endpoint while restoring quiesced settings; absent a separately rehearsed route, removing the target Custom Domain returns `wtfhq.in` to its pre-cutover no-apex state and is not same-host continuity.
 - 2026-08-30 16:22 IST: ❌ DEAD END: The required Advisor review was attempted after live reconciliation but the local Advisor OAuth session remains expired. It was not repaired or substituted with a false success; direct Cloudflare receipts and the ISA completeness/independent audit govern this checkpoint.
+- 2026-09-01 00:00 IST: refined: The owner-approved episode-scoped production receipt is now the latest runtime evidence. Published, approved mapped uncut, and combined Ask WTF retrieval are live with `episodeId`/`video_id` scope; 55/55 published and 49/49 mapped uncut receipts reconcile across KV and Vectorize reports 11,948 vectors. This is a bounded release slice, not completion of the full provenance/search phases; trusted timeline alignment, synchronized uncut playback, and evaluation gates remain open.
 
 ## Changelog
 
@@ -461,6 +462,10 @@ _Last refreshed: 2026-08-29T10:11:39.123Z_
   refuted by: fresh profile-scoped lists show 55 persistent KV keys and readable edge settings/deployments; target OAuth reauthentication succeeds while R2 returns disabled code `10042` and DNS-record reads remain unauthorized
   learned: this is a three-account, capability-gated clone-and-cutover; Pages and `default` are non-actions, while R2/KV/Vectorize/queues/D1/Workers and the final domain each need explicit evidence gates
   criterion now: ISC-145 through ISC-155 bind the profile topology, paginated source truth, target gaps, action matrix, final-delta consistency, exact rollback, and no-mutation boundary to probes
+- 2026-09-01 | conjectured: episode integration would require replacing the public chat contract or collapsing published and uncut evidence into one timeline
+  refuted by: the production receipt and focused source-mode proofs show an optional public `episodeId` scope, pre-`topK` `video_id` filtering, source-aware citations, truthful unmapped behavior, and separate published/uncut locators
+  learned: the completed slice can be carried as additive evidence over the existing public route and API while the full provenance, alignment, playback, search-evaluation, and analytics criteria remain pending
+  criterion now: ISC-88 has release evidence for episode-scoped retrieval, while no broader ISC is marked complete without its own acceptance probe
 
 ## Verification
 
@@ -513,3 +518,5 @@ _Last refreshed: 2026-08-29T10:11:39.123Z_
 - ISC-153 evidence: every Cloudflare operation in the pass was an auth, list, info, settings, deployment-history, health, or public-DNS read. No create, put, deploy, secret write, copy, route/domain update, or delete command was issued.
 - ISC-154 evidence: the ordered migration contract separates an initial bulk R2/KV/Vectorize baseline from an owner-authorized source pause, queue settlement, recorded high-water state, final data delta, and abort/restore rule before domain attachment.
 - ISC-155 evidence: direct HTTP reads returned 200 for the source web Worker emergency URL and edge health. The rollback contract names the web URL, restores quiesced source settings, removes the target Custom Domain to recover the pre-cutover no-apex state, and blocks cutover unless that outage model is accepted or a same-host route is rehearsed.
+- Episode-scoped production receipt (2026-08-31): final web version `90099f42-13b6-4a4e-8d97-bd93b9f953fa` and edge version `75b96e1f-6fa6-4182-bbdd-99047399de64` passed live home, episodes, mapped-detail, and mapped `published`/`uncut`/`both` chat probes. KV membership was 55/55 published plus 49/49 mapped uncut; Vectorize reported 11,948 vectors with `source_mode` and `video_id` indexes; queue backlog was 0 and DLQ returned to baseline 18. The first web bundle's HTTP 500 was rolled back, the corrected preview passed, and no auth, DNS, secret, or unrelated UI boundary changed.
+- Episode-scope contract proof: focused Cloudflare source-mode tests pass for public YouTube ID validation, pre-`topK` `video_id` filtering, stale-match rejection, unmapped-episode truthfulness, mixed-source citation identity, and the rule that uncut citations never inherit YouTube timestamps. Trusted cross-timeline alignment and synchronized playback remain unverified by design.
