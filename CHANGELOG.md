@@ -84,6 +84,20 @@ versioning; the web application version is held in `web/package.json`.
   while preserving the Cloudflare service-binding production path and source
   headers.
 
+## [0.3.1-alpha.1] - 2026-09-01
+
+### Added
+
+- Added a WTF OS favicon, Apple touch icon, Android/PWA icons, and maskable icon
+  derived from the brand mark and wired them through the web metadata manifest.
+- Added a browser regression proving an approved uncut Frame.io URL is rendered
+  as the source action href.
+
+### Fixed
+
+- Kept the approved uncut Frame.io destination visible in Ask WTF source cards
+  while retaining truthful timestamp and playback boundaries.
+
 ## [0.1.3] - 2026-08-11
 
 ### Fixed

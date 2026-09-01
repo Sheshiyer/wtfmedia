@@ -96,6 +96,26 @@ function mockGroundedAnswer(
   );
 }
 
+function mockUncutFrameIoAnswer(page: import("@playwright/test").Page) {
+  mockChatStream(page, ["Uncut grounded answer [1]."], {
+    "X-Sources": JSON.stringify([
+      {
+        n: 1,
+        video_id: "O7O204wD82s",
+        title: "Vinod Khosla",
+        score: 0.92,
+        t: 451,
+        time: "7:31",
+        url: "https://f.io/0I8LmYs9",
+        source_mode: "uncut",
+        mapping_status: "mapped",
+      },
+    ]),
+    "X-Model": "test-model",
+    "X-Fallback": "false",
+  });
+}
+
 /** Mock /api/chat with an abstention response. */
 function mockAbstention(page: import("@playwright/test").Page) {
   mockChatStream(page, ["I don't have enough information to answer that."], {
@@ -222,6 +242,24 @@ test.describe("/chat journey — migrated variant", () => {
     await sourcePanel.locator("summary").click();
     await expect(sourcePanel).toContainText("Episode 1: The Beginning");
     await expect(sourcePanel).toContainText("Episode 5: Persistence");
+  });
+
+  test("shows the approved Frame.io URL and serves it from the source action", async ({ page }) => {
+    mockUncutFrameIoAnswer(page);
+
+    await page.goto("/chat");
+    await settle(page);
+
+    await page.locator("textarea").fill("What was said in the uncut recording?");
+    await page.locator('button[type="submit"]').click();
+
+    const sourcePanel = page.locator('[data-testid="source-panel"]');
+    await expect(sourcePanel).toBeVisible();
+    await sourcePanel.locator("summary").click();
+
+    const sourceAction = sourcePanel.getByRole("link", { name: "open Frame.io source" });
+    await expect(sourceAction).toHaveAttribute("href", "https://f.io/0I8LmYs9");
+    await expect(sourceAction).toHaveAttribute("target", "_blank");
   });
 
   test("shows untimed sources without timestamp", async ({ page }) => {
