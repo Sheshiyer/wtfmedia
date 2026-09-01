@@ -126,10 +126,9 @@ workstream and production receipt.
 manifest only. No login, shared password, per-user history, Cloudflare
 mutation, deploy, ingest enqueue, or secret rotation is included.
 
-- The current release shell uses a fixed header wordmark plus an operations
-  disclosure and a scroll-safe bottom application dock. Workspace links remain
-  in the dock; role-projected operational links are exposed only through the
-  disclosure.
+- The current release shell uses a fixed header wordmark plus one application
+  navigation disclosure. Public workspace and role-projected operational links
+  share that scroll-safe disclosure surface.
 - The disclosure is a labelled button/navigation pair, moves focus to its first
   link when opened, closes on Escape or an outside pointer, and restores focus
   to the toggle on Escape. Responsive proof covers 320, 768, and 1440 pixels.

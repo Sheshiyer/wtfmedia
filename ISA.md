@@ -368,7 +368,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 <!-- arch-assets:start -->
 
 _Auto-maintained by `ArchitectureAssetsSync.hook.ts` on release events._
-_Last refreshed: 2026-08-29T10:11:39.123Z_
+_Last refreshed: 2026-08-31T19:33:20.952Z_
 
 | Asset | Status | How it's generated |
 |---|---|---|
