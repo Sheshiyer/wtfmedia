@@ -87,6 +87,7 @@ async function importLocalRoute(opts: {
   vi.resetModules();
   vi.stubEnv("EDGE_SHARED_SECRET", "");
   vi.stubEnv("CLOUDFLARE_EDGE_SHARED_SECRET", "");
+  vi.stubEnv("WTFMEDIA_LOCAL_RAG_ENABLED", "true");
   vi.stubEnv("NVIDIA_API_KEY", "local-test-key");
   vi.doMock("@opennextjs/cloudflare", () => ({
     getCloudflareContext: async () => ({ env: {} }),
@@ -169,6 +170,7 @@ describe("POST /api/chat — history window", () => {
 
 describe("POST /api/chat — server-only edge authentication", () => {
   it("returns 503 JSON 'not configured' when the shared secret is unset", async () => {
+    vi.stubEnv("NVIDIA_API_KEY", "");
     const { POST } = await importRoute({ sharedSecret: "" });
     const res = await POST(chatRequest({ messages: [userMessage("hello")] }));
     expect(res.status).toBe(503);
@@ -229,6 +231,16 @@ describe("POST /api/chat — upstream failure branches", () => {
 });
 
 describe("POST /api/chat — successful upstream answer", () => {
+  it("preserves an approved Frame.io URL for uncut citations", async () => {
+    const { POST } = await importRoute();
+    const res = await POST(chatRequest({ messages: [userMessage(triggerQuestion("uncut-frameio"))], sourceMode: "uncut" }));
+    expect(res.status).toBe(200);
+    const sources = JSON.parse(decodeURIComponent(res.headers.get("X-Sources")!));
+    expect(sources[0].url).toBe("https://f.io/0I8LmYs9");
+    expect(sources[0].source_mode).toBe("uncut");
+    expect(sources[0].segment_id).toBe("uncut:source-a:0");
+  });
+
   it("returns a grounded plain-text answer with X-Fallback: false and mapped sources", async () => {
     const { POST } = await importRoute();
     const res = await POST(chatRequest({ messages: [userMessage("what happened")] }));

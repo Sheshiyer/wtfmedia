@@ -2,6 +2,7 @@
 
 import { useOperatorContext } from "@/components/domain/ops/OperatorContextProvider";
 import { OperatorContextStrip } from "@/components/domain/ops/OperatorContextStrip";
+import { ReleaseControl } from "./ReleaseControl";
 import { ReleaseStatusWidget } from "@/components/patterns/ReleaseStatusWidget";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
 
@@ -20,6 +21,9 @@ export default function SettingsPage() {
       <div className="mx-auto max-w-[var(--wtf-content-max)] px-4 py-8 sm:px-8 xl:px-12">
         <div className="overflow-hidden rounded-panel border-2 border-foreground">
           <OperatorContextStrip context={context} />
+        </div>
+        <div className="mt-6">
+          <ReleaseControl />
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <ReleaseStatusWidget

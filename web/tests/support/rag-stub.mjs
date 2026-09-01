@@ -97,6 +97,28 @@ export function startRagStub(options = {}) {
           );
           return;
         }
+        case "uncut-frameio": {
+          res.writeHead(200, { "Content-Type": "application/json" }).end(
+            JSON.stringify({
+              answer: "Grounded uncut answer.",
+              grounded: true,
+              sourceMode: "uncut",
+              sources: [{
+                n: 1,
+                videoId: "RSB58m7Xwhg",
+                title: "Uncut Episode",
+                score: 0.91,
+                start: 125,
+                timestamped: true,
+                url: "https://f.io/0I8LmYs9",
+                sourceMode: "uncut",
+                mappingStatus: "mapped",
+                segmentId: "uncut:source-a:0",
+              }],
+            })
+          );
+          return;
+        }
         default: {
           res.writeHead(200, { "Content-Type": "application/json" }).end(
             JSON.stringify({ answer: "Grounded answer text.", grounded: true, sources: groundedSources() })
