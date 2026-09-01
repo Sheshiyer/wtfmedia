@@ -1,9 +1,9 @@
 /**
  * Public source citations for Ask WTF.
  *
- * Public citations can deep-link to a published YouTube moment. Uncut playback
- * is intentionally shown as unavailable until a trusted Worker projection
- * provides a signed asset link and verified timeline alignment.
+ * Public citations can deep-link to a published YouTube moment or an approved
+ * Frame.io source. Uncut playback remains unavailable until timeline alignment
+ * and a trusted media projection are separately verified.
  */
 
 "use client";
@@ -94,7 +94,10 @@ export function SourcePanel({ sources }: SourcePanelProps) {
             const episodeHref = source.episodeId
               ? `/episodes?id=${encodeURIComponent(source.episodeId)}`
               : null;
-            const publishedHref = videoId
+            const uncutHref = source.sourceMode === "uncut" && source.url?.startsWith("https://")
+              ? source.url
+              : null;
+            const publishedHref = videoId && source.sourceMode !== "uncut"
               ? youtubeWatchUrl(videoId, resolved.activeTimeSec)
               : null;
 
@@ -120,12 +123,21 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-secondary">
-                  <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
-                    {resolved.activeTimeSec === null
-                      ? "timestamp unavailable"
-                      : `published ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
-                  </span>
-                  {publishedHref ? (
+                  {resolved.activeTimeSec !== null ? (
+                    <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
+                      {`${source.sourceMode === "uncut" ? "uncut" : "published"} ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
+                    </span>
+                  ) : null}
+                  {uncutHref ? (
+                    <a
+                      href={uncutHref}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded bg-surface-structure px-2 py-0.5 text-[10px] text-on-structure hover:opacity-90"
+                    >
+                      open Frame.io source
+                    </a>
+                  ) : publishedHref ? (
                     <a
                       href={publishedHref}
                       target="_blank"

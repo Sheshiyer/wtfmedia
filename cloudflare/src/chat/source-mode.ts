@@ -31,17 +31,31 @@ function youtubeWatchUrl(videoId: string, start: number | null): string {
   return start == null ? base : `${base}&t=${Math.floor(start)}s`;
 }
 
+function frameIoUrl(value: unknown): string | null {
+  if (typeof value !== "string" || !value.trim()) return null;
+  try {
+    const parsed = new URL(value);
+    const hostname = parsed.hostname.toLowerCase();
+    const allowedHost = hostname === "f.io" || hostname === "frame.io" || hostname.endsWith(".frame.io");
+    return parsed.protocol === "https:" && allowedHost ? parsed.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Published citations may carry a YouTube watch URL.
- * Uncut citations are a direct catalogue ref (`uncut:{id}`), never an http URL.
+ * Published citations carry a YouTube watch URL. Uncut citations carry the
+ * approved Frame.io episode URL when one was persisted, otherwise a direct
+ * catalogue ref (`uncut:{id}`).
  */
 export function citationRef(
   stored: StoredSourceMode,
   videoId: string,
   start: number | null,
   timestamped: boolean,
+  approvedFrameIoUrl: string | null = null,
 ): string {
-  if (stored === "uncut") return `uncut:${videoId}`;
+  if (stored === "uncut") return approvedFrameIoUrl ?? `uncut:${videoId}`;
   return youtubeWatchUrl(videoId, timestamped ? start : null);
 }
 
@@ -145,7 +159,10 @@ export function projectDualSourceCitation(
       : "mapped";
   const citationIdentity = stored === "uncut" ? uncutSourceIdentity(metadata, videoId) : videoId;
   if (!citationIdentity) return null;
-  const url = citationRef(stored, citationIdentity, timestamped ? start : null, timestamped);
+  const approvedFrameIoUrl = stored === "uncut"
+    ? frameIoUrl(metadata.frame_io_url ?? metadata.frameIoFinalEpUrl ?? metadata.frame_io_final_ep_url)
+    : null;
+  const url = citationRef(stored, citationIdentity, timestamped ? start : null, timestamped, approvedFrameIoUrl);
 
   return {
     n: index + 1,
