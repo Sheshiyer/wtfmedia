@@ -122,7 +122,7 @@ export function AskComposer({
             type="submit"
             disabled={disabled || loading || !value.trim()}
             loading={loading}
-            className="min-h-12 w-full border-foreground bg-knowledge text-on-knowledge hover:bg-knowledge sm:min-h-16"
+            className="min-h-12 w-full border-foreground !bg-knowledge !text-on-knowledge hover:!bg-knowledge sm:min-h-16"
           >
             ask wtf
           </Button>

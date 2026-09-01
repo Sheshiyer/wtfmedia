@@ -1318,3 +1318,34 @@ is needed.
 
 No deployment, registry, credential, production, or legacy-variant mutation
 occurred in this wave.
+
+## 2026-08-31 public component theme contrast checkpoint
+
+**Scope:** isolated branch `codex/ui-theme-fix`; active WTF OS public and
+shared component surfaces only. Root `main`, PR worktrees, and production were
+not changed.
+
+- Added the missing Tailwind role aliases for `primary`, `secondary`, `muted`,
+  and `on-structure`, so `text-secondary`, `text-muted`, and
+  `text-on-structure` resolve to the canonical light/dark CSS channels.
+- Corrected the Ask WTF submit button to keep its intended knowledge fill,
+  migrated the availability card, ingest running badge, guest rail, and public
+  navigation to semantic tokens, and made the standalone connection graph
+  consume the theme-aware canvas palette.
+- Kept the light default and the existing published/uncut unavailable contract;
+  this does not activate uncut ingestion or alter citation provenance.
+
+### Verification (isolated worktree)
+
+```text
+web lint: PASS
+web unit: 18 files / 70 tests PASS
+web contracts: 8 files / 83 tests PASS
+manual Playwright probe: light and dark semantic fills/text resolve correctly
+```
+
+`npm run typecheck` and the Playwright production-build harness remain blocked
+by the checkout's shared `web/node_modules` missing the declared
+`@opennextjs/cloudflare` package; no source or lockfile change was made to
+work around that environment issue. No commit, push, merge, deploy, or secret
+mutation occurred.

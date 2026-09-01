@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { PublicConnectionsData } from "@/lib/public/connections";
+import { graphPaletteFromCssVariables } from "@/lib/public/theme-colors";
 
 /**
  * Migrated Connection Graph (Plan 01-13).
@@ -13,19 +14,21 @@ import type { PublicConnectionsData } from "@/lib/public/connections";
 type GNode = PublicConnectionsData["nodes"][number];
 type GEdge = PublicConnectionsData["edges"][number];
 
-// category -> brand hex (covers both entity + theme category names)
-function catHex(c: string): string {
+// category -> semantic token classes (covers entity + theme category names)
+function categoryClass(c: string): string {
   const k = c.toLowerCase();
-  if (k.includes("ai") || k.includes("tech")) return "#6758A5";
-  if (k.includes("start") || k.includes("business")) return "#F07633";
-  if (k.includes("money") || k.includes("finance") || k.includes("market")) return "#0C9367";
-  if (k.includes("geo") || k.includes("society")) return "#C53B3A";
-  if (k.includes("health")) return "#1FA88A";
-  if (k.includes("media") || k.includes("culture")) return "#2D6BE0";
-  if (k.includes("india")) return "#F1B333";
-  if (k.includes("mind") || k.includes("philos")) return "#1A1A1A";
-  if (k.includes("science")) return "#0E7C86";
-  return "#1A1A1A";
+  if (k.includes("ai") || k.includes("tech")) return "bg-knowledge text-on-knowledge";
+  if (k.includes("start") || k.includes("business")) return "bg-information text-on-information";
+  if (k.includes("money") || k.includes("finance") || k.includes("market")) {
+    return "border-live bg-canvas text-foreground";
+  }
+  if (k.includes("geo") || k.includes("society")) return "bg-editorial text-on-editorial";
+  if (k.includes("health")) return "border-live bg-canvas text-foreground";
+  if (k.includes("media") || k.includes("culture")) return "bg-information text-on-information";
+  if (k.includes("india")) return "bg-attention text-on-attention";
+  if (k.includes("mind") || k.includes("philos")) return "bg-surface-structure text-on-structure";
+  if (k.includes("science")) return "bg-information text-on-information";
+  return "bg-surface-structure text-on-structure";
 }
 
 type P = { x: number; y: number; vx: number; vy: number; r: number };
@@ -66,6 +69,9 @@ export function MigratedConnectionGraph({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     resize();
+    let palette = graphPaletteFromCssVariables(
+      getComputedStyle(document.documentElement),
+    );
 
     const pts: P[] = nodes.map((n, i) => {
       const a = (i / nodes.length) * Math.PI * 2;
@@ -148,7 +154,7 @@ export function MigratedConnectionGraph({
         ctx.beginPath();
         ctx.moveTo(pts[i].x, pts[i].y);
         ctx.lineTo(pts[j].x, pts[j].y);
-        ctx.strokeStyle = active ? "rgba(26,26,26,0.55)" : "rgba(26,26,26,0.08)";
+        ctx.strokeStyle = active ? palette.edgeActive : palette.edgeInactive;
         ctx.lineWidth = 0.5 + (e.shared / maxShared) * 3;
         ctx.stroke();
       }
@@ -157,14 +163,14 @@ export function MigratedConnectionGraph({
         ctx.globalAlpha = dim ? 0.25 : 1;
         ctx.beginPath();
         ctx.arc(pts[i].x, pts[i].y, pts[i].r, 0, Math.PI * 2);
-        ctx.fillStyle = catHex(nodes[i].category);
+        ctx.fillStyle = palette.category(nodes[i].category);
         ctx.fill();
         ctx.lineWidth = 2;
-        ctx.strokeStyle = "#1A1A1A";
+        ctx.strokeStyle = palette.nodeStroke;
         ctx.stroke();
         if (!dim && (pts[i].r > 16 || i === hov)) {
           ctx.globalAlpha = 1;
-          ctx.fillStyle = "#1A1A1A";
+          ctx.fillStyle = palette.label;
           ctx.font = "600 11px Poppins, sans-serif";
           ctx.textAlign = "center";
           ctx.fillText(nodes[i].label, pts[i].x, pts[i].y + pts[i].r + 12);
@@ -217,41 +223,54 @@ export function MigratedConnectionGraph({
     canvas.addEventListener("pointerdown", onDown);
     canvas.addEventListener("pointerup", onUp);
     window.addEventListener("resize", resize);
+    const onThemeChange = () => {
+      palette = graphPaletteFromCssVariables(
+        getComputedStyle(document.documentElement),
+      );
+    };
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+    const themeObserver = new MutationObserver(onThemeChange);
+    systemTheme.addEventListener("change", onThemeChange);
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-wtf-theme"],
+    });
     return () => {
       cancelAnimationFrame(raf);
       canvas.removeEventListener("pointermove", onMove);
       canvas.removeEventListener("pointerdown", onDown);
       canvas.removeEventListener("pointerup", onUp);
       window.removeEventListener("resize", resize);
+      systemTheme.removeEventListener("change", onThemeChange);
+      themeObserver.disconnect();
     };
   }, [nodes, edges]);
 
   return (
-    <div className="relative rounded-lg border-2 border-ink bg-cream overflow-hidden" style={{ height: 560 }}>
+    <div className="relative h-[560px] overflow-hidden rounded-panel border-2 border-foreground bg-surface-raised">
       <canvas ref={canvasRef} className="w-full h-full block touch-none" />
-      <div className="absolute top-3 left-3 text-[11px] text-ink/45">
+      <div className="absolute left-3 top-3 text-[11px] text-muted">
         drag nodes · hover to isolate · click for episodes
       </div>
 
       {selected && (
-        <div className="absolute top-3 right-3 w-72 max-h-[92%] overflow-y-auto rounded-lg border-2 border-ink bg-white p-4 shadow-[6px_6px_0_#1A1A1A]">
+        <div className="absolute right-3 top-3 max-h-[92%] w-72 overflow-y-auto rounded-control border-2 border-foreground bg-surface-raised p-4 shadow-[6px_6px_0_var(--wtf-surface-structure)]">
           <div className="flex items-start justify-between gap-2">
             <div>
               <div
-                className="inline-block px-2 py-0.5 rounded text-cream text-[10px] font-semibold"
-                style={{ background: catHex(selected.category) }}
+                className={`inline-block rounded border px-2 py-0.5 text-[10px] font-semibold ${categoryClass(selected.category)}`}
               >
                 {selected.category}
               </div>
-              <h3 className="font-semibold mt-2 leading-snug text-ink">{selected.label}</h3>
-              <p className="text-xs text-ink/55 mt-0.5">
+              <h3 className="mt-2 font-semibold leading-snug text-foreground">{selected.label}</h3>
+              <p className="mt-0.5 text-xs text-secondary">
                 {selected.episodeCount} episodes
               </p>
             </div>
             <button
               onClick={() => setSelected(null)}
               data-cursor="close"
-              className="inline-block px-2 py-0.5 rounded bg-wtf-red text-cream text-[10px] font-semibold shrink-0"
+              className="inline-block shrink-0 rounded bg-editorial px-2 py-0.5 text-[10px] font-semibold text-on-editorial"
             >
               ✕
             </button>
@@ -264,7 +283,7 @@ export function MigratedConnectionGraph({
                 target="_blank"
                 rel="noreferrer"
                 data-cursor="watch"
-                className="block text-[11px] px-2 py-1 rounded bg-cream border border-ink/20 hover:bg-wtf-yellow transition-colors truncate"
+                className="block truncate rounded bg-canvas px-2 py-1 text-[11px] text-foreground transition-colors hover:bg-attention/20"
               >
                 {vid}
               </a>
