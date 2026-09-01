@@ -1,0 +1,26 @@
+[
+  {
+    "id": "compatibility-contract-audit",
+    "task": "Read-only audit of origin/main ee00c28 and the preserved WTFMedia WIP branches. Produce a concise evidence report covering public routes, /api/chat request and response compatibility, sourceMode published/uncut/both behavior, citations, fallback headers, and the exact files that must remain stable. Do not edit files, install dependencies, call production, or mutate any remote service.",
+    "backend": "omniroute",
+    "model": "noesis-execute"
+  },
+  {
+    "id": "backend-overlap-audit",
+    "task": "Read-only audit of codex/wtfmedia-dual-source-chat, codex/uncut-alignment-citations, codex/wtfmedia-backend-reconciliation, and codex/episode-retrieval-contracts against origin/main. Build a file-level overlap and selective-integration matrix, identify conflicting implementations, and recommend a safe cherry-pick/adaptation order. Do not edit files or run remote mutations.",
+    "backend": "omniroute",
+    "model": "noesis-execute"
+  },
+  {
+    "id": "ui-auth-release-audit",
+    "task": "Read-only audit of codex/wtfmedia-ui-wave1, codex/ui-theme-fix, current UI variant selection, Access/D1 policy, session code, static model catalog, and settings documents. Report gaps for server-governed stable/beta/experimental rollout, no forced update, rollback, auth/RBAC, sessions/history, memory, protected admin panels, model registry, and fine-tuning controls. Do not edit or deploy.",
+    "backend": "omniroute",
+    "model": "noesis-execute"
+  },
+  {
+    "id": "gsd-roadmap-gate-audit",
+    "task": "Read-only audit of .planning/ROADMAP.md, .planning/STATE.md, existing Phase 3 plans, ISA.md, and .project/HANDOFF.md. Map the proposed release-safe integration program into GSD waves, dependencies, acceptance gates, owner decisions, and rollback evidence. Flag stale or contradictory status claims. Do not edit files or access production.",
+    "backend": "omniroute",
+    "model": "noesis-execute"
+  }
+]

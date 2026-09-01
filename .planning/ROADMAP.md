@@ -33,6 +33,13 @@ intelligence, and migration closure.
   does not authorize dependency installation, implementation, deployment,
   domains, accounts, provider spend, source access, or external-service writes.
 
+- **Additive release-safe planning overlay (owner-authorized locally):** the
+  `03-00` entry gate and its audit fleet add sequencing and compatibility
+  controls in front of the preserved Phase 3 plans. Existing research,
+  requirements, phase plans, and historical receipts remain retained; this
+  overlay does not replace or delete them. Phase 3 implementation remains
+  inactive until the gate and its owner decisions pass.
+
 ## Client Delivery Tracks
 
 | Client track | Repository phases | Acceptance spine |
@@ -233,7 +240,10 @@ alignment evidence are accepted.
   4. Per-episode mapping never assumes a universal offset and resolves ten approved evaluation episodes within two seconds in both directions.
   5. Re-ingestion activates a complete version without mixing obsolete chunks or citations.
 
-**Plans**: TBD
+**Plans**: `03-00` release-safe integration gate plus the six preserved
+`03-01`–`03-06` implementation plans. `03-00` is additive and must pass before
+any preserved implementation plan is activated; the six plans remain retained
+and are not superseded.
 **UI hint**: yes
 
 ### Phase 4: Podcast Brain Search + Dual Playback
