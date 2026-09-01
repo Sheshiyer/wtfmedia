@@ -240,10 +240,26 @@ alignment evidence are accepted.
   4. Per-episode mapping never assumes a universal offset and resolves ten approved evaluation episodes within two seconds in both directions.
   5. Re-ingestion activates a complete version without mixing obsolete chunks or citations.
 
-**Plans**: `03-00` release-safe integration gate plus the six preserved
-`03-01`–`03-06` implementation plans. `03-00` is additive and must pass before
-any preserved implementation plan is activated; the six plans remain retained
-and are not superseded.
+**Plans**: `03-00` release-safe integration gate, the six preserved
+`03-01`–`03-06` implementation plans, and additive mini-phase `03-07` for
+authenticated Ask WTF history. `03-00` is additive and must pass before any
+preserved implementation plan or `03-07` is activated; the six plans remain
+retained and are not superseded.
+
+**Additive mini-phase 03-07 — Authenticated Ask WTF history**
+
+**Goal**: Approved operators can use an Access-protected `/ops/chat` surface
+whose conversations and messages persist in D1 under the server-resolved
+operator identity, survive logout and later reauthentication, and remain
+isolated by RBAC; anonymous `/chat` and `/api/chat` stay unchanged and
+stateless.
+**Depends on**: `03-00`, Phase 2 auth evidence, explicit owner decisions for
+Access path/session duration, retention/deletion, and admin visibility.
+**Execution authorization**: Planned / inactive; schema, Access policy,
+remote migration, deployment, and live activation each require their own gate.
+**Plan**: `03-07-CONTEXT.md` and `03-07-PLAN.md`.
+**Rollback**: server-disable the authenticated feature manifest; public chat
+remains the stable compatibility path.
 **UI hint**: yes
 
 ### Phase 4: Podcast Brain Search + Dual Playback
