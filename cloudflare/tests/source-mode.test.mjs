@@ -169,6 +169,48 @@ describe("dual-source chat contract", () => {
     assert.equal(citation?.timestamped, true);
   });
 
+  test("preserves the approved Frame.io URL for uncut source identity", () => {
+    const citation = projectDualSourceCitation(
+      {
+        id: "uncut:hash:0",
+        score: 0.9,
+        metadata: {
+          video_id: "abcdefghijk",
+          title: "Uncut episode",
+          start: 95,
+          timestamped: true,
+          source_mode: "uncut",
+          frameIoFinalEpUrl: "https://f.io/0I8LmYs9",
+        },
+      },
+      "uncut",
+      0,
+    );
+
+    assert.equal(citation?.sourceMode, "uncut");
+    assert.equal(citation?.videoId, "abcdefghijk");
+    assert.equal(citation?.segmentId, "uncut:hash:0");
+    assert.equal(citation?.url, "https://f.io/0I8LmYs9");
+  });
+
+  test("uncut citations preserve an approved Frame.io URL and source identity", () => {
+    const citation = projectDualSourceCitation(
+      {
+        id: "uncut:source-a:0",
+        score: 0.9,
+        metadata: {
+          video_id: "RSB58m7Xwhg",
+          source_asset_id: "source-a",
+          frame_io_url: "https://f.io/0I8LmYs9",
+          source_mode: "uncut",
+        },
+      },
+      "uncut",
+      0,
+    );
+    assert.equal(citation?.url, "https://f.io/0I8LmYs9");
+  });
+
   test("a published timestamp is not projected as uncut", () => {
     const citation = projectDualSourceCitation(
       {
@@ -258,6 +300,61 @@ describe("dual-source chat contract", () => {
     assert.equal(resolved.citations[0].url.startsWith("uncut:"), true);
     assert.equal(resolved.citations[1].sourceMode, "published");
     assert.equal(resolved.citations[1].url.includes("youtube.com"), true);
+  });
+
+  test("both mode balances published and uncut evidence within the citation limit", () => {
+    const matches = [
+      { id: "uncut-a", score: 0.96, metadata: { video_id: "uncut-a", source_mode: "uncut", title: "Uncut A" } },
+      { id: "uncut-b", score: 0.95, metadata: { video_id: "uncut-b", source_mode: "uncut", title: "Uncut B" } },
+      { id: "uncut-c", score: 0.94, metadata: { video_id: "uncut-c", source_mode: "uncut", title: "Uncut C" } },
+      { id: "abcdefghijk", score: 0.93, metadata: { video_id: "abcdefghijk", title: "Published A" } },
+      { id: "lmnopqrstuv", score: 0.92, metadata: { video_id: "lmnopqrstuv", title: "Published B" } },
+      { id: "zyxwvutsrqp", score: 0.91, metadata: { video_id: "zyxwvutsrqp", title: "Published C" } },
+    ];
+
+    const resolved = resolveRequestedSources(matches, "both", 0.45, 4);
+
+    assert.deepEqual(resolved.citations.map((citation) => citation.sourceMode), [
+      "uncut",
+      "published",
+      "uncut",
+      "published",
+    ]);
+    assert.deepEqual(resolved.citations.map((citation) => citation.n), [1, 2, 3, 4]);
+  });
+
+  test("episode-scoped both mode reserves representation for published and uncut sources", () => {
+    const uncut = Array.from({ length: 6 }, (_, index) => ({
+      id: `uncut:hash-${index}:${index}`,
+      score: 0.99 - index * 0.01,
+      metadata: {
+        video_id: "abcdefghijk",
+        source_asset_id: `hash-${index}`,
+        title: "Uncut episode",
+        source_mode: "uncut",
+      },
+    }));
+    const published = Array.from({ length: 2 }, (_, index) => ({
+      id: `pub-${index}`,
+      score: 0.9 - index * 0.01,
+      metadata: {
+        video_id: "abcdefghijk",
+        title: "Published episode",
+        source: "https://www.youtube.com/watch?v=abcdefghijk",
+      },
+    }));
+
+    const resolved = resolveEpisodeScopedSources(
+      [...uncut, ...published],
+      "both",
+      "abcdefghijk",
+      0.45,
+      6,
+    );
+
+    assert.equal(resolved.citations.length, 6);
+    assert.equal(resolved.citations.some((citation) => citation.sourceMode === "uncut"), true);
+    assert.equal(resolved.citations.some((citation) => citation.sourceMode === "published"), true);
   });
 
   test("both mode reports uncut unavailable when only published evidence exists", () => {

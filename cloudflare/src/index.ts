@@ -12,9 +12,11 @@ import {
   type Operator,
   type AuditAction,
   type DB,
-} from "./db";
-import { handleOpsRequest, type OpsEnv } from "./ops-router";
-import { allowCalendarRequest, handleCalendarRequest } from "./calendar";
+} from "./db.ts";
+import { getSourceAssetById } from "./db/provenance.ts";
+import type { SourceAssetRecord } from "./dto.ts";
+import { handleOpsRequest, type OpsEnv } from "./ops-router.ts";
+import { allowCalendarRequest, handleCalendarRequest } from "./calendar.ts";
 import {
   buildVectorQueryOptions,
   extractNamedEntityPhrases,
@@ -22,14 +24,14 @@ import {
   parseSourceMode,
   prioritizeMatchesForQuestion,
   resolveEpisodeScopedSources,
-} from "./chat/source-mode";
+} from "./chat/source-mode.ts";
 import {
   ingestStateKey,
   parseJobSourceMode,
   vectorRecordId,
   vectorSourceRef,
-} from "./catalogue/asset-map";
-import { extractTimestampLines } from "./catalogue/timestamps";
+} from "./catalogue/asset-map.ts";
+import { extractTimestampLines } from "./catalogue/timestamps.ts";
 
 export interface Env extends OpsEnv {
   AI: any;
@@ -48,6 +50,7 @@ export interface Env extends OpsEnv {
 
 type TranscriptJob = {
   videoId: string;
+  sourceAssetId?: string;
   title: string;
   transcriptKey: string;
   timestampsKey?: string;
@@ -199,8 +202,31 @@ function requiresVerifiedMetadata(question: string) {
     || /\b(?:recur(?:ring|s)?|repeat(?:s|ed|ing)?|appear(?:s|ances?|ing)?|mentioned|occur(?:s|rence)?|most)\b[\s\S]{0,100}\b(?:\d+\s*\+?\s*(?:episodes?|conversations?)|across|throughout)\b/i.test(question);
 }
 
+async function assertDeclaredSourceAsset(job: TranscriptJob, env: Env) {
+  const sourceAsset = job.sourceAssetId
+    ? await getSourceAssetById(env.DB, job.sourceAssetId)
+    : await env.DB.prepare(`
+      SELECT * FROM source_assets
+      WHERE storage_driver = 'r2'
+        AND storage_key = ?
+        AND content_sha256 = ?
+        AND availability = 'available'
+      LIMIT 1
+    `).bind(job.transcriptKey, job.contentHash).first<SourceAssetRecord>();
+  if (
+    !sourceAsset
+    || sourceAsset.storage_driver !== "r2"
+    || sourceAsset.availability !== "available"
+  ) {
+    throw new Error("source_asset_unavailable");
+  }
+  const sourceObject = await env.CATALOGUE.get(sourceAsset.storage_key);
+  if (!sourceObject) throw new Error("source_asset_unavailable");
+}
+
 async function ingest(job: TranscriptJob, env: Env) {
   const sourceMode = parseJobSourceMode(job.sourceMode);
+  await assertDeclaredSourceAsset(job, env);
   const stateKey = ingestStateKey(job.videoId, sourceMode);
   const previousHash = await env.WTFMEDIA_STATE.get(stateKey);
   if (previousHash === job.contentHash) return;

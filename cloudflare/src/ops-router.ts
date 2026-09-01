@@ -14,6 +14,23 @@ import {
   handleResolveCitation,
   handleYouTubeSync,
 } from "./ops-episodes.ts";
+import {
+  appendMessage,
+  archiveConversation,
+  createConversation,
+  exportConversationsCsv,
+  getConversation,
+  getConversationForActor,
+  listConversationsForActor,
+  type ChatActor,
+  type MessageInput,
+} from "./chat/history.ts";
+import {
+  canMutateAuthenticatedChatRelease,
+  isAuthenticatedChatEnabled,
+  resolveAuthenticatedChatRelease,
+  setAuthenticatedChatRelease,
+} from "./release-manifest.ts";
 
 export type OpsEnvironment = "local" | "staging" | "production";
 export type OpsEnv = {
@@ -27,6 +44,7 @@ export type OpsEnv = {
   ACCESS_JWKS_URL: string;
   CATALOGUE?: any;
   EDGE_SHARED_SECRET?: string;
+  CHAT_HISTORY_ENABLED?: string | boolean;
 };
 
 type OpsDependencies = {
@@ -50,8 +68,137 @@ function protectedPath(pathname: string): string | null {
   if (pathname === "/ops/api/ingest/youtube-sync" || pathname === "/api/ops/ingest/youtube-sync") return "/ops/api/ingest/youtube-sync";
   if (pathname.startsWith("/ops/api/episodes/") || pathname.startsWith("/api/ops/episodes/")) return pathname;
   if (pathname === "/ops") return pathname;
+  if (pathname === "/ops/settings") return pathname;
+  if (pathname === "/ops/chat" || pathname.startsWith("/ops/chat/")) return pathname;
+  if (pathname === "/ops/api/chat" || pathname.startsWith("/ops/api/chat/") || pathname === "/api/ops/chat" || pathname.startsWith("/api/ops/chat/")) return pathname;
+  if (pathname === "/ops/api/release/authenticated-chat" || pathname === "/api/ops/release/authenticated-chat") return pathname;
+  if (/^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0-9_-]*$/u.test(pathname)) return pathname;
   if (pathname === "/ops/operators" || pathname === "/ops/audit" || pathname === "/ops/production" || pathname === "/ops/ingest" || pathname === "/ops/episodes" || pathname.startsWith("/ops/episodes/")) return pathname;
   return null;
+}
+
+function chatRoute(pathname: string): boolean {
+  return pathname === "/ops/chat" || pathname.startsWith("/ops/chat/")
+    || pathname === "/ops/api/chat" || pathname.startsWith("/ops/api/chat/")
+    || pathname === "/api/ops/chat" || pathname.startsWith("/api/ops/chat/")
+    || /^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0-9_-]*$/u.test(pathname);
+}
+
+function releaseRoute(pathname: string): boolean {
+  return pathname === "/ops/api/release/authenticated-chat" || pathname === "/api/ops/release/authenticated-chat";
+}
+
+function jsonBody(request: Request): Promise<Record<string, unknown> | null> {
+  return request.json().then((body) => body && typeof body === "object" && !Array.isArray(body) ? body as Record<string, unknown> : null).catch(() => null);
+}
+
+function chatMessageInput(value: unknown, role?: "user" | "assistant"): MessageInput | null {
+  if (typeof value === "string") return { role, content: value };
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  return { ...(value as MessageInput), ...(role ? { role } : {}) };
+}
+
+function conversationIdFromPath(pathname: string): string | null {
+  const match = pathname.match(/\/chat\/conversations\/(cnv_[A-Za-z0-9-]{8,88})(?:\/(?:archive|export))?$/u);
+  return match?.[1] ?? null;
+}
+
+async function chatExport(request: Request, env: OpsEnv, context: OperatorContext, conversationId?: string): Promise<Response> {
+  if (!decide(context.role, "chat", "export", { environment: context.environment })) return denied();
+  const body = request.method === "POST" ? await jsonBody(request) : null;
+  const operatorScope = body?.operatorId ?? new URL(request.url).searchParams.get("operatorId") ?? undefined;
+  const csv = await exportConversationsCsv(env.DB, { operatorId: context.operatorId, role: context.role }, operatorScope);
+  if (csv === null) return denied();
+  const suffix = conversationId ? `-${conversationId}` : "";
+  return new Response(csv, { headers: { ...protectedResponseHeaders, "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename=wtfmedia-chat-history${suffix}.csv`, "x-content-type-options": "nosniff" } });
+}
+
+async function chatApi(request: Request, env: OpsEnv, context: OperatorContext): Promise<Response> {
+  const actor: ChatActor = { operatorId: context.operatorId, role: context.role };
+  const path = new URL(request.url).pathname;
+  if (path.endsWith("/export")) return chatExport(request, env, context, conversationIdFromPath(path));
+
+  const archivePath = path.endsWith("/archive");
+  const conversationId = conversationIdFromPath(path) ?? (archivePath ? null : null);
+  if (request.method === "GET") {
+    if (conversationId) {
+      const view = await getConversationForActor(env.DB, actor, conversationId);
+      return view ? Response.json({ conversation: view.conversation, messages: view.messages, policy: { archive: true, export: context.role === "admin" || context.role === "super_admin" } }, { headers: protectedResponseHeaders }) : denied();
+    }
+    const url = new URL(request.url);
+    const page = await listConversationsForActor(env.DB, actor, url.searchParams.get("cursor") ?? undefined, Number(url.searchParams.get("limit") ?? "25"));
+    return page ? Response.json({ ...page, policy: { archive: true, export: context.role === "admin" || context.role === "super_admin" } }, { headers: protectedResponseHeaders }) : denied();
+  }
+
+  if (archivePath || request.method === "PATCH") {
+    const id = conversationId ?? (await jsonBody(request))?.conversationId;
+    const archived = await archiveConversation(env.DB, actor, id);
+    return archived ? Response.json({ conversation: archived }, { headers: protectedResponseHeaders }) : denied();
+  }
+
+  if (request.method !== "POST") return denied();
+  const body = await jsonBody(request);
+  if (!body) return denied();
+  if (body.action === "export") return chatExport(request, env, context);
+  if (body.action === "archive") {
+    const archived = await archiveConversation(env.DB, actor, body.conversationId);
+    return archived ? Response.json({ conversation: archived }, { headers: protectedResponseHeaders }) : denied();
+  }
+
+  const requestId = request.headers.get("x-request-id") ?? body.requestId;
+  const idempotencyKey = request.headers.get("idempotency-key") ?? body.idempotencyKey;
+  const selectedConversationId = conversationId ?? body.conversationId;
+  const userValue = body.userMessage ?? body.message ?? (body.question === undefined ? undefined : { content: body.question });
+  const userMessage = chatMessageInput(userValue, "user");
+  if (!userMessage) return denied();
+  userMessage.requestId ??= requestId;
+  userMessage.idempotencyKey ??= idempotencyKey;
+
+  let view;
+  if (selectedConversationId === undefined) {
+    view = await createConversation(env.DB, context.operatorId, {
+      title: body.title,
+      sourceMode: body.sourceMode,
+      episodeId: body.episodeId,
+      userMessage,
+      idempotencyKey,
+    });
+    if (!view) return denied();
+  } else {
+    const appended = await appendMessage(env.DB, context.operatorId, selectedConversationId, userMessage);
+    if (!appended) return denied();
+    view = await getConversation(env.DB, context.operatorId, selectedConversationId);
+    if (!view) return denied();
+  }
+
+  const assistantValue = body.assistant ?? body.answer;
+  if (assistantValue !== undefined) {
+    const assistant = chatMessageInput(assistantValue, "assistant");
+    if (!assistant) return denied();
+    const assistantRecord = assistantValue && typeof assistantValue === "object" && !Array.isArray(assistantValue) ? assistantValue as Record<string, unknown> : {};
+    assistant.sourceMetadata ??= assistantRecord.sources === undefined && assistantRecord.citations === undefined ? {} : { sources: assistantRecord.sources ?? assistantRecord.citations };
+    assistant.grounded ??= assistantRecord.grounded;
+    assistant.model ??= assistantRecord.model;
+    assistant.modelFallback ??= assistantRecord.modelFallback ?? assistantRecord.fallback;
+    assistant.requestId ??= requestId;
+    assistant.idempotencyKey ??= typeof idempotencyKey === "string" ? `${idempotencyKey}:assistant` : undefined;
+    const assistantId = view.conversation.id;
+    if (!await appendMessage(env.DB, context.operatorId, assistantId, assistant, "assistant")) return denied();
+    view = await getConversation(env.DB, context.operatorId, assistantId);
+    if (!view) return denied();
+  }
+  return Response.json(view, { status: 201, headers: protectedResponseHeaders });
+}
+
+async function releaseApi(request: Request, env: OpsEnv, context: OperatorContext): Promise<Response> {
+  if (request.method === "GET") {
+    const release = await resolveAuthenticatedChatRelease(env.DB, context.environment, env.CHAT_HISTORY_ENABLED);
+    return Response.json({ feature: release.feature, environment: release.environment, state: release.state, source: release.source, ...(release.updatedAt ? { updatedAt: release.updatedAt } : {}), ...(release.updatedByOperatorId ? { updatedByOperatorId: release.updatedByOperatorId } : {}) }, { headers: protectedResponseHeaders });
+  }
+  if (request.method !== "POST" || !canMutateAuthenticatedChatRelease(context.role, context.environment)) return denied();
+  const body = await jsonBody(request);
+  const release = await setAuthenticatedChatRelease(env.DB, { operatorId: context.operatorId, role: context.role }, context.environment, body?.state, context.correlationId);
+  return release ? Response.json({ feature: release.feature, environment: release.environment, state: release.state, source: release.source, updatedAt: release.updatedAt, updatedByOperatorId: release.updatedByOperatorId }, { headers: protectedResponseHeaders }) : denied();
 }
 
 function auditFilters(url: URL): AuditFilters {
@@ -131,6 +278,10 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
   const url = new URL(request.url);
   const path = protectedPath(url.pathname);
   if (!path || url.hostname !== env.OPS_HOSTNAME || !validEnvironment(env.OPS_ENVIRONMENT) || !env.OPS_ORIGIN || !env.OPS_ORIGIN_PROOF) return denied();
+  if (chatRoute(url.pathname)) {
+    const release = await resolveAuthenticatedChatRelease(env.DB, env.OPS_ENVIRONMENT, env.CHAT_HISTORY_ENABLED);
+    if (!isAuthenticatedChatEnabled(release)) return denied();
+  }
   const requirement = policyForPath(path);
   if (!requirement) return denied();
 
@@ -147,8 +298,10 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
       actorId: context.operatorId, role: context.role, metadata: { scope: path },
     });
     if (!audited) return denied();
+    if (releaseRoute(url.pathname)) return releaseApi(request, env, context);
     if (url.pathname === "/api/ops/operators") return operatorApi(request, env, context);
     if (url.pathname === "/api/ops/audit") return auditApi(request, env, context);
+    if (chatRoute(url.pathname) && (url.pathname.includes("/api/chat"))) return chatApi(request, env, context);
     if (url.pathname === "/ops/api/assets/upload-intent" || url.pathname === "/api/ops/assets/upload-intent") {
       return handleAssetUploadIntent(request, env, context);
     }

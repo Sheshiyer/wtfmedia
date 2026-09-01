@@ -29,6 +29,18 @@ function youtubeWatchUrl(videoId: string, timeSec: number | null): string {
   return `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&t=${timestamp}s`;
 }
 
+function isApprovedFrameIoUrl(value: string | undefined): value is string {
+  if (!value?.trim()) return false;
+  try {
+    const parsed = new URL(value);
+    const hostname = parsed.hostname.toLowerCase();
+    return parsed.protocol === "https:"
+      && (hostname === "f.io" || hostname === "frame.io" || hostname.endsWith(".frame.io"));
+  } catch {
+    return false;
+  }
+}
+
 export function SourcePanel({ sources }: SourcePanelProps) {
   const citationPlaybackTitleId = useId();
   const uncutPlaybackStatusId = useId();
@@ -124,6 +136,10 @@ export function SourcePanel({ sources }: SourcePanelProps) {
             const publishedHref = videoId
               ? youtubeWatchUrl(videoId, resolved.activeTimeSec)
               : null;
+            const uncutHref = source.sourceMode === "uncut" && isApprovedFrameIoUrl(source.url)
+              ? source.url
+              : null;
+            const playbackHref = source.sourceMode === "uncut" ? uncutHref : publishedHref;
 
             return (
               <li
@@ -150,16 +166,16 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                   <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
                     {resolved.activeTimeSec === null
                       ? "timestamp unavailable"
-                      : `published ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
+                      : `${source.sourceMode === "uncut" ? "uncut" : "published"} ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
                   </span>
-                  {publishedHref ? (
+                  {playbackHref ? (
                     <a
-                      href={publishedHref}
+                      href={playbackHref}
                       target="_blank"
                       rel="noreferrer"
                       className="rounded bg-surface-structure px-2 py-0.5 text-[10px] text-on-structure hover:opacity-90"
                     >
-                      open published moment
+                      {source.sourceMode === "uncut" ? "open uncut source" : "open published moment"}
                     </a>
                   ) : null}
                 </div>

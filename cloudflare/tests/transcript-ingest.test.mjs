@@ -44,6 +44,7 @@ import {
   listTranscriptVersions,
   upsertEpisode,
 } from "../src/db/provenance.ts";
+import edgeWorker from "../src/index.ts";
 import { episodeUlid, assetUlid, jobUlid } from "../src/utils/ulid.ts";
 
 const root = new URL("..", import.meta.url).pathname;
@@ -822,6 +823,125 @@ Co-Host: arre bhai bilkul sahi bola aapne yaar.
       const jobRow = await db.prepare("SELECT * FROM ingestion_jobs WHERE id = ?").bind(jobId).first();
       assert.equal(jobRow.status, "failed");
       assert.equal(jobRow.error_message, "source_asset_unavailable");
+    });
+
+    test("rejects vector staging when declared D1 source asset is missing or unavailable", async () => {
+      const transcriptR2Key = `transcripts/edge-admission-${Date.now()}.txt`;
+      await r2.put(transcriptR2Key, "Transcript exists, but its declared source receipt does not.");
+
+      const state = new Map();
+      const env = {
+        DB: db,
+        CATALOGUE: r2,
+        VECTORIZE: vectorize,
+        AI: ai,
+        WTFMEDIA_STATE: {
+          async get(key) { return state.get(key) ?? null; },
+          async put(key, value) { state.set(key, value); },
+        },
+      };
+
+      for (const [label, sourceAssetId, availability] of [
+        ["missing", assetUlid(), undefined],
+        ["unavailable", assetUlid(), "offline"],
+      ]) {
+        const videoId = `${label.slice(0, 4)}${String(Date.now()).slice(-7)}`;
+        if (availability) {
+          const episodeId = episodeUlid();
+          await upsertEpisode(db, {
+            id: episodeId,
+            slug: `test-edge-admission-${label}-${Date.now()}`,
+            title: `Edge admission ${label}`,
+            ip: "WTF Main",
+            showTitle: "WTF Podcast",
+          });
+          await createSourceAsset(db, {
+            id: sourceAssetId,
+            episodeId,
+            assetType: "uncut_audio",
+            storageKey: `episodes/${episodeId}/assets/${label}.wav`,
+            contentSha256: "2".repeat(64),
+            mimeType: "audio/wav",
+            availability,
+          });
+        }
+
+        const vectorCountBefore = vectorize._store.size;
+        let retryCalled = false;
+        await edgeWorker.queue({
+          messages: [{
+            body: {
+              videoId,
+              sourceAssetId,
+              title: `Edge admission ${label}`,
+              transcriptKey: transcriptR2Key,
+              contentHash: `${label === "missing" ? "3" : "4"}`.repeat(64),
+              sourceMode: "uncut",
+            },
+            ack() {},
+            retry() { retryCalled = true; },
+          }],
+        }, env);
+
+        assert.equal(retryCalled, true, `${label} source asset must be rejected`);
+        assert.equal(vectorize._store.size, vectorCountBefore, `${label} source asset must not stage vectors`);
+      }
+    });
+
+    test("rejects vector staging when declared D1 source asset backing R2 object is absent", async () => {
+      const episodeId = episodeUlid();
+      const sourceAssetId = assetUlid();
+      const sourceAssetR2Key = `episodes/${episodeId}/assets/missing.wav`;
+      const transcriptR2Key = `transcripts/edge-admission-r2-${Date.now()}.txt`;
+
+      await upsertEpisode(db, {
+        id: episodeId,
+        slug: `test-edge-admission-r2-${Date.now()}`,
+        title: "Edge admission absent R2 object",
+        ip: "WTF Main",
+        showTitle: "WTF Podcast",
+      });
+      await createSourceAsset(db, {
+        id: sourceAssetId,
+        episodeId,
+        assetType: "uncut_audio",
+        storageKey: sourceAssetR2Key,
+        contentSha256: "5".repeat(64),
+        mimeType: "audio/wav",
+      });
+      await r2.put(transcriptR2Key, "Transcript exists, but its declared source object does not.");
+
+      const state = new Map();
+      const env = {
+        DB: db,
+        CATALOGUE: r2,
+        VECTORIZE: vectorize,
+        AI: ai,
+        WTFMEDIA_STATE: {
+          async get(key) { return state.get(key) ?? null; },
+          async put(key, value) { state.set(key, value); },
+        },
+      };
+      const vectorCountBefore = vectorize._store.size;
+      let retryCalled = false;
+
+      await edgeWorker.queue({
+        messages: [{
+          body: {
+            videoId: "r2missing01",
+            sourceAssetId,
+            title: "Edge admission absent R2 object",
+            transcriptKey: transcriptR2Key,
+            contentHash: "6".repeat(64),
+            sourceMode: "uncut",
+          },
+          ack() {},
+          retry() { retryCalled = true; },
+        }],
+      }, env);
+
+      assert.equal(retryCalled, true, "Absent source object must be rejected");
+      assert.equal(vectorize._store.size, vectorCountBefore, "Absent source object must not stage vectors");
     });
   });
 });

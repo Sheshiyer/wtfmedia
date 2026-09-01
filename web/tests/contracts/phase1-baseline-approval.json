@@ -29,7 +29,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "32ece5dd33bf84bf4bed8e1a24f295a8effbf0556fc17e6bd66d3d237af4f004"
+      "sha256": "967e20c7f434e61ff0c5bff4eeb56c8fd5dd49f794def1ed530cb175183e68f0"
     }
   ],
   "streaming_contract": {
