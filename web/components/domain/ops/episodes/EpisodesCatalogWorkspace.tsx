@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { TitleMapRow, TitleMapStatus, TitleMapTable, UncutPointer } from "@/lib/catalogue/excel-title-map";
+import { isPublicUncutTitleActivated, publicUncutActivation } from "@/lib/catalogue/public-uncut-activation";
 
 export type { TitleMapTable };
 
@@ -10,14 +11,14 @@ const FAIL_CLOSED = "No episode data is shown.";
 export function EpisodesCatalogWorkspace({ table }: { table: TitleMapTable | null }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | TitleMapStatus>("all");
-  const [uncutFilter, setUncutFilter] = useState<"all" | UncutPointer>("all");
+  const [uncutFilter, setUncutFilter] = useState<"all" | UncutPointer | "active">("all");
 
   const filteredRows = useMemo(() => {
     const rows = table?.rows ?? [];
     const query = searchQuery.trim().toLowerCase();
     return rows.filter((row) => {
       if (statusFilter !== "all" && row.status !== statusFilter) return false;
-      if (uncutFilter !== "all" && row.uncutPointer !== uncutFilter) return false;
+      if (uncutFilter !== "all" && uncutAvailability(row) !== uncutFilter) return false;
       if (!query) return true;
       return (
         row.title.toLowerCase().includes(query) ||
@@ -43,16 +44,18 @@ export function EpisodesCatalogWorkspace({ table }: { table: TitleMapTable | nul
 
   return (
     <div className="space-y-6">
-      <dl className="grid gap-3 rounded-panel border-2 border-foreground bg-surface-raised p-4 font-label text-sm sm:grid-cols-4">
+      <dl className="grid gap-3 rounded-panel border-2 border-foreground bg-surface-raised p-4 font-label text-sm sm:grid-cols-2 lg:grid-cols-5">
         <Count label="mapped" value={table.mappedCount} />
+        <Count label="uncut active" value={publicUncutActivation.activationCount} />
         <Count label="quarantined" value={table.quarantinedCount} />
         <Count label="missing source" value={table.missingSourceCount} />
         <Count label="snapshot" value={table.snapshotAt} />
       </dl>
 
       <p className="max-w-[65ch] font-body text-sm text-secondary">
-        this is a title map, not a live catalogue. uncut pointers stay candidate and not activated.
-        quarantined titles are listed only so they stay excluded.
+        this is a sheet map with a backend activation receipt. active means approved
+        uncut evidence is indexed for episode-scoped Ask WTF; playback and timeline
+        alignment remain held. quarantined titles stay excluded.
       </p>
 
       <div className="grid gap-3 rounded-panel border-2 border-foreground bg-surface-raised p-4 sm:grid-cols-[1fr_160px_160px] items-end">
@@ -89,10 +92,11 @@ export function EpisodesCatalogWorkspace({ table }: { table: TitleMapTable | nul
           </span>
           <select
             value={uncutFilter}
-            onChange={(event) => setUncutFilter(event.target.value as "all" | UncutPointer)}
+            onChange={(event) => setUncutFilter(event.target.value as "all" | UncutPointer | "active")}
             className="min-h-10 rounded-control border-2 border-foreground bg-canvas px-2 text-xs font-semibold uppercase text-foreground focus-visible:outline-attention"
           >
             <option value="all">all pointers</option>
+            <option value="active">active</option>
             <option value="candidate">candidate</option>
             <option value="absent">absent</option>
           </select>
@@ -146,6 +150,7 @@ function Count({ label, value }: { label: string; value: string | number }) {
 
 function TitleMapRowView({ row }: { row: TitleMapRow }) {
   const excluded = row.status === "quarantined";
+  const availability = uncutAvailability(row);
   return (
     <tr className={excluded ? "bg-surface-subtle/60" : "hover:bg-canvas/50"}>
       <td className="p-3 font-body text-xs font-bold text-foreground">{row.title}</td>
@@ -155,7 +160,7 @@ function TitleMapRowView({ row }: { row: TitleMapRow }) {
         </span>
       </td>
       <td className="p-3 lowercase text-secondary">
-        {row.uncutPointer} · {row.uncutActivation}
+        {availability} · {availability === "active" ? "indexed" : row.uncutActivation}
       </td>
       <td className="p-3 font-mono text-[10px] text-secondary">
         {row.internal ? `${row.internal.sheet} · ${row.internal.sourceRow}` : "—"}
@@ -165,4 +170,8 @@ function TitleMapRowView({ row }: { row: TitleMapRow }) {
       </td>
     </tr>
   );
+}
+
+function uncutAvailability(row: TitleMapRow): UncutPointer | "active" {
+  return isPublicUncutTitleActivated(row.title) ? "active" : row.uncutPointer;
 }

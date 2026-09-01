@@ -45,6 +45,14 @@ test.describe("Episodes route journeys", () => {
     await expect(page.getByText("not activated")).toHaveCount(0);
   });
 
+  test("dedicated page exposes indexed uncut evidence without enabling playback", async ({ page }) => {
+    await page.goto("/episodes/68ylaeBbdsg", { waitUntil: "domcontentloaded" });
+
+    await expect(page.getByLabel("uncut evidence status").getByText("uncut indexed", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "uncut version" })).toHaveCount(0);
+    await expect(page.getByText(/episode-scoped Ask WTF/i)).toBeVisible();
+  });
+
   test("transcript and keywords are compact with show-more accordions", async ({ page }) => {
     await page.goto("/episodes/SPLFyVyTI1A", { waitUntil: "domcontentloaded" });
 
@@ -109,6 +117,7 @@ test.describe("Episodes route journeys", () => {
 
     const form = page.locator('form[action="/chat"]');
     await expect(form).toBeVisible();
+    await expect(form.locator('input[name="episodeId"]')).toHaveValue(/^[A-Za-z0-9_-]{11}$/);
     await expect(form.locator('textarea[name="q"]')).toContainText("map the transcript");
     await expect(form.locator('input[name="episodeId"]')).toHaveValue(/[A-Za-z0-9_-]{11}/);
   });

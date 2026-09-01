@@ -73,7 +73,6 @@ function calendarReply(body: unknown, status = 200, headers: HeadersInit = {}) {
     headers: { "Cache-Control": "no-store", ...headers },
   });
 }
-
 function toEvent(row: CalendarRow): CalendarEvent {
   return {
     id: row.event_id,

@@ -65,10 +65,14 @@ function ChatInner() {
       const sourcesHeader = response.headers.get("X-Sources");
       const modelHeader = response.headers.get("X-Model");
       const fallbackHeader = response.headers.get("X-Fallback");
+      const responseSourceMode = parseSourceMode(response.headers.get("X-Source-Mode"));
 
       const sources: Source[] = parsePublicSourceHeader(sourcesHeader).map((source) => ({
         ...source,
-        sourceMode: parseSourceMode(response.headers.get("X-Source-Mode") ?? source.sourceMode),
+        // Keep the per-source mode from X-Sources when present. The response
+        // mode can describe a fallback or mixed result and must not relabel
+        // published evidence as uncut (or vice versa).
+        sourceMode: source.sourceMode ?? responseSourceMode,
       }));
 
       // Stream the response body

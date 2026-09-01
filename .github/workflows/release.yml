@@ -1,0 +1,100 @@
+name: WTFMedia Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing v* tag to verify and publish"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+
+jobs:
+  verify:
+    name: Verify release tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            web/package-lock.json
+            cloudflare/package-lock.json
+
+      - name: Verify tag and package versions
+        shell: bash
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-alpha\.[0-9]+$ ]]; then
+            echo "Release tags must use vMAJOR.MINOR.PATCH-alpha.N" >&2
+            exit 1
+          fi
+          expected="${RELEASE_TAG#v}"
+          test "$(node -p "require('./package.json').version")" = "$expected"
+          test "$(node -p "require('./web/package.json').version")" = "$expected"
+          test "$(node -p "require('./cloudflare/package.json').version")" = "$expected"
+
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Install Worker dependencies
+        working-directory: cloudflare
+        run: npm ci
+
+      - name: Run Worker tests
+        working-directory: cloudflare
+        run: npm test
+
+      - name: Run web typecheck, lint, and contracts
+        working-directory: web
+        run: |
+          npm run typecheck
+          npm run lint
+          npm run test:contracts
+
+      - name: Check generated architecture artifacts
+        run: npm run docs:architecture:check
+
+  publish:
+    name: Publish GitHub release
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+
+      - name: Create prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          notes="docs/releases/${RELEASE_TAG#v}.md"
+          if [ ! -f "$notes" ]; then
+            echo "Missing release notes: $notes" >&2
+            exit 1
+          fi
+          gh release create "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --prerelease \
+            --title "WTFMedia $RELEASE_TAG" \
+            --notes-file "$notes"

@@ -31,7 +31,19 @@
 
 ---
 
-## Current Release
+## Release candidate
+
+`v0.3.0-alpha.1` is the consolidated episode-scoped dual-source Ask WTF
+release candidate. The root, web, and Worker packages are aligned to this
+version. It adds source-aware episode retrieval, approved uncut activation,
+Frame.io citation links, deterministic uncut metadata refreshes, navigation
+cleanup, and the calendar control-plane API. See the [release notes](docs/releases/v0.3.0-alpha.1.md)
+and [changelog](CHANGELOG.md).
+
+Cross-timeline alignment and synchronized uncut playback remain explicitly
+held; an approved Frame.io episode URL is not itself a timestamp mapping.
+
+## Current production release
 
 The current production release is the WTF OS web app on `https://wtfhq.in` with
 Ask WTF backed by Cloudflare R2, KV, Vectorize, D1, Queues, and Workers AI.
@@ -71,7 +83,7 @@ An experimental view of recurring themes and ideas across the catalogue. It is n
 <td width="50%" valign="top">
 
 ### 💬 Ask WTF
-The live path is bounded RAG with source citations over `published`, `uncut`, and `both` modes. It retrieves evidence, validates citation metadata, and falls back truthfully when synthesis citations are weak.
+The live path is bounded RAG with source citations over `published`, `uncut`, and `both` modes. It retrieves evidence, preserves source identity, validates citation metadata, and falls back truthfully when synthesis citations are weak. Approved uncut citations can link to their Frame.io episode source.
 
 </td>
 </tr>

@@ -63,6 +63,12 @@ function mockGroundedAnswer(page: import("@playwright/test").Page) {
   });
 }
 
+async function clickApplicationLink(page: import("@playwright/test").Page, href: string) {
+  const toggle = page.locator("[data-navigation-toggle]");
+  if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
+  await page.locator(`nav[aria-label="Application"]:visible a[href="${href}"]`).click();
+}
+
 /* ── cross-route navigation matrix ───────────────────────────────────── */
 
 test.describe("cross-route navigation", () => {
@@ -77,29 +83,25 @@ test.describe("cross-route navigation", () => {
     await expect(page.locator("h1")).toBeVisible();
 
     // Home → Episodes via nav link
-    const episodesLink = page.locator('a[href="/episodes"]').first();
-    await episodesLink.click();
+    await clickApplicationLink(page, "/episodes");
     await settle(page);
     await expect(page).toHaveURL(/\/episodes/);
     await expect(page.locator('[data-cursor="open"]').first()).toBeVisible();
 
     // Episodes → Connections via nav link
-    const connectionsLink = page.locator('a[href="/connections"]').first();
-    await connectionsLink.click();
+    await clickApplicationLink(page, "/connections");
     await settle(page);
     await expect(page).toHaveURL(/\/connections/);
     await expect(page.locator("h1")).toBeVisible();
 
     // Connections → Chat via nav link
-    const chatLink = page.locator('a[href="/chat"]').first();
-    await chatLink.click();
+    await clickApplicationLink(page, "/chat");
     await settle(page);
     await expect(page).toHaveURL(/\/chat/);
     await expect(page.locator('[data-testid="ask-composer"]')).toBeVisible();
 
     // Chat → Home via nav link
-    const homeLink = page.locator('a[href="/"]').first();
-    await homeLink.click();
+    await clickApplicationLink(page, "/");
     await settle(page);
     await expect(page).toHaveURL(/\/$/);
     await expect(page.locator("h1")).toBeVisible();
