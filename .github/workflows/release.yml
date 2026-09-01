@@ -87,7 +87,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          notes="docs/releases/${RELEASE_TAG#v}.md"
+          notes="docs/releases/${RELEASE_TAG}.md"
           if [ ! -f "$notes" ]; then
             echo "Missing release notes: $notes" >&2
             exit 1
