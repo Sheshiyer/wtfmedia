@@ -62,3 +62,19 @@ activated.
 
 The worker gate remains closed. The retained `03-01`–`03-06` plans are still
 available and unchanged, but none is activated by these unsuccessful probes.
+
+## Authorized Spark fleet — 2026-09-01
+
+- Manifest:
+  `.planning/dispatch/2026-09-01-release-safe-integration-spark-tasks.json`
+- Mode: `temperance-batch --foreground --concurrency 4 --worktree`.
+- Sandbox: `TEMPERANCE_OMNIROUTE_CODEX_SANDBOX=read-only`.
+- Backend/model: `omniroute:codex/gpt-5.3-codex-spark`.
+- Result: 4/4 failed at the gateway after retry exhaustion; no substantive
+  worker output was accepted.
+- Run receipt:
+  `/var/folders/zx/_wycnwwx3p1f_4gclpnhr8rm0000gn/T/tmp.1iPlvoXEqa/index.json`
+
+The explicit Spark authorization permits this rail, but the failed receipt
+does not satisfy the 03-00 evidence gate. No retained Phase 3 implementation
+plan is activated.

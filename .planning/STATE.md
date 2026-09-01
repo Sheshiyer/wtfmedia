@@ -196,6 +196,11 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
   also produced no valid worker receipt. `noesis-observe` remained unresolved
   after 429 retries; Kimi was unavailable before dispatch. The retained
   `03-01`–`03-06` plans remain unchanged and inactive.
+- The explicitly authorized Spark fleet ran four isolated read-only workers
+  with `omniroute:codex/gpt-5.3-codex-spark`; all four failed at the gateway
+  after retry exhaustion and produced no accepted output. The 03-00 gate
+  remains open and no retained Phase 3 plan was activated; see
+  `.planning/dispatch/2026-09-01-release-safe-fleet-summary.md`.
 - Trusted timeline alignment and synchronized uncut playback remain blocked on
   authoritative alignment data and the ten-episode evaluation set. Hybrid
   search quality remains blocked on the twenty-query editorial evaluation set.
