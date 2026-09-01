@@ -183,6 +183,11 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
 - The approved corpus receipt is reconciled for 55 published and 49 mapped
   uncut assets. Do not broaden the claim to deferred sheet rows or treat
   episode membership as timeline alignment.
+- The additive release-safe integration fleet was dispatched on 2026-09-01 in
+  four isolated read-only lanes. The governed Execute rail failed at the
+  gateway with repeated 429/model-metadata errors, and the fallback rail
+  rejected the selected model with 404. No worker result was accepted; see
+  `.planning/dispatch/2026-09-01-release-safe-fleet-summary.md`.
 - Trusted timeline alignment and synchronized uncut playback remain blocked on
   authoritative alignment data and the ten-episode evaluation set. Hybrid
   search quality remains blocked on the twenty-query editorial evaluation set.
