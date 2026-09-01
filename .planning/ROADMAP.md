@@ -16,9 +16,10 @@ intelligence, and migration closure.
 
 ## Execution Authorization
 
-- **Implementation-authorized now:** Phase 1 and Phase 2 only. Phase 1 has 23
-  committed plans and is ready to execute. Phase 2 remains authorized but
-  depends on Phase 1 acceptance and its recorded prerequisite decisions.
+- **Implementation-authorized now:** Phase 1 and Phase 2 are complete. A
+  bounded repository-local compatibility/contract repair wave is authorized
+  to reconcile the reviewed checkout against `origin/main`; this does not
+  activate Phase 3 or authenticated history.
 
 - **Planned and inactive:** Phases 3–10. None may enter implementation until
   Phases 1–2 pass their acceptance gates and the owner explicitly authorizes
@@ -139,8 +140,8 @@ filters, and daily YouTube performance observations remain open work.
 
 ## Phases
 
-- [ ] **Phase 1: Compatibility + Component Proof Harness** — Preserve the 23-plan proof harness and visibly migrate every protected public route without changing its contract.
-- [ ] **Phase 2: Platform Foundation + Authenticated Policy Boundary** — Establish separated environments, managed access, auditability, observability, and a truthful deny-by-default operator shell.
+- [x] **Phase 1: Compatibility + Component Proof Harness** — Preserve the 23-plan proof harness and visibly migrate every protected public route without changing its contract.
+- [x] **Phase 2: Platform Foundation + Authenticated Policy Boundary** — Establish separated environments, managed access, auditability, observability, and a truthful deny-by-default operator shell.
 - [ ] **Phase 3: Episode Ingestion + Provenance Spine** — Idempotently ingest both channels and supplied uncut sources into versioned episode, asset, transcript, and timeline truth.
 - [ ] **Phase 4: Podcast Brain Search + Dual Playback** — Deliver evaluated exact-moment retrieval, reconciled YouTube/Uncut playback, and daily YouTube performance.
 - [ ] **Phase 5: Cited Research Brief Agent** — Produce editable, versioned four-tier briefs from governed human, corpus, web, and structured sources.
@@ -255,8 +256,9 @@ isolated by RBAC; anonymous `/chat` and `/api/chat` stay unchanged and
 stateless.
 **Depends on**: `03-00`, Phase 2 auth evidence, explicit owner decisions for
 Access path/session duration, retention/deletion, and admin visibility.
-**Execution authorization**: Planned / inactive; schema, Access policy,
-remote migration, deployment, and live activation each require their own gate.
+**Execution authorization**: Local implementation authorized; Access policy,
+remote migration, deployment, staging activation, and live activation each
+require their own gate.
 **Plan**: `03-07-CONTEXT.md` and `03-07-PLAN.md`.
 **Rollback**: server-disable the authenticated feature manifest; public chat
 remains the stable compatibility path.
@@ -390,7 +392,7 @@ timeline alignment, synchronized playback, and cached YouTube observations.
 | Phase | Plans Complete | Status | Completed |
 |---|---:|---|---|
 | 1. Compatibility + Component Proof Harness | 23/23 | Complete | ✓ |
-| 2. Platform Foundation + Authenticated Policy Boundary | 0/TBD | Authorized / queued after Phase 1 and prerequisite decisions | - |
+| 2. Platform Foundation + Authenticated Policy Boundary | 12/12 | Complete | ✓ |
 | 3. Episode Ingestion + Provenance Spine | 0/TBD | Planned / inactive | - |
 | 4. Podcast Brain Search + Dual Playback | 0/TBD | Planned / inactive | - |
 | 5. Cited Research Brief Agent | 0/TBD | Planned / inactive | - |

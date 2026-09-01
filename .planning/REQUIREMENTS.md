@@ -316,9 +316,11 @@ that persistence does not duplicate requirement ownership.
 
 **Coverage:**
 
-- v1.0 requirements: 103
-- Mapped to phases: 102
-- Unmapped: 0 ✓
+- v1.0 requirement-table rows: 103
+- Additional governance statements outside the requirement table: 4 (`AUTO-01`, `AUTO-02`, `RISK-01`, `AINT-03`)
+- Historical accepted v1.0 requirement baseline: 102
+- Mapped requirement-table rows: 103
+- Unmapped requirement-table rows: 0 ✓
 - Duplicate mappings: 0 ✓
 - Requirement families in v1.0 scope: 12/12
 - Implementation authorized first: Phase 1 and Phase 2 only
@@ -326,3 +328,8 @@ that persistence does not duplicate requirement ownership.
 
 ---
 *Requirements defined: 2026-08-19 after owner acceptance of all recommended families and the Phase 1–2 execution cut.*
+
+*Accounting note 2026-09-02: the prior 103/102/0 summary conflated the
+requirement table with four governance statements outside that table and the
+historical 102-item acceptance baseline. The counts above preserve each
+source's meaning without inventing a new requirement mapping.*

@@ -1,5 +1,88 @@
 # Project handoff
 
+## 2026-09-02 Authenticated chat staging gate audit (local, staging blocked)
+
+**Status:** LOCAL AUTHENTICATED COVERAGE VERIFIED — staging deployment and live
+Access/browser evidence remain blocked on an executable isolated target.
+
+- Added a real SQLite-backed authenticated chat harness covering durable D1
+  history, create/append idempotency, owner isolation, admin and
+  `super_admin` content visibility/export/archive, archive-only enforcement,
+  expired Access denial, and inactive-operator denial after reauthentication.
+- Scoped the web page's release-flag fallback to the signed `local` context
+  only. Staging/production rendering relies on the protected edge/API response;
+  the browser toggle cannot authorize or activate chat.
+- Focused authenticated Cloudflare coverage — 13/13 passed; full Cloudflare
+  suite — 155/155 passed. Web contracts — 86/86 passed; release unit tests —
+  2/2 passed; web typecheck, lint, build, and diff check passed.
+- Read-only Wrangler checks found no current `staging` environment block in
+  either Worker config and no verified WTFMedia staging hostname, Access app,
+  Access policy, Worker route, isolated D1 binding, cache namespace, or secret
+  set. Existing target-profile resources were not treated as staging.
+- The named `wtfmedia` Wrangler profile is authenticated and exposes existing
+  WTFMedia web/edge deployment history plus the production-labelled
+  `wtfmedia-ops` D1; it does not expose an isolated staging bundle. The
+  in-app browser session was verified to belong to a different Cloudflare
+  account and was not used for target operations.
+- No remote migration, deployment, Access mutation, production request, or
+  data mutation occurred. The existing ignored staging receipt is a historical
+  2026-08-28 placeholder and was not reused or replaced.
+- The approved in-app browser has no open staging tab. The focused Playwright
+  journey remains unexecuted because its Chromium executable is not installed;
+  installing dependencies was not authorized.
+
+### Remaining owner/runtime gates
+
+Supply or confirm the current isolated staging bundle: exact FQDN, separate
+Access application and policy, issuer/audience/JWKS, staging Worker route and
+service, D1 name, cache namespace, secret names, and the authorized Wrangler
+profile/commands. Then deploy only that target, apply the repository migrations,
+obtain a signed-in staging tab, and capture console/network/screenshot proof of
+`paused -> preview -> stable -> paused` plus `stable -> rolled_back`.
+Verify the Access application session duration and global/MFA precedence on the
+same staging hostname. Keep public `/chat` and `/api/chat` probes anonymous and
+unchanged throughout.
+
+## 2026-09-02 Authenticated chat staging-control wave (local, deploy held)
+
+**Status:** LOCAL IMPLEMENTATION VERIFIED — staging and production remain
+unchanged.
+
+- Added `cloudflare/migrations/0007_release_manifest.sql` and the server
+  release-manifest API at `/ops/api/release/authenticated-chat`.
+- The authenticated chat release is `paused` by default in staging and accepts
+  only `paused`, `preview`, `stable`, and `rolled_back`. Release mutation is
+  restricted to `super_admin` in local/staging and is audited through the
+  existing allowlisted settings-policy event. Production mutation fails closed.
+- Added the `/ops/settings` staging/local UI projection. It reads server state,
+  never writes localStorage or environment flags, and presents admin/editor
+  state as read-only.
+- Staging isolation remains mandatory: separate Access, D1, secrets, and cache
+  namespaces; no production data is copied downward. Public `/chat` and
+  `/api/chat` remain outside the release manifest.
+
+### Verification
+
+- `npm test --prefix cloudflare` — 153/153 passed.
+- `cd web && npm run test:contracts` — 86/86 passed.
+- `cd web && npm run test:unit -- release.test.ts` — 2/2 passed.
+- `cd web && npm run typecheck && npm run lint && npm run build` — passed.
+- Full web unit suite — 74/75 passed; one pre-existing theme-token assertion
+  mismatch remains in `theme-contract.test.ts` and is unrelated to this wave.
+- Browser evidence — not run: Playwright Chromium is not installed and no
+  dependency installation was authorized.
+- `git diff --check` — passed.
+
+### Remaining gates
+
+Run the complete authenticated API/ownership matrix, browser journey,
+logout/reauthentication continuity, Access global/MFA precedence verification,
+staging toggle transitions and pause/restore, audit privacy, namespace
+separation, and public-route invariance. Do not configure Access remotely,
+apply a remote D1 migration, deploy, or activate production until the staging
+evidence packet is owner-approved.
+
+## 2026-09-01 Named-guest relevance guardrail (local, deploy held)
 ## 2026-09-01 Production web 0.2.0 release
 
 **Status:** LIVE — the owner-approved semantic minor release is deployed to
@@ -1546,6 +1629,73 @@ is needed.
 No deployment, registry, credential, production, or legacy-variant mutation
 occurred in this wave.
 
+## 2026-09-02 Bounded compatibility reconciliation wave
+
+Owner decisions and the bounded local authorization are recorded in `ISA.md`,
+`.planning/RELEASE-SAFE-INTEGRATION.md`, and
+`.planning/phases/03-episode-ingestion-provenance-spine/03-00-SUMMARY.md`.
+The wave selectively repaired reviewed public source-mode/citation behavior and
+the legacy ingest source-admission boundary, then opened a bounded local
+03-07 implementation slice. Authenticated history remains feature-off and
+unactivated.
+
+### Verification
+
+- `npm test --prefix cloudflare` — 153/153 passed, including chat migration,
+  release-manifest, release-policy, and deep-link boundary checks.
+- `cd web && npm run test:contracts` — 86/86 passed.
+- `cd web && npm run test:unit -- source-mode.test.ts` — 4/4 passed.
+- `cd web && npm run typecheck && npm run lint && npm run build` — passed.
+- Authenticated browser journey — not run: Playwright Chromium executable is
+  not installed; no dependency installation was authorized.
+- `git diff --check` — passed.
+
+### Owner decisions and remaining gates
+
+The owner recorded the authenticated `/chat/{conversation_id}-{username}`
+conversation deep link through the existing `/ops` authorization system; the
+slug is navigation/display only. The `/ops/chat` history shell and
+`/ops/api/chat/*` remain additive, while public `/chat` and `/api/chat` remain
+anonymous, stateless, and compatible.
+
+The Access application and matching policy target 720 hours (30 days) to
+avoid daily OTP prompts, subject to global/MFA precedence proof. Browser-local
+authenticated-chat caching is allowed with idempotent synchronization at each
+activity epoch; D1 is canonical and browser storage is never auth,
+authorization, or rollout authority. Authorized administrative visibility
+includes conversation metadata, content, and call history, with administrative
+reads, exports, and lifecycle actions audited.
+
+The owner selected archive as the non-destructive chat lifecycle; this wave
+introduces no hard-delete or automatic purge. `admin` and `super_admin` may
+export or archive across operator scope, while ordinary operator access stays
+owner-scoped. These rules are not borrowed from audit-ledger policy. Local
+persistent-history implementation may proceed behind the feature-off release
+gate. Staging must still prove feature pause and restore through server
+release control without breaking the public production version. No production,
+Access, D1, queue, R2, secret, DNS, or deployment mutation occurred.
+
+The bounded local slice now contains the additive `0006_chat_history.sql` and
+`0007_release_manifest.sql` contracts, history DAL, protected deep-link edge
+match, feature-gated `/ops/chat` projection, server release read/write API,
+staging/local settings toggle, browser-cache helpers, and focused
+migration/policy/deep-link/release checks. It is not an acceptance receipt for
+authenticated persistence: the full chat API/ownership matrix, staging
+deployment, and browser journey remain outstanding.
+
+The owner additionally authorized a staging-only UI toggle for this proof. It
+is a projection of an audited server release manifest with `paused`, `preview`,
+`stable`, and `rolled_back` states; the server remains the authority and the
+safe default is paused. The browser toggle, localStorage, and
+`WTFMEDIA_AUTH_CHAT_RELEASE` local seam must not control staging or production.
+Staging must use separate Access, D1, secret, and cache namespaces, and
+`super_admin` is the default release-state mutator. The evidence packet must
+show unauthorized-transition denial, server readback after refresh,
+pause/restore, audit privacy, and public `/chat`/`/api/chat` invariance. This
+is a plan/acceptance gate; the local control-plane implementation exists, but
+the staging deployment and end-to-end evidence are not claimed.
+
+## 2026-09-01 Source-panel mode filtering (local, deploy held)
 ## 2026-08-31 Ask WTF episode-scoped production release (source ready)
 
 **Scope:** backend and Cloudflare retrieval contract only. PR #28 remains the

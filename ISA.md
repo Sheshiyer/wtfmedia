@@ -7,7 +7,7 @@ phase: plan
 progress: 50/166
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-01T00:00:00+05:30
+updated: 2026-09-01T23:50:00+05:30
 ---
 
 ## Problem
@@ -275,7 +275,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 
 ### Authenticated Ask WTF persistence mini-phase
 
-- [ ] ISC-167: The authenticated Ask WTF surface is scoped to `/ops/chat` and does not alter the public `/chat` or `/api/chat` route contract (probe: route and contract manifest).
+- [ ] ISC-167: The authenticated Ask WTF surface is reached through `/ops`, uses an `/ops/chat` history shell and `/chat/{conversation_id}-{username}` conversation deep link, and does not alter the public `/chat` or `/api/chat` route contract (probe: route and contract manifest).
 - [ ] ISC-168: The Worker validates the Cloudflare Access JWT issuer, audience, signature, and expiry before deriving operator identity (probe: authenticated-chat contract test).
 - [ ] ISC-169: A verified Access identity resolves to exactly one active D1 operator before authenticated chat access is granted (probe: authorization integration test).
 - [ ] ISC-170: Anti: client-supplied email, role, owner, or identity headers cannot authorize or reassign a conversation (probe: spoofing authorization test).
@@ -288,8 +288,8 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [ ] ISC-177: Chat lifecycle audit records contain allowlisted actor/action/outcome metadata and exclude raw prompts, answers, tokens, and private payloads (probe: audit privacy test).
 - [ ] ISC-178: Anti: conversation history is not automatically promoted into saved memory or fine-tuning datasets (probe: memory/tuning boundary test).
 - [ ] ISC-179: Expired, revoked, inactive, and deauthorized operators lose protected chat access without revealing another operator's history (probe: expiry and deactivation authorization test).
-- [ ] ISC-180: An owner-approved retention, archive/delete, and export policy is explicit before persistent history activates (probe: policy and migration acceptance check).
-- [ ] ISC-181: The authenticated history feature can be paused or rolled back through the server release manifest without a forced client update or public-route change (probe: release-manifest rollback test).
+- [ ] ISC-180: An owner-approved archive-only lifecycle is non-destructive, introduces no automatic purge in this wave, and permits cross-operator export/archive only to `admin` and `super_admin` before persistent history activates (probe: policy and migration acceptance check).
+- [ ] ISC-181: The authenticated history feature can be selected only through an audited staging UI projection of a server release manifest, paused or rolled back without a forced client update or public-route change, and remains isolated from production data, Access, D1, secrets, and cache namespaces (probe: release-manifest toggle, authorization, namespace, and rollback test).
 
 ## Test Strategy
 
@@ -478,7 +478,15 @@ _Last refreshed: 2026-09-01T06:07:11.533Z_
 - 2026-08-30 16:22 IST: ❌ DEAD END: The required Advisor review was attempted after live reconciliation but the local Advisor OAuth session remains expired. It was not repaired or substituted with a false success; direct Cloudflare receipts and the ISA completeness/independent audit govern this checkpoint.
 - 2026-09-01 00:00 IST: refined: The owner-approved episode-scoped production receipt is now the latest runtime evidence. Published, approved mapped uncut, and combined Ask WTF retrieval are live with `episodeId`/`video_id` scope; 55/55 published and 49/49 mapped uncut receipts reconcile across KV and Vectorize reports 11,948 vectors. This is a bounded release slice, not completion of the full provenance/search phases; trusted timeline alignment, synchronized uncut playback, and evaluation gates remain open.
 - 2026-09-01 12:00 IST: D-03-07 refined: Cloudflare Zero Trust Access is feasible as the authentication boundary for an additive `/ops/chat` surface, but current source evidence shows public `/api/chat` is stateless and no conversation tables exist. Long-horizon persistence therefore means D1 history keyed to the server-resolved operator across logout/reauthentication, not a second long-lived WTF auth token. The `03-07` mini-phase remains inactive until owner decisions cover Access path/session duration, retention/deletion, admin visibility, and rollback.
+- 2026-09-02 00:00 IST: Owner re-authorized a bounded repository-local compatibility/contract repair wave after the 03-00 read-only audit. Access remains the sole authentication authority, D1 remains the operator authority, public chat remains stateless, and no production mutation is authorized. The wave may restore reviewed public source-mode/citation and ingest-admission invariants; it may not add authenticated-history schema/routes/UI or activate `/ops/chat`.
+- 2026-09-02 00:01 IST: refined (superseded by the 2026-09-01/02 owner record below): Conversation-specific retention duration, archive/delete/export semantics, and admin conversation-content visibility were then unresolved. Audit-ledger retention and metadata visibility were not silently reused for chat history.
 - 2026-09-01 11:16 IST: refined: The reproduced named-guest miss enters at semantic-only Vectorize retrieval and episode-level citation dedupe, not at citation URL projection. The bounded correction widens candidates, hard-anchors explicit name phrases against title/excerpt metadata with one-character spelling tolerance, and preserves multiple anchored chunks; production deployment and editorial evaluation remain separate gates.
+- 2026-09-01 23:50 IST: Owner decision: the authenticated conversation deep link is `/chat/{conversation_id}-{username}` through the existing `/ops` authorization system; the slug is navigation/display only and never establishes ownership. Anonymous `/chat` root and `/api/chat` remain unchanged and stateless.
+- 2026-09-01 23:50 IST: Owner decision: target a 720-hour (30-day) Cloudflare Access application and matching policy session so normal use does not require daily OTP reauthentication. Global or MFA-specific Access settings that shorten this lifetime must be verified before activation; no WTF auth cookie or token is added.
+- 2026-09-01 23:50 IST: Owner decision: authenticated chat may keep a browser-local client cache and synchronize changes to the server at each activity epoch. D1 remains canonical; synchronization requires the current Access/D1 identity, is idempotent, and browser storage is never authentication, authorization, or rollout authority.
+- 2026-09-01 23:50 IST: Owner decision: authorized administrative visibility includes conversation metadata, conversation content, and the history of who called what. Access remains role-checked and every administrative read/export/lifecycle action is audited without storing tokens or credentials.
+- 2026-09-01 23:50 IST: Owner decision: staging must demonstrate that the feature can be paused and restored through the server release control without breaking the production public version. Existing Phase 2 rollback evidence is a prerequisite, not proof of chat-specific rollback.
+- 2026-09-02 00:32 IST: Owner decision closed the bounded chat lifecycle: conversations are archived rather than hard-deleted; no automatic purge is introduced in this wave; `admin` and `super_admin` may export or archive across operator scope, while ordinary operators remain owner-scoped. Local 03-07 implementation is permitted behind the server feature-off gate; global/MFA precedence, staging rollback, and browser evidence remain live-activation gates.
 
 ## Changelog
 
