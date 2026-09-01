@@ -1,5 +1,33 @@
 # Project handoff
 
+## 2026-09-01 Named-guest relevance guardrail (local, deploy held)
+
+**Status:** LOCAL PATCH VERIFIED — production still runs the prior retrieval behavior.
+
+- Reproduced `POST https://wtfhq.in/api/chat` for “Tell me everything that Sunil Shetty has told Nikhil Kamath.” The live response returned Neal Mohan and Nikesh Arora sources with `X-Fallback: true`; the cited episodes were unrelated to Suniel Shetty.
+- Root cause is semantic-only retrieval with `topK: 12`, followed by episode-level dedupe. The approved catalogue contains episode `6HE6d0lKh4o`, titled `Ep #6 | WTF is Health? ft. Nikhil Kamath, Suniel Shetty, Nithin Kamath and Mukesh Bansal`.
+- `cloudflare/src/chat/source-mode.ts` now widens candidate retrieval to 48, extracts explicit multi-word names, tolerates the observed Sunil/Suniel one-character spelling difference, keeps only the strongest title/text anchors, and supports multiple chunks from one anchored episode.
+- `cloudflare/src/index.ts` applies that guard before citation projection and tells the synthesis model not to substitute another guest. Generic questions retain semantic ranking; absent name evidence fails closed to a truthful insufficient-evidence response.
+- Focused source-mode tests pass `16/16`; the full Cloudflare suite passes `138/138`; web typecheck passes; `git diff --check` is clean for the patch files.
+
+**Next gate:** owner-authorized edge deployment followed by a fresh live Suniel Shetty query and a small editorial named-guest evaluation set. No deploy, secret, ingest, or production mutation was performed in this task.
+
+## 2026-09-01 Frame.io Vectorize URL/chunking work (deferred; won't do now)
+
+**Status:** WON'T DO NOW — explicitly deferred from this commit and release
+slice.
+
+The Frame.io URL propagation into Vectorize metadata, the oversized timestamp
+line/chunking repair, the re-ingest publisher scripts, and the public Frame.io
+URL fallback are not required for the current Ask WTF episode/relevance and
+source-panel work. They remain outside the committed change set. No queue
+replay, Vectorize rewrite, URL backfill, or production deployment is authorized
+by this checkpoint.
+
+The existing uncut source identity and truthful unmapped behavior remain in
+place. Reopen this work only as a separately planned, owner-authorized ingest
+slice with its own metadata-size, queue, and live citation verification.
+
 ## 2026-09-01 Chat source UI and rail deploy
 
 **Status:** PRODUCTION DEPLOYED — source presentation and stale navigation
@@ -1470,3 +1498,21 @@ is needed.
 
 No deployment, registry, credential, production, or legacy-variant mutation
 occurred in this wave.
+
+## 2026-09-01 Source-panel mode filtering (local, deploy held)
+
+The public source panel now treats `published`, `uncut`, and `both` as actual
+visibility filters over the citations already returned by Ask WTF. Mixed
+responses default to `both`; the visible count, timestamps, links, numbering,
+and list all derive from the selected subset. Modes with no citations are
+disabled, and the panel never relabels a citation across modes.
+
+### Verification
+
+- Red/green unit proof: `npm run test:unit -- source-mode.test.ts` — 4 passed.
+- Type and style proof: `npm run typecheck` and `npm run lint` — passed.
+- Browser proof: `npm run test:browser -- --grep "filters mixed citations"` — 1 passed.
+- Production API read-only baseline: `published` returned 2 citations, `uncut`
+  returned 4 including the Suniel Shetty episode, and `both` returned 6 mixed
+  citations. No deployment, registry, credential, or production mutation was
+  performed.

@@ -7,7 +7,7 @@
   "preview_urls": false,
   "observability": { "enabled": true },
   "vars": {
-    "ALLOWED_ORIGIN": "https://wtfmedia.vercel.app",
+    "ALLOWED_ORIGIN": "https://wtfhq.in",
     "RATE_LIMIT_PER_MINUTE": "20"
   },
   "ai": { "binding": "AI" },
@@ -15,7 +15,7 @@
     { "binding": "VECTORIZE", "index_name": "wtfmedia-catalogue-v1" }
   ],
   "kv_namespaces": [
-    { "binding": "WTFMEDIA_STATE", "id": "7b839356a85d4d1a9bfa6aed20140fe3" }
+    { "binding": "WTFMEDIA_STATE", "id": "bb48d85f7ebf4f8da02ac0030cfdf816" }
   ],
   "r2_buckets": [
     { "binding": "CATALOGUE", "bucket_name": "wtfmedia-catalogue" }
@@ -36,6 +36,6 @@
     ]
   },
   "d1_databases": [
-    { "binding": "DB", "database_name": "wtfmedia-ops", "database_id": "wtfmedia-ops-db" }
+    { "binding": "DB", "database_name": "wtfmedia-ops", "database_id": "1becf8fa-37e3-49f0-9d7c-9bc91b588466" }
   ]
 }

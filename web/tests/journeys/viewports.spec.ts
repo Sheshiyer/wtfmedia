@@ -86,7 +86,7 @@ for (const viewport of VIEWPORTS) {
       await expect(heading).toBeVisible();
 
       // At least one CTA is visible
-      const ctas = page.locator("a[href='/chat'], a[href='/episodes']");
+      const ctas = page.locator("#wtf-main a[href='/chat'], #wtf-main a[href='/episodes']");
       await expect(ctas.first()).toBeVisible();
 
       await assertNoHorizontalOverflow(page);

@@ -4,7 +4,7 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: plan
-progress: 39/155
+progress: 50/166
 mode: interactive
 started: 2026-08-18T11:39:10Z
 updated: 2026-09-01T00:00:00+05:30
@@ -261,6 +261,17 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-153: Anti: the inventory pass performs no Cloudflare create, update, deploy, secret write, data copy, DNS/domain mutation, or deletion (probe: command ledger classification and unchanged-state receipts).
 - [x] ISC-154: The cutover plan uses an initial bulk copy followed by owner-authorized source quiesce, queue settlement, and a final R2/KV/Vectorize delta from a recorded high-water state (probe: ordered migration-step assertion).
 - [x] ISC-155: Rollback names the verified source Worker emergency URL, restores any quiesced source settings, and explicitly states that current no-apex recovery is not same-host continuity (probe: HTTP read plus rollback-contract assertion).
+- [x] ISC-156: Named-person chat retrieval requests a 48-candidate semantic set before relevance anchoring (probe: source-mode contract test).
+- [x] ISC-157: Named-person chat retrieval keeps only candidates whose title or excerpt contains the strongest explicit name anchors (probe: source-mode contract test).
+- [x] ISC-158: Sunil/Suniel spelling variation resolves to the titled Suniel Shetty episode in the relevance fixture (probe: source-mode contract test).
+- [x] ISC-159: Generic chat questions preserve semantic candidate ordering when no explicit multi-word name exists (probe: source-mode contract test).
+- [x] ISC-160: An anchored named-person question can retain multiple chunks from its matching episode for synthesis (probe: source-mode contract test).
+- [x] ISC-161: Anti: a named-person answer context contains a semantically similar episode with no strongest name anchor (probe: source-mode contract test).
+- [x] ISC-162: A mixed citation response defaults the source panel to `both` and shows the complete citation count (probe: `/chat` browser journey).
+- [x] ISC-163: Selecting `published` leaves only published citations in the source panel and updates its count (probe: `/chat` browser journey plus source-mode unit test).
+- [x] ISC-164: Selecting `uncut` leaves only uncut citations in the source panel and updates its count (probe: `/chat` browser journey plus source-mode unit test).
+- [x] ISC-165: Selecting `both` restores every citation from the response, with the three-way control exposing the active state (probe: `/chat` browser journey plus source-mode unit test).
+- [x] ISC-166: Anti: a source-panel mode selection never renders a citation belonging to another source mode (probe: `/chat` browser journey).
 
 ## Test Strategy
 
@@ -280,6 +291,8 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-135..140 | client scope reconciliation | delivery tracks, blockers, stable requirement ownership, and preserved Phase 1 plans remain explicit | 100% document and Git probes | Markdown parser + coverage script + Git hashes |
 | ISC-141..144 | architecture evidence | current topology, Phase 1 Access exemption, deterministic regeneration, and no false live claim remain explicit | all source/check probes pass | generator + static HTML assertions + CI workflow parse |
 | ISC-145..155 | Cloudflare estate | profile topology, paginated source resources, target gaps, action boundaries, final-delta consistency, exact rollback, and no-mutation posture are explicit | all live read-only and document probes pass | Wrangler/API lists + public DNS/HTTP + bounded scans |
+| ISC-156..161 | Ask WTF relevance | named-person candidate breadth, spelling tolerance, hard anchoring, generic-query preservation, multi-chunk context, and anti-drift behavior are covered | all focused probes pass | Cloudflare source-mode contract tests |
+| ISC-162..166 | Ask WTF source filtering | mixed citations default to both, each mode filters the visible list and count, both restores the list, and cross-mode leakage is blocked | all focused unit and browser probes pass | Vitest source-mode test + Playwright chat journey |
 
 ## Features
 
@@ -361,6 +374,18 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
   satisfies: [ISC-145, ISC-146, ISC-147, ISC-148, ISC-149, ISC-150, ISC-151, ISC-152, ISC-153, ISC-154, ISC-155]
   depends_on: [ProjectGovernanceSpine, ArchitectureEvidenceLedger]
   parallelizable: false
+
+- name: NamedGuestRelevanceGuardrail
+  description: Deterministic name anchoring and wider candidate retrieval keep named-guest answers on the evidenced episode
+  satisfies: [ISC-156, ISC-157, ISC-158, ISC-159, ISC-160, ISC-161]
+  depends_on: [EvidenceNativeKnowledge, ProvenanceSpine]
+  parallelizable: false
+
+- name: SourceModeCitationFilter
+  description: The public source panel filters mixed citations by published, uncut, or both mode without relabeling evidence
+  satisfies: [ISC-162, ISC-163, ISC-164, ISC-165, ISC-166]
+  depends_on: [NamedGuestRelevanceGuardrail]
+  parallelizable: false
 ```
 
 ## Architecture
@@ -368,7 +393,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 <!-- arch-assets:start -->
 
 _Auto-maintained by `ArchitectureAssetsSync.hook.ts` on release events._
-_Last refreshed: 2026-08-31T19:33:20.952Z_
+_Last refreshed: 2026-09-01T06:07:11.533Z_
 
 | Asset | Status | How it's generated |
 |---|---|---|
@@ -427,6 +452,7 @@ _Last refreshed: 2026-08-31T19:33:20.952Z_
 - 2026-08-30 16:30 IST: Independent audit tightened cutover consistency: bulk copy is followed by a separately authorized source ingress/producer quiesce, queue settlement, and final R2/KV/Vectorize delta. Rollback uses the verified source Workers.dev endpoint while restoring quiesced settings; absent a separately rehearsed route, removing the target Custom Domain returns `wtfhq.in` to its pre-cutover no-apex state and is not same-host continuity.
 - 2026-08-30 16:22 IST: ❌ DEAD END: The required Advisor review was attempted after live reconciliation but the local Advisor OAuth session remains expired. It was not repaired or substituted with a false success; direct Cloudflare receipts and the ISA completeness/independent audit govern this checkpoint.
 - 2026-09-01 00:00 IST: refined: The owner-approved episode-scoped production receipt is now the latest runtime evidence. Published, approved mapped uncut, and combined Ask WTF retrieval are live with `episodeId`/`video_id` scope; 55/55 published and 49/49 mapped uncut receipts reconcile across KV and Vectorize reports 11,948 vectors. This is a bounded release slice, not completion of the full provenance/search phases; trusted timeline alignment, synchronized uncut playback, and evaluation gates remain open.
+- 2026-09-01 11:16 IST: refined: The reproduced named-guest miss enters at semantic-only Vectorize retrieval and episode-level citation dedupe, not at citation URL projection. The bounded correction widens candidates, hard-anchors explicit name phrases against title/excerpt metadata with one-character spelling tolerance, and preserves multiple anchored chunks; production deployment and editorial evaluation remain separate gates.
 
 ## Changelog
 
@@ -466,6 +492,10 @@ _Last refreshed: 2026-08-31T19:33:20.952Z_
   refuted by: the production receipt and focused source-mode proofs show an optional public `episodeId` scope, pre-`topK` `video_id` filtering, source-aware citations, truthful unmapped behavior, and separate published/uncut locators
   learned: the completed slice can be carried as additive evidence over the existing public route and API while the full provenance, alignment, playback, search-evaluation, and analytics criteria remain pending
   criterion now: ISC-88 has release evidence for episode-scoped retrieval, while no broader ISC is marked complete without its own acceptance probe
+- 2026-09-01 | conjectured: the source-mode control was only an indicator of which modes appeared in a response
+  refuted by: the source panel rendered the entire citation array regardless of the selected mode, so a mixed response displayed published and uncut sources together
+  learned: source retrieval mode and source-panel visibility are separate concerns; the panel needs an explicit three-way view filter with count and list derived from the filtered citations
+  criterion now: ISC-162 through ISC-166 require correct `both` defaulting, per-mode filtering, count updates, restoration, and zero cross-mode leakage
 
 ## Verification
 
@@ -520,3 +550,5 @@ _Last refreshed: 2026-08-31T19:33:20.952Z_
 - ISC-155 evidence: direct HTTP reads returned 200 for the source web Worker emergency URL and edge health. The rollback contract names the web URL, restores quiesced source settings, removes the target Custom Domain to recover the pre-cutover no-apex state, and blocks cutover unless that outage model is accepted or a same-host route is rehearsed.
 - Episode-scoped production receipt (2026-08-31): final web version `90099f42-13b6-4a4e-8d97-bd93b9f953fa` and edge version `75b96e1f-6fa6-4182-bbdd-99047399de64` passed live home, episodes, mapped-detail, and mapped `published`/`uncut`/`both` chat probes. KV membership was 55/55 published plus 49/49 mapped uncut; Vectorize reported 11,948 vectors with `source_mode` and `video_id` indexes; queue backlog was 0 and DLQ returned to baseline 18. The first web bundle's HTTP 500 was rolled back, the corrected preview passed, and no auth, DNS, secret, or unrelated UI boundary changed.
 - Episode-scope contract proof: focused Cloudflare source-mode tests pass for public YouTube ID validation, pre-`topK` `video_id` filtering, stale-match rejection, unmapped-episode truthfulness, mixed-source citation identity, and the rule that uncut citations never inherit YouTube timestamps. Trusted cross-timeline alignment and synchronized playback remain unverified by design.
+- Named-guest relevance proof (local, not deployed): focused Cloudflare source-mode tests pass for wider candidate retrieval, `Sunil`/`Suniel` anchoring to episode `6HE6d0lKh4o`, generic semantic ordering, no-anchor abstention, and multiple chunks from one anchored episode. The live production baseline still predates this patch until an owner-authorized edge deployment and fresh query probe occur.
+- Source-panel filtering proof (local, not deployed): the source-mode unit test passes for published, uncut, and both projections; the focused `/chat` Playwright journey passes the mixed-citation sequence 3 → 1 → 2 → 3 and asserts that the other mode's titles are absent. No deployment or production mutation occurred.

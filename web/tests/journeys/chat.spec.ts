@@ -225,6 +225,58 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(sourcePanel).toContainText("1 source");
   });
 
+  test("filters mixed citations when the source mode changes", async ({ page }) => {
+    mockChatStream(page, ["Mixed-source answer."], {
+      "X-Source-Mode": "both",
+      "X-Sources": JSON.stringify([
+        {
+          video_id: "published-1",
+          title: "Published episode",
+          source_mode: "published",
+          t: 120,
+        },
+        {
+          video_id: "uncut-1",
+          title: "Uncut episode one",
+          source_mode: "uncut",
+          t: 240,
+        },
+        {
+          video_id: "uncut-2",
+          title: "Uncut episode two",
+          source_mode: "uncut",
+          t: 360,
+        },
+      ]),
+    });
+
+    await page.goto("/chat");
+    await settle(page);
+
+    await page.locator("textarea").fill("Show both source modes");
+    await page.locator('button[type="submit"]').click();
+
+    const sourcePanel = page.locator('[data-testid="source-panel"]');
+    await expect(sourcePanel).toBeVisible();
+    await sourcePanel.locator("summary").click();
+    await expect(sourcePanel).toContainText("3 sources cited");
+
+    await sourcePanel.getByTestId("source-mode-filter-published").click();
+    await expect(sourcePanel).toContainText("1 source cited");
+    await expect(sourcePanel).toContainText("Published episode");
+    await expect(sourcePanel).not.toContainText("Uncut episode one");
+
+    await sourcePanel.getByTestId("source-mode-filter-uncut").click();
+    await expect(sourcePanel).toContainText("2 sources cited");
+    await expect(sourcePanel).toContainText("Uncut episode one");
+    await expect(sourcePanel).not.toContainText("Published episode");
+
+    await sourcePanel.getByTestId("source-mode-filter-both").click();
+    await expect(sourcePanel).toContainText("3 sources cited");
+    await expect(sourcePanel).toContainText("Published episode");
+    await expect(sourcePanel).toContainText("Uncut episode two");
+  });
+
   /* ── abstention ────────────────────────────────────────────────────── */
 
   test("shows abstention label when response has no grounded content", async ({
@@ -294,6 +346,31 @@ test.describe("/chat journey — migrated variant", () => {
     // Wait a moment to ensure no spurious request
     await page.waitForTimeout(1000);
     expect(requestCount).toBe(0);
+  });
+
+  test("submits a query parameter once without scrolling beneath the app rail", async ({ page }) => {
+    let requestCount = 0;
+    await page.route("/api/chat", (route) => {
+      requestCount++;
+      route.fulfill({
+        status: 200,
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+        body: "A source-backed answer.",
+      });
+    });
+
+    await page.goto("/chat?q=What%20did%20they%20say%3F");
+    await settle(page);
+    await expect(page.locator('[data-testid="message-1"]')).toBeVisible({ timeout: 10000 });
+    await page.waitForTimeout(250);
+
+    expect(requestCount).toBe(1);
+
+    const railBox = await page.locator("[data-top-app-rail]").boundingBox();
+    const headingBox = await page.getByRole("heading", { name: "ask wtf", exact: true }).boundingBox();
+    expect(railBox).not.toBeNull();
+    expect(headingBox).not.toBeNull();
+    expect(headingBox!.y).toBeGreaterThanOrEqual(railBox!.y + railBox!.height);
   });
 
   /* ── loading indicator ─────────────────────────────────────────────── */

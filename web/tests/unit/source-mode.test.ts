@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { parsePublicSourceHeader } from "@/lib/provenance/public-source-header";
 import { resolveCitation } from "@/lib/provenance/catalog-mapping";
+import * as sourceMode from "@/lib/provenance/source-mode";
 import { parseSourceMode, publicTimestampForMode } from "@/lib/provenance/source-mode";
 
 describe("dual-source public DTO", () => {
@@ -67,5 +68,20 @@ describe("dual-source public DTO", () => {
     ]);
     expect(resolveCitation({ ...sources[0], requestedMode: "uncut" }).activeTimeSec).toBeNull();
     expect(resolveCitation({ ...sources[0], requestedMode: "published" }).activeTimeSec).toBe(180);
+  });
+
+  it("filters cited sources by published, uncut, or both mode", () => {
+    expect(typeof sourceMode.filterSourcesByMode).toBe("function");
+    if (typeof sourceMode.filterSourcesByMode !== "function") return;
+
+    const sources = [
+      { title: "Published episode", sourceMode: "published" as const },
+      { title: "Uncut episode", sourceMode: "uncut" as const },
+      { title: "Another uncut episode", sourceMode: "uncut" as const },
+    ];
+
+    expect(sourceMode.filterSourcesByMode(sources, "published")).toEqual([sources[0]]);
+    expect(sourceMode.filterSourcesByMode(sources, "uncut")).toEqual([sources[1], sources[2]]);
+    expect(sourceMode.filterSourcesByMode(sources, "both")).toEqual(sources);
   });
 });

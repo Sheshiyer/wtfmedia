@@ -8,10 +8,11 @@
 
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import { resolveCitation } from "@/lib/provenance/catalog-mapping";
 import type { PublicSourceCitation } from "@/lib/provenance/public-source-header";
+import { filterSourcesByMode, SOURCE_MODES, type SourceMode } from "@/lib/provenance/source-mode";
 import { formatPlaybackTimestamp } from "@/lib/provenance/useDualPlayback";
 
 export type SourceCitation = PublicSourceCitation;
@@ -31,6 +32,14 @@ function youtubeWatchUrl(videoId: string, timeSec: number | null): string {
 export function SourcePanel({ sources }: SourcePanelProps) {
   const citationPlaybackTitleId = useId();
   const uncutPlaybackStatusId = useId();
+  const hasPublishedSources = sources.some((source) => source.sourceMode === "published");
+  const hasUncutSources = sources.some((source) => source.sourceMode === "uncut");
+  const [visibleMode, setVisibleMode] = useState<SourceMode>(() => {
+    if (hasPublishedSources && hasUncutSources) return "both";
+    if (hasUncutSources) return "uncut";
+    return "published";
+  });
+  const visibleSources = filterSourcesByMode(sources, visibleMode);
 
   if (!sources || sources.length === 0) return null;
 
@@ -42,7 +51,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
       <summary className="flex cursor-pointer select-none items-center justify-between gap-3 font-label font-bold lowercase text-foreground transition-colors hover:text-foreground">
         <span className="flex items-center gap-1.5">
           <span className="font-bold text-attention">●</span>
-          {sources.length} source{sources.length !== 1 ? "s" : ""} cited
+          {visibleSources.length} source{visibleSources.length !== 1 ? "s" : ""} cited
         </span>
         <span className="font-mono text-[10px] uppercase tracking-wider text-secondary">
           view sources
@@ -60,31 +69,49 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 sources
               </p>
               <p id={uncutPlaybackStatusId} className="mt-0.5 text-[11px] text-muted">
-                {sources.some((source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped")
+                {visibleSources.some((source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped")
                   ? "uncut timestamps come from the response. no published time was converted."
-                  : "published moments are available. uncut stays unavailable until a mapped uncut source is returned."}
+                  : visibleMode === "uncut"
+                    ? "uncut sources are shown here. timestamps appear only when mapped."
+                    : visibleMode === "both"
+                      ? "published and uncut sources are shown here. timestamps appear only when mapped."
+                      : "published sources are shown here. timestamps appear only when mapped."}
               </p>
             </div>
-            <div className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5">
-              <span className="rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention">
-                {sources[0]?.sourceMode === "uncut" ? "uncut" : "published"}
-              </span>
-              <button
-                type="button"
-                disabled
-                aria-describedby={uncutPlaybackStatusId}
-                className="cursor-not-allowed rounded px-2.5 py-1 text-[11px] text-muted opacity-70"
-              >
-                {sources[0]?.sourceMode === "uncut" && sources[0]?.mappingStatus === "mapped"
-                  ? "uncut"
-                  : "uncut unavailable"}
-              </button>
+            <div className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5" role="group" aria-label="filter cited sources by mode">
+              {SOURCE_MODES.map((mode) => {
+                const available = mode === "both" || (mode === "published" ? hasPublishedSources : hasUncutSources);
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    aria-pressed={visibleMode === mode}
+                    disabled={!available}
+                    data-testid={`source-mode-filter-${mode}`}
+                    onClick={() => setVisibleMode(mode)}
+                    className={[
+                      "rounded px-2.5 py-1 text-[11px] font-bold lowercase transition-colors",
+                      visibleMode === mode
+                        ? "bg-attention text-on-attention"
+                        : available
+                          ? "text-muted hover:text-foreground"
+                          : "cursor-not-allowed text-muted/50",
+                    ].join(" ")}
+                  >
+                    {mode}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>
 
         <ul className="space-y-2.5 pl-1">
-          {sources.map((source, index) => {
+          {visibleSources.length === 0 ? (
+            <li className="rounded border border-foreground/10 bg-canvas/40 p-3 text-secondary">
+              no {visibleMode} sources cited in this answer.
+            </li>
+          ) : visibleSources.map((source, index) => {
             const resolved = resolveCitation({
               ...source,
               requestedMode: source.sourceMode ?? "published",

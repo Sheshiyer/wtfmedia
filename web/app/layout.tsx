@@ -29,6 +29,18 @@ export const metadata: Metadata = {
       "ask the catalogue. sources beside the answer. timestamps only when verified.",
     images: ["/brand/og-image.png"],
   },
+  manifest: "/manifest.webmanifest",
+  icons: {
+    shortcut: "/icons/favicon.ico",
+    icon: [
+      { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/favicon-48.png", sizes: "48x48", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

@@ -193,6 +193,7 @@ describe("adaptive WTF OS theme contract", () => {
       "on-knowledge",
       "on-information",
       "on-production",
+      "on-structure",
     ]) {
       expect(TAILWIND).toContain(`rgb(var(--wtf-${role}-rgb) / <alpha-value>)`);
     }

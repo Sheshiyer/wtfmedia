@@ -30,6 +30,7 @@ describe("WTF OS semantic shell substrate", () => {
       '"on-editorial": "rgb(var(--wtf-on-editorial-rgb) / <alpha-value>)"',
       '"on-knowledge": "rgb(var(--wtf-on-knowledge-rgb) / <alpha-value>)"',
       '"on-information": "rgb(var(--wtf-on-information-rgb) / <alpha-value>)"',
+      '"on-structure": "rgb(var(--wtf-text-on-structure-rgb) / <alpha-value>)"',
     ]) {
       expect(tailwind).toContain(declaration);
     }

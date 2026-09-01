@@ -55,6 +55,7 @@ export function startRagStub(options = {}) {
       }
       const question = parsed && typeof parsed === "object" ? parsed.question : undefined;
       const sourceMode = parsed && typeof parsed === "object" ? parsed.sourceMode : undefined;
+      const episodeId = parsed && typeof parsed === "object" ? parsed.episodeId : undefined;
       const trigger = extractTrigger(question);
 
       requestLog.push({
@@ -64,6 +65,7 @@ export function startRagStub(options = {}) {
         questionLength: typeof question === "string" ? question.length : 0,
         trigger: trigger ?? "(none)",
         sourceMode: sourceMode ?? "(none)",
+        episodeId: episodeId ?? "(none)",
       });
 
       switch (trigger) {

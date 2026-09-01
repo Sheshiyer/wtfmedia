@@ -93,10 +93,10 @@ export const MobileDrawer: Story = {
   },
   play: async ({ canvasElement }) => {
     const primaryNav = canvasElement.querySelector("#wtf-application-navigation");
-    const operationsNav = canvasElement.querySelector('nav[aria-label="Operations"]');
+    const applicationNav = canvasElement.querySelector('nav[aria-label="Application"]');
     const logo = canvasElement.querySelector('header a[aria-label="WTF OS"]');
     const toggle = canvasElement.querySelector("[data-navigation-toggle]");
-    if (!primaryNav || !operationsNav || !logo || !toggle) {
+    if (!primaryNav || !applicationNav || !logo || !toggle) {
       throw new Error("Mobile shell must keep header controls and scroll-safe dock navigation");
     }
   },

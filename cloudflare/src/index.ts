@@ -15,7 +15,14 @@ import {
 } from "./db";
 import { handleOpsRequest, type OpsEnv } from "./ops-router";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar";
-import { parseSourceMode, resolveRequestedSources } from "./chat/source-mode";
+import {
+  buildVectorQueryOptions,
+  extractNamedEntityPhrases,
+  parseEpisodeId,
+  parseSourceMode,
+  prioritizeMatchesForQuestion,
+  resolveEpisodeScopedSources,
+} from "./chat/source-mode";
 import {
   ingestStateKey,
   parseJobSourceMode,
@@ -65,7 +72,9 @@ type TimestampLine = { t: number; x: string };
 const SYSTEM = `You are the WTF Media research assistant. Answer only from the supplied excerpts.
 Every factual sentence needs a matching [source] citation. A mention of a person or company does not prove
 ownership, employment, authorship, guest status, or any other relationship. Do not infer catalogue-wide counts
-from excerpts. If the excerpts do not establish the answer, say so plainly.`;
+from excerpts. If the excerpts do not establish the answer, say so plainly.
+When the question names a person, use only excerpts whose title or text contains that named person.
+Do not answer from semantically similar excerpts about another guest or episode.`;
 
 function cors(request: Request, env: Env) {
   const origin = request.headers.get("Origin");
@@ -242,13 +251,17 @@ async function chat(request: Request, env: Env) {
   }
   const contentLength = Number(request.headers.get("Content-Length") || "0");
   if (contentLength > MAX_BODY_BYTES) return reply(request, env, { error: "body_too_large" }, 413);
-  let payload: { question?: unknown; sourceMode?: unknown };
+  let payload: { question?: unknown; sourceMode?: unknown; episodeId?: unknown };
   try { payload = await request.json(); } catch { return reply(request, env, { error: "invalid_json" }, 400); }
   if (typeof payload.question !== "string" || !payload.question.trim()) {
     return reply(request, env, { error: "question_required" }, 400);
   }
   const question = payload.question.trim();
   const sourceMode = parseSourceMode(payload.sourceMode);
+  const episodeId = parseEpisodeId(payload.episodeId);
+  if (payload.episodeId !== undefined && episodeId === null) {
+    return reply(request, env, { error: "invalid_episode_id" }, 400);
+  }
   if (question.length > MAX_QUESTION_CHARS) return reply(request, env, { error: "question_too_long" }, 400);
   if (requiresVerifiedMetadata(question)) {
     return reply(request, env, {
@@ -260,20 +273,29 @@ async function chat(request: Request, env: Env) {
     });
   }
   try {
-    const matches = await env.VECTORIZE.query(await vectorFor(env, question), {
-      topK: 12,
-      returnMetadata: "all",
+    const matches = await env.VECTORIZE.query(
+      await vectorFor(env, question),
+      buildVectorQueryOptions(episodeId),
+    );
+    const relevantMatches = prioritizeMatchesForQuestion(matches.matches ?? [], question);
+    const namedEntityQuestion = extractNamedEntityPhrases(question).length > 0;
+    const resolved = resolveEpisodeScopedSources(relevantMatches, sourceMode, episodeId, MIN_SCORE, 6, {
+      dedupeByEpisode: !namedEntityQuestion,
     });
-    const resolved = resolveRequestedSources(matches.matches ?? [], sourceMode, MIN_SCORE, 6);
     const sources = resolved.citations.map((source) => {
-      const match = (matches.matches ?? []).find((item: { metadata?: { video_id?: string } }) => item.metadata?.video_id === source.videoId);
+      const match = relevantMatches.find((item: { id?: string; metadata?: { video_id?: string } }) => item.id === source.segmentId)
+        ?? relevantMatches.find((item: { metadata?: { video_id?: string } }) => item.metadata?.video_id === source.videoId);
       return { ...source, text: match?.metadata?.text };
     });
     if (sources.length < 2) {
       return reply(request, env, {
         answer: resolved.uncutUnavailable
-          ? "uncut is not activated and there is not enough published YouTube evidence for this question. no timestamp was inferred."
-          : "I don’t have enough relevant evidence in the catalogue to answer that reliably.",
+          ? episodeId
+            ? "No approved uncut evidence is mapped to this episode, and there is not enough published evidence to answer reliably. no timestamp was inferred."
+            : "uncut is not activated and there is not enough published YouTube evidence for this question. no timestamp was inferred."
+          : episodeId
+            ? "I don’t have enough relevant evidence in this episode to answer that reliably."
+            : "I don’t have enough relevant evidence in the catalogue to answer that reliably.",
         sources: sources.map(({ text: _text, ...source }) => source),
         grounded: false,
         sourceMode: resolved.sourceMode,

@@ -4,7 +4,7 @@
   "approval_scope": "ask-wtf-cloudflare-service-binding-source-mode-and-local-development-fallbacks",
   "owner_approval_ref": "owner-explicit-approval-2026-08-31-chat-route-manifest-update",
   "manifest_path": "web/tests/contracts/phase1-compatibility-manifest.json",
-  "manifest_sha256": "91af632adc8f38319a69e6ba3a8653d44051ae5ccde32e7ff9ed215bdcbbd9eb",
+  "manifest_sha256": "906d6af596ee3abbb87d9f35719d45c1a93bc330f255ee9b20ee77853381d0d6",
   "base_sha": "0f806772acdb008eeb9fb88ec256cbc2c9db07d8",
   "approved_protected_hashes": [
     {
@@ -29,7 +29,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "3aa6c1cec81aa8bbf1ed5e15b78c08210001f7464cf3f32c9bd103a2ecaeff84"
+      "sha256": "32ece5dd33bf84bf4bed8e1a24f295a8effbf0556fc17e6bd66d3d237af4f004"
     }
   ],
   "streaming_contract": {

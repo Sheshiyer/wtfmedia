@@ -1,7 +1,14 @@
 import { loadTitleMap } from "./load-title-map";
 import type { TitleMapRow } from "./excel-title-map";
+import { isPublicUncutActivated } from "./public-uncut-activation";
 
 export type PublicEpisodeUncutState =
+  | {
+      kind: "active";
+      label: "uncut indexed";
+      detail: string;
+      row: TitleMapRow | null;
+    }
   | {
       kind: "candidate";
       label: "uncut candidate";
@@ -51,8 +58,21 @@ function findTitleRow(publicTitle: string): TitleMapRow | null {
   return contained[0] ?? null;
 }
 
-export function resolvePublicEpisodeUncutState(publicTitle: string): PublicEpisodeUncutState {
+export function resolvePublicEpisodeUncutState(
+  publicTitle: string,
+  videoId?: string,
+): PublicEpisodeUncutState {
   const row = findTitleRow(publicTitle);
+  if (videoId && isPublicUncutActivated(videoId)) {
+    return {
+      kind: "active",
+      label: "uncut indexed",
+      detail:
+        "approved uncut transcript evidence is available to episode-scoped Ask WTF. playback and timeline alignment remain held.",
+      row,
+    };
+  }
+
   if (!row) {
     return {
       kind: "absent",

@@ -1,15 +1,94 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
-import {
+import * as sourceMode from "../src/chat/source-mode.ts";
+
+const {
+  buildVectorQueryOptions,
   filterAndProjectMatches,
+  filterMatchesByEpisodeId,
+  parseEpisodeId,
   parseSourceMode,
   projectDualSourceCitation,
+  resolveEpisodeScopedSources,
   resolveRequestedSources,
   storedSourceMode,
-} from "../src/chat/source-mode.ts";
+} = sourceMode;
 
 describe("dual-source chat contract", () => {
+  test("anchors named-person questions to matching episode metadata", () => {
+    assert.equal(typeof sourceMode.prioritizeMatchesForQuestion, "function");
+    const matches = sourceMode.prioritizeMatchesForQuestion([
+      { id: "wrong-1", score: 0.94, metadata: { video_id: "wrongone001", title: "Nikhil Kamath x YouTube CEO, Neal Mohan" } },
+      { id: "target-1", score: 0.58, metadata: { video_id: "6HE6d0lKh4o", title: "Ep #6 | WTF is Health? ft. Nikhil Kamath, Suniel Shetty, Nithin Kamath and Mukesh Bansal" } },
+      { id: "target-2", score: 0.55, metadata: { video_id: "6HE6d0lKh4o", title: "Ep #6 | WTF is Health? ft. Nikhil Kamath, Suniel Shetty, Nithin Kamath and Mukesh Bansal" } },
+    ], "Tell me everything that Sunil Shetty has told Nikhil Kamath.");
+
+    assert.deepEqual(targetIds(matches), ["target-1", "target-2"]);
+  });
+
+  test("leaves generic questions on semantic ranking", () => {
+    const matches = [
+      { id: "first", score: 0.94, metadata: { video_id: "abcdefghijk", title: "First episode" } },
+      { id: "second", score: 0.58, metadata: { video_id: "lmnopqrstuv", title: "Second episode" } },
+    ];
+
+    assert.equal(typeof sourceMode.prioritizeMatchesForQuestion, "function");
+    assert.deepEqual(targetIds(sourceMode.prioritizeMatchesForQuestion(matches, "What did they discuss about health?")), ["first", "second"]);
+  });
+
+  test("returns no candidates when an explicit name has no evidence anchor", () => {
+    const matches = [
+      { id: "wrong", score: 0.99, metadata: { video_id: "abcdefghijk", title: "Nikhil Kamath x Neal Mohan" } },
+    ];
+
+    assert.deepEqual(sourceMode.prioritizeMatchesForQuestion(matches, "What did Sunil Shetty say?"), []);
+  });
+
+  test("accepts only public YouTube episode IDs for scope", () => {
+    assert.equal(parseEpisodeId("abcdefghijk"), "abcdefghijk");
+    assert.equal(parseEpisodeId("  abcdefghijk  "), "abcdefghijk");
+    assert.equal(parseEpisodeId("uncut:private-hash"), null);
+    assert.equal(parseEpisodeId("too-short"), null);
+  });
+
+  test("builds a Vectorize filter and rechecks returned metadata", () => {
+    assert.deepEqual(buildVectorQueryOptions("abcdefghijk"), {
+      topK: 48,
+      returnMetadata: "all",
+      filter: { video_id: { $eq: "abcdefghijk" } },
+    });
+    const matches = filterMatchesByEpisodeId([
+      { metadata: { video_id: "abcdefghijk" } },
+      { metadata: { video_id: "lmnopqrstuv" } },
+    ], "abcdefghijk");
+    assert.equal(matches.length, 1);
+    assert.equal(matches[0].metadata.video_id, "abcdefghijk");
+  });
+
+  test("episode scope keeps multiple chunks from the selected episode", () => {
+    const resolved = resolveEpisodeScopedSources([
+      { id: "a", score: 0.95, metadata: { video_id: "abcdefghijk", start: 1, timestamped: true } },
+      { id: "b", score: 0.94, metadata: { video_id: "abcdefghijk", start: 2, timestamped: true } },
+      { id: "c", score: 0.93, metadata: { video_id: "lmnopqrstuv", start: 3, timestamped: true } },
+    ], "published", "abcdefghijk", 0.45, 6);
+    assert.equal(resolved.citations.length, 2);
+    assert.equal(resolved.citations[0].videoId, "abcdefghijk");
+    assert.equal(resolved.citations[1].videoId, "abcdefghijk");
+  });
+
+  test("named-entity retrieval can keep multiple chunks from one episode", () => {
+    const question = "Tell me everything that Sunil Shetty has told Nikhil Kamath.";
+    const title = "Ep #6 | WTF is Health? ft. Nikhil Kamath, Suniel Shetty, Nithin Kamath and Mukesh Bansal";
+    const candidates = sourceMode.prioritizeMatchesForQuestion([
+      { id: "a", score: 0.95, metadata: { video_id: "abcdefghijk", title, start: 1, timestamped: true } },
+      { id: "b", score: 0.94, metadata: { video_id: "abcdefghijk", title, start: 2, timestamped: true } },
+    ], question);
+    assert.equal(candidates.length, 2);
+    const resolved = resolveEpisodeScopedSources(candidates, "published", null, 0.45, 6, { dedupeByEpisode: false });
+    assert.equal(resolved.citations.length, 2);
+  });
+
   test("unknown or missing sourceMode defaults to published", () => {
     assert.equal(parseSourceMode(undefined), "published");
     assert.equal(parseSourceMode("published"), "published");
@@ -201,3 +280,7 @@ describe("dual-source chat contract", () => {
     assert.equal(resolved.citations[0].sourceMode, "published");
   });
 });
+
+function targetIds(matches) {
+  return matches.map((match) => match.id);
+}
