@@ -272,6 +272,31 @@ export const UntimedSource: SourceStory = {
   ),
 };
 
+export const MappedUncutSource: SourceStory = {
+  render: () => (
+    <SourcePanel
+      sources={[
+        {
+          videoId: "tWzalcN_Inc",
+          title: "WTF is Metaverse?",
+          url: "https://f.io/0I8LmYs9",
+          score: 0.92,
+          timeSec: 1773,
+          sourceMode: "uncut",
+          mappingStatus: "mapped",
+          segmentId: "uncut:sample:16",
+        },
+      ]}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const link = canvasElement.querySelector('a[href="https://f.io/0I8LmYs9"]');
+    if (!link || link.textContent?.trim() !== "open Frame.io source") {
+      throw new Error("Mapped uncut citations must expose their approved Frame.io source");
+    }
+  },
+};
+
 export const EmptySources: SourceStory = {
   render: () => <SourcePanel sources={[]} />,
 };

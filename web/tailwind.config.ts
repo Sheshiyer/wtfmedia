@@ -17,7 +17,7 @@ const config: Config = {
         "text-primary": "rgb(var(--wtf-text-primary-rgb) / <alpha-value>)",
         "text-secondary": "rgb(var(--wtf-text-secondary-rgb) / <alpha-value>)",
         "text-muted": "rgb(var(--wtf-text-muted-rgb) / <alpha-value>)",
-        "text-on-structure": "rgb(var(--wtf-text-on-structure-rgb) / <alpha-value>)",
+        "on-structure": "rgb(var(--wtf-text-on-structure-rgb) / <alpha-value>)",
         overlay: "rgb(var(--wtf-overlay-rgb) / <alpha-value>)",
         editorial: "rgb(var(--wtf-editorial-rgb) / <alpha-value>)",
         live: "rgb(var(--wtf-live-rgb) / <alpha-value>)",

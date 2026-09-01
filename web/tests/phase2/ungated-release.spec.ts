@@ -21,11 +21,11 @@ async function openCurrentNav(page: Page) {
   const toggle = page.locator("[data-navigation-toggle]:visible").first();
   await expect(toggle).toBeVisible();
   if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
-  await expect(page.locator('nav[aria-label="Operations"]:visible').first()).toBeVisible();
+  await expect(page.locator('nav[aria-label="Application"]:visible').first()).toBeVisible();
 }
 
 function currentNavigation(page: Page) {
-  return page.locator(".wtf-bottom-pill, nav[aria-label='Operations']");
+  return page.locator("nav[aria-label='Application']");
 }
 
 function railLink(page: Page, label: string) {
@@ -42,6 +42,8 @@ test("ungated release can open ops pages without an access proof", async ({ page
   const mappedMetric = page.locator("dt", { hasText: /^mapped$/ }).locator("..");
   await expect(mappedMetric).toBeVisible();
   await expect(mappedMetric.locator("dd")).toHaveText("59");
+  const activeMetric = page.locator("dt", { hasText: /^uncut active$/ }).locator("..");
+  await expect(activeMetric.locator("dd")).toHaveText("49");
 
   await page.goto("/ops/production", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: "production", exact: true })).toBeVisible();

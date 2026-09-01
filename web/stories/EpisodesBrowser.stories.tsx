@@ -10,7 +10,7 @@ import type { Episode } from "@/lib/episodes";
 // ---------------------------------------------------------------------------
 
 const validEpisode: Episode = {
-  video_id: "fixture-episode-001",
+  video_id: "vPvnzWoK24Q",
   title: "Synthetic public episode",
   url: "https://example.test/watch/fixture-episode-001",
   duration: 1200,
@@ -70,17 +70,16 @@ export const DrawerValidEpisode: Story = {
     await expect(youtubeToggle).toHaveAttribute("aria-expanded", "true");
     await expect(body.getByTitle("Published YouTube video: Synthetic public episode")).toHaveAttribute(
       "src",
-      expect.stringContaining("www.youtube-nocookie.com/embed/fixture-episode-001"),
+      expect.stringContaining("www.youtube-nocookie.com/embed/vPvnzWoK24Q"),
     );
 
-    const uncut = body.getByRole("button", { name: "uncut not tracked" });
-    await expect(uncut).toBeDisabled();
     await expect(body.getByRole("status")).toHaveTextContent(/no privacy-safe title-map row/i);
 
     const askLink = body.getByRole("link", { name: /ask about this episode/ });
     await expect(askLink).toHaveAttribute("href");
     const href = askLink.getAttribute("href")!;
     await expect(href).toContain("/chat?q=");
+    await expect(href).toContain("episodeId=vPvnzWoK24Q");
   },
 };
 

@@ -313,6 +313,31 @@ test.describe("/chat journey — migrated variant", () => {
     expect(requestCount).toBe(0);
   });
 
+  test("submits a query parameter once without scrolling beneath the app rail", async ({ page }) => {
+    let requestCount = 0;
+    await page.route("/api/chat", (route) => {
+      requestCount++;
+      route.fulfill({
+        status: 200,
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+        body: "A source-backed answer.",
+      });
+    });
+
+    await page.goto("/chat?q=What%20did%20they%20say%3F");
+    await settle(page);
+    await expect(page.locator('[data-testid="message-1"]')).toBeVisible({ timeout: 10000 });
+    await page.waitForTimeout(250);
+
+    expect(requestCount).toBe(1);
+
+    const railBox = await page.locator("[data-top-app-rail]").boundingBox();
+    const headingBox = await page.getByRole("heading", { name: "ask wtf", exact: true }).boundingBox();
+    expect(railBox).not.toBeNull();
+    expect(headingBox).not.toBeNull();
+    expect(headingBox!.y).toBeGreaterThanOrEqual(railBox!.y + railBox!.height);
+  });
+
   /* ── loading indicator ─────────────────────────────────────────────── */
 
   test("shows loading indicator during streaming", async ({ page }) => {

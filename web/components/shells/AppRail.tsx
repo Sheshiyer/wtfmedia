@@ -43,28 +43,29 @@ export function AppRail({
       const bIndex = primaryOrder.indexOf(b.href);
       return (aIndex === -1 ? primaryOrder.length : aIndex) - (bIndex === -1 ? primaryOrder.length : bIndex);
     });
-  const [utilityOpen, setUtilityOpen] = useState(false);
-  const utilityToggleRef = useRef<HTMLButtonElement>(null);
-  const utilityNavRef = useRef<HTMLElement>(null);
+  const applicationNavigation = [...primaryNavigation, ...utilityNavigation];
+  const [navigationOpen, setNavigationOpen] = useState(false);
+  const navigationToggleRef = useRef<HTMLButtonElement>(null);
+  const navigationRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    setUtilityOpen(false);
+    setNavigationOpen(false);
   }, [pathname]);
 
   useEffect(() => {
-    if (!utilityOpen) return;
+    if (!navigationOpen) return;
 
-    utilityNavRef.current?.querySelector<HTMLElement>("a")?.focus();
+    navigationRef.current?.querySelector<HTMLElement>("a")?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
-      setUtilityOpen(false);
-      utilityToggleRef.current?.focus();
+      setNavigationOpen(false);
+      navigationToggleRef.current?.focus();
     };
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target as Node | null;
-      if (target && !utilityNavRef.current?.contains(target) && !utilityToggleRef.current?.contains(target)) {
-        setUtilityOpen(false);
+      if (target && !navigationRef.current?.contains(target) && !navigationToggleRef.current?.contains(target)) {
+        setNavigationOpen(false);
       }
     };
     document.addEventListener("keydown", onKeyDown);
@@ -73,7 +74,7 @@ export function AppRail({
       document.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("pointerdown", onPointerDown);
     };
-  }, [utilityOpen]);
+  }, [navigationOpen]);
 
   const renderNavLinks = (items: readonly AppNavItem[]) =>
     items.map((item) => {
@@ -113,7 +114,10 @@ export function AppRail({
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5">
+      <header
+        data-top-app-rail
+        className="fixed inset-x-0 top-0 z-50 border-b border-foreground/10 bg-canvas px-3 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md sm:px-5"
+      >
         <div className="mx-auto flex max-w-[92rem] items-start justify-between gap-3">
           <Link
             href={mode === "operator" ? "/ops" : "/"}
@@ -124,14 +128,14 @@ export function AppRail({
           </Link>
           <div className="relative flex min-w-0 items-start justify-end gap-2">
             <button
-              ref={utilityToggleRef}
+              ref={navigationToggleRef}
               type="button"
-              aria-label={utilityOpen ? "Close operations navigation" : "Open operations navigation"}
-              aria-expanded={utilityOpen}
-              aria-controls="wtf-operations-navigation"
+              aria-label={navigationOpen ? "Close application navigation" : "Open application navigation"}
+              aria-expanded={navigationOpen}
+              aria-controls="wtf-application-navigation"
               aria-haspopup="true"
               data-navigation-toggle
-              onClick={() => setUtilityOpen((open) => !open)}
+              onClick={() => setNavigationOpen((open) => !open)}
               className="mt-1 grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 border-foreground bg-surface-raised text-foreground shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
             >
               <span aria-hidden="true" className="grid gap-1">
@@ -141,34 +145,25 @@ export function AppRail({
               </span>
             </button>
             <nav
-              ref={utilityNavRef}
-              id="wtf-operations-navigation"
-              aria-label="Operations"
+              ref={navigationRef}
+              id="wtf-application-navigation"
+              aria-label="Application"
               data-navigation-disclosure
-              data-state={utilityOpen ? "open" : "closed"}
-              className={`${utilityOpen ? "flex" : "hidden"} absolute right-0 top-14 w-[min(15rem,calc(100vw-2rem))] flex-col gap-1.5 rounded-[1.75rem] border-2 border-foreground bg-surface-raised/95 p-2 shadow-[5px_5px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md`}
+              data-state={navigationOpen ? "open" : "closed"}
+              className={`${navigationOpen ? "flex" : "hidden"} absolute right-0 top-[calc(5rem+env(safe-area-inset-top))] max-h-[calc(100dvh-6rem-env(safe-area-inset-top))] w-[min(17rem,calc(100vw-2rem))] flex-col gap-1.5 overflow-y-auto rounded-[1.75rem] border-2 border-foreground bg-surface-raised/95 p-2 shadow-[5px_5px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md`}
             >
-              {renderNavLinks(utilityNavigation)}
+              {renderNavLinks(applicationNavigation)}
+              {utility ? (
+                <div className="mt-1 flex items-center border-t-2 border-foreground/20 px-2 pt-2">
+                  {utility}
+                </div>
+              ) : null}
             </nav>
           </div>
         </div>
       </header>
-      <div className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
-      <div className="wtf-bottom-pill mx-auto flex w-fit max-w-[min(74rem,calc(100vw-1.5rem))] items-center gap-2 overflow-x-auto rounded-full border-2 border-foreground bg-surface-raised/95 px-2.5 py-2 shadow-[0_10px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md sm:px-3">
-        <nav
-          id="wtf-application-navigation"
-          aria-label={mode === "operator" ? "Workspace" : "Application"}
-          className="flex min-w-max items-center gap-1"
-        >
-          {renderNavLinks(primaryNavigation)}
-        </nav>
-        {utility ? (
-          <div className="ml-1 flex shrink-0 items-center border-l-2 border-foreground/20 pl-2">
-            {utility}
-          </div>
-        ) : null}
-      </div>
-    </div>
+      {/* The former floating bottom navigation pill is intentionally disabled.
+          The top disclosure is now the single application navigation surface. */}
     </>
   );
 }

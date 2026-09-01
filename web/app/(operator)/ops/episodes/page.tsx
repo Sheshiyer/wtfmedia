@@ -11,7 +11,7 @@ export default async function EpisodesPage() {
         size="page"
         eyebrow="episode records"
         title="episodes"
-        summary="title map from the 2026-08-27 catalogue snapshot. not a live source. uncut is not activated."
+        summary="sheet mapping plus the 2026-08-31 backend receipt for approved uncut evidence."
         accent="attention"
       />
       <div className="mx-auto max-w-[var(--wtf-content-max)] px-4 py-8 sm:px-8 xl:px-12">

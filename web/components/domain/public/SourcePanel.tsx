@@ -31,6 +31,8 @@ function youtubeWatchUrl(videoId: string, timeSec: number | null): string {
 export function SourcePanel({ sources }: SourcePanelProps) {
   const citationPlaybackTitleId = useId();
   const uncutPlaybackStatusId = useId();
+  const hasPublishedSources = sources.some((source) => source.sourceMode === "published");
+  const hasUncutSources = sources.some((source) => source.sourceMode === "uncut");
 
   if (!sources || sources.length === 0) return null;
 
@@ -62,23 +64,23 @@ export function SourcePanel({ sources }: SourcePanelProps) {
               <p id={uncutPlaybackStatusId} className="mt-0.5 text-[11px] text-muted">
                 {sources.some((source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped")
                   ? "uncut timestamps come from the response. no published time was converted."
-                  : "published moments are available. uncut stays unavailable until a mapped uncut source is returned."}
+                  : "published sources are shown here. timestamps appear only when mapped."}
               </p>
             </div>
-            <div className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5">
-              <span className="rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention">
-                {sources[0]?.sourceMode === "uncut" ? "uncut" : "published"}
-              </span>
-              <button
-                type="button"
-                disabled
-                aria-describedby={uncutPlaybackStatusId}
-                className="cursor-not-allowed rounded px-2.5 py-1 text-[11px] text-muted opacity-70"
-              >
-                {sources[0]?.sourceMode === "uncut" && sources[0]?.mappingStatus === "mapped"
-                  ? "uncut"
-                  : "uncut unavailable"}
-              </button>
+            <div className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5" aria-label="source modes used">
+              {[
+                { label: "published", active: hasPublishedSources },
+                { label: "uncut", active: hasUncutSources },
+              ].map((mode) => (
+                <span
+                  key={mode.label}
+                  className={mode.active
+                    ? "rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention"
+                    : "rounded px-2.5 py-1 text-[11px] text-muted"}
+                >
+                  {mode.label}
+                </span>
+              ))}
             </div>
           </div>
         </section>

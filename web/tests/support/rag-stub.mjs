@@ -97,6 +97,25 @@ export function startRagStub(options = {}) {
           );
           return;
         }
+        case "uncut-frame-io": {
+          res.writeHead(200, { "Content-Type": "application/json" }).end(
+            JSON.stringify({
+              answer: "Uncut grounded answer [1].",
+              grounded: true,
+              sources: [{
+                n: 1,
+                videoId: "O7O204wD82s",
+                title: "Vinod Khosla",
+                score: 0.92,
+                start: 451,
+                timestamped: true,
+                sourceMode: "uncut",
+                url: "https://f.io/0I8LmYs9",
+              }],
+            }),
+          );
+          return;
+        }
         default: {
           res.writeHead(200, { "Content-Type": "application/json" }).end(
             JSON.stringify({ answer: "Grounded answer text.", grounded: true, sources: groundedSources() })

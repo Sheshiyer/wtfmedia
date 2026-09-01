@@ -5,6 +5,51 @@ versioning; the web application version is held in `web/package.json`.
 
 ## [Unreleased]
 
+## [0.3.0-alpha.1] - 2026-09-01
+
+### Added
+
+- Added validated episode-scoped Ask WTF retrieval using the public YouTube
+  `episodeId`, with Vectorize filtering and a post-retrieval scope check.
+- Added a privacy-safe public uncut activation receipt for 49 approved mapped
+  episodes, while keeping uncut playback and cross-timeline seeking held.
+- Added the Cloudflare calendar control-plane API with idempotent writes,
+  optimistic concurrency, bounded inputs, and hashed rate-limit keys.
+- Added deterministic uncut timestamp-sidecar and Frame.io metadata refresh
+  tooling, including metadata-only refresh jobs for untimed approved prose.
+
+### Changed
+
+- Ask WTF now preserves per-source `published`/`uncut` mode through fallback,
+  mixed retrieval, episode pages, and the public source panel.
+- Approved uncut Vectorize records carry their allowlisted Frame.io episode URL;
+  Ask WTF exposes that URL only when it passes the HTTPS Frame.io host policy.
+- Source citations show timestamps only when mapped and no longer render an
+  unavailable-timestamp badge or fabricated published seek link for uncut.
+- Episode cards and detail surfaces report indexed uncut evidence separately
+  from playback and timeline-alignment availability.
+- Removed the stale bottom-navigation pill from the public production bundle
+  and retained the keyboard-safe navigation disclosure.
+- Added the deterministic local `/api/chat` fallback and release-contract
+  coverage while keeping production on the Cloudflare service binding.
+
+### Verification
+
+- Cloudflare unit and integration suite: 154 tests passed.
+- Web Phase 1 aggregate verification passed: 72 unit tests, 85 contract tests,
+  102 Storybook tests, 21 accessibility tests, 224 browser tests, 17 visual
+  captures, production build, privacy scan, and rollback rehearsal.
+- Web typecheck and lint passed; the contract suite covers 85 tests including
+  the reviewed `/api/chat` projection hash update.
+- Uncut reconciliation dry run: 49 jobs, 43 timestamp sidecars, 6 metadata
+  refreshes, 18,040 explicit intervals, and 0 skipped.
+
+### Held
+
+- Cross-timeline timestamp mapping, synchronized uncut playback, and browser
+  media projection remain separate follow-up gates; episode membership and a
+  Frame.io episode URL do not prove seekable alignment.
+
 ## [0.2.0] - 2026-09-01
 
 ### Added

@@ -176,25 +176,26 @@ describe("adaptive WTF OS theme contract", () => {
   });
 
   it("maps semantic Tailwind colors through RGB channels so alpha utilities compile", () => {
-    for (const role of [
-      "canvas",
-      "foreground",
-      "surface-subtle",
-      "surface-raised",
-      "surface-structure",
-      "overlay",
-      "attention",
-      "editorial",
-      "knowledge",
-      "information",
-      "production",
-      "on-attention",
-      "on-editorial",
-      "on-knowledge",
-      "on-information",
-      "on-production",
-    ]) {
-      expect(TAILWIND).toContain(`rgb(var(--wtf-${role}-rgb) / <alpha-value>)`);
+    for (const [utility, variable] of [
+      ["canvas", "canvas"],
+      ["foreground", "foreground"],
+      ["surface-subtle", "surface-subtle"],
+      ["surface-raised", "surface-raised"],
+      ["surface-structure", "surface-structure"],
+      ["overlay", "overlay"],
+      ["attention", "attention"],
+      ["editorial", "editorial"],
+      ["knowledge", "knowledge"],
+      ["information", "information"],
+      ["production", "production"],
+      ["on-attention", "on-attention"],
+      ["on-editorial", "on-editorial"],
+      ["on-knowledge", "on-knowledge"],
+      ["on-information", "on-information"],
+      ["on-production", "on-production"],
+      ["on-structure", "text-on-structure"],
+    ] as const) {
+      expect(TAILWIND).toContain(`rgb(var(--wtf-${variable}-rgb) / <alpha-value>)`);
     }
   });
 

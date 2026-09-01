@@ -77,7 +77,7 @@ export function ConversationThread({
   /* Auto-scroll on new messages, unless user scrolled up */
   useEffect(() => {
     if (!userScrolledUp.current) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   }, [messages]);
 

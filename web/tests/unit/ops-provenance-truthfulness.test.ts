@@ -11,7 +11,7 @@ describe("operator provenance truthfulness", () => {
     expect(source).not.toContain("mockEpisodes");
     expect(source).not.toContain("catalogueEndpoint");
     expect(source).toContain("No episode data is shown.");
-    expect(source).toContain("this is a title map, not a live catalogue");
+    expect(source).toContain("this is a sheet map with a backend activation receipt");
   });
 
   it("does not invent ingest jobs when the job endpoint is empty or missing", () => {

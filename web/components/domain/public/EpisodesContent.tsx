@@ -59,7 +59,7 @@ function EpisodeSelectCard({
   episode: Episode;
   compact?: boolean;
 }) {
-  const uncutState = resolvePublicEpisodeUncutState(episode.title);
+  const uncutState = resolvePublicEpisodeUncutState(episode.title, episode.video_id);
 
   return (
     <Link
@@ -87,9 +87,11 @@ function EpisodeSelectCard({
           {episode.title}
         </h3>
         <div className="mt-3 text-[11px] leading-snug text-secondary line-clamp-2">
-          {uncutState.kind === "candidate"
-            ? "clean-cut pointer tracked. activation held."
-            : uncutState.detail}
+          {uncutState.kind === "active"
+            ? "approved uncut evidence indexed for episode-scoped Ask WTF."
+            : uncutState.kind === "candidate"
+              ? "clean-cut pointer tracked. activation held."
+              : uncutState.detail}
         </div>
         <div className="mt-3 flex items-center justify-between text-xs text-secondary">
           <span>{fmtViews(episode.view_count)} views</span>

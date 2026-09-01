@@ -28,7 +28,7 @@ export function AppShell({
 
       <div data-wtf-shell="migrated" className="min-h-screen">
         <AppRail mode={mode} navigation={navigation} utility={utility} />
-        <div className="relative min-h-screen overflow-hidden pb-28 pt-12 sm:pb-24 sm:pt-12">
+        <div className="relative min-h-screen overflow-hidden pt-[calc(5.5rem+env(safe-area-inset-top))]">
           <div
             aria-hidden="true"
             className="pointer-events-none fixed inset-0 z-0"

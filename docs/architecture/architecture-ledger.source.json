@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "title": "WTF Media Architecture Ledger",
   "subtitle": "Evidence-led inventory, operating boundaries, and release documentation contract",
-  "inventoryDate": "2026-08-29",
+  "inventoryDate": "2026-09-01",
   "reviewOwner": "WTF Media maintainers",
   "sourceFiles": [
     "package.json",
@@ -19,7 +19,9 @@
     "docs/CLOUDFLARE-INFRASTRUCTURE.md",
     "cloudflare/config/ops-environments.schema.json",
     "CHANGELOG.md",
+    "docs/releases/v0.3.0-alpha.1.md",
     ".github/workflows/architecture-ledger.yml",
+    ".github/workflows/release.yml",
     "web/middleware.ts",
     "docs/handoffs/2026-08-29-agentic-integrations.md",
     "docs/superpowers/plans/2026-08-29-phase3-held-recovery.md"
@@ -51,24 +53,24 @@
   "releaseEvents": [
     {
       "surface": "Repository package",
-      "version": "1.0.0",
-      "channel": "repository metadata",
+      "version": "0.3.0-alpha.1",
+      "channel": "alpha release candidate",
       "status": "implemented_source",
-      "meaning": "A package version only; it is not a deployment, product release, or OTA artifact."
+      "meaning": "The repository package is aligned to the v0.3.0-alpha.1 release candidate; the tag workflow still requires verification before publication."
     },
     {
       "surface": "Web application",
-      "version": "0.1.4",
-      "channel": "local source",
+      "version": "0.3.0-alpha.1",
+      "channel": "alpha release candidate",
       "status": "implemented_source",
-      "meaning": "The web package defines the build and verifier surface; historic changelog entries are not current deployment proof."
+      "meaning": "The web package is aligned to the v0.3.0-alpha.1 release candidate; this is not proof that the tagged bundle is deployed."
     },
     {
       "surface": "Cloudflare Worker",
-      "version": "0.1.0",
-      "channel": "declared config",
+      "version": "0.3.0-alpha.1",
+      "channel": "alpha release candidate",
       "status": "declared_config",
-      "meaning": "Worker bindings are declared in source; this inventory does not assert that the configured account resources are current."
+      "meaning": "The Worker package is aligned to the v0.3.0-alpha.1 release candidate; bindings and runtime deployment remain separately verified."
     },
     {
       "surface": "WTF OS local MCP",
@@ -361,9 +363,9 @@
       "number": "19",
       "title": "Verification, CI, environments, and operational safety",
       "status": "locally_verified",
-      "summary": "Phase 1 and Phase 2 have repository-owned CI workflows and local proof commands. The Phase 3 focused runner is real local regression evidence, not deployment or owner-acceptance proof.",
+      "summary": "Phase 1, Phase 2, and tagged alpha release verification have repository-owned workflows and local proof commands. The Phase 3 focused runner is real local regression evidence, not deployment or owner-acceptance proof.",
       "facts": [
-        { "label": "CI coverage", "value": "Phase 1 and Phase 2 workflows are tracked; there is no repository Phase 3 deployment or plugin-release workflow", "evidence": [".github/workflows/phase1.yml", ".github/workflows/phase2.yml", "package.json"] },
+        { "label": "CI coverage", "value": "Phase 1, Phase 2, architecture freshness, and vMAJOR.MINOR.PATCH-alpha.N release verification workflows are tracked", "evidence": [".github/workflows/phase1.yml", ".github/workflows/phase2.yml", ".github/workflows/architecture-ledger.yml", ".github/workflows/release.yml", "package.json"] },
         { "label": "Phase 3 checks", "value": "Focused Worker/public tests, typecheck, and whitespace checks run through a read-only runner", "evidence": ["scripts/verify_phase3_real.mjs", "docs/superpowers/plans/2026-08-29-phase3-held-recovery.md"] }
       ],
       "body": [

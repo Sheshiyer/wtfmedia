@@ -3,7 +3,7 @@
   "plan": "01-21",
   "generated_at_mode": "deterministic-recompute",
   "description": "Complete repository-owned legacy presentation dependency boundary (D-12): global style, theme config, shell layout, protected route entries, and all transitive shared components/data modules, hash-bound to the approved compatibility manifest.",
-  "compatibility_manifest_sha256": "91af632adc8f38319a69e6ba3a8653d44051ae5ccde32e7ff9ed215bdcbbd9eb",
+  "compatibility_manifest_sha256": "906d6af596ee3abbb87d9f35719d45c1a93bc330f255ee9b20ee77853381d0d6",
   "protected_roots": [
     "web/app/globals.css",
     "web/tailwind.config.ts",
