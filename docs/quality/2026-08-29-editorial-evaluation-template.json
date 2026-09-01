@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "status": "authoring_required",
+  "purpose": "Human-authored answer key for factual correctness and retrieval evaluation. This template intentionally contains no transcript text, links, answers, or source references.",
+  "distribution": {
+    "grounding": 8,
+    "factual": 4,
+    "timeline": 3,
+    "unavailable_or_conflict": 3,
+    "role_scope": 2
+  },
+  "rubric": {
+    "unsupportedClaim": "fail",
+    "unsafeSourceExposure": "fail",
+    "grounding": "score_0_to_4",
+    "sourceAndMomentAccuracy": "score_0_to_4",
+    "calibratedUncertainty": "score_0_to_4",
+    "usefulness": "score_0_to_4"
+  },
+  "cases": [
+    { "id": "EV-01", "category": "grounding", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-02", "category": "grounding", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-03", "category": "grounding", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-04", "category": "grounding", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-05", "category": "grounding", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-06", "category": "grounding", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-07", "category": "grounding", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-08", "category": "grounding", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-09", "category": "factual", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-10", "category": "factual", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-11", "category": "factual", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-12", "category": "factual", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-13", "category": "timeline", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-14", "category": "timeline", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-15", "category": "timeline", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-16", "category": "unavailable_or_conflict", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-17", "category": "unavailable_or_conflict", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-18", "category": "unavailable_or_conflict", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-19", "category": "role_scope", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" },
+    { "id": "EV-20", "category": "role_scope", "sourceExpectation": "author_to_define", "query": null, "expectedAnswer": null, "sourceReference": null, "authoringStatus": "pending" }
+  ]
+}

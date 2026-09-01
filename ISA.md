@@ -3,11 +3,11 @@ project: wtfmedia
 task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
-phase: plan
-progress: 28/144
+phase: execute
+progress: 39/155
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-08-29T15:34:00+05:30
+updated: 2026-08-29T20:47:00+05:30
 ---
 
 ## Problem
@@ -16,13 +16,14 @@ The repository proves a public, catalogue-first RAG experience across 55 episode
 
 ## Vision
 
-WTF Media becomes one evidence-native control room in which the team can move from an episode or question to its source asset, transcript, exact moment, clip, workflow state, owner, schedule, performance, and downstream decision without changing systems. The public catalogue remains a valuable read-only projection, while the authenticated internal shell makes production work legible and actionable. The visual experience should feel unmistakably WTF: warm cream, ink-heavy, loud editorial typography, purposeful color, physical texture, and playful motion, now disciplined into a dense, dependable operator interface.
+WTF Media becomes one evidence-native control room in which the team can move from an episode or question to its source asset, transcript, exact moment, clip, workflow state, owner, schedule, performance, and downstream decision without changing systems. Phase 1 remains an ungated closed test; Phase 3 activates only after Cloudflare Zero Trust and role policy protect the team workflow. The visual experience should feel unmistakably WTF: warm cream, ink-heavy, loud editorial typography, purposeful color, physical texture, and playful motion, now disciplined into a dense, dependable operator interface.
 
 ## Out of Scope
 
 - This initialization does not implement or deploy the redesigned application.
 - This milestone does not purchase domains, licenses, APIs, storage, or third-party services.
 - This milestone does not write to Asana, WhatsApp, Frame.io, YouTube, ZTV, NAS, finance, CRM, or contract systems.
+- This milestone does not claim that the Phase 1 closed test is a public launch or that Cloudflare Access is already configured.
 - This milestone does not ingest raw private meeting text, spreadsheet links, credentials, prompt bodies, or native session identifiers into the repository.
 - This milestone does not relocate the checkout, mutate vault registries, migrate client sessions, alter OmniRoute providers, or change production infrastructure.
 - The public catalogue and internal operating shell will not be collapsed into one undifferentiated navigation model.
@@ -36,7 +37,7 @@ WTF Media becomes one evidence-native control room in which the team can move fr
 - Brand continuity lives in recognizable rules, not repeated decoration.
 - Color communicates state and domain before it decorates surfaces.
 - Operator density must not sacrifice first-use clarity, keyboard access, or readable hierarchy.
-- Public discovery and internal operations may share primitives while preserving separate permissions and narratives.
+- Closed-test compatibility and future team operations may share primitives while preserving their separate phase and authorization boundaries.
 - Existing deployed retrieval behavior remains protected while the internal operating shell is built around it.
 - The workbook and kickoff minutes are evidence sources, never runtime dependencies.
 - Every phase ends with behavior-level proof, not confidence inferred from implementation shape.
@@ -61,7 +62,7 @@ WTF Media becomes one evidence-native control room in which the team can move fr
 
 ## Goal
 
-Establish WTF Media as a governed, evidence-native podcast operating system: ISA is the acceptance and goal authority, GSD is the execution plan, and the public catalogue remains a protected projection. The approved plan preserves the brand while defining the provenance spine, operator-first information architecture, accessible components, phased workflows, integrations, and verification gates.
+Establish WTF Media as a governed, evidence-native podcast operating system: ISA is the acceptance and goal authority, GSD is the execution plan, and Phase 1 is an ungated closed-test surface. Before Phase 3 activation, Cloudflare Zero Trust and role policy protect the team-only operating system while source labels preserve provenance rather than create access classes.
 
 ## Criteria
 
@@ -82,7 +83,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 
 ### Narrative and information architecture
 
-- [ ] ISC-13: Product framing names the public catalogue as a read-only projection (probe: copy snapshot test).
+- [ ] ISC-13: Product framing names the ungated catalogue as a closed-test compatibility surface, not a public product (probe: copy snapshot test).
 - [ ] ISC-14: Product framing names the internal control room as the primary operator surface (probe: copy snapshot test).
 - [ ] ISC-15: Primary navigation exposes a Control Room destination (probe: DOM role query).
 - [ ] ISC-16: Primary navigation exposes an Episodes destination (probe: DOM role query).
@@ -90,7 +91,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [ ] ISC-18: Primary navigation exposes a Production destination (probe: DOM role query).
 - [ ] ISC-19: Primary navigation exposes an Analytics destination (probe: DOM role query).
 - [ ] ISC-20: Primary navigation exposes a People destination (probe: DOM role query).
-- [ ] ISC-21: Public routes omit internal operational modules (probe: anonymous route map).
+- [ ] ISC-21: Closed-test routes omit Phase 3 operational modules until their protected route boundary is live (probe: anonymous route map).
 - [ ] ISC-22: Internal routes display the active workspace context (probe: DOM role query).
 - [ ] ISC-23: Every workspace provides one dominant next action (probe: page rubric).
 - [ ] ISC-24: Empty states explain the next valid operator action (probe: component story assertion).
@@ -248,12 +249,29 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-143: Architecture code/config/version inputs have a deterministic documentation regeneration command and a CI freshness check (probe: generator check plus workflow source).
 - [x] ISC-144: Anti: the architecture ledger never represents a local HMAC fixture, modeled seat, package version, historic deployment note, or declared Worker binding as live Cloudflare Access or runtime proof (probe: ledger status and drift assertions).
 
+### Owner-supplied source reconciliation
+
+- [x] ISC-145: A repository planning register records only labels, fingerprints, structural counts, and explicit owner gates for supplied transcript, link, kickoff, and scope sources (probe: bounded register read).
+- [x] ISC-146: The source register records the 62-to-64 row discrepancy and treats `Internal` as a candidate asset field pending owner classification (probe: reconciliation table read).
+- [x] ISC-147: The source register preserves uncut media as primary transcript authority and YouTube as the published-video timestamp projection, with missing or unaligned assets explicitly unavailable (probe: source-boundary assertions).
+- [x] ISC-148: Anti: source planning artifacts contain no raw transcript text, private URLs, asset paths, meeting passages, or machine-local source paths (probe: privacy scan).
+- [x] ISC-149: The planning packet records Phase 1 as ungated closed testing and Cloudflare Zero Trust as a precondition for Phase 3 activation (probe: phase-boundary packet read).
+- [x] ISC-150: The Phase 3 target policy applies roles to capabilities rather than separating YouTube and uncut into end-user access tiers (probe: access-target assertion).
+- [x] ISC-151: Anti: no planning artifact represents the reachable preview, a closed test, or source provenance labels as proof of a live Access policy (probe: false-live scan).
+
+### Approved local activation foundations
+
+- [x] ISC-152: The local reconciliation adapter emits a deterministic hashed row identity and blocks an unconfirmed `Internal` candidate (probe: `source-reconciliation` contract test).
+- [x] ISC-153: A title-only episode match cannot resolve or activate an uncut asset (probe: `source-reconciliation` contract test).
+- [x] ISC-154: Portable migration `0006` establishes a native D1 production schedule, anchored sticky notes, append-only revisions, and attributed conflict records (probe: SQLite migration contract test).
+- [x] ISC-155: The editorial evaluation packet contains a balanced 20-case human-authoring scaffold and no invented queries, answers, or source references (probe: evaluation-template contract test).
+
 ## Test Strategy
 
 | ISC range | Type | Check | Threshold | Tool |
 |---|---|---|---|---|
 | ISC-1..12 | governance | Git, Manifest, ISA, GSD, and goal authority resolve coherently | all probes pass | Git, Temperance doctor, GSD parser |
-| ISC-13..24 | narrative/IA | route map and page copy express public projection versus internal OS | 100% assertions | browser DOM suite + copy snapshots |
+| ISC-13..24 | narrative/IA | route map and page copy express closed-test compatibility versus future protected operations | 100% assertions | browser DOM suite + copy snapshots |
 | ISC-25..40 | design tokens | semantic tokens reproduce the committed brand with accessible contrast | 100% schema checks; WCAG AA | token tests + contrast audit + visual snapshots |
 | ISC-41..58 | component library | primitives cover documented states, keyboard behavior, focus, and motion | 100% component stories pass | component harness + browser + axe |
 | ISC-59..70 | control room | dashboard data, navigation, search, loading, and errors work from fixtures | 100% fixture flows | browser integration suite |
@@ -265,6 +283,11 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-129..134 | design authority | reference lock, semantic palette, route split, migration map, foundation, and privacy boundary are explicit | 100% document probes | Markdown parser + bounded scans |
 | ISC-135..140 | client scope reconciliation | delivery tracks, blockers, stable requirement ownership, and preserved Phase 1 plans remain explicit | 100% document and Git probes | Markdown parser + coverage script + Git hashes |
 | ISC-141..144 | architecture evidence | current topology, Phase 1 Access exemption, deterministic regeneration, and no false live claim remain explicit | all source/check probes pass | generator + static HTML assertions + CI workflow parse |
+| ISC-145..148 | source reconciliation | owner-supplied structural evidence, uncut/YouTube boundary, discrepancy, and privacy hold are explicit | all register assertions pass; zero prohibited source matches | Markdown assertions + bounded privacy scan |
+| ISC-149..151 | phase/access target | Phase 1 closed-test boundary, Phase 3 Access prerequisite, source-neutral role policy, and anti-false-live status are explicit | all target assertions pass | Markdown assertions + bounded false-live scan |
+| ISC-152..153 | source reconciliation | A safe candidate projection hashes row identity and blocks title-only or unconfirmed asset activation | all reconciliation contracts pass | `cloudflare/tests/source-reconciliation.test.mjs` |
+| ISC-154 | production calendar schema | Native D1 calendar preserves semantic metadata, notes, history, and conflicts | SQLite migration contract passes | `cloudflare/tests/production-calendar-schema.test.mjs` |
+| ISC-155 | editorial evaluation scaffold | Exactly 20 balanced blank answer-key cases preserve human editorial authority | template contract passes | `cloudflare/tests/editorial-evaluation-template.test.mjs` |
 
 ## Features
 
@@ -288,7 +311,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
   parallelizable: false
 
 - name: NarrativeAndInformationArchitecture
-  description: Separate public catalogue projection from authenticated operator control room
+  description: Separate ungated closed-test compatibility from future authenticated operating workflows
   satisfies: [ISC-13, ISC-14, ISC-15, ISC-16, ISC-17, ISC-18, ISC-19, ISC-20, ISC-21, ISC-22, ISC-23, ISC-24]
   depends_on: [ProjectGovernanceSpine, DesignAuthority, ClientScopeReconciliation]
   parallelizable: false
@@ -339,6 +362,24 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
   description: Evidence-linked architecture, Access-boundary, release, and update documentation generated deterministically from reviewed repository facts
   satisfies: [ISC-141, ISC-142, ISC-143, ISC-144]
   depends_on: [ProjectGovernanceSpine, ClientScopeReconciliation, QualityAndSafetyGates]
+  parallelizable: false
+
+- name: UncutSourceReconciliation
+  description: Privacy-safe owner-source register, explicit workbook discrepancy, and uncut-first provenance import contract
+  satisfies: [ISC-145, ISC-146, ISC-147, ISC-148]
+  depends_on: [ProvenanceSpine, ClientScopeReconciliation, QualityAndSafetyGates]
+  parallelizable: false
+
+- name: PhaseBoundaryAndAccessTarget
+  description: Closed-test Phase 1 boundary and source-neutral team Access prerequisite before Phase 3
+  satisfies: [ISC-149, ISC-150, ISC-151]
+  depends_on: [NarrativeAndInformationArchitecture, ProvenanceSpine, ArchitectureEvidenceLedger]
+  parallelizable: false
+
+- name: LocalActivationFoundations
+  description: Safe source reconciliation, canonical calendar storage, and a blank editorial evaluation scaffold
+  satisfies: [ISC-152, ISC-153, ISC-154, ISC-155]
+  depends_on: [UncutSourceReconciliation, PhaseBoundaryAndAccessTarget, ProductionOperations, EvidenceNativeKnowledge]
   parallelizable: false
 ```
 
@@ -399,6 +440,10 @@ _Generated by `scripts/generate-architecture-ledger.mjs` from the reviewed sourc
 - 2026-08-26 13:59 IST: ❌ DEAD END: Tried the mandatory post-plan Advisor review — failed because the local OAuth session expired and could not refresh (don't retry inside this repository task).
 - 2026-08-29 15:12 IST: The owner clarified that repository Phase 1 public proof must not be gated on Cloudflare Zero Trust or Access Applications because neither is currently configured. The modeled operator UI, seats, RBAC, JWT verifier, and loopback-only local context remain a separate activation workstream; no local fixture, historic closure note, binding declaration, or package version counts as live Access evidence.
 - 2026-08-29 15:12 IST: The pre-build Advisor call for the architecture ledger was attempted and failed because the local OAuth session is expired. Credentials were not repaired. Repository evidence, a separate read-only inventory, and the user’s explicit authority govern the documentation decision.
+- 2026-08-29 20:03 IST: refined: The supplied transcript, internal-link, kickoff, and scope package is now represented as a privacy-safe planning register rather than copied source material. Its 62-to-64 row mismatch and candidate `Internal` asset field are explicit review gates; uncut remains primary transcript authority while YouTube remains the public timestamp projection.
+- 2026-08-29 20:16 IST: refined: Phase 1 is an ungated closed test, not a public product launch. Cloudflare Zero Trust plus role policy are required before Phase 3 activation; YouTube and uncut remain source/timeline provenance inside one authorized team workflow rather than separate end-user access tiers.
+- 2026-08-29 20:43 IST: The required Advisor calls before implementation and after the durable local deliverable could not run because the local OAuth session was expired and refresh failed. No credential was repaired. A resolved `noesis-plan` combo rail and direct repository contracts were used only as bounded planning input.
+- 2026-08-29 20:43 IST: refined: approved source and calendar policy now have local, portable contracts. `Internal` remains blocked until an owner confirms its asset role; the canonical calendar is D1-only in migration `0006`; the 20-query packet is a deliberately blank editorial scaffold rather than simulated evidence.
 
 ## Changelog
 
@@ -430,6 +475,18 @@ _Generated by `scripts/generate-architecture-ledger.mjs` from the reviewed sourc
   refuted by: the Phase 1 verifier is local-only, the Worker configuration omits Access/Application environment values, and the operations runbook still requires owner-supplied staging inputs
   learned: public Phase 1 remains independent while operator Access activation requires separate configuration and redacted runtime evidence
   criterion now: ISC-141 through ISC-144 bind the generated ledger, Phase 1 exemption, deterministic freshness check, and anti-false-live status boundary to probes
+- 2026-08-29 | conjectured: supplied workbooks could be copied into planning and automatically joined to enable uncut ingestion
+  refuted by: structural inspection found private-link-bearing sources, no YouTube identifiers, a 62-to-64 row mismatch, and an `Internal` field whose asset semantics are not confirmed
+  learned: a source register must preserve only redacted structural evidence and force owner-confirmed asset classification before any private-media import
+  criterion now: ISC-145 through ISC-148 bind the register, discrepancy, uncut/YouTube boundary, and privacy scan to probes
+- 2026-08-29 | conjectured: the future team-only Access boundary had to gate the existing Phase 1 surface
+  refuted by: the owner clarified that Phase 1 remains an ungated closed test, while Zero Trust becomes mandatory before Phase 3 activation
+  learned: phase boundary and source provenance must stay independent: Access protects the later team workflow, while YouTube/uncut labels preserve evidence and timeline accuracy without source-based user tiers
+  criterion now: ISC-13, ISC-21, and ISC-149 through ISC-151 bind the closed-test framing, Phase 3 Access precondition, source-neutral role policy, and anti-false-live status
+- 2026-08-29 | conjectured: policy selection alone would be enough to safely begin an uncut import and production calendar
+  refuted by: the `Internal` semantic remains unconfirmed, two workbook rows remain quarantined, D1/R2 are absent in the selected account, and no human-authored answer key exists
+  learned: activation must be split from local readiness: safe projections, portable schema, and blank evaluation structure can proceed; import, provider sync, re-indexing, and Access cutover must remain blocked
+  criterion now: ISC-152 through ISC-155 verify the local foundation while the activation packet retains every external gate
 
 ## Verification
 
@@ -471,3 +528,14 @@ _Generated by `scripts/generate-architecture-ledger.mjs` from the reviewed sourc
 - ISC-143: lifecycle probe — `npm run docs:architecture:update` regenerates the HTML, services inventory, and dependency graph; `.github/workflows/architecture-ledger.yml` checks freshness across reviewed architecture code, configuration, tests, plans, documentation, and release metadata.
 - ISC-144: anti-false-live probe — the ledger labels source/config/history/plans separately, excludes untracked operator drafts from its fingerprint, and contains the current Access, OAuth, calendar, hosted MCP, and OTA holds.
 - Architecture audit and rendering evidence: independent read-only audit found and corrected untracked-source, evidence-coverage, duplicate-SVG-ID, and responsive-overflow defects; final static rendering confirmed no desktop or 390px root overflow, six contained diagrams, an accessible release-matrix scroller, offline rendering, and no external assets.
+- ISC-145: bounded register probe — the planning register lists all four owner-supplied source labels with fingerprints, structural counts, import boundaries, and explicit human-review gates.
+- ISC-146: reconciliation probe — the register records 62 transcript-workbook rows versus 64 internal-links rows, with one unmatched row in each of two categories and `Internal` held as a candidate asset field.
+- ISC-147: source-boundary probe — the register names uncut as primary transcript authority, YouTube as published-video timestamp projection, per-episode verified alignment, and unavailable status for unverified assets.
+- ISC-148: privacy probe — static assertions passed for the source register and review packet; they contain no raw URLs, machine-local source paths, or copied transcript/meeting content.
+- ISC-149: phase-boundary packet probe — the activation packet explicitly records an ungated Phase 1 closed test and requires Zero Trust before Phase 3 activation.
+- ISC-150: access-target assertion — the source register and reconciliation packet retain YouTube/uncut provenance while applying future team authorization to capabilities rather than source type.
+- ISC-151: false-live scan — the same planning records state that current preview and rollback hosts do not prove a live Access policy.
+- ISC-152: reconciliation contract — `npm --prefix cloudflare test -- source-reconciliation` passed; an `Internal` field returns a deterministic `src_` hash and blocked `ambiguous` status until owner role and verification exist.
+- ISC-153: reconciliation contract — the same focused test rejects title-only episode linkage with `approved_episode_required` and no resolved asset type.
+- ISC-154: SQLite migration contract — `npm --prefix cloudflare test -- production-calendar-schema` passed after applying migrations `0001` through `0006`; it verifies Asia/Kolkata scheduling, anchored notes, append-only revisions, conflicts, audit allowlist, and no destructive work-item delete.
+- ISC-155: evaluation template contract — `npm --prefix cloudflare test -- editorial-evaluation-template` passed with 20 uniquely identified pending cases, the approved distribution, null query/answer/source fields, and fail rules for unsupported claims or unsafe source exposure.

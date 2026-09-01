@@ -1,5 +1,49 @@
 # Project handoff
 
+## 2026-08-29 Local provenance and calendar foundation
+
+**Status:** LOCAL IMPLEMENTATION + CONTRACT TESTS — the approved policy has a safe, portable foundation in this worktree; no Cloudflare resource, media object, provider account, Access policy, secret, deployment, or live database was changed.
+
+- [`cloudflare/src/ingest/source-reconciliation.ts`](../cloudflare/src/ingest/source-reconciliation.ts) accepts only redacted row metadata and emits a hashed row identity plus an explicit status. It never accepts source links or transcript text, never activates a title-only match, and keeps `Internal` blocked until an owner-confirmed role and verification exist.
+- [`cloudflare/migrations/0006_production_calendar.sql`](../cloudflare/migrations/0006_production_calendar.sql) establishes the D1-canonical production work-item, sticky-note, revision, and conflict records. It uses `Asia/Kolkata` by default, preserves date-only semantics, requires notes to be anchored, retains prior revisions, and disallows destructive work-item deletion.
+- [`docs/quality/2026-08-29-editorial-evaluation-template.json`](../docs/quality/2026-08-29-editorial-evaluation-template.json) contains the approved 20-case distribution and hybrid rubric, but deliberately contains no questions, answers, source references, links, or transcript content.
+- Focused local contracts plus the existing provenance, alignment, transcript, and YouTube suites pass (69 tests). The source package remains outside Git and there is no live D1 evidence.
+- The unfiltered Cloudflare suite is not a clean readiness signal in this worktree: `jose` is absent for the Access-dependent suites and an existing policy assertion sees an unreviewed `/ops/episodes` route. Neither condition is caused or changed by this local foundation.
+
+**Pick-up:** an authorized owner must still confirm the `Internal` field, resolve two quarantined rows, author all 20 answer-key cases, provide the corpus/alignment evidence, and separately authorize any `9d9d` resource provisioning or migration run.
+
+## 2026-08-29 Phase boundary and approved operating policies
+
+**Status:** LOCAL PLANNING — the owner approved the recommended source, reconciliation, calendar, and evaluation policies. Phase 1 remains an ungated closed test; Cloudflare Zero Trust plus team role policy are mandatory before Phase 3 activation. This is not a live Access configuration or production authorization.
+
+- `Internal` is a candidate field under a two-axis asset-role classifier; it does not activate an asset by spreadsheet field alone. The two unmatched rows remain quarantined as `ambiguous`.
+- The native D1 calendar is canonical, uses an `Asia/Kolkata` workspace default with UTC storage, encodes event type separately from IP identity, and preserves conflicts for admin resolution. Provider sync is deferred.
+- Retrieval evaluation uses a human-owned hybrid rubric and a balanced 20-query set. The rubric is selected; editorial must still author the answer-key cases and the source mapping must still be verified.
+- YouTube and uncut remain distinct provenance and timeline records but share the same future team authorization context. Role policy scopes capabilities, not source type.
+
+**Pick-up:** finalize asset-field semantics, the two row outcomes, the editorial 20-query cases, resource names, Phase 3 Access application/policies, and required alignment evidence before activation. The local source-reconciliation adapter and portable calendar schema are ready; activation remains blocked.
+
+## 2026-08-29 Cloudflare backend reconciliation
+
+**Status:** READ-ONLY INVENTORY + LOCAL SAFETY HARDENING — a selected-profile inventory reconciled preview/web and edge Worker bindings without changing Cloudflare. The verified resource matrix and human activation packet are in [`docs/handoffs/2026-08-29-cloudflare-backend-reconciliation.md`](../docs/handoffs/2026-08-29-cloudflare-backend-reconciliation.md) and [`.planning/inputs/client-questions/2026-08-29-cloudflare-calendar-activation.md`](../.planning/inputs/client-questions/2026-08-29-cloudflare-calendar-activation.md).
+
+- Reusable: the existing 1,024-dimensional Vectorize index, queue + DLQ, KV namespace, edge Worker secret names, and deployed `wtfmedia-web` service binding.
+- Blocking drift: the selected account has no `wtfmedia-catalogue` bucket or `wtfmedia-ops` D1 database. The active edge version has no D1 binding and must not be represented as a live provenance or calendar store.
+- `web` deployment scripts now explicitly disable automatic resource provisioning. This preserves the owner gate while actual D1/R2 choices are reviewed.
+- No secret values were read. The web Worker still needs secure `EDGE_SHARED_SECRET` handoff before chat activation; Vercel remains the rollback path.
+
+**Pick-up:** obtain the completed human-review packet before provisioning, migrating, binding, calendar syncing, re-indexing, hostname cutover, or decommissioning Vercel.
+
+## 2026-08-29 Uncut source package catalogued
+
+**Status:** LOCAL PLANNING — owner-supplied transcript, internal-link, kickoff, and scope sources were inspected structurally without copying raw material. [`docs/handoffs/2026-08-29-uncut-provenance-source-register.md`](../docs/handoffs/2026-08-29-uncut-provenance-source-register.md) records safe source labels, fingerprints, coverage, and import requirements; [`2026-08-29-uncut-provenance-source-reconciliation.md`](../.planning/inputs/client-questions/2026-08-29-uncut-provenance-source-reconciliation.md) holds the remaining owner review.
+
+- The 62-row transcript workbook and 64-row internal-links workbook disagree by two rows; `Internal` is a candidate uncut field, not a confirmed asset type.
+- The scope makes uncut the primary transcript source and YouTube the published-video timestamp projection. Missing or unaligned sources remain unavailable.
+- Workbook posting dates are historical evidence only; they do not activate the calendar or infer shoots, roles, colours, provider sync, or notifications.
+
+**Pick-up:** reconcile the two rows and asset-field semantics, then use the verified local-only mapping adapter with owner-approved records before any R2/D1 asset import.
+
 ## 2026-08-29 Cloudflare-native web Worker preview
 
 **Status:** PREVIEW DEPLOYED — direct owner request authorized a separate

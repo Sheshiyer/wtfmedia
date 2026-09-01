@@ -14,7 +14,8 @@ records whose original gate has been closed or superseded.
 |---|---|---|
 | [`2026-08-29-phase-3-blocking-inputs.md`](2026-08-29-phase-3-blocking-inputs.md) | Draft-held | Approve the separate live-activation scope and provide the Phase 3 inputs through an owner-managed secure channel. |
 | [`2026-08-27-ip-taxonomy-reconciliation.md`](2026-08-27-ip-taxonomy-reconciliation.md) | Draft-held | Select the canonical IP/show model and provide a versioned mapping plus dispute owner. |
-| [`2026-08-27-editorial-evaluation-set.md`](2026-08-27-editorial-evaluation-set.md) | Draft-held | Provide the editorial-authored 20-query set for Phase 4 `KNOW-08`. |
+| [`2026-08-27-editorial-evaluation-set.md`](2026-08-27-editorial-evaluation-set.md) | Template ready; authoring required | Fill the 20 editorial-authored cases in the linked source-safe template for Phase 4 `KNOW-08`. |
+| [`2026-08-29-uncut-provenance-source-reconciliation.md`](2026-08-29-uncut-provenance-source-reconciliation.md) | Local adapter ready; source review required | Confirm the candidate uncut field, resolve two quarantined rows, and author the approved 20-query set before asset activation. |
 | [`2026-08-27-share-rotation.md`](2026-08-27-share-rotation.md) | Owner action required | Revoke or rotate the historical third-party capability shares and return a redacted attestation. |
 
 The Phase 3 packet consolidates related decisions; it does not silently choose
