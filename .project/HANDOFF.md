@@ -51,6 +51,111 @@ remain current.
 Plan the remaining Phase 3/4 work as a separately authorized slice. Do not
 move the `v0.2.0` tag or rerun deployment, rollback, ingest, or activation from
 this handoff.
+## 2026-09-01 Chat source UI and rail deploy
+
+**Status:** PRODUCTION DEPLOYED — source presentation and stale navigation
+bundle corrected on `wtfhq.in`.
+
+- The source panel now presents `published` and `uncut` as the available
+  modes, using the per-source mode from `X-Sources`; it no longer presents
+  `uncut unavailable` as a disabled mode.
+- Sources with no mapped clock render no timestamp badge. Mapped sources
+  render only their truthful `published` or `uncut` timestamp. Uncut sources
+  do not receive a fabricated published YouTube seek link.
+- `wtfmedia-web` version `ac009447-9bb8-44f1-a7a1-bd1b6f7e9257` is live.
+  The deployed bundle contains no `wtf-bottom-pill` marker or
+  `timestamp unavailable` label.
+- Live `/chat?probe=20260901-ui-final` returned HTTP 200. Live uncut chat
+  returned HTTP 200 with `source_mode:uncut`, six mapped citations, and
+  timestamps including `t:1773`; the API remained `Cache-Control:no-store`.
+- Local build, typecheck, lint, and focused provenance tests passed. The full
+  unit suite retains one pre-existing theme-token assertion mismatch in
+  `theme-contract.test.ts`; it is unrelated to this UI change.
+
+## 2026-09-01 Uncut timestamp sidecar preparation
+
+**Status:** PRODUCTION TIMESTAMP RECEIPT VERIFIED — 43 sidecar-backed jobs
+were accepted and the index now exposes mapped uncut clocks.
+
+- Added `scripts/uncut-timestamp-sidecars.mjs` and its focused test. The
+  builder consumes the mapped transcript documents, recognizes both speaker
+  and plain `(start - end)` headers, and emits only the explicit interval
+  start as the citation clock. It never derives uncut time from published
+  time.
+- The current all-tabs map produces 43 production-backed sidecar jobs from
+  18,040 explicit intervals. Six jobs are held with `no_explicit_intervals`;
+  two additional mapped documents have no production video ID. The source
+  transcript bytes were checked against the existing R2 object for one sample
+  and matched exactly.
+- The sidecar key is derived from the existing `uncut/<hash>.txt` key as
+  `uncut/<hash>.timestamps.json`. The deployed D1 admission guard accepts
+  `sourceContentHash` for the transcript receipt; `contentHash` now also
+  includes the deterministic sidecar so a previously indexed transcript is
+  not incorrectly skipped.
+- The first enqueue returned `{"uploaded":43,"queued":43,"skipped":6}`, but
+  KV retained the old transcript hash and Vectorize retained `start:null`.
+  That was an idempotency skip. The corrected enqueue returned the same queue
+  receipt with the sidecar-aware hash and KV advanced to that hash.
+- R2 contains the expected sidecar for the known episode (`96` intervals,
+  `t:0` through `t:4492`). Vectorize now reports `timestamped:true` and
+  `start:2516` for a refreshed record; five sampled episodes are all mapped.
+  Live `/api/chat` returns `source_mode:uncut`, `mapping_status:mapped`, and
+  `t:1773` with `Cache-Control:no-store`.
+- The tested question still receives the deliberate fallback answer because
+  the answer policy requires at least two relevant chunks; its returned
+  citation is nevertheless timestamp-mapped. The six jobs without explicit
+  intervals remain held, and D1 still has zero dual-timeline alignments.
+
+## 2026-09-01 Source-panel contrast hotfix
+
+**Status:** PRODUCTION DEPLOYED — cosmetic source-link contrast fixed; uncut
+timestamp mapping remains correctly held.
+
+- Corrected the Tailwind semantic key so existing `text-on-structure`
+  components generate a real light-on-dark text rule. The prior deployed
+  bundle rendered the source action labels as black text on a black fill.
+- `wtfmedia-web` version `1d4dce20-a964-4cc7-9931-7128c45afa46` is live. The
+  rebuilt CSS contains `.text-on-structure`, and the production browser now
+  visibly renders `open published moment`.
+- Live `/chat` responses use `Cache-Control: no-store`; this was a deployed
+  CSS-generation defect, not a CDN/browser cache issue.
+- Uncut retrieval still returns `mapping_status: unmapped` and `t: null` for
+  the reproduced question. Remote D1 currently has 0 `timeline_alignments`
+  and 0 `alignment_intervals`; no timestamp was inferred or fabricated.
+
+**Next gate:** provide approved uncut timing sidecars or owner-authorized
+piecewise alignment intervals, then re-ingest affected vectors and re-verify
+chat citations before enabling uncut timestamps or playback.
+
+## 2026-09-01 Episode mapping UI and infra reconciliation deployed
+
+**Status:** PRODUCTION DEPLOYED — live domain and infrastructure gates passed
+after one controlled web rollback/retry cycle.
+
+- Edge `wtfmedia-edge` deployed as version
+  `4a83dc0c-34e7-4464-b63e-8c777224b81e` with the verified `wtfmedia`
+  Vectorize, D1, R2, KV, and queue bindings. `ALLOWED_ORIGIN` now matches
+  `https://wtfhq.in`; the checked-in binding IDs match the live account.
+- Web `wtfmedia-web` deployed as version
+  `81a5360d-89c5-4ab4-adda-ba5c15c3fb3c`. Earlier web versions
+  `781a724c-4db0-489a-a515-3b810d8553bd` and
+  `661c6e23-d5f3-4bc7-88f1-82ef32a2e5fe` were rolled back after universal
+  HTTP 500s; the corrected lockfile-matched build passed local Wrangler and
+  the live gate.
+- Live `wtfhq.in`, `/episodes`, mapped episode detail, and `/ops/episodes`
+  returned HTTP 200. The operator page visibly reports 59 mapped, 49 uncut
+  active, 3 quarantined, and 0 missing source rows; active rows say indexed.
+- Live episode chat returned HTTP 200 for `published`, `uncut`, and `both`,
+  with every citation scoped to `68ylaeBbdsg`. Published citations retained
+  YouTube timestamps; uncut citations retained direct uncut references and
+  no timeline mapping was inferred. Invalid episode scope returned HTTP 400.
+- Read-only backend receipts remained stable: Vectorize 11,948 vectors; D1
+  55 published and 8 uncut active transcript versions, 6,354 active chunks,
+  and 63 completed ingestion jobs; KV `ingest:` listing returned 112 keys.
+  No ingest, queue replay, R2, D1, KV, or Vectorize data mutation was run.
+- Production UI evidence was captured at desktop width for `/episodes`, the
+  mapped episode detail, and `/ops/episodes`. Trusted uncut timeline alignment
+  and synchronized playback remain held.
 
 ## 2026-09-01 Ask WTF episode-scoped production completion
 
@@ -119,6 +224,34 @@ changed.
 **Next gate:** any authentication/history, uncut alignment/citation, edge
 configuration, corpus ingest, DNS, or secret change requires its own approved
 workstream and production receipt.
+## 2026-09-01 Episodes map and episode-scoped chat reconciliation
+
+**Status:** SOURCE CHECKPOINT — the reviewed changes are now deployed from an
+isolated release worktree; the shared checkout remains uncommitted.
+
+- `/ops/episodes` now presents the existing sheet map alongside the safe
+  backend activation receipt: 59 mapped, 49 uncut-active, 3 quarantined, and
+  0 missing source rows. Active rows mean evidence is indexed for
+  episode-scoped Ask WTF, not that uncut playback or timeline alignment is
+  available.
+- Public episode cards, detail pages, and the legacy drawer resolve uncut
+  state by public YouTube `video_id`. Mapped episodes show `uncut indexed`
+  with the held playback/alignment boundary; unmapped and quarantined rows
+  remain truthful and non-playable.
+- Episode chat links carry the validated public `episodeId`; the web adapter
+  forwards it and the edge resolver filters Vectorize by `video_id`, then
+  re-checks returned metadata before source projection. Episode-scoped
+  retrieval keeps multiple chunks from the selected episode.
+- Fresh verification passed lint, typecheck, 72 unit tests, 85 contracts, 101
+  component tests, 21 accessibility tests, production build, 223 browser
+  tests, 17 visual captures, and the RAG latency contract. The aggregate
+  verifier remains held only at its privacy scan because the pre-existing
+  untracked 2026-08-31 planning inputs contain Drive/machine-path metadata;
+  those user-owned inputs were not edited or removed.
+
+**Held:** no ingest, queue replay, DNS, secret, or credential mutation was
+performed. Trusted uncut timeline alignment and synchronized playback remain
+unavailable.
 
 ## 2026-08-31 PR #28 navigation and chat-route contract
 
