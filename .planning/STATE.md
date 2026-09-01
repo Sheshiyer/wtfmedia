@@ -37,6 +37,23 @@ Plan: 12 of 12
 Status: Complete — Staging authorized, preflight executed, owner approval bound, read-only production smoke verified
 Last activity: 2026-09-01 — bounded episode-scoped production receipt reconciled; no Phase 3 plan activated
 
+Current local wave: compatibility and bounded local 03-07 implementation.
+Owner approval permits isolated local fixes, focused tests, additive
+authenticated conversation scaffolding, and the local/staging release-control
+slice. The owner has set the 30-day
+Access-session target, local-cache sync direction, authorized-admin
+content/history visibility, archive-only lifecycle, and admin/super-admin
+export/archive scope. Live activation remains gated by global/MFA precedence,
+staging rollback evidence, and authenticated browser proof.
+
+The staging test strategy is now explicit: a protected UI toggle projects an
+audited server release manifest with `paused`, `preview`, `stable`, and
+`rolled_back` states. It operates only against isolated staging resources;
+localStorage and the current local environment flag cannot authorize or roll
+out chat. `super_admin` is the default release-state mutator, while `admin`
+exercises authorized chat/content/export/archive behavior. Pause and restore
+are required evidence, not a substitute for retaining the rollback runbook.
+
 Authorized-plan cohort: [██████████] 100% — 35 of 35 currently
 authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
 10 phases complete; this 100% is not milestone completion.
@@ -57,6 +74,11 @@ authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
   plans, not a replacement. Existing Phase 3 plans, research, requirements,
   receipts, and handoffs remain preserved and available for selective
   execution after the gate.
+
+- **Bounded local repair authorization (2026-09-02):** isolated local
+  compatibility/contract fixes, the local `03-07` schema/routes/UI/release
+  control, and focused tests are authorized. It excludes Access configuration,
+  remote migration, deployment, live activation, and production mutation.
 
 - **Completed bounded release exception (owner-approved 2026-08-31):** the
   episode-scoped published/uncut/both Ask WTF retrieval slice, approved 49-item
@@ -160,10 +182,13 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
    overlap, release-channel, auth/session/memory, model-governance, and rollback
    audit without deleting or rewriting the existing Phase 3 plans.
 4. **Plan additive 03-07 authenticated Ask WTF history** — Use the existing
-   Cloudflare Access and D1 operator boundary for `/ops/chat`, persist only
-   server-owned operator-scoped conversations/messages, preserve anonymous
-   `/chat` statelessness, and gate retention, admin visibility, logout/
-   reauthentication, rollback, and live activation separately.
+   Cloudflare Access and D1 operator boundary for the `/ops/chat` history
+   shell and `/chat/{conversation_id}-{username}` deep link, persist only
+   server-owned operator-scoped conversations/messages, allow browser-local
+   cache synchronized by activity epoch, preserve anonymous `/chat`
+   statelessness, use archive-only lifecycle with administrator export/archive
+   scope, and gate logout/reauthentication, rollback, and live activation
+   separately.
 5. **Broader platform and analytics work** — Access/RBAC, daily YouTube
    analytics, research, production operations, source adapters, reporting,
    clip intelligence, and migration closure remain planned/inactive. Do not
@@ -206,6 +231,10 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
   after retry exhaustion and produced no accepted output. The 03-00 gate
   remains open and no retained Phase 3 plan was activated; see
   `.planning/dispatch/2026-09-01-release-safe-fleet-summary.md`.
+- The 2026-09-02 read-only fan-out confirmed branch overlap and semantic drift
+  against `origin/main`: uncut citation identity/link projection, balanced
+  `both` retrieval, and ingest source-admission checks require local repair
+  before authenticated-history work. No whole-branch merge is authorized.
 - Local continuity reconciliation is recorded in
   `.planning/BRANCH-DISPOSITION-2026-09-01.md` and the ignored-input policy is
   recorded in `.planning/inputs/2026-09-01-ignored-source-manifest.md`.
