@@ -147,7 +147,7 @@ describe("dual-source chat contract", () => {
         id: "uncut:hash:0",
         score: 0.9,
         metadata: {
-          video_id: "RSB58m7Xwhg",
+          video_id: "abcdefghijk",
           source_asset_id: "f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293",
           title: "AI Minister: Omar Al Olama",
           start: 95,
@@ -160,7 +160,7 @@ describe("dual-source chat contract", () => {
       0,
     );
     assert.equal(citation?.url, "uncut:f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293");
-    assert.equal(citation?.videoId, "RSB58m7Xwhg");
+    assert.equal(citation?.videoId, "abcdefghijk");
     assert.equal(citation?.start, 95);
     assert.equal(citation?.timestamped, true);
   });
@@ -171,7 +171,7 @@ describe("dual-source chat contract", () => {
         id: "uncut:source-a:0",
         score: 0.9,
         metadata: {
-          video_id: "RSB58m7Xwhg",
+          video_id: "abcdefghijk",
           source_asset_id: "source-a",
           frame_io_url: "https://f.io/0I8LmYs9",
           source_mode: "uncut",
@@ -183,13 +183,30 @@ describe("dual-source chat contract", () => {
     assert.equal(citation?.url, "https://f.io/0I8LmYs9");
   });
 
+  test("uncut citations use the approved episode Frame.io URL when vector metadata is stale", () => {
+    const citation = projectDualSourceCitation(
+      {
+        id: "uncut:stale-source:56",
+        score: 0.9,
+        metadata: {
+          video_id: "tWzalcN_Inc",
+          source_asset_id: "stale-source",
+          source_mode: "uncut",
+        },
+      },
+      "uncut",
+      0,
+    );
+    assert.equal(citation?.url, "https://f.io/9vjmQqEA");
+  });
+
   test("uncut citations reject non-Frame.io URLs", () => {
     const citation = projectDualSourceCitation(
       {
         id: "uncut:source-a:0",
         score: 0.9,
         metadata: {
-          video_id: "RSB58m7Xwhg",
+          video_id: "abcdefghijk",
           source_asset_id: "source-a",
           frame_io_url: "https://example.com/not-frame-io",
           source_mode: "uncut",
