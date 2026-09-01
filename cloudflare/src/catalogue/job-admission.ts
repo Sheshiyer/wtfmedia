@@ -13,6 +13,7 @@ export type TranscriptJob = {
   sourceContentHash?: string;
   contentHash: string;
   sourceMode?: "published" | "uncut";
+  metadata?: Record<string, unknown>;
 };
 
 type QueueBinding = {

@@ -224,6 +224,9 @@ async function ingest(job: TranscriptJob, env: Env) {
     if (inline.length >= 3) parts = timestampedChunks(inline);
   }
   const source = vectorSourceRef(identity.sourceAssetId, sourceMode);
+  const frameIoUrl = sourceMode === "uncut"
+    ? normalizeFrameIoUrl(job.metadata?.frameIoFinalEpUrl ?? job.metadata?.frame_io_final_ep_url)
+    : null;
   for (let offset = 0; offset < parts.length; offset += UPSERT_BATCH_SIZE) {
     const batch = parts.slice(offset, offset + UPSERT_BATCH_SIZE);
     const vectors = await Promise.all(batch.map(async (part, index) => ({
@@ -239,11 +242,24 @@ async function ingest(job: TranscriptJob, env: Env) {
         start: part.start ?? null,
         timestamped: part.start != null,
         source_mode: sourceMode,
+        ...(frameIoUrl ? { frame_io_url: frameIoUrl } : {}),
       },
     })));
     await upsertWithRetry(env, vectors);
   }
   await env.WTFMEDIA_STATE.put(stateKey, job.contentHash);
+}
+
+function normalizeFrameIoUrl(value: unknown): string | null {
+  if (typeof value !== "string" || !value.trim()) return null;
+  try {
+    const parsed = new URL(value);
+    const hostname = parsed.hostname.toLowerCase();
+    const allowedHost = hostname === "f.io" || hostname === "frame.io" || hostname.endsWith(".frame.io");
+    return parsed.protocol === "https:" && allowedHost ? parsed.toString() : null;
+  } catch {
+    return null;
+  }
 }
 
 async function chat(request: Request, env: Env) {

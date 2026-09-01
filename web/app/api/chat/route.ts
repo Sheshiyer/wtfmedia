@@ -47,10 +47,11 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
     const mode = source.sourceMode ?? sourceMode;
     const start = sourceMode === "both" || mode === sourceMode ? source.start : null;
     const direct = mode === "uncut"
-      ? (typeof source.url === "string" && source.url.startsWith("uncut:")
+      ? (typeof source.url === "string" && (source.url.startsWith("uncut:") || isApprovedFrameIoUrl(source.url))
         ? source.url
         : `uncut:${source.videoId}`)
       : source.url;
+    const publicUncutUrl = mode === "uncut" && isApprovedFrameIoUrl(direct) ? direct : undefined;
     return {
       n: source.n,
       video_id: source.videoId,
@@ -58,12 +59,23 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
       score: source.score,
       t: start,
       time: start == null ? "" : new Date(start * 1_000).toISOString().slice(11, 19).replace(/^00:/, ""),
-      url: mode === "uncut" ? undefined : direct,
+      url: mode === "uncut" ? publicUncutUrl : direct,
       source_mode: mode,
       mapping_status: source.mappingStatus ?? (start == null ? "unmapped" : "mapped"),
       segment_id: source.segmentId ?? (mode === "uncut" ? `uncut:${source.videoId}` : null),
     };
   }));
+}
+
+function isApprovedFrameIoUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    const hostname = parsed.hostname.toLowerCase();
+    const allowedHost = hostname === "f.io" || hostname === "frame.io" || hostname.endsWith(".frame.io");
+    return parsed.protocol === "https:" && allowedHost;
+  } catch {
+    return false;
+  }
 }
 
 /** Local-only RAG path for `next dev`; production remains Cloudflare-only. */

@@ -165,6 +165,42 @@ describe("dual-source chat contract", () => {
     assert.equal(citation?.timestamped, true);
   });
 
+  test("uncut citations preserve an approved Frame.io URL", () => {
+    const citation = projectDualSourceCitation(
+      {
+        id: "uncut:source-a:0",
+        score: 0.9,
+        metadata: {
+          video_id: "RSB58m7Xwhg",
+          source_asset_id: "source-a",
+          frame_io_url: "https://f.io/0I8LmYs9",
+          source_mode: "uncut",
+        },
+      },
+      "uncut",
+      0,
+    );
+    assert.equal(citation?.url, "https://f.io/0I8LmYs9");
+  });
+
+  test("uncut citations reject non-Frame.io URLs", () => {
+    const citation = projectDualSourceCitation(
+      {
+        id: "uncut:source-a:0",
+        score: 0.9,
+        metadata: {
+          video_id: "RSB58m7Xwhg",
+          source_asset_id: "source-a",
+          frame_io_url: "https://example.com/not-frame-io",
+          source_mode: "uncut",
+        },
+      },
+      "uncut",
+      0,
+    );
+    assert.equal(citation?.url, "uncut:source-a");
+  });
+
   test("uncut citations fail closed without an opaque source identity", () => {
     assert.equal(projectDualSourceCitation({
       id: "uncut:bad:0",
