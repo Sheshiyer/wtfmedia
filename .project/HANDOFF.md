@@ -1,5 +1,245 @@
 # Project handoff
 
+## 2026-08-31 Ask WTF three-mode source toggle
+
+**Status:** EDGE + WEB DEPLOYED TO TARGET DOMAIN - Ask WTF now has one shared
+three-way source selector: `yt`, `uncut`, and `both`. The selected mode is sent
+to `/api/chat`, forwarded to the edge Worker, and reflected in the source drawer
+without adding a second interactive toggle inside old answers.
+
+- `published` remains the internal API value for YouTube mode, but the public
+  button and source drawer label show `yt`.
+- `uncut` still queries the uncut Vectorize partition first and never exposes
+  public URLs for uncut citations.
+- `both` is now a real edge request mode. It combines unfiltered published
+  retrieval with a filtered uncut Vectorize query, balances at least one
+  relevant source from each family when available, preserves each citation's
+  own `source_mode`, and returns `X-Source-Mode: both`.
+- The web proxy now preserves per-source `source_mode` from `X-Sources`; in
+  `both` mode it does not blank timestamps just because a citation is published
+  or uncut under the combined answer mode.
+- The source drawer renders a read-only `yt` / `uncut` / `both` indicator. The
+  only interactive source-mode control is the composer group.
+- Deployed edge version: `0884905f-aa18-4b92-bb14-9a5e154f774a`. Deployed web
+  version: `0030d22a-4765-49ce-8f1a-5e52bcf668d4`.
+- Fresh verification: `cd cloudflare && npm test` passed 145/145;
+  `cd web && npm run typecheck`, `npm run lint`, and `npm run build` passed;
+  `npx vitest run --project=contracts tests/contracts/api-chat.contract.test.ts`
+  passed 22/22; `npx vitest run --project=unit tests/unit/source-mode.test.ts`
+  passed 4/4; `npx playwright test tests/journeys/chat.spec.ts
+  --project=phase1-chromium` passed 19/19; `git diff --check` passed.
+- Live API smoke on `https://wtfhq.in/api/chat`: `published` returned 200 with
+  six published sources and six URLs; `uncut` returned 200 with two uncut
+  sources and zero URLs; `both` returned 200 with mixed `uncut` and `published`
+  sources and `X-Source-Mode: both`.
+- Live browser check on `https://wtfhq.in/chat` at 1119x634 showed three
+  composer buttons (`yt`, `uncut`, `both`), `both` sent `sourceMode: "both"`,
+  the source drawer showed active `both`, and there was no horizontal overflow.
+
+## 2026-08-31 Ask WTF source-mode toggle UI fix
+
+**Status:** WEB DEPLOYED TO TARGET DOMAIN - the chat composer is now the single
+interactive source-mode toggle, labelled `yt` / `uncut`; the source drawer only
+mirrors the returned answer mode and no longer renders a second disabled button
+that can show `uncut` / `uncut`.
+
+- `AskComposer` keeps the existing internal `published` / `uncut` API contract
+  but displays published mode as `yt` for the user-facing toggle.
+- `SourcePanel` now renders a read-only `yt` / `uncut` mode indicator with the
+  active returned mode. It has no nested source-mode buttons, so historical
+  answers cannot imply they can be retoggled without asking again.
+- `MigratedChatPage` preserves each source record's own `source_mode` from
+  `X-Sources` and only falls back to `X-Source-Mode` when a source omits it.
+- Deployed web worker version: `3f3f05e7-912a-4593-9297-a1e2ffb9a704`.
+- Fresh verification: `npm run typecheck`, `npm run lint`, `npm run build`,
+  `npx playwright test tests/journeys/chat.spec.ts --project=phase1-chromium`
+  passed 18/18, and `git diff --check` passed.
+- Live-domain browser verification on `https://wtfhq.in/chat`: uncut asks sent
+  `sourceMode: "uncut"` and showed active `uncut`; YouTube asks sent
+  `sourceMode: "published"` and showed active `yt`; the source drawer had zero
+  nested buttons and no horizontal overflow at 893x690.
+- Live API smoke after deploy: `https://wtfhq.in/api/chat` uncut returned 200
+  with uncut sources and zero URLs; published returned 200 with published
+  sources and six URLs.
+
+## 2026-08-31 Uncut SRT ingest activated on target domain
+
+**Status:** COMPLETE FOR 8 APPROVED SRT ASSETS - downloaded, stored locally in
+ignored project input space, uploaded to target R2, enqueued, vectorized,
+filtered by `source_mode`, and live-query verified on `wtfhq.in`. Secret values
+were rotated through Wrangler and never read back, printed, or committed.
+
+- Source workbook pass used the local downloaded spreadsheets and Google Drive
+  file access. Eight clean English SRT assets were accepted: `WTF is
+  Skincare?`, `Neal Mohan`, `Vinod Khosla`, `AR Rahman`, `Dario Amodei`,
+  `Chamath Palihapitiya`, `Nikos Christodoulides`, and `Ray Dalio`.
+- Local approved assets live under ignored path
+  `.planning/inputs/uncut-local/approved-2026-08-31/` as row-hash `.txt`
+  files plus a local manifest. They are not committed and no transcript body is
+  recorded in this handoff.
+- Two spreadsheet candidates remain held: `AI Minister: Omar Al Olama` pointed
+  at a subtitle file titled `English_WTF is Policing.srt`, and `WTF Bootcamp`
+  resolved to a `Howard Marks` folder. Neither was ingested.
+- R2 proof: remote `wtfmedia-catalogue/uncut/{rowHash}.txt` readback matched
+  the local SHA-256 for all 8 approved assets. Fresh bounded readback checked 8
+  and matched 8.
+- Queue/Vectorize proof: all 8 `ingest:uncut:{rowHash}` KV completion markers
+  are present in remote `WTFMEDIA_STATE`; Vectorize
+  `wtfmedia-catalogue-v1` reports 6,354 vectors at 1024 dimensions with
+  `source_mode` listed as a String metadata index.
+- Code hardening added short uncut vector IDs (`u:{hash-prefix}:{chunk36}`) so
+  Vectorize IDs stay under the 64-byte limit, bounded queue continuation so
+  large SRTs avoid Worker subrequest exhaustion, remote R2 puts in the uncut
+  apply script, and a filtered uncut Vectorize query path. Published mode stays
+  unfiltered so legacy published vectors inserted before the metadata index
+  remain queryable.
+- Deployment receipt: current edge deployment is version
+  `052dbe08-f833-4575-a460-ef6cd5bfa29b`, a secret-change successor to code
+  deploy `99bb1917-f83a-422e-901b-f18470598b11` (`Filter uncut Vectorize
+  queries`). Current web deployment remains
+  `3d89c97f-9397-413b-95b4-191c045da1f8`.
+- Domain proof: `https://wtfhq.in/chat` returned HTTP 200 and DNS resolves to
+  Cloudflare addresses. Live `https://wtfhq.in/api/chat` published mode returned
+  200 with six published sources and YouTube URLs. Live uncut mode returned 200
+  with `X-Source-Mode: uncut`, `X-Uncut-Unavailable: false`, four uncut
+  sources, no URLs, and timed citations.
+- Fresh local verification after these changes: `cd cloudflare && npm test`
+  passed 144/144, `node --test scripts/put-uncut-and-enqueue.test.mjs` passed
+  1/1, and `git diff --check` passed.
+
+**Still held:** the suspect Omar/Bootcamp spreadsheet links need corrected
+approved source files before ingest. Signed uncut playback remains out of scope;
+current uncut citations intentionally expose only uncut source IDs and clocks,
+not public media URLs.
+
+## 2026-08-30 Uncut ingest queue attempt
+
+**Status:** BLOCKED ON CORPUS + LOCAL TOKEN — no uncut upload or queue mutation
+was performed. The target ingest path remains deployed and queryable, but the
+approved uncut `.txt` files were not present in the searched Thoughtseed
+workspace paths, and this shell did not have `INGEST_TOKEN` or `INGEST_SECRET`
+in the environment.
+
+- Dry-run command:
+  `node scripts/put-uncut-and-enqueue.mjs --dir /Volumes/madara/2026/Projects/thoughtseed/wtfmedia-release-integration/.planning/inputs/uncut-local --dry-run`
+- Dry-run receipt: mode `dry-run`, enqueue URL
+  `https://wtfmedia-edge.connect2nikhai.workers.dev/v1/admin/enqueue`, 10
+  eligible title-map candidates, 0 planned uploads, 0 skipped files.
+- Live query check: workers.dev `/api/chat` with `sourceMode: "uncut"` returned
+  200 and `X-Fallback: false`, but `X-Source-Mode: published` and
+  `X-Uncut-Unavailable: true`, confirming the mode is reachable and still
+  truthfully falls back until uncut vectors exist.
+- Inventory after attempt: R2 `wtfmedia-catalogue` remained 99 objects /
+  13.2 MB; Vectorize `wtfmedia-catalogue-v1` remained 5,742 vectors.
+
+**To execute once inputs exist:** place approved files named by title/slug or
+64-hex row hash in a non-published directory, export `INGEST_TOKEN` or
+`INGEST_SECRET` locally, then run:
+`node scripts/put-uncut-and-enqueue.mjs --dir /ABS/PATH/TO/UNCUT_TXT --apply`.
+
+## 2026-08-31 Uncut ingest approval follow-up
+
+**Status:** STILL BLOCKED ON MISSING LOCAL INPUTS — owner approval to proceed
+was received, but no approved uncut `.txt` files were present locally and this
+shell still had no `INGEST_TOKEN`, `INGEST_SECRET`, `UNCUT_DIR`,
+`WTFMEDIA_EDGE_URL`, or `WTFMEDIA_ENQUEUE_URL` environment values.
+
+- Targeted search found no matching `.txt` files for the 10 eligible title-map
+  candidates by title or 64-hex row-hash prefix under the likely local project,
+  Desktop, Documents, and Downloads paths.
+- Dry-run against
+  `/Volumes/madara/2026/Projects/thoughtseed/wtfmedia-dual-source-chat/.planning/inputs/podcast-catalog/local-raw`
+  reported 10 eligible candidates, 0 planned uploads, and 0 skipped files; the
+  directory only contained `.gitignore`.
+- Remote secret names still exist on the edge worker, including `INGEST_TOKEN`,
+  but secret values cannot be read back safely from Cloudflare and were not
+  printed or copied.
+
+**Next executable gate:** put approved uncut transcript files into a reachable
+non-published directory and export a local `INGEST_TOKEN`/`INGEST_SECRET`, or
+authorize a fresh ingest-token rotation at the same time those files are
+present.
+
+## 2026-08-31 Second proceed attempt
+
+**Status:** STILL NO MUTATION — a second proceed approval was received, but the
+machine state did not change. Broad search found only metadata JSON ledgers and
+placeholder `.gitignore` files in `local-raw` / `uncut-local`; no approved
+uncut transcript bodies were available to upload.
+
+- Environment check still showed `INGEST_TOKEN`, `INGEST_SECRET`, `UNCUT_DIR`,
+  `WTFMEDIA_EDGE_URL`, and `WTFMEDIA_ENQUEUE_URL` absent.
+- Candidate metadata ledgers under
+  `.planning/inputs/podcast-catalog/2026-08-27/transcripts/*.json` contain
+  `meta` and `records` with redacted URL policy and row hashes; they are not
+  uncut transcript bodies and were not converted into corpus content.
+- Edge secret names still include `INGEST_TOKEN`, but Cloudflare secret values
+  remain unreadable by design.
+
+**Required before queueing:** provide a reachable directory of approved uncut
+transcript text files. Without those files, running `--apply` would fail with
+`no_eligible_uncut_files` or create a false corpus.
+
+## 2026-08-30 Dual-source Ask WTF hardening for Vectorize/domain cutover
+
+**Status:** TARGET PREVIEW UPDATED + SECRETS ROTATED + CUSTOM DOMAIN ATTACHED
+BY WRANGLER — branch `codex/wtfmedia-dual-source-chat` from
+`wtfmedia-release-integration` @ `b88a1fd`. Edge and web were deployed through
+the `wtfmedia` Wrangler profile; fresh paired secrets were generated through
+`cloudflare/scripts/deploy-target.mjs` in mode-restricted temp files and then
+deleted; no secret values were read or printed; no uncut corpus was uploaded.
+
+- Chat retrieval now asks Vectorize for a wider source pool (`topK: 48`) before
+  applying the existing `source_mode` partition, reducing false uncut
+  unavailable states when uncut vectors are sparse behind published matches.
+- Edge answer validation now rejects model output unless each asserted sentence
+  carries an in-range source citation; explicit no-evidence abstentions,
+  citation ranges, short section lead-ins, initials, and common episode
+  abbreviations remain allowed.
+- Edge answer generation now has a zero-temperature citation rewrite pass before
+  returning the grounded fallback, so normal model wording can be made compliant
+  without inventing new support.
+- Edge CORS now accepts a comma-separated exact-origin allowlist. The target
+  config includes both `https://wtfmedia-web.connect2nikhai.workers.dev` and
+  `https://wtfhq.in` so the same reviewed source can support preview and the
+  eventual custom domain.
+- Published and uncut enqueue scripts now share an explicit target resolver:
+  `WTFMEDIA_ENQUEUE_URL` wins, otherwise `WTFMEDIA_EDGE_URL` is expanded to
+  `/v1/admin/enqueue`, otherwise the target workers.dev edge remains default.
+  The published enqueue script now sends `sourceMode: "published"` explicitly.
+
+**Verified locally:** `cd cloudflare && npm test` passed 142/142 after
+`npm ci`; `cd web && npm run typecheck`, `npm run lint`, `npm run build`, and
+`npm run cf:build` passed; `node --test scripts/put-uncut-and-enqueue.test.mjs`
+passed 1/1; `node --check` passed for both enqueue scripts; `git diff --check`
+passed.
+
+**Deployed:** edge `wtfmedia-edge` current version
+`8b5a023d-aff4-4274-8d2e-9b3a2248f0a2`; web `wtfmedia-web` current version
+`3d89c97f-9397-413b-95b4-191c045da1f8`. Wrangler reported the web custom
+domain `wtfhq.in`; local DNS still did not resolve `wtfhq.in`, so browser/API
+verification remains on the workers.dev preview until DNS propagates or the
+zone delegation is corrected.
+
+**Live verified:** edge `/v1/health` 200 with
+`Access-Control-Allow-Origin: https://wtfhq.in`; direct edge `/v1/chat` without
+secret remains 401; workers.dev `/api/chat` published returned 200,
+`X-Fallback: false`, `X-Source-Mode: published`, six published sources with
+YouTube timestamps; workers.dev `/api/chat` uncut returned 200,
+`X-Fallback: false`, `X-Source-Mode: published`,
+`X-Uncut-Unavailable: true`, six published sources. No published timestamp was
+converted to uncut.
+
+**Infra receipt:** target secrets are present by name only (`EDGE_SHARED_SECRET`,
+`INGEST_TOKEN`); R2 `wtfmedia-catalogue` reports 99 objects / 13.2 MB; Vectorize
+`wtfmedia-catalogue-v1` reports 5,742 vectors at 1024 dimensions; KV
+`WTFMEDIA_STATE` listed 0 keys; `wtfmedia-ingest` has one producer and one
+consumer.
+
+**Still held:** approved `uncut/{hash}.txt` files were not found, so no uncut
+assets were uploaded and no ingest jobs were enqueued. DNS for `wtfhq.in` did
+not resolve from this machine after the Wrangler custom-domain receipt.
+
 ## 2026-08-30 Uncut Cloudflare asset map wired into ingest and chat
 
 **Status:** TARGET PREVIEW UPDATED — inventory-aligned keys for published

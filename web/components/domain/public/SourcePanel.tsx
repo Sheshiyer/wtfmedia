@@ -12,11 +12,13 @@ import { useId } from "react";
 import Link from "next/link";
 import { resolveCitation } from "@/lib/provenance/catalog-mapping";
 import type { PublicSourceCitation } from "@/lib/provenance/public-source-header";
+import { parseSourceMode, SOURCE_MODES, type SourceMode } from "@/lib/provenance/source-mode";
 
 export type SourceCitation = PublicSourceCitation;
 
 export interface SourcePanelProps {
   sources: SourceCitation[];
+  sourceMode?: SourceMode;
 }
 
 function youtubeWatchUrl(videoId: string, timeSec: number | null): string {
@@ -38,11 +40,25 @@ function uncutDirectRef(videoId: string | undefined): string {
   return token ? `uncut:${token.slice(0, 12)}` : "uncut";
 }
 
-export function SourcePanel({ sources }: SourcePanelProps) {
+function sourceModeLabel(mode: SourceMode): string {
+  if (mode === "both") return "both";
+  return mode === "uncut" ? "uncut" : "yt";
+}
+
+function inferredSourceMode(sources: SourceCitation[]): SourceMode {
+  const modes = new Set(sources.map((source) => source.sourceMode).filter(Boolean));
+  if (modes.has("published") && modes.has("uncut")) return "both";
+  return parseSourceMode(sources[0]?.sourceMode);
+}
+
+export function SourcePanel({ sources, sourceMode }: SourcePanelProps) {
   const citationPlaybackTitleId = useId();
   const uncutPlaybackStatusId = useId();
 
   if (!sources || sources.length === 0) return null;
+
+  const answerSourceMode = sourceMode ?? inferredSourceMode(sources);
+  const hasMappedUncut = sources.some((source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped");
 
   return (
     <details
@@ -70,25 +86,32 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 sources
               </p>
               <p id={uncutPlaybackStatusId} className="mt-0.5 text-[11px] text-muted">
-                {sources.some((source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped")
+                {hasMappedUncut
                   ? "uncut timestamps are direct M:SS from the response. no url. no published time was converted."
                   : "published moments are available. uncut stays unavailable until a mapped uncut source is returned."}
               </p>
             </div>
-            <div className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5">
-              <span className="rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention">
-                {sources[0]?.sourceMode === "uncut" ? "uncut" : "published"}
-              </span>
-              <button
-                type="button"
-                disabled
-                aria-describedby={uncutPlaybackStatusId}
-                className="cursor-not-allowed rounded px-2.5 py-1 text-[11px] text-muted opacity-70"
-              >
-                {sources[0]?.sourceMode === "uncut" && sources[0]?.mappingStatus === "mapped"
-                  ? "uncut"
-                  : "uncut unavailable"}
-              </button>
+            <div
+              className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5"
+              role="status"
+              aria-describedby={uncutPlaybackStatusId}
+              aria-label={`answer source mode: ${sourceModeLabel(answerSourceMode)}`}
+              data-testid="source-panel-mode"
+            >
+              {SOURCE_MODES.map((mode) => (
+                <span
+                  key={mode}
+                  data-active={answerSourceMode === mode ? "true" : "false"}
+                  className={[
+                    "rounded px-2.5 py-1 text-[11px] font-bold lowercase",
+                    answerSourceMode === mode
+                      ? "bg-attention text-on-attention"
+                      : "text-muted opacity-70",
+                  ].join(" ")}
+                >
+                  {sourceModeLabel(mode)}
+                </span>
+              ))}
             </div>
           </div>
         </section>
@@ -134,7 +157,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                   <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
                     {resolved.activeTimeSec === null || resolved.activeTimeSec === undefined
                       ? "timestamp unavailable"
-                      : `${source.sourceMode === "uncut" ? "uncut" : "published"} ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
+                      : `${sourceModeLabel(source.sourceMode ?? "published")} ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
                   </span>
                   {source.sourceMode === "uncut" ? (
                     <span

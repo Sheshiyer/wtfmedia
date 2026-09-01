@@ -5,7 +5,7 @@
   "protected_hashes": [
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "24f728befa97d79ba496eea2167bf911c7de6a48da830c88f42ecb5ab3ff01b3"
+      "sha256": "2c22fd404bf1c335761888bc232e255ac0ee118aa22300875664dbd5ac68520b"
     }
   ],
   "invariants": {

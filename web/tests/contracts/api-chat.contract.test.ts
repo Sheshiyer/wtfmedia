@@ -162,6 +162,21 @@ describe("POST /api/chat — server-only edge authentication", () => {
     expect(sources.every((source: { source_mode: string }) => source.source_mode === "published")).toBe(true);
   });
 
+  it("forwards both sourceMode and preserves mixed source timestamps by their own source type", async () => {
+    const { POST } = await importRoute();
+    const res = await POST(chatRequest({ messages: [userMessage(triggerQuestion("mixed-both"))], sourceMode: "both" }));
+    expect(stub.requestLog[0].sourceMode).toBe("both");
+    expect(res.headers.get("X-Source-Mode")).toBe("both");
+    expect(res.headers.get("X-Uncut-Unavailable")).toBe("false");
+    const sources = JSON.parse(decodeURIComponent(res.headers.get("X-Sources")!));
+    expect(sources.map((source: { source_mode: string }) => source.source_mode)).toEqual(["published", "uncut"]);
+    expect(sources[0].time).toBe("02:05");
+    expect(sources[0].url).toContain("youtube.com");
+    expect(sources[1].time).toBe("15:16");
+    expect(sources[1].url).toBeUndefined();
+    expect(sources[1].segment_id).toContain("uncut:");
+  });
+
   it("uses the Cloudflare service binding and forwarding-safe client IP in production", async () => {
     const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({
       answer: "Grounded answer text.",

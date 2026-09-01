@@ -63,10 +63,11 @@ function ChatInner() {
       const modelHeader = response.headers.get("X-Model");
       const fallbackHeader = response.headers.get("X-Fallback");
       const uncutUnavailable = response.headers.get("X-Uncut-Unavailable") === "true";
+      const responseSourceMode = parseSourceMode(response.headers.get("X-Source-Mode") ?? sourceMode);
 
       const sources: Source[] = parsePublicSourceHeader(sourcesHeader).map((source) => ({
         ...source,
-        sourceMode: parseSourceMode(response.headers.get("X-Source-Mode") ?? source.sourceMode),
+        sourceMode: source.sourceMode ?? responseSourceMode,
       }));
 
       // Stream the response body
@@ -85,6 +86,7 @@ function ChatInner() {
             model: modelHeader || undefined,
             fallback: fallbackHeader === "true",
             uncutUnavailable,
+            sourceMode: responseSourceMode,
           },
         ]);
 

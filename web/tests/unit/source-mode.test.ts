@@ -2,13 +2,15 @@ import { describe, expect, it } from "vitest";
 
 import { parsePublicSourceHeader } from "@/lib/provenance/public-source-header";
 import { resolveCitation } from "@/lib/provenance/catalog-mapping";
-import { parseSourceMode, publicTimestampForMode } from "@/lib/provenance/source-mode";
+import { isSourceMode, parseSourceMode, publicTimestampForMode } from "@/lib/provenance/source-mode";
 
 describe("dual-source public DTO", () => {
   it("defaults unknown modes to published", () => {
     expect(parseSourceMode(undefined)).toBe("published");
     expect(parseSourceMode("uncut")).toBe("uncut");
+    expect(parseSourceMode("both")).toBe("both");
     expect(parseSourceMode("studio")).toBe("published");
+    expect(isSourceMode("both")).toBe(true);
   });
 
   it("does not treat a published time as an uncut time", () => {
@@ -36,6 +38,22 @@ describe("dual-source public DTO", () => {
         timeSec: 90,
       }),
     ).toBeNull();
+    expect(
+      publicTimestampForMode({
+        requested: "both",
+        citationMode: "published",
+        mappingStatus: "mapped",
+        timeSec: 90,
+      }),
+    ).toBe(90);
+    expect(
+      publicTimestampForMode({
+        requested: "both",
+        citationMode: "uncut",
+        mappingStatus: "mapped",
+        timeSec: 120,
+      }),
+    ).toBe(120);
   });
 
   it("parses dual-source header fields and drops private keys", () => {

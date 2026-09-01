@@ -37,7 +37,8 @@ export function ingestStateKey(id: string, sourceMode: CatalogueSourceMode = "pu
 }
 
 export function vectorRecordId(id: string, chunk: number, sourceMode: CatalogueSourceMode = "published"): string {
-  return sourceMode === "uncut" ? `uncut:${id}:${chunk}` : `${id}:${chunk}`;
+  const chunkId = Math.trunc(chunk).toString(36);
+  return sourceMode === "uncut" ? `u:${id.slice(0, 48)}:${chunkId}` : `${id}:${chunk}`;
 }
 
 export function vectorSourceRef(id: string, sourceMode: CatalogueSourceMode): string {

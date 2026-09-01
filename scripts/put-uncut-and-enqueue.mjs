@@ -24,8 +24,14 @@ const PUBLISHED_DIRS = [
   join(root, "web/public/transcripts"),
   join(root, "data/nikhil-kamath/transcripts"),
 ];
-const ENQUEUE_URL = "https://wtfmedia-edge.connect2nikhai.workers.dev/v1/admin/enqueue";
+const DEFAULT_EDGE_URL = "https://wtfmedia-edge.connect2nikhai.workers.dev";
 const BUCKET = "wtfmedia-catalogue";
+
+export function resolveEnqueueUrl(env = process.env) {
+  if (env.WTFMEDIA_ENQUEUE_URL) return new URL(env.WTFMEDIA_ENQUEUE_URL);
+  const edge = new URL(env.WTFMEDIA_EDGE_URL || DEFAULT_EDGE_URL);
+  return new URL("/v1/admin/enqueue", edge);
+}
 
 export function normalizeTitle(value) {
   return String(value || "")
@@ -141,7 +147,7 @@ function wrangler(args) {
 async function enqueue(jobs) {
   const token = process.env.INGEST_TOKEN || process.env.INGEST_SECRET;
   if (!token) throw new Error("INGEST_TOKEN is required to enqueue");
-  const response = await fetch(ENQUEUE_URL, {
+  const response = await fetch(resolveEnqueueUrl(), {
     method: "POST",
     headers: { "content-type": "application/json", "x-ingest-token": token },
     body: JSON.stringify({
@@ -186,6 +192,7 @@ export async function main(argv = process.argv.slice(2)) {
   const receipt = {
     mode: args.apply ? "apply" : "dry-run",
     dir: resolve(args.dir),
+    enqueueUrl: resolveEnqueueUrl().href,
     eligibleCandidates: plan.eligible,
     planned: plan.planned.map(({ file, ...rest }) => ({ ...rest, fileName: file.split("/").pop() })),
     skipped: plan.skipped,
@@ -199,6 +206,7 @@ export async function main(argv = process.argv.slice(2)) {
       "object",
       "put",
       `${BUCKET}/${job.transcriptKey}`,
+      "--remote",
       "--file",
       job.file,
       "--content-type",

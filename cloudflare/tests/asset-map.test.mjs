@@ -34,8 +34,10 @@ describe("catalogue asset map", () => {
     );
     assert.equal(ingestStateKey(hashToken(hash), "uncut"), "ingest:uncut:f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293");
     assert.notEqual(ingestStateKey("abcdefghijk", "uncut"), ingestStateKey("abcdefghijk", "published"));
-    assert.equal(vectorRecordId("f4ae8eaae69c9ef9", 0, "uncut"), "uncut:f4ae8eaae69c9ef9:0");
-    assert.equal(vectorSourceRef("f4ae8eaae69c9ef9", "uncut").startsWith("https://"), false);
+    assert.equal(vectorRecordId("f4ae8eaae69c9ef9", 0, "uncut"), "u:f4ae8eaae69c9ef9:0");
+    assert.equal(vectorRecordId(hashToken(hash), 12_345, "uncut").length <= 64, true);
+    assert.equal(vectorSourceRef(hashToken(hash), "uncut").startsWith("https://"), false);
+    assert.equal(vectorSourceRef(hashToken(hash), "uncut"), "uncut:f4ae8eaae69c9ef99a22a45b9caff6a5612b1c93f280aa80fb11755d5d6ed293");
   });
 
   test("jobs default to published and reject URL-bearing hashes", () => {

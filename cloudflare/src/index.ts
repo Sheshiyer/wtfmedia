@@ -15,13 +15,15 @@ import {
 } from "./db";
 import { handleOpsRequest, type OpsEnv } from "./ops-router";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar";
-import { parseSourceMode, resolveRequestedSources } from "./chat/source-mode";
+import { answerHasRequiredCitations, parseSourceMode, resolveRequestedSources, vectorizeQueryOptions } from "./chat/source-mode";
+import { originAllowed } from "./http/cors";
 import {
   ingestStateKey,
   parseJobSourceMode,
   vectorRecordId,
   vectorSourceRef,
 } from "./catalogue/asset-map";
+import { ingestWindow } from "./catalogue/ingest-window";
 import { extractTimestampLines } from "./catalogue/timestamps";
 
 export interface Env extends OpsEnv {
@@ -46,6 +48,7 @@ type TranscriptJob = {
   timestampsKey?: string;
   contentHash: string;
   sourceMode?: "published" | "uncut";
+  chunkOffset?: number;
 };
 
 const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
@@ -60,13 +63,18 @@ type Passage = { text: string; start?: number };
 type TimestampLine = { t: number; x: string };
 
 const SYSTEM = `You are the WTF Media research assistant. Answer only from the supplied excerpts.
-Every factual sentence needs a matching [source] citation. A mention of a person or company does not prove
+Every factual sentence or bullet must end with a numeric citation like [1] or a compact range like [1-3].
+Do not write uncited headings, introductions, source lists, or prefaces. A mention of a person or company does not prove
 ownership, employment, authorship, guest status, or any other relationship. Do not infer catalogue-wide counts
 from excerpts. If the excerpts do not establish the answer, say so plainly.`;
 
+const CITATION_REWRITE_SYSTEM = `Rewrite the assistant answer so every factual sentence or bullet ends with one or more numeric citations from the supplied excerpts, such as [1] or [1-3].
+Do not add new claims, headings, introductions, source lists, or citations that are not supported by the excerpts.
+If the answer cannot be made properly cited from the excerpts, say: I do not have enough evidence to answer reliably.`;
+
 function cors(request: Request, env: Env) {
   const origin = request.headers.get("Origin");
-  return origin === env.ALLOWED_ORIGIN
+  return originAllowed(origin, env.ALLOWED_ORIGIN)
     ? { "Access-Control-Allow-Origin": origin, Vary: "Origin" }
     : {};
 }
@@ -175,8 +183,9 @@ async function ingest(job: TranscriptJob, env: Env) {
     if (inline.length >= 3) parts = timestampedChunks(inline);
   }
   const source = vectorSourceRef(job.videoId, sourceMode);
-  for (let offset = 0; offset < parts.length; offset += UPSERT_BATCH_SIZE) {
-    const batch = parts.slice(offset, offset + UPSERT_BATCH_SIZE);
+  const { startOffset, endOffset, hasMore } = ingestWindow(parts.length, job.chunkOffset);
+  for (let offset = startOffset; offset < endOffset; offset += UPSERT_BATCH_SIZE) {
+    const batch = parts.slice(offset, Math.min(endOffset, offset + UPSERT_BATCH_SIZE));
     const vectors = await Promise.all(batch.map(async (part, index) => ({
       id: vectorRecordId(job.videoId, offset + index, sourceMode),
       values: await vectorFor(env, part.text),
@@ -192,6 +201,10 @@ async function ingest(job: TranscriptJob, env: Env) {
       },
     })));
     await upsertWithRetry(env, vectors);
+  }
+  if (hasMore) {
+    await env.INGEST_QUEUE.send({ ...job, chunkOffset: endOffset });
+    return;
   }
   await env.WTFMEDIA_STATE.put(stateKey, job.contentHash);
 }
@@ -221,13 +234,24 @@ async function chat(request: Request, env: Env) {
     });
   }
   try {
-    const matches = await env.VECTORIZE.query(await vectorFor(env, question), {
-      topK: 12,
-      returnMetadata: "all",
-    });
-    const resolved = resolveRequestedSources(matches.matches ?? [], sourceMode, MIN_SCORE, 6);
+    const queryVector = await vectorFor(env, question);
+    const primaryMatches = await env.VECTORIZE.query(queryVector, vectorizeQueryOptions(sourceMode === "uncut" ? "uncut" : undefined));
+    let sourceMatches = primaryMatches.matches ?? [];
+    let resolved = resolveRequestedSources(sourceMatches, sourceMode, MIN_SCORE, 6);
+    if (sourceMode === "uncut" && resolved.citations.length < 2) {
+      const fallbackMatches = await env.VECTORIZE.query(queryVector, vectorizeQueryOptions());
+      const fallback = resolveRequestedSources(fallbackMatches.matches ?? [], "published", MIN_SCORE, 6);
+      if (fallback.citations.length >= 2) {
+        sourceMatches = fallbackMatches.matches ?? [];
+        resolved = { citations: fallback.citations, sourceMode: "published", uncutUnavailable: true };
+      }
+    } else if (sourceMode === "both") {
+      const uncutMatches = await env.VECTORIZE.query(queryVector, vectorizeQueryOptions("uncut"));
+      sourceMatches = [...sourceMatches, ...(uncutMatches.matches ?? [])];
+      resolved = resolveRequestedSources(sourceMatches, "both", MIN_SCORE, 6);
+    }
     const sources = resolved.citations.map((source) => {
-      const match = (matches.matches ?? []).find((item: { metadata?: { video_id?: string } }) => item.metadata?.video_id === source.videoId);
+      const match = sourceMatches.find((item: { id?: string; metadata?: { video_id?: string } }) => item.id === source.segmentId || item.metadata?.video_id === source.videoId);
       return { ...source, text: match?.metadata?.text };
     });
     if (sources.length < 2) {
@@ -250,11 +274,21 @@ async function chat(request: Request, env: Env) {
       max_tokens: 600,
       temperature: 0.1,
     });
-    const answer = typeof result === "string" ? result : result?.response;
+    let answer = typeof result === "string" ? result : result?.response;
     if (typeof answer !== "string" || !answer.trim()) throw new Error("empty answer response");
-    const citations = [...answer.matchAll(/\[(\d+)\]/g)].map((match) => Number(match[1]));
-    if (citations.length === 0 || citations.some((citation) => citation < 1 || citation > sources.length)) {
-      console.warn("wtfmedia answer rejected: invalid citations", { sourceCount: sources.length, citations });
+    if (!answerHasRequiredCitations(answer, sources.length)) {
+      const retry = await env.AI.run(ANSWER_MODEL, {
+        messages: [
+          { role: "system", content: CITATION_REWRITE_SYSTEM },
+          { role: "user", content: `CONTEXT:\n${context}\n\nQUESTION: ${question}\n\nUNCITED_ANSWER:\n${answer}` },
+        ],
+        max_tokens: 600,
+        temperature: 0,
+      });
+      answer = typeof retry === "string" ? retry : retry?.response;
+    }
+    if (typeof answer !== "string" || !answerHasRequiredCitations(answer, sources.length)) {
+      console.warn("wtfmedia answer rejected: missing assertion citations", { sourceCount: sources.length });
       return reply(request, env, {
         answer: "I couldn’t produce a properly cited answer from the retrieved evidence. Please rephrase or try again.",
         sources: sources.map(({ text: _text, ...source }) => source),

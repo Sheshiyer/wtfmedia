@@ -229,6 +229,178 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(sourcePanel).toContainText("Episode 5: Persistence");
   });
 
+  test("uses the composer source toggle for uncut answers and mirrors it in the source panel", async ({ page }) => {
+    let requestBody: unknown;
+    const uncutHash = "e1db357f2eadded2938c951ed9398fd48f1ca89b71a0eb6cde0f5c8fce293d3e";
+    await page.route("/api/chat", (route) => {
+      const body = route.request().postData();
+      if (body) requestBody = JSON.parse(body);
+
+      route.fulfill({
+        status: 200,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "X-Source-Mode": "uncut",
+          "X-Uncut-Unavailable": "false",
+          "X-Fallback": "false",
+          "X-Sources": JSON.stringify([
+            {
+              n: 1,
+              video_id: uncutHash,
+              title: "Dario Amodei",
+              score: 0.93,
+              t: 916,
+              source_mode: "uncut",
+              mapping_status: "mapped",
+              segment_id: `uncut:${uncutHash}:0`,
+            },
+          ]),
+        },
+        body: "Dario discusses model behavior [1].",
+      });
+    });
+
+    await page.goto("/chat");
+    await settle(page);
+
+    await page.getByRole("button", { name: "uncut sources" }).click();
+    await page.locator("textarea").fill("What does Dario say about model behavior?");
+    await page.locator('button[type="submit"]').click();
+
+    await expect(page.locator('[data-testid="message-1"]')).toBeVisible({
+      timeout: 10000,
+    });
+    expect((requestBody as { sourceMode?: string }).sourceMode).toBe("uncut");
+
+    const sourcePanel = page.locator('[data-testid="source-panel"]');
+    await sourcePanel.locator("summary").click();
+    await expect(page.getByRole("group", { name: "source mode" })).toHaveCount(1);
+    await expect(sourcePanel.locator('[data-testid="source-panel-mode"] [data-active="true"]')).toHaveText("uncut");
+    await expect(sourcePanel.locator('[data-testid="source-panel-mode"]')).toContainText("yt");
+    await expect(sourcePanel.locator("button")).toHaveCount(0);
+    await expect(sourcePanel).toContainText("uncut 15:16");
+    await expect(sourcePanel).not.toContainText("open published moment");
+  });
+
+  test("uses the same source toggle for YouTube answers and mirrors yt in the source panel", async ({ page }) => {
+    let requestBody: unknown;
+    await page.route("/api/chat", (route) => {
+      const body = route.request().postData();
+      if (body) requestBody = JSON.parse(body);
+
+      route.fulfill({
+        status: 200,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "X-Source-Mode": "published",
+          "X-Uncut-Unavailable": "false",
+          "X-Fallback": "false",
+          "X-Sources": JSON.stringify([
+            {
+              n: 1,
+              video_id: "abc123abc12",
+              title: "Published Episode",
+              score: 0.91,
+              t: 125,
+              url: "https://youtube.com/watch?v=abc123abc12&t=125",
+              source_mode: "published",
+              mapping_status: "mapped",
+              segment_id: null,
+            },
+          ]),
+        },
+        body: "The published episode covers the topic [1].",
+      });
+    });
+
+    await page.goto("/chat");
+    await settle(page);
+
+    await page.getByRole("button", { name: "YouTube published sources" }).click();
+    await page.locator("textarea").fill("What does YouTube say about this?");
+    await page.locator('button[type="submit"]').click();
+
+    await expect(page.locator('[data-testid="message-1"]')).toBeVisible({
+      timeout: 10000,
+    });
+    expect((requestBody as { sourceMode?: string }).sourceMode).toBe("published");
+
+    const sourcePanel = page.locator('[data-testid="source-panel"]');
+    await sourcePanel.locator("summary").click();
+    await expect(page.getByRole("group", { name: "source mode" })).toHaveCount(1);
+    await expect(sourcePanel.locator('[data-testid="source-panel-mode"] [data-active="true"]')).toHaveText("yt");
+    await expect(sourcePanel.locator('[data-testid="source-panel-mode"]')).toContainText("uncut");
+    await expect(sourcePanel.locator("button")).toHaveCount(0);
+    await expect(sourcePanel).toContainText("yt 2:05");
+    await expect(sourcePanel).toContainText("open published moment");
+  });
+
+  test("uses the same source toggle for both answers and mirrors both in the source panel", async ({ page }) => {
+    let requestBody: unknown;
+    const uncutHash = "e1db357f2eadded2938c951ed9398fd48f1ca89b71a0eb6cde0f5c8fce293d3e";
+    await page.route("/api/chat", (route) => {
+      const body = route.request().postData();
+      if (body) requestBody = JSON.parse(body);
+
+      route.fulfill({
+        status: 200,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "X-Source-Mode": "both",
+          "X-Uncut-Unavailable": "false",
+          "X-Fallback": "false",
+          "X-Sources": JSON.stringify([
+            {
+              n: 1,
+              video_id: "abc123abc12",
+              title: "Published Episode",
+              score: 0.91,
+              t: 125,
+              url: "https://youtube.com/watch?v=abc123abc12&t=125",
+              source_mode: "published",
+              mapping_status: "mapped",
+              segment_id: null,
+            },
+            {
+              n: 2,
+              video_id: uncutHash,
+              title: "Dario Amodei",
+              score: 0.88,
+              t: 916,
+              source_mode: "uncut",
+              mapping_status: "mapped",
+              segment_id: `uncut:${uncutHash}:0`,
+            },
+          ]),
+        },
+        body: "Both source families cover this [1-2].",
+      });
+    });
+
+    await page.goto("/chat");
+    await settle(page);
+
+    await page.getByRole("button", { name: "both source modes" }).click();
+    await page.locator("textarea").fill("Compare both source families.");
+    await page.locator('button[type="submit"]').click();
+
+    await expect(page.locator('[data-testid="message-1"]')).toBeVisible({
+      timeout: 10000,
+    });
+    expect((requestBody as { sourceMode?: string }).sourceMode).toBe("both");
+
+    const sourcePanel = page.locator('[data-testid="source-panel"]');
+    await sourcePanel.locator("summary").click();
+    await expect(page.getByRole("group", { name: "source mode" })).toHaveCount(1);
+    await expect(sourcePanel.locator('[data-testid="source-panel-mode"] [data-active="true"]')).toHaveText("both");
+    await expect(sourcePanel.locator('[data-testid="source-panel-mode"]')).toContainText("yt");
+    await expect(sourcePanel.locator('[data-testid="source-panel-mode"]')).toContainText("uncut");
+    await expect(sourcePanel.locator("button")).toHaveCount(0);
+    await expect(sourcePanel).toContainText("yt 2:05");
+    await expect(sourcePanel).toContainText("uncut 15:16");
+    await expect(sourcePanel).toContainText("open published moment");
+  });
+
   test("shows untimed sources without timestamp", async ({ page }) => {
     mockGroundedAnswer(page, { timed: false });
 

@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { SourcePanel, type SourceCitation } from "./SourcePanel";
 import { Button } from "@/components/ui/Button";
+import type { SourceMode } from "@/lib/provenance/source-mode";
 
 /**
  * ConversationThread — scrollable message region for the chat route.
@@ -27,6 +28,7 @@ export interface Message {
   fallback?: boolean;
   abstained?: boolean;
   uncutUnavailable?: boolean;
+  sourceMode?: SourceMode;
 }
 
 function linkifyCitations(text: string): React.ReactNode[] {
@@ -185,7 +187,7 @@ export function ConversationThread({
 
                   {/* Public source citations */}
                   {msg.sources && msg.sources.length > 0 && (
-                    <SourcePanel sources={msg.sources} />
+                    <SourcePanel sources={msg.sources} sourceMode={msg.sourceMode} />
                   )}
 
                   {/* Abstention label */}

@@ -8,6 +8,7 @@ import {
   matchUncutFile,
   normalizeTitle,
   planUncutUploads,
+  resolveEnqueueUrl,
 } from "./put-uncut-and-enqueue.mjs";
 
 const table = {
@@ -46,6 +47,9 @@ assert.equal(
   "hash",
 );
 assert.equal(matchUncutFile("Bill Gates.txt", eligible).reason, "unmapped_filename");
+assert.equal(resolveEnqueueUrl({}).href, "https://wtfmedia-edge.connect2nikhai.workers.dev/v1/admin/enqueue");
+assert.equal(resolveEnqueueUrl({ WTFMEDIA_EDGE_URL: "https://wtfhq.in" }).href, "https://wtfhq.in/v1/admin/enqueue");
+assert.equal(resolveEnqueueUrl({ WTFMEDIA_ENQUEUE_URL: "https://edge.example/v1/admin/enqueue" }).href, "https://edge.example/v1/admin/enqueue");
 
 const dir = mkdtempSync(join(tmpdir(), "wtf-uncut-"));
 try {

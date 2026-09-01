@@ -41,7 +41,7 @@ type EdgeAnswer = {
 function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
   return JSON.stringify(sources.map((source) => {
     const mode = source.sourceMode ?? sourceMode;
-    const start = mode === sourceMode ? source.start : null;
+    const start = sourceMode === "both" || mode === sourceMode ? source.start : null;
     const direct = mode === "uncut"
       ? (typeof source.url === "string" && source.url.startsWith("uncut:")
         ? source.url

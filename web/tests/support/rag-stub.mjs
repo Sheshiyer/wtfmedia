@@ -23,6 +23,14 @@ function groundedSources() {
   ];
 }
 
+function mixedSources() {
+  const uncutHash = "e1db357f2eadded2938c951ed9398fd48f1ca89b71a0eb6cde0f5c8fce293d3e";
+  return [
+    { n: 1, videoId: "RSB58m7Xwhg", title: "Public Episode One", score: 0.91, start: 125, timestamped: true, url: "https://www.youtube.com/watch?v=RSB58m7Xwhg", sourceMode: "published" },
+    { n: 2, videoId: uncutHash, title: "Dario Amodei", score: 0.88, start: 916, timestamped: true, url: `uncut:${uncutHash}`, sourceMode: "uncut", mappingStatus: "mapped", segmentId: `uncut:${uncutHash}:0` },
+  ];
+}
+
 function extractTrigger(question) {
   if (typeof question !== "string") return null;
   const firstLine = question.split("\n", 1)[0] ?? "";
@@ -92,6 +100,18 @@ export function startRagStub(options = {}) {
         case "sources-not-array": {
           res.writeHead(200, { "Content-Type": "application/json" }).end(
             JSON.stringify({ answer: "Grounded answer text.", grounded: true, sources: null })
+          );
+          return;
+        }
+        case "mixed-both": {
+          res.writeHead(200, { "Content-Type": "application/json" }).end(
+            JSON.stringify({
+              answer: "Grounded answer text.",
+              grounded: true,
+              sources: mixedSources(),
+              sourceMode: "both",
+              uncutUnavailable: false,
+            })
           );
           return;
         }

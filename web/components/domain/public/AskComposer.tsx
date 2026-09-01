@@ -25,6 +25,12 @@ interface AskComposerProps {
   onSourceModeChange?: (mode: SourceMode) => void;
 }
 
+const SOURCE_MODE_OPTIONS: Array<{ mode: SourceMode; label: string; ariaLabel: string }> = [
+  { mode: "published", label: "yt", ariaLabel: "YouTube published sources" },
+  { mode: "uncut", label: "uncut", ariaLabel: "uncut sources" },
+  { mode: "both", label: "both", ariaLabel: "both source modes" },
+];
+
 export function AskComposer({
   value,
   onChange,
@@ -68,10 +74,11 @@ export function AskComposer({
               role="group"
               aria-label="source mode"
             >
-              {(["published", "uncut"] as const).map((mode) => (
+              {SOURCE_MODE_OPTIONS.map(({ mode, label, ariaLabel }) => (
                 <button
                   key={mode}
                   type="button"
+                  aria-label={ariaLabel}
                   aria-pressed={sourceMode === mode}
                   disabled={disabled || loading}
                   onClick={() => onSourceModeChange?.(mode)}
@@ -82,12 +89,12 @@ export function AskComposer({
                       : "text-muted hover:text-foreground",
                   ].join(" ")}
                 >
-                  {mode}
+                  {label}
                 </button>
               ))}
             </div>
             <span id="ask-wtf-composer-help" className="font-label text-[11px] font-semibold uppercase tracking-[0.1em] text-muted sm:text-right">
-              youtube published · uncut only when mapped
+              youtube published · uncut · both
             </span>
           </div>
         </div>

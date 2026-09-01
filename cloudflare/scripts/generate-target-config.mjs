@@ -44,7 +44,7 @@ const targetConfig = {
   preview_urls: false,
   observability: { enabled: true },
   vars: {
-    ALLOWED_ORIGIN: "https://wtfhq.in",
+    ALLOWED_ORIGIN: "https://wtfmedia-web.connect2nikhai.workers.dev,https://wtfhq.in",
     RATE_LIMIT_PER_MINUTE: "20",
     CALENDAR_READ_RATE_LIMIT_PER_MINUTE: "60",
     CALENDAR_WRITE_RATE_LIMIT_PER_MINUTE: "12",
