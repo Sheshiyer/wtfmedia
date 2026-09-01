@@ -4,6 +4,7 @@ import { useOperatorContext } from "@/components/domain/ops/OperatorContextProvi
 import { OperatorContextStrip } from "@/components/domain/ops/OperatorContextStrip";
 import { ReleaseStatusWidget } from "@/components/patterns/ReleaseStatusWidget";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
+import { CURRENT_RELEASE_VERSION } from "@/lib/public/release-version";
 
 export default function SettingsPage() {
   const context = useOperatorContext();
@@ -23,10 +24,10 @@ export default function SettingsPage() {
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <ReleaseStatusWidget
-            title="public link"
+            title={CURRENT_RELEASE_VERSION}
             status="current"
             tone="active"
-            detail="This release keeps the rooms open to view. It does not prove organization scope or a live access gate."
+            detail="Current named alpha release. It keeps the rooms open to view and does not prove organization scope or a live access gate."
           />
           <ReleaseStatusWidget
             title="next release gates"
