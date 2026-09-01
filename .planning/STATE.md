@@ -52,6 +52,12 @@ authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
 - **Planned / inactive:** Phases 3–10. Implementation requires Phases 1–2
   acceptance plus explicit owner authorization.
 
+- **Additive planning gate:** `03-00` is authorized for local planning and
+  read-only audit only. It is an entry gate in front of the retained Phase 3
+  plans, not a replacement. Existing Phase 3 plans, research, requirements,
+  receipts, and handoffs remain preserved and available for selective
+  execution after the gate.
+
 - **Completed bounded release exception (owner-approved 2026-08-31):** the
   episode-scoped published/uncut/both Ask WTF retrieval slice, approved 49-item
   uncut activation, Vectorize metadata indexing, and production web/edge
@@ -150,7 +156,10 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
    workspace, source/version inspection, ten-episode trusted alignment
    evaluation, twenty-query editorial search evaluation, hybrid filters, and
    synchronized playback as separate owner-authorized work.
-3. **Broader platform and analytics work** — Access/RBAC, daily YouTube
+3. **Run the additive 03-00 integration gate** — Complete the compatibility,
+   overlap, release-channel, auth/session/memory, model-governance, and rollback
+   audit without deleting or rewriting the existing Phase 3 plans.
+4. **Broader platform and analytics work** — Access/RBAC, daily YouTube
    analytics, research, production operations, source adapters, reporting,
    clip intelligence, and migration closure remain planned/inactive. Do not
    infer their completion from the episode release.
