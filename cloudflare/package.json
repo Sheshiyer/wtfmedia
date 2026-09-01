@@ -1,7 +1,7 @@
 {
   "name": "wtfmedia-edge",
   "private": true,
-  "version": "0.3.0-alpha.1",
+  "version": "0.3.1-alpha.1",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",

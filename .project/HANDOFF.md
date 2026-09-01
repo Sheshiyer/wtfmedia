@@ -1521,3 +1521,27 @@ adapter. Team-owned UI design remained unchanged.
   Trusted timeline alignment and synced uncut playback remain unavailable.
 - Root ISA and architecture work stayed in the user's dirty checkout and was
   neither staged nor rewritten.
+
+## 2026-09-01 WTF OS v0.3.1-alpha.1 release candidate
+
+The clean release branch `codex/v0.3.1-alpha` is based on `origin/main` at
+`v0.3.0-alpha.1` and contains the generated WTF OS favicon/app-icon set,
+metadata manifest wiring, aligned `0.3.1-alpha.1` package versions, release
+notes, and an exact-href browser regression for approved uncut Frame.io source
+actions. The original dirty checkout remains preserved separately.
+
+### Verification
+
+- Production uncut probe returned `https://f.io/VrTLEcyQ` in `X-Sources` for
+  episode `68ylaeBbdsg`.
+- `HEAD -L https://f.io/VrTLEcyQ` returned the Frame.io redirect chain.
+- Icon dimensions and alpha behavior were checked with `sips`; manifest JSON
+  parses successfully.
+- Web lint, strict typecheck, 85 web contract tests, 72 web unit checks, 154
+  Worker tests, the focused browser journey, and architecture freshness checks
+  passed on the clean release branch.
+
+### Next action
+
+Run the scoped web gates, review the clean diff, commit, push the PR branch,
+and leave production promotion separately gated.
