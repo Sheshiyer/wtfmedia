@@ -188,6 +188,10 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
   gateway with repeated 429/model-metadata errors, and the fallback rail
   rejected the selected model with 404. No worker result was accepted; see
   `.planning/dispatch/2026-09-01-release-safe-fleet-summary.md`.
+- A follow-up single-worker probe of ranked candidate `cursor/composer-2.5`
+  also failed with repeated gateway 429/empty-output responses. It is not
+  verified available, so no retained Phase 3 implementation plan was
+  activated; the 03-00 gate remains open.
 - Trusted timeline alignment and synchronized uncut playback remain blocked on
   authoritative alignment data and the ten-episode evaluation set. Hybrid
   search quality remains blocked on the twenty-query editorial evaluation set.
