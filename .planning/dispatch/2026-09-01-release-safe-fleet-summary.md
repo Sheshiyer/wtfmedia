@@ -44,3 +44,21 @@ be performed inline. Existing Phase 3 plans remain retained and unchanged.
 This candidate is therefore not a verified available worker for this run. The
 03-00 gate remains open and no retained Phase 3 implementation plan is
 activated.
+
+## Follow-up probe — resolved observe combo
+
+- Combo: `noesis-observe`.
+- Rail receipt: manifest bridge healthy; combo remained unresolved after
+  repeated empty-output retries and HTTP 429 gateway responses.
+- No task attempt or substantive worker output was produced.
+
+## Final non-Sol probe — 2026-09-01
+
+- Candidate: ranked `kimi-coding/kimi-for-coding-highspeed`.
+- Probe: one isolated read-only compatibility audit using `omniroute`.
+- Result: unavailable before dispatch; the runner returned `backend: none`,
+  `model: -`, and no attempts.
+- Receipt: `/var/folders/zx/_wycnwwx3p1f_4gclpnhr8rm0000gn/T/tmp.0EIxyvSsbg/index.json`
+
+The worker gate remains closed. The retained `03-01`–`03-06` plans are still
+available and unchanged, but none is activated by these unsuccessful probes.
