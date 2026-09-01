@@ -192,6 +192,10 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
   also failed with repeated gateway 429/empty-output responses. It is not
   verified available, so no retained Phase 3 implementation plan was
   activated; the 03-00 gate remains open.
+- The resolved `noesis-observe` combo and a final ranked Kimi candidate probe
+  also produced no valid worker receipt. `noesis-observe` remained unresolved
+  after 429 retries; Kimi was unavailable before dispatch. The retained
+  `03-01`–`03-06` plans remain unchanged and inactive.
 - Trusted timeline alignment and synchronized uncut playback remain blocked on
   authoritative alignment data and the ten-episode evaluation set. Hybrid
   search quality remains blocked on the twenty-query editorial evaluation set.
