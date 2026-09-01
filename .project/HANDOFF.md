@@ -1543,5 +1543,6 @@ actions. The original dirty checkout remains preserved separately.
 
 ### Next action
 
-Run the scoped web gates, review the clean diff, commit, push the PR branch,
-and leave production promotion separately gated.
+PR #43 is open from `codex/v0.3.1-alpha` at the release candidate head; review
+the pending GitHub checks before merging, and leave production promotion
+separately gated.
