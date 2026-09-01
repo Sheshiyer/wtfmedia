@@ -3,10 +3,12 @@ import { describe, test } from "node:test";
 
 import {
   buildVectorQueryOptions,
+  extractNamedEntityPhrases,
   filterMatchesByEpisodeId,
   filterAndProjectMatches,
   parseEpisodeId,
   parseSourceMode,
+  prioritizeMatchesForQuestion,
   projectDualSourceCitation,
   resolveEpisodeScopedSources,
   resolveRequestedSources,
@@ -14,6 +16,27 @@ import {
 } from "../src/chat/source-mode.ts";
 
 describe("dual-source chat contract", () => {
+  test("anchors named-person questions to matching episode metadata", () => {
+    const question = "Tell me everything that Sunil Shetty has told Nikhil Kamath.";
+    const matches = prioritizeMatchesForQuestion([
+      { id: "wrong", score: 0.99, metadata: { video_id: "QdWHGjReLUo", title: "Nikhil Kamath x Neal Mohan" } },
+      { id: "target-1", score: 0.58, metadata: { video_id: "6HE6d0lKh4o", title: "Ep #6 | WTF is Health? ft. Nikhil Kamath, Suniel Shetty, Nithin Kamath and Mukesh Bansal" } },
+      { id: "target-2", score: 0.55, metadata: { video_id: "6HE6d0lKh4o", title: "Ep #6 | WTF is Health? ft. Nikhil Kamath, Suniel Shetty, Nithin Kamath and Mukesh Bansal" } },
+    ], question);
+
+    assert.deepEqual(extractNamedEntityPhrases(question), ["Sunil Shetty", "Nikhil Kamath"]);
+    assert.deepEqual(matches.map((match) => match.id), ["target-1", "target-2"]);
+  });
+
+  test("fails closed when an explicit named person has no evidence anchor", () => {
+    assert.deepEqual(
+      prioritizeMatchesForQuestion([
+        { id: "wrong", score: 0.99, metadata: { title: "Nikhil Kamath x Neal Mohan" } },
+      ], "What did Sunil Shetty say?"),
+      [],
+    );
+  });
+
   test("episode scope accepts only a public YouTube video id", () => {
     assert.equal(parseEpisodeId(" RSB58m7Xwhg "), "RSB58m7Xwhg");
     assert.equal(parseEpisodeId("../private"), null);
@@ -23,12 +46,12 @@ describe("dual-source chat contract", () => {
 
   test("episode-scoped vector queries filter before topK selection", () => {
     assert.deepEqual(buildVectorQueryOptions("RSB58m7Xwhg"), {
-      topK: 12,
+      topK: 48,
       returnMetadata: "all",
       filter: { video_id: { $eq: "RSB58m7Xwhg" } },
     });
     assert.deepEqual(buildVectorQueryOptions(null), {
-      topK: 12,
+      topK: 48,
       returnMetadata: "all",
     });
   });

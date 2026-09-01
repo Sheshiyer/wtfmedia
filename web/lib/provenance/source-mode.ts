@@ -12,6 +12,18 @@ export function isSourceMode(value: unknown): value is SourceMode {
   return value === "published" || value === "uncut" || value === "both";
 }
 
+/**
+ * Keep the source-panel view aligned with the selected citation mode.
+ * Missing per-source mode is treated as published for legacy responses.
+ */
+export function filterSourcesByMode<T extends { sourceMode?: SourceMode }>(
+  sources: T[],
+  mode: SourceMode,
+): T[] {
+  if (mode === "both") return sources;
+  return sources.filter((source) => (source.sourceMode ?? "published") === mode);
+}
+
 export function isMappingStatus(value: unknown): value is MappingStatus {
   return (
     value === "mapped" ||

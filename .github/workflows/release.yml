@@ -48,6 +48,13 @@ jobs:
           test "$(node -p "require('./web/package.json').version")" = "$expected"
           test "$(node -p "require('./cloudflare/package.json').version")" = "$expected"
 
+      - name: Verify release notes
+        shell: bash
+        run: |
+          notes="docs/releases/${RELEASE_TAG}.md"
+          test -f "$notes"
+          test "$(sed -n '1p' "$notes")" = "# WTFMedia ${RELEASE_TAG}"
+
       - name: Install web dependencies
         working-directory: web
         run: npm ci
@@ -59,6 +66,10 @@ jobs:
       - name: Run Worker tests
         working-directory: cloudflare
         run: npm test
+
+      - name: Build web application
+        working-directory: web
+        run: npm run build
 
       - name: Run web typecheck, lint, and contracts
         working-directory: web

@@ -8,11 +8,12 @@
 
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import { resolveCitation } from "@/lib/provenance/catalog-mapping";
 import type { PublicSourceCitation } from "@/lib/provenance/public-source-header";
 import { formatPlaybackTimestamp } from "@/lib/provenance/useDualPlayback";
+import { filterSourcesByMode } from "@/lib/provenance/source-mode";
 
 export type SourceCitation = PublicSourceCitation;
 
@@ -33,6 +34,12 @@ export function SourcePanel({ sources }: SourcePanelProps) {
   const uncutPlaybackStatusId = useId();
   const hasPublishedSources = sources.some((source) => source.sourceMode === "published");
   const hasUncutSources = sources.some((source) => source.sourceMode === "uncut");
+  const [visibleMode, setVisibleMode] = useState<"published" | "uncut" | "both">(() => {
+    if (hasPublishedSources && hasUncutSources) return "both";
+    if (hasUncutSources) return "uncut";
+    return "published";
+  });
+  const visibleSources = filterSourcesByMode(sources, visibleMode);
 
   if (!sources || sources.length === 0) return null;
 
@@ -44,7 +51,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
       <summary className="flex cursor-pointer select-none items-center justify-between gap-3 font-label font-bold lowercase text-foreground transition-colors hover:text-foreground">
         <span className="flex items-center gap-1.5">
           <span className="font-bold text-attention">●</span>
-          {sources.length} source{sources.length !== 1 ? "s" : ""} cited
+          {visibleSources.length} source{visibleSources.length !== 1 ? "s" : ""} cited
         </span>
         <span className="font-mono text-[10px] uppercase tracking-wider text-secondary">
           view sources
@@ -62,31 +69,44 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 sources
               </p>
               <p id={uncutPlaybackStatusId} className="mt-0.5 text-[11px] text-muted">
-                {sources.some((source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped")
+                {visibleSources.some((source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped")
                   ? "uncut timestamps come from the response. no published time was converted."
-                  : "published sources are shown here. timestamps appear only when mapped."}
-              </p>
-            </div>
-            <div className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5" aria-label="source modes used">
-              {[
-                { label: "published", active: hasPublishedSources },
-                { label: "uncut", active: hasUncutSources },
-              ].map((mode) => (
-                <span
-                  key={mode.label}
-                  className={mode.active
-                    ? "rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention"
-                    : "rounded px-2.5 py-1 text-[11px] text-muted"}
-                >
-                  {mode.label}
-                </span>
-              ))}
+                  : visibleMode === "uncut"
+                    ? "uncut sources are shown here. timestamps appear only when mapped."
+                    : visibleMode === "both"
+                      ? "published and uncut sources are shown here. timestamps appear only when mapped."
+                      : "published sources are shown here. timestamps appear only when mapped."}
+            </p>
+          </div>
+            <div className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5" aria-label="source mode filter">
+              {(["published", "uncut", "both"] as const).map((mode) => {
+                const available = mode === "published"
+                  ? hasPublishedSources
+                  : mode === "uncut"
+                    ? hasUncutSources
+                    : hasPublishedSources && hasUncutSources;
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    data-testid={`source-mode-filter-${mode}`}
+                    disabled={!available}
+                    aria-pressed={visibleMode === mode}
+                    onClick={() => setVisibleMode(mode)}
+                    className={visibleMode === mode
+                      ? "rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention"
+                      : "rounded px-2.5 py-1 text-[11px] text-muted disabled:cursor-not-allowed disabled:opacity-40"}
+                  >
+                    {mode}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>
 
         <ul className="space-y-2.5 pl-1">
-          {sources.map((source, index) => {
+          {visibleSources.map((source, index) => {
             const resolved = resolveCitation({
               ...source,
               requestedMode: source.sourceMode ?? "published",

@@ -5,6 +5,28 @@ versioning; the web application version is held in `web/package.json`.
 
 ## [Unreleased]
 
+## [0.3.2-alpha.1] - 2026-09-01
+
+### Added
+
+- Added named-person retrieval anchors so explicit guest questions resolve to
+  matching episode evidence instead of semantically similar guests.
+- Added truthful abstention and synthesis guardrails when named-person evidence
+  is absent.
+- Made the public source panel's `published`, `uncut`, and `both` controls
+  filter the visible citation list and count.
+
+### Changed
+
+- Preserved episode scope, source identity, and truthful timestamp behavior
+  across the named-guest retrieval path and source-panel projections.
+
+### Deferred
+
+- No additional Frame.io/Vectorize URL propagation, oversized timestamp-line
+  chunking, or publisher/re-ingest tooling is included; that new slice is
+  explicitly deferred as “won't do now.” Existing `main` behavior is preserved.
+
 ## [0.3.0-alpha.1] - 2026-09-01
 
 ### Added

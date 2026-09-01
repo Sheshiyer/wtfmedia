@@ -13,6 +13,78 @@ export type VectorMatchLike = {
 
 const YOUTUBE_VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
 
+const NAME_TOKEN = /[A-Za-z][A-Za-z'-]*/g;
+
+function tokens(value: string): string[] {
+  return value.match(NAME_TOKEN)?.map((token) => token.toLocaleLowerCase("en-US")) ?? [];
+}
+
+function editDistanceAtMostOne(left: string, right: string): boolean {
+  if (left === right) return true;
+  if (Math.abs(left.length - right.length) > 1) return false;
+  let differences = 0;
+  let leftIndex = 0;
+  let rightIndex = 0;
+  while (leftIndex < left.length && rightIndex < right.length) {
+    if (left[leftIndex] === right[rightIndex]) {
+      leftIndex += 1;
+      rightIndex += 1;
+      continue;
+    }
+    differences += 1;
+    if (differences > 1) return false;
+    if (left.length > right.length) leftIndex += 1;
+    else if (right.length > left.length) rightIndex += 1;
+    else {
+      leftIndex += 1;
+      rightIndex += 1;
+    }
+  }
+  return differences + (left.length - leftIndex) + (right.length - rightIndex) <= 1;
+}
+
+function phraseAppearsIn(text: string, phrase: string): boolean {
+  const haystack = tokens(text);
+  const needle = tokens(phrase);
+  if (needle.length === 0 || needle.length > haystack.length) return false;
+  for (let start = 0; start <= haystack.length - needle.length; start += 1) {
+    if (needle.every((word, index) => editDistanceAtMostOne(word, haystack[start + index]))) return true;
+  }
+  return false;
+}
+
+/** Extract likely multi-token person names without treating generic question words as entities. */
+export function extractNamedEntityPhrases(question: string): string[] {
+  return question.match(/\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,})+\b/g) ?? [];
+}
+
+/** Keep explicit named-person questions anchored to matching title/text evidence. */
+export function prioritizeMatchesForQuestion<T extends VectorMatchLike>(
+  matches: readonly T[],
+  question: string,
+): T[] {
+  const entities = extractNamedEntityPhrases(question);
+  if (entities.length === 0) return [...matches];
+
+  const anchored = matches.map((match, index) => {
+    const metadata = match.metadata ?? {};
+    const searchable = `${String(metadata.title ?? "")} ${String(metadata.text ?? "")}`;
+    const anchorScore = entities.reduce((score, entity) => score + (phraseAppearsIn(searchable, entity) ? 1 : 0), 0);
+    return { match, index, anchorScore };
+  });
+  const strongestAnchor = Math.max(...anchored.map((item) => item.anchorScore), 0);
+  if (strongestAnchor === 0) return [];
+
+  return anchored
+    .filter((item) => item.anchorScore === strongestAnchor)
+    .sort((left, right) => {
+      const leftScore = typeof left.match.score === "number" && Number.isFinite(left.match.score) ? left.match.score : -Infinity;
+      const rightScore = typeof right.match.score === "number" && Number.isFinite(right.match.score) ? right.match.score : -Infinity;
+      return rightScore - leftScore || left.index - right.index;
+    })
+    .map((item) => item.match);
+}
+
 export type DualSourceCitation = {
   n: number;
   score: number;
@@ -76,12 +148,12 @@ export function parseEpisodeId(value: unknown): string | null {
 export function buildVectorQueryOptions(episodeId: string | null) {
   return episodeId
     ? {
-        topK: 12,
+        topK: 48,
         returnMetadata: "all" as const,
         filter: { video_id: { $eq: episodeId } },
       }
     : {
-        topK: 12,
+        topK: 48,
         returnMetadata: "all" as const,
       };
 }
@@ -264,9 +336,10 @@ export function resolveEpisodeScopedSources(
   episodeId: string | null,
   minScore: number,
   limit = 6,
+  options: { dedupeByEpisode?: boolean } = {},
 ): ResolvedChatSources {
   const scopedMatches = filterMatchesByEpisodeId(matches, episodeId);
   return resolveRequestedSources(scopedMatches, requested, minScore, limit, {
-    dedupeByEpisode: episodeId == null,
+    dedupeByEpisode: options.dedupeByEpisode ?? episodeId == null,
   });
 }

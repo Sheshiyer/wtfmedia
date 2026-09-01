@@ -17,8 +17,10 @@ import { handleOpsRequest, type OpsEnv } from "./ops-router";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar";
 import {
   buildVectorQueryOptions,
+  extractNamedEntityPhrases,
   parseEpisodeId,
   parseSourceMode,
+  prioritizeMatchesForQuestion,
   resolveEpisodeScopedSources,
 } from "./chat/source-mode";
 import {
@@ -67,7 +69,9 @@ type TimestampLine = { t: number; x: string };
 const SYSTEM = `You are the WTF Media research assistant. Answer only from the supplied excerpts.
 Every factual sentence needs a matching [source] citation. A mention of a person or company does not prove
 ownership, employment, authorship, guest status, or any other relationship. Do not infer catalogue-wide counts
-from excerpts. If the excerpts do not establish the answer, say so plainly.`;
+from excerpts. If the excerpts do not establish the answer, say so plainly.
+When the question names a person, use only excerpts whose title or text contains that named person.
+Do not answer from semantically similar excerpts about another guest or episode.`;
 
 function cors(request: Request, env: Env) {
   const origin = request.headers.get("Origin");
@@ -296,9 +300,14 @@ async function chat(request: Request, env: Env) {
       buildVectorQueryOptions(episodeId),
     );
     const rawMatches = matches.matches ?? [];
-    const resolved = resolveEpisodeScopedSources(rawMatches, sourceMode, episodeId, MIN_SCORE, 6);
+    const relevantMatches = prioritizeMatchesForQuestion(rawMatches, question);
+    const namedEntityQuestion = extractNamedEntityPhrases(question).length > 0;
+    const resolved = resolveEpisodeScopedSources(relevantMatches, sourceMode, episodeId, MIN_SCORE, 6, {
+      dedupeByEpisode: !namedEntityQuestion,
+    });
     const sources = resolved.citations.map((source) => {
-      const match = rawMatches.find((item: { id?: unknown }) => String(item.id ?? "") === source.segmentId);
+      const match = relevantMatches.find((item: { id?: unknown }) => String(item.id ?? "") === source.segmentId)
+        ?? relevantMatches.find((item: { metadata?: { video_id?: unknown } }) => item.metadata?.video_id === source.videoId);
       return { ...source, text: match?.metadata?.text };
     });
     if (sources.length < 2) {
