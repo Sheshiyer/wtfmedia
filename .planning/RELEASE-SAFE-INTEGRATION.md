@@ -44,9 +44,11 @@ server-side rollback.
 ### Wave 4 — auth, RBAC, sessions, history, and memory
 
 Cloudflare Access authenticates; D1 authorizes operators and records allowlisted
-audit metadata. Separate auth session, conversation session, agent run, and
-explicitly saved memory. Additive schema changes and dual-read/write are
-required for migrations. Public routes remain stateless until accepted.
+audit metadata. The additive `03-07` mini-phase may add an Access-protected
+`/ops/chat` surface whose conversations are keyed to server-resolved operator
+IDs and persist in D1. Separate auth session, conversation session, agent run,
+and explicitly saved memory. Additive schema changes and dual-read/write are
+required for migrations. Public routes remain stateless and unchanged.
 
 ### Wave 5 — protected admin control plane
 

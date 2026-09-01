@@ -159,7 +159,12 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
 3. **Run the additive 03-00 integration gate** — Complete the compatibility,
    overlap, release-channel, auth/session/memory, model-governance, and rollback
    audit without deleting or rewriting the existing Phase 3 plans.
-4. **Broader platform and analytics work** — Access/RBAC, daily YouTube
+4. **Plan additive 03-07 authenticated Ask WTF history** — Use the existing
+   Cloudflare Access and D1 operator boundary for `/ops/chat`, persist only
+   server-owned operator-scoped conversations/messages, preserve anonymous
+   `/chat` statelessness, and gate retention, admin visibility, logout/
+   reauthentication, rollback, and live activation separately.
+5. **Broader platform and analytics work** — Access/RBAC, daily YouTube
    analytics, research, production operations, source adapters, reporting,
    clip intelligence, and migration closure remain planned/inactive. Do not
    infer their completion from the episode release.
@@ -208,6 +213,12 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
   Only exact clean temporary/retired repository-owned worktrees are removed;
   branch refs, active WIP worktrees, the host-managed worktree, and user-owned
   source drops remain preserved. No production state changed.
+- Planning verification note: the Cloudflare suite passes 137/137 tests. The
+  web contract suite currently has one pre-existing local-fallback failure:
+  an NVIDIA embedding model returns HTTP 410 because it reached end of life,
+  so the expected "not configured" branch receives `local_answer_unavailable`.
+  This is a compatibility gate before authenticated chat work and was not
+  changed in this planning-only update.
 - Trusted timeline alignment and synchronized uncut playback remain blocked on
   authoritative alignment data and the ten-episode evaluation set. Hybrid
   search quality remains blocked on the twenty-query editorial evaluation set.
