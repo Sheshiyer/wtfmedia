@@ -201,6 +201,13 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
   after retry exhaustion and produced no accepted output. The 03-00 gate
   remains open and no retained Phase 3 plan was activated; see
   `.planning/dispatch/2026-09-01-release-safe-fleet-summary.md`.
+- Local continuity reconciliation is recorded in
+  `.planning/BRANCH-DISPOSITION-2026-09-01.md` and the ignored-input policy is
+  recorded in `.planning/inputs/2026-09-01-ignored-source-manifest.md`.
+  The root `.gitignore` worktree rule is intentional and is committed locally.
+  Only exact clean temporary/retired repository-owned worktrees are removed;
+  branch refs, active WIP worktrees, the host-managed worktree, and user-owned
+  source drops remain preserved. No production state changed.
 - Trusted timeline alignment and synchronized uncut playback remain blocked on
   authoritative alignment data and the ten-episode evaluation set. Hybrid
   search quality remains blocked on the twenty-query editorial evaluation set.

@@ -51,3 +51,4 @@ cloudflare/worker-configuration.d.ts
 web/src/data/catalog-snapshot.json
 web/tests/security/phase3-threat-results/
 .planning/phases/03-episode-ingestion-provenance-spine/03-02-SUMMARY.md
+.worktrees/
