@@ -1,5 +1,28 @@
 # Project handoff
 
+## 2026-09-01 WTFMedia v0.3.2-alpha.1 release candidate
+
+**Status:** LOCAL RELEASE CANDIDATE — PR and tag publication remain pending.
+
+- Ask WTF now widens retrieval for explicit named-person questions, anchors
+  candidates to title/text evidence, tolerates the observed Sunil/Suniel
+  spelling difference, and abstains instead of substituting another guest.
+- The public source panel now filters the returned citations by `published`,
+  `uncut`, or `both`; the visible count, list, timestamps, and links follow the
+  selected mode.
+- Local verification covers the full Worker suite, focused web tests,
+  typecheck, lint, and the mixed-source browser journey. This is repository
+  evidence only; it is not a production deployment receipt.
+
+### Explicitly deferred — WON'T DO NOW
+
+No additional Frame.io/Vectorize URL propagation, oversized timestamp-line
+chunking, or publisher/re-ingest work is part of this release candidate. The
+existing `main` Frame.io behavior is preserved, but no queue replay, Vectorize
+rewrite, URL backfill, ingest, or deployment is authorized by this checkpoint.
+Reopen the new chunking/metadata slice only as a separately planned,
+owner-authorized ingest workstream.
+
 ## 2026-09-01 Production web 0.2.0 release
 
 **Status:** LIVE — the owner-approved semantic minor release is deployed to

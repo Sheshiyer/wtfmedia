@@ -56,7 +56,7 @@ test("operator context is shown on settings, not repeated as every ops header", 
   await page.goto("/ops/settings", { waitUntil: "domcontentloaded" });
   await expect(page.locator("[data-ops-context-strip]")).toBeVisible();
   await expect(page.locator("dt", { hasText: /^environment$/ })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "v0.3.1-alpha.1", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "v0.3.2-alpha.1", exact: true })).toBeVisible();
 });
 
 test("public-link held ops pages use coming soon widgets instead of dead controls", async ({ page }) => {

@@ -4,7 +4,7 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: plan
-progress: 39/155
+progress: 50/166
 mode: interactive
 started: 2026-08-18T11:39:10Z
 updated: 2026-09-01T00:00:00+05:30
@@ -262,6 +262,20 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-154: The cutover plan uses an initial bulk copy followed by owner-authorized source quiesce, queue settlement, and a final R2/KV/Vectorize delta from a recorded high-water state (probe: ordered migration-step assertion).
 - [x] ISC-155: Rollback names the verified source Worker emergency URL, restores any quiesced source settings, and explicitly states that current no-apex recovery is not same-host continuity (probe: HTTP read plus rollback-contract assertion).
 
+### Ask WTF named-guest relevance and source presentation
+
+- [x] ISC-156: Named-person questions widen candidate retrieval before relevance selection (probe: source-mode contract).
+- [x] ISC-157: Explicit multi-token person names become retrieval anchors against title/text evidence (probe: named-guest source-mode contract).
+- [x] ISC-158: The relevance anchor tolerates the observed one-character Sunil/Suniel spelling difference without creating a new identity (probe: spelling-variant contract).
+- [x] ISC-159: Anchored questions retain multiple evidence chunks from the matching episode when needed for synthesis (probe: multi-chunk source-mode contract).
+- [x] ISC-160: Named-person questions with no matching evidence fail closed instead of returning a semantically similar guest (probe: no-anchor contract).
+- [x] ISC-161: The synthesis prompt forbids substituting another guest or episode when an explicit person is named (probe: Worker system-prompt assertion).
+- [x] ISC-162: Mixed citations default the public source panel to `both` (probe: browser journey).
+- [x] ISC-163: Selecting `published` shows only published citations and updates count/list/links (probe: browser journey).
+- [x] ISC-164: Selecting `uncut` shows only uncut citations and preserves truthful timestamp states (probe: browser journey).
+- [x] ISC-165: Selecting `both` restores the complete returned citation set (probe: browser journey).
+- [x] ISC-166: The source panel never relabels or leaks a citation across modes (probe: unit and browser contracts).
+
 ## Test Strategy
 
 | ISC range | Type | Check | Threshold | Tool |
@@ -280,6 +294,8 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-135..140 | client scope reconciliation | delivery tracks, blockers, stable requirement ownership, and preserved Phase 1 plans remain explicit | 100% document and Git probes | Markdown parser + coverage script + Git hashes |
 | ISC-141..144 | architecture evidence | current topology, Phase 1 Access exemption, deterministic regeneration, and no false live claim remain explicit | all source/check probes pass | generator + static HTML assertions + CI workflow parse |
 | ISC-145..155 | Cloudflare estate | profile topology, paginated source resources, target gaps, action boundaries, final-delta consistency, exact rollback, and no-mutation posture are explicit | all live read-only and document probes pass | Wrangler/API lists + public DNS/HTTP + bounded scans |
+| ISC-156..161 | named-guest relevance | explicit named-person questions stay anchored to matching evidence and abstain when no anchor exists | all source-mode contract assertions pass | Worker unit tests + prompt inspection |
+| ISC-162..166 | source-panel filtering | `published`, `uncut`, and `both` visibly filter response-backed citations without relabeling or leakage | all unit and browser assertions pass | web unit + Playwright journey |
 
 ## Features
 
@@ -336,6 +352,12 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
   description: Scoped, cited Ask WTF plus evaluated abstract-topic and sentiment discovery
   satisfies: [ISC-83, ISC-84, ISC-85, ISC-86, ISC-87, ISC-88, ISC-89, ISC-90, ISC-91, ISC-92]
   depends_on: [ProvenanceSpine, OperatorComponentLibrary]
+  parallelizable: false
+
+- name: SourceModeCitationFilter
+  description: Named-guest retrieval anchoring and response-backed published/uncut/both citation visibility
+  satisfies: [ISC-156, ISC-157, ISC-158, ISC-159, ISC-160, ISC-161, ISC-162, ISC-163, ISC-164, ISC-165, ISC-166]
+  depends_on: [EvidenceNativeKnowledge]
   parallelizable: false
 
 - name: ProductionOperations
@@ -520,3 +542,5 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
 - ISC-155 evidence: direct HTTP reads returned 200 for the source web Worker emergency URL and edge health. The rollback contract names the web URL, restores quiesced source settings, removes the target Custom Domain to recover the pre-cutover no-apex state, and blocks cutover unless that outage model is accepted or a same-host route is rehearsed.
 - Episode-scoped production receipt (2026-08-31): final web version `90099f42-13b6-4a4e-8d97-bd93b9f953fa` and edge version `75b96e1f-6fa6-4182-bbdd-99047399de64` passed live home, episodes, mapped-detail, and mapped `published`/`uncut`/`both` chat probes. KV membership was 55/55 published plus 49/49 mapped uncut; Vectorize reported 11,948 vectors with `source_mode` and `video_id` indexes; queue backlog was 0 and DLQ returned to baseline 18. The first web bundle's HTTP 500 was rolled back, the corrected preview passed, and no auth, DNS, secret, or unrelated UI boundary changed.
 - Episode-scope contract proof: focused Cloudflare source-mode tests pass for public YouTube ID validation, pre-`topK` `video_id` filtering, stale-match rejection, unmapped-episode truthfulness, mixed-source citation identity, and the rule that uncut citations never inherit YouTube timestamps. Trusted cross-timeline alignment and synchronized playback remain unverified by design.
+- Named-guest relevance proof (local, not deployed): the focused Worker contract anchors `Sunil Shetty` to the `Suniel Shetty` episode title, preserves generic semantic ordering, retains multiple matching chunks, and returns no candidates when an explicit name has no evidence anchor.
+- Source-panel filtering proof (local, not deployed): the focused web unit and Playwright journey cover `published`, `uncut`, and `both` projections, count/list updates, restoration, and zero cross-mode leakage.

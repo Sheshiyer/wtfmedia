@@ -53,24 +53,24 @@
   "releaseEvents": [
     {
       "surface": "Repository package",
-      "version": "0.3.0-alpha.1",
+      "version": "0.3.2-alpha.1",
       "channel": "alpha release candidate",
       "status": "implemented_source",
-      "meaning": "The repository package is aligned to the v0.3.0-alpha.1 release candidate; the tag workflow still requires verification before publication."
+      "meaning": "The repository package is aligned to the v0.3.2-alpha.1 release candidate; the tag workflow still requires verification before publication."
     },
     {
       "surface": "Web application",
-      "version": "0.3.0-alpha.1",
+      "version": "0.3.2-alpha.1",
       "channel": "alpha release candidate",
       "status": "implemented_source",
-      "meaning": "The web package is aligned to the v0.3.0-alpha.1 release candidate; this is not proof that the tagged bundle is deployed."
+      "meaning": "The web package is aligned to the v0.3.2-alpha.1 release candidate; this is not proof that the tagged bundle is deployed."
     },
     {
       "surface": "Cloudflare Worker",
-      "version": "0.3.0-alpha.1",
+      "version": "0.3.2-alpha.1",
       "channel": "alpha release candidate",
       "status": "declared_config",
-      "meaning": "The Worker package is aligned to the v0.3.0-alpha.1 release candidate; bindings and runtime deployment remain separately verified."
+      "meaning": "The Worker package is aligned to the v0.3.2-alpha.1 release candidate; bindings and runtime deployment remain separately verified."
     },
     {
       "surface": "WTF OS local MCP",
