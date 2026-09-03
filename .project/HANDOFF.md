@@ -1592,3 +1592,29 @@ button system, and keeps public uncut playback/status claims fail-closed.
 This Alpha branch change was not deployed to production in this handoff. The
 production deployment receipts previously recorded for the dirty WIP checkout
 are not treated as proof that this clean Alpha commit is deployed.
+
+## 2026-09-03 Alpha production promotion
+
+The clean `release/alpha` channel was promoted independently of Beta from
+commit `8c09815` on the canonical production resources.
+
+### Deployment receipt
+
+- `wtfmedia-edge`: version `c5bea3cb-7154-4712-b6b4-6c562784ba24`.
+- `wtfmedia-web`: version `f731ceb3-b506-4319-ba79-94d10347af97`.
+- The web deployment was built from the Alpha worktree and its
+  `WTFMEDIA_EDGE` service binding points to `wtfmedia-edge`.
+
+### Live verification
+
+- `https://wtfhq.in/` and `/chat` returned HTTP 200.
+- Both public routes render one compact bottom pill with exactly four links:
+  `the room`, `episodes`, `connections`, and `ask wtf`.
+- `/chat` has no operator context strip or redundant workspace header;
+  desktop and 320px probes had no horizontal overflow.
+- The composer button computed as yellow `rgb(241, 179, 51)` with black text
+  `rgb(26, 26, 26)` at desktop and mobile widths.
+- Anonymous published `/api/chat` returned HTTP 200, `X-Fallback: false`, and
+  six published sources.
+- `/ops/settings` remained Cloudflare Access protected with HTTP 302; Beta
+  authentication/history was not activated or changed by this promotion.
