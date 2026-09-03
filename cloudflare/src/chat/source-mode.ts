@@ -1,3 +1,5 @@
+import { frameIoUrlForVideoId } from "../catalogue/frame-io.ts";
+
 export const SOURCE_MODES = ["published", "uncut", "both"] as const;
 export type SourceMode = (typeof SOURCE_MODES)[number];
 export type StoredSourceMode = Exclude<SourceMode, "both">;
@@ -233,6 +235,7 @@ export function projectDualSourceCitation(
   if (!citationIdentity) return null;
   const approvedFrameIoUrl = stored === "uncut"
     ? frameIoUrl(metadata.frame_io_url ?? metadata.frameIoFinalEpUrl ?? metadata.frame_io_final_ep_url)
+      ?? frameIoUrlForVideoId(videoId)
     : null;
   const url = citationRef(stored, citationIdentity, timestamped ? start : null, timestamped, approvedFrameIoUrl);
 

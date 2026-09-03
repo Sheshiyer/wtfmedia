@@ -34,8 +34,13 @@ import {
   admitTranscriptJobs,
   assertCatalogueJobSourceAsset,
   type TranscriptJob,
+<<<<<<< HEAD
 } from "./catalogue/job-admission.ts";
-import { extractTimestampLines } from "./catalogue/timestamps.ts";
+import { extractTimestampLines, splitTimestampLine } from "./catalogue/timestamps.ts";
+=======
+} from "./catalogue/job-admission";
+import { extractTimestampLines, splitTimestampLine } from "./catalogue/timestamps";
+>>>>>>> codex/frameio-episode-fallback
 
 export interface Env extends OpsEnv {
   AI: any;
@@ -108,15 +113,16 @@ function timestampedChunks(lines: TimestampLine[]): Passage[] {
   let text = "";
   let start: number | undefined;
   for (const line of lines) {
-    const words = typeof line.x === "string" ? line.x.replace(/\s+/g, " ").trim() : "";
-    if (!words || !Number.isFinite(line.t)) continue;
-    if (text && text.length + words.length + 1 > MAX_CHUNK_CHARS) {
-      result.push({ text, start });
-      text = "";
-      start = undefined;
+    for (const piece of splitTimestampLine(line, MAX_CHUNK_CHARS)) {
+      if (!Number.isFinite(piece.t)) continue;
+      if (text && text.length + piece.x.length + 1 > MAX_CHUNK_CHARS) {
+        result.push({ text, start });
+        text = "";
+        start = undefined;
+      }
+      if (start == null) start = piece.t;
+      text += `${text ? " " : ""}${piece.x}`;
     }
-    if (start == null) start = line.t;
-    text += `${text ? " " : ""}${words}`;
   }
   if (text) result.push({ text, start });
   return result;
