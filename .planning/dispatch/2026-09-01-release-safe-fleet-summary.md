@@ -14,7 +14,7 @@ and no repository or production mutation was performed by the fleet.
 - Result: 4/4 failed at the gateway after retry exhaustion.
 - Failure evidence: repeated HTTP 429 responses, empty gateway output, and
   unavailable `noesis-execute` model metadata.
-- Run receipt: `/var/folders/zx/_wycnwwx3p1f_4gclpnhr8rm0000gn/T/tmp.zPKugTx6RI/index.json`
+- Run receipt: system-temporary receipt `tmp.zPKugTx6RI/index.json`
 
 ## Attempt 2 — governed non-Codex fallback
 
@@ -24,8 +24,7 @@ and no repository or production mutation was performed by the fleet.
   output files, bounded budget.
 - Result: 4/4 rejected before analysis because the selected model returned
   HTTP 404 / unavailable model access.
-- Local receipt directory:
-  `/private/tmp/wtfmedia-release-safe-claude-20260901/`
+- Local receipt directory: system-temporary receipt set
 
 ## Consequence
 
@@ -39,7 +38,7 @@ be performed inline. Existing Phase 3 plans remain retained and unchanged.
 - Probe: one isolated read-only compatibility audit using `omniroute`.
 - Result: failed after four empty-output retries with repeated HTTP 429 gateway
   responses and missing model metadata.
-- Receipt: `/var/folders/zx/_wycnwwx3p1f_4gclpnhr8rm0000gn/T/tmp.nVW1Q7YrgP/index.json`
+- Receipt: system-temporary receipt `tmp.nVW1Q7YrgP/index.json`
 
 This candidate is therefore not a verified available worker for this run. The
 03-00 gate remains open and no retained Phase 3 implementation plan is
@@ -58,7 +57,7 @@ activated.
 - Probe: one isolated read-only compatibility audit using `omniroute`.
 - Result: unavailable before dispatch; the runner returned `backend: none`,
   `model: -`, and no attempts.
-- Receipt: `/var/folders/zx/_wycnwwx3p1f_4gclpnhr8rm0000gn/T/tmp.0EIxyvSsbg/index.json`
+- Receipt: system-temporary receipt `tmp.0EIxyvSsbg/index.json`
 
 The worker gate remains closed. The retained `03-01`–`03-06` plans are still
 available and unchanged, but none is activated by these unsuccessful probes.
@@ -72,8 +71,7 @@ available and unchanged, but none is activated by these unsuccessful probes.
 - Backend/model: `omniroute:codex/gpt-5.3-codex-spark`.
 - Result: 4/4 failed at the gateway after retry exhaustion; no substantive
   worker output was accepted.
-- Run receipt:
-  `/var/folders/zx/_wycnwwx3p1f_4gclpnhr8rm0000gn/T/tmp.1iPlvoXEqa/index.json`
+- Run receipt: system-temporary receipt `tmp.1iPlvoXEqa/index.json`
 
 The explicit Spark authorization permits this rail, but the failed receipt
 does not satisfy the 03-00 evidence gate. No retained Phase 3 implementation

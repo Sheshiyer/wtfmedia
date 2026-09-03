@@ -58,14 +58,14 @@ roadmap and the `03-00` release-safe integration gate. It does not activate
 The following paths were reviewed as clean repository-owned worktrees. Their
 branch refs remain intact after removal:
 
-- `/private/tmp/wtfmedia-release-safe-fleet`
-- `/private/tmp/wtfmedia-release-safe-fleet-spark`
-- `/Volumes/madara/2026/Projects/thoughtseed/wtfmedia/.worktrees/pr-28`
-- `/Volumes/madara/2026/Projects/thoughtseed/wtfmedia/.worktrees/pr-36`
-- `/Volumes/madara/2026/Projects/thoughtseed/wtfmedia/.worktrees/release-0.1.4`
-- `/Volumes/madara/2026/Projects/thoughtseed/wtfmedia/.worktrees/release-v0.2.0`
-- `/Volumes/madara/2026/Projects/thoughtseed/wtfmedia/.worktrees/wtfmedia-alpha/.worktrees/wtfmedia-alpha-release-fix`
-- `/Volumes/madara/2026/Projects/thoughtseed/wtfmedia/.worktrees/wtfmedia-alpha`
+- system-temporary worktree `wtfmedia-release-safe-fleet`
+- system-temporary worktree `wtfmedia-release-safe-fleet-spark`
+- `.worktrees/pr-28`
+- `.worktrees/pr-36`
+- `.worktrees/release-0.1.4`
+- `.worktrees/release-v0.2.0`
+- `.worktrees/wtfmedia-alpha/.worktrees/wtfmedia-alpha-release-fix`
+- `.worktrees/wtfmedia-alpha`
 
 No sibling WIP worktree, `.worktrees` feature worktree, host-managed
 worktree, or user-owned source drop is in this removal set.

@@ -162,10 +162,10 @@ test("D1 history is durable, idempotent, owner-scoped, and archive-only", async 
 
 test("Access/D1 context is rechecked on every protected request and cannot cross owners", async () => {
   const db = d1();
-  const request = (email, path, init = {}) => handleOpsRequest(new Request(`https://ops.staging.test${path}`, {
+  const request = (email, path, init = {}, dependencies = {}) => handleOpsRequest(new Request(`https://ops.staging.test${path}`, {
     ...init,
     headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-e2e-1234", ...(init.headers ?? {}) },
-  }), { ...env, DB: db }, { verifyAccess: async () => ({ ok: true, email }) });
+  }), { ...env, DB: db }, { verifyAccess: async () => ({ ok: true, email }), ...dependencies });
   const own = await request("sai@allthingswtf.com", "/ops/api/chat", {
     method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify({ question: "owner-only", idempotencyKey: "owner-question-1" }),
@@ -173,6 +173,85 @@ test("Access/D1 context is rechecked on every protected request and cannot cross
   assert.equal(own.status, 201);
   const ownBody = await own.json();
   const id = ownBody.conversation.id;
+
+  let answerInput;
+  let runCalls = 0;
+  const generated = await request("sai@allthingswtf.com", "/ops/api/chat", {
+    method: "POST",
+    headers: { "content-type": "application/json", "idempotency-key": "server-answer-1" },
+    body: JSON.stringify({
+      question: "What did the guest say about evidence?",
+      sourceMode: "both",
+      assistant: { content: "client spoof must never persist", grounded: true },
+      idempotencyKey: "server-answer-1",
+    }),
+  }, {
+    runChat: async (input) => {
+      runCalls += 1;
+      answerInput = input;
+      return {
+        answer: "The guest described evidence [1].",
+        sources: [{ n: 1, title: "Published episode", videoId: "yt-1", start: 42 }],
+        grounded: true,
+        sourceMode: "both",
+        uncutUnavailable: false,
+        model: "test-model",
+        modelFallback: true,
+        requestId: "rag-request-1",
+      };
+    },
+  });
+  assert.equal(generated.status, 201);
+  const generatedBody = await generated.json();
+  const generatedId = generatedBody.conversation.id;
+  assert.equal(answerInput.question, "What did the guest say about evidence?");
+  assert.equal(generatedBody.messages.at(-1).content, "The guest described evidence [1].");
+  assert.equal(JSON.parse(generatedBody.messages.at(-1).source_metadata_json).sources[0].title, "Published episode");
+  assert.equal(generatedBody.messages.at(-1).grounding_state, "grounded");
+  assert.equal(generatedBody.messages.at(-1).model, "test-model");
+  assert.equal(generatedBody.messages.at(-1).model_fallback, 1);
+
+  const generatedRetry = await request("sai@allthingswtf.com", "/ops/api/chat", {
+    method: "POST",
+    headers: { "content-type": "application/json", "idempotency-key": "server-answer-1" },
+    body: JSON.stringify({ question: "a different question must not replace an idempotent turn" }),
+  }, { runChat: async () => { runCalls += 1; throw new Error("retry_should_not_run"); } });
+  assert.equal(generatedRetry.status, 201);
+  assert.equal((await generatedRetry.json()).messages.length, 2);
+  assert.equal(runCalls, 1);
+
+  let continuationMode;
+  const continued = await request("sai@allthingswtf.com", `/ops/api/chat/conversations/${generatedId}`, {
+    method: "POST",
+    headers: { "content-type": "application/json", "idempotency-key": "server-answer-2" },
+    body: JSON.stringify({ question: "What was in the approved uncut recording?", sourceMode: "uncut" }),
+  }, {
+    runChat: async (input) => {
+      continuationMode = input.sourceMode;
+      return {
+        answer: "The approved uncut recording adds context [1].",
+        sources: [{ n: 1, title: "Uncut episode", videoId: "uncut-1", start: null, sourceMode: "uncut" }],
+        grounded: true,
+        sourceMode: "uncut",
+        uncutUnavailable: false,
+        model: "test-model",
+        modelFallback: false,
+        requestId: "rag-request-2",
+      };
+    },
+  });
+  assert.equal(continued.status, 201);
+  const continuedBody = await continued.json();
+  assert.equal(continuationMode, "uncut");
+  assert.equal(JSON.parse(continuedBody.messages.at(-2).source_metadata_json).sourceMode, "uncut");
+  assert.equal(JSON.parse(continuedBody.messages.at(-1).source_metadata_json).sourceMode, "uncut");
+
+  const listed = await request("aditi@allthingswtf.com", "/ops/api/chat/conversations");
+  const listedBody = await listed.json();
+  const generatedSummary = listedBody.conversations.find((item) => item.id === generatedBody.conversation.id);
+  assert.equal(generatedSummary.message_count, 4);
+  assert.equal(generatedSummary.operator_display_name, "Sai Date");
+  assert.equal(generatedSummary.operator_email, "sai@allthingswtf.com");
 
   const crossOwner = await request("naisthika@allthingswtf.com", `/ops/api/chat/conversations/${id}`);
   assert.equal(crossOwner.status, 404);

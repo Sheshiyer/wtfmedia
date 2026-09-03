@@ -18,12 +18,8 @@ import type { SourceAssetRecord } from "./dto.ts";
 import { handleOpsRequest, type OpsEnv } from "./ops-router.ts";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar.ts";
 import {
-  buildVectorQueryOptions,
-  extractNamedEntityPhrases,
   parseEpisodeId,
   parseSourceMode,
-  prioritizeMatchesForQuestion,
-  resolveEpisodeScopedSources,
 } from "./chat/source-mode.ts";
 import {
   ingestStateKey,
@@ -32,6 +28,7 @@ import {
   vectorSourceRef,
 } from "./catalogue/asset-map.ts";
 import { extractTimestampLines } from "./catalogue/timestamps.ts";
+import { runChat, vectorFor } from "./chat/answer.ts";
 
 export interface Env extends OpsEnv {
   AI: any;
@@ -58,26 +55,13 @@ type TranscriptJob = {
   sourceMode?: "published" | "uncut";
 };
 
-const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
-const ANSWER_MODELS = [
-  "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-  "@cf/meta/llama-3.1-8b-instruct-fast",
-];
 const MAX_BODY_BYTES = 16_000;
 const MAX_QUESTION_CHARS = 2_000;
 const MAX_CHUNK_CHARS = 1_100;
-const MIN_SCORE = 0.45;
 const UPSERT_BATCH_SIZE = 8;
 const UPSERT_ATTEMPTS = 5;
 type Passage = { text: string; start?: number };
 type TimestampLine = { t: number; x: string };
-
-const SYSTEM = `You are the WTF Media research assistant. Answer only from the supplied excerpts.
-Every factual sentence needs a matching [source] citation. A mention of a person or company does not prove
-ownership, employment, authorship, guest status, or any other relationship. Do not infer catalogue-wide counts
-from excerpts. If the excerpts do not establish the answer, say so plainly.
-When the question names a person, use only excerpts whose title or text contains that named person.
-Do not answer from semantically similar excerpts about another guest or episode.`;
 
 function cors(request: Request, env: Env) {
   const origin = request.headers.get("Origin");
@@ -128,15 +112,6 @@ function timestampedChunks(lines: TimestampLine[]): Passage[] {
   return result;
 }
 
-async function vectorFor(env: Env, text: string): Promise<number[]> {
-  const output = await env.AI.run(EMBEDDING_MODEL, { text });
-  const vector = output?.data?.[0] ?? output?.data;
-  if (!Array.isArray(vector) || vector.length !== 1024) {
-    throw new Error("embedding response was not a 1024-dimensional vector");
-  }
-  return vector;
-}
-
 async function upsertWithRetry(env: Env, vectors: unknown[]) {
   let lastError: unknown;
   for (let attempt = 0; attempt < UPSERT_ATTEMPTS; attempt++) {
@@ -151,42 +126,6 @@ async function upsertWithRetry(env: Env, vectors: unknown[]) {
   throw lastError;
 }
 
-async function answerWithFallback(env: Env, messages: unknown[]) {
-  const failures: string[] = [];
-  for (const model of ANSWER_MODELS) {
-    try {
-      const result = await env.AI.run(model, {
-        messages,
-        max_tokens: 600,
-        temperature: 0.1,
-      });
-      const answer = typeof result === "string" ? result : result?.response;
-      if (typeof answer !== "string" || !answer.trim()) throw new Error("empty answer response");
-      if (failures.length) console.warn("wtfmedia answer model fallback used", { model, failedAttempts: failures.length });
-      return { answer, model, fallback: failures.length > 0 };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "unknown";
-      failures.push(`${model}:${message}`);
-      console.warn("wtfmedia answer model failed", { model, message });
-    }
-  }
-  throw new Error(`answer models unavailable: ${failures.length}`);
-}
-
-function citedEvidenceFallback(sources: Array<{ n: number; title: string; text?: string }>) {
-  const lines = sources.slice(0, 3).map((source) => {
-    const excerpt = String(source.text || "")
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 260);
-    return `[${source.n}] ${source.title}: ${excerpt}${excerpt.length === 260 ? "..." : ""}`;
-  });
-  return [
-    "I found relevant evidence, but the synthesis model did not return valid citations. Here are the closest cited excerpts instead:",
-    ...lines,
-  ].join("\n\n");
-}
-
 async function rateLimit(request: Request, env: Env) {
   const ip = request.headers.get("X-Client-IP") || request.headers.get("CF-Connecting-IP") || "unknown";
   const window = Math.floor(Date.now() / 60_000);
@@ -195,11 +134,6 @@ async function rateLimit(request: Request, env: Env) {
   if (seen >= Number(env.RATE_LIMIT_PER_MINUTE || 20)) return false;
   await env.WTFMEDIA_STATE.put(key, String(seen + 1), { expirationTtl: 120 });
   return true;
-}
-
-function requiresVerifiedMetadata(question: string) {
-  return /\b(?:own|owner|owns|ownership|co-?founder|founder|host|producer|created|runs)\b[\s\S]{0,100}\b(?:wtf|podcast|show|channel)\b/i.test(question)
-    || /\b(?:recur(?:ring|s)?|repeat(?:s|ed|ing)?|appear(?:s|ances?|ing)?|mentioned|occur(?:s|rence)?|most)\b[\s\S]{0,100}\b(?:\d+\s*\+?\s*(?:episodes?|conversations?)|across|throughout)\b/i.test(question);
 }
 
 async function assertDeclaredSourceAsset(job: TranscriptJob, env: Env) {
@@ -289,73 +223,10 @@ async function chat(request: Request, env: Env) {
     return reply(request, env, { error: "invalid_episode_id" }, 400);
   }
   if (question.length > MAX_QUESTION_CHARS) return reply(request, env, { error: "question_too_long" }, 400);
-  if (requiresVerifiedMetadata(question)) {
-    return reply(request, env, {
-      answer: "I can’t verify catalogue-wide counts or ownership/role claims from transcript search. Try asking what a named guest said about a topic, or ask about a specific episode instead.",
-      sources: [],
-      grounded: false,
-      sourceMode,
-      uncutUnavailable: false,
-    });
-  }
   try {
-    const matches = await env.VECTORIZE.query(
-      await vectorFor(env, question),
-      buildVectorQueryOptions(episodeId),
-    );
-    const relevantMatches = prioritizeMatchesForQuestion(matches.matches ?? [], question);
-    const namedEntityQuestion = extractNamedEntityPhrases(question).length > 0;
-    const resolved = resolveEpisodeScopedSources(relevantMatches, sourceMode, episodeId, MIN_SCORE, 6, {
-      dedupeByEpisode: !namedEntityQuestion,
-    });
-    const sources = resolved.citations.map((source) => {
-      const match = relevantMatches.find((item: { id?: string; metadata?: { video_id?: string } }) => item.id === source.segmentId)
-        ?? relevantMatches.find((item: { metadata?: { video_id?: string } }) => item.metadata?.video_id === source.videoId);
-      return { ...source, text: match?.metadata?.text };
-    });
-    if (sources.length < 2) {
-      return reply(request, env, {
-        answer: resolved.uncutUnavailable
-          ? episodeId
-            ? "No approved uncut evidence is mapped to this episode, and there is not enough published evidence to answer reliably. no timestamp was inferred."
-            : "uncut is not activated and there is not enough published YouTube evidence for this question. no timestamp was inferred."
-          : episodeId
-            ? "I don’t have enough relevant evidence in this episode to answer that reliably."
-            : "I don’t have enough relevant evidence in the catalogue to answer that reliably.",
-        sources: sources.map(({ text: _text, ...source }) => source),
-        grounded: false,
-        sourceMode: resolved.sourceMode,
-        uncutUnavailable: resolved.uncutUnavailable,
-      });
-    }
-    const context = sources.map((source: any) => `[${source.n}] ${source.title}\n${source.text}`).join("\n\n---\n\n");
-    const answered = await answerWithFallback(env, [
-        { role: "system", content: SYSTEM },
-        { role: "user", content: `CONTEXT:\n${context}\n\nQUESTION: ${question}` },
-      ]);
-    const answer = answered.answer;
-    const citations = [...answer.matchAll(/\[(\d+)\]/g)].map((match) => Number(match[1]));
-    if (citations.length === 0 || citations.some((citation) => citation < 1 || citation > sources.length)) {
-      console.warn("wtfmedia answer rejected: invalid citations", { sourceCount: sources.length, citations });
-      return reply(request, env, {
-        answer: citedEvidenceFallback(sources),
-        sources: sources.map(({ text: _text, ...source }) => source),
-        grounded: true,
-        sourceMode: resolved.sourceMode,
-        uncutUnavailable: resolved.uncutUnavailable,
-        model: answered.model,
-        modelFallback: true,
-      });
-    }
-    return reply(request, env, {
-      answer,
-      sources: sources.map(({ text: _text, ...source }) => source),
-      grounded: true,
-      sourceMode: resolved.sourceMode,
-      uncutUnavailable: resolved.uncutUnavailable,
-      model: answered.model,
-      modelFallback: answered.fallback,
-    });
+    const result = await runChat({ question, sourceMode, episodeId, requestId: request.headers.get("x-request-id") }, env);
+    const { requestId: _requestId, ...body } = result;
+    return reply(request, env, body);
   } catch (error) {
     console.error("wtfmedia chat failed", {
       message: error instanceof Error ? error.message : "unknown",

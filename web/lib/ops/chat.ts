@@ -10,8 +10,15 @@ export type ChatMessage = {
   id: string;
   role: ChatMessageRole;
   content: string;
+  sequence?: number;
   createdAt: string;
   sources?: unknown[];
+  sourceMode?: "published" | "uncut" | "both";
+  uncutUnavailable?: boolean;
+  groundingState?: "grounded" | "ungrounded" | "unavailable";
+  model?: string | null;
+  modelFallback?: boolean;
+  requestId?: string | null;
   fallback?: boolean;
 };
 
@@ -23,6 +30,9 @@ export type ChatConversation = {
   createdAt: string;
   updatedAt: string;
   messageCount: number;
+  operatorId?: number;
+  operatorEmail?: string;
+  operatorDisplayName?: string;
   messages?: ChatMessage[];
 };
 
@@ -56,6 +66,21 @@ function asString(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback;
 }
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
+}
+
+function parseMetadata(value: unknown): Record<string, unknown> {
+  if (typeof value === "string") {
+    try { return asRecord(JSON.parse(value)) ?? {}; } catch { return {}; }
+  }
+  return asRecord(value) ?? {};
+}
+
+function sourceMode(value: unknown): ChatMessage["sourceMode"] {
+  return value === "uncut" || value === "both" || value === "published" ? value : undefined;
+}
+
 function parsePolicy(value: unknown): ChatPolicy {
   if (!value || typeof value !== "object") return { archive: false, export: false };
   const policy = value as Record<string, unknown>;
@@ -71,13 +96,25 @@ function parseMessage(value: unknown): ChatMessage | null {
   const role = message.role === "user" || message.role === "assistant" ? message.role : null;
   const content = asString(message.content);
   if (!role || !content) return null;
+  const metadata = parseMetadata(message.sourceMetadata ?? message.source_metadata_json);
+  const resolvedSources = Array.isArray(message.sources) ? message.sources : Array.isArray(metadata.sources) ? metadata.sources : undefined;
+  const resolvedSourceMode = sourceMode(message.sourceMode ?? metadata.sourceMode ?? metadata.source_mode);
+  const resolvedFallback = message.modelFallback === true || message.model_fallback === 1 || metadata.modelFallback === true;
+  const grounding = message.groundingState ?? message.grounding_state;
   return {
     id: asString(message.id, `${role}-${content.slice(0, 16)}`),
     role,
     content,
+    sequence: typeof message.sequence === "number" ? message.sequence : undefined,
     createdAt: asString(message.createdAt, asString(message.created_at, "")),
-    sources: Array.isArray(message.sources) ? message.sources : undefined,
-    fallback: message.fallback === true,
+    sources: resolvedSources,
+    sourceMode: resolvedSourceMode,
+    uncutUnavailable: message.uncutUnavailable === true || metadata.uncutUnavailable === true,
+    groundingState: grounding === "grounded" || grounding === "ungrounded" || grounding === "unavailable" ? grounding : undefined,
+    model: typeof message.model === "string" ? message.model : null,
+    modelFallback: resolvedFallback,
+    requestId: typeof message.requestId === "string" ? message.requestId : typeof message.request_id === "string" ? message.request_id : null,
+    fallback: resolvedFallback,
   };
 }
 
@@ -97,6 +134,9 @@ function parseConversation(value: unknown): ChatConversation | null {
     createdAt: asString(conversation.createdAt, asString(conversation.created_at, "")),
     updatedAt: asString(conversation.updatedAt, asString(conversation.updated_at, "")),
     messageCount: typeof conversation.messageCount === "number" ? conversation.messageCount : typeof conversation.message_count === "number" ? conversation.message_count : rawMessages?.length ?? 0,
+    operatorId: typeof conversation.operatorId === "number" ? conversation.operatorId : typeof conversation.operator_id === "number" ? conversation.operator_id : undefined,
+    operatorEmail: asString(conversation.operatorEmail, asString(conversation.operator_email, "")) || undefined,
+    operatorDisplayName: asString(conversation.operatorDisplayName, asString(conversation.operator_display_name, "")) || undefined,
     messages: rawMessages?.map(parseMessage).filter((message): message is ChatMessage => message !== null),
   };
 }
