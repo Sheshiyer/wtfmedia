@@ -87,7 +87,7 @@ jobs:
           curl --fail --silent --show-error --location \
             --retry 10 --retry-delay 2 --retry-all-errors \
             https://wtfhq.in/ops/settings > /tmp/wtfmedia-ops-settings.html
-          if rg -qi "organization scope|effective role|last verified" /tmp/wtfmedia-ops-settings.html; then
+          if rg -q "data-ops-context-strip" /tmp/wtfmedia-ops-settings.html; then
             echo "Alpha settings still expose the operator context strip"
             exit 1
           fi
