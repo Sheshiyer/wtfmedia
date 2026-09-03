@@ -2011,3 +2011,40 @@ adapter. Team-owned UI design remained unchanged.
   Trusted timeline alignment and synced uncut playback remain unavailable.
 - Root ISA and architecture work stayed in the user's dirty checkout and was
   neither staged nor rewritten.
+
+## 2026-09-03 Alpha chat dock and episode-detail release
+
+**Scope:** production Alpha presentation correction and explicit podcast-detail
+navigation. Beta authentication, account memory, RAG history, and operator
+scope remain separate and unchanged.
+
+- Root cause of the reported bottom gap was document flow: the migrated shell
+  combined nested `min-h-screen` containers with bottom padding, while the
+  composer and dock were already correctly fixed. The correction constrains
+  the chat surface to the viewport, removes shell bottom padding, keeps the
+  dock at `bottom: 0`, and leaves the composer directly above it.
+- The migrated Alpha chat now renders the WTF OS wordmark, hamburger control,
+  bottom navigation pill, and no public operator-context strip. The ops episode
+  map now links only rows with an explicit canonical public episode mapping;
+  ambiguous or unmapped rows truthfully remain `not linked`.
+- Commit `ab9f4f5` was pushed to `origin/codex/docs-workflows` and deployed via
+  the named `wtfmedia` Wrangler profile. Production Worker version:
+  `08ac8a8c-56d4-4a95-915b-2e65ec561176` at
+  `https://wtfmedia-web.connect2nikhai.workers.dev`.
+- Full Phase 1 verification passed: 77 unit, 86 contract, 101 component, 21
+  accessibility, 226 browser, 17 visual, 19+19 rollback, privacy, RAG,
+  threat-ledger, and data-integrity checks. The aggregate browser run recorded
+  one retried/flaky contrast observation that passed on focused rerun.
+- Live probes returned HTTP 200 for `/`, `/chat`, `/episodes`,
+  `/connections`, and `/ops/settings`. The deployed chat HTML contains the
+  migrated-shell, hamburger, bottom-dock, and composer markers; live browser
+  geometry measured document height 900 for a 900px viewport, composer bottom
+  824px, and dock top 824px.
+
+### Held boundaries
+
+- Existing user-owned dirty changes in `ISA.md` and
+  `docs/architecture/{DEPENDENCY-GRAPH,REFRESH-NEEDED,SERVICES}.md` remain
+  uncommitted and untouched by this release.
+- No D1/R2/KV/Vectorize data, Access policy, DNS, secret, queue, or Beta
+  authentication state was changed.
