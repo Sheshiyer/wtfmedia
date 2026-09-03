@@ -1569,3 +1569,26 @@ actions. The original dirty checkout remains preserved separately.
 PR #43 is open from `codex/v0.3.1-alpha` at the release candidate head; review
 the pending GitHub checks before merging, and leave production promotion
 separately gated.
+
+## 2026-09-03 Alpha release-channel UI correction
+
+The Alpha-only public shell correction is committed and pushed on
+`release/alpha` at `56c6ce3` (`fix(alpha): restore compact public shell navigation`).
+It restores the compact four-link bottom pill, removes the redundant public
+chat intro strip, keeps the Alpha composer/source actions in the yellow/black
+button system, and keeps public uncut playback/status claims fail-closed.
+
+### Verification
+
+- Web build, strict typecheck, lint, and 74 unit tests passed.
+- Focused public shell/chat/brand/viewport/drawer browser suite passed 90/90.
+- The commit contains no `/ops/chat`, authenticated history, release-control,
+  or persistence changes; authenticated per-email history remains Beta work.
+- Root `main` was not changed; the dirty root documentation files remain
+  untouched, and the canonical `release/beta` remains at `de89363`.
+
+### Held boundary
+
+This Alpha branch change was not deployed to production in this handoff. The
+production deployment receipts previously recorded for the dirty WIP checkout
+are not treated as proof that this clean Alpha commit is deployed.
