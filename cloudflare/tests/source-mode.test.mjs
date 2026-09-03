@@ -234,6 +234,47 @@ describe("dual-source chat contract", () => {
         source_mode: "uncut",
       },
     }, "uncut", 0), null);
+
+  test("preserves the approved Frame.io URL for uncut source identity", () => {
+    const citation = projectDualSourceCitation(
+      {
+        id: "uncut:hash:0",
+        score: 0.9,
+        metadata: {
+          video_id: "abcdefghijk",
+          title: "Uncut episode",
+          start: 95,
+          timestamped: true,
+          source_mode: "uncut",
+          frameIoFinalEpUrl: "https://f.io/0I8LmYs9",
+        },
+      },
+      "uncut",
+      0,
+    );
+
+    assert.equal(citation?.sourceMode, "uncut");
+    assert.equal(citation?.videoId, "abcdefghijk");
+    assert.equal(citation?.segmentId, "uncut:hash:0");
+    assert.equal(citation?.url, "https://f.io/0I8LmYs9");
+  });
+
+  test("uncut citations preserve an approved Frame.io URL and source identity", () => {
+    const citation = projectDualSourceCitation(
+      {
+        id: "uncut:source-a:0",
+        score: 0.9,
+        metadata: {
+          video_id: "RSB58m7Xwhg",
+          source_asset_id: "source-a",
+          frame_io_url: "https://f.io/0I8LmYs9",
+          source_mode: "uncut",
+        },
+      },
+      "uncut",
+      0,
+    );
+    assert.equal(citation?.url, "https://f.io/0I8LmYs9");
   });
 
   test("a published timestamp is not projected as uncut", () => {
