@@ -8,10 +8,15 @@
 
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import { resolveCitation } from "@/lib/provenance/catalog-mapping";
 import type { PublicSourceCitation } from "@/lib/provenance/public-source-header";
+import {
+  filterSourcesByMode,
+  SOURCE_MODES,
+  type SourceMode,
+} from "@/lib/provenance/source-mode";
 import { formatPlaybackTimestamp } from "@/lib/provenance/useDualPlayback";
 import { publicEpisodeHref } from "@/lib/public/chat-citations";
 
@@ -47,15 +52,30 @@ export function SourcePanel({ sources, citedIndices }: SourcePanelProps) {
   const uncutPlaybackStatusId = useId();
   const hasPublishedSource = sources.some((source) => source.sourceMode !== "uncut");
   const hasUncutSource = sources.some((source) => source.sourceMode === "uncut");
-  const hasMappedUncutSource = sources.some(
-    (source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped",
+  const [visibleMode, setVisibleMode] = useState<SourceMode>(() => {
+    if (hasPublishedSource && hasUncutSource) return "both";
+    return hasUncutSource ? "uncut" : "published";
+  });
+  const indexedSources = sources.map((source, originalIndex) => ({
+    originalIndex,
+    source,
+    sourceMode: source.sourceMode,
+  }));
+  const visibleSources = filterSourcesByMode(indexedSources, visibleMode);
+  const hasMappedUncutSource = visibleSources.some(
+    ({ source }) => source.sourceMode === "uncut" && source.mappingStatus === "mapped",
   );
-  const hasUntimedPublishedSource = sources.some(
-    (source) => source.sourceMode !== "uncut" && source.timestampStatus === "source_timing_unavailable",
+  const hasVisibleUncutSource = visibleSources.some(
+    ({ source }) => source.sourceMode === "uncut",
+  );
+  const hasUntimedPublishedSource = visibleSources.some(
+    ({ source }) => source.sourceMode !== "uncut" && source.timestampStatus === "source_timing_unavailable",
   );
   const citedSet = citedIndices ? new Set(citedIndices) : null;
-  const citedCount = citedSet ? sources.filter((_, i) => citedSet.has(i + 1)).length : sources.length;
-  const candidateCount = sources.length - citedCount;
+  const citedCount = citedSet
+    ? visibleSources.filter(({ originalIndex }) => citedSet.has(originalIndex + 1)).length
+    : visibleSources.length;
+  const candidateCount = visibleSources.length - citedCount;
 
   if (!sources || sources.length === 0) return null;
 
@@ -92,7 +112,7 @@ export function SourcePanel({ sources, citedIndices }: SourcePanelProps) {
               <p id={uncutPlaybackStatusId} className="mt-0.5 text-[11px] text-muted">
                 {hasMappedUncutSource
                   ? "uncut timestamps come from the response. no published time was converted."
-                  : hasUncutSource
+                  : hasVisibleUncutSource
                     ? "uncut evidence is present, but no verified uncut timestamp is available."
                     : hasUntimedPublishedSource
                       ? "some published transcripts have no source timing; those links open the full episode."
@@ -104,31 +124,35 @@ export function SourcePanel({ sources, citedIndices }: SourcePanelProps) {
               aria-label="Source modes present"
               className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5"
             >
-              {hasPublishedSource ? (
-                <span className="rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention">
-                  published
-                </span>
-              ) : null}
-              {hasUncutSource ? (
-                <span className={hasMappedUncutSource
-                  ? "rounded bg-knowledge px-2.5 py-1 text-[11px] font-bold text-on-knowledge"
-                  : "rounded bg-surface-subtle px-2.5 py-1 text-[11px] font-bold text-secondary"}>
-                  uncut{hasMappedUncutSource ? "" : " unavailable"}
-                </span>
-              ) : (
-                <span
-                  aria-describedby={uncutPlaybackStatusId}
-                  className="rounded px-2.5 py-1 text-[11px] text-muted opacity-70"
-                >
-                  uncut not returned
-                </span>
-              )}
+              {SOURCE_MODES.map((mode) => {
+                const available = mode === "published"
+                  ? hasPublishedSource
+                  : mode === "uncut"
+                    ? hasUncutSource
+                    : hasPublishedSource && hasUncutSource;
+
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    data-testid={`source-mode-filter-${mode}`}
+                    disabled={!available}
+                    aria-pressed={visibleMode === mode}
+                    onClick={() => setVisibleMode(mode)}
+                    className={visibleMode === mode
+                      ? "rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention"
+                      : "rounded px-2.5 py-1 text-[11px] text-muted disabled:cursor-not-allowed disabled:opacity-40"}
+                  >
+                    {mode}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>
 
         <ul className="space-y-2.5 pl-1">
-          {sources.map((source, index) => {
+          {visibleSources.map(({ originalIndex, source }) => {
             const resolved = resolveCitation({
               ...source,
               requestedMode: source.sourceMode ?? "published",
@@ -151,7 +175,7 @@ export function SourcePanel({ sources, citedIndices }: SourcePanelProps) {
               ? source.url
               : null;
             const playbackHref = source.sourceMode === "uncut" ? uncutHref : publishedHref;
-            const isCited = citedSet ? citedSet.has(index + 1) : true;
+            const isCited = citedSet ? citedSet.has(originalIndex + 1) : true;
             const sourceLabel = source.sourceMode === "uncut" ? "uncut" : "published";
             const timestampReason = source.timestampReason
               ?? (source.sourceMode === "uncut"
@@ -160,12 +184,12 @@ export function SourcePanel({ sources, citedIndices }: SourcePanelProps) {
 
             return (
               <li
-                key={`${source.episodeId ?? source.videoId ?? source.url ?? "source"}-${index}`}
+                key={`${source.episodeId ?? source.videoId ?? source.url ?? "source"}-${originalIndex}`}
                 className={`space-y-1.5 rounded border p-2 transition-colors ${isCited ? "border-foreground/10 bg-canvas/40 hover:bg-canvas/70" : "border-foreground/5 bg-canvas/20 opacity-60"}`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <div className="flex min-w-0 flex-1 items-center gap-1.5">
-                    <span className={`font-mono text-[10px] font-bold ${isCited ? "text-attention" : "text-muted"}`}>[{index + 1}]</span>
+                    <span className={`font-mono text-[10px] font-bold ${isCited ? "text-attention" : "text-muted"}`}>[{originalIndex + 1}]</span>
                     {!isCited && (
                       <span className="rounded bg-surface-subtle px-1 py-0.5 font-label text-[9px] uppercase tracking-wider text-muted">candidate</span>
                     )}

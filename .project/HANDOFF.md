@@ -1710,3 +1710,38 @@ checkpoint is not a production deployment receipt.
 - No push, merge, deployment, DNS, secret, corpus, ingest, or external state
   change occurred.
 - Root `main` and its unrelated dirty work remain untouched.
+
+## 2026-09-04 Alpha source-panel filter restoration
+
+**Scope:** repository-local anonymous Alpha source-panel interaction only. This
+checkpoint is not a commit, push, or production deployment receipt.
+
+- Mixed published and uncut results now default to `both`; the per-answer
+  `published`, `uncut`, and `both` controls are real buttons with pressed and
+  unavailable states.
+- Filtering changes only visibility. It preserves each result's original
+  citation number, cited-versus-candidate attribution, native timestamp and
+  unavailable reason, public episode route, and approved playback-link policy.
+- The regression came from Alpha commit `56c6ce3`, which replaced the prior
+  stateful filters with source-presence spans; later evidence work retained
+  those spans while adding cited/candidate and timestamp semantics.
+
+### Verification
+
+- A strict Playwright regression failed before the component edit because no
+  `published` button existed, then passed after the focused restoration.
+- Desktop and 320px focused journeys passed 2/2; the full Alpha chat journey
+  passed 22/22; source-mode unit tests passed 5/5.
+- Strict typecheck, ESLint, and `git diff --check` passed.
+- A rendered browser probe confirmed `published` shows original citations
+  `[1]` and `[3]`, `uncut` shows `[2]` and `[4]`, and `both` restores all four,
+  with accurate counts, links, and zero console or page errors.
+- Independent read-only review returned PASS with no P0-P3 findings. The named
+  Cato and cross-vendor fallback paths were unavailable and are not claimed as
+  successful review evidence.
+
+### Held boundaries
+
+- No commit, push, merge, deployment, DNS, secret, corpus, ingest, queue,
+  authentication, persistence, retrieval, or infrastructure change occurred.
+- Root `main` and its unrelated dirty work remain untouched.

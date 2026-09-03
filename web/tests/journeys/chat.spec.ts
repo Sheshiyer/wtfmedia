@@ -266,28 +266,49 @@ test.describe("/chat journey — migrated variant", () => {
   });
 
   test("preserves each source timeline in a both-mode response", async ({ page }) => {
-    mockChatStream(page, ["The answer is grounded in both timelines. [1,2]"], {
+    mockChatStream(page, ["The answer is grounded in both timelines. [1,4]"], {
       "X-Sources": JSON.stringify([
         {
           n: 1,
-          video_id: "abcdefghijk",
-          title: "Published source",
+          video_id: "pubsource1a",
+          title: "Published cited source",
           source_mode: "published",
           score: 0.92,
           t: 125,
         },
         {
           n: 2,
-          video_id: "abcdefghijk",
-          title: "Uncut source",
+          video_id: "uncutsrc02a",
+          title: "Uncut candidate source",
           source_mode: "uncut",
           mapping_status: "mapped",
           score: 0.87,
           t: 300,
-          url: "https://f.io/uncut-token",
+          url: "https://f.io/uncut-candidate-token",
+        },
+        {
+          n: 3,
+          video_id: "pubsource3c",
+          title: "Published candidate untimed",
+          source_mode: "published",
+          score: 0.76,
+          t: null,
+          timestamp_status: "source_timing_unavailable",
+          timestamp_reason: "This published transcript was ingested without timestamp data; the link opens the full episode.",
+        },
+        {
+          n: 4,
+          video_id: "uncutsrc04b",
+          title: "Uncut cited source",
+          source_mode: "uncut",
+          mapping_status: "mapped",
+          score: 0.71,
+          t: 420,
+          url: "https://example.com/not-approved-frame-link",
         },
       ]),
       "X-Source-Mode": "both",
+      "X-Cited-Indices": JSON.stringify([1, 4]),
       "X-Fallback": "false",
     });
 
@@ -301,29 +322,146 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(sourcePanel).toBeVisible({ timeout: 10000 });
     await sourcePanel.locator("summary").click();
 
+    await expect(sourcePanel).toContainText("2 sources cited, 2 candidate excerpts");
     await expect(sourcePanel).toContainText("uncut timestamps come from the response");
-    await expect(sourcePanel).toContainText("published 2:05");
-    await expect(sourcePanel).toContainText("uncut 5:00");
-    await expect(sourcePanel).toContainText("open published moment");
-    await expect(sourcePanel).toContainText("open uncut source");
-    await expect(sourcePanel.getByRole("link", { name: "open published moment" }).first()).toHaveCSS(
+
+    const publishedButton = sourcePanel.getByRole("button", { name: "published", exact: true });
+    const uncutButton = sourcePanel.getByRole("button", { name: "uncut", exact: true });
+    const bothButton = sourcePanel.getByRole("button", { name: "both", exact: true });
+    await expect(publishedButton).toBeEnabled();
+    await expect(uncutButton).toBeEnabled();
+    await expect(bothButton).toBeEnabled();
+    await expect(publishedButton).toHaveAttribute("aria-pressed", "false");
+    await expect(uncutButton).toHaveAttribute("aria-pressed", "false");
+    await expect(bothButton).toHaveAttribute("aria-pressed", "true");
+
+    const sourceRows = sourcePanel.locator("ul > li");
+    const playbackLinks = sourcePanel.locator("ul > li a[target=\"_blank\"]");
+    const candidateBadges = sourcePanel.getByText("candidate", { exact: true });
+    const timestampReasons = sourcePanel.getByTestId("timestamp-reason");
+
+    await expect(sourceRows).toHaveCount(4);
+    await expect(playbackLinks).toHaveCount(3);
+    await expect(candidateBadges).toHaveCount(2);
+    await expect(timestampReasons).toHaveCount(1);
+    await expect(sourceRows.nth(0)).toContainText("[1]");
+    await expect(sourceRows.nth(0)).toContainText("Published cited source");
+    await expect(sourceRows.nth(0)).toContainText("published 2:05");
+    await expect(sourceRows.nth(0)).not.toContainText("candidate");
+    await expect(sourceRows.nth(1)).toContainText("[2]");
+    await expect(sourceRows.nth(1)).toContainText("Uncut candidate source");
+    await expect(sourceRows.nth(1)).toContainText("uncut 5:00");
+    await expect(sourceRows.nth(1)).toContainText("candidate");
+    await expect(sourceRows.nth(2)).toContainText("[3]");
+    await expect(sourceRows.nth(2)).toContainText("Published candidate untimed");
+    await expect(sourceRows.nth(2)).toContainText("published time unavailable");
+    await expect(sourceRows.nth(2)).toContainText("candidate");
+    await expect(sourceRows.nth(3)).toContainText("[4]");
+    await expect(sourceRows.nth(3)).toContainText("Uncut cited source");
+    await expect(sourceRows.nth(3)).toContainText("uncut 7:00");
+    await expect(sourceRows.nth(3)).not.toContainText("candidate");
+
+    await expect(sourcePanel.getByRole("link", { name: "open published moment", exact: true }).first()).toHaveCSS(
       "background-color",
       "rgb(241, 179, 51)",
     );
-    await expect(sourcePanel.getByRole("link", { name: "open published moment" }).first()).toHaveCSS(
+    await expect(sourcePanel.getByRole("link", { name: "open published moment", exact: true }).first()).toHaveCSS(
       "color",
       "rgb(26, 26, 26)",
     );
+    await expect(sourceRows.nth(0).getByRole("link", { name: "Published cited source", exact: true })).toHaveAttribute(
+      "href",
+      "/episodes/pubsource1a",
+    );
+    await expect(sourceRows.nth(1).getByRole("link", { name: "Uncut candidate source", exact: true })).toHaveAttribute(
+      "href",
+      "/episodes/uncutsrc02a",
+    );
+    await expect(sourceRows.nth(2).getByRole("link", { name: "Published candidate untimed", exact: true })).toHaveAttribute(
+      "href",
+      "/episodes/pubsource3c",
+    );
+    await expect(sourceRows.nth(3).getByRole("link", { name: "Uncut cited source", exact: true })).toHaveAttribute(
+      "href",
+      "/episodes/uncutsrc04b",
+    );
+
+    await expect(sourceRows.nth(0).getByRole("link", { name: "open published moment", exact: true })).toHaveAttribute(
+      "href",
+      /youtube\.com\/watch\?v=pubsource1a&t=125s/,
+    );
+    await expect(sourceRows.nth(1).getByRole("link", { name: "open uncut source", exact: true })).toHaveAttribute(
+      "href",
+      "https://f.io/uncut-candidate-token",
+    );
+    await expect(sourceRows.nth(2).getByRole("link", { name: "open full published episode", exact: true })).toHaveAttribute(
+      "href",
+      "https://www.youtube.com/watch?v=pubsource3c",
+    );
+    await expect(sourceRows.nth(2).getByRole("link", { name: "open full published episode", exact: true })).not.toHaveAttribute(
+      "href",
+      /[?&]t=/,
+    );
+    await expect(sourceRows.nth(3).getByRole("link", { name: "open uncut source", exact: true })).toHaveCount(0);
+
+    await publishedButton.click();
+    await expect(publishedButton).toHaveAttribute("aria-pressed", "true");
+    await expect(uncutButton).toHaveAttribute("aria-pressed", "false");
+    await expect(bothButton).toHaveAttribute("aria-pressed", "false");
+    await expect(sourcePanel.locator("summary")).toContainText("1 source cited, 1 candidate excerpt");
+    await expect(sourcePanel).toContainText("some published transcripts have no source timing; those links open the full episode.");
+    await expect(sourceRows).toHaveCount(2);
+    await expect(playbackLinks).toHaveCount(2);
+    await expect(candidateBadges).toHaveCount(1);
+    await expect(timestampReasons).toHaveCount(1);
+    await expect(sourceRows.nth(0)).toContainText("[1]");
+    await expect(sourceRows.nth(1)).toContainText("[3]");
+    await expect(sourceRows.nth(0)).toContainText("Published cited source");
+    await expect(sourceRows.nth(1)).toContainText("Published candidate untimed");
+    await expect(sourceRows.nth(1)).toContainText("candidate");
+    await expect(sourceRows.nth(1).getByRole("link", { name: "open full published episode", exact: true })).toHaveAttribute(
+      "href",
+      "https://www.youtube.com/watch?v=pubsource3c",
+    );
+
+    await uncutButton.click();
+    await expect(publishedButton).toHaveAttribute("aria-pressed", "false");
+    await expect(uncutButton).toHaveAttribute("aria-pressed", "true");
+    await expect(bothButton).toHaveAttribute("aria-pressed", "false");
+    await expect(sourcePanel.locator("summary")).toContainText("1 source cited, 1 candidate excerpt");
+    await expect(sourcePanel).toContainText("uncut timestamps come from the response");
+    await expect(sourceRows).toHaveCount(2);
+    await expect(playbackLinks).toHaveCount(1);
+    await expect(candidateBadges).toHaveCount(1);
+    await expect(timestampReasons).toHaveCount(0);
+    await expect(sourceRows.nth(0)).toContainText("[2]");
+    await expect(sourceRows.nth(1)).toContainText("[4]");
+    await expect(sourceRows.nth(0)).toContainText("candidate");
+    await expect(sourceRows.nth(1)).not.toContainText("candidate");
+
+    await bothButton.click();
+    await expect(publishedButton).toHaveAttribute("aria-pressed", "false");
+    await expect(uncutButton).toHaveAttribute("aria-pressed", "false");
+    await expect(bothButton).toHaveAttribute("aria-pressed", "true");
+    await expect(sourcePanel.locator("summary")).toContainText("2 sources cited, 2 candidate excerpts");
+    await expect(sourceRows).toHaveCount(4);
+    await expect(playbackLinks).toHaveCount(3);
+    await expect(candidateBadges).toHaveCount(2);
+    await expect(timestampReasons).toHaveCount(1);
+    await expect(sourceRows.nth(0)).toContainText("[1]");
+    await expect(sourceRows.nth(1)).toContainText("[2]");
+    await expect(sourceRows.nth(2)).toContainText("[3]");
+    await expect(sourceRows.nth(3)).toContainText("[4]");
 
     const sourceModeSummary = sourcePanel.getByRole("group", { name: "Source modes present" });
-    await expect(sourceModeSummary.getByText("published", { exact: true })).toBeVisible();
-    await expect(sourceModeSummary.getByText("uncut", { exact: true })).toBeVisible();
-    await expect(sourceModeSummary).not.toContainText("uncut unavailable");
+    await expect(sourceModeSummary).toContainText("published");
+    await expect(sourceModeSummary).toContainText("uncut");
+    await expect(sourceModeSummary).toContainText("both");
 
     const citationLinks = page.locator('[data-testid="message-1"] .prose-chat a');
     await expect(citationLinks).toHaveCount(2);
-    await expect(citationLinks.nth(0)).toHaveAttribute("href", "/episodes/abcdefghijk");
-    await expect(citationLinks.nth(1)).toHaveAttribute("href", "/episodes/abcdefghijk");
+    await expect(citationLinks.nth(0)).toHaveAttribute("href", "/episodes/pubsource1a");
+    await expect(citationLinks.nth(1)).toHaveAttribute("href", "/episodes/uncutsrc04b");
   });
 
   /* ── abstention ────────────────────────────────────────────────────── */

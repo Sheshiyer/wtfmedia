@@ -3,11 +3,11 @@ project: wtfmedia
 task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
-phase: plan
-progress: 66/182
+phase: execute
+progress: 70/198
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-03T23:15:18+05:30
+updated: 2026-09-04T03:40:00+05:30
 ---
 
 ## Problem
@@ -295,6 +295,25 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-181: The public source header preserves timestamp status and reason while dropping private metadata (probe: API and parser contract test).
 - [x] ISC-182: Anti: this Alpha change creates no auth, persistence, provider, Worker, index, queue, database, or deployment dependency (probe: architecture and diff audit).
 
+### Alpha source-panel production promotion
+
+- [x] ISC-183: The release worktree contains only the reviewed source-filter implementation, regression test, ISA, and handoff changes (probe: Git status and diff name check).
+- [x] ISC-184: The exact source-filter journey passes at desktop and 320px before commit (probe: focused Playwright run).
+- [x] ISC-185: TypeScript, ESLint, source-mode units, and the complete Alpha chat journey pass on the release tree (probe: project commands).
+- [ ] ISC-186: The release commit contains exactly the four reviewed paths and no generated or secret material (probe: commit tree inspection).
+- [ ] ISC-187: `origin/release/alpha` resolves to the approved release commit after push (probe: fetch plus remote ref equality).
+- [ ] ISC-188: Production deployment runs from a clean detached worktree pinned to the approved release commit with locked dependencies installed (probe: Git state and `npm ci`).
+- [x] ISC-189: The currently deployed web version is recorded before mutation as a concrete rollback target (probe: Wrangler deployment status).
+- [ ] ISC-190: The checked-in `cf:deploy:wtfmedia` command completes and assigns one new `wtfmedia-web` version at 100 percent (probe: deploy output plus Wrangler status).
+- [ ] ISC-191: The emitted Worker URL and canonical `/` and `/chat` routes return HTTP 200 after deployment (probe: HTTP canary).
+- [ ] ISC-192: The canonical mixed-source panel defaults to an actual pressed `both` button (probe: live browser DOM).
+- [ ] ISC-193: Selecting canonical `published` shows only published citation rows with matching counts and actions (probe: live browser DOM).
+- [ ] ISC-194: Selecting canonical `uncut` shows only uncut citation rows with matching counts and actions (probe: live browser DOM).
+- [ ] ISC-195: Selecting canonical `both` restores every returned citation with original numbering and native links/timestamps (probe: live browser DOM).
+- [ ] ISC-196: Canonical `/ops/settings` remains protected by its existing HTTP redirect after the public web deploy (probe: HTTP status).
+- [ ] ISC-197: The `wtfmedia-edge` deployment and all data-plane resources remain unchanged by this web-only promotion (probe: before/after deployment status and command scope).
+- [ ] ISC-198: Anti: promotion performs no DNS, secret, corpus, ingest, queue, database, index, bucket, authentication, or edge-worker mutation (probe: command ledger and diff audit).
+
 ## Test Strategy
 
 | ISC range | Type | Check | Threshold | Tool |
@@ -316,6 +335,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-156..161 | named-guest relevance | explicit named-person questions stay anchored to matching evidence and abstain when no anchor exists | all source-mode contract assertions pass | Worker unit tests + prompt inspection |
 | ISC-162..166 | source-panel filtering | `published`, `uncut`, and `both` visibly filter response-backed citations without relabeling or leakage | all unit and browser assertions pass | web unit + Playwright journey |
 | ISC-167..182 | Alpha evidence skills | source-specific retrieval, grounded follow-ups, native timing truth, retry integrity, and stateless/no-new-infra boundaries hold | all Worker, API, parser, and browser assertions pass | Node tests + Vitest + Playwright + diff audit |
+| ISC-183..198 | Alpha source-panel production promotion | reviewed commit reaches `release/alpha` and `wtfmedia-web`, canonical source filters work live, rollback remains concrete, and adjacent systems stay unchanged | all Git, build, deploy, HTTP, browser, and no-mutation probes pass | Git + npm + Wrangler + HTTP + live browser |
 
 ## Features
 
@@ -384,6 +404,12 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
   description: Anonymous stateless WTF OS conversation, independently filtered published/uncut retrieval, answerable suggestions, and native timestamp explanations
   satisfies: [ISC-167, ISC-168, ISC-169, ISC-170, ISC-171, ISC-172, ISC-173, ISC-174, ISC-175, ISC-176, ISC-177, ISC-178, ISC-179, ISC-180, ISC-181, ISC-182]
   depends_on: [ProvenanceSpine, EvidenceNativeKnowledge, SourceModeCitationFilter]
+  parallelizable: false
+
+- name: AlphaSourceFilterProductionPromotion
+  description: Commit and push the reviewed source-filter slice, deploy the canonical web Worker, and prove live mode filtering without adjacent mutations
+  satisfies: [ISC-183, ISC-184, ISC-185, ISC-186, ISC-187, ISC-188, ISC-189, ISC-190, ISC-191, ISC-192, ISC-193, ISC-194, ISC-195, ISC-196, ISC-197, ISC-198]
+  depends_on: [SourceModeCitationFilter, AlphaEvidenceSkillCoordinator]
   parallelizable: false
 
 - name: ProductionOperations
@@ -476,6 +502,10 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
 - 2026-08-30 16:22 IST: ❌ DEAD END: The required Advisor review was attempted after live reconciliation but the local Advisor OAuth session remains expired. It was not repaired or substituted with a false success; direct Cloudflare receipts and the ISA completeness/independent audit govern this checkpoint.
 - 2026-09-01 00:00 IST: refined: The owner-approved episode-scoped production receipt is now the latest runtime evidence. Published, approved mapped uncut, and combined Ask WTF retrieval are live with `episodeId`/`video_id` scope; 55/55 published and 49/49 mapped uncut receipts reconcile across KV and Vectorize reports 11,948 vectors. This is a bounded release slice, not completion of the full provenance/search phases; trusted timeline alignment, synchronized uncut playback, and evaluation gates remain open.
 - 2026-09-03 22:51 IST: refined: The owner approved repository-local execution of three coordinated runtime evidence skills for anonymous/stateless Alpha, answerability-gated suggested questions, independent pre-top-K published/uncut retrieval, and truthful missing-published-timestamp explanations. No deployment, live re-ingest, corpus expansion, authentication, durable chat memory, or new infrastructure is authorized.
+- 2026-09-04 03:01 IST: refined: Live Alpha refutes the checked source-panel filter criteria because `published` and `uncut` render as static legend spans and mixed rows remain visible. Port only the interactive state and filtering pattern from `main`, while preserving Alpha cited/candidate attribution, original citation numbers, timestamp-status reasons, approved Frame.io validation, and anonymous/no-new-infrastructure boundaries.
+- 2026-09-04 03:24 IST: The post-deliverable Advisor call could not refresh its expired OAuth session, the named Cato role was not registered, and the cross-vendor Kimi fallback lacked its host credential. None is represented as successful review evidence; a separate read-only native audit examined the final diff and returned PASS with no P0-P3 findings.
+- 2026-09-04 03:35 IST: refined: The owner explicitly authorized committing the reviewed Alpha source-filter slice, pushing `release/alpha`, and promoting it to production. The mutation is limited to the `wtfmedia-web` Worker; the active pre-deploy web version `69487e11-42e7-45de-a217-37f622d126b8` is the rollback target, while `wtfmedia-edge`, DNS, secrets, ingestion, queues, and data resources remain untouched. E3 delegation is intentionally not used because commit, push, deploy, and verification are one sequential authority-sensitive chain and parallel writers would add race risk; the prior implementation already received independent read-only review.
+- 2026-09-04 03:35 IST: ❌ DEAD END: Tried the required pre-build Advisor review — failed because the local OAuth session remains expired and could not refresh; credentials were not changed and deterministic Git, test, deployment, rollback, HTTP, and browser gates remain authoritative for this promotion (don't retry inside this task).
 
 ## Changelog
 
@@ -519,6 +549,10 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
   refuted by: the reproduced candidates `LqSEfz4YUFA` and `fEUoJSTYtyc` have published transcript text assets but no corresponding published timestamp sidecars, and their Vectorize citations correctly return null starts
   learned: missing published timing is a source-provenance state that ingestion and citation projection must carry explicitly while the UI explains it and never borrows an uncut coordinate
   criterion now: ISC-177 through ISC-181 bind native timing metadata, public explanation, cross-timeline prohibition, and safe header projection to executable probes
+- 2026-09-04 | conjectured: the earlier source-mode presentation fix meant Alpha also retained interactive citation filtering
+  refuted by: the live DOM exposed `published` and `uncut` as static spans, all mixed rows stayed visible, and branch history showed the Alpha shell correction replaced the stateful filter before later citation semantics were added
+  learned: truthful source labels and interactive per-answer filtering are separate acceptance behaviors; restoring the filter must preserve original citation identity rather than reindex the visible subset
+  criterion now: ISC-162 through ISC-166 require semantic filter buttons, mode-specific rows/counts/links, original numbering and candidate status, full restoration, and zero cross-mode leakage
 
 ## Verification
 
@@ -575,6 +609,8 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
 - Episode-scope contract proof: focused Cloudflare source-mode tests pass for public YouTube ID validation, pre-`topK` `video_id` filtering, stale-match rejection, unmapped-episode truthfulness, mixed-source citation identity, and the rule that uncut citations never inherit YouTube timestamps. Trusted cross-timeline alignment and synchronized playback remain unverified by design.
 - Named-guest relevance proof (local, not deployed): the focused Worker contract anchors `Sunil Shetty` to the `Suniel Shetty` episode title, preserves generic semantic ordering, retains multiple matching chunks, and returns no candidates when an explicit name has no evidence anchor.
 - Source-panel filtering proof (local, not deployed): the focused web unit and Playwright journey cover `published`, `uncut`, and `both` projections, count/list updates, restoration, and zero cross-mode leakage.
+- ISC-162 through ISC-166 evidence (2026-09-04, local, not deployed): a strict RED first failed because Alpha exposed no `published` button; the identical focused Playwright journey then passed at desktop and 320px after restoring stateful filters. The full chat journey passed 22/22, source-mode units passed 5/5, TypeScript and ESLint passed, and a rendered browser probe confirmed `both` as the mixed default, `published` retaining original citations `[1]` and `[3]`, `uncut` retaining `[2]` and `[4]`, accurate cited/candidate counts and links, successful restoration, and zero console or page errors.
+- Source-panel independent audit (2026-09-04, local): a read-only review returned PASS with no P0-P3 findings after checking state initialization, original citation anchors, filtered counts, source-native timing, approved Frame.io validation, accessibility states, retry remount behavior, diff scope, and all recorded probes. This is independent native review, not cross-vendor evidence.
 - ISC-167 evidence: `cloudflare/tests/chat-agent-skills.test.mjs` loads the three versioned runtime skill contracts and the full Worker suite passes 169/169.
 - ISC-168 evidence: the Alpha request still carries only bounded request-local messages; a diff audit found no authentication, identity, conversation store, durable object, or history writer added.
 - ISC-169 evidence: the coordinator contract passes one vector object into every requested source query and proves object identity across both-mode calls.
@@ -592,3 +628,7 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
 - ISC-181 evidence: 75/75 web unit and 85/85 contract tests prove additive timestamp status/reason projection while private fields remain absent; the privacy scan reports zero violations across 284 bounded files.
 - ISC-182 evidence: Wrangler `deploy --dry-run` compiles a 168.65 KiB Worker against only the existing KV, queue, D1, Vectorize, R2, Workers AI, and environment bindings. No deployment or external mutation occurred.
 - Alpha evidence-skill acceptance (local, not deployed): web typecheck and lint pass; the production build generates 69/69 static pages; the feature chat browser journey passes 22/22; `git diff --check` is clean. A broader browser sweep reports 210 passed, 19 failed, and 8 skipped because existing compact-composer, episode-fixture, and responsive-navigation expectations outside this slice are stale; it is not recorded as a green gate.
+- ISC-183 evidence (2026-09-04): release-worktree status and diff inspection found exactly `.project/HANDOFF.md`, `ISA.md`, `web/components/domain/public/SourcePanel.tsx`, and `web/tests/journeys/chat.spec.ts`; `git diff --check` passed and no generated artifact was present.
+- ISC-184 evidence (2026-09-04): the focused mixed-source filter journey passed at desktop and at the 320px Chromium project, including real button roles, pressed state, counts, original numbering, timestamp truth, and link policy.
+- ISC-185 evidence (2026-09-04): `npm run typecheck`, `npm run lint`, all 75 web unit tests, all 85 contract tests, the privacy check across 284 files, and the complete 22-test Alpha chat journey passed on the release worktree.
+- ISC-189 evidence (2026-09-04): before mutation, Wrangler reported `wtfmedia-web` deployment `b1fa3078-b25b-4fce-acce-0c76f7d248cc` with version `69487e11-42e7-45de-a217-37f622d126b8` at 100 percent; that exact version is the rollback target.
