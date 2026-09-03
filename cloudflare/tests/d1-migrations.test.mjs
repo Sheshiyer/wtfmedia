@@ -8,7 +8,7 @@ import { after, before, test } from "node:test";
 const root = new URL("..", import.meta.url).pathname;
 const persistTo = mkdtempSync(join(tmpdir(), "wtfmedia-phase2-d1-"));
 const database = join(persistTo, "ops.sqlite");
-const migrations = ["0001_ops_foundation.sql", "0002_bootstrap_roster.sql", "0003_super_admin_transfer_guard.sql", "0004_operator_invitation_approvals.sql", "0005_provenance_spine.sql", "0006_chat_history.sql", "0007_release_manifest.sql"];
+const migrations = ["0001_ops_foundation.sql", "0002_bootstrap_roster.sql", "0003_super_admin_transfer_guard.sql", "0004_operator_invitation_approvals.sql", "0005_provenance_spine.sql", "0006_chat_history.sql", "0007_release_manifest.sql", "0008_release_track.sql"];
 
 function sql(input) {
   return spawnSync("sqlite3", [database], {
@@ -57,7 +57,9 @@ test("fresh local migrations are repeatable", () => {
   assert.match(listing, /0005_provenance_spine/);
   assert.match(listing, /0006_chat_history/);
   assert.match(listing, /0007_release_manifest/);
+  assert.match(listing, /0008_release_track/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'release_manifests';"), /release_manifests/);
+  assert.match(succeeds("PRAGMA table_info(release_manifests);"), /release_track/);
 });
 
 test("invitation approvals are explicit, normalized, and reusable only before consumption", () => {

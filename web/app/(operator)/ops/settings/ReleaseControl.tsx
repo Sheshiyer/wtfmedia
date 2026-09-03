@@ -5,12 +5,15 @@ import { Button } from "@/components/ui/Button";
 import { useOperatorContext } from "@/components/domain/ops/OperatorContextProvider";
 import {
   authenticatedChatReleaseStates,
+  authenticatedChatReleaseTracks,
   getAuthenticatedChatRelease,
   releaseControlAccess,
   ReleaseRequestError,
   setAuthenticatedChatRelease,
+  setAuthenticatedChatReleaseTrack,
   type AuthenticatedChatRelease,
   type AuthenticatedChatReleaseState,
+  type AuthenticatedChatReleaseTrack,
 } from "@/lib/ops/release";
 
 type ReleaseViewState = "loading" | "ready" | "saving" | "error" | "permission" | "unavailable";
@@ -20,6 +23,10 @@ const stateLabels: Record<AuthenticatedChatReleaseState, string> = {
   preview: "preview",
   stable: "stable",
   rolled_back: "rolled back",
+};
+const trackLabels: Record<AuthenticatedChatReleaseTrack, string> = {
+  alpha: "alpha · legacy",
+  beta: "beta · current Ask WTF",
 };
 
 function requestMessage(error: unknown): string {
@@ -41,15 +48,27 @@ function releaseStateLabel(state: AuthenticatedChatReleaseState): string {
   return stateLabels[state];
 }
 
+function releaseTrackLabel(track: AuthenticatedChatReleaseTrack): string {
+  return trackLabels[track];
+}
+
 function StateBadge({ release }: { release: AuthenticatedChatRelease }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2" data-release-state={release.state}>
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-release-state={release.state} data-release-track={release.track}>
       <div className="border-2 border-foreground bg-canvas p-4">
         <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
           server release state
         </p>
         <p className="mt-2 font-heading text-2xl font-bold lowercase text-foreground">
           {releaseStateLabel(release.state)}
+        </p>
+      </div>
+      <div className="border-2 border-foreground bg-canvas p-4">
+        <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
+          selected release track
+        </p>
+        <p className="mt-2 font-heading text-2xl font-bold lowercase text-foreground">
+          {releaseTrackLabel(release.track)}
         </p>
       </div>
       <div className="border-2 border-foreground bg-canvas p-4">
@@ -74,6 +93,7 @@ export function ReleaseControl() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [pendingState, setPendingState] = useState<AuthenticatedChatReleaseState | null>(null);
+  const [pendingTrack, setPendingTrack] = useState<AuthenticatedChatReleaseTrack | null>(null);
 
   const load = useCallback(async () => {
     if (context.role === "public_link") {
@@ -103,7 +123,7 @@ export function ReleaseControl() {
   }, [load]);
 
   async function changeState(nextState: AuthenticatedChatReleaseState) {
-    if (access !== "mutate" || pendingState || release?.state === nextState) return;
+    if (access !== "mutate" || pendingState || pendingTrack || release?.state === nextState) return;
     setPendingState(nextState);
     setViewState("saving");
     setError("");
@@ -124,6 +144,31 @@ export function ReleaseControl() {
       );
     } finally {
       setPendingState(null);
+    }
+  }
+
+  async function changeTrack(nextTrack: AuthenticatedChatReleaseTrack) {
+    if (access !== "mutate" || pendingState || pendingTrack || release?.track === nextTrack) return;
+    setPendingTrack(nextTrack);
+    setViewState("saving");
+    setError("");
+    setNotice("");
+    try {
+      const updated = await setAuthenticatedChatReleaseTrack(nextTrack);
+      setRelease(updated);
+      setViewState("ready");
+      setNotice(`server release track is now ${releaseTrackLabel(updated.track)}.`);
+    } catch (requestFailure) {
+      setError(requestMessage(requestFailure));
+      setViewState(
+        requestFailure instanceof ReleaseRequestError && requestFailure.kind === "permission"
+          ? "permission"
+          : requestFailure instanceof ReleaseRequestError && requestFailure.kind === "unavailable"
+            ? "unavailable"
+            : "error",
+      );
+    } finally {
+      setPendingTrack(null);
     }
   }
 
@@ -167,7 +212,7 @@ export function ReleaseControl() {
         )}
         {viewState === "saving" && (
           <p role="status" className="border-2 border-information bg-information/10 p-4 font-label text-sm text-secondary">
-            saving {pendingState ? releaseStateLabel(pendingState) : "release"} to the server…
+            saving {pendingTrack ? releaseTrackLabel(pendingTrack) : pendingState ? releaseStateLabel(pendingState) : "release"} to the server…
           </p>
         )}
         {viewState === "permission" && (
@@ -191,33 +236,59 @@ export function ReleaseControl() {
         <div className="mt-5 space-y-5">
           <StateBadge release={release} />
           {access === "mutate" && (
-            <fieldset disabled={viewState === "saving"} aria-describedby="release-control-help">
-              <legend className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
-                set server release state
-              </legend>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                {authenticatedChatReleaseStates.map((state) => (
-                  <Button
-                    key={state}
-                    type="button"
-                    variant={release.state === state ? "attention" : "secondary"}
-                    pressed={release.state === state}
-                    loading={pendingState === state}
-                    onClick={() => void changeState(state)}
-                    className="justify-start lowercase"
-                  >
-                    {releaseStateLabel(state)}
-                  </Button>
-                ))}
-              </div>
-              <p id="release-control-help" className="mt-3 text-xs leading-relaxed text-secondary">
-                paused and rolled back are safe server-side stops. preview and stable remain staging/local projections until separately approved.
-              </p>
-            </fieldset>
+            <div className="space-y-5">
+              <fieldset disabled={viewState === "saving"} aria-describedby="release-track-help">
+                <legend className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
+                  set server release track
+                </legend>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2" data-release-track-controls>
+                  {authenticatedChatReleaseTracks.map((track) => (
+                    <Button
+                      key={track}
+                      type="button"
+                      variant={release.track === track ? "attention" : "secondary"}
+                      pressed={release.track === track}
+                      loading={pendingTrack === track}
+                      onClick={() => void changeTrack(track)}
+                      className="justify-start lowercase"
+                      data-release-track-option={track}
+                    >
+                      {releaseTrackLabel(track)}
+                    </Button>
+                  ))}
+                </div>
+                <p id="release-track-help" className="mt-3 text-xs leading-relaxed text-secondary">
+                  alpha keeps the legacy rollback target. beta selects the current authenticated Ask WTF work. Track selection only gates beta chat; it does not delete history, alter public /chat or /api/chat, or change lifecycle state.
+                </p>
+              </fieldset>
+              <fieldset disabled={viewState === "saving"} aria-describedby="release-control-help">
+                <legend className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
+                  set server release state
+                </legend>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {authenticatedChatReleaseStates.map((state) => (
+                    <Button
+                      key={state}
+                      type="button"
+                      variant={release.state === state ? "attention" : "secondary"}
+                      pressed={release.state === state}
+                      loading={pendingState === state}
+                      onClick={() => void changeState(state)}
+                      className="justify-start lowercase"
+                    >
+                      {releaseStateLabel(state)}
+                    </Button>
+                  ))}
+                </div>
+                <p id="release-control-help" className="mt-3 text-xs leading-relaxed text-secondary">
+                  paused and rolled back are safe server-side stops. preview and stable remain staging/local projections until separately approved.
+                </p>
+              </fieldset>
+            </div>
           )}
           {access === "read-only" && (
             <p className="border-l-4 border-information bg-canvas px-3 py-2 text-xs leading-relaxed text-secondary">
-              read-only for {context.role}; ask a super admin to change this server release state.
+              read-only for {context.role}; ask a super admin to change this server track or release state.
             </p>
           )}
           {access === "unavailable" && context.environment === "production" && (

@@ -27,6 +27,7 @@ const migrations = [
   "0005_provenance_spine.sql",
   "0006_chat_history.sql",
   "0007_release_manifest.sql",
+  "0008_release_track.sql",
 ];
 
 function sqlite(input, json = false) {
@@ -46,7 +47,7 @@ function applyMigrations() {
       assert.equal(result.status, 0, result.stderr);
     }
   }
-  result = sqlite("INSERT INTO release_manifests (environment, state, version, updated_at, updated_by_operator_id) VALUES ('staging', 'stable', 1, '2026-09-02T00:00:00.000Z', 1);");
+  result = sqlite("INSERT INTO release_manifests (environment, state, release_track, version, updated_at, updated_by_operator_id) VALUES ('staging', 'stable', 'beta', 1, '2026-09-02T00:00:00.000Z', 1);");
   assert.equal(result.status, 0, result.stderr);
 }
 

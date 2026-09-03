@@ -8,14 +8,22 @@ describe("authenticated chat release projection", () => {
   it("accepts only the four server release states", () => {
     expect(parseAuthenticatedChatRelease({ state: "paused", environment: "staging" })).toEqual({
       state: "paused",
+      track: "alpha",
       environment: "staging",
     });
     expect(parseAuthenticatedChatRelease({ release: { state: "rolled_back", updated_at: "now" } })).toEqual({
       state: "rolled_back",
+      track: "alpha",
       updatedAt: "now",
+    });
+    expect(parseAuthenticatedChatRelease({ state: "stable", track: "beta", environment: "staging" })).toEqual({
+      state: "stable",
+      track: "beta",
+      environment: "staging",
     });
     expect(parseAuthenticatedChatRelease({ state: "enabled" })).toBeNull();
     expect(parseAuthenticatedChatRelease({ state: "stable", environment: "production-ish" })).toBeNull();
+    expect(parseAuthenticatedChatRelease({ state: "stable", track: "canary" })).toBeNull();
   });
 
   it("allows mutations only for super admins in local or staging", () => {
