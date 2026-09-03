@@ -3,13 +3,12 @@ import {
   parseAuthenticatedChatRelease,
   releaseControlAccess,
 } from "@/lib/ops/release";
-import { accessLoginUrl } from "@/lib/ops/access-url";
+import { accessLoginUrl, BETA_RELEASE_RETURN_TO } from "@/lib/ops/access-url";
 
 describe("authenticated chat release projection", () => {
-  it("returns a fixed same-origin Access login target for Beta", () => {
-    expect(accessLoginUrl()).toBe(
-      "/cdn-cgi/access/login?redirect_url=%2Fops%2Fsettings%3FreleaseTrack%3Dbeta",
-    );
+  it("returns the protected Access-intercepted settings target for Beta", () => {
+    expect(accessLoginUrl()).toBe(BETA_RELEASE_RETURN_TO);
+    expect(accessLoginUrl()).not.toContain("/cdn-cgi/access/login");
   });
 
   it("accepts only the four server release states", () => {

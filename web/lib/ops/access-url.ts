@@ -1,10 +1,11 @@
 /**
- * Cloudflare Access intercepts this path when the `/ops/*` application is
- * configured. The redirect target is a fixed internal path; callers cannot
- * supply an arbitrary destination.
+ * Cloudflare Access intercepts the protected settings route when the `/ops/*`
+ * application is configured. Keep the CTA on that route so Access owns the
+ * login challenge and its return flow; the app must not target a raw
+ * `/cdn-cgi/access/login` endpoint.
  */
 export const BETA_RELEASE_RETURN_TO = "/ops/settings?releaseTrack=beta";
 
 export function accessLoginUrl(): string {
-  return `/cdn-cgi/access/login?redirect_url=${encodeURIComponent(BETA_RELEASE_RETURN_TO)}`;
+  return BETA_RELEASE_RETURN_TO;
 }
