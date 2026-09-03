@@ -60,6 +60,19 @@ test("ungated release can open ops pages without an access proof", async ({ page
   await expect(page.getByRole("heading", { name: "production", exact: true })).toBeVisible();
 });
 
+test("episode map opens the exact public detail page for an explicit mapping", async ({ page }) => {
+  await page.goto("/ops/episodes", { waitUntil: "domcontentloaded" });
+
+  const detailLink = page.getByRole("link", { name: "open Ajay Banga podcast", exact: true });
+  await expect(detailLink).toHaveAttribute("href", "/episodes/QdWHGjReLUo");
+
+  await Promise.all([
+    page.waitForURL("/episodes/QdWHGjReLUo"),
+    detailLink.click(),
+  ]);
+  await expect(page.getByRole("heading", { name: /World Bank President/ })).toBeVisible();
+});
+
 test("public Alpha hides operator context from settings", async ({ page }) => {
   await page.goto("/ops", { waitUntil: "domcontentloaded" });
   await expect(page.locator("[data-ops-context-strip]")).toHaveCount(0);

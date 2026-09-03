@@ -76,6 +76,7 @@ export function ConversationThread({
       role="log"
       aria-label="Conversation"
       aria-live="polite"
+      tabIndex={0}
     >
       {messages.length === 0 ? (
         <div

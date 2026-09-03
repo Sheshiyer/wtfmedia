@@ -492,4 +492,20 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(page.locator('[data-testid="ask-composer"]')).toBeVisible();
     await expect(page.locator('[data-testid="conversation-thread"]')).toBeVisible();
   });
+
+  test("chat surface has no document gap below the fixed dock", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/chat");
+    await settle(page);
+
+    const metrics = await page.evaluate(() => ({
+      viewport: window.innerHeight,
+      documentHeight: document.documentElement.scrollHeight,
+      composer: document.querySelector('[data-testid="ask-composer"]')?.getBoundingClientRect().toJSON(),
+      dock: document.querySelector('.wtf-bottom-pill')?.getBoundingClientRect().toJSON(),
+    }));
+
+    expect(metrics.documentHeight).toBeLessThanOrEqual(metrics.viewport + 1);
+    expect(metrics.composer?.bottom).toBeCloseTo(metrics.dock?.top ?? 0, 0);
+  });
 });

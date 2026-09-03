@@ -31,4 +31,12 @@ describe("operator provenance truthfulness", () => {
     expect(transcriptViewer).toContain("No transcript version or vector state changed.");
     expect(transcriptViewer).not.toContain("cutover simulated");
   });
+
+  it("keeps public episode links bounded to explicit catalogue mappings", () => {
+    const source = fromWebRoot("components/domain/ops/episodes/EpisodesCatalogWorkspace.tsx");
+
+    expect(source).toContain("publicEpisodeIdForCatalogueTitle");
+    expect(source).toContain("not linked");
+    expect(source).toContain("/episodes/");
+  });
 });

@@ -160,7 +160,7 @@ function ChatInner() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-canvas">
+    <div className="flex h-[calc(100vh-3rem)] min-h-0 flex-col bg-canvas">
       <WorkspaceHeader
         eyebrow="get the moment"
         title="ask wtf"

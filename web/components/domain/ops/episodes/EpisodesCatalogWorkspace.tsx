@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { TitleMapRow, TitleMapStatus, TitleMapTable, UncutPointer } from "@/lib/catalogue/excel-title-map";
+import { publicEpisodeIdForCatalogueTitle } from "@/lib/catalogue/public-episode-links";
 
 export type { TitleMapTable };
 
@@ -117,6 +119,7 @@ export function EpisodesCatalogWorkspace({ table }: { table: TitleMapTable | nul
                 <th className="p-3">uncut</th>
                 <th className="p-3">internal</th>
                 <th className="p-3">transcript</th>
+                <th className="p-3">podcast</th>
               </tr>
             </thead>
             <tbody className="divide-y-2 divide-foreground/20">
@@ -146,6 +149,7 @@ function Count({ label, value }: { label: string; value: string | number }) {
 
 function TitleMapRowView({ row }: { row: TitleMapRow }) {
   const excluded = row.status === "quarantined";
+  const publicEpisodeId = publicEpisodeIdForCatalogueTitle(row.title);
   return (
     <tr className={excluded ? "bg-surface-subtle/60" : "hover:bg-canvas/50"}>
       <td className="p-3 font-body text-xs font-bold text-foreground">{row.title}</td>
@@ -162,6 +166,19 @@ function TitleMapRowView({ row }: { row: TitleMapRow }) {
       </td>
       <td className="p-3 font-mono text-[10px] text-secondary">
         {row.transcript ? `${row.transcript.sheet} · ${row.transcript.sourceRow}` : "—"}
+      </td>
+      <td className="p-3">
+        {publicEpisodeId ? (
+          <Link
+            href={`/episodes/${encodeURIComponent(publicEpisodeId)}`}
+            aria-label={`open ${row.title} podcast`}
+            className="inline-flex min-h-9 items-center rounded-control border-2 border-foreground bg-attention px-3 py-2 font-label text-[10px] font-bold uppercase text-on-attention transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-information"
+          >
+            open detail
+          </Link>
+        ) : (
+          <span className="font-label text-[10px] font-bold uppercase text-muted">not linked</span>
+        )}
       </td>
     </tr>
   );
