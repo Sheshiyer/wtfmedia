@@ -236,12 +236,13 @@ async function chatApi(request: Request, env: OpsEnv, context: OperatorContext, 
 async function releaseApi(request: Request, env: OpsEnv, context: OperatorContext): Promise<Response> {
   if (request.method === "GET") {
     const release = await resolveAuthenticatedChatRelease(env.DB, context.environment, env.CHAT_HISTORY_ENABLED);
-    return Response.json({ feature: release.feature, environment: release.environment, state: release.state, source: release.source, ...(release.updatedAt ? { updatedAt: release.updatedAt } : {}), ...(release.updatedByOperatorId ? { updatedByOperatorId: release.updatedByOperatorId } : {}) }, { headers: protectedResponseHeaders });
+    return Response.json({ feature: release.feature, environment: release.environment, state: release.state, track: release.track, source: release.source, ...(release.updatedAt ? { updatedAt: release.updatedAt } : {}), ...(release.updatedByOperatorId ? { updatedByOperatorId: release.updatedByOperatorId } : {}) }, { headers: protectedResponseHeaders });
   }
   if (request.method !== "POST" || !canMutateAuthenticatedChatRelease(context.role, context.environment)) return denied();
   const body = await jsonBody(request);
-  const release = await setAuthenticatedChatRelease(env.DB, { operatorId: context.operatorId, role: context.role }, context.environment, body?.state, context.correlationId);
-  return release ? Response.json({ feature: release.feature, environment: release.environment, state: release.state, source: release.source, updatedAt: release.updatedAt, updatedByOperatorId: release.updatedByOperatorId }, { headers: protectedResponseHeaders }) : denied();
+  const current = await resolveAuthenticatedChatRelease(env.DB, context.environment, env.CHAT_HISTORY_ENABLED);
+  const release = await setAuthenticatedChatRelease(env.DB, { operatorId: context.operatorId, role: context.role }, context.environment, body?.state ?? current.state, body?.track ?? current.track, context.correlationId);
+  return release ? Response.json({ feature: release.feature, environment: release.environment, state: release.state, track: release.track, source: release.source, updatedAt: release.updatedAt, updatedByOperatorId: release.updatedByOperatorId }, { headers: protectedResponseHeaders }) : denied();
 }
 
 function auditFilters(url: URL): AuditFilters {

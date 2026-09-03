@@ -1,5 +1,37 @@
 # Project handoff
 
+## 2026-09-03 Alpha/Beta release-track preparation (isolated, activation held)
+
+**Status:** LOCAL IMPLEMENTATION PREPARED — the active rebase in the shared
+checkout remains untouched, and no Cloudflare remote state changed.
+
+- Added additive migration `cloudflare/migrations/0008_release_track.sql`.
+  New or missing track values resolve to the safe `alpha` hold; the existing
+  local environment seam is explicitly labelled `beta` for development only.
+- Extended the server release manifest and protected endpoint with an
+  independent `track` field. Only `beta` plus `preview`/`stable` enables
+  authenticated chat. Track-only updates preserve lifecycle state and use the
+  existing audited, super-admin-only write path.
+- Added the `/ops/settings` Alpha/Beta selector. Admin/editor roles can see
+  server readback but cannot mutate; no localStorage, URL, public route, chat
+  history deletion, ownership reassignment, or public `/chat`/`/api/chat`
+  contract change is introduced.
+- The implementation was prepared in isolated worktree branch
+  `codex/alpha-beta-release-track` because the shared checkout is currently
+  mid-rebase with conflicts in this handoff and two generated architecture
+  documents. Those conflicts were not resolved or discarded.
+
+### Verification
+
+- Cloudflare full suite: `157/157` passed; focused release/migration tests:
+  `13/13` passed.
+- Web typecheck, lint, contracts `86/86`, release unit tests `5/5`, and
+  production build passed.
+- `git diff --check` passed; dependency installation changed no lockfiles.
+- Remote migration, deployment, Access, D1, queue, R2, DNS, secret, and
+  production data mutations were not performed. The public runtime cutover
+  remains a separate staging/authentication gate.
+
 ## 2026-09-02 Authenticated chat staging gate audit (local, staging blocked)
 
 **Status:** LOCAL AUTHENTICATED COVERAGE VERIFIED — staging deployment and live

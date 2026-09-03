@@ -69,6 +69,16 @@ The current `WTFMEDIA_AUTH_CHAT_RELEASE` environment seam remains a local
 feature-off compatibility guard only. It is not staging evidence and must not
 be presented as the implemented staging control plane.
 
+The release manifest also carries an explicit track independent of lifecycle
+state. `alpha` is the legacy/rollback target and is the safe migration default;
+`beta` is the current authenticated Ask WTF implementation. Only `beta` with
+`preview` or `stable` enables the protected authenticated-chat routes. The
+operator track selector is additive and server-governed: it preserves chat
+history, does not delete or reassign data, and does not change the anonymous
+public `/chat` or `/api/chat` contracts. The public shell's existing
+`WTF_PUBLIC_UI_VARIANT` compatibility selector remains unchanged until a
+separate staging cutover proves the full public Alpha/Beta runtime projection.
+
 The read-only audit found semantic drift from `origin/main` in uncut citation
 projection, `both`-mode balancing, and ingest source-admission checks. It also
 found overlapping preserved branches, so whole-branch cherry-picks are
@@ -148,6 +158,8 @@ apply D1 migrations remotely, deploy, push, or create external connections.
 - New focused tests and privacy checks pass.
 - Stable behavior is unchanged unless a declared contract is versioned.
 - Preview can be disabled server-side and rollback is tested locally.
+- Alpha/Beta track selection is independent from lifecycle state, defaults to
+  the safe Alpha hold, and is exercised through authenticated server readback.
 - Staging pause/restore is exercised from the UI but enforced by the server
   manifest; browser storage never controls release state.
 - No production data, secrets, queues, DNS, or Cloudflare bindings change.
