@@ -1,7 +1,12 @@
 import { NextRequest } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { chatStream, embedQuery, type ChatMessage } from "@/lib/nvidia";
-import { parseSourceMode, type SourceMode } from "@/lib/provenance/source-mode";
+import {
+  isTimestampStatus,
+  parseSourceMode,
+  type SourceMode,
+  type TimestampStatus,
+} from "@/lib/provenance/source-mode";
 import { isReady, search } from "@/lib/vectors";
 
 export const runtime = "nodejs";
@@ -28,6 +33,8 @@ type EdgeSource = {
   timestamped: boolean;
   sourceMode?: SourceMode;
   mappingStatus?: "mapped" | "unmapped" | "unavailable" | "conflicted";
+  timestampStatus?: TimestampStatus;
+  timestampReason?: string | null;
   segmentId?: string;
 };
 
@@ -48,10 +55,51 @@ type EdgeAnswer = {
   searchQuery?: string;
 };
 
+const PUBLIC_TIMESTAMP_REASONS = new Set([
+  "This published transcript was ingested without timestamp data; the link opens the full episode.",
+  "This approved uncut transcript has no verified uncut timestamp; no published time was inferred.",
+  "A published timestamp is not an uncut timestamp; no cross-timeline time was inferred.",
+  "An uncut timestamp is not a published timestamp; no cross-timeline time was inferred.",
+]);
+
+function publicTimestampReason(
+  source: EdgeSource,
+  mode: SourceMode,
+  status: TimestampStatus,
+): string | null {
+  if (status === "verified") return null;
+  if (typeof source.timestampReason === "string" && PUBLIC_TIMESTAMP_REASONS.has(source.timestampReason)) {
+    return source.timestampReason;
+  }
+  if (status === "requested_timeline_unavailable") {
+    return mode === "uncut"
+      ? "An uncut timestamp is not a published timestamp; no cross-timeline time was inferred."
+      : "A published timestamp is not an uncut timestamp; no cross-timeline time was inferred.";
+  }
+  return mode === "uncut"
+    ? "This approved uncut transcript has no verified uncut timestamp; no published time was inferred."
+    : "This published transcript was ingested without timestamp data; the link opens the full episode.";
+}
+
 function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
   return JSON.stringify(sources.map((source) => {
-    const mode = source.sourceMode ?? sourceMode;
-    const start = sourceMode === "both" || mode === sourceMode ? source.start : null;
+    const mode: Exclude<SourceMode, "both"> = source.sourceMode === "uncut"
+      || (source.sourceMode == null && sourceMode === "uncut")
+      ? "uncut"
+      : "published";
+    const candidateStart = sourceMode === "both" || mode === sourceMode ? source.start : null;
+    const declaredTimestampStatus = isTimestampStatus(source.timestampStatus)
+      ? source.timestampStatus
+      : undefined;
+    const timestampStatus: TimestampStatus = candidateStart == null
+      ? declaredTimestampStatus === "requested_timeline_unavailable"
+        ? "requested_timeline_unavailable"
+        : "source_timing_unavailable"
+      : declaredTimestampStatus === "source_timing_unavailable"
+        || declaredTimestampStatus === "requested_timeline_unavailable"
+        ? declaredTimestampStatus
+        : "verified";
+    const start = timestampStatus === "verified" ? candidateStart : null;
     const direct = mode === "uncut"
       ? (typeof source.url === "string" && (source.url.startsWith("uncut:") || isApprovedFrameIoUrl(source.url))
         ? source.url
@@ -68,6 +116,8 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
       url: mode === "uncut" ? publicUncutUrl : direct,
       source_mode: mode,
       mapping_status: source.mappingStatus ?? (start == null ? "unmapped" : "mapped"),
+      timestamp_status: timestampStatus,
+      timestamp_reason: publicTimestampReason(source, mode, timestampStatus),
       segment_id: source.segmentId ?? (mode === "uncut" ? `uncut:${source.videoId}` : null),
     };
   }));

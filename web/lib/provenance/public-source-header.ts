@@ -7,7 +7,14 @@
  * client components.
  */
 
-import { isMappingStatus, parseSourceMode, type MappingStatus, type SourceMode } from "./source-mode";
+import {
+  isMappingStatus,
+  isTimestampStatus,
+  parseSourceMode,
+  type MappingStatus,
+  type SourceMode,
+  type TimestampStatus,
+} from "./source-mode";
 
 export interface PublicSourceCitation {
   episodeId?: string;
@@ -18,6 +25,8 @@ export interface PublicSourceCitation {
   timeSec?: number;
   sourceMode?: SourceMode;
   mappingStatus?: MappingStatus;
+  timestampStatus?: TimestampStatus;
+  timestampReason?: string;
   segmentId?: string;
 }
 
@@ -80,6 +89,12 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
     : isMappingStatus(raw.mapping_status)
       ? raw.mapping_status
       : undefined;
+  const timestampStatus = isTimestampStatus(raw.timestampStatus)
+    ? raw.timestampStatus
+    : isTimestampStatus(raw.timestamp_status)
+      ? raw.timestamp_status
+      : undefined;
+  const timestampReason = textField(raw.timestampReason ?? raw.timestamp_reason)?.slice(0, 320);
   const segmentId = textField(raw.segmentId ?? raw.segment_id);
 
   if (episodeId) source.episodeId = episodeId;
@@ -90,6 +105,8 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
   if (timeSec !== undefined) source.timeSec = timeSec;
   if (raw.sourceMode != null || raw.source_mode != null) source.sourceMode = sourceMode;
   if (mappingStatus) source.mappingStatus = mappingStatus;
+  if (timestampStatus) source.timestampStatus = timestampStatus;
+  if (timestampReason) source.timestampReason = timestampReason;
   if (segmentId) source.segmentId = segmentId;
 
   return Object.keys(source).length > 0 ? source : null;

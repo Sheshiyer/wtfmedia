@@ -1,3 +1,9 @@
+import {
+  PUBLISHED_YOUTUBE_SKILL,
+  type TimestampStatus,
+} from "./skills/published-youtube.ts";
+import { APPROVED_UNCUT_SKILL } from "./skills/approved-uncut.ts";
+
 export const SOURCE_MODES = ["published", "uncut", "both"] as const;
 export type SourceMode = (typeof SOURCE_MODES)[number];
 export type StoredSourceMode = Exclude<SourceMode, "both">;
@@ -110,10 +116,19 @@ export function prioritizeMatchesForQuestion<T extends VectorMatchLike>(
   });
   const strongestAnchor = Math.max(...anchored.map((item) => item.anchorScore), 0);
   if (strongestAnchor === 0) return [...matches];
+  const stronglyAnchoredEpisodes = new Set(anchored
+    .filter((item) => item.anchorScore === strongestAnchor)
+    .map((item) => item.match.metadata?.video_id ?? item.match.metadata?.videoId)
+    .filter((videoId): videoId is string => typeof videoId === "string" && videoId.length > 0));
 
   return anchored
-    .filter((item) => item.anchorScore === strongestAnchor)
+    .filter((item) => {
+      if (item.anchorScore === strongestAnchor) return true;
+      const videoId = item.match.metadata?.video_id ?? item.match.metadata?.videoId;
+      return typeof videoId === "string" && stronglyAnchoredEpisodes.has(videoId);
+    })
     .sort((left, right) => {
+      if (right.anchorScore !== left.anchorScore) return right.anchorScore - left.anchorScore;
       const leftScore = typeof left.match.score === "number" && Number.isFinite(left.match.score) ? left.match.score : -Infinity;
       const rightScore = typeof right.match.score === "number" && Number.isFinite(right.match.score) ? right.match.score : -Infinity;
       return rightScore - leftScore || left.index - right.index;
@@ -132,6 +147,8 @@ export type DualSourceCitation = {
   start: number | null;
   timestamped: boolean;
   mappingStatus: MappingStatus;
+  timestampStatus: TimestampStatus;
+  timestampReason: string | null;
 };
 
 function youtubeWatchUrl(videoId: string, start: number | null): string {
@@ -181,17 +198,15 @@ export function parseEpisodeId(value: unknown): string | null {
   return YOUTUBE_VIDEO_ID.test(normalized) ? normalized : null;
 }
 
-export function buildVectorQueryOptions(episodeId: string | null) {
-  return episodeId
-    ? {
-        topK: 48,
-        returnMetadata: "all" as const,
-        filter: { video_id: { $eq: episodeId } },
-      }
-    : {
-        topK: 48,
-        returnMetadata: "all" as const,
-      };
+export function buildVectorQueryOptions(episodeId: string | null, sourceMode: StoredSourceMode) {
+  return {
+    topK: 48,
+    returnMetadata: "all" as const,
+    filter: {
+      source_mode: { $eq: sourceMode },
+      ...(episodeId ? { video_id: { $eq: episodeId } } : {}),
+    },
+  };
 }
 
 /**
@@ -271,6 +286,17 @@ export function projectDualSourceCitation(
     ? frameIoUrl(metadata.frame_io_url ?? metadata.frameIoFinalEpUrl ?? metadata.frame_io_final_ep_url)
     : null;
   const url = citationRef(stored, citationIdentity, timestamped ? start : null, timestamped, approvedFrameIoUrl);
+  const skill = stored === "uncut" ? APPROVED_UNCUT_SKILL : PUBLISHED_YOUTUBE_SKILL;
+  const timestampStatus: TimestampStatus = !sameMode
+    ? "requested_timeline_unavailable"
+    : timestamped
+      ? "verified"
+      : "source_timing_unavailable";
+  const timestampReason = timestampStatus === "verified"
+    ? null
+    : timestampStatus === "requested_timeline_unavailable"
+      ? skill.crossTimelineReason
+      : skill.missingTimestampReason;
 
   return {
     n: index + 1,
@@ -283,6 +309,8 @@ export function projectDualSourceCitation(
     start: timestamped ? start : null,
     timestamped,
     mappingStatus,
+    timestampStatus,
+    timestampReason,
   };
 }
 

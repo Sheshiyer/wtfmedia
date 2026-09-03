@@ -4,6 +4,9 @@ export type SourceMode = (typeof SOURCE_MODES)[number];
 export const MAPPING_STATUSES = ["mapped", "unmapped", "unavailable", "conflicted"] as const;
 export type MappingStatus = (typeof MAPPING_STATUSES)[number];
 
+export const TIMESTAMP_STATUSES = ["verified", "source_timing_unavailable", "requested_timeline_unavailable"] as const;
+export type TimestampStatus = (typeof TIMESTAMP_STATUSES)[number];
+
 export function parseSourceMode(value: unknown): SourceMode {
   return value === "uncut" || value === "both" ? value : "published";
 }
@@ -30,6 +33,14 @@ export function isMappingStatus(value: unknown): value is MappingStatus {
     value === "unmapped" ||
     value === "unavailable" ||
     value === "conflicted"
+  );
+}
+
+export function isTimestampStatus(value: unknown): value is TimestampStatus {
+  return (
+    value === "verified" ||
+    value === "source_timing_unavailable" ||
+    value === "requested_timeline_unavailable"
   );
 }
 

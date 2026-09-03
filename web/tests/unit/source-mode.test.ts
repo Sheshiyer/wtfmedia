@@ -49,6 +49,7 @@ describe("dual-source public DTO", () => {
             t: 180,
             source_mode: "published",
             mapping_status: "mapped",
+            timestamp_status: "verified",
             segment_id: "UKag4LVAEdU:0",
             private_path: "must-not-reach-the-ui",
           },
@@ -63,11 +64,31 @@ describe("dual-source public DTO", () => {
         timeSec: 180,
         sourceMode: "published",
         mappingStatus: "mapped",
+        timestampStatus: "verified",
         segmentId: "UKag4LVAEdU:0",
       },
     ]);
     expect(resolveCitation({ ...sources[0], requestedMode: "uncut" }).activeTimeSec).toBeNull();
     expect(resolveCitation({ ...sources[0], requestedMode: "published" }).activeTimeSec).toBe(180);
+  });
+
+  it("parses a bounded public reason for a published source without native timing", () => {
+    const sources = parsePublicSourceHeader(JSON.stringify([{
+      video_id: "QdWHGjReLUo",
+      source_mode: "published",
+      mapping_status: "unmapped",
+      timestamp_status: "source_timing_unavailable",
+      timestamp_reason: "This published transcript was ingested without timestamp data; the link opens the full episode.",
+      private_path: "must-not-reach-the-ui",
+    }]));
+
+    expect(sources).toEqual([{
+      videoId: "QdWHGjReLUo",
+      sourceMode: "published",
+      mappingStatus: "unmapped",
+      timestampStatus: "source_timing_unavailable",
+      timestampReason: "This published transcript was ingested without timestamp data; the link opens the full episode.",
+    }]);
   });
 
   it("filters cited sources by published, uncut, or both mode", () => {

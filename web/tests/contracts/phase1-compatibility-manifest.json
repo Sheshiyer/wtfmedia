@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "authority": "owner-approved-production-release-2026-08-31-episode-scoped-ask-wtf",
-  "base_sha": "fef9dedd5c90dea242af192b0c6d543ed6de40e3",
+  "authority": "owner-approved-alpha-evidence-skills-2026-09-03",
+  "base_sha": "e33156873fbede8f700f38cba0dafaff8a937abc",
   "protected_routes": [
     "/",
     "/episodes",
@@ -47,7 +47,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "32ece5dd33bf84bf4bed8e1a24f295a8effbf0556fc17e6bd66d3d237af4f004",
+      "sha256": "642279fd30c103423015076f8ed1de882d211ead3b1eb69ac909356e8491082e",
       "mode": "100644",
       "type": "file",
       "worktree_status": " M"
@@ -77,7 +77,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "32ece5dd33bf84bf4bed8e1a24f295a8effbf0556fc17e6bd66d3d237af4f004",
+      "sha256": "642279fd30c103423015076f8ed1de882d211ead3b1eb69ac909356e8491082e",
       "mode": "100644",
       "type": "file",
       "worktree_status": " M"
@@ -226,7 +226,12 @@
       "score",
       "t",
       "time",
-      "url"
+      "url",
+      "source_mode",
+      "mapping_status",
+      "timestamp_status",
+      "timestamp_reason",
+      "segment_id"
     ]
   },
   "chat_contract": {
@@ -312,6 +317,11 @@
     ],
     "headers": [
       "X-Sources",
+      "X-Source-Mode",
+      "X-Uncut-Unavailable",
+      "X-Response-State",
+      "X-Cited-Indices",
+      "X-Follow-Ups",
       "X-Model",
       "X-Fallback",
       "Content-Type",
@@ -331,7 +341,12 @@
       "score",
       "t",
       "time",
-      "url"
+      "url",
+      "source_mode",
+      "mapping_status",
+      "timestamp_status",
+      "timestamp_reason",
+      "segment_id"
     ],
     "source_mapping": {
       "n": "upstream source number",
@@ -340,7 +355,12 @@
       "score": "upstream score",
       "t": "upstream start number or null",
       "time": "empty for null start; otherwise UTC clock text derived from start seconds",
-      "url": "upstream public URL"
+      "url": "upstream public URL; an untimed published source opens the full episode without a seek parameter",
+      "source_mode": "the source's own published or uncut evidence mode",
+      "mapping_status": "the source-native timeline mapping state",
+      "timestamp_status": "verified, source_timing_unavailable, or requested_timeline_unavailable",
+      "timestamp_reason": "a fixed public explanation for an unavailable native time, otherwise null",
+      "segment_id": "the bounded public retrieval segment reference"
     },
     "streaming": {
       "proxy": "awaits the complete Worker JSON response before constructing a plain-text Response",

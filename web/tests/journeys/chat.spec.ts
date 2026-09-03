@@ -76,12 +76,16 @@ function mockGroundedAnswer(
     : JSON.stringify([
         {
           n: 1,
-          video_id: "xyz789",
+          video_id: "xyz789abc12",
           title: "Startup Culture 101",
           score: 0.78,
           t: null,
           time: "",
-          url: "https://youtube.com/watch?v=xyz789",
+          url: "https://youtube.com/watch?v=xyz789abc12",
+          source_mode: "published",
+          mapping_status: "unmapped",
+          timestamp_status: "source_timing_unavailable",
+          timestamp_reason: "This published transcript was ingested without timestamp data; the link opens the full episode.",
         },
       ]);
 
@@ -133,9 +137,9 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(page.locator('[data-testid="conversation-thread"]')).toBeVisible();
     await expect(page.locator('[data-testid="empty-state"]')).toBeVisible();
 
-    const textarea = page.locator("textarea");
-    await expect(textarea).toHaveAttribute("placeholder", "what moment are you after?");
-    await expect(textarea).toBeFocused();
+    const composerInput = page.getByRole("textbox", { name: "Ask the catalogue" });
+    await expect(composerInput).toHaveAttribute("placeholder", "what moment are you after?");
+    await expect(composerInput).toBeFocused();
 
     const submitButton = page.locator('button[type="submit"]');
     await expect(submitButton).toHaveText("ask wtf");
@@ -151,8 +155,8 @@ test.describe("/chat journey — migrated variant", () => {
 
     const composer = page.locator('[data-testid="ask-composer"]');
     await expect(composer.locator(".wtf-type-rail")).toHaveCount(0);
-    await expect(composer.getByTestId("ask-send-bar").getByTestId("source-mode-toggle")).toBeVisible();
-    await expect(composer.getByTestId("ask-send-bar").getByRole("button")).toHaveCount(4);
+    await expect(composer.getByTestId("source-mode-toggle")).toBeVisible();
+    await expect(composer.getByRole("button")).toHaveCount(4);
     await expect(composer).not.toContainText("find the exact moment where the guest changes their mind");
   });
 
@@ -174,8 +178,8 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    const textarea = page.locator("textarea");
-    await textarea.fill("What is this about?");
+    const composerInput = page.getByRole("textbox", { name: "Ask the catalogue" });
+    await composerInput.fill("What is this about?");
     await page.locator('button[type="submit"]').click();
 
     // Wait for response to appear
@@ -219,7 +223,7 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("What did they say about founders?");
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("What did they say about founders?");
     await page.locator('button[type="submit"]').click();
 
     // Wait for response
@@ -244,7 +248,7 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("Summarize the episode");
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Summarize the episode");
     await page.locator('button[type="submit"]').click();
 
     await expect(page.locator('[data-testid="message-1"]')).toBeVisible({
@@ -254,6 +258,11 @@ test.describe("/chat journey — migrated variant", () => {
     const sourcePanel = page.locator('[data-testid="source-panel"]');
     await expect(sourcePanel).toBeVisible();
     await expect(sourcePanel).toContainText("1 source");
+    await sourcePanel.locator("summary").click();
+    await expect(sourcePanel).toContainText("published time unavailable");
+    await expect(sourcePanel).toContainText("ingested without timestamp data");
+    await expect(sourcePanel.getByRole("link", { name: "open full published episode" })).toBeVisible();
+    await expect(sourcePanel.getByRole("link", { name: "open full published episode" })).not.toHaveAttribute("href", /[?&]t=/);
   });
 
   test("preserves each source timeline in a both-mode response", async ({ page }) => {
@@ -285,7 +294,7 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("Compare the published and uncut sources.");
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Compare the published and uncut sources.");
     await page.locator('button[type="submit"]').click();
 
     const sourcePanel = page.locator('[data-testid="source-panel"]');
@@ -327,7 +336,7 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("What is the meaning of life?");
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("What is the meaning of life?");
     await page.locator('button[type="submit"]').click();
 
     await expect(page.locator('[data-testid="message-1"]')).toBeVisible({
@@ -348,7 +357,7 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("Tell me something");
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Tell me something");
     await page.locator('button[type="submit"]').click();
 
     await expect(page.locator('[data-testid="message-1"]')).toBeVisible({
@@ -404,7 +413,7 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("Hello");
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Hello");
     await page.locator('button[type="submit"]').click();
 
     // Loading indicator appears
@@ -425,7 +434,7 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("Hello");
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Hello");
     await page.locator('button[type="submit"]').click();
 
     await expect(page.locator('[data-testid="message-1"]')).toBeVisible({
@@ -438,9 +447,35 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(retryButton).toHaveText("retry answer");
   });
 
+  test("retry replaces the assistant answer without duplicating the user turn", async ({ page }) => {
+    const requestBodies: Array<{ messages: Array<{ role: string; content: string }> }> = [];
+    await page.route("/api/chat", (route) => {
+      requestBodies.push(route.request().postDataJSON() as { messages: Array<{ role: string; content: string }> });
+      route.fulfill({
+        status: 200,
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+        body: `Answer ${requestBodies.length}.`,
+      });
+    });
+
+    await page.goto("/chat");
+    await settle(page);
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Retry this exact question");
+    await page.locator('button[type="submit"]').click();
+    await expect(page.getByText("Answer 1.", { exact: true })).toBeVisible({ timeout: 10000 });
+
+    await page.getByTestId("retry-button").click();
+    await expect(page.getByText("Answer 2.", { exact: true })).toBeVisible({ timeout: 10000 });
+
+    expect(requestBodies).toHaveLength(2);
+    expect(requestBodies[1].messages.filter((message) =>
+      message.role === "user" && message.content === "Retry this exact question")).toHaveLength(1);
+    await expect(page.getByText("Retry this exact question", { exact: true })).toHaveCount(1);
+  });
+
   /* ── keyboard focus ────────────────────────────────────────────────── */
 
-  test("textarea is focused on mount and Enter submits", async ({ page }) => {
+  test("composer textbox is focused on mount and Enter submits", async ({ page }) => {
     let requestCount = 0;
     await page.route("/api/chat", (route) => {
       requestCount++;
@@ -461,12 +496,12 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    const textarea = page.locator("textarea");
-    await expect(textarea).toBeFocused();
+    const composerInput = page.getByRole("textbox", { name: "Ask the catalogue" });
+    await expect(composerInput).toBeFocused();
 
     // Type and press Enter
-    await textarea.fill("Test question");
-    await textarea.press("Enter");
+    await composerInput.fill("Test question");
+    await composerInput.press("Enter");
 
     // Request was sent
     await page.waitForTimeout(1000);

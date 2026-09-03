@@ -50,6 +50,9 @@ export function SourcePanel({ sources, citedIndices }: SourcePanelProps) {
   const hasMappedUncutSource = sources.some(
     (source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped",
   );
+  const hasUntimedPublishedSource = sources.some(
+    (source) => source.sourceMode !== "uncut" && source.timestampStatus === "source_timing_unavailable",
+  );
   const citedSet = citedIndices ? new Set(citedIndices) : null;
   const citedCount = citedSet ? sources.filter((_, i) => citedSet.has(i + 1)).length : sources.length;
   const candidateCount = sources.length - citedCount;
@@ -91,7 +94,9 @@ export function SourcePanel({ sources, citedIndices }: SourcePanelProps) {
                   ? "uncut timestamps come from the response. no published time was converted."
                   : hasUncutSource
                     ? "uncut evidence is present, but no verified uncut timestamp is available."
-                    : "published moments are available. uncut stays unavailable until an uncut source is returned."}
+                    : hasUntimedPublishedSource
+                      ? "some published transcripts have no source timing; those links open the full episode."
+                      : "published moments are shown. uncut appears only when a relevant approved excerpt is returned."}
               </p>
             </div>
             <div
@@ -115,7 +120,7 @@ export function SourcePanel({ sources, citedIndices }: SourcePanelProps) {
                   aria-describedby={uncutPlaybackStatusId}
                   className="rounded px-2.5 py-1 text-[11px] text-muted opacity-70"
                 >
-                  uncut unavailable
+                  uncut not returned
                 </span>
               )}
             </div>
@@ -128,17 +133,30 @@ export function SourcePanel({ sources, citedIndices }: SourcePanelProps) {
               ...source,
               requestedMode: source.sourceMode ?? "published",
             });
+            const timestampStatus = resolved.activeTimeSec === null
+              ? source.timestampStatus === "requested_timeline_unavailable"
+                ? "requested_timeline_unavailable"
+                : "source_timing_unavailable"
+              : source.timestampStatus === "source_timing_unavailable"
+                || source.timestampStatus === "requested_timeline_unavailable"
+                ? source.timestampStatus
+                : "verified";
             const videoId = resolved.youtubeVideoId;
             const label = source.title || source.episodeId || "WTF episode";
             const episodeHref = publicEpisodeHref(source);
             const publishedHref = videoId
-              ? youtubeWatchUrl(videoId, resolved.activeTimeSec)
+              ? youtubeWatchUrl(videoId, timestampStatus === "verified" ? resolved.activeTimeSec : null)
               : null;
             const uncutHref = source.sourceMode === "uncut" && isApprovedFrameIoUrl(source.url)
               ? source.url
               : null;
             const playbackHref = source.sourceMode === "uncut" ? uncutHref : publishedHref;
             const isCited = citedSet ? citedSet.has(index + 1) : true;
+            const sourceLabel = source.sourceMode === "uncut" ? "uncut" : "published";
+            const timestampReason = source.timestampReason
+              ?? (source.sourceMode === "uncut"
+                ? "This approved uncut transcript has no verified uncut timestamp; no published time was inferred."
+                : "This published transcript was ingested without timestamp data; the link opens the full episode.");
 
             return (
               <li
@@ -167,8 +185,8 @@ export function SourcePanel({ sources, citedIndices }: SourcePanelProps) {
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-secondary">
                   <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
                     {resolved.activeTimeSec === null
-                      ? `${source.sourceMode === "uncut" ? "uncut" : "published"} timestamp unavailable`
-                      : `${source.sourceMode === "uncut" ? "uncut" : "published"} ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
+                      ? `${sourceLabel} time unavailable`
+                      : `${sourceLabel} ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
                   </span>
                   {playbackHref ? (
                     <a
@@ -177,10 +195,19 @@ export function SourcePanel({ sources, citedIndices }: SourcePanelProps) {
                       rel="noreferrer"
                       className="inline-flex min-h-8 items-center rounded-control border border-foreground bg-attention px-2.5 py-1 font-label text-[10px] font-bold lowercase tracking-wide text-on-attention transition-colors hover:bg-attention/85"
                     >
-                      {source.sourceMode === "uncut" ? "open uncut source" : "open published moment"}
+                      {source.sourceMode === "uncut"
+                        ? "open uncut source"
+                        : timestampStatus === "verified"
+                          ? "open published moment"
+                          : "open full published episode"}
                     </a>
                   ) : null}
                 </div>
+                {timestampStatus !== "verified" ? (
+                  <p className="text-[10px] leading-relaxed text-muted" data-testid="timestamp-reason">
+                    {timestampReason}
+                  </p>
+                ) : null}
               </li>
             );
           })}

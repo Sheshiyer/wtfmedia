@@ -4,10 +4,10 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: plan
-progress: 50/166
+progress: 66/182
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-01T00:00:00+05:30
+updated: 2026-09-03T23:15:18+05:30
 ---
 
 ## Problem
@@ -276,6 +276,25 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-165: Selecting `both` restores the complete returned citation set (probe: browser journey).
 - [x] ISC-166: The source panel never relabels or leaks a citation across modes (probe: unit and browser contracts).
 
+### Anonymous Alpha evidence-skill coordination
+
+- [x] ISC-167: The Worker exposes distinct WTF OS, Published YouTube, and Approved Uncut runtime skill contracts (probe: module contract test).
+- [x] ISC-168: Alpha chat remains anonymous and writes no conversation history or user identity (probe: route and persistence contract test).
+- [x] ISC-169: One search embedding is reused across every enabled source query (probe: coordinator unit test).
+- [x] ISC-170: Published retrieval applies `source_mode=published` before top-K selection (probe: Vectorize query contract test).
+- [x] ISC-171: Uncut retrieval applies `source_mode=uncut` before top-K selection (probe: Vectorize query contract test).
+- [x] ISC-172: Both mode independently queries published and uncut evidence before balancing results (probe: coordinator unit test).
+- [x] ISC-173: Both mode reserves citation capacity for each source mode that returns qualified evidence (probe: source-resolution test).
+- [x] ISC-174: Multi-entity relevance retains answer-bearing chunks that match any explicit named phrase (probe: named-entity regression test).
+- [x] ISC-175: Every displayed model-suggested question passes the same evidence retrieval threshold as a user question (probe: follow-up validation test).
+- [x] ISC-176: A nonnumeric citation marker such as `[N]` invalidates model synthesis (probe: citation parser test).
+- [x] ISC-177: An untimed published citation exposes a source-timing reason and receives no inferred seek parameter (probe: citation and browser test).
+- [x] ISC-178: Newly ingested vector metadata records native timestamp status and origin (probe: ingest metadata unit test).
+- [x] ISC-179: An uncut citation never inherits a published timestamp or YouTube playback URL (probe: dual-timeline citation test).
+- [x] ISC-180: Retrying an Alpha answer does not append a duplicate user turn (probe: browser journey).
+- [x] ISC-181: The public source header preserves timestamp status and reason while dropping private metadata (probe: API and parser contract test).
+- [x] ISC-182: Anti: this Alpha change creates no auth, persistence, provider, Worker, index, queue, database, or deployment dependency (probe: architecture and diff audit).
+
 ## Test Strategy
 
 | ISC range | Type | Check | Threshold | Tool |
@@ -296,6 +315,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-145..155 | Cloudflare estate | profile topology, paginated source resources, target gaps, action boundaries, final-delta consistency, exact rollback, and no-mutation posture are explicit | all live read-only and document probes pass | Wrangler/API lists + public DNS/HTTP + bounded scans |
 | ISC-156..161 | named-guest relevance | explicit named-person questions stay anchored to matching evidence and abstain when no anchor exists | all source-mode contract assertions pass | Worker unit tests + prompt inspection |
 | ISC-162..166 | source-panel filtering | `published`, `uncut`, and `both` visibly filter response-backed citations without relabeling or leakage | all unit and browser assertions pass | web unit + Playwright journey |
+| ISC-167..182 | Alpha evidence skills | source-specific retrieval, grounded follow-ups, native timing truth, retry integrity, and stateless/no-new-infra boundaries hold | all Worker, API, parser, and browser assertions pass | Node tests + Vitest + Playwright + diff audit |
 
 ## Features
 
@@ -358,6 +378,12 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
   description: Named-guest retrieval anchoring and response-backed published/uncut/both citation visibility
   satisfies: [ISC-156, ISC-157, ISC-158, ISC-159, ISC-160, ISC-161, ISC-162, ISC-163, ISC-164, ISC-165, ISC-166]
   depends_on: [EvidenceNativeKnowledge]
+  parallelizable: false
+
+- name: AlphaEvidenceSkillCoordinator
+  description: Anonymous stateless WTF OS conversation, independently filtered published/uncut retrieval, answerable suggestions, and native timestamp explanations
+  satisfies: [ISC-167, ISC-168, ISC-169, ISC-170, ISC-171, ISC-172, ISC-173, ISC-174, ISC-175, ISC-176, ISC-177, ISC-178, ISC-179, ISC-180, ISC-181, ISC-182]
+  depends_on: [ProvenanceSpine, EvidenceNativeKnowledge, SourceModeCitationFilter]
   parallelizable: false
 
 - name: ProductionOperations
@@ -449,6 +475,7 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
 - 2026-08-30 16:30 IST: Independent audit tightened cutover consistency: bulk copy is followed by a separately authorized source ingress/producer quiesce, queue settlement, and final R2/KV/Vectorize delta. Rollback uses the verified source Workers.dev endpoint while restoring quiesced settings; absent a separately rehearsed route, removing the target Custom Domain returns `wtfhq.in` to its pre-cutover no-apex state and is not same-host continuity.
 - 2026-08-30 16:22 IST: ❌ DEAD END: The required Advisor review was attempted after live reconciliation but the local Advisor OAuth session remains expired. It was not repaired or substituted with a false success; direct Cloudflare receipts and the ISA completeness/independent audit govern this checkpoint.
 - 2026-09-01 00:00 IST: refined: The owner-approved episode-scoped production receipt is now the latest runtime evidence. Published, approved mapped uncut, and combined Ask WTF retrieval are live with `episodeId`/`video_id` scope; 55/55 published and 49/49 mapped uncut receipts reconcile across KV and Vectorize reports 11,948 vectors. This is a bounded release slice, not completion of the full provenance/search phases; trusted timeline alignment, synchronized uncut playback, and evaluation gates remain open.
+- 2026-09-03 22:51 IST: refined: The owner approved repository-local execution of three coordinated runtime evidence skills for anonymous/stateless Alpha, answerability-gated suggested questions, independent pre-top-K published/uncut retrieval, and truthful missing-published-timestamp explanations. No deployment, live re-ingest, corpus expansion, authentication, durable chat memory, or new infrastructure is authorized.
 
 ## Changelog
 
@@ -488,6 +515,10 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
   refuted by: the production receipt and focused source-mode proofs show an optional public `episodeId` scope, pre-`topK` `video_id` filtering, source-aware citations, truthful unmapped behavior, and separate published/uncut locators
   learned: the completed slice can be carried as additive evidence over the existing public route and API while the full provenance, alignment, playback, search-evaluation, and analytics criteria remain pending
   criterion now: ISC-88 has release evidence for episode-scoped retrieval, while no broader ISC is marked complete without its own acceptance probe
+- 2026-09-03 | conjectured: published candidate timestamps were being lost only in the public source-panel rendering
+  refuted by: the reproduced candidates `LqSEfz4YUFA` and `fEUoJSTYtyc` have published transcript text assets but no corresponding published timestamp sidecars, and their Vectorize citations correctly return null starts
+  learned: missing published timing is a source-provenance state that ingestion and citation projection must carry explicitly while the UI explains it and never borrows an uncut coordinate
+  criterion now: ISC-177 through ISC-181 bind native timing metadata, public explanation, cross-timeline prohibition, and safe header projection to executable probes
 
 ## Verification
 
@@ -544,3 +575,20 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
 - Episode-scope contract proof: focused Cloudflare source-mode tests pass for public YouTube ID validation, pre-`topK` `video_id` filtering, stale-match rejection, unmapped-episode truthfulness, mixed-source citation identity, and the rule that uncut citations never inherit YouTube timestamps. Trusted cross-timeline alignment and synchronized playback remain unverified by design.
 - Named-guest relevance proof (local, not deployed): the focused Worker contract anchors `Sunil Shetty` to the `Suniel Shetty` episode title, preserves generic semantic ordering, retains multiple matching chunks, and returns no candidates when an explicit name has no evidence anchor.
 - Source-panel filtering proof (local, not deployed): the focused web unit and Playwright journey cover `published`, `uncut`, and `both` projections, count/list updates, restoration, and zero cross-mode leakage.
+- ISC-167 evidence: `cloudflare/tests/chat-agent-skills.test.mjs` loads the three versioned runtime skill contracts and the full Worker suite passes 169/169.
+- ISC-168 evidence: the Alpha request still carries only bounded request-local messages; a diff audit found no authentication, identity, conversation store, durable object, or history writer added.
+- ISC-169 evidence: the coordinator contract passes one vector object into every requested source query and proves object identity across both-mode calls.
+- ISC-170 evidence: the Vectorize query contract places `source_mode=published` in the query filter, alongside optional `video_id`, before the 48-result top-K window.
+- ISC-171 evidence: the Vectorize query contract places `source_mode=uncut` in its own query filter, alongside optional `video_id`, before the 48-result top-K window.
+- ISC-172 evidence: coordinator tests prove both mode makes separate published and uncut Vectorize calls and combines their returned match sets only afterward.
+- ISC-173 evidence: source-resolution tests pass for balanced both-mode citations, including episode-scoped uncut-dominant input that still reserves published capacity.
+- ISC-174 evidence: the named-entity regression keeps lower-anchor answer text from the strongest matching episode while excluding a different episode.
+- ISC-175 evidence: follow-up generation receives bounded excerpt text, parses at most five unique questions, and asynchronously retrieval-qualifies every displayed result through the same source coordinator; weak, abstained, and invalid-synthesis responses return none.
+- ISC-176 evidence: the citation parser accepts numeric grouped markers, rejects out-of-range numbers, and rejects a literal `[N]` even when a valid numeric marker is also present.
+- ISC-177 evidence: source-mode and Playwright tests show `published time unavailable`, the fixed source-timing explanation, a full-episode action, and no `t=` seek parameter.
+- ISC-178 evidence: source-native timing tests prove `published_sidecar`, `uncut_sidecar`, `uncut_inline`, and `none` origins; the Worker dry-run compiles their ingest projection.
+- ISC-179 evidence: the dual-source Worker suite proves uncut citations preserve approved Frame.io identity and never inherit a published time or YouTube playback URL.
+- ISC-180 evidence: the 22/22 Alpha chat journey sends two requests on retry while retaining one visible user question and one user turn in the second request body.
+- ISC-181 evidence: 75/75 web unit and 85/85 contract tests prove additive timestamp status/reason projection while private fields remain absent; the privacy scan reports zero violations across 284 bounded files.
+- ISC-182 evidence: Wrangler `deploy --dry-run` compiles a 168.65 KiB Worker against only the existing KV, queue, D1, Vectorize, R2, Workers AI, and environment bindings. No deployment or external mutation occurred.
+- Alpha evidence-skill acceptance (local, not deployed): web typecheck and lint pass; the production build generates 69/69 static pages; the feature chat browser journey passes 22/22; `git diff --check` is clean. A broader browser sweep reports 210 passed, 19 failed, and 8 skipped because existing compact-composer, episode-fixture, and responsive-navigation expectations outside this slice are stale; it is not recorded as a green gate.

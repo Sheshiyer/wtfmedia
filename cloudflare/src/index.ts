@@ -16,13 +16,22 @@ import {
 import { handleOpsRequest, type OpsEnv } from "./ops-router";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar";
 import {
-  buildVectorQueryOptions,
   extractNamedEntityPhrases,
   parseEpisodeId,
   parseSourceMode,
   prioritizeMatchesForQuestion,
   resolveEpisodeScopedSources,
 } from "./chat/source-mode";
+import { queryEvidenceSources } from "./chat/evidence-coordinator";
+import {
+  WTF_OS_CONVERSATION_SKILL,
+  buildFollowUpGenerationInput,
+  parseCitationMarkers,
+  parseFollowUpCandidates,
+  selectAnswerableFollowUps,
+} from "./chat/skills/wtf-os-conversation";
+import { publishedTimingMetadata } from "./chat/skills/published-youtube";
+import { uncutTimingMetadata } from "./chat/skills/approved-uncut";
 import {
   ingestStateKey,
   parseJobSourceMode,
@@ -68,22 +77,6 @@ const UPSERT_ATTEMPTS = 5;
 type Passage = { text: string; start?: number };
 type TimestampLine = { t: number; x: string };
 type HistoryTurn = { role: "user" | "assistant"; content: string };
-
-const SYSTEM = `You are the WTF Media research assistant. You answer from the supplied excerpts and maintain a natural conversation flow.
-
-GROUNDING RULES:
-- Every factual claim needs a matching [N] citation from the supplied excerpts.
-- A mention of a person or company does not prove ownership, employment, authorship, guest status, or any other relationship.
-- Do not infer catalogue-wide counts from excerpts.
-- If the excerpts do not establish the answer, say so plainly.
-- When the question names a person, use only excerpts whose title or text contains that named person.
-- Do not answer from semantically similar excerpts about another guest or episode.
-
-CONVERSATION RULES:
-- When prior conversation is provided, build on it naturally. Reference what was discussed.
-- Don't repeat information already covered unless asked to elaborate.
-- Be conversational but precise. Explain context when it adds value.
-- When connecting ideas across excerpts, make the connections explicit with citations.`;
 
 function cors(request: Request, env: Env) {
   const origin = request.headers.get("Origin");
@@ -240,20 +233,55 @@ async function reformulateQuery(env: Env, question: string, history: HistoryTurn
   }
 }
 
-async function generateFollowUps(env: Env, question: string, answer: string, sources: Array<{ title: string }>): Promise<string[]> {
-  const topics = sources.slice(0, 3).map((s) => s.title).join("; ");
+async function retrieveSourcesForQuery(
+  env: Env,
+  searchQuery: string,
+  sourceMode: ReturnType<typeof parseSourceMode>,
+  episodeId: string | null,
+) {
+  const vector = await vectorFor(env, searchQuery);
+  const rawMatches = await queryEvidenceSources(env.VECTORIZE, vector, sourceMode, episodeId);
+  const relevantMatches = prioritizeMatchesForQuestion(rawMatches, searchQuery);
+  const namedEntityQuestion = extractNamedEntityPhrases(searchQuery).length > 0;
+  const resolved = resolveEpisodeScopedSources(relevantMatches, sourceMode, episodeId, MIN_SCORE, 6, {
+    dedupeByEpisode: !namedEntityQuestion,
+  });
+  const sources = resolved.citations.map((source) => {
+    const match = relevantMatches.find((item: { id?: unknown }) => String(item.id ?? "") === source.segmentId)
+      ?? relevantMatches.find((item: { metadata?: { video_id?: unknown } }) => item.metadata?.video_id === source.videoId);
+    return { ...source, text: match?.metadata?.text };
+  });
+  return { resolved, sources };
+}
+
+async function generateFollowUps(
+  env: Env,
+  question: string,
+  answer: string,
+  sources: Array<{ n: number; title: string; text?: string }>,
+  sourceMode: ReturnType<typeof parseSourceMode>,
+  episodeId: string | null,
+): Promise<string[]> {
   try {
     const result = await env.AI.run(FAST_MODEL, {
       messages: [
-        { role: "system", content: "Based on the Q&A and source topics, suggest exactly 3 natural follow-up questions the user might ask next. Each should explore a different angle from the retrieved content. Output one question per line, nothing else. No numbering." },
-        { role: "user", content: `Q: ${question}\nA: ${answer.slice(0, 300)}\nTopics: ${topics}` },
+        { role: "system", content: WTF_OS_CONVERSATION_SKILL.followUpPrompt },
+        { role: "user", content: buildFollowUpGenerationInput(question, answer, sources) },
       ],
-      max_tokens: 150,
-      temperature: 0.4,
+      max_tokens: 220,
+      temperature: 0.2,
     });
     const text = typeof result === "string" ? result : result?.response;
     if (typeof text !== "string") return [];
-    return text.split("\n").map((l) => l.replace(/^\d+[\.\)]\s*/, "").trim()).filter((l) => l.length > 10 && l.length < 200 && l.endsWith("?")).slice(0, 3);
+    const normalizedQuestion = question.toLocaleLowerCase("en-US");
+    const candidates = parseFollowUpCandidates(text).filter(
+      (candidate) => candidate.toLocaleLowerCase("en-US") !== normalizedQuestion,
+    );
+    return selectAnswerableFollowUps(candidates, async (candidate) => {
+      if (requiresVerifiedMetadata(candidate)) return false;
+      const validation = await retrieveSourcesForQuery(env, candidate, sourceMode, episodeId);
+      return validation.sources.length >= 2;
+    });
   } catch {
     return [];
   }
@@ -281,19 +309,31 @@ async function ingest(job: TranscriptJob, env: Env) {
   if (!object) throw new Error(`missing transcript object: ${job.transcriptKey}`);
   const text = await object.text();
   let parts = chunks(text);
+  let timingOrigin: "sidecar" | "inline" | null = null;
   if (job.timestampsKey) {
     const timestamps = await env.CATALOGUE.get(job.timestampsKey);
     if (timestamps) {
       try {
         const parsed = await timestamps.json<TimestampLine[]>();
-        if (Array.isArray(parsed)) parts = timestampedChunks(parsed);
+        if (Array.isArray(parsed)) {
+          const timedParts = timestampedChunks(parsed);
+          if (timedParts.length > 0) {
+            parts = timedParts;
+            timingOrigin = "sidecar";
+          }
+        }
       } catch {
         console.warn("wtfmedia timestamp sidecar unreadable", { videoId: job.videoId });
       }
+    } else {
+      console.warn("wtfmedia timestamp sidecar unavailable", { videoId: job.videoId, sourceMode });
     }
   } else if (sourceMode === "uncut") {
     const inline = extractTimestampLines(text);
-    if (inline.length >= 3) parts = timestampedChunks(inline);
+    if (inline.length >= 3) {
+      parts = timestampedChunks(inline);
+      timingOrigin = "inline";
+    }
   }
   const source = vectorSourceRef(identity.sourceAssetId, sourceMode);
   const frameIoUrl = sourceMode === "uncut"
@@ -301,22 +341,28 @@ async function ingest(job: TranscriptJob, env: Env) {
     : null;
   for (let offset = 0; offset < parts.length; offset += UPSERT_BATCH_SIZE) {
     const batch = parts.slice(offset, offset + UPSERT_BATCH_SIZE);
-    const vectors = await Promise.all(batch.map(async (part, index) => ({
-      id: vectorRecordId(identity.sourceAssetId, offset + index, sourceMode),
-      values: await vectorFor(env, part.text),
-      metadata: {
-        video_id: identity.publicVideoId,
-        source_asset_id: identity.sourceAssetId,
-        title: job.title.slice(0, 500),
-        chunk: offset + index,
-        text: part.text,
-        source,
-        start: part.start ?? null,
-        timestamped: part.start != null,
-        source_mode: sourceMode,
-        ...(frameIoUrl ? { frame_io_url: frameIoUrl } : {}),
-      },
-    })));
+    const vectors = await Promise.all(batch.map(async (part, index) => {
+      const timingMetadata = sourceMode === "published"
+        ? publishedTimingMetadata(part.start, timingOrigin === "sidecar")
+        : uncutTimingMetadata(part.start, timingOrigin);
+      return {
+        id: vectorRecordId(identity.sourceAssetId, offset + index, sourceMode),
+        values: await vectorFor(env, part.text),
+        metadata: {
+          video_id: identity.publicVideoId,
+          source_asset_id: identity.sourceAssetId,
+          title: job.title.slice(0, 500),
+          chunk: offset + index,
+          text: part.text,
+          source,
+          start: part.start ?? null,
+          timestamped: part.start != null && timingMetadata.timestamp_status === "verified",
+          source_mode: sourceMode,
+          ...timingMetadata,
+          ...(frameIoUrl ? { frame_io_url: frameIoUrl } : {}),
+        },
+      };
+    }));
     await upsertWithRetry(env, vectors);
   }
   await env.WTFMEDIA_STATE.put(stateKey, job.contentHash);
@@ -368,27 +414,13 @@ async function chat(request: Request, env: Env) {
   }
   try {
     const searchQuery = await reformulateQuery(env, question, history);
-    const matches = await env.VECTORIZE.query(
-      await vectorFor(env, searchQuery),
-      buildVectorQueryOptions(episodeId),
-    );
-    const rawMatches = matches.matches ?? [];
-    const relevantMatches = prioritizeMatchesForQuestion(rawMatches, searchQuery);
-    const namedEntityQuestion = extractNamedEntityPhrases(searchQuery).length > 0;
-    const resolved = resolveEpisodeScopedSources(relevantMatches, sourceMode, episodeId, MIN_SCORE, 6, {
-      dedupeByEpisode: !namedEntityQuestion,
-    });
-    const sources = resolved.citations.map((source) => {
-      const match = relevantMatches.find((item: { id?: unknown }) => String(item.id ?? "") === source.segmentId)
-        ?? relevantMatches.find((item: { metadata?: { video_id?: unknown } }) => item.metadata?.video_id === source.videoId);
-      return { ...source, text: match?.metadata?.text };
-    });
+    const { resolved, sources } = await retrieveSourcesForQuery(env, searchQuery, sourceMode, episodeId);
     if (sources.length < 2) {
       return reply(request, env, {
         answer: resolved.uncutUnavailable
           ? episodeId
-            ? "No approved uncut evidence is mapped to this episode, and there is not enough published evidence to answer reliably. no timestamp was inferred."
-            : "uncut is not activated and there is not enough published YouTube evidence for this question. no timestamp was inferred."
+            ? "No sufficiently relevant approved uncut excerpt was returned for this episode, and there is not enough published evidence to answer reliably. no timestamp was inferred."
+            : "No sufficiently relevant approved uncut excerpt was returned for this question, and there is not enough published YouTube evidence to answer reliably. no timestamp was inferred."
           : episodeId
             ? "I don’t have enough relevant evidence in this episode to answer that reliably."
             : "I don’t have enough relevant evidence in the catalogue to answer that reliably.",
@@ -408,15 +440,14 @@ async function chat(request: Request, env: Env) {
       ? `PRIOR CONVERSATION:\n${priorContext}\n\nCONTEXT:\n${evidenceContext}\n\nQUESTION: ${question}`
       : `CONTEXT:\n${evidenceContext}\n\nQUESTION: ${question}`;
     const answered = await answerWithFallback(env, [
-        { role: "system", content: SYSTEM },
+        { role: "system", content: WTF_OS_CONVERSATION_SKILL.systemPrompt },
         { role: "user", content: userContent },
       ]);
     const answer = answered.answer;
-    const citations = [...answer.matchAll(/\[(\d+)\]/g)].map((match) => Number(match[1]));
-    if (citations.length === 0 || citations.some((citation) => citation < 1 || citation > sources.length)) {
-      console.warn("wtfmedia answer rejected: invalid citations", { sourceCount: sources.length, citations });
+    const citationValidation = parseCitationMarkers(answer, sources.length);
+    if (!citationValidation.valid) {
+      console.warn("wtfmedia answer rejected: invalid citations", { sourceCount: sources.length, citations: citationValidation.indices });
       const fallbackCited = sources.slice(0, 3).map((s) => s.n);
-      const followUps = await generateFollowUps(env, question, citedEvidenceFallback(sources), sources);
       return reply(request, env, {
         answer: citedEvidenceFallback(sources),
         sources: sources.map(({ text: _text, ...source }) => source),
@@ -427,12 +458,12 @@ async function chat(request: Request, env: Env) {
         modelFallback: true,
         responseState: "synthesis_invalid",
         citedIndices: fallbackCited,
-        followUps,
+        followUps: [],
         ...(searchQuery !== question ? { searchQuery } : {}),
       });
     }
-    const citedIndices = [...new Set(citations)];
-    const followUps = await generateFollowUps(env, question, answer, sources);
+    const citedIndices = citationValidation.indices;
+    const followUps = await generateFollowUps(env, question, answer, sources, sourceMode, episodeId);
     return reply(request, env, {
       answer,
       sources: sources.map(({ text: _text, ...source }) => source),

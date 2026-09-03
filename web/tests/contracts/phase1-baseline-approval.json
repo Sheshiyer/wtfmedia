@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "status": "approved",
-  "approval_scope": "ask-wtf-cloudflare-service-binding-source-mode-local-fallbacks-and-episode-scope",
-  "owner_approval_ref": "owner-explicit-production-approval-2026-08-31-episode-scoped-ask-wtf",
+  "approval_scope": "ask-wtf-alpha-evidence-skills-timestamp-provenance-and-stateless-retry",
+  "owner_approval_ref": "owner-explicit-alpha-execution-approval-2026-09-03-no-intermediate-hitl",
   "manifest_path": "web/tests/contracts/phase1-compatibility-manifest.json",
-  "manifest_sha256": "b07fab99f71d88cedc69bbe360581e8ecd41ada2a6b0950ce55f88ecd3a63093",
-  "base_sha": "fef9dedd5c90dea242af192b0c6d543ed6de40e3",
+  "manifest_sha256": "94b9d27b7057dc4487d3695b931b13bfb4569c627df58e7b4127755648adb629",
+  "base_sha": "e33156873fbede8f700f38cba0dafaff8a937abc",
   "approved_protected_hashes": [
     {
       "path": "web/app/layout.tsx",
@@ -29,7 +29,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "080b2ff325a3a4694dfe529f4a25047a5cd88ad242dbd2623c14583f75eebc0c"
+      "sha256": "642279fd30c103423015076f8ed1de882d211ead3b1eb69ac909356e8491082e"
     }
   ],
   "streaming_contract": {

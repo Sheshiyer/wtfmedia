@@ -35,11 +35,16 @@ function ChatInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, autoSubmitted, messages.length]);
 
-  async function sendWithQuery(query: string) {
+  async function sendWithQuery(
+    query: string,
+    options: { history?: Message[]; appendUser?: boolean } = {},
+  ) {
     if (loading) return;
 
     const userMessage: Message = { role: "user", content: query };
-    setMessages((prev) => [...prev, userMessage]);
+    const history = options.history ?? messages;
+    const requestMessages = options.appendUser === false ? history : [...history, userMessage];
+    setMessages(requestMessages);
     setInput("");
     setLoading(true);
 
@@ -48,7 +53,7 @@ function ChatInner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [...messages, userMessage].map((m) => ({
+          messages: requestMessages.map((m) => ({
             role: m.role,
             content: m.content,
           })),
@@ -161,15 +166,12 @@ function ChatInner() {
     if (lastUserIdx === -1) return;
 
     const lastUserMessage = [...messages].reverse()[lastUserIdx];
-    // Remove last assistant message
-    setMessages((prev) => {
-      const updated = [...prev];
-      if (updated[updated.length - 1]?.role === "assistant") {
-        updated.pop();
-      }
-      return updated;
+    const userIndex = messages.length - 1 - lastUserIdx;
+    const historyThroughUser = messages.slice(0, userIndex + 1);
+    await sendWithQuery(lastUserMessage.content, {
+      history: historyThroughUser,
+      appendUser: false,
     });
-    await sendWithQuery(lastUserMessage.content);
   }
 
   return (

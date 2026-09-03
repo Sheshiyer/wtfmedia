@@ -1618,3 +1618,65 @@ commit `8c09815` on the canonical production resources.
   six published sources.
 - `/ops/settings` remained Cloudflare Access protected with HTTP 302; Beta
   authentication/history was not activated or changed by this promotion.
+
+## 2026-09-03 Alpha Ask WTF evidence-skill correction
+
+**Scope:** repository-local anonymous Alpha chat retrieval, synthesis,
+follow-up suggestions, citation timing truth, and retry integrity. This
+checkpoint is not a production deployment receipt.
+
+- The Worker now has three executable runtime policy modules: WTF OS
+  conversation, Published YouTube evidence, and Approved Uncut evidence. One
+  coordinator computes a search embedding once and makes independent
+  pre-top-K Vectorize calls for every enabled source mode before existing
+  source balancing runs.
+- Suggested questions are generated from bounded retrieved excerpts and each
+  candidate is sent through the same source-scoped retrieval threshold before
+  it can appear. Weak retrieval, abstention, and invalid model synthesis return
+  no suggestions. Literal placeholders such as `[N]` invalidate synthesis even
+  when another numeric citation is present.
+- Named multi-entity questions retain answer-bearing chunks from the strongest
+  matching episode instead of keeping only the chunk that repeats every name.
+  This addresses the observed duplicate/unanswerable Martin Escobari
+  suggestion path without loosening episode or source filters.
+- Published and uncut timing remain separate. New ingest metadata records a
+  source-native timestamp status and origin; public projection exposes only a
+  fixed safe status/reason. An untimed published result opens the full YouTube
+  episode without a seek parameter, and uncut never borrows that coordinate.
+- The reproduced Bangalore-traffic candidates `LqSEfz4YUFA` and
+  `fEUoJSTYtyc` have published transcript text but no published timestamp JSON
+  sidecars. Their unavailable timestamp is therefore truthful ingestion
+  provenance, not a source-panel rendering loss. Exact times require approved
+  sidecars and a separately authorized re-ingest.
+- Retrying now reuses history through the existing user turn and replaces the
+  assistant answer; it does not duplicate the question in the UI or request.
+- `/api/chat` remains anonymous, stateless, and server-authenticated to the
+  existing edge Worker. No user identity, conversation database, provider,
+  Worker, index, queue, database, bucket, binding, or durable dependency was
+  added.
+
+### Verification
+
+- Cloudflare Worker suite: 169/169 passed.
+- Web unit and contract suites: 75/75 and 85/85 passed.
+- Alpha chat Playwright journey: 22/22 passed, including published timing
+  absence, both-source timelines, and no-duplicate retry.
+- Web strict typecheck, lint, privacy scan, and production build passed; the
+  privacy scan found zero violations across 284 bounded files and the build
+  generated 69/69 static pages.
+- Wrangler deployment dry-run compiled a 168.65 KiB Worker using only the
+  existing KV, queue, D1, Vectorize, R2, Workers AI, and environment bindings.
+- A non-gating whole-repository browser sweep reported 210 passed, 19 failed,
+  and 8 skipped. The failures are existing stale compact-composer selectors,
+  episode fixture expectations, and responsive/operator navigation selectors
+  outside this evidence slice; the focused Alpha chat acceptance remains
+  green and the broad suite is not claimed as passing.
+
+### Held boundaries
+
+- No push, merge, deployment, DNS or secret change, asset upload, live ingest,
+  queue replay, corpus expansion, or other external mutation occurred.
+- Existing untimed published vectors were not guessed or rewritten. Adding
+  exact times remains a separate source-acquisition and re-ingest task.
+- Beta authentication, per-email history, and operator context were not added
+  to anonymous Alpha.

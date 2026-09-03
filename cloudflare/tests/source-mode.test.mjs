@@ -28,6 +28,36 @@ describe("dual-source chat contract", () => {
     assert.deepEqual(matches.map((match) => match.id), ["target-1", "target-2"]);
   });
 
+  test("retains answer-bearing chunks that match any explicit named entity", () => {
+    const matches = prioritizeMatchesForQuestion([
+      {
+        id: "intro-with-both",
+        score: 0.94,
+        metadata: {
+          video_id: "abcdefghijk",
+          title: "Martin Escobari at General Atlantic",
+          text: "An introduction to General Atlantic.",
+        },
+      },
+      {
+        id: "answer-with-guest",
+        score: 0.91,
+        metadata: {
+          video_id: "abcdefghijk",
+          title: "Martin Escobari: Trauma, Chaos & Three Industries Worth $100B",
+          text: "The answer-bearing discussion names the three industries.",
+        },
+      },
+      {
+        id: "unrelated",
+        score: 0.99,
+        metadata: { video_id: "lmnopqrstuv", title: "Another guest and another fund" },
+      },
+    ], "What industries did Martin Escobari discuss, and how do they relate to General Atlantic?");
+
+    assert.deepEqual(matches.map((match) => match.id), ["intro-with-both", "answer-with-guest"]);
+  });
+
   test("falls back to all matches when a named person has no evidence anchor", () => {
     const matches = [
       { id: "wrong", score: 0.99, metadata: { title: "Nikhil Kamath x Neal Mohan" } },
@@ -55,15 +85,19 @@ describe("dual-source chat contract", () => {
     assert.equal(parseEpisodeId(undefined), null);
   });
 
-  test("episode-scoped vector queries filter before topK selection", () => {
-    assert.deepEqual(buildVectorQueryOptions("RSB58m7Xwhg"), {
+  test("source and episode scoped vector queries filter before topK selection", () => {
+    assert.deepEqual(buildVectorQueryOptions("RSB58m7Xwhg", "published"), {
       topK: 48,
       returnMetadata: "all",
-      filter: { video_id: { $eq: "RSB58m7Xwhg" } },
+      filter: {
+        source_mode: { $eq: "published" },
+        video_id: { $eq: "RSB58m7Xwhg" },
+      },
     });
-    assert.deepEqual(buildVectorQueryOptions(null), {
+    assert.deepEqual(buildVectorQueryOptions(null, "uncut"), {
       topK: 48,
       returnMetadata: "all",
+      filter: { source_mode: { $eq: "uncut" } },
     });
   });
 
@@ -163,6 +197,8 @@ describe("dual-source chat contract", () => {
     assert.equal(published[0].sourceMode, "published");
     assert.equal(published[0].start, 120);
     assert.equal(published[0].mappingStatus, "mapped");
+    assert.equal(published[0].timestampStatus, "verified");
+    assert.equal(published[0].timestampReason, null);
 
     const uncut = filterAndProjectMatches(matches, "uncut", 0.45);
     assert.equal(uncut.length, 1);
@@ -170,6 +206,8 @@ describe("dual-source chat contract", () => {
     assert.equal(uncut[0].start, 480);
     assert.notEqual(uncut[0].start, published[0].start);
     assert.equal(uncut[0].mappingStatus, "mapped");
+    assert.equal(uncut[0].timestampStatus, "verified");
+    assert.equal(uncut[0].timestampReason, null);
     assert.equal(uncut[0].url, "uncut:private-asset-a");
     assert.equal(published[0].url.includes("youtube.com"), true);
     assert.equal(uncut[0].url.startsWith("http"), false);
@@ -267,6 +305,28 @@ describe("dual-source chat contract", () => {
     assert.equal(citation?.start, null);
     assert.equal(citation?.timestamped, false);
     assert.equal(citation?.mappingStatus, "unavailable");
+  });
+
+  test("untimed published citations explain missing native timing without a seek parameter", () => {
+    const citation = projectDualSourceCitation({
+      id: "pub-untimed",
+      score: 0.84,
+      metadata: {
+        video_id: "abcdefghijk",
+        title: "Published transcript without a timing sidecar",
+        source_mode: "published",
+        timestamp_status: "source_timing_unavailable",
+        timestamp_origin: "none",
+      },
+    }, "published", 0);
+
+    assert.equal(citation?.timestampStatus, "source_timing_unavailable");
+    assert.equal(
+      citation?.timestampReason,
+      "This published transcript was ingested without timestamp data; the link opens the full episode.",
+    );
+    assert.equal(citation?.url, "https://www.youtube.com/watch?v=abcdefghijk");
+    assert.equal(citation?.url.includes("&t="), false);
   });
 
   test("uncut with no uncut corpus uses published YouTube and does not relabel it", () => {
