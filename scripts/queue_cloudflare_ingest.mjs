@@ -24,7 +24,7 @@ const jobs = episodes.map((episode) => {
     contentHash: contentHash.digest("hex"),
   };
 });
-const response = await fetch("https://wtfmedia-edge.sheshnarayan-iyer.workers.dev/v1/admin/enqueue", {
+const response = await fetch("https://wtfmedia-edge.connect2nikhai.workers.dev/v1/admin/enqueue", {
   method: "POST",
   headers: { "content-type": "application/json", "x-ingest-token": token },
   body: JSON.stringify({ jobs }),
