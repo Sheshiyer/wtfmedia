@@ -1680,3 +1680,33 @@ checkpoint is not a production deployment receipt.
   exact times remains a separate source-acquisition and re-ingest task.
 - Beta authentication, per-email history, and operator context were not added
   to anonymous Alpha.
+
+## 2026-09-04 Alpha episode-duration contrast correction
+
+**Scope:** repository-local Alpha episode-card presentation only. This
+checkpoint is not a production deployment receipt.
+
+- The duration chip now forces the semantic `text-on-structure` foreground so
+  the themed global `.chip` rule cannot replace its light inverse text with
+  dark primary text on the dark structural fill.
+- The Episodes Playwright journey now reads the badge's computed foreground
+  and verifies it resolves to the active inverse semantic token.
+
+### Verification
+
+- The new browser regression failed before the fix with computed foreground
+  `rgb(26, 26, 26)` instead of `rgb(255, 246, 234)`, then passed after the
+  scoped class correction.
+- A fresh 480px Chromium render showed `1H 13M` visibly in cream on the black
+  duration badge; computed colors were cream `rgb(255, 246, 234)` on black
+  `rgb(26, 26, 26)`.
+- Strict typecheck, lint, and the five-test WTF OS token contract passed.
+- The complete Episodes journey run passed 9/10. Its existing indexed-uncut
+  fixture expectation still fails independently; it is the previously
+  recorded episode-fixture failure outside this presentation slice.
+
+### Held boundaries
+
+- No push, merge, deployment, DNS, secret, corpus, ingest, or external state
+  change occurred.
+- Root `main` and its unrelated dirty work remain untouched.

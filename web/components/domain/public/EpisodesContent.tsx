@@ -78,7 +78,7 @@ function EpisodeSelectCard({
           sizes={compact ? "300px" : "(min-width: 1280px) 28vw, (min-width: 768px) 44vw, 300px"}
           className="object-cover"
         />
-        <span className="absolute bottom-2 right-2 chip bg-surface-structure text-on-structure">
+        <span className="absolute bottom-2 right-2 chip bg-surface-structure !text-on-structure">
           {fmtDuration(episode.duration)}
         </span>
       </div>
