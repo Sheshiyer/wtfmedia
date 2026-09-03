@@ -88,6 +88,9 @@ tokens or credentials:
 - A headless browser reached the public staging home and chat, while the
   protected settings navigation ended at the Cloudflare Access login route.
 - Production public `/` and `/chat`: HTTP 200 read-only probe.
+- Public Alpha Playwright probe waited for hydration (`networkidle`): home
+  rendered 11 headings, `/chat` rendered 2 headings, and neither exposed an
+  authenticated-chat thread.
 
 The live authenticated session, logout/reauthentication continuity, and
 operator settings readback still require an interactive Access login. No
@@ -98,8 +101,7 @@ those rows remain explicitly open rather than inferred from local headers.
 
 - Staging deployment authorization: exercised by the current owner request.
 - Evidence-packet owner approval: pending explicit owner review.
-- Integration PR: open only after this packet and the final checks are
-  committed.
+- Integration PR: #46 is open from `codex/beta-consolidation`.
 - Merge: blocked until the interactive authenticated matrix is completed,
   owner approval is recorded, PR checks are green, and the public Alpha
   invariance probe passes.

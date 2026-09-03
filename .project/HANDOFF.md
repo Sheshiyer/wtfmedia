@@ -1606,5 +1606,7 @@ migration, data, secret, DNS, or ingest payload mutation was performed.
 Full evidence is in
 `.planning/inputs/2026-09-03-beta-consolidation-evidence.md`. Interactive
 Access login is still required for live session continuity, logout/reauth,
-authenticated settings readback, and owner approval. Do not merge until those
-rows are completed, PR checks are green, and public Alpha invariance passes.
+authenticated settings readback, and owner approval. PR #46 is open. The
+hydrated public Alpha Playwright probe passed against `wtfhq.in` for `/` and
+`/chat`; do not merge until the remaining authenticated rows are completed,
+PR checks are green, and that public invariance result remains green.
