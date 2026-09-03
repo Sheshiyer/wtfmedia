@@ -1610,3 +1610,30 @@ authenticated settings readback, and owner approval. PR #46 is open. The
 hydrated public Alpha Playwright probe passed against `wtfhq.in` for `/` and
 `/chat`; do not merge until the remaining authenticated rows are completed,
 PR checks are green, and that public invariance result remains green.
+
+## 2026-09-03 Beta consolidation UI and Alpha-preserving production cut
+
+The Beta settings surface now projects sessions/history policy, disabled memory
+governance, read-only RAG/source receipts, and protected operator-administration
+readbacks from the reviewed `codex/beta-consolidation` branch. The existing
+Access-to-edge context bridge is included so a verified session can hydrate the
+server-rendered operator shell without trusting browser state.
+
+The production code cut was deliberately Alpha-preserving: edge version
+`1bd58a00-edbf-4c1e-a60d-fdc236ab5190` and web version
+`3628cc71-e743-4dcc-bd5e-e9416ea560a5` were deployed with Beta remaining
+server-disabled. Production has no operator secret set or production release
+manifest activation, so no authenticated Beta session or release mutation was
+enabled by this deployment.
+
+### Verification
+
+- Web unit: 86/86; contracts: 86/86; typecheck, lint, Next build, OpenNext
+  build, and privacy scan passed.
+- Cloudflare Worker suite: 176/176 passed.
+- Non-browser live probes after deployment: public `/` and `/chat` returned
+  200, malformed public `/api/chat` returned 400, `/ops/settings` returned
+  Access 302, and unauthenticated operator-context access returned 404.
+- The user-requested no-Playwright constraint was honored locally. The GitHub
+  Phase 1 aggregate was canceled after its Playwright step began; Phase 2 and
+  architecture checks passed. PR #46 remains open and unmerged.
