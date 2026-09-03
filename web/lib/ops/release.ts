@@ -7,14 +7,18 @@ export const authenticatedChatReleaseStates = [
   "stable",
   "rolled_back",
 ] as const;
+export const authenticatedChatReleaseTracks = ["alpha", "beta"] as const;
 
 export type AuthenticatedChatReleaseState =
   (typeof authenticatedChatReleaseStates)[number];
+export type AuthenticatedChatReleaseTrack =
+  (typeof authenticatedChatReleaseTracks)[number];
 export type ReleaseEnvironment = "local" | "staging" | "production";
 export type ReleaseControlRole = "super_admin" | "admin" | "editor" | "public_link";
 
 export type AuthenticatedChatRelease = {
   state: AuthenticatedChatReleaseState;
+  track: AuthenticatedChatReleaseTrack;
   environment?: ReleaseEnvironment;
   updatedAt?: string;
 };
@@ -49,6 +53,13 @@ function isReleaseEnvironment(value: unknown): value is ReleaseEnvironment {
   return value === "local" || value === "staging" || value === "production";
 }
 
+function isReleaseTrack(value: unknown): value is AuthenticatedChatReleaseTrack {
+  return (
+    typeof value === "string" &&
+    (authenticatedChatReleaseTracks as readonly string[]).includes(value)
+  );
+}
+
 /**
  * Parse the small server DTO without allowing an arbitrary response to become
  * a rollout decision. The nested `release` form is accepted for compatibility
@@ -73,8 +84,12 @@ export function parseAuthenticatedChatRelease(
   const updatedAt = candidate.updatedAt ?? candidate.updated_at;
   if (updatedAt !== undefined && typeof updatedAt !== "string") return null;
 
+  const track = candidate.track ?? candidate.releaseTrack ?? candidate.release_track ?? "alpha";
+  if (!isReleaseTrack(track)) return null;
+
   return {
     state,
+    track,
     ...(environment === undefined ? {} : { environment }),
     ...(updatedAt === undefined ? {} : { updatedAt }),
   };
@@ -125,8 +140,8 @@ export async function getAuthenticatedChatRelease(): Promise<AuthenticatedChatRe
   return readReleaseResponse(response);
 }
 
-export async function setAuthenticatedChatRelease(
-  state: AuthenticatedChatReleaseState,
+async function postAuthenticatedChatRelease(
+  body: Record<string, AuthenticatedChatReleaseState | AuthenticatedChatReleaseTrack>,
 ): Promise<AuthenticatedChatRelease> {
   const response = await fetch(AUTHENTICATED_CHAT_RELEASE_ENDPOINT, {
     method: "POST",
@@ -136,7 +151,19 @@ export async function setAuthenticatedChatRelease(
       accept: "application/json",
       "content-type": "application/json",
     },
-    body: JSON.stringify({ state }),
+    body: JSON.stringify(body),
   });
   return readReleaseResponse(response);
+}
+
+export async function setAuthenticatedChatRelease(
+  state: AuthenticatedChatReleaseState,
+): Promise<AuthenticatedChatRelease> {
+  return postAuthenticatedChatRelease({ state });
+}
+
+export async function setAuthenticatedChatReleaseTrack(
+  track: AuthenticatedChatReleaseTrack,
+): Promise<AuthenticatedChatRelease> {
+  return postAuthenticatedChatRelease({ track });
 }

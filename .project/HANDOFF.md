@@ -1,5 +1,39 @@
 # Project handoff
 
+## 2026-09-03 Alpha production baseline / Beta lane separation (local, activation held)
+
+**Status:** DOCX Alpha slice and the narrow server-governed Alpha/Beta track
+control are integrated locally on `codex/alpha-production`; the shared
+checkout's unrelated uncommitted ISA/architecture refresh remains preserved.
+
+- Alpha is the anonymous public production-aligned line. It carries the
+  bottom-anchored Ask WTF composer, structured Markdown/GFM answers, exact
+  public episode citation targets, and the minimal source-mode compatibility
+  repairs from the DOCX feedback implementation.
+- Beta is the protected authenticated lane. It retains Cloudflare Access
+  identity, D1 operator-owned history, RAG source metadata and citations,
+  separate history-versus-memory boundaries, protected conversation routes,
+  and admin/super-admin visibility and archive/export policy.
+- Added the narrow `0008_release_track.sql` contract and settings UI selector.
+  Alpha is the safe legacy hold; Beta can enable protected chat only when the
+  server lifecycle is `preview` or `stable`. Track selection is audited and
+  server-governed; it cannot change public `/chat` or `/api/chat`.
+- The divergent `codex/alpha-beta-release-track` branch was not merged
+  wholesale. Its remaining files stay preserved for selective comparison.
+- No production deploy, remote D1 migration, Access mutation, secret/cache
+  change, DNS change, queue mutation, or data mutation occurred.
+
+### Verification and next gate
+
+- Integrated Cloudflare suite: 171/171 passed after installing only ignored
+  local dependencies in the new worktree.
+- The web unit, contract, typecheck, lint, build, and browser matrix remain
+  the final integrated-candidate checks.
+- Beta next requires isolated staging resources and signed-in browser proof
+  for history continuity, RAG grounding/source metadata, admin visibility,
+  and `paused -> preview -> stable -> paused` plus rollback. Live activation
+  remains held.
+
 ## 2026-09-03 Phase 1 feedback implementation wave (isolated, ready for review)
 
 **Status:** DOCX-derived FB-01 and FB-03 changes are implemented and locally

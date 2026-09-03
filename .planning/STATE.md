@@ -37,7 +37,9 @@ Plan: 12 of 12
 Status: Complete — Staging authorized, preflight executed, owner approval bound, read-only production smoke verified
 Last activity: 2026-09-01 — bounded episode-scoped production receipt reconciled; no Phase 3 plan activated
 
-Current local wave: compatibility and bounded local 03-07 implementation.
+Current local wave: Alpha production-baseline promotion is locally integrated;
+Beta remains the separately gated 03-07 authenticated history, RAG, memory
+boundary, and admin-control continuation.
 Owner approval permits isolated local fixes, focused tests, additive
 authenticated conversation scaffolding, and the local/staging release-control
 slice. The owner has set the 30-day
@@ -51,6 +53,13 @@ maps the owner-provided Phase 1 review into scoped UI, error/navigation,
 account-history, published/uncut correlation, and visual-reference work. It is
 planning-only; no shared credential, public-shell replacement, or production
 mutation is authorized by that document.
+
+Release-lane overlay: `.planning/inputs/2026-09-03-alpha-production-beta-lane.md`.
+The DOCX-derived FB-01/FB-03 slice is the Alpha production-aligned baseline;
+the server-governed Alpha/Beta track selector and explicit Beta gate are
+additive. Beta keeps the existing Access, D1 history, RAG provenance, separate
+memory boundary, and admin projection work. The local integration does not
+deploy, migrate, or mutate Cloudflare production.
 
 The staging test strategy is now explicit: a protected UI toggle projects an
 audited server release manifest with `paused`, `preview`, `stable`, and
