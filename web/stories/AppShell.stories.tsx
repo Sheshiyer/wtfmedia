@@ -66,11 +66,20 @@ export const OperatorProjection: Story = {
     nextjs: { appDirectory: true, navigation: { pathname: "/ops/operators" } },
   },
   play: async ({ canvasElement }) => {
-    const links = Array.from(canvasElement.querySelectorAll("nav a")).map(
+    const headerNavigation = canvasElement.querySelector("#wtf-application-navigation");
+    const bottomNavigation = canvasElement.querySelector("#wtf-bottom-navigation");
+    const headerLinks = Array.from(headerNavigation?.querySelectorAll("a") ?? []).map(
       (link) => link.textContent?.trim(),
     );
-    if (links.join("|") !== "control room|operators|audit") {
-      throw new Error(`Unexpected operator projection: ${links.join("|")}`);
+    if (headerLinks.join("|") !== "control room|operators|audit") {
+      throw new Error(`Unexpected operator header projection: ${headerLinks.join("|")}`);
+    }
+    if (
+      !bottomNavigation ||
+      bottomNavigation.querySelectorAll("a").length !== 4 ||
+      !bottomNavigation.querySelector("[data-bottom-wordmark]")
+    ) {
+      throw new Error("Operator bottom navigation must mirror destinations and include the WTF OS wordmark");
     }
   },
 };
