@@ -234,6 +234,7 @@ describe("dual-source chat contract", () => {
         source_mode: "uncut",
       },
     }, "uncut", 0), null);
+  });
 
   test("preserves the approved Frame.io URL for uncut source identity", () => {
     const citation = projectDualSourceCitation(
@@ -246,6 +247,7 @@ describe("dual-source chat contract", () => {
           start: 95,
           timestamped: true,
           source_mode: "uncut",
+          source_asset_id: "hash",
           frameIoFinalEpUrl: "https://f.io/0I8LmYs9",
         },
       },

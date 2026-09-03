@@ -20,11 +20,9 @@ export default function SettingsPage() {
         accent="information"
       />
       <div className="mx-auto max-w-[var(--wtf-content-max)] px-4 py-8 sm:px-8 xl:px-12">
-        {context.role !== "public_link" && (
-          <div className="overflow-hidden rounded-panel border-2 border-foreground">
-            <OperatorContextStrip context={context} />
-          </div>
-        )}
+        <div className="overflow-hidden rounded-panel border-2 border-foreground">
+          <OperatorContextStrip context={context} />
+        </div>
         <div className="mt-6">
           <ReleaseControl />
         </div>

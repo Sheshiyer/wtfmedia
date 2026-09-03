@@ -12,9 +12,9 @@ import {
   type Operator,
   type AuditAction,
   type DB,
-} from "./db";
-import { handleOpsRequest, type OpsEnv } from "./ops-router";
-import { allowCalendarRequest, handleCalendarRequest } from "./calendar";
+} from "./db.ts";
+import { handleOpsRequest, type OpsEnv } from "./ops-router.ts";
+import { allowCalendarRequest, handleCalendarRequest } from "./calendar.ts";
 import {
   buildVectorQueryOptions,
   extractNamedEntityPhrases,
@@ -22,20 +22,20 @@ import {
   parseSourceMode,
   prioritizeMatchesForQuestion,
   resolveEpisodeScopedSources,
-} from "./chat/source-mode";
+} from "./chat/source-mode.ts";
 import {
   ingestStateKey,
   parseJobSourceMode,
   resolveCatalogueJobIdentity,
   vectorRecordId,
   vectorSourceRef,
-} from "./catalogue/asset-map";
+} from "./catalogue/asset-map.ts";
 import {
   admitTranscriptJobs,
   assertCatalogueJobSourceAsset,
   type TranscriptJob,
-} from "./catalogue/job-admission";
-import { extractTimestampLines } from "./catalogue/timestamps";
+} from "./catalogue/job-admission.ts";
+import { extractTimestampLines } from "./catalogue/timestamps.ts";
 
 export interface Env extends OpsEnv {
   AI: any;

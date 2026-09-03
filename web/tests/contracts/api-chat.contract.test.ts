@@ -233,7 +233,7 @@ describe("POST /api/chat — upstream failure branches", () => {
 describe("POST /api/chat — successful upstream answer", () => {
   it("preserves an approved Frame.io URL for uncut citations", async () => {
     const { POST } = await importRoute();
-    const res = await POST(chatRequest({ messages: [userMessage(triggerQuestion("uncut-frameio"))], sourceMode: "uncut" }));
+    const res = await POST(chatRequest({ messages: [userMessage(triggerQuestion("uncut-frame-io"))], sourceMode: "uncut" }));
     expect(res.status).toBe(200);
     const sources = JSON.parse(decodeURIComponent(res.headers.get("X-Sources")!));
     expect(sources[0].url).toBe("https://f.io/0I8LmYs9");

@@ -37,5 +37,46 @@
   },
   "d1_databases": [
     { "binding": "DB", "database_name": "wtfmedia-ops", "database_id": "1becf8fa-37e3-49f0-9d7c-9bc91b588466" }
-  ]
+  ],
+  "env": {
+    "staging": {
+      "name": "wtfmedia-edge-staging",
+      "vars": {
+        "ALLOWED_ORIGIN": "https://wtfmedia-web-staging.connect2nikhai.workers.dev",
+        "RATE_LIMIT_PER_MINUTE": "20",
+        "OPS_HOSTNAME": "wtfmedia-web-staging.connect2nikhai.workers.dev",
+        "OPS_ORIGIN": "https://wtfmedia-web-staging.connect2nikhai.workers.dev",
+        "OPS_ENVIRONMENT": "staging",
+        "ACCESS_ISSUER": "https://connect2nikhai.cloudflareaccess.com"
+      },
+      "ai": { "binding": "AI" },
+      "vectorize": [
+        { "binding": "VECTORIZE", "index_name": "wtfmedia-catalogue-staging-v1" }
+      ],
+      "kv_namespaces": [
+        { "binding": "WTFMEDIA_STATE", "id": "b873c1114f524982bc05378a6b6b4217" }
+      ],
+      "r2_buckets": [
+        { "binding": "CATALOGUE", "bucket_name": "wtfmedia-catalogue-staging" }
+      ],
+      "queues": {
+        "producers": [
+          { "binding": "INGEST_QUEUE", "queue": "wtfmedia-ingest-staging" }
+        ],
+        "consumers": [
+          {
+            "queue": "wtfmedia-ingest-staging",
+            "max_batch_size": 1,
+            "max_concurrency": 1,
+            "max_batch_timeout": 30,
+            "max_retries": 5,
+            "dead_letter_queue": "wtfmedia-ingest-staging-dlq"
+          }
+        ]
+      },
+      "d1_databases": [
+        { "binding": "DB", "database_name": "wtfmedia-ops-staging", "database_id": "441f29af-9ac9-4a37-88bf-481a17d2f343" }
+      ]
+    }
+  }
 }
