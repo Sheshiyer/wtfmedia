@@ -77,6 +77,7 @@ function protectedPath(pathname: string): string | null {
   if (pathname === "/ops/chat" || pathname.startsWith("/ops/chat/")) return pathname;
   if (pathname === "/ops/api/chat" || pathname.startsWith("/ops/api/chat/") || pathname === "/api/ops/chat" || pathname.startsWith("/api/ops/chat/")) return pathname;
   if (pathname === "/ops/api/release/authenticated-chat" || pathname === "/api/ops/release/authenticated-chat") return pathname;
+  if (pathname === "/ops/api/operator-context" || pathname === "/api/ops/operator-context") return pathname;
   if (/^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0-9_-]*$/u.test(pathname)) return pathname;
   if (pathname === "/ops/operators" || pathname === "/ops/audit" || pathname === "/ops/production" || pathname === "/ops/ingest" || pathname === "/ops/episodes" || pathname.startsWith("/ops/episodes/")) return pathname;
   return null;
@@ -91,6 +92,10 @@ function chatRoute(pathname: string): boolean {
 
 function releaseRoute(pathname: string): boolean {
   return pathname === "/ops/api/release/authenticated-chat" || pathname === "/api/ops/release/authenticated-chat";
+}
+
+function operatorContextRoute(pathname: string): boolean {
+  return pathname === "/ops/api/operator-context" || pathname === "/api/ops/operator-context";
 }
 
 function jsonBody(request: Request): Promise<Record<string, unknown> | null> {
@@ -343,6 +348,10 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
     });
     if (!audited) return denied();
     if (releaseRoute(url.pathname)) return releaseApi(request, env, context);
+    if (operatorContextRoute(url.pathname)) {
+      if (request.method !== "GET") return denied();
+      return Response.json(operatorContextDto(context), { headers: protectedResponseHeaders });
+    }
     if (url.pathname === "/api/ops/operators") return operatorApi(request, env, context);
     if (url.pathname === "/api/ops/audit") return auditApi(request, env, context);
     if (chatRoute(url.pathname) && (url.pathname.includes("/api/chat"))) return chatApi(request, env, context, dependencies);

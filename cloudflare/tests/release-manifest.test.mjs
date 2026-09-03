@@ -135,6 +135,21 @@ test("release endpoint is protected and GET returns the server readback", async 
   });
 });
 
+test("operator context endpoint is protected and returns only the verified context", async () => {
+  assert.deepEqual(policyForPath("/ops/api/operator-context"), ["control_room", "read"]);
+  const db = releaseDb();
+  const response = await handleOpsRequest(new Request("https://ops.local.test/ops/api/operator-context", {
+    headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-context-1" },
+  }), { ...baseEnv, DB: db }, authDependencies());
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {
+    operatorId: 7,
+    role: "super_admin",
+    environment: "staging",
+    correlationId: "corr-context-1",
+  });
+});
+
 test("only super_admin can mutate local/staging release state and every success is audited", async () => {
   for (const state of RELEASE_STATES) {
     const db = releaseDb();

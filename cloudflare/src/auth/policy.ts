@@ -37,6 +37,8 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/api/ops/chat": ["chat", "read"],
   "/ops/api/release/authenticated-chat": ["control_room", "read"],
   "/api/ops/release/authenticated-chat": ["control_room", "read"],
+  "/ops/api/operator-context": ["control_room", "read"],
+  "/api/ops/operator-context": ["control_room", "read"],
   "/ops/production": ["control_room", "read"],
   "/ops/operators": ["operators", "read"],
   "/ops/audit": ["audit", "read"],
