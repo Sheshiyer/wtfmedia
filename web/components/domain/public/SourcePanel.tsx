@@ -1,19 +1,19 @@
 /**
  * Public source citations for Ask WTF.
  *
- * Public citations can deep-link to a published YouTube moment or an approved
- * Frame.io source. Uncut playback remains unavailable until timeline alignment
- * and a trusted media projection are separately verified.
+ * Public citations can deep-link to a published YouTube moment. Uncut playback
+ * is intentionally shown as unavailable until a trusted Worker projection
+ * provides a signed asset link and verified timeline alignment.
  */
 
 "use client";
 
-import { useId, useState } from "react";
+import { useId } from "react";
 import Link from "next/link";
 import { resolveCitation } from "@/lib/provenance/catalog-mapping";
 import type { PublicSourceCitation } from "@/lib/provenance/public-source-header";
 import { formatPlaybackTimestamp } from "@/lib/provenance/useDualPlayback";
-import { filterSourcesByMode } from "@/lib/provenance/source-mode";
+import { publicEpisodeHref } from "@/lib/public/chat-citations";
 
 export type SourceCitation = PublicSourceCitation;
 
@@ -29,17 +29,26 @@ function youtubeWatchUrl(videoId: string, timeSec: number | null): string {
   return `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&t=${timestamp}s`;
 }
 
+function isApprovedFrameIoUrl(value: string | undefined): value is string {
+  if (!value?.trim()) return false;
+  try {
+    const parsed = new URL(value);
+    const hostname = parsed.hostname.toLowerCase();
+    return parsed.protocol === "https:"
+      && (hostname === "f.io" || hostname === "frame.io" || hostname.endsWith(".frame.io"));
+  } catch {
+    return false;
+  }
+}
+
 export function SourcePanel({ sources }: SourcePanelProps) {
   const citationPlaybackTitleId = useId();
   const uncutPlaybackStatusId = useId();
-  const hasPublishedSources = sources.some((source) => source.sourceMode === "published");
-  const hasUncutSources = sources.some((source) => source.sourceMode === "uncut");
-  const [visibleMode, setVisibleMode] = useState<"published" | "uncut" | "both">(() => {
-    if (hasPublishedSources && hasUncutSources) return "both";
-    if (hasUncutSources) return "uncut";
-    return "published";
-  });
-  const visibleSources = filterSourcesByMode(sources, visibleMode);
+  const hasPublishedSource = sources.some((source) => source.sourceMode !== "uncut");
+  const hasUncutSource = sources.some((source) => source.sourceMode === "uncut");
+  const hasMappedUncutSource = sources.some(
+    (source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped",
+  );
 
   if (!sources || sources.length === 0) return null;
 
@@ -51,7 +60,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
       <summary className="flex cursor-pointer select-none items-center justify-between gap-3 font-label font-bold lowercase text-foreground transition-colors hover:text-foreground">
         <span className="flex items-center gap-1.5">
           <span className="font-bold text-attention">●</span>
-          {visibleSources.length} source{visibleSources.length !== 1 ? "s" : ""} cited
+          {sources.length} source{sources.length !== 1 ? "s" : ""} cited
         </span>
         <span className="font-mono text-[10px] uppercase tracking-wider text-secondary">
           view sources
@@ -69,59 +78,57 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 sources
               </p>
               <p id={uncutPlaybackStatusId} className="mt-0.5 text-[11px] text-muted">
-                {visibleSources.some((source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped")
+                {hasMappedUncutSource
                   ? "uncut timestamps come from the response. no published time was converted."
-                  : visibleMode === "uncut"
-                    ? "uncut sources are shown here. timestamps appear only when mapped."
-                    : visibleMode === "both"
-                      ? "published and uncut sources are shown here. timestamps appear only when mapped."
-                      : "published sources are shown here. timestamps appear only when mapped."}
-            </p>
-          </div>
-            <div className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5" aria-label="source mode filter">
-              {(["published", "uncut", "both"] as const).map((mode) => {
-                const available = mode === "published"
-                  ? hasPublishedSources
-                  : mode === "uncut"
-                    ? hasUncutSources
-                    : hasPublishedSources && hasUncutSources;
-                return (
-                  <button
-                    key={mode}
-                    type="button"
-                    data-testid={`source-mode-filter-${mode}`}
-                    disabled={!available}
-                    aria-pressed={visibleMode === mode}
-                    onClick={() => setVisibleMode(mode)}
-                    className={visibleMode === mode
-                      ? "rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention"
-                      : "rounded px-2.5 py-1 text-[11px] text-muted disabled:cursor-not-allowed disabled:opacity-40"}
-                  >
-                    {mode}
-                  </button>
-                );
-              })}
+                  : hasUncutSource
+                    ? "uncut evidence is present, but no verified uncut timestamp is available."
+                    : "published moments are available. uncut stays unavailable until an uncut source is returned."}
+              </p>
+            </div>
+            <div
+              role="group"
+              aria-label="Source modes present"
+              className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5"
+            >
+              {hasPublishedSource ? (
+                <span className="rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention">
+                  published
+                </span>
+              ) : null}
+              {hasUncutSource ? (
+                <span className={hasMappedUncutSource
+                  ? "rounded bg-knowledge px-2.5 py-1 text-[11px] font-bold text-on-knowledge"
+                  : "rounded bg-surface-subtle px-2.5 py-1 text-[11px] font-bold text-secondary"}>
+                  uncut{hasMappedUncutSource ? "" : " unavailable"}
+                </span>
+              ) : (
+                <span
+                  aria-describedby={uncutPlaybackStatusId}
+                  className="rounded px-2.5 py-1 text-[11px] text-muted opacity-70"
+                >
+                  uncut unavailable
+                </span>
+              )}
             </div>
           </div>
         </section>
 
         <ul className="space-y-2.5 pl-1">
-          {visibleSources.map((source, index) => {
+          {sources.map((source, index) => {
             const resolved = resolveCitation({
               ...source,
               requestedMode: source.sourceMode ?? "published",
             });
             const videoId = resolved.youtubeVideoId;
             const label = source.title || source.episodeId || "WTF episode";
-            const episodeHref = source.episodeId
-              ? `/episodes?id=${encodeURIComponent(source.episodeId)}`
-              : null;
-            const uncutHref = source.sourceMode === "uncut" && source.url?.startsWith("https://")
-              ? source.url
-              : null;
-            const publishedHref = videoId && source.sourceMode !== "uncut"
+            const episodeHref = publicEpisodeHref(source);
+            const publishedHref = videoId
               ? youtubeWatchUrl(videoId, resolved.activeTimeSec)
               : null;
+            const uncutHref = source.sourceMode === "uncut" && isApprovedFrameIoUrl(source.url)
+              ? source.url
+              : null;
+            const playbackHref = source.sourceMode === "uncut" ? uncutHref : publishedHref;
 
             return (
               <li
@@ -145,28 +152,19 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-secondary">
-                  {resolved.activeTimeSec !== null ? (
-                    <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
-                      {`${source.sourceMode === "uncut" ? "uncut" : "published"} ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
-                    </span>
-                  ) : null}
-                  {uncutHref ? (
+                  <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
+                    {resolved.activeTimeSec === null
+                      ? `${source.sourceMode === "uncut" ? "uncut" : "published"} timestamp unavailable`
+                      : `${source.sourceMode === "uncut" ? "uncut" : "published"} ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
+                  </span>
+                  {playbackHref ? (
                     <a
-                      href={uncutHref}
+                      href={playbackHref}
                       target="_blank"
                       rel="noreferrer"
-                      className="rounded bg-surface-structure px-2 py-0.5 text-[10px] text-on-structure hover:opacity-90"
+                      className="inline-flex min-h-8 items-center rounded-control border border-foreground bg-attention px-2.5 py-1 font-label text-[10px] font-bold lowercase tracking-wide text-on-attention transition-colors hover:bg-attention/85"
                     >
-                      open Frame.io source
-                    </a>
-                  ) : publishedHref ? (
-                    <a
-                      href={publishedHref}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded bg-surface-structure px-2 py-0.5 text-[10px] text-on-structure hover:opacity-90"
-                    >
-                      open published moment
+                      {source.sourceMode === "uncut" ? "open uncut source" : "open published moment"}
                     </a>
                   ) : null}
                 </div>

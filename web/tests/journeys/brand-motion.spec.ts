@@ -6,10 +6,10 @@ import AxeBuilder from "@axe-core/playwright";
  *
  * Verifies the migrated brand effects wired into PublicShell:
  * - MigratedWordmarkMini in header (semantic tokens, not legacy WordmarkMini)
- * - Header wordmark plus application disclosure
- * - Single application navigation surface
+ * - Header wordmark plus public application disclosure
+ * - Compact bottom application dock remains part of Alpha
  * - OptionalPointerAccent (renders nothing on touch/reduced-motion)
- * - Reduced motion: navigation remains static, pointer accent hidden
+ * - Reduced motion: dock remains static, pointer accent hidden
  * - No horizontal overflow at 320/768/1440
  * - axe: no serious/critical violations
  * - Native cursor never hidden (even with pointer accent)
@@ -39,33 +39,42 @@ test.describe("brand motion journey", () => {
     await expect(page.locator("[data-wtf-os-boot]")).toHaveCount(0);
   });
 
-  // ─── Header and Navigation ────────────────────────────────────────
+  // ─── Header and Dock ───────────────────────────────────────────────
 
-  test("header owns the wordmark and application navigation", async ({ page }) => {
+  test("Alpha header owns the wordmark and application disclosure", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     const header = page.locator("header").first();
     await expect(header.getByRole("link", { name: "WTF OS" })).toBeVisible();
     await expect(header.getByRole("button", { name: "Open application navigation" })).toBeVisible();
-    await expect(header.locator('nav[aria-label="Application"]')).toBeAttached();
-    await expect(page.locator(".wtf-bottom-pill")).toHaveCount(0);
+    await expect(header.locator("#wtf-application-navigation-menu")).toBeAttached();
+
+    const dock = page.locator(".wtf-bottom-pill");
+    await expect(dock).toBeVisible();
+    await expect(dock.locator("#wtf-application-navigation")).toBeVisible();
   });
 
-  test("application disclosure keeps all destinations readable", async ({ page }) => {
+  test("Alpha disclosure keeps public destinations readable", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     const header = page.locator("header").first();
     await header.getByRole("button", { name: "Open application navigation" }).click();
-    const navigation = header.getByRole("navigation", { name: "Application" });
-    await expect(navigation).toBeVisible();
-
-    for (const label of ["control room", "production", "episode map", "settings"]) {
-      await expect(navigation.getByRole("link", { name: label, exact: true })).toBeVisible();
-    }
+    const application = header.getByRole("navigation", { name: "Application" });
+    await expect(application).toBeVisible();
 
     for (const label of ["the room", "episodes", "connections", "ask wtf"]) {
-      await expect(navigation.getByRole("link", { name: label, exact: true })).toBeVisible();
+      await expect(application.getByRole("link", { name: label, exact: true })).toBeVisible();
     }
+
+    await expect(page.locator(".wtf-bottom-pill")).toBeVisible();
+  });
+
+  test("Beta/operator shell retains the bottom menu pill", async ({ page }) => {
+    await page.goto("/ops", { waitUntil: "domcontentloaded" });
+    const dock = page.locator(".wtf-bottom-pill");
+    await expect(dock).toBeVisible();
+    await expect(dock.getByRole("navigation", { name: "Workspace" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Open operations navigation" })).toBeVisible();
   });
 
   // ─── OptionalPointerAccent ─────────────────────────────────────────
@@ -96,19 +105,12 @@ test.describe("brand motion journey", () => {
 
   // ─── Reduced motion ────────────────────────────────────────────────
 
-  test("reduced motion: application navigation has no running animation", async ({ page }) => {
+  test("reduced motion: Alpha keeps the compact bottom dock", async ({ page }) => {
     // Use Playwright's native reducedMotion emulation (not CDP)
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.getByRole("button", { name: "Open application navigation" }).click();
 
-    const animatedChildren = await page.locator('nav[aria-label="Application"]').evaluate((navigation) =>
-      Array.from(navigation.querySelectorAll<HTMLElement>("*")).filter((el) => {
-        const style = getComputedStyle(el);
-        return style.animationName !== "none";
-      }).length
-    );
-    expect(animatedChildren).toBe(0);
+    await expect(page.locator(".wtf-bottom-pill")).toBeVisible();
   });
 
   test("reduced motion: pointer accent disabled", async ({ page }) => {

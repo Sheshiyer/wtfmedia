@@ -68,22 +68,24 @@ export function WorkspaceHeader({
       className={frameClass[size]}
     >
       <div className="mx-auto max-w-[var(--wtf-content-max)]">
-        {context && (
-          <div className="mb-5 border-b border-foreground/20 pb-3 lg:fixed lg:left-56 lg:top-9 lg:z-40 lg:mb-0 lg:w-fit lg:max-w-[calc(100vw-24rem)] lg:border-b-0 lg:p-0">
-            {context}
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-6 sm:gap-y-2">
+          <div className="flex min-w-0 items-center gap-3">
+            <span
+              aria-hidden="true"
+              className={`h-1 w-8 shrink-0 border border-foreground ${accentClass[accent]}`}
+            />
+            <p className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+              {eyebrow}
+            </p>
           </div>
-        )}
+          {context && (
+            <div data-workspace-context className="min-w-0 max-w-full">
+              {context}
+            </div>
+          )}
+        </div>
         <div className="grid items-end gap-6 lg:grid-cols-[minmax(0,1fr)_auto]">
           <div className="max-w-4xl">
-            <div className="mb-4 flex items-center gap-3">
-              <span
-                aria-hidden="true"
-                className={`h-1 w-8 border border-foreground ${accentClass[accent]}`}
-              />
-              <p className="font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
-                {eyebrow}
-              </p>
-            </div>
             <h1 className={titleClass[size]}>{title}</h1>
             {summary && <p className={summaryClass[size]}>{summary}</p>}
           </div>

@@ -1,9 +1,13 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { SourcePanel, type SourceCitation } from "./SourcePanel";
 import { Button } from "@/components/ui/Button";
+import { toCitedMarkdown } from "@/lib/public/chat-citations";
 
 /**
  * ConversationThread — scrollable message region for the chat route.
@@ -28,47 +32,19 @@ export interface Message {
   abstained?: boolean;
 }
 
-function linkifyCitations(text: string): React.ReactNode[] {
-  const parts: React.ReactNode[] = [];
-  const regex = /\[([^\]]+)\]/g;
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-
-  while ((match = regex.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index));
-    }
-    const citation = match[1];
-    const episodeId = citation.replace(/^EP:/i, "").trim();
-    parts.push(
-      <Link
-        key={`${match.index}-${citation}`}
-        href={`/episodes?id=${encodeURIComponent(episodeId)}`}
-        className="underline decoration-foreground/40 transition-colors hover:decoration-foreground"
-      >
-        [{citation}]
-      </Link>,
-    );
-    lastIndex = regex.lastIndex;
-  }
-
-  if (lastIndex < text.length) {
-    parts.push(text.slice(lastIndex));
-  }
-
-  return parts;
-}
-
 export interface ConversationThreadProps {
   messages: Message[];
   loading: boolean;
   onRetry: () => void;
+  /** Optional page intro that should scroll with the conversation content. */
+  header?: ReactNode;
 }
 
 export function ConversationThread({
   messages,
   loading,
   onRetry,
+  header,
 }: ConversationThreadProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -77,7 +53,7 @@ export function ConversationThread({
   /* Auto-scroll on new messages, unless user scrolled up */
   useEffect(() => {
     if (!userScrolledUp.current) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
@@ -101,11 +77,16 @@ export function ConversationThread({
       ref={scrollContainerRef}
       className="min-h-0 flex-1 overflow-y-auto px-4 pb-60 pt-4 sm:pb-52 sm:pt-6"
       data-testid="conversation-thread"
+      tabIndex={0}
       role="log"
       aria-label="Conversation"
       aria-live="polite"
     >
-      {messages.length === 0 ? (
+      <h1 className="sr-only">ask wtf</h1>
+      {header}
+
+      <div>
+        {messages.length === 0 ? (
         <div
           className="mx-auto flex w-full max-w-5xl items-center py-4 sm:min-h-[28rem] sm:py-6"
           data-testid="empty-state"
@@ -161,7 +142,7 @@ export function ConversationThread({
             </aside>
           </div>
         </div>
-      ) : (
+        ) : (
         <div className="max-w-2xl mx-auto space-y-6">
           {messages.map((msg, i) => (
             <div key={i} className="space-y-2" data-testid={`message-${i}`}>
@@ -173,8 +154,26 @@ export function ConversationThread({
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <div className="border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary">
-                    {linkifyCitations(msg.content)}
+                  <div className="prose-chat border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        a: ({ href, children }) => href?.startsWith("/") ? (
+                          <Link
+                            href={href}
+                            className="cite"
+                          >
+                            {children}
+                          </Link>
+                        ) : (
+                          <a href={href} target="_blank" rel="noreferrer">
+                            {children}
+                          </a>
+                        ),
+                      }}
+                    >
+                      {toCitedMarkdown(msg.content, msg.sources ?? [])}
+                    </ReactMarkdown>
                   </div>
 
                   {/* Public source citations */}
@@ -209,23 +208,24 @@ export function ConversationThread({
 
           <div ref={messagesEndRef} />
         </div>
-      )}
-
-      {/* Retry bar */}
-      {messages.length > 0 &&
-        !loading &&
-        messages[messages.length - 1]?.role === "assistant" && (
-          <div className="mt-4 flex justify-center border-t-2 border-foreground/15 px-4 py-3">
-            <Button
-              onClick={onRetry}
-              variant="ghost"
-              className="text-xs"
-              data-testid="retry-button"
-            >
-              retry answer
-            </Button>
-          </div>
         )}
+
+        {/* Retry bar */}
+        {messages.length > 0 &&
+          !loading &&
+          messages[messages.length - 1]?.role === "assistant" && (
+            <div className="mt-4 flex justify-center border-t-2 border-foreground/15 px-4 py-3">
+              <Button
+                onClick={onRetry}
+                variant="ghost"
+                className="text-xs"
+                data-testid="retry-button"
+              >
+                retry answer
+              </Button>
+            </div>
+          )}
+      </div>
     </div>
   );
 }

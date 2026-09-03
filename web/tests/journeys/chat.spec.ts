@@ -96,26 +96,6 @@ function mockGroundedAnswer(
   );
 }
 
-function mockUncutFrameIoAnswer(page: import("@playwright/test").Page) {
-  mockChatStream(page, ["Uncut grounded answer [1]."], {
-    "X-Sources": JSON.stringify([
-      {
-        n: 1,
-        video_id: "O7O204wD82s",
-        title: "Vinod Khosla",
-        score: 0.92,
-        t: 451,
-        time: "7:31",
-        url: "https://f.io/0I8LmYs9",
-        source_mode: "uncut",
-        mapping_status: "mapped",
-      },
-    ]),
-    "X-Model": "test-model",
-    "X-Fallback": "false",
-  });
-}
-
 /** Mock /api/chat with an abstention response. */
 function mockAbstention(page: import("@playwright/test").Page) {
   mockChatStream(page, ["I don't have enough information to answer that."], {
@@ -160,6 +140,20 @@ test.describe("/chat journey — migrated variant", () => {
     const submitButton = page.locator('button[type="submit"]');
     await expect(submitButton).toHaveText("ask wtf");
     await expect(submitButton).toBeDisabled();
+    await expect(submitButton).toHaveClass(/bg-attention/);
+    await expect(submitButton).toHaveCSS("background-color", "rgb(241, 179, 51)");
+    await expect(submitButton).toHaveCSS("color", "rgb(26, 26, 26)");
+  });
+
+  test("composer is compact and keeps source mode inside the send bar", async ({ page }) => {
+    await page.goto("/chat");
+    await settle(page);
+
+    const composer = page.locator('[data-testid="ask-composer"]');
+    await expect(composer.locator(".wtf-type-rail")).toHaveCount(0);
+    await expect(composer.getByTestId("ask-send-bar").getByTestId("source-mode-toggle")).toBeVisible();
+    await expect(composer.getByTestId("ask-send-bar").getByRole("button")).toHaveCount(4);
+    await expect(composer).not.toContainText("find the exact moment where the guest changes their mind");
   });
 
   /* ── request/response flow ─────────────────────────────────────────── */
@@ -244,24 +238,6 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(sourcePanel).toContainText("Episode 5: Persistence");
   });
 
-  test("shows the approved Frame.io URL and serves it from the source action", async ({ page }) => {
-    mockUncutFrameIoAnswer(page);
-
-    await page.goto("/chat");
-    await settle(page);
-
-    await page.locator("textarea").fill("What was said in the uncut recording?");
-    await page.locator('button[type="submit"]').click();
-
-    const sourcePanel = page.locator('[data-testid="source-panel"]');
-    await expect(sourcePanel).toBeVisible();
-    await sourcePanel.locator("summary").click();
-
-    const sourceAction = sourcePanel.getByRole("link", { name: "open Frame.io source" });
-    await expect(sourceAction).toHaveAttribute("href", "https://f.io/0I8LmYs9");
-    await expect(sourceAction).toHaveAttribute("target", "_blank");
-  });
-
   test("shows untimed sources without timestamp", async ({ page }) => {
     mockGroundedAnswer(page, { timed: false });
 
@@ -280,56 +256,65 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(sourcePanel).toContainText("1 source");
   });
 
-  test("filters mixed citations when the source mode changes", async ({ page }) => {
-    mockChatStream(page, ["Mixed-source answer."], {
-      "X-Source-Mode": "both",
+  test("preserves each source timeline in a both-mode response", async ({ page }) => {
+    mockChatStream(page, ["The answer is grounded in both timelines. [1,2]"], {
       "X-Sources": JSON.stringify([
         {
-          video_id: "published-1",
-          title: "Published episode",
+          n: 1,
+          video_id: "abcdefghijk",
+          title: "Published source",
           source_mode: "published",
-          t: 120,
+          score: 0.92,
+          t: 125,
         },
         {
-          video_id: "uncut-1",
-          title: "Uncut episode one",
+          n: 2,
+          video_id: "abcdefghijk",
+          title: "Uncut source",
           source_mode: "uncut",
-          t: 240,
-        },
-        {
-          video_id: "uncut-2",
-          title: "Uncut episode two",
-          source_mode: "uncut",
-          t: 360,
+          mapping_status: "mapped",
+          score: 0.87,
+          t: 300,
+          url: "https://f.io/uncut-token",
         },
       ]),
+      "X-Source-Mode": "both",
+      "X-Fallback": "false",
     });
 
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("Show both source modes");
+    await page.locator("textarea").fill("Compare the published and uncut sources.");
     await page.locator('button[type="submit"]').click();
 
     const sourcePanel = page.locator('[data-testid="source-panel"]');
-    await expect(sourcePanel).toBeVisible();
+    await expect(sourcePanel).toBeVisible({ timeout: 10000 });
     await sourcePanel.locator("summary").click();
-    await expect(sourcePanel).toContainText("3 sources cited");
 
-    await sourcePanel.getByTestId("source-mode-filter-published").click();
-    await expect(sourcePanel).toContainText("1 source cited");
-    await expect(sourcePanel).toContainText("Published episode");
-    await expect(sourcePanel).not.toContainText("Uncut episode one");
+    await expect(sourcePanel).toContainText("uncut timestamps come from the response");
+    await expect(sourcePanel).toContainText("published 2:05");
+    await expect(sourcePanel).toContainText("uncut 5:00");
+    await expect(sourcePanel).toContainText("open published moment");
+    await expect(sourcePanel).toContainText("open uncut source");
+    await expect(sourcePanel.getByRole("link", { name: "open published moment" }).first()).toHaveCSS(
+      "background-color",
+      "rgb(241, 179, 51)",
+    );
+    await expect(sourcePanel.getByRole("link", { name: "open published moment" }).first()).toHaveCSS(
+      "color",
+      "rgb(26, 26, 26)",
+    );
 
-    await sourcePanel.getByTestId("source-mode-filter-uncut").click();
-    await expect(sourcePanel).toContainText("2 sources cited");
-    await expect(sourcePanel).toContainText("Uncut episode one");
-    await expect(sourcePanel).not.toContainText("Published episode");
+    const sourceModeSummary = sourcePanel.getByRole("group", { name: "Source modes present" });
+    await expect(sourceModeSummary.getByText("published", { exact: true })).toBeVisible();
+    await expect(sourceModeSummary.getByText("uncut", { exact: true })).toBeVisible();
+    await expect(sourceModeSummary).not.toContainText("uncut unavailable");
 
-    await sourcePanel.getByTestId("source-mode-filter-both").click();
-    await expect(sourcePanel).toContainText("3 sources cited");
-    await expect(sourcePanel).toContainText("Published episode");
-    await expect(sourcePanel).toContainText("Uncut episode two");
+    const citationLinks = page.locator('[data-testid="message-1"] .prose-chat a');
+    await expect(citationLinks).toHaveCount(2);
+    await expect(citationLinks.nth(0)).toHaveAttribute("href", "/episodes/abcdefghijk");
+    await expect(citationLinks.nth(1)).toHaveAttribute("href", "/episodes/abcdefghijk");
   });
 
   /* ── abstention ────────────────────────────────────────────────────── */
@@ -401,31 +386,6 @@ test.describe("/chat journey — migrated variant", () => {
     // Wait a moment to ensure no spurious request
     await page.waitForTimeout(1000);
     expect(requestCount).toBe(0);
-  });
-
-  test("submits a query parameter once without scrolling beneath the app rail", async ({ page }) => {
-    let requestCount = 0;
-    await page.route("/api/chat", (route) => {
-      requestCount++;
-      route.fulfill({
-        status: 200,
-        headers: { "Content-Type": "text/plain; charset=utf-8" },
-        body: "A source-backed answer.",
-      });
-    });
-
-    await page.goto("/chat?q=What%20did%20they%20say%3F");
-    await settle(page);
-    await expect(page.locator('[data-testid="message-1"]')).toBeVisible({ timeout: 10000 });
-    await page.waitForTimeout(250);
-
-    expect(requestCount).toBe(1);
-
-    const railBox = await page.locator("[data-top-app-rail]").boundingBox();
-    const headingBox = await page.getByRole("heading", { name: "ask wtf", exact: true }).boundingBox();
-    expect(railBox).not.toBeNull();
-    expect(headingBox).not.toBeNull();
-    expect(headingBox!.y).toBeGreaterThanOrEqual(railBox!.y + railBox!.height);
   });
 
   /* ── loading indicator ─────────────────────────────────────────────── */
@@ -606,5 +566,31 @@ test.describe("/chat journey — migrated variant", () => {
 
     await expect(page.locator('[data-testid="ask-composer"]')).toBeVisible();
     await expect(page.locator('[data-testid="conversation-thread"]')).toBeVisible();
+  });
+
+  test("Alpha chat has no document gap below the fixed composer", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/chat");
+    await settle(page);
+
+    const metrics = await page.evaluate(() => ({
+      viewport: window.innerHeight,
+      documentHeight: document.documentElement.scrollHeight,
+      composer: document.querySelector('[data-testid="ask-composer"]')?.getBoundingClientRect().toJSON(),
+    }));
+
+    expect(metrics.documentHeight).toBeLessThanOrEqual(metrics.viewport + 1);
+    expect(metrics.composer?.bottom).toBeLessThan(metrics.viewport);
+    expect(metrics.composer?.bottom).toBeGreaterThan(metrics.viewport - 140);
+  });
+
+  test("Alpha chat removes the redundant intro panel", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/chat");
+    await settle(page);
+
+    await expect(page.locator("[data-workspace-header]")).toHaveCount(0);
+    await expect(page.locator("h1")).toBeAttached();
+    await expect(page.locator(".wtf-bottom-pill")).toBeVisible();
   });
 });

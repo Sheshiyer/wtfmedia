@@ -74,9 +74,9 @@ export function MigratedHomePage() {
         primaryAction={
           <LinkButton
             href="/chat"
-            variant="secondary"
+            variant="attention"
             data-testid="cta-primary"
-            className="border-foreground bg-attention text-on-attention shadow-[4px_4px_0_var(--wtf-foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-attention hover:shadow-[6px_6px_0_var(--wtf-foreground)]"
+            className="border-foreground shadow-[4px_4px_0_var(--wtf-foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_var(--wtf-foreground)]"
           >
             ask the catalogue ↗
           </LinkButton>

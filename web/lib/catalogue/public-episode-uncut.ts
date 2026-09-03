@@ -1,14 +1,7 @@
 import { loadTitleMap } from "./load-title-map";
 import type { TitleMapRow } from "./excel-title-map";
-import { isPublicUncutActivated } from "./public-uncut-activation";
 
 export type PublicEpisodeUncutState =
-  | {
-      kind: "active";
-      label: "uncut indexed";
-      detail: string;
-      row: TitleMapRow | null;
-    }
   | {
       kind: "candidate";
       label: "uncut candidate";
@@ -45,34 +38,19 @@ function findTitleRow(publicTitle: string): TitleMapRow | null {
   const exact = table.rows.find((row) => normalizeTitle(row.title) === normalizedPublicTitle);
   if (exact) return exact;
 
-  const contained = table.rows
-    .filter((row) => {
-      const normalizedRowTitle = normalizeTitle(row.title);
-      return (
-        normalizedRowTitle.length >= 5 &&
-        normalizedPublicTitle.includes(normalizedRowTitle)
-      );
-    })
-    .sort((a, b) => b.title.length - a.title.length);
+  // Public display titles include guest/show context, so a single contained
+  // title-map anchor is acceptable; multiple anchors are ambiguous and must
+  // not select an uncut row by arbitrary title length.
+  const contained = table.rows.filter((row) => {
+    const normalizedRowTitle = normalizeTitle(row.title);
+    return normalizedRowTitle.length >= 5 && normalizedPublicTitle.includes(normalizedRowTitle);
+  });
 
-  return contained[0] ?? null;
+  return contained.length === 1 ? contained[0] : null;
 }
 
-export function resolvePublicEpisodeUncutState(
-  publicTitle: string,
-  videoId?: string,
-): PublicEpisodeUncutState {
+export function resolvePublicEpisodeUncutState(publicTitle: string): PublicEpisodeUncutState {
   const row = findTitleRow(publicTitle);
-  if (videoId && isPublicUncutActivated(videoId)) {
-    return {
-      kind: "active",
-      label: "uncut indexed",
-      detail:
-        "approved uncut transcript evidence is available to episode-scoped Ask WTF. playback and timeline alignment remain held.",
-      row,
-    };
-  }
-
   if (!row) {
     return {
       kind: "absent",

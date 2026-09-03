@@ -28,7 +28,7 @@ export function AppShell({
 
       <div data-wtf-shell="migrated" className="min-h-screen">
         <AppRail mode={mode} navigation={navigation} utility={utility} />
-        <div className="relative min-h-screen overflow-hidden pt-[calc(5.5rem+env(safe-area-inset-top))]">
+        <div className="relative min-h-screen overflow-hidden pt-[calc(4.5rem+env(safe-area-inset-top))]">
           <div
             aria-hidden="true"
             className="pointer-events-none fixed inset-0 z-0"
@@ -43,7 +43,7 @@ export function AppShell({
           <main
             id="wtf-main"
             tabIndex={-1}
-            className="relative z-10 min-h-screen focus:outline-none"
+            className="relative z-10 min-h-[calc(100vh-4.5rem-env(safe-area-inset-top))] focus:outline-none"
           >
             {children}
           </main>

@@ -4,7 +4,6 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AskComposer } from "./AskComposer";
 import { ConversationThread, type Message, type Source } from "./ConversationThread";
-import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
 import { parsePublicSourceHeader } from "@/lib/provenance/public-source-header";
 import { parseSourceMode, type SourceMode } from "@/lib/provenance/source-mode";
 
@@ -69,9 +68,6 @@ function ChatInner() {
 
       const sources: Source[] = parsePublicSourceHeader(sourcesHeader).map((source) => ({
         ...source,
-        // Keep the per-source mode from X-Sources when present. The response
-        // mode can describe a fallback or mixed result and must not relabel
-        // published evidence as uncut (or vice versa).
         sourceMode: source.sourceMode ?? responseSourceMode,
       }));
 
@@ -164,22 +160,7 @@ function ChatInner() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-canvas">
-      <WorkspaceHeader
-        eyebrow="get the moment"
-        title="ask wtf"
-        summary="ask the catalogue. quoted evidence stays beside synthesis. published and uncut stay named."
-        accent="knowledge"
-        size="page"
-        context={
-          <div className="hidden flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary sm:flex">
-            <span>{episodeId ? "episode scope" : "catalogue scope"}</span>
-            <span>source-backed answers</span>
-            <span>mapped time only</span>
-          </div>
-        }
-      />
-
+    <div className="flex h-[calc(100vh-4.5rem-env(safe-area-inset-top))] min-h-0 flex-col bg-canvas">
       {/* Conversation */}
       <ConversationThread
         messages={messages}

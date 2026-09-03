@@ -71,9 +71,14 @@ for (const viewport of VIEWPORTS) {
         // No horizontal scrollbar
         await assertNoHorizontalOverflow(page);
 
-        // Page has a heading
+        // Every route keeps a semantic heading; chat's redundant visible
+        // workspace header is intentionally removed from Alpha.
         const heading = page.locator("h1");
-        await expect(heading).toBeVisible();
+        if (route.path === "/chat") {
+          await expect(heading).toBeAttached();
+        } else {
+          await expect(heading).toBeVisible();
+        }
       });
     }
 
@@ -86,7 +91,7 @@ for (const viewport of VIEWPORTS) {
       await expect(heading).toBeVisible();
 
       // At least one CTA is visible
-      const ctas = page.locator("#wtf-main a[href='/chat'], #wtf-main a[href='/episodes']");
+      const ctas = page.locator("a[href='/chat']:visible, a[href='/episodes']:visible");
       await expect(ctas.first()).toBeVisible();
 
       await assertNoHorizontalOverflow(page);

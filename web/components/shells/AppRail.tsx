@@ -43,29 +43,32 @@ export function AppRail({
       const bIndex = primaryOrder.indexOf(b.href);
       return (aIndex === -1 ? primaryOrder.length : aIndex) - (bIndex === -1 ? primaryOrder.length : bIndex);
     });
-  const applicationNavigation = [...primaryNavigation, ...utilityNavigation];
-  const [navigationOpen, setNavigationOpen] = useState(false);
-  const navigationToggleRef = useRef<HTMLButtonElement>(null);
-  const navigationRef = useRef<HTMLElement>(null);
+  const disclosureNavigation = mode === "operator" ? utilityNavigation : primaryNavigation;
+  const disclosureId = mode === "operator"
+    ? "wtf-operations-navigation"
+    : "wtf-application-navigation-menu";
+  const [utilityOpen, setUtilityOpen] = useState(false);
+  const utilityToggleRef = useRef<HTMLButtonElement>(null);
+  const utilityNavRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    setNavigationOpen(false);
+    setUtilityOpen(false);
   }, [pathname]);
 
   useEffect(() => {
-    if (!navigationOpen) return;
+    if (!utilityOpen) return;
 
-    navigationRef.current?.querySelector<HTMLElement>("a")?.focus();
+    utilityNavRef.current?.querySelector<HTMLElement>("a")?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
-      setNavigationOpen(false);
-      navigationToggleRef.current?.focus();
+      setUtilityOpen(false);
+      utilityToggleRef.current?.focus();
     };
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target as Node | null;
-      if (target && !navigationRef.current?.contains(target) && !navigationToggleRef.current?.contains(target)) {
-        setNavigationOpen(false);
+      if (target && !utilityNavRef.current?.contains(target) && !utilityToggleRef.current?.contains(target)) {
+        setUtilityOpen(false);
       }
     };
     document.addEventListener("keydown", onKeyDown);
@@ -74,7 +77,7 @@ export function AppRail({
       document.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("pointerdown", onPointerDown);
     };
-  }, [navigationOpen]);
+  }, [utilityOpen]);
 
   const renderNavLinks = (items: readonly AppNavItem[]) =>
     items.map((item) => {
@@ -87,8 +90,8 @@ export function AppRail({
           aria-current={active ? "page" : undefined}
           data-nav-section={item.section ?? "workspace"}
           className={[
-            "group relative inline-flex min-h-11 shrink-0 items-center rounded-full border-2 px-3 py-2",
-            "font-label text-xs font-bold lowercase tracking-wide sm:text-sm",
+            "group relative inline-flex min-h-9 shrink-0 items-center rounded-full border-2 px-1.5 py-1",
+            "font-label text-[10px] font-bold lowercase tracking-wide sm:min-h-11 sm:px-3 sm:py-2 sm:text-sm",
             "transition-[background-color,color,border-color] duration-fast",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
             active
@@ -101,7 +104,7 @@ export function AppRail({
           <span
             aria-hidden="true"
             className={[
-              "mr-2 h-2 w-2 shrink-0 rounded-full border border-current",
+              "hidden h-1.5 w-1.5 shrink-0 rounded-full border border-current sm:mr-2 sm:block sm:h-2 sm:w-2",
               active
                 ? "bg-surface-structure"
                 : "bg-transparent group-hover:bg-current",
@@ -114,10 +117,7 @@ export function AppRail({
 
   return (
     <>
-      <header
-        data-top-app-rail
-        className="fixed inset-x-0 top-0 z-50 border-b border-foreground/10 bg-canvas px-3 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md sm:px-5"
-      >
+      <header className="fixed inset-x-0 top-0 z-50 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5">
         <div className="mx-auto flex max-w-[92rem] items-start justify-between gap-3">
           <Link
             href={mode === "operator" ? "/ops" : "/"}
@@ -128,14 +128,16 @@ export function AppRail({
           </Link>
           <div className="relative flex min-w-0 items-start justify-end gap-2">
             <button
-              ref={navigationToggleRef}
+              ref={utilityToggleRef}
               type="button"
-              aria-label={navigationOpen ? "Close application navigation" : "Open application navigation"}
-              aria-expanded={navigationOpen}
-              aria-controls="wtf-application-navigation"
+              aria-label={utilityOpen
+                ? `Close ${mode === "operator" ? "operations" : "application"} navigation`
+                : `Open ${mode === "operator" ? "operations" : "application"} navigation`}
+              aria-expanded={utilityOpen}
+              aria-controls={disclosureId}
               aria-haspopup="true"
               data-navigation-toggle
-              onClick={() => setNavigationOpen((open) => !open)}
+              onClick={() => setUtilityOpen((open) => !open)}
               className="mt-1 grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 border-foreground bg-surface-raised text-foreground shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
             >
               <span aria-hidden="true" className="grid gap-1">
@@ -145,25 +147,34 @@ export function AppRail({
               </span>
             </button>
             <nav
-              ref={navigationRef}
-              id="wtf-application-navigation"
-              aria-label="Application"
+              ref={utilityNavRef}
+              id={disclosureId}
+              aria-label={mode === "operator" ? "Operations" : "Application"}
               data-navigation-disclosure
-              data-state={navigationOpen ? "open" : "closed"}
-              className={`${navigationOpen ? "flex" : "hidden"} absolute right-0 top-[calc(5rem+env(safe-area-inset-top))] max-h-[calc(100dvh-6rem-env(safe-area-inset-top))] w-[min(17rem,calc(100vw-2rem))] flex-col gap-1.5 overflow-y-auto rounded-[1.75rem] border-2 border-foreground bg-surface-raised/95 p-2 shadow-[5px_5px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md`}
+              data-state={utilityOpen ? "open" : "closed"}
+              className={`${utilityOpen ? "flex" : "hidden"} absolute right-0 top-14 w-[min(15rem,calc(100vw-2rem))] flex-col gap-1.5 rounded-[1.75rem] border-2 border-foreground bg-surface-raised/95 p-2 shadow-[5px_5px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md`}
             >
-              {renderNavLinks(applicationNavigation)}
-              {utility ? (
-                <div className="mt-1 flex items-center border-t-2 border-foreground/20 px-2 pt-2">
-                  {utility}
-                </div>
-              ) : null}
+              {renderNavLinks(disclosureNavigation)}
             </nav>
           </div>
         </div>
       </header>
-      {/* The former floating bottom navigation pill is intentionally disabled.
-          The top disclosure is now the single application navigation surface. */}
+      <div className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
+        <div className="wtf-bottom-pill mx-auto flex w-fit max-w-[min(74rem,calc(100vw-1.5rem))] items-center gap-1 overflow-x-auto rounded-full border-2 border-foreground bg-surface-raised/95 px-1.5 py-1 shadow-[0_10px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md sm:gap-2 sm:px-3 sm:py-2">
+          <nav
+            id="wtf-application-navigation"
+            aria-label={mode === "operator" ? "Workspace" : "Application"}
+            className="flex min-w-max items-center gap-0.5 sm:gap-1"
+          >
+            {renderNavLinks(primaryNavigation)}
+          </nav>
+          {utility ? (
+            <div className="ml-1 flex shrink-0 items-center border-l-2 border-foreground/20 pl-2">
+              {utility}
+            </div>
+          ) : null}
+        </div>
+      </div>
     </>
   );
 }

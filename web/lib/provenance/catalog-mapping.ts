@@ -2,9 +2,9 @@
  * Public citation helpers for Ask WTF.
  *
  * This module intentionally contains no episode catalog, private provenance,
- * asset path, or alignment data. Public screens receive safe citation fields;
- * an owner-authorized Worker projection is required before Uncut playback or
- * dual-timeline alignment can be rendered.
+ * asset path, or alignment data. Public screens receive a YouTube video ID and
+ * timestamp only; an owner-authorized Worker projection is required before
+ * Uncut playback or dual-timeline alignment can be rendered.
  */
 
 import { publicTimestampForMode, type MappingStatus, type SourceMode } from "./source-mode";
@@ -150,7 +150,7 @@ function extractYouTubeVideoId(url: string | undefined): string | null {
 
 /**
  * Resolves only public citation fields. It intentionally never returns an
- * untrusted Uncut media URL, guessed alignment, or claim that a moment was cut.
+ * Uncut URL, guessed alignment, or a claim that a moment was cut.
  */
 export function resolveCitation(citation: {
   episodeId?: string;
