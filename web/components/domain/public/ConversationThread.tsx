@@ -32,21 +32,27 @@ export interface Message {
   abstained?: boolean;
   responseState?: string;
   citedIndices?: number[];
+  followUps?: string[];
 }
 
 export interface ConversationThreadProps {
   messages: Message[];
   loading: boolean;
   onRetry: () => void;
+  onFollowUp?: (question: string) => void;
   /** Optional page intro that should scroll with the conversation content. */
   header?: ReactNode;
+  /** Rendered at the bottom of the scroll area (e.g. the composer). */
+  footer?: ReactNode;
 }
 
 export function ConversationThread({
   messages,
   loading,
   onRetry,
+  onFollowUp,
   header,
+  footer,
 }: ConversationThreadProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -77,7 +83,7 @@ export function ConversationThread({
   return (
     <div
       ref={scrollContainerRef}
-      className="min-h-0 flex-1 overflow-y-auto px-4 pb-60 pt-4 sm:pb-52 sm:pt-6"
+      className="min-h-0 flex-1 overflow-y-auto px-4 pt-4 sm:pt-6"
       data-testid="conversation-thread"
       tabIndex={0}
       role="log"
@@ -192,6 +198,22 @@ export function ConversationThread({
                       the catalogue doesn&apos;t support that claim
                     </p>
                   )}
+
+                  {/* Follow-up suggestions */}
+                  {msg.followUps && msg.followUps.length > 0 && !loading && i === messages.length - 1 && (
+                    <div className="flex flex-wrap gap-2 pt-2" data-testid="follow-up-chips">
+                      {msg.followUps.map((q, fi) => (
+                        <button
+                          key={fi}
+                          type="button"
+                          onClick={() => onFollowUp?.(q)}
+                          className="rounded-full border border-foreground/20 bg-canvas px-3 py-1.5 text-left text-xs text-secondary transition-colors hover:border-knowledge hover:text-foreground"
+                        >
+                          {q}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -228,6 +250,12 @@ export function ConversationThread({
             </div>
           )}
       </div>
+
+      {/* Composer (in-flow, not fixed) */}
+      {footer}
+
+      {/* Spacer for bottom nav pill */}
+      <div className="h-[calc(5.5rem+env(safe-area-inset-bottom))]" aria-hidden="true" />
     </div>
   );
 }

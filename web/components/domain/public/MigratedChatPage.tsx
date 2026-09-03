@@ -71,6 +71,11 @@ function ChatInner() {
         const raw = response.headers.get("X-Cited-Indices");
         if (raw) citedIndices = JSON.parse(raw);
       } catch { /* ignore malformed header */ }
+      let followUps: string[] | undefined;
+      try {
+        const raw = response.headers.get("X-Follow-Ups");
+        if (raw) followUps = JSON.parse(raw);
+      } catch { /* ignore malformed header */ }
 
       const sources: Source[] = parsePublicSourceHeader(sourcesHeader).map((source) => ({
         ...source,
@@ -83,7 +88,6 @@ function ChatInner() {
       let accumulated = "";
 
       if (reader) {
-        // Add empty assistant message to fill
         setMessages((prev) => [
           ...prev,
           {
@@ -94,6 +98,7 @@ function ChatInner() {
             fallback: fallbackHeader === "true",
             responseState,
             citedIndices,
+            followUps,
           },
         ]);
 
@@ -169,21 +174,21 @@ function ChatInner() {
 
   return (
     <div className="flex h-[calc(100vh-4.5rem-env(safe-area-inset-top))] min-h-0 flex-col bg-canvas">
-      {/* Conversation */}
       <ConversationThread
         messages={messages}
         loading={loading}
         onRetry={retry}
-      />
-
-      {/* Composer */}
-      <AskComposer
-        value={input}
-        onChange={setInput}
-        onSubmit={send}
-        loading={loading}
-        sourceMode={sourceMode}
-        onSourceModeChange={setSourceMode}
+        onFollowUp={sendWithQuery}
+        footer={
+          <AskComposer
+            value={input}
+            onChange={setInput}
+            onSubmit={send}
+            loading={loading}
+            sourceMode={sourceMode}
+            onSourceModeChange={setSourceMode}
+          />
+        }
       />
     </div>
   );

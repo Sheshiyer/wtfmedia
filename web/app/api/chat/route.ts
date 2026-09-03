@@ -44,6 +44,8 @@ type EdgeAnswer = {
   error?: string;
   responseState?: ResponseState;
   citedIndices?: number[];
+  followUps?: string[];
+  searchQuery?: string;
 };
 
 function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
@@ -164,7 +166,12 @@ export async function POST(req: NextRequest) {
         "X-Client-IP": req.headers.get("cf-connecting-ip")?.trim() || "unknown",
         "X-Request-ID": crypto.randomUUID(),
       },
-      body: JSON.stringify({ question: last.content, sourceMode, ...(episodeId ? { episodeId } : {}) }),
+      body: JSON.stringify({
+        question: last.content,
+        sourceMode,
+        ...(episodeId ? { episodeId } : {}),
+        history: messages.slice(0, -1).map((m) => ({ role: m.role, content: m.content })),
+      }),
       cache: "no-store",
       signal: AbortSignal.timeout(25_000),
     }));
@@ -188,6 +195,7 @@ export async function POST(req: NextRequest) {
   const sources = Array.isArray(result.sources) ? result.sources : [];
   const responseMode = parseSourceMode(result.sourceMode ?? sourceMode);
   const citedIndices = Array.isArray(result.citedIndices) ? result.citedIndices : [];
+  const followUps = Array.isArray(result.followUps) ? result.followUps.filter((f): f is string => typeof f === "string") : [];
   return new Response(result.answer, {
     status: edge.status,
     headers: {
@@ -199,6 +207,7 @@ export async function POST(req: NextRequest) {
       "X-Fallback": result.grounded && !result.modelFallback ? "false" : "true",
       "X-Response-State": result.responseState ?? "answered_grounded",
       "X-Cited-Indices": JSON.stringify(citedIndices),
+      ...(followUps.length > 0 ? { "X-Follow-Ups": JSON.stringify(followUps) } : {}),
       "Cache-Control": "no-store",
     },
   });

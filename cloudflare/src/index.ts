@@ -57,21 +57,33 @@ const ANSWER_MODELS = [
   "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
   "@cf/meta/llama-3.1-8b-instruct-fast",
 ];
+const FAST_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
 const MAX_BODY_BYTES = 16_000;
 const MAX_QUESTION_CHARS = 2_000;
 const MAX_CHUNK_CHARS = 1_100;
+const MAX_HISTORY_TURNS = 6;
 const MIN_SCORE = 0.45;
 const UPSERT_BATCH_SIZE = 8;
 const UPSERT_ATTEMPTS = 5;
 type Passage = { text: string; start?: number };
 type TimestampLine = { t: number; x: string };
+type HistoryTurn = { role: "user" | "assistant"; content: string };
 
-const SYSTEM = `You are the WTF Media research assistant. Answer only from the supplied excerpts.
-Every factual sentence needs a matching [source] citation. A mention of a person or company does not prove
-ownership, employment, authorship, guest status, or any other relationship. Do not infer catalogue-wide counts
-from excerpts. If the excerpts do not establish the answer, say so plainly.
-When the question names a person, use only excerpts whose title or text contains that named person.
-Do not answer from semantically similar excerpts about another guest or episode.`;
+const SYSTEM = `You are the WTF Media research assistant. You answer from the supplied excerpts and maintain a natural conversation flow.
+
+GROUNDING RULES:
+- Every factual claim needs a matching [N] citation from the supplied excerpts.
+- A mention of a person or company does not prove ownership, employment, authorship, guest status, or any other relationship.
+- Do not infer catalogue-wide counts from excerpts.
+- If the excerpts do not establish the answer, say so plainly.
+- When the question names a person, use only excerpts whose title or text contains that named person.
+- Do not answer from semantically similar excerpts about another guest or episode.
+
+CONVERSATION RULES:
+- When prior conversation is provided, build on it naturally. Reference what was discussed.
+- Don't repeat information already covered unless asked to elaborate.
+- Be conversational but precise. Explain context when it adds value.
+- When connecting ideas across excerpts, make the connections explicit with citations.`;
 
 function cors(request: Request, env: Env) {
   const origin = request.headers.get("Origin");
@@ -191,6 +203,62 @@ async function rateLimit(request: Request, env: Env) {
   return true;
 }
 
+function parseHistory(raw: unknown): HistoryTurn[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((t): t is { role: string; content: string } =>
+      t && typeof t.role === "string" && typeof t.content === "string"
+      && (t.role === "user" || t.role === "assistant"),
+    )
+    .slice(-MAX_HISTORY_TURNS)
+    .map((t) => ({ role: t.role as "user" | "assistant", content: t.content.slice(0, 400) }));
+}
+
+function historyContext(history: HistoryTurn[]): string {
+  if (history.length === 0) return "";
+  return history.map((t) => `${t.role}: ${t.content}`).join("\n");
+}
+
+const NEEDS_REFORMULATION = /\b(that|this|those|these|it|they|them|he|she|his|her|the same|more about|else|also|another|previous|earlier|above|you said|you mentioned|what about|how about|and what|tell me more|go deeper|expand|elaborate)\b/i;
+
+async function reformulateQuery(env: Env, question: string, history: HistoryTurn[]): Promise<string> {
+  if (history.length === 0 || !NEEDS_REFORMULATION.test(question)) return question;
+  const ctx = history.slice(-4).map((t) => `${t.role}: ${t.content.slice(0, 200)}`).join("\n");
+  try {
+    const result = await env.AI.run(FAST_MODEL, {
+      messages: [
+        { role: "system", content: "Rewrite the follow-up question as a standalone search query. Resolve pronouns and references using the conversation. Output ONLY the rewritten query, nothing else. Keep it under 60 words." },
+        { role: "user", content: `CONVERSATION:\n${ctx}\n\nFOLLOW-UP: ${question}` },
+      ],
+      max_tokens: 80,
+      temperature: 0,
+    });
+    const text = typeof result === "string" ? result : result?.response;
+    return (typeof text === "string" && text.trim().length > 5) ? text.trim() : question;
+  } catch {
+    return question;
+  }
+}
+
+async function generateFollowUps(env: Env, question: string, answer: string, sources: Array<{ title: string }>): Promise<string[]> {
+  const topics = sources.slice(0, 3).map((s) => s.title).join("; ");
+  try {
+    const result = await env.AI.run(FAST_MODEL, {
+      messages: [
+        { role: "system", content: "Based on the Q&A and source topics, suggest exactly 3 natural follow-up questions the user might ask next. Each should explore a different angle from the retrieved content. Output one question per line, nothing else. No numbering." },
+        { role: "user", content: `Q: ${question}\nA: ${answer.slice(0, 300)}\nTopics: ${topics}` },
+      ],
+      max_tokens: 150,
+      temperature: 0.4,
+    });
+    const text = typeof result === "string" ? result : result?.response;
+    if (typeof text !== "string") return [];
+    return text.split("\n").map((l) => l.replace(/^\d+[\.\)]\s*/, "").trim()).filter((l) => l.length > 10 && l.length < 200 && l.endsWith("?")).slice(0, 3);
+  } catch {
+    return [];
+  }
+}
+
 function requiresVerifiedMetadata(question: string) {
   return /\b(?:own|owner|owns|ownership|co-?founder|founder|host|producer|created|runs)\b[\s\S]{0,100}\b(?:wtf|podcast|show|channel)\b/i.test(question)
     || /\b(?:recur(?:ring|s)?|repeat(?:s|ed|ing)?|appear(?:s|ances?|ing)?|mentioned|occur(?:s|rence)?|most)\b[\s\S]{0,100}\b(?:\d+\s*\+?\s*(?:episodes?|conversations?)|across|throughout)\b/i.test(question);
@@ -273,7 +341,7 @@ async function chat(request: Request, env: Env) {
   }
   const contentLength = Number(request.headers.get("Content-Length") || "0");
   if (contentLength > MAX_BODY_BYTES) return reply(request, env, { error: "body_too_large" }, 413);
-  let payload: { question?: unknown; sourceMode?: unknown; episodeId?: unknown };
+  let payload: { question?: unknown; sourceMode?: unknown; episodeId?: unknown; history?: unknown };
   try { payload = await request.json(); } catch { return reply(request, env, { error: "invalid_json" }, 400); }
   if (typeof payload.question !== "string" || !payload.question.trim()) {
     return reply(request, env, { error: "question_required" }, 400);
@@ -281,6 +349,7 @@ async function chat(request: Request, env: Env) {
   const question = payload.question.trim();
   const sourceMode = parseSourceMode(payload.sourceMode);
   const episodeId = parseEpisodeId(payload.episodeId);
+  const history = parseHistory(payload.history);
   if (payload.episodeId !== undefined && episodeId === null) {
     return reply(request, env, { error: "invalid_episode_id" }, 400);
   }
@@ -294,16 +363,18 @@ async function chat(request: Request, env: Env) {
       uncutUnavailable: false,
       responseState: "abstained",
       citedIndices: [],
+      followUps: [],
     });
   }
   try {
+    const searchQuery = await reformulateQuery(env, question, history);
     const matches = await env.VECTORIZE.query(
-      await vectorFor(env, question),
+      await vectorFor(env, searchQuery),
       buildVectorQueryOptions(episodeId),
     );
     const rawMatches = matches.matches ?? [];
-    const relevantMatches = prioritizeMatchesForQuestion(rawMatches, question);
-    const namedEntityQuestion = extractNamedEntityPhrases(question).length > 0;
+    const relevantMatches = prioritizeMatchesForQuestion(rawMatches, searchQuery);
+    const namedEntityQuestion = extractNamedEntityPhrases(searchQuery).length > 0;
     const resolved = resolveEpisodeScopedSources(relevantMatches, sourceMode, episodeId, MIN_SCORE, 6, {
       dedupeByEpisode: !namedEntityQuestion,
     });
@@ -327,18 +398,25 @@ async function chat(request: Request, env: Env) {
         uncutUnavailable: resolved.uncutUnavailable,
         responseState: "retrieval_weak",
         citedIndices: [],
+        followUps: [],
+        ...(searchQuery !== question ? { searchQuery } : {}),
       });
     }
-    const context = sources.map((source: any) => `[${source.n}] ${source.title}\n${source.text}`).join("\n\n---\n\n");
+    const evidenceContext = sources.map((source: any) => `[${source.n}] ${source.title}\n${source.text}`).join("\n\n---\n\n");
+    const priorContext = historyContext(history);
+    const userContent = priorContext
+      ? `PRIOR CONVERSATION:\n${priorContext}\n\nCONTEXT:\n${evidenceContext}\n\nQUESTION: ${question}`
+      : `CONTEXT:\n${evidenceContext}\n\nQUESTION: ${question}`;
     const answered = await answerWithFallback(env, [
         { role: "system", content: SYSTEM },
-        { role: "user", content: `CONTEXT:\n${context}\n\nQUESTION: ${question}` },
+        { role: "user", content: userContent },
       ]);
     const answer = answered.answer;
     const citations = [...answer.matchAll(/\[(\d+)\]/g)].map((match) => Number(match[1]));
     if (citations.length === 0 || citations.some((citation) => citation < 1 || citation > sources.length)) {
       console.warn("wtfmedia answer rejected: invalid citations", { sourceCount: sources.length, citations });
       const fallbackCited = sources.slice(0, 3).map((s) => s.n);
+      const followUps = await generateFollowUps(env, question, citedEvidenceFallback(sources), sources);
       return reply(request, env, {
         answer: citedEvidenceFallback(sources),
         sources: sources.map(({ text: _text, ...source }) => source),
@@ -349,9 +427,12 @@ async function chat(request: Request, env: Env) {
         modelFallback: true,
         responseState: "synthesis_invalid",
         citedIndices: fallbackCited,
+        followUps,
+        ...(searchQuery !== question ? { searchQuery } : {}),
       });
     }
     const citedIndices = [...new Set(citations)];
+    const followUps = await generateFollowUps(env, question, answer, sources);
     return reply(request, env, {
       answer,
       sources: sources.map(({ text: _text, ...source }) => source),
@@ -362,6 +443,8 @@ async function chat(request: Request, env: Env) {
       modelFallback: answered.fallback,
       responseState: "answered_grounded",
       citedIndices,
+      followUps,
+      ...(searchQuery !== question ? { searchQuery } : {}),
     });
   } catch (error) {
     console.error("wtfmedia chat failed", {

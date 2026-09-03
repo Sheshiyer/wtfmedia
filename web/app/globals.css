@@ -329,11 +329,43 @@ html[data-wtf-theme="dark"] .wtf-wordmark-plate {
   }
 }
 
+@keyframes wtf-pill-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes wtf-composer-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.wtf-pill-enter {
+  animation: wtf-pill-enter 250ms var(--wtf-ease-out) both;
+}
+
+.wtf-composer-enter {
+  animation: wtf-composer-enter 300ms var(--wtf-ease-out) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wtf-input-star::before,
   .wtf-input-star::after,
   .wtf-decrypt-line,
-  .wtf-stagger-in {
+  .wtf-stagger-in,
+  .wtf-pill-enter,
+  .wtf-composer-enter {
     animation: none;
   }
 
