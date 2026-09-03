@@ -1,5 +1,25 @@
 # Project handoff
 
+## 2026-09-03 Alpha web production deployment and release automation
+
+The owner authorized production promotion. The reviewed Alpha web bundle was
+deployed to `wtfmedia-web` through the mapped `wtfmedia` Wrangler profile as
+Worker version `6f94e4a9-40a2-438c-b491-5c4464200fe8` on 2026-09-03. Live
+read-only canaries returned HTTP 200 for `/`, `/chat`, `/episodes`,
+`/connections`, and `/ops/settings`; the public settings response contains the
+Alpha release markers and no `data-ops-context-strip` node. `wtfmedia-edge`,
+D1, R2, KV, Vectorize, queues, Access, DNS, and Worker secrets were not
+changed.
+
+Added `.github/workflows/release-web.yml`, pushed on
+`codex/docs-workflows`, to validate `vMAJOR.MINOR.PATCH` (including
+prereleases), run `npm run verify:phase1`, deploy only `wtfmedia-web`, and
+assert the live Alpha projection. GitHub Actions still needs repository
+secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`; the local OAuth
+profile cannot supply either secret to GitHub. Until those secrets are added,
+tag pushes will be blocked at the deployment action rather than silently
+deploying through an unscoped credential.
+
 ## 2026-09-03 Alpha context-strip correction (local, deployment held)
 
 The public Alpha settings projection no longer renders the operator context

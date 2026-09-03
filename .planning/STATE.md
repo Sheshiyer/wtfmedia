@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 status: active
 stopped_at: Episode-scoped Ask WTF production slice complete; broader Phase 3/4 acceptance remains planned
-last_updated: "2026-09-01T00:00:00.000Z"
-last_activity: 2026-09-01
+last_updated: "2026-09-03T08:35:00.000+05:30"
+last_activity: 2026-09-03
 progress:
   total_phases: 10
   completed_phases: 2
@@ -37,7 +37,7 @@ Plan: 12 of 12
 Status: Complete — Staging authorized, preflight executed, owner approval bound, read-only production smoke verified
 Last activity: 2026-09-01 — bounded episode-scoped production receipt reconciled; no Phase 3 plan activated
 
-Current local wave: Alpha production-baseline promotion is locally integrated;
+Current wave: Alpha production-baseline promotion is deployed and live;
 Beta remains the separately gated 03-07 authenticated history, RAG, memory
 boundary, and admin-control continuation.
 Owner approval permits isolated local fixes, focused tests, additive
@@ -45,8 +45,8 @@ authenticated conversation scaffolding, and the local/staging release-control
 slice. The owner has set the 30-day
 Access-session target, local-cache sync direction, authorized-admin
 content/history visibility, archive-only lifecycle, and admin/super-admin
-export/archive scope. Live activation remains gated by global/MFA precedence,
-staging rollback evidence, and authenticated browser proof.
+export/archive scope. Beta live activation remains gated by global/MFA
+precedence, staging rollback evidence, and authenticated browser proof.
 
 Latest feedback input: `.planning/inputs/2026-09-03-phase1-feedback-extraction.md`
 maps the owner-provided Phase 1 review into scoped UI, error/navigation,
@@ -58,8 +58,9 @@ Release-lane overlay: `.planning/inputs/2026-09-03-alpha-production-beta-lane.md
 The DOCX-derived FB-01/FB-03 slice is the Alpha production-aligned baseline;
 the server-governed Alpha/Beta track selector and explicit Beta gate are
 additive. Beta keeps the existing Access, D1 history, RAG provenance, separate
-memory boundary, and admin projection work. The local integration does not
-deploy, migrate, or mutate Cloudflare production.
+memory boundary, and admin projection work. The Alpha web Worker has now been
+promoted; Beta activation, edge changes, migrations, and data mutations remain
+held.
 
 Cloudflare Access target confirmation: the owner supplied team domain
 `connect2nikhai.cloudflareaccess.com` and confirmed `wtfhq.in/ops/*` as the
@@ -67,7 +68,8 @@ protected Beta/operator path, leaving public Alpha routes unchanged. The web
 UI now sends an unauthenticated Beta action through the fixed same-origin
 Access login path and preserves only a one-time track intent. Live Access app,
 policy, edge route, upstream binding, and authenticated browser proof remain
-unverified; no remote mutation has occurred.
+unverified. The web-only Alpha promotion is recorded separately; Access, edge,
+and data state were not changed.
 
 The staging test strategy is now explicit: a protected UI toggle projects an
 audited server release manifest with `paused`, `preview`, `stable`, and
