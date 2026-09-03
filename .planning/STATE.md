@@ -46,6 +46,12 @@ content/history visibility, archive-only lifecycle, and admin/super-admin
 export/archive scope. Live activation remains gated by global/MFA precedence,
 staging rollback evidence, and authenticated browser proof.
 
+Latest feedback input: `.planning/inputs/2026-09-03-phase1-feedback-extraction.md`
+maps the owner-provided Phase 1 review into scoped UI, error/navigation,
+account-history, published/uncut correlation, and visual-reference work. It is
+planning-only; no shared credential, public-shell replacement, or production
+mutation is authorized by that document.
+
 The staging test strategy is now explicit: a protected UI toggle projects an
 audited server release manifest with `paused`, `preview`, `stable`, and
 `rolled_back` states. It operates only against isolated staging resources;
