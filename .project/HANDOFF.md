@@ -2048,3 +2048,30 @@ scope remain separate and unchanged.
   uncommitted and untouched by this release.
 - No D1/R2/KV/Vectorize data, Access policy, DNS, secret, queue, or Beta
   authentication state was changed.
+
+## 2026-09-03 Chat header scroll promotion
+
+**Scope:** promote the explicitly requested chat-scroll behavior on top of the
+compact Alpha composer release.
+
+- Commit `3dd4851` moves the Ask WTF `WorkspaceHeader` into the conversation
+  scroller. The h1 and description now scroll with conversation content; the
+  hamburger/navigation and fixed composer/dock remain outside that scroller.
+- The first deployment attempt from a temporary worktree with a symlinked
+  dependency tree produced a live 500 caused by OpenNext's unsupported
+  dynamic middleware-manifest require. It was rolled back to the prior version
+  and must not be used as a release pattern.
+- The final build/deploy ran from the dependency-intact checkout and completed
+  as Worker version `f16e27b8-4cc7-4a62-8790-4c89baefd55f`. No source or
+  resource mutation outside the web Worker occurred.
+- Live HTTP probes returned 200 for `/`, `/chat`, `/episodes`, `/connections`,
+  and `/ops/settings`. At 1440x900, the live conversation scroller measured
+  `scrollHeight=885` and `clientHeight=852`; after scrolling, the header moved
+  while composer top stayed 640px and dock top stayed 824px.
+
+### Held boundaries
+
+- `ISA.md` and `docs/architecture/{DEPENDENCY-GRAPH,REFRESH-NEEDED,SERVICES}.md`
+  remain user-owned dirty files and were not staged.
+- Beta authentication, account history, RAG memory, and admin activation
+  remain separate from this public Alpha release.
