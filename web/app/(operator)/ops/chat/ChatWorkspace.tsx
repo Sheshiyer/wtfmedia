@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import {
   CHAT_ACTIVITY_EVENT,
@@ -13,6 +13,7 @@ import {
   writeChatCache,
   type ChatConversation,
   type ChatConversationResponse,
+  type ChatMessage,
   type ChatHistoryResponse,
   type ChatPolicy,
   type ChatView,
@@ -108,6 +109,106 @@ function PolicyActions({ policy, conversationId, onChanged }: { policy: ChatPoli
   );
 }
 
+function sourceText(source: unknown, key: string): string {
+  if (!source || typeof source !== "object" || Array.isArray(source)) return "";
+  const value = (source as Record<string, unknown>)[key];
+  return typeof value === "string" || typeof value === "number" ? String(value) : "";
+}
+
+function MessageMetadata({ message }: { message: ChatMessage }) {
+  if (message.role !== "assistant") return null;
+  const sources = message.sources ?? [];
+  return (
+    <aside data-chat-metadata className="mt-4 border-t border-foreground/20 pt-3 text-xs text-secondary">
+      <div className="flex flex-wrap gap-x-4 gap-y-1 font-label uppercase tracking-[0.08em]" data-chat-grounding>
+        <span>grounding: {message.groundingState ?? "not recorded"}</span>
+        {message.sourceMode ? <span>evidence: {message.sourceMode}</span> : null}
+        {message.model ? <span>model: {message.model}{message.modelFallback ? " · fallback" : ""}</span> : null}
+        {message.requestId ? <span>request: {message.requestId}</span> : null}
+      </div>
+      {message.uncutUnavailable ? <p className="mt-2" data-uncut-unavailable>uncut was requested, but no approved uncut evidence was available; published evidence is labelled as such.</p> : null}
+      {sources.length > 0 ? (
+        <ol className="mt-3 space-y-2" aria-label="answer sources">
+          {sources.map((source, index) => {
+            const url = sourceText(source, "url");
+            const title = sourceText(source, "title") || `source ${index + 1}`;
+            return (
+              <li key={`${title}-${index}`}>
+                <a href={url || undefined} target={url ? "_blank" : undefined} rel={url ? "noreferrer" : undefined} className="underline decoration-foreground/40 underline-offset-2">
+                  [{sourceText(source, "n") || index + 1}] {title}
+                </a>
+                {sourceText(source, "sourceMode") ? <span> · {sourceText(source, "sourceMode")}</span> : null}
+                {sourceText(source, "start") ? <span> · {sourceText(source, "start")}s</span> : null}
+                {sourceText(source, "mappingStatus") ? <span> · {sourceText(source, "mappingStatus")}</span> : null}
+              </li>
+            );
+          })}
+        </ol>
+      ) : null}
+    </aside>
+  );
+}
+
+function ChatComposer({ conversationId, sourceMode = "both", onSent }: { conversationId?: string; sourceMode?: ChatConversation["sourceMode"]; onSent: () => void }) {
+  const [question, setQuestion] = useState("");
+  const [mode, setMode] = useState<ChatConversation["sourceMode"]>(sourceMode);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(false);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const value = question.trim();
+    if (!value || busy) return;
+    setBusy(true);
+    setError(false);
+    try {
+      const endpoint = conversationId
+        ? `${CHAT_API_ROOT}/conversations/${encodeURIComponent(conversationId)}`
+        : CHAT_API_ROOT;
+      const response = await fetch(endpoint, {
+        method: "POST",
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
+        body: JSON.stringify({ question: value, sourceMode: mode }),
+      });
+      if (!response.ok) throw new Error("chat_send_failed");
+      const parsed = parseChatConversationResponse(await response.json());
+      if (!parsed) throw new Error("chat_response_invalid");
+      setQuestion("");
+      bumpChatActivityEpoch();
+      if (!conversationId) {
+        window.location.assign(`/chat/${encodeURIComponent(parsed.conversation.id)}-operator`);
+      } else {
+        onSent();
+      }
+    } catch {
+      setError(true);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form data-chat-composer onSubmit={submit} className="border-2 border-foreground bg-surface-subtle p-4">
+      <label htmlFor="authenticated-chat-question" className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">ask WTF with account history</label>
+      <textarea id="authenticated-chat-question" value={question} onChange={(event) => setQuestion(event.target.value)} maxLength={2000} rows={3} placeholder="Ask about the published YouTube or approved uncut evidence…" className="mt-2 block w-full border-2 border-foreground bg-surface-raised p-3 text-sm text-foreground outline-none focus-visible:ring-4 focus-visible:ring-attention" disabled={busy} />
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <label className="font-label text-[11px] font-bold uppercase tracking-[0.1em] text-muted">
+          evidence
+          <select value={mode} onChange={(event) => setMode(event.target.value as ChatConversation["sourceMode"])} className="ml-2 border border-foreground bg-surface-raised px-2 py-1 text-xs text-foreground" disabled={busy}>
+            <option value="published">published YouTube</option>
+            <option value="uncut">approved uncut</option>
+            <option value="both">both</option>
+          </select>
+        </label>
+        <Button type="submit" disabled={!question.trim() || busy} loading={busy}>send</Button>
+        {error ? <span role="alert" className="text-xs text-attention">the answer could not be saved. retry this turn.</span> : null}
+      </div>
+    </form>
+  );
+}
+
 export function ChatWorkspace({ view, conversationId }: { view: ChatView; conversationId?: string }) {
   const cacheKey = useMemo(() => chatCacheKey(view, conversationId), [view, conversationId]);
   const [state, setState] = useState<ViewState>("loading");
@@ -180,6 +281,7 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
   if (view === "history") {
     return (
       <div data-chat-history className="space-y-4">
+        <ChatComposer onSent={load} />
         <StateMessage state={state} onRetry={load} />
         {state === "ready" && history ? (
           <div className="grid gap-3" aria-label="conversation history">
@@ -189,6 +291,7 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
                   <div>
                     <h2 className="font-heading text-xl font-bold lowercase text-foreground">{item.title}</h2>
                     <p className="mt-1 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{item.sourceMode} · {item.messageCount} messages</p>
+                    {item.operatorDisplayName || item.operatorEmail ? <p data-chat-owner className="mt-2 text-xs text-secondary">owner: {item.operatorDisplayName ?? item.operatorEmail}{item.operatorDisplayName && item.operatorEmail ? ` · ${item.operatorEmail}` : ""}</p> : null}
                   </div>
                   <span className="font-label text-[11px] uppercase tracking-[0.1em] text-secondary">{formatDate(item.updatedAt)}</span>
                 </div>
@@ -209,14 +312,17 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
             <div>
               <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{conversation.sourceMode} · {conversation.state}</p>
               <h2 className="mt-2 font-heading text-2xl font-bold lowercase text-foreground">{conversation.title}</h2>
+              {conversation.operatorDisplayName || conversation.operatorEmail ? <p data-chat-owner className="mt-2 text-xs text-secondary">owner: {conversation.operatorDisplayName ?? conversation.operatorEmail}{conversation.operatorDisplayName && conversation.operatorEmail ? ` · ${conversation.operatorEmail}` : ""}</p> : null}
             </div>
             <PolicyActions policy={policy} conversationId={conversation.id} onChanged={load} />
           </div>
+          <ChatComposer conversationId={conversation.id} sourceMode={conversation.sourceMode} onSent={load} />
           <div className="space-y-4" aria-label="conversation messages">
             {(conversation.messages ?? []).map((message) => (
               <article key={message.id} className="border-2 border-foreground/20 bg-surface-raised p-5" data-message-role={message.role}>
                 <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{message.role}</p>
                 <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{message.content}</p>
+                <MessageMetadata message={message} />
               </article>
             ))}
           </div>
