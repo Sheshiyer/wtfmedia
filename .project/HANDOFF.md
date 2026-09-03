@@ -1569,3 +1569,42 @@ actions. The original dirty checkout remains preserved separately.
 PR #43 is open from `codex/v0.3.1-alpha` at the release candidate head; review
 the pending GitHub checks before merging, and leave production promotion
 separately gated.
+
+## 2026-09-03 Beta consolidation — staging verification checkpoint
+
+The isolated `codex/beta-consolidation` worktree reconciles the authenticated
+history, server-generated answer persistence, server RAG path, Alpha/Beta
+track gate, Access-protected release entry, logout return, and `03-00`
+file-level integration receipt. The candidate's old Worker entrypoint,
+temporary super-admin roster migration, broad public UI sweep, workflow noise,
+and root checkout WIP were excluded.
+
+Staging is isolated behind `wtfmedia-web-staging` and
+`wtfmedia-edge-staging`. The committed Wrangler environments now default to
+those suffixed names. Remote staging migration listing and apply both reported
+no pending migrations. Edge and web staging deployments completed, and queue
+inspection shows one staging producer/consumer owned by the staging edge.
+
+The base Worker was restored from clean Alpha source after a target-resolution
+mistake briefly changed its queue trigger. Production ingest now has exactly
+one producer/consumer owned by the base edge. No production web deployment,
+migration, data, secret, DNS, or ingest payload mutation was performed.
+
+### Verification
+
+- Cloudflare: 175/175 tests.
+- Web unit: 81/81; contracts: 86/86; typecheck, lint, and privacy passed.
+- OpenNext Cloudflare build passed and includes the same-origin operator API
+  proxy, which preserves the Access assertion for edge enforcement.
+- Full non-visual Playwright behavior/a11y/journey run: 228 passed, 8 skipped
+  of 236; visual snapshot comparisons were not run.
+- Rollback: 19 legacy plus 19 migrated checks passed across 8 route/variant
+  combinations, with data integrity unchanged.
+- Live staging: public `/` and `/chat` returned 200; `/ops/settings` and
+  `/ops/api/*` returned Access 302; direct edge operator access returned 404.
+
+Full evidence is in
+`.planning/inputs/2026-09-03-beta-consolidation-evidence.md`. Interactive
+Access login is still required for live session continuity, logout/reauth,
+authenticated settings readback, and owner approval. Do not merge until those
+rows are completed, PR checks are green, and public Alpha invariance passes.
