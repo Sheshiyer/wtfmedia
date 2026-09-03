@@ -66,11 +66,20 @@ export const OperatorProjection: Story = {
     nextjs: { appDirectory: true, navigation: { pathname: "/ops/operators" } },
   },
   play: async ({ canvasElement }) => {
-    const links = Array.from(canvasElement.querySelectorAll("nav a")).map(
+    const headerNavigation = canvasElement.querySelector("#wtf-application-navigation");
+    const bottomNavigation = canvasElement.querySelector("#wtf-bottom-navigation");
+    const headerLinks = Array.from(headerNavigation?.querySelectorAll("a") ?? []).map(
       (link) => link.textContent?.trim(),
     );
-    if (links.join("|") !== "control room|operators|audit") {
-      throw new Error(`Unexpected operator projection: ${links.join("|")}`);
+    if (headerLinks.join("|") !== "control room|operators|audit") {
+      throw new Error(`Unexpected operator header projection: ${headerLinks.join("|")}`);
+    }
+    if (
+      !bottomNavigation ||
+      bottomNavigation.querySelectorAll("a").length !== 4 ||
+      !bottomNavigation.querySelector("[data-bottom-wordmark]")
+    ) {
+      throw new Error("Operator bottom navigation must mirror destinations and include the WTF OS wordmark");
     }
   },
 };
@@ -93,11 +102,13 @@ export const MobileDrawer: Story = {
   },
   play: async ({ canvasElement }) => {
     const primaryNav = canvasElement.querySelector("#wtf-application-navigation");
+    const bottomNav = canvasElement.querySelector("#wtf-bottom-navigation");
     const applicationNav = canvasElement.querySelector('nav[aria-label="Application"]');
     const logo = canvasElement.querySelector('header a[aria-label="WTF OS"]');
     const toggle = canvasElement.querySelector("[data-navigation-toggle]");
-    if (!primaryNav || !applicationNav || !logo || !toggle) {
+    if (!primaryNav || !bottomNav || !applicationNav || !logo || !toggle) {
       throw new Error("Mobile shell must keep header controls and scroll-safe dock navigation");
     }
+    if (primaryNav.id === bottomNav.id) throw new Error("Header and bottom navigation IDs must be distinct");
   },
 };

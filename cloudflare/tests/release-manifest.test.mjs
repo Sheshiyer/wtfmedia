@@ -1,0 +1,217 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { test } from "node:test";
+import { join } from "node:path";
+import { handleOpsRequest } from "../src/ops-router.ts";
+import {
+  isAuthenticatedChatEnabled,
+  resolveAuthenticatedChatRelease,
+  RELEASE_TRACKS,
+  RELEASE_STATES,
+} from "../src/release-manifest.ts";
+import { policyForPath } from "../src/auth/policy.ts";
+
+const root = new URL("..", import.meta.url).pathname;
+const baseEnv = {
+  OPS_HOSTNAME: "ops.local.test",
+  OPS_ORIGIN: "https://origin.local.test",
+  OPS_ORIGIN_PROOF: "test-proof",
+  OPS_ENVIRONMENT: "staging",
+  ACCESS_ISSUER: "https://issuer.test",
+  ACCESS_AUDIENCE: "audience",
+  ACCESS_JWKS_URL: "https://issuer.test/certs",
+  CHAT_HISTORY_ENABLED: "stable",
+};
+
+function releaseDb({ row = null, role = "super_admin" } = {}) {
+  const calls = [];
+  return {
+    calls,
+    prepare(sql) {
+      const statement = {
+        bind(...args) {
+          calls.push({ sql, args });
+          return this;
+        },
+        async first() {
+          if (sql.includes("sqlite_master")) return { ready: 1 };
+          if (sql.includes("release_manifests")) return row;
+          if (sql.includes("SELECT id, email")) return { id: 7, email: "operator@example.test", role, active: 1 };
+          return null;
+        },
+        async run() {
+          calls.push({ sql, run: true });
+          return {};
+        },
+        async all() { return { results: [] }; },
+      };
+      return statement;
+    },
+    async batch(items) {
+      calls.push({ batch: items.length });
+      return items.map(() => ({}));
+    },
+  };
+}
+
+function authDependencies() {
+  return { verifyAccess: async () => ({ ok: true, email: "operator@example.test" }) };
+}
+
+test("release migration is environment-scoped, paused by default, and excludes payload fields", () => {
+  const sql = readFileSync(join(root, "migrations", "0007_release_manifest.sql"), "utf8");
+  assert.match(sql, /CREATE TABLE release_manifests/);
+  assert.match(sql, /environment TEXT PRIMARY KEY/);
+  assert.match(sql, /state TEXT NOT NULL DEFAULT 'paused'/);
+  assert.match(sql, /CHECK \(state IN \('paused', 'preview', 'stable', 'rolled_back'\)\)/);
+  assert.match(sql, /CHECK \(environment IN \('local', 'staging'\)\)/);
+  assert.doesNotMatch(sql, /content|token|prompt|answer/i);
+  assert.deepEqual(RELEASE_STATES, ["paused", "preview", "stable", "rolled_back"]);
+  const trackMigration = readFileSync(join(root, "migrations", "0008_release_track.sql"), "utf8");
+  assert.match(trackMigration, /ADD COLUMN release_track TEXT NOT NULL DEFAULT 'alpha'/);
+  assert.match(trackMigration, /CHECK \(release_track IN \('alpha', 'beta'\)\)/);
+  assert.deepEqual(RELEASE_TRACKS, ["alpha", "beta"]);
+});
+
+test("staging defaults paused and ignores the local environment seam", async () => {
+  const db = releaseDb();
+  const staging = await resolveAuthenticatedChatRelease(db, "staging", "stable");
+  assert.equal(staging.state, "paused");
+  assert.equal(staging.track, "alpha");
+  assert.equal(staging.source, "default");
+  assert.equal(isAuthenticatedChatEnabled(staging), false);
+});
+
+test("local uses the environment seam only when no manifest row exists", async () => {
+  const db = releaseDb();
+  const local = await resolveAuthenticatedChatRelease(db, "local", "stable");
+  assert.equal(local.state, "stable");
+  assert.equal(local.track, "beta");
+  assert.equal(local.source, "env_fallback");
+  assert.equal(isAuthenticatedChatEnabled(local), true);
+
+  const authoritative = await resolveAuthenticatedChatRelease(db, "local", "paused");
+  assert.equal(authoritative.source, "default");
+  assert.equal(authoritative.state, "paused");
+});
+
+test("a manifest row overrides the local seam and enables preview/stable only", async () => {
+  const db = releaseDb({ row: { environment: "staging", state: "preview", release_track: "beta", updated_at: "2026-09-02T00:00:00.000Z", updated_by_operator_id: 7 } });
+  const release = await resolveAuthenticatedChatRelease(db, "staging", "paused");
+  assert.equal(release.state, "preview");
+  assert.equal(release.track, "beta");
+  assert.equal(release.source, "manifest");
+  assert.equal(isAuthenticatedChatEnabled(release), true);
+
+  for (const state of ["paused", "rolled_back"]) {
+    const disabled = await resolveAuthenticatedChatRelease(db, "staging", state);
+    assert.equal(isAuthenticatedChatEnabled({ ...disabled, state }), false);
+  }
+});
+
+test("alpha is an explicit legacy hold and never enables authenticated chat", async () => {
+  const db = releaseDb({ row: { environment: "staging", state: "stable", release_track: "alpha" } });
+  const release = await resolveAuthenticatedChatRelease(db, "staging");
+  assert.equal(release.state, "stable");
+  assert.equal(release.track, "alpha");
+  assert.equal(isAuthenticatedChatEnabled(release), false);
+});
+
+test("release endpoint is protected and GET returns the server readback", async () => {
+  assert.deepEqual(policyForPath("/ops/api/release/authenticated-chat"), ["control_room", "read"]);
+  const db = releaseDb({ row: { environment: "staging", state: "stable", release_track: "beta", updated_at: "2026-09-02T00:00:00.000Z", updated_by_operator_id: 7 } });
+  const response = await handleOpsRequest(new Request("https://ops.local.test/ops/api/release/authenticated-chat", {
+    headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-release-1" },
+  }), { ...baseEnv, DB: db }, authDependencies());
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {
+    feature: "authenticated_chat",
+    environment: "staging",
+    state: "stable",
+    track: "beta",
+    source: "manifest",
+    updatedAt: "2026-09-02T00:00:00.000Z",
+    updatedByOperatorId: 7,
+  });
+});
+
+test("operator context endpoint is protected and returns only the verified context", async () => {
+  assert.deepEqual(policyForPath("/ops/api/operator-context"), ["control_room", "read"]);
+  const db = releaseDb();
+  const response = await handleOpsRequest(new Request("https://ops.local.test/ops/api/operator-context", {
+    headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-context-1" },
+  }), { ...baseEnv, DB: db }, authDependencies());
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {
+    operatorId: 7,
+    role: "super_admin",
+    environment: "staging",
+    correlationId: "corr-context-1",
+  });
+});
+
+test("only super_admin can mutate local/staging release state and every success is audited", async () => {
+  for (const state of RELEASE_STATES) {
+    const db = releaseDb();
+    const response = await handleOpsRequest(new Request("https://ops.local.test/ops/api/release/authenticated-chat", {
+      method: "POST",
+      headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-release-1", "content-type": "application/json" },
+      body: JSON.stringify({ state }),
+    }), { ...baseEnv, DB: db }, authDependencies());
+    assert.equal(response.status, 200);
+    const responseBody = await response.json();
+    assert.equal(responseBody.state, state);
+    assert.equal(responseBody.track, "alpha");
+    assert.ok(db.calls.some(({ sql, args }) => typeof sql === "string" && sql.includes("audit_events") && args?.includes("authenticated_chat_release")));
+  }
+
+  const adminDb = releaseDb({ role: "admin" });
+  const adminResponse = await handleOpsRequest(new Request("https://ops.local.test/ops/api/release/authenticated-chat", {
+    method: "POST",
+    headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-release-2", "content-type": "application/json" },
+    body: JSON.stringify({ state: "stable" }),
+  }), { ...baseEnv, DB: adminDb }, authDependencies());
+  assert.equal(adminResponse.status, 404);
+  assert.equal(adminDb.calls.some(({ sql }) => sql.includes("INSERT INTO release_manifests")), false);
+});
+
+test("track-only changes preserve the lifecycle state and use the same audited write", async () => {
+  const db = releaseDb({ row: { environment: "staging", state: "stable", release_track: "beta" } });
+  const response = await handleOpsRequest(new Request("https://ops.local.test/ops/api/release/authenticated-chat", {
+    method: "POST",
+    headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-release-track", "content-type": "application/json" },
+    body: JSON.stringify({ track: "alpha" }),
+  }), { ...baseEnv, DB: db }, authDependencies());
+  assert.equal(response.status, 200);
+  const responseBody = await response.json();
+  assert.equal(responseBody.feature, "authenticated_chat");
+  assert.equal(responseBody.environment, "staging");
+  assert.equal(responseBody.state, "stable");
+  assert.equal(responseBody.track, "alpha");
+  assert.equal(responseBody.source, "manifest");
+  assert.equal(typeof responseBody.updatedAt, "string");
+  assert.equal(responseBody.updatedByOperatorId, 7);
+  assert.ok(db.calls.some(({ sql }) => typeof sql === "string" && sql.includes("audit_events")));
+  assert.equal(db.calls.some(({ sql }) => typeof sql === "string" && /DELETE|DROP|TRUNCATE/i.test(sql)), false);
+});
+
+test("production release mutations fail closed and staging chat consults server state", async () => {
+  const productionDb = releaseDb();
+  const productionResponse = await handleOpsRequest(new Request("https://ops.local.test/ops/api/release/authenticated-chat", {
+    method: "POST",
+    headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-release-3", "content-type": "application/json" },
+    body: JSON.stringify({ state: "stable" }),
+  }), { ...baseEnv, OPS_ENVIRONMENT: "production", DB: productionDb }, authDependencies());
+  assert.equal(productionResponse.status, 404);
+  assert.equal(productionDb.calls.some(({ sql }) => sql.includes("INSERT INTO release_manifests")), false);
+
+  const pausedDb = releaseDb({ row: { environment: "staging", state: "paused", release_track: "beta", updated_at: "2026-09-02T00:00:00.000Z", updated_by_operator_id: 7 } });
+  let verified = false;
+  const chatResponse = await handleOpsRequest(new Request("https://ops.local.test/ops/api/chat", {
+    method: "POST",
+    headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-chat-1", "content-type": "application/json" },
+    body: JSON.stringify({ question: "hello" }),
+  }), { ...baseEnv, DB: pausedDb }, { verifyAccess: async () => { verified = true; return { ok: true, email: "operator@example.test" }; } });
+  assert.equal(chatResponse.status, 404);
+  assert.equal(verified, false);
+});

@@ -4,7 +4,7 @@
   "approval_scope": "ask-wtf-cloudflare-service-binding-source-mode-local-fallbacks-and-episode-scope",
   "owner_approval_ref": "owner-explicit-production-approval-2026-08-31-episode-scoped-ask-wtf",
   "manifest_path": "web/tests/contracts/phase1-compatibility-manifest.json",
-  "manifest_sha256": "b07fab99f71d88cedc69bbe360581e8ecd41ada2a6b0950ce55f88ecd3a63093",
+  "manifest_sha256": "1d682c17877d4841876b88107f6b3dbe27074ad55e1f294a4a6bb48227f855a3",
   "base_sha": "fef9dedd5c90dea242af192b0c6d543ed6de40e3",
   "approved_protected_hashes": [
     {
@@ -29,7 +29,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "b2015dac070e02c37eef34c4980249632d70c95b5dea0a0b7c31d903e420c81c"
+      "sha256": "967e20c7f434e61ff0c5bff4eeb56c8fd5dd49f794def1ed530cb175183e68f0"
     }
   ],
   "streaming_contract": {

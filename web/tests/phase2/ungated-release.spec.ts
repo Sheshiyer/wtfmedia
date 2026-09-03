@@ -118,12 +118,15 @@ test("home ledger can open every current destination", async ({ page }) => {
   }
 });
 
-test("settings roadmap links to held destinations", async ({ page }) => {
+test("settings keeps held and protected destinations explicit", async ({ page }) => {
   await page.goto("/ops/settings", { waitUntil: "domcontentloaded" });
   const roadmap = page.locator("[aria-labelledby=\"release-roadmap-title\"]");
-  for (const destination of heldDestinations) {
-    await expect(roadmap.getByText(destination.label, { exact: true })).toBeVisible();
-    await expect(roadmap.locator(`a[href="${destination.href}"]`)).toBeVisible();
+  await expect(roadmap.getByText("ingest", { exact: true })).toBeVisible();
+  await expect(roadmap.locator('a[href="/ops/ingest"]')).toBeVisible();
+
+  const protectedWorkspaces = page.getByRole("navigation", { name: "protected operator workspaces" });
+  for (const destination of heldDestinations.filter((item) => item.href !== "/ops/ingest")) {
+    await expect(protectedWorkspaces.locator(`a[href="${destination.href}"]`)).toBeVisible();
   }
 });
 

@@ -117,14 +117,19 @@ test.describe("Public shell journey", () => {
     test(`aria-current=page on active route ${route}`, async ({ page }) => {
       await page.goto(route, { waitUntil: "domcontentloaded" });
 
-      const activeLinks = page.locator('nav a[aria-current="page"]');
-      const count = await activeLinks.count();
+      const headerActiveLinks = page.locator(
+        '#wtf-application-navigation a[aria-current="page"]',
+      );
+      const bottomActiveLinks = page.locator(
+        '#wtf-bottom-navigation a[aria-current="page"]',
+      );
 
-      // Exactly one active link per route
-      expect(count).toBe(1);
+      // Each navigation landmark has exactly one active link per route.
+      expect(await headerActiveLinks.count()).toBe(1);
+      expect(await bottomActiveLinks.count()).toBe(1);
 
       // The active link href should match the route
-      const href = await activeLinks.first().getAttribute("href");
+      const href = await headerActiveLinks.first().getAttribute("href");
       if (route === "/") {
         expect(href).toBe("/");
       } else {
@@ -227,7 +232,9 @@ test.describe("Public shell journey", () => {
     await expect(wtfos).toBeAttached();
 
     // The rail uses the converged control-room wordmark link.
-    const wordmark = page.locator('a[aria-label="WTF OS"]');
-    await expect(wordmark).toBeAttached();
+    await expect(page.locator('header a[aria-label="WTF OS"]')).toBeAttached();
+    await expect(
+      page.locator('#wtf-bottom-navigation a[data-bottom-wordmark][aria-label="WTF OS"]'),
+    ).toBeAttached();
   });
 });

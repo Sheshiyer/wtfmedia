@@ -1569,3 +1569,104 @@ actions. The original dirty checkout remains preserved separately.
 PR #43 is open from `codex/v0.3.1-alpha` at the release candidate head; review
 the pending GitHub checks before merging, and leave production promotion
 separately gated.
+
+## 2026-09-03 Beta consolidation — staging verification checkpoint
+
+The isolated `codex/beta-consolidation` worktree reconciles the authenticated
+history, server-generated answer persistence, server RAG path, Alpha/Beta
+track gate, Access-protected release entry, logout return, and `03-00`
+file-level integration receipt. The candidate's old Worker entrypoint,
+temporary super-admin roster migration, broad public UI sweep, workflow noise,
+and root checkout WIP were excluded.
+
+Staging is isolated behind `wtfmedia-web-staging` and
+`wtfmedia-edge-staging`. The committed Wrangler environments now default to
+those suffixed names. Remote staging migration listing and apply both reported
+no pending migrations. Edge and web staging deployments completed, and queue
+inspection shows one staging producer/consumer owned by the staging edge.
+
+The base Worker was restored from clean Alpha source after a target-resolution
+mistake briefly changed its queue trigger. Production ingest now has exactly
+one producer/consumer owned by the base edge. No production web deployment,
+migration, data, secret, DNS, or ingest payload mutation was performed.
+
+### Verification
+
+- Cloudflare: 175/175 tests.
+- Web unit: 81/81; contracts: 86/86; typecheck, lint, and privacy passed.
+- OpenNext Cloudflare build passed and includes the same-origin operator API
+  proxy, which preserves the Access assertion for edge enforcement.
+- Full non-visual Playwright behavior/a11y/journey run: 228 passed, 8 skipped
+  of 236; visual snapshot comparisons were not run.
+- Rollback: 19 legacy plus 19 migrated checks passed across 8 route/variant
+  combinations, with data integrity unchanged.
+- Live staging: public `/` and `/chat` returned 200; `/ops/settings` and
+  `/ops/api/*` returned Access 302; direct edge operator access returned 404.
+
+Full evidence is in
+`.planning/inputs/2026-09-03-beta-consolidation-evidence.md`. Interactive
+Access login is still required for live session continuity, logout/reauth,
+authenticated settings readback, and owner approval. PR #46 is open. The
+hydrated public Alpha Playwright probe passed against `wtfhq.in` for `/` and
+`/chat`; do not merge until the remaining authenticated rows are completed,
+PR checks are green, and that public invariance result remains green.
+
+## 2026-09-03 Beta consolidation UI and Alpha-preserving production cut
+
+The Beta settings surface now projects sessions/history policy, disabled memory
+governance, read-only RAG/source receipts, and protected operator-administration
+readbacks from the reviewed `codex/beta-consolidation` branch. The existing
+Access-to-edge context bridge is included so a verified session can hydrate the
+server-rendered operator shell without trusting browser state.
+
+The production code cut was deliberately Alpha-preserving: edge version
+`1bd58a00-edbf-4c1e-a60d-fdc236ab5190` and web version
+`3628cc71-e743-4dcc-bd5e-e9416ea560a5` were deployed with Beta remaining
+server-disabled. Production has no operator secret set or production release
+manifest activation, so no authenticated Beta session or release mutation was
+enabled by this deployment.
+
+### Verification
+
+- Web unit: 86/86; contracts: 86/86; typecheck, lint, Next build, OpenNext
+  build, and privacy scan passed.
+- Cloudflare Worker suite: 176/176 passed.
+- Non-browser live probes after deployment: public `/` and `/chat` returned
+  200, malformed public `/api/chat` returned 400, `/ops/settings` returned
+  Access 302, and unauthenticated operator-context access returned 404.
+- The user-requested no-Playwright constraint was honored locally. The GitHub
+  Phase 1 aggregate was canceled after its Playwright step began; Phase 2 and
+  architecture checks passed. PR #46 remains open and unmerged.
+
+## 2026-09-03 Beta consolidation navigation restoration (local, deploy held)
+
+The shared WTF OS shell now restores the persistent `wtf-bottom-pill` on the
+isolated `codex/beta-consolidation` branch. The header and bottom navigation
+use distinct IDs, the shared WTF OS wordmark is rendered in both shell
+surfaces, and the fixed Ask Composer is offset above the bottom rail. Public
+`/chat` and `/api/chat` contracts remain unchanged; authenticated history
+continues to live at protected `/ops/chat`.
+
+The branch already contained the canonical same-origin Access login target:
+`/cdn-cgi/access/login?redirect_url=%2Fops%2Fsettings%3FreleaseTrack%3Dbeta`.
+No Access, D1, cache, secret, DNS, deployment, or Beta activation mutation was
+performed. The shared checkout's unrelated dirty ISA/architecture work was not
+edited.
+
+### Verification
+
+- Web unit: 87/87; contracts: 86/86; typecheck, lint, production build, and
+  privacy scan passed.
+- Cloudflare Worker suite: 176/176 passed.
+- Architecture ledger was regenerated and its freshness check passed.
+- Read-only production probes found `wtf-bottom-pill` and two WTF OS wordmark
+  markers on `/` and `/chat`; `/ops/settings?releaseTrack=beta` returned the
+  Cloudflare Access 302 with the canonical return target.
+- Playwright was not run, per the current checklist. Browser layout, signed
+  session continuity, logout/reauthentication, and live deployment parity
+  remain evidence gates before PR #46 can merge or Beta can activate.
+
+The two bounded external read-only audits were unavailable during this pass:
+Antigravity returned quota 429 and the GitHub Claude audit aborted without
+substantive output. Repository evidence was used instead; no worker output was
+accepted as validation.

@@ -162,6 +162,22 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(submitButton).toBeDisabled();
   });
 
+  test("composer clears the restored bottom navigation rail", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await page.goto("/chat");
+    await settle(page);
+
+    const gap = await page.evaluate(() => {
+      const composer = document.querySelector<HTMLElement>("[data-testid=ask-composer]");
+      const dock = document.querySelector<HTMLElement>("#wtf-bottom-navigation");
+      if (!composer || !dock) return null;
+      return dock.getBoundingClientRect().top - composer.getBoundingClientRect().bottom;
+    });
+
+    expect(gap).not.toBeNull();
+    expect(gap!).toBeGreaterThanOrEqual(0);
+  });
+
   /* ── request/response flow ─────────────────────────────────────────── */
 
   test("sends request and accumulates streamed response", async ({ page }) => {

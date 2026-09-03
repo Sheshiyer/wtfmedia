@@ -18,6 +18,7 @@ const APP_SHELL = read("components/shells/AppShell.tsx");
 const BOOT = read("components/patterns/brand/WtfOsBoot.tsx");
 const WORDMARK = read("components/patterns/brand/MigratedWordmark.tsx");
 const APP_RAIL = read("components/shells/AppRail.tsx");
+const COMPOSER = read("components/domain/public/AskComposer.tsx");
 const ACCESS_RECOVERY = read("components/domain/ops/AccessRecovery.tsx");
 const GLOBALS = read("app/globals.css");
 
@@ -234,5 +235,14 @@ describe("adaptive WTF OS theme contract", () => {
     );
     expect(GLOBALS).toContain('html[data-wtf-theme="dark"] .wtf-wordmark-plate');
     expect(GLOBALS).toContain(".wtf-wordmark-plate");
+  });
+
+  it("keeps header and bottom navigation distinct and clears the fixed composer", () => {
+    expect(APP_RAIL).toContain('id="wtf-application-navigation"');
+    expect(APP_RAIL).toContain('id="wtf-bottom-navigation"');
+    expect(APP_RAIL).toContain("data-bottom-wordmark");
+    expect(APP_SHELL).toContain("pb-28");
+    expect(COMPOSER).toContain("wtf-ask-composer");
+    expect(COMPOSER).toContain("sm:bottom-24");
   });
 });
