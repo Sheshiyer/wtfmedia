@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-11T02:06:03.860Z",
+  "generated_at": "2026-09-03T22:40:00.000Z",
   "corpus": {
-    "episodes": 55,
-    "timestamped_episodes": 43
+    "episodes": 56,
+    "timestamped_episodes": 44
   },
   "entries": [
     {
@@ -458,7 +458,7 @@
     },
     {
       "video_id": "UKag4LVAEdU",
-      "title": "Ep #3| WTF is E-commerce: Kishore Biyani, Udaan & Meesho Founders Reveal What Sells and What Doesn’t",
+      "title": "Ep #3| WTF is E-commerce: Kishore Biyani, Udaan & Meesho Founders Reveal What Sells and What Doesn\u2019t",
       "source_url": "https://www.youtube.com/watch?v=UKag4LVAEdU",
       "transcript": {
         "key": "transcripts/UKag4LVAEdU.txt",
@@ -494,7 +494,7 @@
     },
     {
       "video_id": "01qfxLY2rhQ",
-      "title": "Ep #5 | EdTech What’s Broken, What’s Next? With Nikhil, Ronnie Screwvala , Gaurav Munjal & Jay Kotak",
+      "title": "Ep #5 | EdTech What\u2019s Broken, What\u2019s Next? With Nikhil, Ronnie Screwvala , Gaurav Munjal & Jay Kotak",
       "source_url": "https://www.youtube.com/watch?v=01qfxLY2rhQ",
       "transcript": {
         "key": "transcripts/01qfxLY2rhQ.txt",
@@ -742,7 +742,7 @@
     },
     {
       "video_id": "2_yA6GoqUnY",
-      "title": "Ep. #19 | WTF is “Making it” in an Offbeat Career? Nikhil Kamath Ft. Kriti Sanon, Badshah & KL Rahul",
+      "title": "Ep. #19 | WTF is \u201cMaking it\u201d in an Offbeat Career? Nikhil Kamath Ft. Kriti Sanon, Badshah & KL Rahul",
       "source_url": "https://www.youtube.com/watch?v=2_yA6GoqUnY",
       "transcript": {
         "key": "transcripts/2_yA6GoqUnY.txt",
@@ -827,7 +827,7 @@
     },
     {
       "video_id": "g0CjWbgsdTQ",
-      "title": "Inside Silicon Valley’s VC Playbook | WTF is Venture Capital? - 2025 Edition | Ep. 24",
+      "title": "Inside Silicon Valley\u2019s VC Playbook | WTF is Venture Capital? - 2025 Edition | Ep. 24",
       "source_url": "https://www.youtube.com/watch?v=g0CjWbgsdTQ",
       "transcript": {
         "key": "transcripts/g0CjWbgsdTQ.txt",
@@ -844,7 +844,7 @@
     },
     {
       "video_id": "AdI_XWv-ZTk",
-      "title": "Tira, Bombay Shaving Co., Inde Wild | WTF is Fueling India’s Beauty & Skincare Revolution? | Ep. 25",
+      "title": "Tira, Bombay Shaving Co., Inde Wild | WTF is Fueling India\u2019s Beauty & Skincare Revolution? | Ep. 25",
       "source_url": "https://www.youtube.com/watch?v=AdI_XWv-ZTk",
       "transcript": {
         "key": "transcripts/AdI_XWv-ZTk.txt",
@@ -950,7 +950,7 @@
     },
     {
       "video_id": "WGiAwFmscmc",
-      "title": "WTF are Ray Dalio’s Rules to Build a Real Portfolio? | Nikhil Kamath | WTF is Finance Ep 2 Teaser",
+      "title": "WTF are Ray Dalio\u2019s Rules to Build a Real Portfolio? | Nikhil Kamath | WTF is Finance Ep 2 Teaser",
       "source_url": "https://www.youtube.com/watch?v=WGiAwFmscmc",
       "transcript": {
         "key": "transcripts/WGiAwFmscmc.txt",
@@ -977,6 +977,24 @@
       },
       "timestamps": {
         "key": "timestamps/lTCzIDITaac.json",
+        "available": true
+      },
+      "embedding": {
+        "model": "@cf/baai/bge-large-en-v1.5",
+        "dimensions": 1024
+      }
+    },
+    {
+      "video_id": "LcWoP6KtZKw",
+      "title": "Nikhil Kamath ft. Police Comm'r & Traffic Police Comm'r of Bengaluru | WTF is Policing? | Special Ep",
+      "source_url": "https://www.youtube.com/watch?v=LcWoP6KtZKw",
+      "transcript": {
+        "key": "transcripts/LcWoP6KtZKw.txt",
+        "sha256": "75e32d695aa8ee0c103e892a42918e2bb03992e7aaf0cc9b2aea8b7c3d726bd3",
+        "bytes": 79077
+      },
+      "timestamps": {
+        "key": "timestamps/LcWoP6KtZKw.json",
         "available": true
       },
       "embedding": {

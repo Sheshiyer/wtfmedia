@@ -4,7 +4,7 @@
   "channel_title": "Nikhil Kamath - Podcasts",
   "channel_id": "UCnC8SAZzQiBGYVSKZ_S3y4Q",
   "uploader": "Nikhil Kamath",
-  "entry_count": 55,
+  "entry_count": 56,
   "entries": [
     {
       "video_id": "RSB58m7Xwhg",
@@ -308,7 +308,7 @@
     },
     {
       "video_id": "UKag4LVAEdU",
-      "title": "Ep #3| WTF is E-commerce: Kishore Biyani, Udaan & Meesho Founders Reveal What Sells and What Doesn’t",
+      "title": "Ep #3| WTF is E-commerce: Kishore Biyani, Udaan & Meesho Founders Reveal What Sells and What Doesn\u2019t",
       "url": "https://www.youtube.com/watch?v=UKag4LVAEdU",
       "duration": 7693,
       "view_count": 1500000,
@@ -332,7 +332,7 @@
     },
     {
       "video_id": "01qfxLY2rhQ",
-      "title": "Ep #5 | EdTech What’s Broken, What’s Next? With Nikhil, Ronnie Screwvala , Gaurav Munjal & Jay Kotak",
+      "title": "Ep #5 | EdTech What\u2019s Broken, What\u2019s Next? With Nikhil, Ronnie Screwvala , Gaurav Munjal & Jay Kotak",
       "url": "https://www.youtube.com/watch?v=01qfxLY2rhQ",
       "duration": 7672,
       "view_count": 888000,
@@ -500,7 +500,7 @@
     },
     {
       "video_id": "2_yA6GoqUnY",
-      "title": "Ep. #19 | WTF is “Making it” in an Offbeat Career? Nikhil Kamath Ft. Kriti Sanon, Badshah & KL Rahul",
+      "title": "Ep. #19 | WTF is \u201cMaking it\u201d in an Offbeat Career? Nikhil Kamath Ft. Kriti Sanon, Badshah & KL Rahul",
       "url": "https://www.youtube.com/watch?v=2_yA6GoqUnY",
       "duration": 9691,
       "view_count": 2700000,
@@ -560,7 +560,7 @@
     },
     {
       "video_id": "g0CjWbgsdTQ",
-      "title": "Inside Silicon Valley’s VC Playbook | WTF is Venture Capital? - 2025 Edition | Ep. 24",
+      "title": "Inside Silicon Valley\u2019s VC Playbook | WTF is Venture Capital? - 2025 Edition | Ep. 24",
       "url": "https://www.youtube.com/watch?v=g0CjWbgsdTQ",
       "duration": 10337,
       "view_count": 1000000,
@@ -572,7 +572,7 @@
     },
     {
       "video_id": "AdI_XWv-ZTk",
-      "title": "Tira, Bombay Shaving Co., Inde Wild | WTF is Fueling India’s Beauty & Skincare Revolution? | Ep. 25",
+      "title": "Tira, Bombay Shaving Co., Inde Wild | WTF is Fueling India\u2019s Beauty & Skincare Revolution? | Ep. 25",
       "url": "https://www.youtube.com/watch?v=AdI_XWv-ZTk",
       "duration": 13001,
       "view_count": 1000000,
@@ -644,7 +644,7 @@
     },
     {
       "video_id": "WGiAwFmscmc",
-      "title": "WTF are Ray Dalio’s Rules to Build a Real Portfolio? | Nikhil Kamath | WTF is Finance Ep 2 Teaser",
+      "title": "WTF are Ray Dalio\u2019s Rules to Build a Real Portfolio? | Nikhil Kamath | WTF is Finance Ep 2 Teaser",
       "url": "https://www.youtube.com/watch?v=WGiAwFmscmc",
       "duration": 69,
       "view_count": 161000,
@@ -665,6 +665,18 @@
       "live_status": null,
       "playlist_id": "PLVPkbpccdn9_RfsLQtyxP8VYhxT9xyQbM",
       "playlist_title": "WTF is Finance"
+    },
+    {
+      "video_id": "LcWoP6KtZKw",
+      "title": "Nikhil Kamath ft. Police Comm'r & Traffic Police Comm'r of Bengaluru | WTF is Policing? | Special Ep",
+      "url": "https://www.youtube.com/watch?v=LcWoP6KtZKw",
+      "duration": 5304,
+      "view_count": 1403255,
+      "uploader": "Nikhil Kamath",
+      "channel_id": "UCnC8SAZzQiBGYVSKZ_S3y4Q",
+      "live_status": null,
+      "playlist_id": null,
+      "playlist_title": "Special Episodes"
     }
   ]
 }
