@@ -44,6 +44,10 @@ function isApprovedFrameIoUrl(value: string | undefined): value is string {
 export function SourcePanel({ sources }: SourcePanelProps) {
   const citationPlaybackTitleId = useId();
   const uncutPlaybackStatusId = useId();
+  const hasPublishedSource = sources.some((source) => source.sourceMode !== "uncut");
+  const hasMappedUncutSource = sources.some(
+    (source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped",
+  );
 
   if (!sources || sources.length === 0) return null;
 
@@ -73,25 +77,33 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 sources
               </p>
               <p id={uncutPlaybackStatusId} className="mt-0.5 text-[11px] text-muted">
-                {sources.some((source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped")
+                {hasMappedUncutSource
                   ? "uncut timestamps come from the response. no published time was converted."
                   : "published moments are available. uncut stays unavailable until a mapped uncut source is returned."}
               </p>
             </div>
-            <div className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5">
-              <span className="rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention">
-                {sources[0]?.sourceMode === "uncut" ? "uncut" : "published"}
-              </span>
-              <button
-                type="button"
-                disabled
-                aria-describedby={uncutPlaybackStatusId}
-                className="cursor-not-allowed rounded px-2.5 py-1 text-[11px] text-muted opacity-70"
-              >
-                {sources[0]?.sourceMode === "uncut" && sources[0]?.mappingStatus === "mapped"
-                  ? "uncut"
-                  : "uncut unavailable"}
-              </button>
+            <div
+              role="group"
+              aria-label="Source modes present"
+              className="inline-flex rounded border border-foreground/20 bg-surface-subtle p-0.5"
+            >
+              {hasPublishedSource ? (
+                <span className="rounded bg-attention px-2.5 py-1 text-[11px] font-bold text-on-attention">
+                  published
+                </span>
+              ) : null}
+              {hasMappedUncutSource ? (
+                <span className="rounded bg-knowledge px-2.5 py-1 text-[11px] font-bold text-on-knowledge">
+                  uncut
+                </span>
+              ) : (
+                <span
+                  aria-describedby={uncutPlaybackStatusId}
+                  className="rounded px-2.5 py-1 text-[11px] text-muted opacity-70"
+                >
+                  uncut unavailable
+                </span>
+              )}
             </div>
           </div>
         </section>

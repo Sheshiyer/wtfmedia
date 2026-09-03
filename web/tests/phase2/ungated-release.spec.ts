@@ -88,6 +88,8 @@ test("authenticated Beta settings show operator context", async ({ page }) => {
   await page.goto("/ops/settings", { waitUntil: "domcontentloaded" });
   await expect(page.locator("[data-ops-context-strip]")).toBeVisible();
   await expect(page.locator("dt", { hasText: /^environment$/ })).toBeVisible();
+  await expect(page.locator("[data-operator-logout]")).toHaveAttribute("href", /access\/logout/);
+  await expect(page.getByRole("link", { name: "log out to public alpha", exact: true })).toBeVisible();
 });
 
 test("public-link held ops pages use coming soon widgets instead of dead controls", async ({ page }) => {

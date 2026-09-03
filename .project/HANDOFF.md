@@ -2075,3 +2075,111 @@ compact Alpha composer release.
   remain user-owned dirty files and were not staged.
 - Beta authentication, account history, RAG memory, and admin activation
   remain separate from this public Alpha release.
+
+## 2026-09-03 Beta operator Access roster mapping
+
+**Status:** Cloudflare Access roster updated; application-owned D1 migration
+prepared locally; remote D1 and deployment remain held.
+
+- The Cloudflare Access application `WTF Media Beta Operator` protects
+  `wtfhq.in/ops/*` through the allow policy `WTF Media Beta Superadmin`, with
+  a one-month (720-hour) application session duration.
+- The policy now includes `connect2nikhai@gmail.com`,
+  `aditi@allthingswtf.com`, `sai@allthingswtf.com`,
+  `naisthika@allthingswtf.com`, `amal@allthingswtf.com`,
+  `akash@allthingswtf.com`, and `yash.majithia@nksqr.com`. The Shesh email is
+  not in the Access policy.
+- Added `cloudflare/migrations/0009_temporary_super_admin_roster.sql` to add
+  the temporary Connect2nikhai application owner, deactivate the old Shesh
+  application seat, and preserve Aditi as admin with the remaining roster as
+  editors. The migration has not been applied remotely.
+- The existing invitation authority remains explicit: a superadmin approves
+  an email and an admin or superadmin consumes that approval as only `admin`
+  or `editor`. The application currently has no automatic Cloudflare Access
+  policy API sync for future invitations; each newly approved email needs an
+  Access policy update until that integration is separately authorized and
+  provisioned.
+- Verification: focused D1 migration tests passed 5/5; full Cloudflare suite
+  passed 171/171. Existing dirty ISA and architecture files were preserved.
+
+### Held boundaries
+
+- Do not apply `0009_temporary_super_admin_roster.sql`, deploy roster-related
+  changes, or change secrets without a separate remote-operation authorization.
+- The next transfer to Aditi must use the existing audited
+  `transferSuperAdmin` flow so exactly one active superadmin remains.
+
+## 2026-09-03 Alpha feedback follow-up
+
+**Scope:** bounded Alpha correction for the reviewed Phase 1 feedback. The
+authenticated per-email history request remains Beta-only and continues on its
+existing Cloudflare Access/D1 workstream.
+
+- Ask WTF now preserves each citation's own `published` or `uncut` source mode
+  when the response-level mode is `both`; the source summary reports both
+  modes when mapped uncut evidence is present.
+- Mixed published/uncut citations retain the same canonical public episode
+  route, and the browser journey verifies grouped `[1,2]` citations resolve
+  to that exact route while playback labels remain source-specific.
+- Public uncut availability now accepts a contained title-map anchor only when
+  it is unique; ambiguous guest/title matches fail closed instead of choosing
+  an arbitrary row.
+- The conversation scroller now owns the `log` role and live-region label,
+  aligning the accessible conversation boundary with the visible scroll area.
+- Fresh verification: web unit `78/78`, web typecheck, lint, build, complete
+  non-visual browser matrix `230 passed / 8 skipped` out of `238`, and the
+  focused dual-source Cloudflare contract `17/17`.
+- The visual candidate matrix passed `17/17` at the requested public route and
+  viewport states. Checked-in visual comparisons remain held: their existing
+  baselines have mismatched dimensions against the configured viewports and
+  were not overwritten without owner approval.
+- Production web deployment completed through the named `wtfmedia` Wrangler
+  profile as Worker version `1ebeac15-65dc-441f-a043-2bb2c911f996` at 100%
+  traffic. Live probes returned HTTP 200 for `/`, `/chat`, `/episodes`, and
+  `/connections` on `https://wtfhq.in`.
+
+### Held boundaries
+
+- No Beta authentication/history activation, shared password, Access policy,
+  remote migration, secret, DNS, queue, or corpus mutation was performed; the
+  production operation was limited to the web Worker.
+- The four source-correlation exceptions and trusted dual-timeline alignment
+  remain explicit data/provenance gates; no title-only matching was promoted.
+- Existing user-owned dirty planning, ISA, architecture, and migration files
+  remain untouched.
+
+## 2026-09-03 Beta edge context and authenticated shell correction
+
+**Status:** local release correction prepared; staging Access destination
+switch and deployment remain explicit external gates.
+
+- The edge chat handler no longer passes `episodeId: null` into the shared
+  answer runner for an unscoped request. A focused regression covers the
+  anonymous no-episode contract and preserves the existing invalid-ID guard.
+- The authenticated operator shell now passes a real logout action through
+  the existing bottom application pill. Verified operators see `log out to
+  public alpha`, backed by the configured Cloudflare Access logout endpoint;
+  ungated public-link renders do not receive an authenticated logout action.
+- The isolated staging contract now points Access at
+  `wtfmedia-edge-staging.connect2nikhai.workers.dev/ops/*`, with the edge
+  proxying to the separate `wtfmedia-web-staging...` origin. This preserves
+  the signed `x-wtf-ops-context` boundary instead of trusting raw Access
+  headers at the web origin. The dashboard app currently still shows the web
+  origin and needs the owner-approved save operation.
+- The Beta Access policy, staging D1 roster, and isolated resource names are
+  retained. Public Alpha `/`, `/chat`, and `/api/chat` remain outside the
+  protected application and no production resource was changed.
+
+### Verification and next gate
+
+- Focused Cloudflare chat tests: 2/2 passed after the regression fix.
+- Focused web unit tests: 9/9 passed, including the Access logout URL helper.
+- Verification completed: full Cloudflare suite `172/172`, web unit
+  `78/78`, web contracts `86/86`, web typecheck, lint, privacy scan, Next
+  production build, and OpenNext Cloudflare build all passed. No visual
+  browser pass was run per the owner request.
+- After those gates, save the staging Access destination edit in Chrome,
+  deploy only the isolated staging edge/web targets if explicitly authorized,
+  and capture signed-in operator-context, release readback, logout-to-Alpha,
+  and anonymous Alpha invariance receipts. Do not infer Beta readiness from
+  the Access login page alone.

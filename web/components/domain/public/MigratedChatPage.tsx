@@ -65,10 +65,11 @@ function ChatInner() {
       const sourcesHeader = response.headers.get("X-Sources");
       const modelHeader = response.headers.get("X-Model");
       const fallbackHeader = response.headers.get("X-Fallback");
+      const responseSourceMode = parseSourceMode(response.headers.get("X-Source-Mode"));
 
       const sources: Source[] = parsePublicSourceHeader(sourcesHeader).map((source) => ({
         ...source,
-        sourceMode: parseSourceMode(response.headers.get("X-Source-Mode") ?? source.sourceMode),
+        sourceMode: source.sourceMode ?? responseSourceMode,
       }));
 
       // Stream the response body

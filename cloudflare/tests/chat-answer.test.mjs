@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { runChat } from "../src/chat/answer.ts";
+import edge from "../src/index.ts";
 
 const vector = Array.from({ length: 1024 }, () => 0.1);
 
@@ -28,4 +29,21 @@ test("shared authenticated runner preserves published YouTube and uncut provenan
   assert.deepEqual(answer.sources.map((source) => source.sourceMode).sort(), ["published", "uncut"]);
   assert.equal(answer.sources.find((source) => source.sourceMode === "uncut")?.url, "uncut:asset-1");
   assert.match(answer.sources.find((source) => source.sourceMode === "published")?.url ?? "", /youtube\.com\/watch/);
+});
+
+test("edge chat accepts an unscoped request without reintroducing a null episode id", async () => {
+  const response = await edge.fetch(new Request("https://edge.staging.test/v1/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Edge-Secret": "edge-secret" },
+    body: JSON.stringify({ question: "What did the guest say?", sourceMode: "published" }),
+  }), {
+    ...environment([]),
+    EDGE_SHARED_SECRET: "edge-secret",
+    ALLOWED_ORIGIN: "https://web.staging.test",
+    RATE_LIMIT_PER_MINUTE: "20",
+    WTFMEDIA_STATE: { async get() { return null; }, async put() {} },
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).grounded, false);
 });

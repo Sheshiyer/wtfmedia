@@ -1,6 +1,7 @@
 # Alpha production baseline and Beta protected lane
 
-Status: local integration contract. This overlay keeps the DOCX-derived
+Status: local integration contract. Owner clarification on 2026-09-03 keeps
+authenticated per-email history in Beta while that work continues. This overlay keeps the DOCX-derived
 changes on the public Alpha line and gives the existing authenticated work a
 separate Beta activation surface. It does not certify a live deployment.
 
@@ -20,8 +21,10 @@ rollback target. It includes the selectively promoted DOCX slice from
 
 Alpha remains anonymous and stateless at `/chat` and `/api/chat`. It does not
 show authenticated conversation history, saved memory, admin metadata, or a
-release-control mutation surface. FB-04 correlation and FB-05 broad visual
-parity remain separately planned and are not implied by this promotion.
+release-control mutation surface. Authenticated per-email history is not an
+Alpha readiness gate; it remains the active Beta workstream. FB-04 correlation
+and FB-05 broad visual parity remain separately planned and are not implied by
+this promotion.
 
 ## Beta — protected authenticated Ask WTF lane
 
@@ -62,19 +65,28 @@ an operator, or replace the server manifest. The public Alpha `/chat` and
 
 ## Beta next wave
 
-1. Run the local authenticated matrix with Alpha hold and Beta preview/stable
-   transitions, including track-only changes and pause/rollback.
-2. Confirm an isolated staging hostname, Access application/policy, D1,
-   secrets, cache namespace, and Wrangler target before any remote action.
-3. Capture signed-in browser proof for history continuity, logout/
-   reauthentication, RAG source metadata, admin visibility, and release
-   readback. Keep anonymous public probes separate.
-4. Treat FB-04 as a read-only published/uncut correlation audit and FB-05 as a
+1. Keep the isolated staging topology split into an Access-protected edge
+   gateway (`wtfmedia-edge-staging.connect2nikhai.workers.dev/ops/*`) and a
+   separate web origin (`wtfmedia-web-staging...`). The edge remains the only
+   creator of signed operator-context headers consumed by the web origin.
+2. Complete the Cloudflare Access destination edit for the staging app so it
+   targets the edge gateway, while preserving the existing seven-email allow
+   policy and one-month session. This is an external configuration receipt,
+   not repository or production release proof.
+3. Run the local authenticated matrix with Alpha hold and Beta
+   preview/stable transitions, including track-only changes and
+   pause/rollback. The unscoped public chat path must omit an absent
+   `episodeId`, rather than serializing `null` into the answer runner.
+4. Capture signed-in staging proof for operator context, release readback,
+   logout-to-Alpha, reauthentication, history continuity, RAG source metadata,
+   and admin visibility. Keep anonymous public probes separate.
+5. Treat FB-04 as a read-only published/uncut correlation audit and FB-05 as a
    separately scoped visual review after target routes are selected.
 
 ## Acceptance boundary
 
 This overlay is complete when the Alpha candidate is locally integrated,
 Beta's server-governed track selector is tested, the current authenticated
-history/RAG/admin code remains present, and the handoff explicitly records
-that live staging and production activation are still gated.
+history/RAG/admin code remains present, the edge-to-origin context boundary is
+configured, and the handoff explicitly records that Beta activation remains
+staging-gated while public Alpha stays unchanged.

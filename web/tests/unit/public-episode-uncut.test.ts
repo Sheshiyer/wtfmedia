@@ -30,4 +30,13 @@ describe("public episode uncut state", () => {
     expect(state.kind).toBe("absent");
     expect(state.row).toBeNull();
   });
+
+  it("does not choose among multiple title-only matches", () => {
+    const state = resolvePublicEpisodeUncutState(
+      "Neal Mohan x Dario Amodei | WTF",
+    );
+
+    expect(state.kind).toBe("absent");
+    expect(state.row).toBeNull();
+  });
 });

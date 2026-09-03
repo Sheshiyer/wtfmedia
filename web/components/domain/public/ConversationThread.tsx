@@ -78,10 +78,13 @@ export function ConversationThread({
       className="min-h-0 flex-1 overflow-y-auto px-4 pb-60 pt-4 sm:pb-52 sm:pt-6"
       data-testid="conversation-thread"
       tabIndex={0}
+      role="log"
+      aria-label="Conversation"
+      aria-live="polite"
     >
       {header}
 
-      <div role="log" aria-label="Conversation" aria-live="polite">
+      <div>
         {messages.length === 0 ? (
         <div
           className="mx-auto flex w-full max-w-5xl items-center py-4 sm:min-h-[28rem] sm:py-6"

@@ -64,12 +64,17 @@ held.
 
 Cloudflare Access target confirmation: the owner supplied team domain
 `connect2nikhai.cloudflareaccess.com` and confirmed `wtfhq.in/ops/*` as the
-protected Beta/operator path, leaving public Alpha routes unchanged. The web
-UI now sends an unauthenticated Beta action through the fixed same-origin
-Access login path and preserves only a one-time track intent. Live Access app,
-policy, edge route, upstream binding, and authenticated browser proof remain
-unverified. The web-only Alpha promotion is recorded separately; Access, edge,
-and data state were not changed.
+protected production Beta/operator path, leaving public Alpha routes
+unchanged. The isolated staging app and seven-email allow policy are present
+with a one-month session, and staging D1 has the approved temporary roster.
+The staging edge is the intended Access gateway; its web-origin target must be
+kept separate so the edge can verify Access and sign the operator context
+before proxying to the web Worker. The web UI now sends an unauthenticated
+Beta action through the fixed same-origin Access login path, preserves only a
+one-time track intent, and exposes logout back to public Alpha for verified
+operators. The unscoped edge chat fix is local and tested. Production Alpha,
+the production Access app, production D1, and production edge remain outside
+this correction.
 
 The staging test strategy is now explicit: a protected UI toggle projects an
 audited server release manifest with `paused`, `preview`, `stable`, and
@@ -164,6 +169,7 @@ authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
 - [Phase 02]: One shared deny-by-default server policy governs all protected surfaces; UI visibility never grants authority — Unknown resource/action/record/field combinations deny and errors reveal no protected details
 - [Phase 02]: The single temporary super_admin seat belongs to sheshnarayan.iyer@gmail.com and may move only through an atomic audited handoff — Six visible roster candidates were supplied; application-role mapping remains pending and the screenshot may be incomplete
 - [Phase 02]: Visible roster mapping approved: 9d9d owner super_admin; Aditi Raj admin; Sai Date, Naisthika Rathod, Amal Vinayan, Akash Pandey, and Yash Majithia editor — Yash's job title and screenshot completeness remain explicit metadata unknowns
+- [Phase 02, owner clarification 2026-09-03]: The temporary application super_admin is connect2nikhai@gmail.com; Aditi remains admin; Sai Date, Naisthika Rathod, Amal Vinayan, Akash Pandey, and Yash Majithia remain editors; the Shesh application seat is inactive in the prepared migration. The next ownership transfer must use the existing audited handoff flow.
 - [Phase 02]: Append-only D1 audit ledger covers authentication, session, protected read/export, operator/role/settings, and super-admin handoff events — Only allowlisted metadata and correlation IDs are stored; tokens, raw queries, prompts, responses, and private payloads are prohibited
 - [Phase 02]: Audit retention is 365 days production, 30 days staging, ephemeral local; only super_admin/admin may view or export; exports and purges are audited with no archival — Supersedes the unapproved draft 90-day setting
 - [Phase 02]: Local, staging, and production use separate D1 databases, Cloudflare Access applications/policies, secrets, and cache namespaces; production data never moves downward; repository migrations promote forward; previews have no protected backend unless explicitly bound. — Owner-approved Phase 2 isolation boundary.

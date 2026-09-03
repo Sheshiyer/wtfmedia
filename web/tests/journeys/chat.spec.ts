@@ -253,6 +253,59 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(sourcePanel).toContainText("1 source");
   });
 
+  test("preserves each source timeline in a both-mode response", async ({ page }) => {
+    mockChatStream(page, ["The answer is grounded in both timelines. [1,2]"], {
+      "X-Sources": JSON.stringify([
+        {
+          n: 1,
+          video_id: "abcdefghijk",
+          title: "Published source",
+          source_mode: "published",
+          score: 0.92,
+          t: 125,
+        },
+        {
+          n: 2,
+          video_id: "abcdefghijk",
+          title: "Uncut source",
+          source_mode: "uncut",
+          mapping_status: "mapped",
+          score: 0.87,
+          t: 300,
+          url: "https://f.io/uncut-token",
+        },
+      ]),
+      "X-Source-Mode": "both",
+      "X-Fallback": "false",
+    });
+
+    await page.goto("/chat");
+    await settle(page);
+
+    await page.locator("textarea").fill("Compare the published and uncut sources.");
+    await page.locator('button[type="submit"]').click();
+
+    const sourcePanel = page.locator('[data-testid="source-panel"]');
+    await expect(sourcePanel).toBeVisible({ timeout: 10000 });
+    await sourcePanel.locator("summary").click();
+
+    await expect(sourcePanel).toContainText("uncut timestamps come from the response");
+    await expect(sourcePanel).toContainText("published 2:05");
+    await expect(sourcePanel).toContainText("uncut 5:00");
+    await expect(sourcePanel).toContainText("open published moment");
+    await expect(sourcePanel).toContainText("open uncut source");
+
+    const sourceModeSummary = sourcePanel.getByRole("group", { name: "Source modes present" });
+    await expect(sourceModeSummary.getByText("published", { exact: true })).toBeVisible();
+    await expect(sourceModeSummary.getByText("uncut", { exact: true })).toBeVisible();
+    await expect(sourceModeSummary).not.toContainText("uncut unavailable");
+
+    const citationLinks = page.locator('[data-testid="message-1"] .prose-chat a');
+    await expect(citationLinks).toHaveCount(2);
+    await expect(citationLinks.nth(0)).toHaveAttribute("href", "/episodes/abcdefghijk");
+    await expect(citationLinks.nth(1)).toHaveAttribute("href", "/episodes/abcdefghijk");
+  });
+
   /* ── abstention ────────────────────────────────────────────────────── */
 
   test("shows abstention label when response has no grounded content", async ({

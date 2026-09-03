@@ -38,17 +38,15 @@ function findTitleRow(publicTitle: string): TitleMapRow | null {
   const exact = table.rows.find((row) => normalizeTitle(row.title) === normalizedPublicTitle);
   if (exact) return exact;
 
-  const contained = table.rows
-    .filter((row) => {
-      const normalizedRowTitle = normalizeTitle(row.title);
-      return (
-        normalizedRowTitle.length >= 5 &&
-        normalizedPublicTitle.includes(normalizedRowTitle)
-      );
-    })
-    .sort((a, b) => b.title.length - a.title.length);
+  // Public display titles include guest/show context, so a single contained
+  // title-map anchor is acceptable; multiple anchors are ambiguous and must
+  // not select an uncut row by arbitrary title length.
+  const contained = table.rows.filter((row) => {
+    const normalizedRowTitle = normalizeTitle(row.title);
+    return normalizedRowTitle.length >= 5 && normalizedPublicTitle.includes(normalizedRowTitle);
+  });
 
-  return contained[0] ?? null;
+  return contained.length === 1 ? contained[0] : null;
 }
 
 export function resolvePublicEpisodeUncutState(publicTitle: string): PublicEpisodeUncutState {

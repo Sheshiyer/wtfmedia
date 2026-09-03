@@ -204,7 +204,13 @@ async function chat(request: Request, env: Env) {
   }
   if (question.length > MAX_QUESTION_CHARS) return reply(request, env, { error: "question_too_long" }, 400);
   try {
-    const result = await runChat({ question, sourceMode, episodeId, requestId: request.headers.get("x-request-id") }, env);
+    const answerInput = {
+      question,
+      sourceMode,
+      requestId: request.headers.get("x-request-id"),
+      ...(episodeId ? { episodeId } : {}),
+    };
+    const result = await runChat(answerInput, env);
     const { requestId: _requestId, ...body } = result;
     return reply(request, env, body);
   } catch (error) {
