@@ -170,6 +170,14 @@ html[data-wtf-theme] .chip {
   color: var(--wtf-text-primary);
 }
 
+.wtf-bottom-pill {
+  scrollbar-width: none;
+}
+
+.wtf-bottom-pill::-webkit-scrollbar {
+  display: none;
+}
+
 .wtf-wordmark-plate {
   display: inline-flex;
   align-items: center;

@@ -1,14 +1,16 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Public shell application navigation focus", () => {
+test.describe("Public shell bottom navigation focus", () => {
   test.use({ viewport: { width: 320, height: 640 } });
 
-  test("top disclosure is keyboard reachable", async ({ page }) => {
+  test("top disclosure and persistent bottom navigation are reachable", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByRole("button", { name: "open navigation", exact: true })).toHaveCount(0);
     await expect(page.getByRole("dialog", { name: "application navigation" })).toHaveCount(0);
-    await expect(page.locator(".wtf-bottom-pill")).toHaveCount(0);
+    const bottomNavigation = page.getByRole("navigation", { name: "Bottom application navigation", exact: true });
+    await expect(bottomNavigation).toBeVisible();
+    await expect(bottomNavigation).toHaveAttribute("id", "wtf-bottom-navigation");
 
     const navigation = page.getByRole("navigation", { name: "Application", exact: true });
     await expect(navigation).toBeHidden();

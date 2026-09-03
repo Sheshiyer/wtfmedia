@@ -7,7 +7,7 @@ import AxeBuilder from "@axe-core/playwright";
  * Verifies the migrated brand effects wired into PublicShell:
  * - MigratedWordmarkMini in header (semantic tokens, not legacy WordmarkMini)
  * - Header wordmark plus application disclosure
- * - Single application navigation surface
+ * - Persistent bottom application navigation
  * - OptionalPointerAccent (renders nothing on touch/reduced-motion)
  * - Reduced motion: navigation remains static, pointer accent hidden
  * - No horizontal overflow at 320/768/1440
@@ -41,14 +41,17 @@ test.describe("brand motion journey", () => {
 
   // ─── Header and Navigation ────────────────────────────────────────
 
-  test("header owns the wordmark and application navigation", async ({ page }) => {
+  test("header and bottom rail keep distinct navigation landmarks", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     const header = page.locator("header").first();
     await expect(header.getByRole("link", { name: "WTF OS" })).toBeVisible();
     await expect(header.getByRole("button", { name: "Open application navigation" })).toBeVisible();
-    await expect(header.locator('nav[aria-label="Application"]')).toBeAttached();
-    await expect(page.locator(".wtf-bottom-pill")).toHaveCount(0);
+    await expect(header.locator('#wtf-application-navigation[aria-label="Application"]')).toBeAttached();
+    await expect(page.locator('#wtf-bottom-navigation[aria-label="Bottom application navigation"]')).toBeVisible();
+    await expect(page.locator("#wtf-application-navigation")).toHaveCount(1);
+    await expect(page.locator("#wtf-bottom-navigation")).toHaveCount(1);
+    await expect(page.locator("[data-bottom-wordmark]")).toBeVisible();
   });
 
   test("application disclosure keeps all destinations readable", async ({ page }) => {

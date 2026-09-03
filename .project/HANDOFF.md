@@ -1637,3 +1637,36 @@ enabled by this deployment.
 - The user-requested no-Playwright constraint was honored locally. The GitHub
   Phase 1 aggregate was canceled after its Playwright step began; Phase 2 and
   architecture checks passed. PR #46 remains open and unmerged.
+
+## 2026-09-03 Beta consolidation navigation restoration (local, deploy held)
+
+The shared WTF OS shell now restores the persistent `wtf-bottom-pill` on the
+isolated `codex/beta-consolidation` branch. The header and bottom navigation
+use distinct IDs, the shared WTF OS wordmark is rendered in both shell
+surfaces, and the fixed Ask Composer is offset above the bottom rail. Public
+`/chat` and `/api/chat` contracts remain unchanged; authenticated history
+continues to live at protected `/ops/chat`.
+
+The branch already contained the canonical same-origin Access login target:
+`/cdn-cgi/access/login?redirect_url=%2Fops%2Fsettings%3FreleaseTrack%3Dbeta`.
+No Access, D1, cache, secret, DNS, deployment, or Beta activation mutation was
+performed. The shared checkout's unrelated dirty ISA/architecture work was not
+edited.
+
+### Verification
+
+- Web unit: 87/87; contracts: 86/86; typecheck, lint, production build, and
+  privacy scan passed.
+- Cloudflare Worker suite: 176/176 passed.
+- Architecture ledger was regenerated and its freshness check passed.
+- Read-only production probes found `wtf-bottom-pill` and two WTF OS wordmark
+  markers on `/` and `/chat`; `/ops/settings?releaseTrack=beta` returned the
+  Cloudflare Access 302 with the canonical return target.
+- Playwright was not run, per the current checklist. Browser layout, signed
+  session continuity, logout/reauthentication, and live deployment parity
+  remain evidence gates before PR #46 can merge or Beta can activate.
+
+The two bounded external read-only audits were unavailable during this pass:
+Antigravity returned quota 429 and the GitHub Claude audit aborted without
+substantive output. Repository evidence was used instead; no worker output was
+accepted as validation.

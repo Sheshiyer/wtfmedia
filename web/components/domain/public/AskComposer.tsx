@@ -62,7 +62,7 @@ export function AskComposer({
         e.preventDefault();
         onSubmit();
       }}
-      className="fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 border-y-2 border-foreground bg-surface-raised px-4 py-4 shadow-[0_-10px_0_rgb(var(--wtf-foreground-rgb)/0.08)] sm:bottom-5 sm:px-8"
+      className="wtf-ask-composer fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-40 border-y-2 border-foreground bg-surface-raised px-4 py-4 shadow-[0_-10px_0_rgb(var(--wtf-foreground-rgb)/0.08)] sm:bottom-24 sm:px-8"
       data-testid="ask-composer"
     >
       <div className="mx-auto grid max-w-5xl gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">

@@ -93,11 +93,13 @@ export const MobileDrawer: Story = {
   },
   play: async ({ canvasElement }) => {
     const primaryNav = canvasElement.querySelector("#wtf-application-navigation");
+    const bottomNav = canvasElement.querySelector("#wtf-bottom-navigation");
     const applicationNav = canvasElement.querySelector('nav[aria-label="Application"]');
     const logo = canvasElement.querySelector('header a[aria-label="WTF OS"]');
     const toggle = canvasElement.querySelector("[data-navigation-toggle]");
-    if (!primaryNav || !applicationNav || !logo || !toggle) {
+    if (!primaryNav || !bottomNav || !applicationNav || !logo || !toggle) {
       throw new Error("Mobile shell must keep header controls and scroll-safe dock navigation");
     }
+    if (primaryNav.id === bottomNav.id) throw new Error("Header and bottom navigation IDs must be distinct");
   },
 };

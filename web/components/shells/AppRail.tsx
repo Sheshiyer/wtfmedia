@@ -44,6 +44,9 @@ export function AppRail({
       return (aIndex === -1 ? primaryOrder.length : aIndex) - (bIndex === -1 ? primaryOrder.length : bIndex);
     });
   const applicationNavigation = [...primaryNavigation, ...utilityNavigation];
+  const centerIndex = Math.ceil(applicationNavigation.length / 2);
+  const leftNavigation = applicationNavigation.slice(0, centerIndex);
+  const rightNavigation = applicationNavigation.slice(centerIndex);
   const [navigationOpen, setNavigationOpen] = useState(false);
   const navigationToggleRef = useRef<HTMLButtonElement>(null);
   const navigationRef = useRef<HTMLElement>(null);
@@ -162,8 +165,31 @@ export function AppRail({
           </div>
         </div>
       </header>
-      {/* The former floating bottom navigation pill is intentionally disabled.
-          The top disclosure is now the single application navigation surface. */}
+      <div className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
+        <div className="wtf-bottom-pill mx-auto flex w-fit max-w-[min(74rem,calc(100vw-1.5rem))] items-center gap-2 overflow-x-auto rounded-full border-2 border-foreground bg-surface-raised/95 px-2.5 py-2 shadow-[0_10px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md sm:px-3">
+          <nav
+            id="wtf-bottom-navigation"
+            aria-label="Bottom application navigation"
+            className="flex min-w-max items-center gap-1"
+          >
+            {renderNavLinks(leftNavigation)}
+            <Link
+              href={mode === "operator" ? "/ops" : "/"}
+              aria-label="WTF OS"
+              className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
+              data-bottom-wordmark
+            >
+              <MigratedWordmarkMini plate />
+            </Link>
+            {renderNavLinks(rightNavigation)}
+          </nav>
+          {utility ? (
+            <div className="ml-1 flex shrink-0 items-center border-l-2 border-foreground/20 pl-2">
+              {utility}
+            </div>
+          ) : null}
+        </div>
+      </div>
     </>
   );
 }
