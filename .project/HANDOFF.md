@@ -18,6 +18,8 @@ checkout's unrelated uncommitted ISA/architecture refresh remains preserved.
   Alpha is the safe legacy hold; Beta can enable protected chat only when the
   server lifecycle is `preview` or `stable`. Track selection is audited and
   server-governed; it cannot change public `/chat` or `/api/chat`.
+- Corrected the Alpha composer disabled-state contrast so its submit action
+  remains WCAG-readable without weakening the disabled affordance.
 - The divergent `codex/alpha-beta-release-track` branch was not merged
   wholesale. Its remaining files stay preserved for selective comparison.
 - No production deploy, remote D1 migration, Access mutation, secret/cache
@@ -27,8 +29,9 @@ checkout's unrelated uncommitted ISA/architecture refresh remains preserved.
 
 - Integrated Cloudflare suite: 171/171 passed after installing only ignored
   local dependencies in the new worktree.
-- The web unit, contract, typecheck, lint, build, and browser matrix remain
-  the final integrated-candidate checks.
+- The integrated web unit/contract suites, typecheck, lint, and build pass;
+  the responsive browser matrix passes 51/51 across 320/768/1440, including
+  the serious/critical Axe check.
 - Beta next requires isolated staging resources and signed-in browser proof
   for history continuity, RAG grounding/source metadata, admin visibility,
   and `paused -> preview -> stable -> paused` plus rollback. Live activation
