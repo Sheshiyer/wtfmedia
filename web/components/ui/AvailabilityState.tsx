@@ -154,9 +154,7 @@ export const AvailabilityState = forwardRef<
       aria-label={merged.label}
       data-availability={state}
       className={[
-        "flex flex-col gap-2 p-4",
-        "rounded-[var(--radius-control)]",
-        "border-2 border-ink/20",
+        "flex flex-col gap-2 rounded-[var(--wtf-radius-control)] border-2 border-foreground/20 bg-surface-raised p-4 text-foreground",
         className,
       ]
         .filter(Boolean)
@@ -172,8 +170,8 @@ export const AvailabilityState = forwardRef<
         </span>
         <span className="font-label text-sm font-bold">{merged.label}</span>
       </div>
-      <p className="text-sm text-ink/70">{merged.explanation}</p>
-      <p className="text-xs text-ink/70">{merged.remainingBehavior}</p>
+      <p className="text-sm text-secondary">{merged.explanation}</p>
+      <p className="text-xs text-muted">{merged.remainingBehavior}</p>
       <div className="flex items-center gap-2 mt-1">
         <p className="text-xs font-medium">{merged.recovery}</p>
         {action}

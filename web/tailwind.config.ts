@@ -14,6 +14,11 @@ const config: Config = {
         "surface-subtle": "rgb(var(--wtf-surface-subtle-rgb) / <alpha-value>)",
         "surface-raised": "rgb(var(--wtf-surface-raised-rgb) / <alpha-value>)",
         "surface-structure": "rgb(var(--wtf-surface-structure-rgb) / <alpha-value>)",
+        primary: "rgb(var(--wtf-text-primary-rgb) / <alpha-value>)",
+        secondary: "rgb(var(--wtf-text-secondary-rgb) / <alpha-value>)",
+        muted: "rgb(var(--wtf-text-muted-rgb) / <alpha-value>)",
+        // Keep the explicit names available for generated consumers that use
+        // `text-text-*`; public components use the shorter role utilities.
         "text-primary": "rgb(var(--wtf-text-primary-rgb) / <alpha-value>)",
         "text-secondary": "rgb(var(--wtf-text-secondary-rgb) / <alpha-value>)",
         "text-muted": "rgb(var(--wtf-text-muted-rgb) / <alpha-value>)",

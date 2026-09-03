@@ -29,7 +29,7 @@ export interface IngestionJob {
 
 const statusBadgeStyles: Record<IngestionJobStatus, string> = {
   pending: "border-attention bg-attention/20 text-foreground",
-  running: "border-information bg-information text-white animate-pulse",
+  running: "border-information bg-information text-on-information animate-pulse",
   completed: "border-live bg-live/20 text-foreground",
   failed: "border-editorial bg-editorial/20 text-foreground",
   skipped_unchanged: "border-foreground/30 bg-surface-subtle text-muted",

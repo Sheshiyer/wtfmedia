@@ -36,8 +36,8 @@ export function PublicNav() {
             data-cursor="go"
             className={`px-3 py-2 rounded-full eyebrow transition-colors ${
               isActive
-                ? "bg-ink text-cream"
-                : "text-ink/80 hover:bg-ink hover:text-cream"
+                ? "bg-surface-structure text-on-structure"
+                : "text-foreground/80 hover:bg-surface-structure hover:text-on-structure"
             }`}
           >
             {d.label}

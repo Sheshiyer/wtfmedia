@@ -29,7 +29,7 @@ export function MigratedGuestStrip() {
             rel="noreferrer"
             className="group shrink-0 w-[150px]"
           >
-            <div className="relative w-[150px] h-[150px] rounded-panel overflow-hidden border-2 border-foreground shadow-[4px_4px_0_0_var(--color-foreground)] group-hover:shadow-[7px_7px_0_0_var(--color-foreground)] group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 transition-all">
+            <div className="relative h-[150px] w-[150px] overflow-hidden rounded-panel border-2 border-foreground shadow-[4px_4px_0_0_var(--wtf-foreground)] transition-[transform,box-shadow] duration-fast group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 group-hover:shadow-[7px_7px_0_0_var(--wtf-foreground)]">
               <Image
                 src={thumbnailUrl(g.video_id)}
                 alt={g.name}
