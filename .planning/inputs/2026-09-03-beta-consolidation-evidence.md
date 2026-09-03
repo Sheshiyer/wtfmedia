@@ -61,7 +61,7 @@ were intentionally not run; behavioral browser coverage remains required.
 - Web unit: `npm run test:unit` — 81 passed across 21 files.
 - Web contracts: `npm run test:contracts` — 86 passed across 8 files.
 - Web typecheck and lint — passed with zero warnings treated as errors.
-- Privacy scan: 0 violations across 301 bounded files.
+- Privacy scan: 0 violations across 302 bounded files.
 - OpenNext Cloudflare build — passed; `/ops/api/[...path]` is in the route
   manifest.
 - Full Playwright behavior/a11y/journey run — 228 passed, 8 skipped out of
