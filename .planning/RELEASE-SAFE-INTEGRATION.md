@@ -72,8 +72,10 @@ be presented as the implemented staging control plane.
 The read-only audit found semantic drift from `origin/main` in uncut citation
 projection, `both`-mode balancing, and ingest source-admission checks. It also
 found overlapping preserved branches, so whole-branch cherry-picks are
-prohibited. The bounded local wave is to restore and test those invariants,
-reconcile planning counters, and stop before authenticated-history code.
+prohibited. The bounded local wave restores and tests those invariants,
+reconciles planning counters, and implements the authenticated-history slice
+only behind the feature-off release gate; external activation remains
+separately gated.
 
 ## GSD sequence
 

@@ -1737,6 +1737,90 @@ team-owned UI and was not edited.
   activation script tests, Worker bundle dry-run, `git diff --check`, and
   final read-only review.
 
+- Red/green unit proof: `npm run test:unit -- source-mode.test.ts` — 4 passed.
+- Type and style proof: `npm run typecheck` and `npm run lint` — passed.
+- Browser proof: `npm run test:browser -- --grep "filters mixed citations"` — 1 passed.
+- Production API read-only baseline: `published` returned 2 citations, `uncut`
+  returned 4 including the Suniel Shetty episode, and `both` returned 6 mixed
+  citations. No deployment, registry, credential, or production mutation was
+  performed.
+
+## 2026-09-02 Authenticated Ask WTF history and metadata (local, deploy held)
+
+The bounded local implementation now connects protected Access/D1 operator
+identity to the shared Cloudflare RAG runner. `/ops/api/chat` accepts only a
+server-processed question, persists the account-scoped user turn, generates
+the assistant answer from the same published/uncut/both retrieval path as
+public chat, and persists source metadata, grounding state, model/fallback,
+request linkage, and an idempotent assistant key. Client-supplied assistant
+content is ignored. D1 conversation summaries include message counts and
+admin/super_admin projections include the owning operator display name and
+email; ordinary operators remain owner-scoped. The authenticated UI now has a
+composer, source-mode selector, durable-thread continuation, source cards,
+grounding/model metadata, and explicit uncut-unavailable messaging. Editor
+chat access matches the Cloudflare capability matrix; cross-operator history
+remains admin-only.
+
+### Verification
+
+- `npm test --prefix cloudflare` — 156/156 passed, including shared dual-source
+  runner, server-owned answer, idempotency, owner isolation, admin projection,
+  and archive-only history checks.
+- `npm run test:unit --prefix web -- authenticated-chat-parser policies` — 3/3
+  passed.
+- `npm run typecheck --prefix web` and `npm run lint --prefix web` — passed.
+- `git diff --check` — passed.
+- Full web unit suite — 75/76 passed; the unrelated existing
+  `theme-contract` expectation still names `--wtf-on-structure-rgb` while the
+  current token contract uses `--wtf-text-on-structure-rgb`.
+
+No migration was applied remotely, and no production/staging deployment,
+Access policy, D1, queue, R2, secret, DNS, or Wrangler resource mutation
+occurred. Staging target/resource isolation and browser acceptance remain
+gates; Playwright Chromium is not installed in this environment. Durable
+history is the account-memory slice; automatic saved-memory promotion remains
+disabled and out of scope.
+
+## 2026-09-02 Next-wave verification and external gate receipt
+
+The local continuation-mode review is complete. Existing authenticated chat
+threads now execute each turn using the selected `published`, `uncut`, or
+`both` evidence mode, and persist that mode in the user and assistant message
+metadata. The account-scoped answer path remains server-owned; client-supplied
+assistant text is ignored. Admin and super-admin projections retain owner
+display name/email, conversation counts, source metadata, grounding state,
+model/fallback, request linkage, and archive/export policy.
+
+### Verification
+
+- `npm test --prefix cloudflare` — 156/156 passed after the continuation-mode
+  regression proof.
+- `npm run test:contracts --prefix web` — 86/86 passed.
+- `npm run typecheck --prefix web` — passed.
+- `npm run lint --prefix web` — passed.
+- `npm run test:unit --prefix web -- authenticated-chat-parser policies source-mode` — 7/7 passed.
+- `npm run build --prefix web` — passed; `/ops/chat` and the authenticated
+  conversation deep-link route are present in the build output.
+- `npm run test:privacy --prefix web -- --check` — 0 violations across 300
+  bounded public/artifact/planning files.
+- `git diff --check` — passed.
+
+### Read-only Cloudflare receipt
+
+- Named `wtfmedia` Wrangler profile authenticated successfully for read-only
+  deployment, R2, queue, and D1 inspection.
+- Edge and web deployment histories are readable; the latest listed entries
+  are dated 2026-09-01 and predate this uncommitted local slice.
+- Remote `wtfmedia-ops` reports `0006_chat_history.sql` and
+  `0007_release_manifest.sql` as migrations to be applied, and a read-only
+  table query found no `chat_conversations`, `chat_messages`, or
+  `release_manifests` tables.
+
+No remote migration, deployment, Access policy change, secret, DNS, queue, R2,
+or production-data mutation was performed. The local feature remains paused;
+staging Access application/policy, isolated staging D1/cache/secrets, remote
+migration, deployment, and authenticated browser pause/restore evidence remain
+the activation gate.
 The owner approved production on 2026-08-31. Source is committed locally and
 the compatibility receipt is updated. Live Vectorize still needs the
 `video_id` metadata index before intended vectors are re-upserted. No push,

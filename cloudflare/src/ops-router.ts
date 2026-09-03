@@ -25,6 +25,8 @@ import {
   type ChatActor,
   type MessageInput,
 } from "./chat/history.ts";
+import { runChat, type ChatAnswer, type ChatAnswerInput } from "./chat/answer.ts";
+import { parseSourceMode } from "./chat/source-mode.ts";
 import {
   canMutateAuthenticatedChatRelease,
   isAuthenticatedChatEnabled,
@@ -43,6 +45,8 @@ export type OpsEnv = {
   ACCESS_AUDIENCE: string;
   ACCESS_JWKS_URL: string;
   CATALOGUE?: any;
+  AI?: any;
+  VECTORIZE?: any;
   EDGE_SHARED_SECRET?: string;
   CHAT_HISTORY_ENABLED?: string | boolean;
 };
@@ -51,6 +55,7 @@ type OpsDependencies = {
   verifyAccess?: (assertion: string | null) => Promise<AccessVerification>;
   fetchOrigin?: typeof fetch;
   now?: () => number;
+  runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer>;
 };
 
 function denied(): Response {
@@ -92,12 +97,6 @@ function jsonBody(request: Request): Promise<Record<string, unknown> | null> {
   return request.json().then((body) => body && typeof body === "object" && !Array.isArray(body) ? body as Record<string, unknown> : null).catch(() => null);
 }
 
-function chatMessageInput(value: unknown, role?: "user" | "assistant"): MessageInput | null {
-  if (typeof value === "string") return { role, content: value };
-  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-  return { ...(value as MessageInput), ...(role ? { role } : {}) };
-}
-
 function conversationIdFromPath(pathname: string): string | null {
   const match = pathname.match(/\/chat\/conversations\/(cnv_[A-Za-z0-9-]{8,88})(?:\/(?:archive|export))?$/u);
   return match?.[1] ?? null;
@@ -113,7 +112,30 @@ async function chatExport(request: Request, env: OpsEnv, context: OperatorContex
   return new Response(csv, { headers: { ...protectedResponseHeaders, "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename=wtfmedia-chat-history${suffix}.csv`, "x-content-type-options": "nosniff" } });
 }
 
-async function chatApi(request: Request, env: OpsEnv, context: OperatorContext): Promise<Response> {
+function requestIdForChat(request: Request): string {
+  const value = request.headers.get("x-request-id");
+  return value && /^[A-Za-z0-9._:-]{1,160}$/u.test(value) ? value : crypto.randomUUID();
+}
+
+function questionForChat(body: Record<string, unknown>): string | null {
+  const value = body.question ?? body.message ?? body.userMessage;
+  const content = typeof value === "string"
+    ? value
+    : value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>).content : null;
+  if (typeof content !== "string") return null;
+  const question = content.trim();
+  return question.length > 0 && question.length <= 2_000 ? question : null;
+}
+
+function unavailableAnswer(sourceMode: ChatAnswer["sourceMode"], requestId: string): ChatAnswer {
+  return {
+    answer: "I couldn’t retrieve transcript evidence for this turn. The conversation is saved, but no grounded answer was produced.",
+    sources: [], grounded: false, sourceMode, uncutUnavailable: false,
+    model: null, modelFallback: false, requestId,
+  };
+}
+
+async function chatApi(request: Request, env: OpsEnv, context: OperatorContext, dependencies: OpsDependencies): Promise<Response> {
   const actor: ChatActor = { operatorId: context.operatorId, role: context.role };
   const path = new URL(request.url).pathname;
   if (path.endsWith("/export")) return chatExport(request, env, context, conversationIdFromPath(path));
@@ -145,14 +167,16 @@ async function chatApi(request: Request, env: OpsEnv, context: OperatorContext):
     return archived ? Response.json({ conversation: archived }, { headers: protectedResponseHeaders }) : denied();
   }
 
-  const requestId = request.headers.get("x-request-id") ?? body.requestId;
+  const requestId = requestIdForChat(request);
   const idempotencyKey = request.headers.get("idempotency-key") ?? body.idempotencyKey;
   const selectedConversationId = conversationId ?? body.conversationId;
-  const userValue = body.userMessage ?? body.message ?? (body.question === undefined ? undefined : { content: body.question });
-  const userMessage = chatMessageInput(userValue, "user");
-  if (!userMessage) return denied();
-  userMessage.requestId ??= requestId;
-  userMessage.idempotencyKey ??= idempotencyKey;
+  const question = questionForChat(body);
+  if (!question) return denied();
+  const requestedSourceMode = body.sourceMode === undefined ? undefined : parseSourceMode(body.sourceMode);
+  const userMessage: MessageInput = {
+    role: "user", content: question, sourceMetadata: requestedSourceMode ? { sourceMode: requestedSourceMode } : {}, groundingState: "ungrounded",
+    requestId, idempotencyKey,
+  };
 
   let view;
   if (selectedConversationId === undefined) {
@@ -171,17 +195,36 @@ async function chatApi(request: Request, env: OpsEnv, context: OperatorContext):
     if (!view) return denied();
   }
 
-  const assistantValue = body.assistant ?? body.answer;
-  if (assistantValue !== undefined) {
-    const assistant = chatMessageInput(assistantValue, "assistant");
-    if (!assistant) return denied();
-    const assistantRecord = assistantValue && typeof assistantValue === "object" && !Array.isArray(assistantValue) ? assistantValue as Record<string, unknown> : {};
-    assistant.sourceMetadata ??= assistantRecord.sources === undefined && assistantRecord.citations === undefined ? {} : { sources: assistantRecord.sources ?? assistantRecord.citations };
-    assistant.grounded ??= assistantRecord.grounded;
-    assistant.model ??= assistantRecord.model;
-    assistant.modelFallback ??= assistantRecord.modelFallback ?? assistantRecord.fallback;
-    assistant.requestId ??= requestId;
-    assistant.idempotencyKey ??= typeof idempotencyKey === "string" ? `${idempotencyKey}:assistant` : undefined;
+  const assistantKey = typeof idempotencyKey === "string" ? `${idempotencyKey}:assistant` : null;
+  if (!assistantKey || !view.messages.some((message) => message.idempotency_key === assistantKey)) {
+    const answerInput: ChatAnswerInput = {
+      question: view.messages.filter((message) => message.role === "user").at(-1)?.content ?? question,
+      sourceMode: requestedSourceMode ?? view.conversation.source_mode,
+      episodeId: view.conversation.episode_id ?? undefined,
+      requestId,
+    };
+    let answer: ChatAnswer;
+    let unavailable = false;
+    try {
+      answer = await (dependencies.runChat ?? ((input, targetEnv) => runChat(input, targetEnv as { AI: any; VECTORIZE: any })))(answerInput, env);
+    } catch {
+      answer = unavailableAnswer(view.conversation.source_mode, requestId);
+      unavailable = true;
+    }
+    const assistant: MessageInput = {
+      role: "assistant",
+      content: answer.answer,
+      sourceMetadata: {
+        sources: answer.sources,
+        sourceMode: answer.sourceMode,
+        uncutUnavailable: answer.uncutUnavailable,
+      },
+      groundingState: unavailable ? "unavailable" : answer.grounded ? "grounded" : "ungrounded",
+      model: answer.model,
+      modelFallback: answer.modelFallback,
+      requestId: answer.requestId,
+      idempotencyKey: assistantKey ?? undefined,
+    };
     const assistantId = view.conversation.id;
     if (!await appendMessage(env.DB, context.operatorId, assistantId, assistant, "assistant")) return denied();
     view = await getConversation(env.DB, context.operatorId, assistantId);
@@ -301,7 +344,7 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
     if (releaseRoute(url.pathname)) return releaseApi(request, env, context);
     if (url.pathname === "/api/ops/operators") return operatorApi(request, env, context);
     if (url.pathname === "/api/ops/audit") return auditApi(request, env, context);
-    if (chatRoute(url.pathname) && (url.pathname.includes("/api/chat"))) return chatApi(request, env, context);
+    if (chatRoute(url.pathname) && (url.pathname.includes("/api/chat"))) return chatApi(request, env, context, dependencies);
     if (url.pathname === "/ops/api/assets/upload-intent" || url.pathname === "/api/ops/assets/upload-intent") {
       return handleAssetUploadIntent(request, env, context);
     }

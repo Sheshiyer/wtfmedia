@@ -5,6 +5,7 @@ describe("protected policy projection", () => {
   it("denies unknown protected paths and keeps editor navigation privileges bounded", () => {
     expect(checkPolicy("editor", "/ops")).toBe(true);
     expect(checkPolicy("editor", "/ops/production")).toBe(true);
+    expect(checkPolicy("editor", "/ops/chat")).toBe(true);
     expect(checkPolicy("editor", "/ops/operators")).toBe(false);
     expect(checkPolicy("editor", "/ops/audit")).toBe(false);
     expect(checkPolicy("editor", "/ops/unknown")).toBe(false);
