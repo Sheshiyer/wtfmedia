@@ -161,26 +161,27 @@ function ChatInner() {
 
   return (
     <div className="flex h-[calc(100vh-3rem)] min-h-0 flex-col bg-canvas">
-      <WorkspaceHeader
-        eyebrow="get the moment"
-        title="ask wtf"
-        summary="ask the catalogue. quoted evidence stays beside synthesis. published and uncut stay named."
-        accent="knowledge"
-        size="page"
-        context={
-          <div className="hidden flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary sm:flex">
-            <span>{episodeId ? "episode scope" : "catalogue scope"}</span>
-            <span>source-backed answers</span>
-            <span>mapped time only</span>
-          </div>
-        }
-      />
-
       {/* Conversation */}
       <ConversationThread
         messages={messages}
         loading={loading}
         onRetry={retry}
+        header={
+          <WorkspaceHeader
+            eyebrow="get the moment"
+            title="ask wtf"
+            summary="ask the catalogue. quoted evidence stays beside synthesis. published and uncut stay named."
+            accent="knowledge"
+            size="page"
+            context={
+              <div className="hidden flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary sm:flex">
+                <span>{episodeId ? "episode scope" : "catalogue scope"}</span>
+                <span>source-backed answers</span>
+                <span>mapped time only</span>
+              </div>
+            }
+          />
+        }
       />
 
       {/* Composer */}

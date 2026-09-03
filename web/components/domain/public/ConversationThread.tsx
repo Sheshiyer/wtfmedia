@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
@@ -35,12 +36,15 @@ export interface ConversationThreadProps {
   messages: Message[];
   loading: boolean;
   onRetry: () => void;
+  /** Optional page intro that should scroll with the conversation content. */
+  header?: ReactNode;
 }
 
 export function ConversationThread({
   messages,
   loading,
   onRetry,
+  header,
 }: ConversationThreadProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -73,12 +77,12 @@ export function ConversationThread({
       ref={scrollContainerRef}
       className="min-h-0 flex-1 overflow-y-auto px-4 pb-60 pt-4 sm:pb-52 sm:pt-6"
       data-testid="conversation-thread"
-      role="log"
-      aria-label="Conversation"
-      aria-live="polite"
       tabIndex={0}
     >
-      {messages.length === 0 ? (
+      {header}
+
+      <div role="log" aria-label="Conversation" aria-live="polite">
+        {messages.length === 0 ? (
         <div
           className="mx-auto flex w-full max-w-5xl items-center py-4 sm:min-h-[28rem] sm:py-6"
           data-testid="empty-state"
@@ -134,7 +138,7 @@ export function ConversationThread({
             </aside>
           </div>
         </div>
-      ) : (
+        ) : (
         <div className="max-w-2xl mx-auto space-y-6">
           {messages.map((msg, i) => (
             <div key={i} className="space-y-2" data-testid={`message-${i}`}>
@@ -200,23 +204,24 @@ export function ConversationThread({
 
           <div ref={messagesEndRef} />
         </div>
-      )}
-
-      {/* Retry bar */}
-      {messages.length > 0 &&
-        !loading &&
-        messages[messages.length - 1]?.role === "assistant" && (
-          <div className="mt-4 flex justify-center border-t-2 border-foreground/15 px-4 py-3">
-            <Button
-              onClick={onRetry}
-              variant="ghost"
-              className="text-xs"
-              data-testid="retry-button"
-            >
-              retry answer
-            </Button>
-          </div>
         )}
+
+        {/* Retry bar */}
+        {messages.length > 0 &&
+          !loading &&
+          messages[messages.length - 1]?.role === "assistant" && (
+            <div className="mt-4 flex justify-center border-t-2 border-foreground/15 px-4 py-3">
+              <Button
+                onClick={onRetry}
+                variant="ghost"
+                className="text-xs"
+                data-testid="retry-button"
+              >
+                retry answer
+              </Button>
+            </div>
+          )}
+      </div>
     </div>
   );
 }

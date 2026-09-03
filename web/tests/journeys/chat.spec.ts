@@ -519,4 +519,40 @@ test.describe("/chat journey — migrated variant", () => {
     expect(metrics.documentHeight).toBeLessThanOrEqual(metrics.viewport + 1);
     expect(metrics.composer?.bottom).toBeCloseTo(metrics.dock?.top ?? 0, 0);
   });
+
+  test("chat header scrolls with conversation while dock and composer stay fixed", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/chat");
+    await settle(page);
+
+    const metrics = await page.evaluate(() => {
+      const thread = document.querySelector('[data-testid="conversation-thread"]');
+      const header = thread?.querySelector("[data-workspace-header]");
+      const composer = document.querySelector('[data-testid="ask-composer"]');
+      const dock = document.querySelector(".wtf-bottom-pill");
+      const before = {
+        headerTop: header?.getBoundingClientRect().top ?? 0,
+        composerTop: composer?.getBoundingClientRect().top ?? 0,
+        dockTop: dock?.getBoundingClientRect().top ?? 0,
+        scrollHeight: thread?.scrollHeight ?? 0,
+        clientHeight: thread?.clientHeight ?? 0,
+      };
+
+      if (thread) thread.scrollTop = thread.scrollHeight;
+
+      return {
+        before,
+        after: {
+          headerTop: header?.getBoundingClientRect().top ?? 0,
+          composerTop: composer?.getBoundingClientRect().top ?? 0,
+          dockTop: dock?.getBoundingClientRect().top ?? 0,
+        },
+      };
+    });
+
+    expect(metrics.before.scrollHeight).toBeGreaterThan(metrics.before.clientHeight);
+    expect(metrics.after.headerTop).toBeLessThan(metrics.before.headerTop);
+    expect(metrics.after.composerTop).toBe(metrics.before.composerTop);
+    expect(metrics.after.dockTop).toBe(metrics.before.dockTop);
+  });
 });
