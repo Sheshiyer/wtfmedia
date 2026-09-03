@@ -1,5 +1,19 @@
 # Project handoff
 
+## 2026-09-03 Alpha context-strip correction (local, deployment held)
+
+The public Alpha settings projection no longer renders the operator context
+strip (`organization scope`, `effective role`, and `last verified`). That
+strip remains available for authenticated Beta/operator roles, where its
+scope and verification state are meaningful. The fix is committed as
+`e698128` (`fix(web): keep operator context out of alpha`).
+
+Local web unit tests (12/12), typecheck, lint, and production build passed.
+Live production was read-only verified to be behind the current local release,
+so no claim is made that the public host has the fix until an explicitly
+authorized deployment. Existing dirty ISA/architecture files remain
+preserved and unstaged.
+
 ## 2026-09-03 Cloudflare Access Beta entry target (local, live app held)
 
 The owner confirmed the Cloudflare Zero Trust team domain
