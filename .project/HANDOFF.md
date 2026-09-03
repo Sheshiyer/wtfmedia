@@ -1670,3 +1670,21 @@ The two bounded external read-only audits were unavailable during this pass:
 Antigravity returned quota 429 and the GitHub Claude audit aborted without
 substantive output. Repository evidence was used instead; no worker output was
 accepted as validation.
+
+## 2026-09-03 Beta Access redirect correction (staging and production)
+
+Live verification showed that the raw same-origin
+`/cdn-cgi/access/login?redirect_url=...` URL returns `404` on `wtfhq.in`.
+Cloudflare Access owns the login challenge when the protected
+`/ops/settings?releaseTrack=beta` route is requested, so the Beta CTA now targets
+that protected route directly. The change is committed as `6073741` on
+`codex/fix-beta-access-redirect` and pushed to origin.
+
+The web Worker was deployed to staging as version
+`854a8fac-d842-4d7c-9eb1-268d3c9ea3b1` and production as version
+`6b4003df-9cc9-482b-8b64-9020bfc78ccd`. The custom domain and direct production
+Worker serve the same `BUILD_ID`; custom-domain probes report raw login `404`,
+protected settings `302`, Access redirect host present, and the canonical Beta
+target present. Public `/chat` remains unchanged, with the shell pill and
+wordmark markers present and no Beta sign-in CTA. The edge Worker, Access
+policies, secrets, data, DNS, and Beta activation state were not changed.
