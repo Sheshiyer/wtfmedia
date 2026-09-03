@@ -13,6 +13,9 @@ export type ChatConversation = {
   created_at: string;
   updated_at: string;
   archived_at: string | null;
+  message_count?: number;
+  operator_email?: string;
+  operator_display_name?: string;
 };
 
 export type ChatMessage = {
@@ -161,7 +164,20 @@ function messageId(): string {
 }
 
 function selectedConversationColumns(): string {
-  return "id, operator_id, workspace, title, source_mode, episode_id, lifecycle_state, create_idempotency_key, created_at, updated_at, archived_at";
+  return "id, operator_id, workspace, title, source_mode, episode_id, lifecycle_state, create_idempotency_key, created_at, updated_at, archived_at, (SELECT COUNT(*) FROM chat_messages AS message_count_rows WHERE message_count_rows.conversation_id = chat_conversations.id) AS message_count";
+}
+
+async function addOperatorProjection(db: DB, conversations: ChatConversation[], actor: ChatActor): Promise<ChatConversation[]> {
+  if (actor.role !== "admin" && actor.role !== "super_admin") return conversations;
+  const operatorIds = [...new Set(conversations.map((conversation) => conversation.operator_id))];
+  if (operatorIds.length === 0) return conversations;
+  const placeholders = operatorIds.map(() => "?").join(", ");
+  const operators = await db.prepare(`SELECT id, email, display_name FROM operators WHERE id IN (${placeholders})`).bind(...operatorIds).all<{ id: number; email: string; display_name: string }>();
+  const byId = new Map(operators.results.map((operator) => [operator.id, operator]));
+  return conversations.map((conversation) => {
+    const operator = byId.get(conversation.operator_id);
+    return operator ? { ...conversation, operator_email: operator.email, operator_display_name: operator.display_name } : conversation;
+  });
 }
 
 function selectedMessageColumns(): string {
@@ -244,8 +260,9 @@ export async function getConversationForActor(db: DB, actor: ChatActor, id: unkn
     ? await db.prepare(`SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE id = ?`).bind(id).first<ChatConversation>()
     : await conversationForOperator(db, actor.operatorId, id);
   if (!conversation) return null;
+  const [projectedConversation] = await addOperatorProjection(db, [conversation], actor);
   const result = await db.prepare(`SELECT ${selectedMessageColumns()} FROM chat_messages WHERE conversation_id = ? ORDER BY sequence ASC`).bind(id).all<ChatMessage>();
-  return { conversation, messages: result.results };
+  return { conversation: projectedConversation ?? conversation, messages: result.results };
 }
 
 export async function listConversations(db: DB, operatorId: number, cursor?: unknown, limit = 25): Promise<ChatPage | null> {
@@ -274,7 +291,7 @@ export async function listConversationsForActor(db: DB, actor: ChatActor, cursor
   const rows = await db.prepare(query).bind(...values).all<ChatConversation>();
   const conversations = rows.results.slice(0, limit);
   const last = rows.results.length > limit ? conversations.at(-1) : undefined;
-  return { conversations, nextCursor: last ? encodeCursor(last.updated_at, last.id) : null };
+  return { conversations: await addOperatorProjection(db, conversations, actor), nextCursor: last ? encodeCursor(last.updated_at, last.id) : null };
 }
 
 export async function archiveConversation(db: DB, actor: ChatActor, id: unknown, now = new Date().toISOString()): Promise<ChatConversation | null> {
