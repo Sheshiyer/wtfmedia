@@ -5,36 +5,6 @@
 
 export type TimestampLine = { t: number; x: string };
 
-/**
- * Split one explicit timestamp line so it cannot become oversized vector
- * metadata. Every piece retains the source interval's explicit start.
- */
-export function splitTimestampLine(line: TimestampLine, maxChars: number): TimestampLine[] {
-  const text = String(line.x || "").replace(/\s+/g, " ").trim();
-  if (!text || !Number.isInteger(maxChars) || maxChars < 1) return [];
-
-  const pieces: string[] = [];
-  let current = "";
-  const pushCurrent = () => {
-    if (current) pieces.push(current);
-    current = "";
-  };
-
-  for (const word of text.split(" ")) {
-    if (word.length > maxChars) {
-      pushCurrent();
-      for (let offset = 0; offset < word.length; offset += maxChars) {
-        pieces.push(word.slice(offset, offset + maxChars));
-      }
-      continue;
-    }
-    if (current && current.length + word.length + 1 > maxChars) pushCurrent();
-    current += `${current ? " " : ""}${word}`;
-  }
-  pushCurrent();
-  return pieces.map((x) => ({ t: line.t, x }));
-}
-
 const BRACKET = /^\[(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\.\d+)?\]\s*(.+)$/;
 const LEADING = /^(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\.\d+)?\s+(.+)$/;
 const SRT_CLOCK = /(\d{1,2}):(\d{2}):(\d{2})[,.](\d{1,3})/;
