@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useOperatorContext } from "@/components/domain/ops/OperatorContextProvider";
-import { accessLoginUrl } from "@/lib/ops/access-url";
 import {
   authenticatedChatReleaseStates,
   authenticatedChatReleaseTracks,
@@ -253,30 +252,6 @@ export function ReleaseControl() {
           </p>
         )}
       </div>
-
-      {context.role === "public_link" && (
-        <div className="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end" data-release-public-gate>
-          <div className="border-2 border-foreground bg-canvas p-4" data-release-track="alpha">
-            <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
-              current public version
-            </p>
-            <p className="mt-2 font-heading text-2xl font-bold lowercase text-foreground">
-              alpha · public baseline
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-secondary">
-              beta adds authenticated sessions, account history, memory boundaries, and RAG metadata.
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="attention"
-            onClick={() => window.location.assign(accessLoginUrl())}
-            data-release-beta-login
-          >
-            sign in for beta
-          </Button>
-        </div>
-      )}
 
       {release && (
         <div className="mt-5 space-y-5">
