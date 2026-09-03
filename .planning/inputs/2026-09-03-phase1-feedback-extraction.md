@@ -30,6 +30,26 @@ changes, a broad visual rewrite, or data migration.
 - FB-05 remains separate; the broad reference redesign was not folded into
   this narrow implementation wave.
 
+## Production correction checkpoint — 2026-09-03
+
+The earlier isolated-feedback checkpoint above is historical. The reviewed
+Alpha slice was subsequently integrated into `codex/docs-workflows` and
+promoted after the full Phase 1 gate. The final correction also removed the
+reported viewport-height gap by fixing the migrated shell's nested height and
+padding flow; the composer remains directly above the intentional `bottom: 0`
+navigation pill, and the hamburger control is present in the public chat shell.
+
+- Production Worker version: `08ac8a8c-56d4-4a95-915b-2e65ec561176`.
+- Production route probes: `/`, `/chat`, `/episodes`, `/connections`, and
+  `/ops/settings` all returned HTTP 200.
+- Production chat markers: migrated WTF OS shell, navigation toggle, bottom
+  pill, and Ask WTF composer present; public operator-context strip absent.
+- Episode-map navigation is bounded to explicit canonical mappings. Ambiguous
+  or unmapped catalogue rows remain visibly `not linked` rather than being
+  guessed from title similarity.
+- The Beta auth/account-memory/RAG/admin lane remains separate and was not
+  enabled or mutated by this Alpha promotion.
+
 ## Instruction boundary
 
 The document asks for a shared login password for a set of email addresses.
