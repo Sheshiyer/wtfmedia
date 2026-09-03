@@ -1,9 +1,34 @@
 # WTF Phase 1 feedback extraction
 
-Status: planning input only. Extracted from the owner-provided
+Status: implementation checkpoint recorded on 2026-09-03. Extracted from the owner-provided
 `WTF - Phase 1 [Feedback].docx` on 2026-09-03. The document is feedback
 evidence; this file does not authorize production deployment, credential
 changes, a broad visual rewrite, or data migration.
+
+## Implementation checkpoint — isolated feedback wave
+
+- FB-01 implemented in the migrated Ask WTF composer: the fixed composer now
+  anchors directly above the bottom navigation rail, including the mobile safe
+  area, and retains the input/mode/action grouping.
+- FB-03 implemented in the migrated public chat: assistant answers render
+  Markdown/GFM list structure; grouped numeric citations become individual
+  links to canonical `/episodes/<public-video-id>` routes; unresolved or
+  non-numeric brackets remain plain text. Source cards use the same route
+  helper.
+- The answer/source integration baseline also had a missing source-ranking
+  export, an extra Worker brace, an unclosed source-mode test, and extensionless
+  Worker imports. These were repaired only in the isolated feedback branch so
+  local verification can run; no shared checkout or remote state changed.
+- Verification: web unit 74/74, web typecheck/lint/build passed, full
+  Cloudflare suite 169/169, and chat journeys passed at 320, 768, 1440, and
+  desktop viewport projects.
+- FB-02 remains local-only behind the existing Cloudflare Access/D1 release
+  gate; no supplied password or new auth authority was added.
+- FB-04 remains a data/provenance receipt task. The existing source-mode
+  contract preserves canonical episode scope and source labels, but no remote
+  catalogue correlation or alignment was performed.
+- FB-05 remains separate; the broad reference redesign was not folded into
+  this narrow implementation wave.
 
 ## Instruction boundary
 
@@ -38,8 +63,8 @@ public routes and use an additive, reversible slice.
   reduced-motion and mobile scroll behavior remain usable.
 - Owner: web UI.
 - Priority: P1 visual defect.
-- Current status: open; needs a browser/viewport regression check before
-  implementation is considered complete.
+- Current status: implemented in the isolated feedback branch; browser chat
+  journeys passed at the supported 320, 768, and 1440 viewport projects.
 
 ### FB-02 — Account continuity and last-question history
 
@@ -78,9 +103,9 @@ public routes and use an additive, reversible slice.
   identity falls back honestly without guessing.
 - Owner: answer contract + web citation/source panel.
 - Priority: P1 usability and provenance.
-- Current status: source-mode, citation provenance, and episode-scoped
-  retrieval exist; exact public citation-to-episode navigation and structured
-  answer rendering need a focused implementation/contract pass.
+- Current status: implemented in the isolated feedback branch; the anonymous
+  API response shape is unchanged and the web renderer now owns the semantic
+  list and exact-episode link projection.
 
 ### FB-04 — Published/uncut episode-set correlation
 
@@ -125,16 +150,14 @@ public routes and use an additive, reversible slice.
 
 ## Recommended next wave
 
-1. Implement FB-01 as a narrow composer layout fix with responsive/browser
-   regression coverage.
-2. Implement FB-03's exact episode-link contract and semantic answer-list
-   projection without changing the anonymous API response shape.
-3. Produce a read-only FB-04 correlation audit from existing catalogue,
+1. Review and selectively integrate the isolated FB-01/FB-03 implementation
+   branch after owner review; keep the shared checkout untouched until then.
+2. Produce a read-only FB-04 correlation audit from existing catalogue,
    published, and approved uncut identities; hold ambiguous rows.
-4. Use the existing authenticated history slice for FB-02 staging proof; do
+3. Use the existing authenticated history slice for FB-02 staging proof; do
    not introduce shared credentials or claim live readiness without the
    isolated Access/D1/cache/secrets and signed-in browser evidence.
-5. Turn FB-05 into a separate visual scope packet after the owner selects the
+4. Turn FB-05 into a separate visual scope packet after the owner selects the
    exact routes/components represented by the reference.
 
 ## Open questions / evidence gaps

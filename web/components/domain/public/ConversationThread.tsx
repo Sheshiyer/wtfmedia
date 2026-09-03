@@ -2,8 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { SourcePanel, type SourceCitation } from "./SourcePanel";
 import { Button } from "@/components/ui/Button";
+import { toCitedMarkdown } from "@/lib/public/chat-citations";
 
 /**
  * ConversationThread — scrollable message region for the chat route.
@@ -26,37 +29,6 @@ export interface Message {
   model?: string;
   fallback?: boolean;
   abstained?: boolean;
-}
-
-function linkifyCitations(text: string): React.ReactNode[] {
-  const parts: React.ReactNode[] = [];
-  const regex = /\[([^\]]+)\]/g;
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-
-  while ((match = regex.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index));
-    }
-    const citation = match[1];
-    const episodeId = citation.replace(/^EP:/i, "").trim();
-    parts.push(
-      <Link
-        key={`${match.index}-${citation}`}
-        href={`/episodes?id=${encodeURIComponent(episodeId)}`}
-        className="underline decoration-foreground/40 transition-colors hover:decoration-foreground"
-      >
-        [{citation}]
-      </Link>,
-    );
-    lastIndex = regex.lastIndex;
-  }
-
-  if (lastIndex < text.length) {
-    parts.push(text.slice(lastIndex));
-  }
-
-  return parts;
 }
 
 export interface ConversationThreadProps {
@@ -173,8 +145,26 @@ export function ConversationThread({
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <div className="border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary">
-                    {linkifyCitations(msg.content)}
+                  <div className="prose-chat border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        a: ({ href, children }) => href?.startsWith("/") ? (
+                          <Link
+                            href={href}
+                            className="cite"
+                          >
+                            {children}
+                          </Link>
+                        ) : (
+                          <a href={href} target="_blank" rel="noreferrer">
+                            {children}
+                          </a>
+                        ),
+                      }}
+                    >
+                      {toCitedMarkdown(msg.content, msg.sources ?? [])}
+                    </ReactMarkdown>
                   </div>
 
                   {/* Public source citations */}

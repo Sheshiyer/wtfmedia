@@ -175,6 +175,7 @@ describe("dual-source chat contract", () => {
         source_mode: "uncut",
       },
     }, "uncut", 0), null);
+  });
 
   test("preserves the approved Frame.io URL for uncut source identity", () => {
     const citation = projectDualSourceCitation(

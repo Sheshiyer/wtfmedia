@@ -12,27 +12,27 @@ import {
   type Operator,
   type AuditAction,
   type DB,
-} from "./db";
-import { handleOpsRequest, type OpsEnv } from "./ops-router";
-import { allowCalendarRequest, handleCalendarRequest } from "./calendar";
+} from "./db.ts";
+import { handleOpsRequest, type OpsEnv } from "./ops-router.ts";
+import { allowCalendarRequest, handleCalendarRequest } from "./calendar.ts";
 import {
   parseEpisodeId,
   parseSourceMode,
-} from "./chat/source-mode";
+} from "./chat/source-mode.ts";
 import {
   ingestStateKey,
   parseJobSourceMode,
   resolveCatalogueJobIdentity,
   vectorRecordId,
   vectorSourceRef,
-} from "./catalogue/asset-map";
+} from "./catalogue/asset-map.ts";
 import {
   admitTranscriptJobs,
   assertCatalogueJobSourceAsset,
   type TranscriptJob,
-} from "./catalogue/job-admission";
-import { extractTimestampLines } from "./catalogue/timestamps";
-import { runChat, vectorFor } from "./chat/answer";
+} from "./catalogue/job-admission.ts";
+import { extractTimestampLines } from "./catalogue/timestamps.ts";
+import { runChat, vectorFor } from "./chat/answer.ts";
 
 export interface Env extends OpsEnv {
   AI: any;
@@ -128,8 +128,6 @@ async function rateLimit(request: Request, env: Env) {
   if (seen >= Number(env.RATE_LIMIT_PER_MINUTE || 20)) return false;
   await env.WTFMEDIA_STATE.put(key, String(seen + 1), { expirationTtl: 120 });
   return true;
-}
-
 }
 
 async function ingest(job: TranscriptJob, env: Env) {

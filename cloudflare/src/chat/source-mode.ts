@@ -86,6 +86,84 @@ export function buildVectorQueryOptions(episodeId: string | null) {
       };
 }
 
+const NAME_TOKEN = /[A-Za-z][A-Za-z'-]*/g;
+
+function tokens(value: string): string[] {
+  return value.match(NAME_TOKEN)?.map((token) => token.toLocaleLowerCase("en-US")) ?? [];
+}
+
+function editDistanceAtMostOne(left: string, right: string): boolean {
+  if (left === right) return true;
+  if (Math.abs(left.length - right.length) > 1) return false;
+  let differences = 0;
+  let leftIndex = 0;
+  let rightIndex = 0;
+  while (leftIndex < left.length && rightIndex < right.length) {
+    if (left[leftIndex] === right[rightIndex]) {
+      leftIndex += 1;
+      rightIndex += 1;
+      continue;
+    }
+    differences += 1;
+    if (differences > 1) return false;
+    if (left.length > right.length) leftIndex += 1;
+    else if (right.length > left.length) rightIndex += 1;
+    else {
+      leftIndex += 1;
+      rightIndex += 1;
+    }
+  }
+  return differences + (left.length - leftIndex) + (right.length - rightIndex) <= 1;
+}
+
+function phraseAppearsIn(text: string, phrase: string): boolean {
+  const haystack = tokens(text);
+  const needle = tokens(phrase);
+  if (needle.length === 0 || needle.length > haystack.length) return false;
+  for (let start = 0; start <= haystack.length - needle.length; start += 1) {
+    if (needle.every((word, index) => editDistanceAtMostOne(word, haystack[start + index]))) return true;
+  }
+  return false;
+}
+
+/** Extract likely multi-token person names without generic question words. */
+export function extractNamedEntityPhrases(question: string): string[] {
+  return question.match(/\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,})+\b/g) ?? [];
+}
+
+/** Rank explicit-name matches before answer synthesis without broadening retrieval scope. */
+export function prioritizeMatchesForQuestion<T extends VectorMatchLike>(
+  matches: readonly T[],
+  question: string,
+): T[] {
+  const entities = extractNamedEntityPhrases(question);
+  if (entities.length === 0) return [...matches];
+
+  const anchored = matches.map((match, index) => {
+    const metadata = match.metadata ?? {};
+    const searchable = `${String(metadata.title ?? "")} ${String(metadata.text ?? "")}`;
+    const anchorScore = entities.reduce(
+      (score, entity) => score + (phraseAppearsIn(searchable, entity) ? 1 : 0),
+      0,
+    );
+    return { match, index, anchorScore };
+  });
+  const strongestAnchor = Math.max(...anchored.map((item) => item.anchorScore), 0);
+  if (strongestAnchor === 0) return [];
+
+  return anchored
+    .filter((item) => item.anchorScore === strongestAnchor)
+    .sort((left, right) => {
+      const scoreDelta = numericScore(right.match) - numericScore(left.match);
+      return scoreDelta || left.index - right.index;
+    })
+    .map((item) => item.match);
+}
+
+function numericScore(match: VectorMatchLike): number {
+  return typeof match.score === "number" && Number.isFinite(match.score) ? match.score : -Infinity;
+}
+
 /**
  * Re-check the requested scope after Vectorize returns. This prevents a
  * missing or stale metadata index from broadening an episode query.
@@ -158,11 +236,11 @@ export function projectDualSourceCitation(
       ? "unmapped"
       : "mapped";
   const citationIdentity = stored === "uncut" ? uncutSourceIdentity(metadata, videoId) : videoId;
-  if (!citationIdentity) return null;
   const approvedFrameIoUrl = stored === "uncut"
     ? frameIoUrl(metadata.frame_io_url ?? metadata.frameIoFinalEpUrl ?? metadata.frame_io_final_ep_url)
     : null;
-  const url = citationRef(stored, citationIdentity, timestamped ? start : null, timestamped, approvedFrameIoUrl);
+  if (!citationIdentity && !approvedFrameIoUrl) return null;
+  const url = citationRef(stored, citationIdentity ?? videoId, timestamped ? start : null, timestamped, approvedFrameIoUrl);
 
   return {
     n: index + 1,
@@ -264,9 +342,10 @@ export function resolveEpisodeScopedSources(
   episodeId: string | null,
   minScore: number,
   limit = 6,
+  options: { dedupeByEpisode?: boolean } = {},
 ): ResolvedChatSources {
   const scopedMatches = filterMatchesByEpisodeId(matches, episodeId);
   return resolveRequestedSources(scopedMatches, requested, minScore, limit, {
-    dedupeByEpisode: episodeId == null,
+    dedupeByEpisode: options.dedupeByEpisode ?? episodeId == null,
   });
 }

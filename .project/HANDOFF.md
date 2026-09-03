@@ -1,5 +1,35 @@
 # Project handoff
 
+## 2026-09-03 Phase 1 feedback implementation wave (isolated, ready for review)
+
+**Status:** DOCX-derived FB-01 and FB-03 changes are implemented and locally
+verified on the isolated `codex/phase1-feedback` branch. The shared checkout,
+Alpha/Beta branch, Cloudflare resources, and remote data remain unchanged.
+
+- The migrated Ask WTF composer now anchors above the bottom navigation rail
+  with mobile safe-area support, keeping the input, source-mode selector, and
+  submit action together during scrolling.
+- Migrated assistant answers now render Markdown/GFM structure for readable
+  bullets, numbering, headings, and emphasis. Numeric citations are projected
+  from server-owned source order into exact `/episodes/<public-video-id>` links;
+  unresolved or ordinary bracketed text is not guessed. Source cards share the
+  same canonical route helper.
+- The local answer/source baseline had a missing source-ranking export and
+  several syntax/ESM integration defects; the minimal repairs are included in
+  this isolated branch so the suite is executable.
+- Verification: web unit 74/74, typecheck, lint, build, and chat journeys at
+  320/768/1440 plus desktop passed; full Cloudflare suite 169/169 passed.
+- FB-02 authenticated history remains release-gated for staging Access/D1
+  proof. FB-04 still requires a read-only catalogue correlation receipt and
+  trusted alignment evidence. FB-05 remains a separate visual scope.
+
+### Handoff action
+
+Review the isolated diff, then selectively integrate it into the intended
+working branch. Do not deploy, apply remote migrations, mutate Access/D1/cache
+or secrets, or merge the separate Alpha/Beta release-track branch as part of
+this handoff.
+
 ## 2026-09-02 Authenticated chat staging gate audit (local, staging blocked)
 
 **Status:** LOCAL AUTHENTICATED COVERAGE VERIFIED — staging deployment and live

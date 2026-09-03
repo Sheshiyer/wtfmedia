@@ -13,6 +13,7 @@ import Link from "next/link";
 import { resolveCitation } from "@/lib/provenance/catalog-mapping";
 import type { PublicSourceCitation } from "@/lib/provenance/public-source-header";
 import { formatPlaybackTimestamp } from "@/lib/provenance/useDualPlayback";
+import { publicEpisodeHref } from "@/lib/public/chat-citations";
 
 export type SourceCitation = PublicSourceCitation;
 
@@ -103,9 +104,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
             });
             const videoId = resolved.youtubeVideoId;
             const label = source.title || source.episodeId || "WTF episode";
-            const episodeHref = source.episodeId
-              ? `/episodes?id=${encodeURIComponent(source.episodeId)}`
-              : null;
+            const episodeHref = publicEpisodeHref(source);
             const publishedHref = videoId
               ? youtubeWatchUrl(videoId, resolved.activeTimeSec)
               : null;
