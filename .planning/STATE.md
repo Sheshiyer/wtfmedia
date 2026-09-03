@@ -61,6 +61,14 @@ additive. Beta keeps the existing Access, D1 history, RAG provenance, separate
 memory boundary, and admin projection work. The local integration does not
 deploy, migrate, or mutate Cloudflare production.
 
+Cloudflare Access target confirmation: the owner supplied team domain
+`connect2nikhai.cloudflareaccess.com` and confirmed `wtfhq.in/ops/*` as the
+protected Beta/operator path, leaving public Alpha routes unchanged. The web
+UI now sends an unauthenticated Beta action through the fixed same-origin
+Access login path and preserves only a one-time track intent. Live Access app,
+policy, edge route, upstream binding, and authenticated browser proof remain
+unverified; no remote mutation has occurred.
+
 The staging test strategy is now explicit: a protected UI toggle projects an
 audited server release manifest with `paused`, `preview`, `stable`, and
 `rolled_back` states. It operates only against isolated staging resources;

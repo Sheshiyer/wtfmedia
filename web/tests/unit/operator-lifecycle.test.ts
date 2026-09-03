@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validatedReturnTo } from "@/lib/ops/return-to";
+import { accessLogoutUrl, validatedReturnTo } from "@/lib/ops/return-to";
 import { activatedOpsNavigation, canAccessOpsPath } from "@/lib/ops/policy";
 import { verifyTrustedOpsContext } from "@/lib/ops/context";
 import { maybeLocalDevOpsHeaders } from "@/lib/ops/local-dev-headers";
@@ -10,6 +10,14 @@ describe("operator lifecycle", () => {
   it("redirect corpus accepts only canonical /ops destinations", () => {
     expect(validatedReturnTo("/ops/operators")).toBe("/ops/operators");
     for (const unsafe of ["https://evil.test", "//evil.test", "/%2f%2fevil.test", "/chat", "/ops?next=/chat", "/ops/%2e%2e/chat"]) expect(validatedReturnTo(unsafe)).toBe("/ops");
+  });
+
+  it("normalizes the confirmed Cloudflare team domain for logout", () => {
+    const previous = process.env.CF_ACCESS_TEAM_DOMAIN;
+    process.env.CF_ACCESS_TEAM_DOMAIN = "connect2nikhai.cloudflareaccess.com";
+    expect(accessLogoutUrl("/ops")).toBe("https://connect2nikhai.cloudflareaccess.com/cdn-cgi/access/logout?returnTo=%2Fops");
+    if (previous === undefined) delete process.env.CF_ACCESS_TEAM_DOMAIN;
+    else process.env.CF_ACCESS_TEAM_DOMAIN = previous;
   });
 
   it("requires a signed unexpired edge context instead of headers or decoded JWT", () => {

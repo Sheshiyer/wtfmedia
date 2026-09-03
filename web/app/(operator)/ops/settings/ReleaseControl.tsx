@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useOperatorContext } from "@/components/domain/ops/OperatorContextProvider";
+import { accessLoginUrl } from "@/lib/ops/access-url";
 import {
   authenticatedChatReleaseStates,
   authenticatedChatReleaseTracks,
@@ -25,8 +26,8 @@ const stateLabels: Record<AuthenticatedChatReleaseState, string> = {
   rolled_back: "rolled back",
 };
 const trackLabels: Record<AuthenticatedChatReleaseTrack, string> = {
-  alpha: "alpha · legacy",
-  beta: "beta · current Ask WTF",
+  alpha: "alpha · public baseline",
+  beta: "beta · authenticated Ask WTF",
 };
 
 function requestMessage(error: unknown): string {
@@ -50,6 +51,12 @@ function releaseStateLabel(state: AuthenticatedChatReleaseState): string {
 
 function releaseTrackLabel(track: AuthenticatedChatReleaseTrack): string {
   return trackLabels[track];
+}
+
+function clearReleaseTrackIntent() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("releaseTrack");
+  window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
 }
 
 function StateBadge({ release }: { release: AuthenticatedChatRelease }) {
@@ -94,6 +101,7 @@ export function ReleaseControl() {
   const [notice, setNotice] = useState("");
   const [pendingState, setPendingState] = useState<AuthenticatedChatReleaseState | null>(null);
   const [pendingTrack, setPendingTrack] = useState<AuthenticatedChatReleaseTrack | null>(null);
+  const autoAppliedTrack = useRef(false);
 
   const load = useCallback(async () => {
     if (context.role === "public_link") {
@@ -147,7 +155,7 @@ export function ReleaseControl() {
     }
   }
 
-  async function changeTrack(nextTrack: AuthenticatedChatReleaseTrack) {
+  const changeTrack = useCallback(async (nextTrack: AuthenticatedChatReleaseTrack) => {
     if (access !== "mutate" || pendingState || pendingTrack || release?.track === nextTrack) return;
     setPendingTrack(nextTrack);
     setViewState("saving");
@@ -158,6 +166,9 @@ export function ReleaseControl() {
       setRelease(updated);
       setViewState("ready");
       setNotice(`server release track is now ${releaseTrackLabel(updated.track)}.`);
+      if (typeof window !== "undefined" && new URL(window.location.href).searchParams.get("releaseTrack") === nextTrack) {
+        clearReleaseTrackIntent();
+      }
     } catch (requestFailure) {
       setError(requestMessage(requestFailure));
       setViewState(
@@ -170,7 +181,18 @@ export function ReleaseControl() {
     } finally {
       setPendingTrack(null);
     }
-  }
+  }, [access, pendingState, pendingTrack, release?.track]);
+
+  useEffect(() => {
+    if (autoAppliedTrack.current || access !== "mutate" || !release || typeof window === "undefined") return;
+    if (new URL(window.location.href).searchParams.get("releaseTrack") !== "beta") return;
+    autoAppliedTrack.current = true;
+    if (release.track === "beta") {
+      clearReleaseTrackIntent();
+      return;
+    }
+    void changeTrack("beta");
+  }, [access, changeTrack, release]);
 
   const stateDescription =
     access === "mutate"
@@ -232,6 +254,30 @@ export function ReleaseControl() {
         )}
       </div>
 
+      {context.role === "public_link" && (
+        <div className="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end" data-release-public-gate>
+          <div className="border-2 border-foreground bg-canvas p-4" data-release-track="alpha">
+            <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
+              current public version
+            </p>
+            <p className="mt-2 font-heading text-2xl font-bold lowercase text-foreground">
+              alpha · public baseline
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-secondary">
+              beta adds authenticated sessions, account history, memory boundaries, and RAG metadata.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="attention"
+            onClick={() => window.location.assign(accessLoginUrl())}
+            data-release-beta-login
+          >
+            sign in for beta
+          </Button>
+        </div>
+      )}
+
       {release && (
         <div className="mt-5 space-y-5">
           <StateBadge release={release} />
@@ -239,26 +285,35 @@ export function ReleaseControl() {
             <div className="space-y-5">
               <fieldset disabled={viewState === "saving"} aria-describedby="release-track-help">
                 <legend className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
-                  set server release track
+                  release version
                 </legend>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2" data-release-track-controls>
-                  {authenticatedChatReleaseTracks.map((track) => (
-                    <Button
-                      key={track}
-                      type="button"
-                      variant={release.track === track ? "attention" : "secondary"}
-                      pressed={release.track === track}
-                      loading={pendingTrack === track}
-                      onClick={() => void changeTrack(track)}
-                      className="justify-start lowercase"
-                      data-release-track-option={track}
-                    >
-                      {releaseTrackLabel(track)}
-                    </Button>
-                  ))}
+                <div className="mt-3 max-w-xl">
+                  <label htmlFor="release-track-select" className="sr-only">
+                    select release version
+                  </label>
+                  <select
+                    id="release-track-select"
+                    value={release.track}
+                    disabled={viewState === "saving"}
+                    onChange={(event) => void changeTrack(event.target.value as AuthenticatedChatReleaseTrack)}
+                    className="min-h-11 w-full rounded-[var(--wtf-radius-control)] border-2 border-foreground bg-surface-raised px-3 py-2 font-label text-sm font-bold lowercase text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-canvas focus-visible:ring-offset-2 focus-visible:ring-offset-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                    data-release-track-controls
+                    data-release-track-select
+                  >
+                    {authenticatedChatReleaseTracks.map((track) => (
+                      <option key={track} value={track} data-release-track-option={track}>
+                        {releaseTrackLabel(track)}
+                      </option>
+                    ))}
+                  </select>
+                  {pendingTrack && (
+                    <p className="mt-2 text-xs text-secondary" role="status">
+                      saving {releaseTrackLabel(pendingTrack)} to the server…
+                    </p>
+                  )}
                 </div>
                 <p id="release-track-help" className="mt-3 text-xs leading-relaxed text-secondary">
-                  alpha keeps the legacy rollback target. beta selects the current authenticated Ask WTF work. Track selection only gates beta chat; it does not delete history, alter public /chat or /api/chat, or change lifecycle state.
+                  alpha is the public baseline. beta selects the authenticated Ask WTF work. The server records this choice; it does not delete history, alter public /chat or /api/chat, or change lifecycle state.
                 </p>
               </fieldset>
               <fieldset disabled={viewState === "saving"} aria-describedby="release-control-help">

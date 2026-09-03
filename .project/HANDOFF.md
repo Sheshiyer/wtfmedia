@@ -1,5 +1,27 @@
 # Project handoff
 
+## 2026-09-03 Cloudflare Access Beta entry target (local, live app held)
+
+The owner confirmed the Cloudflare Zero Trust team domain
+`connect2nikhai.cloudflareaccess.com` and the scoped protected application
+target `wtfhq.in/ops/*`. Public Alpha routes remain outside Access. The Beta
+entry action now uses the fixed same-origin URL
+`/cdn-cgi/access/login?redirect_url=%2Fops%2Fsettings%3FreleaseTrack%3Dbeta`;
+after reauthentication, only the existing server release endpoint and
+`super_admin` policy can apply the Beta track.
+
+Local verification passed for the Beta login target, full web typecheck, and
+lint. The live account currently has no enumerated Access application, and
+the public host still returns `/ops/settings` without Access headers; no live
+Access application, policy, DNS, Worker route, deployment, secret, D1, or
+production-data mutation occurred. The account-scoped dashboard entry is
+available through the owner-provided Cloudflare account session.
+
+The supplied team domain is now also accepted by the Access logout helper;
+the previous slug-only assumption would have produced a duplicated domain.
+The exact live Access application and upstream edge routing still need
+verification before the login URL is claimed operational.
+
 ## 2026-09-03 Alpha production baseline / Beta lane separation (local, activation held)
 
 **Status:** DOCX Alpha slice and the narrow server-governed Alpha/Beta track
