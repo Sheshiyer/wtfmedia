@@ -3,11 +3,11 @@ project: wtfmedia
 task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
-phase: execute
-progress: 70/198
+phase: complete
+progress: 82/198
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-04T03:40:00+05:30
+updated: 2026-09-04T03:54:00+05:30
 ---
 
 ## Problem
@@ -300,19 +300,19 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-183: The release worktree contains only the reviewed source-filter implementation, regression test, ISA, and handoff changes (probe: Git status and diff name check).
 - [x] ISC-184: The exact source-filter journey passes at desktop and 320px before commit (probe: focused Playwright run).
 - [x] ISC-185: TypeScript, ESLint, source-mode units, and the complete Alpha chat journey pass on the release tree (probe: project commands).
-- [ ] ISC-186: The release commit contains exactly the four reviewed paths and no generated or secret material (probe: commit tree inspection).
-- [ ] ISC-187: `origin/release/alpha` resolves to the approved release commit after push (probe: fetch plus remote ref equality).
-- [ ] ISC-188: Production deployment runs from a clean detached worktree pinned to the approved release commit with locked dependencies installed (probe: Git state and `npm ci`).
+- [x] ISC-186: The release commit contains exactly the four reviewed paths and no generated or secret material (probe: commit tree inspection).
+- [x] ISC-187: `origin/release/alpha` contains the approved source commit after the release and receipt pushes (probe: fetch plus remote ancestry).
+- [x] ISC-188: Production deployment runs from a clean detached worktree pinned to the approved release commit with locked dependencies installed (probe: Git state and `npm ci`).
 - [x] ISC-189: The currently deployed web version is recorded before mutation as a concrete rollback target (probe: Wrangler deployment status).
-- [ ] ISC-190: The checked-in `cf:deploy:wtfmedia` command completes and assigns one new `wtfmedia-web` version at 100 percent (probe: deploy output plus Wrangler status).
-- [ ] ISC-191: The emitted Worker URL and canonical `/` and `/chat` routes return HTTP 200 after deployment (probe: HTTP canary).
-- [ ] ISC-192: The canonical mixed-source panel defaults to an actual pressed `both` button (probe: live browser DOM).
-- [ ] ISC-193: Selecting canonical `published` shows only published citation rows with matching counts and actions (probe: live browser DOM).
-- [ ] ISC-194: Selecting canonical `uncut` shows only uncut citation rows with matching counts and actions (probe: live browser DOM).
-- [ ] ISC-195: Selecting canonical `both` restores every returned citation with original numbering and native links/timestamps (probe: live browser DOM).
-- [ ] ISC-196: Canonical `/ops/settings` remains protected by its existing HTTP redirect after the public web deploy (probe: HTTP status).
-- [ ] ISC-197: The `wtfmedia-edge` deployment and all data-plane resources remain unchanged by this web-only promotion (probe: before/after deployment status and command scope).
-- [ ] ISC-198: Anti: promotion performs no DNS, secret, corpus, ingest, queue, database, index, bucket, authentication, or edge-worker mutation (probe: command ledger and diff audit).
+- [x] ISC-190: The checked-in `cf:deploy:wtfmedia` command completes and assigns one new `wtfmedia-web` version at 100 percent (probe: deploy output plus Wrangler status).
+- [x] ISC-191: The emitted Worker URL and canonical `/` and `/chat` routes return HTTP 200 after deployment (probe: HTTP canary).
+- [x] ISC-192: The canonical mixed-source panel defaults to an actual pressed `both` button (probe: live browser DOM).
+- [x] ISC-193: Selecting canonical `published` shows only published citation rows with matching counts and actions (probe: live browser DOM).
+- [x] ISC-194: Selecting canonical `uncut` shows only uncut citation rows with matching counts and actions (probe: live browser DOM).
+- [x] ISC-195: Selecting canonical `both` restores every returned citation with original numbering and native links/timestamps (probe: live browser DOM).
+- [x] ISC-196: Canonical `/ops/settings` remains protected by its existing HTTP redirect after the public web deploy (probe: HTTP status).
+- [x] ISC-197: The `wtfmedia-edge` deployment and all data-plane resources remain unchanged by this web-only promotion (probe: before/after deployment status and command scope).
+- [x] ISC-198: Anti: promotion performs no DNS, secret, corpus, ingest, queue, database, index, bucket, authentication, or edge-worker mutation (probe: command ledger and diff audit).
 
 ## Test Strategy
 
@@ -506,6 +506,8 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
 - 2026-09-04 03:24 IST: The post-deliverable Advisor call could not refresh its expired OAuth session, the named Cato role was not registered, and the cross-vendor Kimi fallback lacked its host credential. None is represented as successful review evidence; a separate read-only native audit examined the final diff and returned PASS with no P0-P3 findings.
 - 2026-09-04 03:35 IST: refined: The owner explicitly authorized committing the reviewed Alpha source-filter slice, pushing `release/alpha`, and promoting it to production. The mutation is limited to the `wtfmedia-web` Worker; the active pre-deploy web version `69487e11-42e7-45de-a217-37f622d126b8` is the rollback target, while `wtfmedia-edge`, DNS, secrets, ingestion, queues, and data resources remain untouched. E3 delegation is intentionally not used because commit, push, deploy, and verification are one sequential authority-sensitive chain and parallel writers would add race risk; the prior implementation already received independent read-only review.
 - 2026-09-04 03:35 IST: ❌ DEAD END: Tried the required pre-build Advisor review — failed because the local OAuth session remains expired and could not refresh; credentials were not changed and deterministic Git, test, deployment, rollback, HTTP, and browser gates remain authoritative for this promotion (don't retry inside this task).
+- 2026-09-04 03:49 IST: ❌ DEAD END: The first canonical browser probe clicked before Next.js hydration and the next probe matched concatenated row text with an invalid whitespace assumption. Both verifier-only faults were corrected without product or production mutation; the final hydrated probe used retrying ARIA assertions and dedicated timing badges, then passed with zero browser or server errors.
+- 2026-09-04 03:51 IST: ❌ DEAD END: The required post-deliverable Advisor call again failed because its local OAuth session is expired and could not refresh. It changed nothing and is not represented as successful review evidence; the deterministic commit, remote-ref, Wrangler, HTTP, live DOM, and unchanged-edge receipts remain the completion authority.
 
 ## Changelog
 
@@ -553,6 +555,10 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
   refuted by: the live DOM exposed `published` and `uncut` as static spans, all mixed rows stayed visible, and branch history showed the Alpha shell correction replaced the stateful filter before later citation semantics were added
   learned: truthful source labels and interactive per-answer filtering are separate acceptance behaviors; restoring the filter must preserve original citation identity rather than reindex the visible subset
   criterion now: ISC-162 through ISC-166 require semantic filter buttons, mode-specific rows/counts/links, original numbering and candidate status, full restoration, and zero cross-mode leakage
+- 2026-09-04 | conjectured: a green local source-filter change and pushed Alpha branch would be sufficient release evidence
+  refuted by: the pre-deploy Wrangler receipt showed canonical production still assigned to the older `69487e11-42e7-45de-a217-37f622d126b8` web version, independent of the Git branch head
+  learned: Alpha promotion is complete only when an exact clean commit is deployed, traffic assignment is read back, canonical HTTP and live interaction probes pass, and the adjacent edge version remains unchanged
+  criterion now: ISC-183 through ISC-198 bind commit scope, remote equality, pinned deployment, rollback, route health, live per-answer filtering, protection continuity, and no adjacent mutation
 
 ## Verification
 
@@ -632,3 +638,16 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
 - ISC-184 evidence (2026-09-04): the focused mixed-source filter journey passed at desktop and at the 320px Chromium project, including real button roles, pressed state, counts, original numbering, timestamp truth, and link policy.
 - ISC-185 evidence (2026-09-04): `npm run typecheck`, `npm run lint`, all 75 web unit tests, all 85 contract tests, the privacy check across 284 files, and the complete 22-test Alpha chat journey passed on the release worktree.
 - ISC-189 evidence (2026-09-04): before mutation, Wrangler reported `wtfmedia-web` deployment `b1fa3078-b25b-4fce-acce-0c76f7d248cc` with version `69487e11-42e7-45de-a217-37f622d126b8` at 100 percent; that exact version is the rollback target.
+- ISC-186 evidence (2026-09-04): commit `4b79b39936fd8d91c564e59e91ee5dab6c7c7e57` contains exactly the two documentation/acceptance paths, the source-panel component, and its chat journey; post-commit status was clean and no generated or credential material was included.
+- ISC-187 evidence (2026-09-04): a normal non-force push advanced `origin/release/alpha` from `92bd2d6b2857d269dcf31cedd9484c9eada7dbe5` to source commit `4b79b39936fd8d91c564e59e91ee5dab6c7c7e57`; fetch, local ref, tracking ref, and `ls-remote` all resolved to that commit before the follow-up receipt-only commit, which retains the source commit as its direct ancestor.
+- ISC-188 evidence (2026-09-04): `/private/tmp/wtfmedia-alpha-source-filter.sCqXMH/release` was added as a detached worktree at exactly `4b79b39936fd8d91c564e59e91ee5dab6c7c7e57`; Git status was empty and `npm ci` completed from the committed lockfile before deployment. Its audit reported existing dependency advisories, so no lockfile-changing audit fix was run inside the release.
+- ISC-190 evidence (2026-09-04): the checked-in `npm run cf:deploy:wtfmedia` command built 69/69 static pages, uploaded the OpenNext bundle, and created `wtfmedia-web` deployment `ef667085-ef55-4134-98e0-de2be9850466`; Wrangler then reported version `bf077fe8-fcf4-4b20-b3db-2dd30ac0bb9e` at 100 percent.
+- ISC-191 evidence (2026-09-04): `https://wtfmedia-web.connect2nikhai.workers.dev/`, `https://wtfhq.in/`, and `https://wtfhq.in/chat` each returned HTTP 200 after deployment.
+- ISC-192 evidence (2026-09-04): a hydrated canonical browser session sent `sourceMode: both`, received HTTP 200 with `X-Source-Mode: both` and `X-Fallback: false`, and found the response-panel `both` button enabled and pressed over six mixed citations.
+- ISC-193 evidence (2026-09-04): selecting live `published` reduced the panel to original citations `[4]`, `[5]`, and `[6]`, with one cited source, two candidates, published-native timing labels, two moment links, and one truthful full-episode link for unavailable source timing.
+- ISC-194 evidence (2026-09-04): selecting live `uncut` reduced the panel to original citations `[1]`, `[2]`, and `[3]`, with one cited source, two candidates, verified uncut timing labels, and three approved `f.io` source actions.
+- ISC-195 evidence (2026-09-04): selecting live `both` restored original citations `[1]` through `[6]`, two cited/four candidate attribution, all source-native timing labels and actions, and the original row order; console errors, page errors, and HTTP 5xx observations were all zero.
+- ISC-196 evidence (2026-09-04): canonical `https://wtfhq.in/ops/settings` remained HTTP 302 after the public web deployment, preserving the existing protection boundary.
+- ISC-197 evidence (2026-09-04): before and after the web deployment, `wtfmedia-edge` remained deployment `c2579024-7dfd-4c99-9c0a-de85dff635d6` and version `b2ff3ed0-f41d-41aa-b7f9-6d5fdc84e560` at 100 percent; the invoked command targeted only `web/wrangler.jsonc` and the `wtfmedia-web` Worker.
+- ISC-198 evidence (2026-09-04): the commit contains only the reviewed source panel, regression, ISA, and handoff paths; the command ledger contains one normal Git push and one named-profile web-Worker deploy, with no DNS, secret, corpus, ingest, queue, database, index, bucket, authentication, or edge deployment command.
+- ISA completeness evidence (2026-09-04): the strict E3 project gate passed with all eight required sections present, 198 criteria definitions, 198 unique stable IDs, zero duplicate IDs, and 14 anti-criteria.

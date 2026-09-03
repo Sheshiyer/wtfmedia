@@ -1745,3 +1745,43 @@ checkpoint is not a commit, push, or production deployment receipt.
 - No commit, push, merge, deployment, DNS, secret, corpus, ingest, queue,
   authentication, persistence, retrieval, or infrastructure change occurred.
 - Root `main` and its unrelated dirty work remain untouched.
+
+## 2026-09-04 Alpha source-panel production promotion receipt
+
+**Scope:** owner-authorized commit, `release/alpha` push, and canonical public
+web-Worker promotion for the reviewed anonymous Alpha source-panel filter.
+
+- Release commit `4b79b39936fd8d91c564e59e91ee5dab6c7c7e57` contains exactly
+  `.project/HANDOFF.md`, `ISA.md`, `web/components/domain/public/SourcePanel.tsx`,
+  and `web/tests/journeys/chat.spec.ts`; a normal non-force push placed it on
+  `origin/release/alpha`. This follow-up production receipt changes only
+  documentation and keeps that deployed web tree as its direct ancestor.
+- Deployment ran from a clean detached worktree at that commit after `npm ci`,
+  using the checked-in `npm run cf:deploy:wtfmedia` command. Cloudflare created
+  `wtfmedia-web` deployment `ef667085-ef55-4134-98e0-de2be9850466` with version
+  `bf077fe8-fcf4-4b20-b3db-2dd30ac0bb9e` assigned at 100 percent.
+- The concrete rollback target is prior web version
+  `69487e11-42e7-45de-a217-37f622d126b8` from deployment
+  `b1fa3078-b25b-4fce-acce-0c76f7d248cc`.
+
+### Production verification
+
+- The emitted Worker URL, canonical `/`, and canonical `/chat` returned HTTP
+  200; canonical `/ops/settings` remained HTTP 302.
+- A real canonical both-mode request returned six mixed citations with two
+  cited and four candidates. The response panel defaulted to the pressed
+  `both` button; `published` showed only original citations `[4]`–`[6]` and
+  `uncut` only `[1]`–`[3]`; returning to `both` restored all six.
+- Published actions remained YouTube-native, uncut actions remained approved
+  `f.io` sources, and the untimed published candidate explained why it opens
+  the full episode. The live run observed zero console, page, or HTTP 5xx
+  errors.
+- `wtfmedia-edge` remained on deployment
+  `c2579024-7dfd-4c99-9c0a-de85dff635d6`, version
+  `b2ff3ed0-f41d-41aa-b7f9-6d5fdc84e560`, before and after promotion.
+
+### Preserved boundaries
+
+- No merge, force push, DNS, secret, corpus, ingest, queue, database, index,
+  bucket, authentication, edge-Worker, or unrelated root-worktree mutation
+  occurred.
