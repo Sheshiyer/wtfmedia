@@ -5,6 +5,33 @@ versioning; the web application version is held in `web/package.json`.
 
 ## [Unreleased]
 
+- Fixed ingest queue URL to use the connect2nikhai subdomain.
+
+## [0.3.3-beta.1] - 2026-09-04
+
+### Added
+
+- Restored the AppRail contract from the alpha baseline and wired the login
+  flow through protected settings.
+- Added an authenticated Ask WTF staging lane with server-side RAG, persisted
+  chat answers, and protected chat history.
+- Added consolidation policy panels: memory governance, RAG source health, and
+  session history.
+- Added a release gate separating the alpha baseline from the beta track.
+
+### Changed
+
+- Routed beta sign-in through protected settings and hardened the staging
+  integration boundary.
+- Hidden unverified operator release UI behind the staging gate.
+- Separated the alpha baseline from the beta track so authenticated features
+  do not regress public production paths.
+
+### Fixed
+
+- Added edge fallback to episode Frame.io links when direct URLs are
+  unavailable.
+
 ## [0.3.2-alpha.1] - 2026-09-01
 
 ### Added

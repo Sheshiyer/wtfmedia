@@ -12,6 +12,7 @@ describe("current-release ungated navigation", () => {
       "/ops/production",
       "/ops/episodes",
       "/ops/settings",
+      "/ops/chat",
     ]);
   });
 
@@ -27,6 +28,7 @@ describe("current-release ungated navigation", () => {
       ["/ops/production", "workspace"],
       ["/ops/episodes", "workspace"],
       ["/ops/settings", "administration"],
+      ["/ops/chat", "administration"],
     ]);
   });
 

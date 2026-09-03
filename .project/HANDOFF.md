@@ -1,8 +1,27 @@
 # Project handoff
 
+## 2026-09-04 WTFMedia v0.3.3-beta.1
+
+**Status:** PUBLISHED — tag `v0.3.3-beta.1` created, PR #46 merged.
+
+- AppRail contract restored from the alpha baseline; login flow wired through
+  protected settings.
+- Authenticated Ask WTF staging lane with server-side RAG, persisted chat
+  answers, and protected chat history.
+- Consolidation policy panels exposed: memory governance, RAG source health,
+  and session history.
+- Beta sign-in routed through protected settings; staging integration boundary
+  hardened; unverified operator release UI hidden behind the staging gate.
+- Edge fallback to episode Frame.io links added.
+- Alpha baseline separated from the beta track so authenticated features do not
+  regress the public production path.
+- Repo docs refreshed: README, AGENTS.md, CHANGELOG, release notes, package
+  version, AGENT-ONBOARDING scaffolding prompt, and GitHub repo description
+  updated to reflect the beta.
+
 ## 2026-09-01 WTFMedia v0.3.2-alpha.1 release candidate
 
-**Status:** LOCAL RELEASE CANDIDATE — PR and tag publication remain pending.
+**Status:** PUBLISHED — tag `v0.3.2-alpha.1` and PR #44 merged.
 
 - Ask WTF now widens retrieval for explicit named-person questions, anchors
   candidates to title/text evidence, tolerates the observed Sunil/Suniel

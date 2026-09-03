@@ -42,6 +42,28 @@ This repository is `wtfmedia`.
   backing R2 object before vector staging. If that receipt is missing, fail
   closed as `source_asset_unavailable`.
 
+## Beta staging lane (v0.3.3-beta.1)
+
+The beta track adds authenticated features that do not regress the public
+production path (v0.2.0). Key additions:
+
+- **AppRail** restored from the alpha baseline with login flow wired through
+  protected settings.
+- **Authenticated Ask WTF** staging lane: server-side RAG, persisted chat
+  answers, and protected chat history. Turns route through the server rather
+  than client-side fetch.
+- **Consolidation policy panels**: memory governance, RAG source health, and
+  session history — exposed under the operator workspace behind the staging
+  gate.
+- **Staging integration boundary**: unverified operator release UI is hidden;
+  beta sign-in routes through protected settings; the alpha baseline is
+  separated from the beta track at the route and component level.
+- **Edge Frame.io fallback**: the edge worker falls back to episode Frame.io
+  links when direct URLs are unavailable.
+
+The beta is a repository tag and merged PR, not a production deployment. All
+production boundary rules from the Boundaries section still apply.
+
 ## Boundaries
 
 Merging to `main` does not by itself prove Cloudflare production is running the
