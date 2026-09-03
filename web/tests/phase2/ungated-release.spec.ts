@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 
 const destinations = [
@@ -32,6 +33,18 @@ function railLink(page: Page, label: string) {
   return currentNavigation(page).getByRole("link", { name: label, exact: true }).first();
 }
 
+async function authenticate(page: Page, role: "super_admin" | "admin" | "editor") {
+  const payload = Buffer.from(JSON.stringify({
+    operatorId: 1,
+    role,
+    environment: "local",
+    correlationId: `phase2-ungated-${role}`,
+    exp: Date.now() + 60_000,
+  })).toString("base64url");
+  const proof = createHmac("sha256", "phase2-e2e-test-key").update(payload).digest("base64url");
+  await page.setExtraHTTPHeaders({ "x-wtf-ops-context": payload, "x-wtf-ops-proof": proof });
+}
+
 test("ungated release can open ops pages without an access proof", async ({ page }) => {
   await page.goto("/ops", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: "control room", exact: true })).toBeVisible();
@@ -47,10 +60,18 @@ test("ungated release can open ops pages without an access proof", async ({ page
   await expect(page.getByRole("heading", { name: "production", exact: true })).toBeVisible();
 });
 
-test("operator context is shown on settings, not repeated as every ops header", async ({ page }) => {
+test("public Alpha hides operator context from settings", async ({ page }) => {
   await page.goto("/ops", { waitUntil: "domcontentloaded" });
   await expect(page.locator("[data-ops-context-strip]")).toHaveCount(0);
 
+  await page.goto("/ops/settings", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("[data-ops-context-strip]")).toHaveCount(0);
+  await expect(page.getByText("current public version", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "sign in for beta" })).toBeVisible();
+});
+
+test("authenticated Beta settings show operator context", async ({ page }) => {
+  await authenticate(page, "super_admin");
   await page.goto("/ops/settings", { waitUntil: "domcontentloaded" });
   await expect(page.locator("[data-ops-context-strip]")).toBeVisible();
   await expect(page.locator("dt", { hasText: /^environment$/ })).toBeVisible();

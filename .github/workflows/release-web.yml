@@ -1,0 +1,97 @@
+name: Release Alpha web to production
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-wtfmedia-web
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify release candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        working-directory: web
+        run: npx playwright install chromium --with-deps
+
+      - name: Validate release tag
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Unsupported release tag: $RELEASE_TAG"
+            echo "Expected vMAJOR.MINOR.PATCH or a prerelease suffix."
+            exit 1
+          fi
+
+      - name: Run Alpha release gate
+        working-directory: web
+        run: npm run verify:phase1
+
+  deploy:
+    name: Deploy wtfmedia-web
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: production
+      url: https://wtfhq.in
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Build and deploy web Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.125.0"
+          workingDirectory: web
+          preCommands: npm run cf:build
+          command: deploy --config wrangler.jsonc
+
+      - name: Verify public Alpha projection
+        run: |
+          curl --fail --silent --show-error --location \
+            --retry 10 --retry-delay 2 --retry-all-errors \
+            https://wtfhq.in/ops/settings > /tmp/wtfmedia-ops-settings.html
+          if rg -qi "organization scope|effective role|last verified" /tmp/wtfmedia-ops-settings.html; then
+            echo "Alpha settings still expose the operator context strip"
+            exit 1
+          fi
+          if ! rg -qi "current public version|sign in for beta" /tmp/wtfmedia-ops-settings.html; then
+            echo "Alpha release markers were not observed"
+            exit 1
+          fi
