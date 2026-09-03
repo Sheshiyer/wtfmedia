@@ -65,6 +65,12 @@ function ChatInner() {
       const modelHeader = response.headers.get("X-Model");
       const fallbackHeader = response.headers.get("X-Fallback");
       const responseSourceMode = parseSourceMode(response.headers.get("X-Source-Mode"));
+      const responseState = response.headers.get("X-Response-State") || undefined;
+      let citedIndices: number[] | undefined;
+      try {
+        const raw = response.headers.get("X-Cited-Indices");
+        if (raw) citedIndices = JSON.parse(raw);
+      } catch { /* ignore malformed header */ }
 
       const sources: Source[] = parsePublicSourceHeader(sourcesHeader).map((source) => ({
         ...source,
@@ -86,6 +92,8 @@ function ChatInner() {
             sources,
             model: modelHeader || undefined,
             fallback: fallbackHeader === "true",
+            responseState,
+            citedIndices,
           },
         ]);
 

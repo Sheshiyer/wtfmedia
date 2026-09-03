@@ -30,6 +30,8 @@ export interface Message {
   model?: string;
   fallback?: boolean;
   abstained?: boolean;
+  responseState?: string;
+  citedIndices?: number[];
 }
 
 export interface ConversationThreadProps {
@@ -178,7 +180,7 @@ export function ConversationThread({
 
                   {/* Public source citations */}
                   {msg.sources && msg.sources.length > 0 && (
-                    <SourcePanel sources={msg.sources} />
+                    <SourcePanel sources={msg.sources} citedIndices={msg.citedIndices} />
                   )}
 
                   {/* Abstention label */}

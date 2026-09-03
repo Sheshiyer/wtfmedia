@@ -19,6 +19,7 @@ export type SourceCitation = PublicSourceCitation;
 
 export interface SourcePanelProps {
   sources: SourceCitation[];
+  citedIndices?: number[];
 }
 
 function youtubeWatchUrl(videoId: string, timeSec: number | null): string {
@@ -41,7 +42,7 @@ function isApprovedFrameIoUrl(value: string | undefined): value is string {
   }
 }
 
-export function SourcePanel({ sources }: SourcePanelProps) {
+export function SourcePanel({ sources, citedIndices }: SourcePanelProps) {
   const citationPlaybackTitleId = useId();
   const uncutPlaybackStatusId = useId();
   const hasPublishedSource = sources.some((source) => source.sourceMode !== "uncut");
@@ -49,6 +50,9 @@ export function SourcePanel({ sources }: SourcePanelProps) {
   const hasMappedUncutSource = sources.some(
     (source) => source.sourceMode === "uncut" && source.mappingStatus === "mapped",
   );
+  const citedSet = citedIndices ? new Set(citedIndices) : null;
+  const citedCount = citedSet ? sources.filter((_, i) => citedSet.has(i + 1)).length : sources.length;
+  const candidateCount = sources.length - citedCount;
 
   if (!sources || sources.length === 0) return null;
 
@@ -60,7 +64,12 @@ export function SourcePanel({ sources }: SourcePanelProps) {
       <summary className="flex cursor-pointer select-none items-center justify-between gap-3 font-label font-bold lowercase text-foreground transition-colors hover:text-foreground">
         <span className="flex items-center gap-1.5">
           <span className="font-bold text-attention">●</span>
-          {sources.length} source{sources.length !== 1 ? "s" : ""} cited
+          {citedCount > 0
+            ? `${citedCount} source${citedCount !== 1 ? "s" : ""} cited`
+            : "no sources cited"}
+          {candidateCount > 0
+            ? `, ${candidateCount} candidate excerpt${candidateCount !== 1 ? "s" : ""}`
+            : ""}
         </span>
         <span className="font-mono text-[10px] uppercase tracking-wider text-secondary">
           view sources
@@ -129,15 +138,19 @@ export function SourcePanel({ sources }: SourcePanelProps) {
               ? source.url
               : null;
             const playbackHref = source.sourceMode === "uncut" ? uncutHref : publishedHref;
+            const isCited = citedSet ? citedSet.has(index + 1) : true;
 
             return (
               <li
                 key={`${source.episodeId ?? source.videoId ?? source.url ?? "source"}-${index}`}
-                className="space-y-1.5 rounded border border-foreground/10 bg-canvas/40 p-2 transition-colors hover:bg-canvas/70"
+                className={`space-y-1.5 rounded border p-2 transition-colors ${isCited ? "border-foreground/10 bg-canvas/40 hover:bg-canvas/70" : "border-foreground/5 bg-canvas/20 opacity-60"}`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <div className="flex min-w-0 flex-1 items-center gap-1.5">
-                    <span className="font-mono text-[10px] font-bold text-attention">[{index + 1}]</span>
+                    <span className={`font-mono text-[10px] font-bold ${isCited ? "text-attention" : "text-muted"}`}>[{index + 1}]</span>
+                    {!isCited && (
+                      <span className="rounded bg-surface-subtle px-1 py-0.5 font-label text-[9px] uppercase tracking-wider text-muted">candidate</span>
+                    )}
                     {episodeHref ? (
                       <Link
                         href={episodeHref}

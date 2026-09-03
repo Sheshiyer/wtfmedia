@@ -28,13 +28,24 @@ describe("dual-source chat contract", () => {
     assert.deepEqual(matches.map((match) => match.id), ["target-1", "target-2"]);
   });
 
-  test("fails closed when an explicit named person has no evidence anchor", () => {
+  test("falls back to all matches when a named person has no evidence anchor", () => {
+    const matches = [
+      { id: "wrong", score: 0.99, metadata: { title: "Nikhil Kamath x Neal Mohan" } },
+    ];
     assert.deepEqual(
-      prioritizeMatchesForQuestion([
-        { id: "wrong", score: 0.99, metadata: { title: "Nikhil Kamath x Neal Mohan" } },
-      ], "What did Sunil Shetty say?"),
-      [],
+      prioritizeMatchesForQuestion(matches, "What did Sunil Shetty say?"),
+      matches,
     );
+  });
+
+  test("extracts entities from lowercase input via case-insensitive fallback", () => {
+    assert.deepEqual(extractNamedEntityPhrases("where does nikhil kamat stay?"), ["Nikhil Kamat"]);
+    assert.deepEqual(extractNamedEntityPhrases("what did ranbir kapoor say"), ["Ranbir Kapoor"]);
+  });
+
+  test("case-insensitive extraction strips stopwords from phrase edges", () => {
+    const entities = extractNamedEntityPhrases("where does nikhil kamath stay in bangalore");
+    assert.deepEqual(entities, ["Nikhil Kamath"]);
   });
 
   test("episode scope accepts only a public YouTube video id", () => {

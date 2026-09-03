@@ -292,6 +292,8 @@ async function chat(request: Request, env: Env) {
       grounded: false,
       sourceMode,
       uncutUnavailable: false,
+      responseState: "abstained",
+      citedIndices: [],
     });
   }
   try {
@@ -323,6 +325,8 @@ async function chat(request: Request, env: Env) {
         grounded: false,
         sourceMode: resolved.sourceMode,
         uncutUnavailable: resolved.uncutUnavailable,
+        responseState: "retrieval_weak",
+        citedIndices: [],
       });
     }
     const context = sources.map((source: any) => `[${source.n}] ${source.title}\n${source.text}`).join("\n\n---\n\n");
@@ -334,6 +338,7 @@ async function chat(request: Request, env: Env) {
     const citations = [...answer.matchAll(/\[(\d+)\]/g)].map((match) => Number(match[1]));
     if (citations.length === 0 || citations.some((citation) => citation < 1 || citation > sources.length)) {
       console.warn("wtfmedia answer rejected: invalid citations", { sourceCount: sources.length, citations });
+      const fallbackCited = sources.slice(0, 3).map((s) => s.n);
       return reply(request, env, {
         answer: citedEvidenceFallback(sources),
         sources: sources.map(({ text: _text, ...source }) => source),
@@ -342,8 +347,11 @@ async function chat(request: Request, env: Env) {
         uncutUnavailable: resolved.uncutUnavailable,
         model: answered.model,
         modelFallback: true,
+        responseState: "synthesis_invalid",
+        citedIndices: fallbackCited,
       });
     }
+    const citedIndices = [...new Set(citations)];
     return reply(request, env, {
       answer,
       sources: sources.map(({ text: _text, ...source }) => source),
@@ -352,6 +360,8 @@ async function chat(request: Request, env: Env) {
       uncutUnavailable: resolved.uncutUnavailable,
       model: answered.model,
       modelFallback: answered.fallback,
+      responseState: "answered_grounded",
+      citedIndices,
     });
   } catch (error) {
     console.error("wtfmedia chat failed", {

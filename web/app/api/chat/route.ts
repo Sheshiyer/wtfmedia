@@ -31,6 +31,8 @@ type EdgeSource = {
   segmentId?: string;
 };
 
+type ResponseState = "answered_grounded" | "retrieval_weak" | "synthesis_invalid" | "abstained";
+
 type EdgeAnswer = {
   answer?: string;
   sources?: EdgeSource[];
@@ -40,6 +42,8 @@ type EdgeAnswer = {
   model?: string;
   modelFallback?: boolean;
   error?: string;
+  responseState?: ResponseState;
+  citedIndices?: number[];
 };
 
 function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
@@ -183,6 +187,7 @@ export async function POST(req: NextRequest) {
   }
   const sources = Array.isArray(result.sources) ? result.sources : [];
   const responseMode = parseSourceMode(result.sourceMode ?? sourceMode);
+  const citedIndices = Array.isArray(result.citedIndices) ? result.citedIndices : [];
   return new Response(result.answer, {
     status: edge.status,
     headers: {
@@ -192,6 +197,8 @@ export async function POST(req: NextRequest) {
       "X-Uncut-Unavailable": result.uncutUnavailable ? "true" : "false",
       "X-Model": result.model ?? "cloudflare/llama-3.3-70b-instruct",
       "X-Fallback": result.grounded && !result.modelFallback ? "false" : "true",
+      "X-Response-State": result.responseState ?? "answered_grounded",
+      "X-Cited-Indices": JSON.stringify(citedIndices),
       "Cache-Control": "no-store",
     },
   });
