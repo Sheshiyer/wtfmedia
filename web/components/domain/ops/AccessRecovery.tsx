@@ -14,10 +14,10 @@ const content: Record<
 > = {
   reauthenticate: {
     eyebrow: "sign in",
-    heading: "sign-in is not in this release",
-    body: "this url is open for viewing and production records. seats, access gates, and sign-in arrive next. no account was created.",
-    primary: "open wtf os",
-    primaryHref: "/",
+    heading: "sign in to the operator workspace",
+    body: "opening the operator workspace verifies you with Cloudflare Access. public rooms stay open with no account.",
+    primary: "open the operator workspace",
+    primaryHref: "returnTo",
   },
   unavailable: {
     eyebrow: "access",
