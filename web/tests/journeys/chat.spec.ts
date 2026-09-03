@@ -142,6 +142,17 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(submitButton).toBeDisabled();
   });
 
+  test("composer is compact and keeps source mode inside the send bar", async ({ page }) => {
+    await page.goto("/chat");
+    await settle(page);
+
+    const composer = page.locator('[data-testid="ask-composer"]');
+    await expect(composer.locator(".wtf-type-rail")).toHaveCount(0);
+    await expect(composer.getByTestId("ask-send-bar").getByTestId("source-mode-toggle")).toBeVisible();
+    await expect(composer.getByTestId("ask-send-bar").getByRole("button")).toHaveCount(4);
+    await expect(composer).not.toContainText("find the exact moment where the guest changes their mind");
+  });
+
   /* ── request/response flow ─────────────────────────────────────────── */
 
   test("sends request and accumulates streamed response", async ({ page }) => {

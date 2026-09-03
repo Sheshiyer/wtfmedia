@@ -262,26 +262,6 @@ html[data-wtf-theme="dark"] .wtf-wordmark-plate {
   opacity: 0.95;
 }
 
-.wtf-type-rail {
-  display: grid;
-  min-height: 2.25rem;
-}
-
-.wtf-type-rail span {
-  grid-area: 1 / 1;
-  opacity: 0;
-  transform: translateY(0.5rem);
-  animation: wtf-type-rail 12s ease-in-out infinite;
-}
-
-.wtf-type-rail span:nth-child(2) {
-  animation-delay: 4s;
-}
-
-.wtf-type-rail span:nth-child(3) {
-  animation-delay: 8s;
-}
-
 .wtf-decrypt-line {
   animation: wtf-decrypt-soft 1.1s steps(8, end) both;
 }
@@ -324,24 +304,6 @@ html[data-wtf-theme="dark"] .wtf-wordmark-plate {
   }
 }
 
-@keyframes wtf-type-rail {
-  0%,
-  6% {
-    opacity: 0;
-    transform: translateY(0.5rem);
-  }
-  12%,
-  28% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  34%,
-  100% {
-    opacity: 0;
-    transform: translateY(-0.35rem);
-  }
-}
-
 @keyframes wtf-decrypt-soft {
   0% {
     clip-path: inset(0 100% 0 0);
@@ -370,13 +332,11 @@ html[data-wtf-theme="dark"] .wtf-wordmark-plate {
 @media (prefers-reduced-motion: reduce) {
   .wtf-input-star::before,
   .wtf-input-star::after,
-  .wtf-type-rail span,
   .wtf-decrypt-line,
   .wtf-stagger-in {
     animation: none;
   }
 
-  .wtf-type-rail span:first-child,
   .wtf-stagger-in {
     opacity: 1;
     transform: none;

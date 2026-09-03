@@ -1,11 +1,11 @@
 "use client";
 
-import { useRef, useEffect, useMemo } from "react";
+import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { SOURCE_MODES, type SourceMode } from "@/lib/provenance/source-mode";
 
 /**
- * AskComposer — persistent labelled composer for the chat route.
+ * AskComposer — compact persistent labelled composer for the chat route.
  *
  * UI-SPEC §chat:
  *   - Label: "ask the catalogue"
@@ -35,15 +35,6 @@ export function AskComposer({
   onSourceModeChange,
 }: AskComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const promptRail = useMemo(
-    () => [
-      "find the exact moment where the guest changes their mind",
-      "compare what founders say before and after failure",
-      "show me the source-backed answer, not the folklore",
-    ],
-    [],
-  );
-
   /* Focus on mount */
   useEffect(() => {
     textareaRef.current?.focus({ preventScroll: true });
@@ -62,19 +53,35 @@ export function AskComposer({
         e.preventDefault();
         onSubmit();
       }}
-      className="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 border-y-2 border-foreground bg-surface-raised px-4 py-4 shadow-[0_-10px_0_rgb(var(--wtf-foreground-rgb)/0.08)] sm:px-8"
+      className="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 border-y-2 border-foreground bg-surface-raised px-3 py-2 shadow-[0_-10px_0_rgb(var(--wtf-foreground-rgb)/0.08)] sm:px-8"
       data-testid="ask-composer"
     >
-      <div className="mx-auto grid max-w-5xl gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-        <div className="min-w-0">
-          <div className="mb-2 flex flex-wrap items-end justify-between gap-4">
-            <label htmlFor="ask-wtf-composer" className="font-label text-sm font-bold lowercase">
-              ask the catalogue
-            </label>
+      <div className="mx-auto max-w-5xl">
+        <label htmlFor="ask-wtf-composer" className="mb-1 block font-label text-[11px] font-bold lowercase sm:text-sm">
+          ask the catalogue
+        </label>
+        <div className="wtf-input-star relative overflow-hidden rounded-control border-2 border-foreground bg-canvas p-[3px]">
+          <textarea
+            id="ask-wtf-composer"
+            ref={textareaRef}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="what moment are you after?"
+            rows={2}
+            aria-label="Ask the catalogue"
+            aria-describedby="ask-wtf-help"
+            className="relative z-[1] min-h-12 w-full resize-none rounded-[calc(var(--wtf-radius-control)-3px)] border border-foreground/10 bg-canvas px-3 py-2.5 font-body text-sm text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-knowledge sm:min-h-14 sm:px-4 sm:py-3"
+          />
+          <div
+            className="relative z-[1] flex flex-wrap items-center justify-between gap-2 border-t border-foreground/15 bg-surface-raised/80 px-1.5 pb-1.5 pt-1.5"
+            data-testid="ask-send-bar"
+          >
             <div
-              className="inline-flex rounded-control border-2 border-foreground bg-canvas p-0.5"
+              className="inline-flex shrink-0 rounded-control border-2 border-foreground bg-canvas p-0.5"
               role="group"
               aria-label="source mode"
+              data-testid="source-mode-toggle"
             >
               {SOURCE_MODES.map((mode) => (
                 <button
@@ -84,7 +91,7 @@ export function AskComposer({
                   disabled={disabled || loading}
                   onClick={() => onSourceModeChange?.(mode)}
                   className={[
-                    "min-h-8 px-3 font-label text-[11px] font-bold lowercase transition-colors",
+                    "min-h-8 px-2.5 font-label text-[10px] font-bold lowercase transition-colors sm:px-3 sm:text-[11px]",
                     sourceMode === mode
                       ? "bg-knowledge text-on-knowledge"
                       : "text-muted hover:text-foreground",
@@ -94,42 +101,19 @@ export function AskComposer({
                 </button>
               ))}
             </div>
-          </div>
-          <div className="wtf-input-star relative overflow-hidden rounded-control border-2 border-foreground bg-canvas p-[3px]">
-            <textarea
-              id="ask-wtf-composer"
-              ref={textareaRef}
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="what moment are you after?"
-              rows={2}
-              aria-label="Ask the catalogue"
-              className="relative z-[1] min-h-14 w-full resize-none rounded-[calc(var(--wtf-radius-control)-3px)] border border-foreground/10 bg-canvas px-4 py-3 font-body text-sm text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-knowledge sm:min-h-16"
-            />
+            <Button
+              type="submit"
+              disabled={disabled || loading || !value.trim()}
+              loading={loading}
+              className="min-h-10 shrink-0 border-foreground bg-knowledge px-4 text-on-knowledge hover:bg-knowledge disabled:border-foreground/40 disabled:bg-surface-subtle disabled:text-foreground disabled:opacity-100 sm:min-h-11"
+            >
+              ask wtf
+            </Button>
           </div>
         </div>
-
-        <div className="grid gap-2 sm:grid-cols-[1fr_auto] lg:block lg:w-44">
-          <div className="hidden overflow-hidden rounded-control border border-foreground/20 bg-surface-subtle px-3 py-2 sm:block lg:mb-2">
-            <div className="wtf-type-rail font-label text-[10px] font-bold uppercase text-secondary">
-              {promptRail.map((prompt) => (
-                <span key={prompt}>{prompt}</span>
-              ))}
-            </div>
-          </div>
-          <Button
-            type="submit"
-            disabled={disabled || loading || !value.trim()}
-            loading={loading}
-            className="min-h-12 w-full border-foreground bg-knowledge text-on-knowledge hover:bg-knowledge disabled:border-foreground/40 disabled:bg-surface-subtle disabled:text-foreground disabled:opacity-100 sm:min-h-16"
-          >
-            ask wtf
-          </Button>
-          <span className="mt-2 hidden font-label text-[10px] font-semibold uppercase tracking-[0.1em] text-muted lg:block">
-            enter to ask. shift + enter for a new line.
-          </span>
-        </div>
+        <span id="ask-wtf-help" className="sr-only">
+          press enter to ask. press shift and enter for a new line.
+        </span>
       </div>
     </form>
   );
