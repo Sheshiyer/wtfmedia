@@ -136,10 +136,11 @@ async function answerWithOpenRouter(env: Env, messages: unknown[], modelOverride
       model,
       messages,
       // Reasoning models (gpt-5, inkling) burn hidden reasoning tokens against
-      // this cap even with exclude:true — 900 starved them into empty answers.
+      // this cap — 900 starved them into empty answers.
       max_tokens: 3000,
       temperature: 0.1,
-      reasoning: { exclude: true },
+      // Keep thinking at the floor; gpt-5 cannot fully disable reasoning.
+      reasoning: { effort: "low" },
     }),
   });
   if (!response.ok) {

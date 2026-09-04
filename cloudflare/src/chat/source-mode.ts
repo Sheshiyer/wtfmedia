@@ -468,19 +468,50 @@ export function resolveRequestedSources(
     );
   }
 
-  const reservedPerMode = Math.max(1, Math.floor(limit / 2));
-  const usedSegments = new Set<string>();
-  const citations = [
-    ...uncutHits.slice(0, reservedPerMode),
-    ...publishedHits.slice(0, reservedPerMode),
-    ...uncutHits.slice(reservedPerMode),
-    ...publishedHits.slice(reservedPerMode),
-  ].filter((citation) => {
-    if (usedSegments.has(citation.segmentId)) return false;
-    usedSegments.add(citation.segmentId);
-    return true;
-  }).slice(0, limit);
-  return resolvedSources(requested, citations, false);
+  if (!dedupeByEpisode) {
+    // Episode-scoped or anchor-prioritized rankings carry multiple chunks per
+    // episode — keep the plain per-mode interleave so anchored passages survive.
+    const reservedPerMode = Math.max(1, Math.floor(limit / 2));
+    const usedSegments = new Set<string>();
+    const citations = [
+      ...uncutHits.slice(0, reservedPerMode),
+      ...publishedHits.slice(0, reservedPerMode),
+      ...uncutHits.slice(reservedPerMode),
+      ...publishedHits.slice(reservedPerMode),
+    ].filter((citation) => {
+      if (usedSegments.has(citation.segmentId)) return false;
+      usedSegments.add(citation.segmentId);
+      return true;
+    }).slice(0, limit);
+    return resolvedSources(requested, citations, false);
+  }
+
+  // Catalogue-scope "both": pair timelines per episode. An episode that is
+  // relevant in uncut must also surface its published chunk (and vice versa),
+  // so the viewer always sees the same conversation on both timelines.
+  // Episodes rank by their best chunk score; each pair lists its stronger
+  // timeline first, preserving most-matched-first order.
+  const uncutByEpisode = new Map(uncutHits.map((hit) => [hit.videoId, hit]));
+  const publishedByEpisode = new Map(publishedHits.map((hit) => [hit.videoId, hit]));
+  const episodeBestScore = new Map<string, number>();
+  for (const hit of [...uncutHits, ...publishedHits]) {
+    episodeBestScore.set(hit.videoId, Math.max(episodeBestScore.get(hit.videoId) ?? -Infinity, hit.score));
+  }
+  const orderedEpisodes = [...episodeBestScore.entries()]
+    .sort((left, right) => right[1] - left[1])
+    .map(([videoId]) => videoId);
+  const paired: DualSourceCitation[] = [];
+  for (const videoId of orderedEpisodes) {
+    if (paired.length >= limit) break;
+    const pair = [uncutByEpisode.get(videoId), publishedByEpisode.get(videoId)]
+      .filter((hit): hit is DualSourceCitation => hit != null)
+      .sort((left, right) => right.score - left.score);
+    for (const hit of pair) {
+      if (paired.length >= limit) break;
+      paired.push(hit);
+    }
+  }
+  return resolvedSources(requested, paired, false);
 }
 
 export function resolveEpisodeScopedSources(
