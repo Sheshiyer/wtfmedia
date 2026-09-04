@@ -277,7 +277,11 @@ async function retrieveSourcesForQuery(
   );
   const prioritized = prioritizeMatchesForQuestionWithAnchor(queried.matches, searchQuery);
   const dedupeByEpisode = queried.episodeId == null && !prioritized.anchored;
-  const resolved = resolveEpisodeScopedSources(prioritized.matches, sourceMode, queried.episodeId, MIN_SCORE, 6, {
+  // Both mode is episode-paired; let every episode above the score floor show
+  // both timelines instead of capping at three episodes. The floor and the
+  // per-mode retrieval window are the real bounds, not a chunk count.
+  const chunkLimit = sourceMode === "both" ? 40 : 6;
+  const resolved = resolveEpisodeScopedSources(prioritized.matches, sourceMode, queried.episodeId, MIN_SCORE, chunkLimit, {
     dedupeByEpisode,
   });
   const sources = resolved.citations.map((source) => {
