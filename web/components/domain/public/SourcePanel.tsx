@@ -50,6 +50,17 @@ function isApprovedFrameIoUrl(value: string | undefined): value is string {
   }
 }
 
+/**
+ * Match-strength label for a source's retrieval score. Sources arrive in
+ * score order from the edge (most matched first); the badge makes that
+ * ranking visible. Thresholds follow the retrieval floor (0.45).
+ */
+function matchTier(score: number): string {
+  if (score >= 0.7) return "strong match";
+  if (score >= 0.55) return "medium match";
+  return "loose match";
+}
+
 function SourceEvidenceRow({ entry }: { entry: SourcePanelEntry }) {
   const { source, sourceMode } = entry;
   const resolved = resolveCitation({
@@ -95,17 +106,24 @@ function SourceEvidenceRow({ entry }: { entry: SourcePanelEntry }) {
             {entry.isCited ? "cited moment" : "candidate"}
           </span>
         </div>
-        <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
-          {verifiedTimeSec === null
-            ? `${sourceMode} time unavailable`
-            : `${sourceMode} ${formatPlaybackTimestamp(verifiedTimeSec)}`}
+        <span className="flex items-center gap-1.5">
+          {typeof source.score === "number" && source.score > 0 ? (
+            <span
+              className="rounded border border-foreground/20 bg-surface-subtle px-1.5 py-0.5 font-mono text-[10px] font-bold text-secondary"
+              title={`retrieval confidence ${(source.score * 100).toFixed(1)}% — sources are listed most matched first`}
+            >
+              {matchTier(source.score)} · {Math.round(source.score * 100)}%
+            </span>
+          ) : null}
+          <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
+            {verifiedTimeSec === null
+              ? `${sourceMode} time unavailable`
+              : `${sourceMode} ${formatPlaybackTimestamp(verifiedTimeSec)}`}
+          </span>
         </span>
       </div>
 
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <p className="font-label text-[10px] leading-relaxed text-muted">
-          {source.segmentId ? `source-native excerpt · ${source.segmentId}` : "source-native excerpt"}
-        </p>
+      <div className="flex flex-wrap items-end justify-end gap-2">
         {playbackHref ? (
           <a
             href={playbackHref}
@@ -336,17 +354,15 @@ export function SourcePanel({
                 ) : null}
 
                 {group.candidateEntries.length > 0 ? (
-                  <details className="mt-2 border-t border-foreground/10 pt-2" data-testid="candidate-evidence">
-                    <summary className="cursor-pointer select-none font-label text-[10px] font-bold lowercase text-muted hover:text-foreground">
+                  <div className="mt-2 space-y-2 border-t border-foreground/10 pt-2" data-testid="candidate-evidence">
+                    <p className="font-label text-[10px] font-bold lowercase text-muted">
                       {group.candidateEntries.length} candidate excerpt{group.candidateEntries.length !== 1 ? "s" : ""}
                       <span className="ml-1 font-normal">· retrieval context</span>
-                    </summary>
-                    <div className="mt-2 space-y-2">
-                      {group.candidateEntries.map((entry) => (
-                        <SourceEvidenceRow key={entry.originalIndex} entry={entry} />
-                      ))}
-                    </div>
-                  </details>
+                    </p>
+                    {group.candidateEntries.map((entry) => (
+                      <SourceEvidenceRow key={entry.originalIndex} entry={entry} />
+                    ))}
+                  </div>
                 ) : null}
               </li>
             );
