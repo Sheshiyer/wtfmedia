@@ -4,10 +4,10 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: verify
-progress: 82/231
+progress: 115/231
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-04T16:15:09+05:30
+updated: 2026-09-04T18:10:12+05:30
 ---
 
 ## Problem
@@ -316,39 +316,39 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 
 ### Alpha evidence coherence and published timing repair
 
-- [ ] ISC-199: An unscoped question that explicitly names the participants of one catalogue episode resolves that canonical episode before semantic top-K retrieval (probe: catalogue-anchor unit test).
-- [ ] ISC-200: A resolved canonical episode constrains each requested source-mode Vectorize query by `video_id` before top-K selection (probe: Vectorize call-contract test).
-- [ ] ISC-201: Catalogue anchoring tolerates recorded title aliases such as `Sunil`/`Suniel` while refusing a different episode that only mentions one named person incidentally (probe: alias and negative-anchor tests).
-- [ ] ISC-202: The exact unscoped Sam Altman and Nikhil Kamath question cites only episode `SfOaZIGJ_gs` evidence or truthfully abstains (probe: regression fixture).
-- [ ] ISC-203: Multi-passage retention is enabled only by a title or evidence phrase that actually matched, never by raw named-phrase extraction alone (probe: source-resolution unit test).
-- [ ] ISC-204: Lower-case pseudo-entities extracted from ordinary supplement or traffic questions do not disable default episode deduplication (probe: false-entity regressions).
-- [ ] ISC-205: Broad non-episode questions retain useful multi-episode discovery without manufacturing a canonical episode scope (probe: broad-query regression).
-- [ ] ISC-206: Combined-mode selection reserves capacity for both timelines only when each timeline contains competitively relevant evidence (probe: asymmetric-score coordinator tests).
-- [ ] ISC-207: An `uncut` request with no relevant approved uncut excerpt falls back truthfully or abstains instead of citing weaker unrelated episodes (probe: Policing regression).
-- [ ] ISC-208: A `published` request with no relevant published excerpt falls back truthfully or abstains instead of citing weaker unrelated episodes (probe: reciprocal mode regression).
-- [ ] ISC-209: Response metadata distinguishes the requested source mode from any evidence mode actually used after a truthful fallback (probe: API header and parser contract test).
-- [ ] ISC-210: The source panel groups repeated retrieval passages under one canonical episode identity while preserving each timeline-native moment (probe: component and browser test).
-- [ ] ISC-211: Only answer-cited evidence uses numeric `[n]` citation notation; uncited retrieval candidates use a distinct noncitation identifier (probe: rendered DOM assertion).
-- [ ] ISC-212: Cited evidence is the primary expanded presentation and uncited candidates remain secondary, explicitly labelled retrieval context (probe: interaction test).
-- [ ] ISC-213: Per-answer `published`, `uncut`, and `both` controls are labelled as view-only evidence filters and cannot be mistaken for a new retrieval request (probe: accessible-name assertion).
-- [ ] ISC-214: Hiding the mode containing an answer citation reports how many cited sources are hidden and offers restoration; it never claims the answer has no cited sources (probe: filter-state test).
-- [ ] ISC-215: Filtering or grouping never changes original citation identity, cited status, source mode, timestamp origin, or source action (probe: immutable-projection test).
-- [ ] ISC-216: The query-time corpus scope selected in the composer remains visible with the completed answer independently of the view-only evidence filter (probe: conversation journey).
-- [ ] ISC-217: A queue job declaring `timestampsKey` fails retryably when that R2 object is absent and does not write a success receipt (probe: ingest failure fixture).
-- [ ] ISC-218: A declared timestamp sidecar that is unreadable, empty, nonfinite, negative, or nonmonotonic fails before vector upsert and success receipt (probe: sidecar-validation matrix).
-- [ ] ISC-219: A job with no declared `timestampsKey` remains intentionally searchable as untimed published evidence with an explicit unavailable reason (probe: legacy untimed fixture).
-- [ ] ISC-220: The ingest success receipt is written only after every new vector upsert and stale-vector cleanup succeeds (probe: injected-failure ordering tests).
-- [ ] ISC-221: Re-ingesting an episode removes obsolete chunk IDs so a prior untimed segmentation cannot survive beside the replacement timed vectors (probe: shrink-reingest fixture).
-- [ ] ISC-222: A bounded repair path can supersede a legacy string hash receipt without weakening normal idempotency or silently replaying unrelated episodes (probe: legacy-state repair tests).
-- [ ] ISC-223: Each of the thirteen currently absent or structurally invalid published timing sidecars has source-native YouTube cues in canonical nonempty, nonnegative, monotonic form (probe: sidecar audit script).
-- [ ] ISC-224: The regenerated local provenance manifest reports all 56 published transcript assets with all 56 published timing sidecars (probe: manifest build and exact-count assertion).
-- [ ] ISC-225: No published timestamp is inferred from, copied from, or aligned to an uncut edit (probe: provenance scan and dual-timeline tests).
-- [ ] ISC-226: A local Policing ingest fixture backed by its existing sidecar emits non-null published starts and removes simulated stale untimed vectors (probe: queue-consumer integration test).
-- [ ] ISC-227: Focused Worker, web unit, browser, typecheck, lint, build, dry-run, privacy, and Git-diff gates pass from the isolated repair worktree (probe: command ledger).
-- [ ] ISC-228: Anti: this repair branch performs no live R2 upload, KV edit, queue enqueue, Vectorize mutation, Worker deployment, DNS change, secret change, or production promotion without a separate explicit owner gate (probe: command ledger and live-state no-mutation readback).
-- [ ] ISC-229: The provenance manifest marks a timing sidecar available only after its rows pass the canonical schema and monotonicity validator (probe: invalid-file manifest fixture).
-- [ ] ISC-230: The named-profile wrapper passes `--profile=wtfmedia` as one Wrangler argument and strips ambient account tokens before invocation (probe: spawned-argument unit test).
-- [ ] ISC-231: A declared timestamp sidecar covers at least 80 percent of its same-video published transcript before any vector mutation, so sparse captions cannot replace complete searchable text (probe: manifest, queue, and ingest failure fixtures).
+- [x] ISC-199: An unscoped question that explicitly names the participants of one catalogue episode resolves that canonical episode before semantic top-K retrieval (probe: catalogue-anchor unit test).
+- [x] ISC-200: A resolved canonical episode constrains each requested source-mode Vectorize query by `video_id` before top-K selection (probe: Vectorize call-contract test).
+- [x] ISC-201: Catalogue anchoring tolerates recorded title aliases such as `Sunil`/`Suniel` while refusing a different episode that only mentions one named person incidentally (probe: alias and negative-anchor tests).
+- [x] ISC-202: The exact unscoped Sam Altman and Nikhil Kamath question cites only episode `SfOaZIGJ_gs` evidence or truthfully abstains (probe: regression fixture).
+- [x] ISC-203: Multi-passage retention is enabled only by a title or evidence phrase that actually matched, never by raw named-phrase extraction alone (probe: source-resolution unit test).
+- [x] ISC-204: Lower-case pseudo-entities extracted from ordinary supplement or traffic questions do not disable default episode deduplication (probe: false-entity regressions).
+- [x] ISC-205: Broad non-episode questions retain useful multi-episode discovery without manufacturing a canonical episode scope (probe: broad-query regression).
+- [x] ISC-206: Combined-mode selection reserves capacity for both timelines only when each timeline contains competitively relevant evidence (probe: asymmetric-score coordinator tests).
+- [x] ISC-207: An `uncut` request with no relevant approved uncut excerpt falls back truthfully or abstains instead of citing weaker unrelated episodes (probe: Policing regression).
+- [x] ISC-208: A `published` request with no relevant published excerpt falls back truthfully or abstains instead of citing weaker unrelated episodes (probe: reciprocal mode regression).
+- [x] ISC-209: Response metadata distinguishes the requested source mode from any evidence mode actually used after a truthful fallback (probe: API header and parser contract test).
+- [x] ISC-210: The source panel groups repeated retrieval passages under one canonical episode identity while preserving each timeline-native moment (probe: component and browser test).
+- [x] ISC-211: Only answer-cited evidence uses numeric `[n]` citation notation; uncited retrieval candidates use a distinct noncitation identifier (probe: rendered DOM assertion).
+- [x] ISC-212: Cited evidence is the primary expanded presentation and uncited candidates remain secondary, explicitly labelled retrieval context (probe: interaction test).
+- [x] ISC-213: Per-answer `published`, `uncut`, and `both` controls are labelled as view-only evidence filters and cannot be mistaken for a new retrieval request (probe: accessible-name assertion).
+- [x] ISC-214: Hiding the mode containing an answer citation reports how many cited sources are hidden and offers restoration; it never claims the answer has no cited sources (probe: filter-state test).
+- [x] ISC-215: Filtering or grouping never changes original citation identity, cited status, source mode, timestamp origin, or source action (probe: immutable-projection test).
+- [x] ISC-216: The query-time corpus scope selected in the composer remains visible with the completed answer independently of the view-only evidence filter (probe: conversation journey).
+- [x] ISC-217: A queue job declaring `timestampsKey` fails retryably when that R2 object is absent and does not write a success receipt (probe: ingest failure fixture).
+- [x] ISC-218: A declared timestamp sidecar that is unreadable, empty, nonfinite, negative, or nonmonotonic fails before vector upsert and success receipt (probe: sidecar-validation matrix).
+- [x] ISC-219: A job with no declared `timestampsKey` remains intentionally searchable as untimed published evidence with an explicit unavailable reason (probe: legacy untimed fixture).
+- [x] ISC-220: The ingest success receipt is written only after every new vector upsert and stale-vector cleanup succeeds (probe: injected-failure ordering tests).
+- [x] ISC-221: Re-ingesting an episode removes obsolete chunk IDs so a prior untimed segmentation cannot survive beside the replacement timed vectors (probe: shrink-reingest fixture).
+- [x] ISC-222: A bounded repair path can supersede a legacy string hash receipt without weakening normal idempotency or silently replaying unrelated episodes (probe: legacy-state repair tests).
+- [x] ISC-223: Each of the thirteen currently absent or structurally invalid published timing sidecars has source-native YouTube cues in canonical nonempty, nonnegative, monotonic form (probe: sidecar audit script).
+- [x] ISC-224: The regenerated local provenance manifest reports all 56 published transcript assets with all 56 published timing sidecars (probe: manifest build and exact-count assertion).
+- [x] ISC-225: No published timestamp is inferred from, copied from, or aligned to an uncut edit (probe: provenance scan and dual-timeline tests).
+- [x] ISC-226: A local Policing ingest fixture backed by its existing sidecar emits non-null published starts and removes simulated stale untimed vectors (probe: queue-consumer integration test).
+- [x] ISC-227: Focused Worker, web unit, browser, typecheck, lint, build, dry-run, privacy, and Git-diff gates pass from the isolated repair worktree (probe: command ledger).
+- [x] ISC-228: Anti: this repair branch performs no live R2 upload, KV edit, queue enqueue, Vectorize mutation, Worker deployment, DNS change, secret change, or production promotion without a separate explicit owner gate (probe: command ledger and live-state no-mutation readback).
+- [x] ISC-229: The provenance manifest marks a timing sidecar available only after its rows pass the canonical schema and monotonicity validator (probe: invalid-file manifest fixture).
+- [x] ISC-230: The named-profile wrapper passes `--profile=wtfmedia` as one Wrangler argument and strips ambient account tokens before invocation (probe: spawned-argument unit test).
+- [x] ISC-231: A declared timestamp sidecar covers at least 80 percent of its same-video published transcript before any vector mutation, so sparse captions cannot replace complete searchable text (probe: manifest, queue, and ingest failure fixtures).
 
 ## Test Strategy
 
@@ -710,3 +710,8 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
 - ISA completeness evidence (2026-09-04): the strict E3 project gate passed with all eight required sections present, 198 criteria definitions, 198 unique stable IDs, zero duplicate IDs, and 14 anti-criteria.
 - Alpha evidence-coherence ISA gate (2026-09-04, pre-build): the strict E5 structural audit initially found all twelve sections present, 228 unique sequential criteria, zero gaps or collisions, 15 anti-criteria, and one experiential antecedent. Two preflight defects then added ISC-229 and ISC-230 without renumbering: schema-valid manifest availability and compatible named-profile invocation. The resulting 230 count is a documented soft tier-floor exception; no hard gap remains and the Interview gate ran before BUILD.
 - Alpha evidence-coherence coverage checkpoint (2026-09-04): the first content-aware audit truthfully failed at 54/56 because `FPV5fAkqyBs` and `2_yA6GoqUnY` had structurally valid but sparse source-native cues with normalized text coverage 0.066287 and 0.151523. Direct same-video generated-English JSON3 tracks replaced only those files; the final local audit reports 56/56 valid, minimum coverage 0.997684, and no raw capture wrapper, signed URL, or temporary path persisted.
+- Alpha published-timing production receipt (2026-09-04): thirteen exact sidecars were uploaded after transcript-hash and D1 source-asset preflight, the rotated named-profile ingest gate accepted exactly thirteen jobs after one bounded secret-propagation retry, and final KV reads matched all thirteen expected `wtfmedia.ingest.v2` receipts with `published_sidecar` origin and 1,976 total chunks.
+- Alpha production deployment receipt (2026-09-04): current edge version `72d574cd-dd67-4fc2-a4cf-30e63434e8d7` and web version `86a9bade-d039-43e3-8d8b-0063d160ed2f` are each assigned at 100 percent; canonical home/chat return 200 and protected settings returns 302.
+- Alpha live retrieval receipt (2026-09-04): the Sam question returned only `SfOaZIGJ_gs`; supplements retained separate native published and uncut timelines; repaired published candidates exposed verified non-null native timestamps. The Bangalore-cops probe exposed a separate deployed selector defect and was not misreported as an ingest failure.
+- Alpha selector follow-up (2026-09-04, reviewed but not deployed): RED reproduced the Modi false anchor through `with the` and generic `people with` phrases; GREEN added exact Policing aliases, connector exclusion, alias-conflict refusal, and `traffic policy` negatives. Focused tests pass 15/15, the full Worker suite passes 211/211, Wrangler dry-run passes, and independent final review returned `PASS`.
+- Alpha PR handoff (2026-09-04): `docs/handoffs/2026-09-04-alpha-evidence-ingest.md` records production versions, exact receipt counts, verification, known advisories, edge-only pickup, and a separately bounded ingest-throughput optimization that must not replay completed jobs.

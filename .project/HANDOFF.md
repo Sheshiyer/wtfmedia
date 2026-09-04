@@ -1847,3 +1847,33 @@ activation.
   authentication, unrelated secrets, unrelated corpus objects, broad replay,
   database writes, and root-worktree state remain outside the authorized
   activation.
+
+## 2026-09-04 Alpha evidence-coherence production and PR handoff
+
+**Scope:** completed exact published-timing activation, partial live acceptance,
+and reviewed-but-undeployed Policing selector follow-up. Detailed pickup:
+[`docs/handoffs/2026-09-04-alpha-evidence-ingest.md`](../docs/handoffs/2026-09-04-alpha-evidence-ingest.md).
+
+- Production ingest is complete: all thirteen exact jobs have matching
+  `wtfmedia.ingest.v2` receipts, `published_sidecar` timing origin, and 1,976
+  total timed chunks. No additional replay is needed.
+- Current production is edge version
+  `72d574cd-dd67-4fc2-a4cf-30e63434e8d7` and web version
+  `86a9bade-d039-43e3-8d8b-0063d160ed2f`, both at 100 percent.
+- Canonical home/chat return 200 and protected settings returns 302. Live Sam
+  retrieval is confined to `SfOaZIGJ_gs`; repaired published candidates expose
+  verified native timestamps.
+- Live acceptance found `Bangalore cops` still selecting Modi episode
+  `yTMYtcQLLaw`. A three-file local correction now selects Policing episode
+  `LcWoP6KtZKw`, rejects connector/common-topic false anchors, passes 211/211
+  Worker tests and a Wrangler dry-run, and has an independent `PASS` review.
+- Per owner direction, that selector correction is not deployed in this
+  session. The next production action is an edge-only deploy and three-mode
+  live replay from the reviewed PR head.
+- Ingest throughput optimization is deferred to a separate session and must
+  preserve pre-mutation validation, ordered cleanup, v2 receipt atomicity, and
+  retry convergence. It must not re-enqueue the completed thirteen jobs merely
+  for benchmarking.
+- Two unrelated Storybook fixtures and one Next.js deprecation warning remain
+  advisory. Fresh DLQ depth was not observable through Wrangler, so no new
+  depth claim is made.

@@ -53,13 +53,15 @@ Ask WTF supports three source modes:
 - `uncut`: approved uncut transcript evidence.
 - `both`: combined retrieval over both approved corpora.
 
-Release receipt as of 2026-09-01:
+Release receipt as of 2026-09-04:
 
-- 55 published transcript assets are reconciled across R2/KV/Vectorize/D1.
+- 56 published transcript assets are reconciled across R2/KV/Vectorize/D1.
 - 49 approved mapped uncut text assets are reconciled across R2/KV/Vectorize/D1.
-- KV receipts are 55/55 published plus 49/49 mapped uncut; Vectorize reports
-  11,948 records with `source_mode` and `video_id` indexes.
-- Queue backlog is 0 and the DLQ remains at its preserved baseline of 18.
+- Published timing is now 56/56: thirteen exact repairs converged to v2 ingest
+  receipts covering 1,976 timed chunks. The earlier full-index count remains a
+  historical baseline until a fresh aggregate Vectorize count is recorded.
+- A fresh queue or DLQ depth was not available from the named-profile Wrangler
+  surface; this release therefore makes no new backlog-depth claim.
 - Live `/api/chat` returns HTTP 200 across `published`, `uncut`, and `both`.
 - The 49-item mapping proves episode membership, not trusted cross-timeline
   alignment or synchronized uncut playback.
@@ -97,7 +99,7 @@ Workers AI handles Cloudflare-side embedding and answer inference. R2 stores sou
 <td width="50%" valign="top">
 
 ### 🎬 Production library
-55 published episodes across the current catalogue, with 43 timestamp sidecars and 12 fallback transcript-only sources. Timestamp links are conditional on per-source timing data.
+56 published episodes across the current catalogue, with 56 validated timestamp sidecars. Timestamp links remain conditional on each returned source's native timing metadata.
 
 </td>
 </tr>
@@ -163,11 +165,12 @@ Vectorize, and D1 provide retrieval, inference, ingestion, and provenance while
 the browser keeps the same citation response contract. The legacy local index
 remains a rebuild reference; see [the infrastructure design](docs/CLOUDFLARE-INFRASTRUCTURE.md), [migration plan](docs/CLOUDFLARE-MIGRATION-PLAN.md), and [agent onboarding](docs/AGENT-ONBOARDING.md).
 
-The bounded corpus receipt covers 55 published transcripts and 49 approved
+The bounded corpus receipt covers 56 published transcripts and 49 approved
 mapped uncut text assets. Mapping proves episode membership, not trusted
-cross-timeline alignment. Of the published episodes, 43 have verified caption
-timing and can produce a `youtube?t=` citation; the other 12 deliberately link
-only to the source video. See the [production evaluation](docs/PRODUCTION-EVALUATION.md).
+cross-timeline alignment. All 56 published episodes now have validated native
+caption timing; a returned citation produces a `youtube?t=` link only when its
+own vector metadata verifies that timing. See the
+[production evaluation](docs/PRODUCTION-EVALUATION.md).
 <!-- readme-gen:end:architecture -->
 
 ---
