@@ -29,6 +29,17 @@ function youtubeWatchUrl(videoId: string, timeSec: number | null): string {
   return `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&t=${timestamp}s`;
 }
 
+/**
+ * Match-strength label for a citation's retrieval score. Sources arrive in
+ * score order from the edge (most matched first); the badge makes that
+ * ranking visible. Thresholds follow the retrieval floor (0.45).
+ */
+function matchTier(score: number): string {
+  if (score >= 0.7) return "strong match";
+  if (score >= 0.55) return "medium match";
+  return "loose match";
+}
+
 export function SourcePanel({ sources }: SourcePanelProps) {
   const citationPlaybackTitleId = useId();
   const uncutPlaybackStatusId = useId();
@@ -145,6 +156,14 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-secondary">
+                  {typeof source.score === "number" && source.score > 0 ? (
+                    <span
+                      className="rounded border border-foreground/20 bg-surface-subtle px-1.5 py-0.5 font-mono text-[10px] font-bold text-secondary"
+                      title={`retrieval confidence ${(source.score * 100).toFixed(1)}% — sources are listed most matched first`}
+                    >
+                      {matchTier(source.score)} · {Math.round(source.score * 100)}%
+                    </span>
+                  ) : null}
                   {resolved.activeTimeSec !== null ? (
                     <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
                       {`${source.sourceMode === "uncut" ? "uncut" : "published"} ${formatPlaybackTimestamp(resolved.activeTimeSec)}`}
