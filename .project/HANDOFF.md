@@ -1877,3 +1877,7 @@ and reviewed-but-undeployed Policing selector follow-up. Detailed pickup:
 - Two unrelated Storybook fixtures and one Next.js deprecation warning remain
   advisory. Fresh DLQ depth was not observable through Wrangler, so no new
   depth claim is made.
+- Draft PR #47 is intentionally conflicting with `main`. Its architecture
+  ledger check is green; Phase 2 currently fails three Control Room browser
+  assertions because the expected visible `Application` navigation is absent.
+  Resolve that Alpha/Beta integration boundary before changing PR readiness.

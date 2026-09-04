@@ -128,6 +128,14 @@ The browser also reports the existing Next.js `next/config` deprecation
 warning. Node's Worker tests emit the existing module-type warning because the
 Cloudflare package has no explicit module type.
 
+Draft PR #47 is intentionally not merge-ready against `main`: GitHub reports
+the Alpha/Beta histories as conflicting. Its regenerated architecture-ledger
+check passes. The Phase 2 gate reaches the browser suite but currently fails
+three Control Room assertions because `nav[aria-label="Application"]` is not
+visible after the navigation toggle; seven Phase 2 browser checks pass. Treat
+that as an explicit release-branch reconciliation blocker, not as an ingest or
+published-timestamp failure.
+
 A fresh DLQ depth was not available from the Wrangler queue-info surface, so
 this handoff does not claim one. The prior preserved baseline was 18; verify it
 through an authorized metrics surface before making any new backlog claim.
@@ -163,9 +171,10 @@ The optimization must preserve these invariants:
 
 ## Pickup sequence
 
-1. Review the pull request against `main`, including the release branch's
-   divergence from the Beta commits already on `main`; do not resolve conflicts
-   by dropping either public Alpha or protected Beta behavior.
+1. Review draft PR #47 against `main`, including the release branch's divergence
+   from the Beta commits already on `main`; resolve its merge conflict and the
+   three Phase 2 Control Room navigation failures without dropping either
+   public Alpha or protected Beta behavior.
 2. From the PR head, rerun the 211 Worker tests and Wrangler dry-run.
 3. With a fresh owner production gate, deploy only `wtfmedia-edge`. The current
    rollback target for that deploy is edge version
@@ -180,4 +189,3 @@ The optimization must preserve these invariants:
    readiness or merging.
 7. Start the ingest-throughput work as a separate branch/session, without
    replaying already-converged production jobs.
-
