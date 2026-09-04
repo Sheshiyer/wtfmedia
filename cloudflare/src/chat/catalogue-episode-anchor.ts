@@ -11,45 +11,50 @@ export type CatalogueEpisodeDbLike = {
 
 const TOKEN = /[a-z0-9]+/g;
 const YOUTUBE_VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
+const CONNECTOR_WORDS = new Set([
+  "a", "an", "and", "are", "as", "at", "be", "been", "between", "by",
+  "did", "do", "does", "for", "from", "had", "has", "have", "how", "in",
+  "into", "is", "it", "of", "on", "or", "the", "to", "was", "were",
+  "what", "when", "where", "which", "who", "with",
+]);
+const WORD_EQUIVALENTS = new Map([
+  ["suniel", "sunil"],
+]);
+const EPISODE_ALIASES = [
+  {
+    videoId: "LcWoP6KtZKw",
+    phrases: [
+      ["bangalore", "cops"],
+      ["bangalore", "police"],
+      ["bengaluru", "cops"],
+      ["bengaluru", "police"],
+    ],
+  },
+] as const;
+
+function canonicalWord(value: string): string {
+  return WORD_EQUIVALENTS.get(value) ?? value;
+}
 
 function words(value: unknown): string[] {
   return String(value ?? "")
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase("en-US")
-    .match(TOKEN) ?? [];
+    .match(TOKEN)?.map(canonicalWord) ?? [];
 }
 
-function editDistanceAtMostOne(left: string, right: string): boolean {
-  if (left === right) return true;
-  if (Math.abs(left.length - right.length) > 1) return false;
-  let differences = 0;
-  let leftIndex = 0;
-  let rightIndex = 0;
-  while (leftIndex < left.length && rightIndex < right.length) {
-    if (left[leftIndex] === right[rightIndex]) {
-      leftIndex += 1;
-      rightIndex += 1;
-      continue;
-    }
-    differences += 1;
-    if (differences > 1) return false;
-    if (left.length > right.length) leftIndex += 1;
-    else if (right.length > left.length) rightIndex += 1;
-    else {
-      leftIndex += 1;
-      rightIndex += 1;
-    }
-  }
-  return differences + (left.length - leftIndex) + (right.length - rightIndex) <= 1;
-}
-
-function containsFuzzyBigram(titleWords: readonly string[], left: string, right: string): boolean {
+function containsBigram(titleWords: readonly string[], left: string, right: string): boolean {
   for (let index = 0; index < titleWords.length - 1; index += 1) {
-    if (
-      editDistanceAtMostOne(left, titleWords[index])
-      && editDistanceAtMostOne(right, titleWords[index + 1])
-    ) return true;
+    if (left === titleWords[index] && right === titleWords[index + 1]) return true;
+  }
+  return false;
+}
+
+function containsPhrase(haystack: readonly string[], needle: readonly string[]): boolean {
+  if (needle.length === 0 || needle.length > haystack.length) return false;
+  for (let index = 0; index <= haystack.length - needle.length; index += 1) {
+    if (needle.every((word, offset) => word === haystack[index + offset])) return true;
   }
   return false;
 }
@@ -87,12 +92,25 @@ export async function resolveCatalogueEpisodeId(
     const left = questionWords[index];
     const right = questionWords[index + 1];
     if (left.length < 3 || right.length < 3) continue;
+    if (CONNECTOR_WORDS.has(left) || CONNECTOR_WORDS.has(right)) continue;
     const matchingVideos = new Set(episodes
-      .filter((episode) => containsFuzzyBigram(episode.titleWords, left, right))
+      .filter((episode) => containsBigram(episode.titleWords, left, right))
       .map((episode) => episode.videoId));
     if (matchingVideos.size !== 1) continue;
     const [videoId] = matchingVideos;
     scores.set(videoId, (scores.get(videoId) ?? 0) + 1);
+  }
+
+  const availableVideos = new Set(episodes.map((episode) => episode.videoId));
+  const aliasTargets = new Set(EPISODE_ALIASES
+    .filter((entry) => availableVideos.has(entry.videoId))
+    .filter((entry) => entry.phrases.some((phrase) => containsPhrase(questionWords, phrase)))
+    .map((entry) => entry.videoId));
+  if (aliasTargets.size > 1) return null;
+  if (aliasTargets.size === 1) {
+    const [aliasTarget] = aliasTargets;
+    if ([...scores.keys()].some((videoId) => videoId !== aliasTarget)) return null;
+    return aliasTarget;
   }
 
   const ranked = [...scores.entries()].sort((left, right) => right[1] - left[1]);

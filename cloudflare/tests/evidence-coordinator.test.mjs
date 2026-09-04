@@ -106,6 +106,57 @@ describe("evidence coordinator", () => {
     assert.equal(calls.every((call) => call.filter.video_id.$eq === "SfOaZIGJ_gs"), true);
   });
 
+  test("Bangalore cops alias constrains every requested mode to Policing before topK", async () => {
+    const db = {
+      prepare() {
+        return {
+          async all() {
+            return {
+              results: [
+                {
+                  title: "People with The Prime Minister Shri Narendra Modi x Nikhil Kamath | Episode 6 | By WTF",
+                  video_id: "yTMYtcQLLaw",
+                },
+                {
+                  title: "Nikhil Kamath ft. Police Comm'r & Traffic Police Comm'r of Bengaluru | WTF is Policing? | Special Ep",
+                  video_id: "LcWoP6KtZKw",
+                },
+              ],
+            };
+          },
+        };
+      },
+    };
+    for (const [mode, expectedModes] of [
+      ["published", ["published"]],
+      ["uncut", ["uncut", "published"]],
+      ["both", ["published", "uncut"]],
+    ]) {
+      const calls = [];
+      const index = {
+        async query(_vector, options) {
+          calls.push(options);
+          return { matches: [] };
+        },
+      };
+      const result = await queryEvidenceSourcesForQuestion(
+        db,
+        index,
+        [1],
+        "Tell me about Bangalore traffic and conversations that happened with the Bangalore cops.",
+        mode,
+        null,
+      );
+
+      assert.equal(result.episodeId, "LcWoP6KtZKw", mode);
+      assert.equal(result.catalogueAnchored, true, mode);
+      assert.deepEqual(calls.map((call) => call.filter), expectedModes.map((sourceMode) => ({
+        source_mode: { $eq: sourceMode },
+        video_id: { $eq: "LcWoP6KtZKw" },
+      })));
+    }
+  });
+
   test("an explicit episode scope wins without consulting the catalogue", async () => {
     let catalogueReads = 0;
     const db = {

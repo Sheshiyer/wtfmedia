@@ -20,6 +20,14 @@ const catalogue = [
     title: "Nikhil Kamath x YouTube CEO, Neal Mohan | People by WTF Ep. 9",
     video_id: "8uFOBdle3WY",
   },
+  {
+    title: "People with The Prime Minister Shri Narendra Modi x Nikhil Kamath | Episode 6 | By WTF",
+    video_id: "yTMYtcQLLaw",
+  },
+  {
+    title: "Nikhil Kamath ft. Police Comm'r & Traffic Police Comm'r of Bengaluru | WTF is Policing? | Special Ep",
+    video_id: "LcWoP6KtZKw",
+  },
 ];
 
 function catalogueDb(rows = catalogue) {
@@ -74,5 +82,57 @@ describe("catalogue episode anchor", () => {
       await resolveCatalogueEpisodeId(catalogueDb(ambiguous), "What did Sam Altman tell Nikhil Kamath?"),
       null,
     );
+  });
+
+  test("anchors Bangalore cops traffic language to the published Policing episode", async () => {
+    assert.equal(
+      await resolveCatalogueEpisodeId(
+        catalogueDb(),
+        "Tell me about Bangalore traffic and conversations that happened with the Bangalore cops.",
+      ),
+      "LcWoP6KtZKw",
+    );
+  });
+
+  test("supports bounded Bangalore and Bengaluru policing aliases", async () => {
+    for (const question of [
+      "What did the Bangalore police say?",
+      "How do Bengaluru cops handle traffic?",
+      "Explain the Bengaluru police traffic strategy.",
+    ]) {
+      assert.equal(await resolveCatalogueEpisodeId(catalogueDb(), question), "LcWoP6KtZKw");
+    }
+  });
+
+  test("does not anchor a catalogue episode from connector words alone", async () => {
+    assert.equal(await resolveCatalogueEpisodeId(catalogueDb(), "with the"), null);
+  });
+
+  test("does not resolve a bounded alias when its catalogue episode is absent", async () => {
+    assert.equal(
+      await resolveCatalogueEpisodeId(
+        catalogueDb(catalogue.filter((episode) => episode.video_id !== "LcWoP6KtZKw")),
+        "Tell me about Bangalore traffic and the Bangalore cops.",
+      ),
+      null,
+    );
+  });
+
+  test("fails closed for broad, confusable, and cross-episode policing language", async () => {
+    for (const question of [
+      "Bangalore",
+      "Bangalore traffic",
+      "police",
+      "cops",
+      "traffic policy",
+      "Tell me about people with anxiety",
+      "Why do people with power behave differently?",
+      "How do people with disabilities navigate cities?",
+      "policing AI systems",
+      "community policing in Mumbai",
+      "Compare Bangalore police with Sam Altman",
+    ]) {
+      assert.equal(await resolveCatalogueEpisodeId(catalogueDb(), question), null, question);
+    }
   });
 });
