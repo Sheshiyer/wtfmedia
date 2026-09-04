@@ -10,7 +10,7 @@ import {
 import { isReady, search } from "@/lib/vectors";
 
 export const runtime = "nodejs";
-export const maxDuration = 30;
+export const maxDuration = 90;
 
 const EDGE_SHARED_SECRET = process.env.EDGE_SHARED_SECRET ?? process.env.CLOUDFLARE_EDGE_SHARED_SECRET;
 const MAX_MESSAGES = 8;
@@ -303,7 +303,7 @@ export async function POST(req: NextRequest) {
         history: messages.slice(0, -1).map((m) => ({ role: m.role, content: m.content })),
       }),
       cache: "no-store",
-      signal: AbortSignal.timeout(25_000),
+      signal: AbortSignal.timeout(75_000),
     }));
   } catch (error) {
     console.error("wtfmedia web chat transport failed", {
