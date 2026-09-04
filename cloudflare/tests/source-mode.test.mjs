@@ -9,6 +9,7 @@ import {
   parseEpisodeId,
   parseSourceMode,
   prioritizeMatchesForQuestion,
+  prioritizeMatchesForQuestionWithAnchor,
   projectDualSourceCitation,
   resolveEpisodeScopedSources,
   resolveRequestedSources,
@@ -66,6 +67,97 @@ describe("dual-source chat contract", () => {
       prioritizeMatchesForQuestion(matches, "What did Sunil Shetty say?"),
       matches,
     );
+  });
+
+  test("reports false pseudo-entities as unanchored so broad results stay episode-deduplicated", () => {
+    for (const question of [
+      "Tell me what supplements does Nikhil have?",
+      "Tell me about Bangalore traffic and considerations that happened with the Bangalore cops.",
+    ]) {
+      const prioritized = prioritizeMatchesForQuestionWithAnchor([
+        {
+          id: "policing-1",
+          score: 0.91,
+          metadata: { video_id: "LcWoP6KtZKw", title: "WTF is Policing", source_mode: "published" },
+        },
+        {
+          id: "policing-2",
+          score: 0.88,
+          metadata: { video_id: "LcWoP6KtZKw", title: "WTF is Policing", source_mode: "published" },
+        },
+        {
+          id: "health-1",
+          score: 0.84,
+          metadata: { video_id: "6HE6d0lKh4o", title: "WTF is Health", source_mode: "published" },
+        },
+      ], question);
+
+      assert.equal(prioritized.anchored, false);
+      const resolved = resolveRequestedSources(prioritized.matches, "published", 0.45, 6, {
+        dedupeByEpisode: !prioritized.anchored,
+      });
+      assert.deepEqual(resolved.citations.map((citation) => citation.segmentId), ["policing-1", "health-1"]);
+    }
+  });
+
+  test("reports a real evidence phrase anchor and retains its answer-bearing passages", () => {
+    const prioritized = prioritizeMatchesForQuestionWithAnchor([
+      {
+        id: "sam-1",
+        score: 0.91,
+        metadata: { video_id: "SfOaZIGJ_gs", title: "Sam Altman x Nikhil Kamath", source_mode: "published" },
+      },
+      {
+        id: "sam-2",
+        score: 0.89,
+        metadata: { video_id: "SfOaZIGJ_gs", title: "Sam Altman x Nikhil Kamath", source_mode: "published" },
+      },
+      {
+        id: "other",
+        score: 0.99,
+        metadata: { video_id: "abcdefghijk", title: "Another AI episode", source_mode: "published" },
+      },
+    ], "What did Sam Altman tell Nikhil Kamath?");
+
+    assert.equal(prioritized.anchored, true);
+    const resolved = resolveRequestedSources(prioritized.matches, "published", 0.45, 6, {
+      dedupeByEpisode: !prioritized.anchored,
+    });
+    assert.deepEqual(resolved.citations.map((citation) => citation.segmentId), ["sam-1", "sam-2"]);
+  });
+
+  test("keeps direct transcript-name evidence inside the anchored citation limit", () => {
+    const answer = {
+      id: "answer",
+      score: 0.7,
+      metadata: {
+        video_id: "abc12345678",
+        title: "Sam Altman x Nikhil Kamath",
+        text: "Sam Altman gave the answer in this passage.",
+        source_mode: "published",
+      },
+    };
+    const filler = Array.from({ length: 6 }, (_, index) => ({
+      id: `filler-${index}`,
+      score: 0.96 - index * 0.01,
+      metadata: {
+        video_id: "abc12345678",
+        title: "Sam Altman x Nikhil Kamath",
+        text: "General introduction without a direct speaker reference.",
+        source_mode: "published",
+      },
+    }));
+
+    const prioritized = prioritizeMatchesForQuestionWithAnchor(
+      [answer, ...filler],
+      "What did Sam Altman tell Nikhil Kamath?",
+    );
+    const resolved = resolveRequestedSources(prioritized.matches, "published", 0.45, 6, {
+      dedupeByEpisode: !prioritized.anchored,
+    });
+
+    assert.equal(prioritized.anchored, true);
+    assert.equal(resolved.citations.some((citation) => citation.segmentId === "answer"), true);
   });
 
   test("extracts entities from lowercase input via case-insensitive fallback", () => {
@@ -399,7 +491,7 @@ describe("dual-source chat contract", () => {
     assert.equal(resolved.citations[1].url.includes("youtube.com"), true);
   });
 
-  test("episode-scoped both mode reserves room for published evidence when uncut matches dominate", () => {
+  test("episode-scoped both mode excludes a noncompetitive published timeline", () => {
     const uncut = Array.from({ length: 6 }, (_, index) => ({
       id: `uncut:hash-${index}:${index}`,
       score: 0.99 - index * 0.01,
@@ -429,8 +521,8 @@ describe("dual-source chat contract", () => {
     );
 
     assert.equal(resolved.citations.length, 6);
-    assert.equal(resolved.citations.some((citation) => citation.sourceMode === "uncut"), true);
-    assert.equal(resolved.citations.some((citation) => citation.sourceMode === "published"), true);
+    assert.equal(resolved.evidenceSourceMode, "uncut");
+    assert.equal(resolved.citations.every((citation) => citation.sourceMode === "uncut"), true);
   });
 
   test("both mode reports uncut unavailable when only published evidence exists", () => {
@@ -447,9 +539,146 @@ describe("dual-source chat contract", () => {
         },
       },
     ], "both", 0.45);
-    assert.equal(resolved.sourceMode, "both");
+    assert.equal(resolved.requestedSourceMode, "both");
+    assert.equal(resolved.evidenceSourceMode, "published");
+    assert.equal(resolved.sourceMode, "published");
+    assert.equal(resolved.fallbackReason, "requested_mode_insufficient");
     assert.equal(resolved.uncutUnavailable, true);
     assert.equal(resolved.citations.length, 1);
     assert.equal(resolved.citations[0].sourceMode, "published");
+  });
+
+  test("both mode does not reserve capacity for a weak noncompetitive timeline", () => {
+    const uncut = Array.from({ length: 6 }, (_, index) => ({
+      id: `uncut:strong-${index}:${index}`,
+      score: 0.95 - index * 0.01,
+      metadata: {
+        video_id: `strong0000${index}`,
+        source_asset_id: `strong-${index}`,
+        title: `Strong uncut ${index}`,
+        source_mode: "uncut",
+      },
+    }));
+    const weakPublished = [
+      {
+        id: "weak-published",
+        score: 0.46,
+        metadata: { video_id: "weakpub0001", title: "Weak published", source_mode: "published" },
+      },
+    ];
+
+    const resolved = resolveRequestedSources([...uncut, ...weakPublished], "both", 0.45, 6);
+
+    assert.equal(resolved.requestedSourceMode, "both");
+    assert.equal(resolved.evidenceSourceMode, "uncut");
+    assert.equal(resolved.fallbackReason, "requested_mode_not_competitive");
+    assert.equal(resolved.uncutUnavailable, false);
+    assert.equal(resolved.citations.length, 6);
+    assert.equal(resolved.citations.every((citation) => citation.sourceMode === "uncut"), true);
+  });
+
+  test("both mode keeps both timelines when their strongest evidence is competitive", () => {
+    const resolved = resolveRequestedSources([
+      {
+        id: "uncut:competitive-a:0",
+        score: 0.91,
+        metadata: { video_id: "abcdefghijk", source_asset_id: "competitive-a", source_mode: "uncut" },
+      },
+      {
+        id: "uncut:competitive-b:0",
+        score: 0.89,
+        metadata: { video_id: "lmnopqrstuv", source_asset_id: "competitive-b", source_mode: "uncut" },
+      },
+      {
+        id: "published-a",
+        score: 0.88,
+        metadata: { video_id: "zyxwvutsrqp", source_mode: "published" },
+      },
+      {
+        id: "published-b",
+        score: 0.86,
+        metadata: { video_id: "ponmlkjihgf", source_mode: "published" },
+      },
+    ], "both", 0.45, 4);
+
+    assert.equal(resolved.evidenceSourceMode, "both");
+    assert.equal(resolved.citations.some((citation) => citation.sourceMode === "uncut"), true);
+    assert.equal(resolved.citations.some((citation) => citation.sourceMode === "published"), true);
+  });
+
+  test("uncut mode names a clearly stronger published fallback without relabeling it", () => {
+    const resolved = resolveRequestedSources([
+      {
+        id: "uncut:weak-a:0",
+        score: 0.81,
+        metadata: { video_id: "abcdefghijk", source_asset_id: "weak-a", source_mode: "uncut" },
+      },
+      {
+        id: "uncut:weak-b:0",
+        score: 0.79,
+        metadata: { video_id: "lmnopqrstuv", source_asset_id: "weak-b", source_mode: "uncut" },
+      },
+      {
+        id: "published-strong-a",
+        score: 0.92,
+        metadata: { video_id: "zyxwvutsrqp", source_mode: "published" },
+      },
+      {
+        id: "published-strong-b",
+        score: 0.9,
+        metadata: { video_id: "ponmlkjihgf", source_mode: "published" },
+      },
+    ], "uncut", 0.45);
+
+    assert.equal(resolved.requestedSourceMode, "uncut");
+    assert.equal(resolved.evidenceSourceMode, "published");
+    assert.equal(resolved.sourceMode, "published");
+    assert.equal(resolved.uncutUnavailable, false);
+    assert.equal(resolved.fallbackReason, "requested_mode_not_competitive");
+    assert.equal(resolved.citations.every((citation) => citation.sourceMode === "published"), true);
+  });
+
+  test("one relevant uncut excerpt is insufficient but not unavailable", () => {
+    const resolved = resolveRequestedSources([
+      {
+        id: "uncut:one:0",
+        score: 0.91,
+        metadata: { video_id: "abcdefghijk", source_asset_id: "one", source_mode: "uncut" },
+      },
+    ], "uncut", 0.45);
+
+    assert.equal(resolved.evidenceSourceMode, "uncut");
+    assert.equal(resolved.uncutUnavailable, false);
+    assert.equal(resolved.fallbackReason, "requested_mode_insufficient");
+    assert.equal(resolved.citations.length, 1);
+  });
+
+  test("published mode remains published-only when only uncut evidence qualifies", () => {
+    const resolved = resolveRequestedSources([
+      {
+        id: "uncut:only-a:0",
+        score: 0.95,
+        metadata: { video_id: "abcdefghijk", source_asset_id: "only-a", source_mode: "uncut" },
+      },
+      {
+        id: "uncut:only-b:0",
+        score: 0.94,
+        metadata: { video_id: "lmnopqrstuv", source_asset_id: "only-b", source_mode: "uncut" },
+      },
+    ], "published", 0.45);
+
+    assert.equal(resolved.requestedSourceMode, "published");
+    assert.equal(resolved.evidenceSourceMode, null);
+    assert.deepEqual(resolved.citations, []);
+  });
+
+  test("source selection rejects matches without a finite numeric score", () => {
+    const resolved = resolveRequestedSources([
+      { id: "missing", metadata: { video_id: "abcdefghijk", source_mode: "published" } },
+      { id: "nan", score: Number.NaN, metadata: { video_id: "lmnopqrstuv", source_mode: "published" } },
+      { id: "valid", score: 0.8, metadata: { video_id: "zyxwvutsrqp", source_mode: "published" } },
+    ], "published", 0.45);
+
+    assert.deepEqual(resolved.citations.map((citation) => citation.segmentId), ["valid"]);
   });
 });

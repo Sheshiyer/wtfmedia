@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "authority": "owner-approved-alpha-evidence-skills-2026-09-03",
-  "base_sha": "e33156873fbede8f700f38cba0dafaff8a937abc",
+  "authority": "owner-approved-alpha-evidence-coherence-production-2026-09-04",
+  "base_sha": "c0340bbccece036a36ab339c6842ce95f436f818",
   "protected_routes": [
     "/",
     "/episodes",
@@ -47,7 +47,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "642279fd30c103423015076f8ed1de882d211ead3b1eb69ac909356e8491082e",
+      "sha256": "b2bdbe42cc0061aece14b62bae321eed491aba294fe43b543781c4e823674bc6",
       "mode": "100644",
       "type": "file",
       "worktree_status": " M"
@@ -77,7 +77,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "642279fd30c103423015076f8ed1de882d211ead3b1eb69ac909356e8491082e",
+      "sha256": "b2bdbe42cc0061aece14b62bae321eed491aba294fe43b543781c4e823674bc6",
       "mode": "100644",
       "type": "file",
       "worktree_status": " M"
@@ -317,7 +317,10 @@
     ],
     "headers": [
       "X-Sources",
+      "X-Requested-Source-Mode",
+      "X-Evidence-Source-Mode",
       "X-Source-Mode",
+      "X-Source-Fallback-Reason",
       "X-Uncut-Unavailable",
       "X-Response-State",
       "X-Cited-Indices",
@@ -330,6 +333,11 @@
     "success_headers": {
       "Content-Type": "text/plain; charset=utf-8",
       "X-Sources": "URI-encoded JSON array of mapped public source fields",
+      "X-Requested-Source-Mode": "the parsed query-time source mode requested by the browser",
+      "X-Evidence-Source-Mode": "published, uncut, both, or none for the evidence actually returned",
+      "X-Source-Mode": "backwards-compatible effective evidence mode",
+      "X-Source-Fallback-Reason": "allowlisted requested_mode_insufficient or requested_mode_not_competitive when applicable",
+      "X-Uncut-Unavailable": "true only when sufficient uncut evidence is absent, never merely noncompetitive",
       "X-Model": "fixed server-selected compatibility label",
       "X-Fallback": "false only when the upstream grounded flag is truthy; otherwise true",
       "Cache-Control": "no-store"

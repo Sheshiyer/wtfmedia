@@ -229,6 +229,56 @@ describe("POST /api/chat — upstream failure branches", () => {
 });
 
 describe("POST /api/chat — successful upstream answer", () => {
+  it.each(["uncut", "both"] as const)(
+    "projects requested %s mode separately from published fallback evidence",
+    async (requestedMode) => {
+      const { POST } = await importRoute();
+      const res = await POST(chatRequest({
+        messages: [userMessage(triggerQuestion("mode-fallback"))],
+        sourceMode: requestedMode,
+      }));
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get("X-Requested-Source-Mode")).toBe(requestedMode);
+      expect(res.headers.get("X-Evidence-Source-Mode")).toBe("published");
+      expect(res.headers.get("X-Source-Mode")).toBe("published");
+      expect(res.headers.get("X-Source-Fallback-Reason")).toBe("requested_mode_not_competitive");
+      expect(res.headers.get("X-Uncut-Unavailable")).toBe("false");
+    },
+  );
+
+  it("reports insufficient requested evidence separately from no effective evidence", async () => {
+    const { POST } = await importRoute();
+    const res = await POST(chatRequest({
+      messages: [userMessage(triggerQuestion("mode-insufficient"))],
+      sourceMode: "uncut",
+    }));
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("X-Requested-Source-Mode")).toBe("uncut");
+    expect(res.headers.get("X-Evidence-Source-Mode")).toBe("none");
+    expect(res.headers.get("X-Source-Mode")).toBe("uncut");
+    expect(res.headers.get("X-Source-Fallback-Reason")).toBe("requested_mode_insufficient");
+    expect(res.headers.get("X-Uncut-Unavailable")).toBe("true");
+  });
+
+  it("fails closed to public source metadata when upstream enums are invalid", async () => {
+    const { POST } = await importRoute();
+    const res = await POST(chatRequest({
+      messages: [userMessage(triggerQuestion("invalid-source-metadata"))],
+      sourceMode: "both",
+    }));
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("X-Requested-Source-Mode")).toBe("both");
+    expect(res.headers.get("X-Evidence-Source-Mode")).toBe("published");
+    expect(res.headers.get("X-Source-Mode")).toBe("published");
+    expect(res.headers.has("X-Source-Fallback-Reason")).toBe(false);
+    expect(res.headers.get("X-Response-State")).toBe("answered_grounded");
+    const sources = JSON.parse(decodeURIComponent(res.headers.get("X-Sources")!));
+    expect(sources[0].mapping_status).toBe("mapped");
+  });
+
   it("returns a grounded plain-text answer with X-Fallback: false and mapped sources", async () => {
     const { POST } = await importRoute();
     const res = await POST(chatRequest({ messages: [userMessage("what happened")] }));

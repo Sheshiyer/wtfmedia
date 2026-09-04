@@ -1785,3 +1785,65 @@ web-Worker promotion for the reviewed anonymous Alpha source-panel filter.
 - No merge, force push, DNS, secret, corpus, ingest, queue, database, index,
   bucket, authentication, edge-Worker, or unrelated root-worktree mutation
   occurred.
+
+## 2026-09-04 Alpha evidence-coherence release candidate
+
+**Scope:** reviewed repository implementation for canonical episode anchoring,
+truthful requested-versus-evidence source metadata, grouped citation display,
+and exact published-timing repair. This checkpoint precedes production
+activation.
+
+- The release candidate resolves a unique catalogue episode before Vectorize
+  top-K selection, preserves caller ranking after entity anchoring, separates
+  requested and effective evidence modes, and does not label weak-but-present
+  uncut evidence unavailable.
+- The public source panel groups passages by canonical episode, reserves
+  numeric citation markers for answer-cited evidence, keeps candidates
+  secondary, and treats per-answer source controls as view-only projections.
+- The active queue consumer now validates every declared published sidecar,
+  requires at least 80 percent same-video transcript coverage, replaces stale
+  vector tails before writing a structured v2 receipt, and permits repair only
+  for the fixed thirteen-video allowlist.
+- Local corpus proof reports 56/56 structurally valid published timestamp
+  sidecars with minimum normalized text coverage `0.997684`. The exact repair
+  dry-run contains thirteen published, timed, replace-existing jobs.
+
+### Verification and independent review
+
+- Worker tests pass 205/205; web unit tests pass 79/79; web contracts pass
+  89/89; TypeScript, ESLint, the 69-page production build, timestamp tests,
+  manifest/queue/profile tests, focused browser journeys, and exact 320px
+  rendered QA pass.
+- A read-only `gpt-5.4` audit first blocked release on contradictory fallback
+  metadata and citation-cap ordering. The corrected delta returned
+  `VERDICT PASS`; an independent in-session re-review also returned
+  `VERDICT PASS` after checking enum allowlists and compatibility hashes.
+- The full Storybook component sweep still has two known unrelated fixture
+  failures outside this slice; the focused `MigratedChatPage` story passes
+  16/16 and is the scoped browser gate.
+
+### Production prestate and authority
+
+- The owner explicitly authorized Alpha edge/web promotion, upload of the
+  thirteen approved timing sidecars, `INGEST_TOKEN` rotation through the
+  named `wtfmedia` profile, exact repair enqueue, and production verification.
+- Prestate Worker rollback targets are edge version
+  `b2ff3ed0-f41d-41aa-b7f9-6d5fdc84e560` in deployment
+  `c2579024-7dfd-4c99-9c0a-de85dff635d6` and web version
+  `bf077fe8-fcf4-4b20-b3db-2dd30ac0bb9e` in deployment
+  `ef667085-ef55-4134-98e0-de2be9850466`.
+- All thirteen remote published transcript objects exactly match their local
+  SHA-256 digests and all thirteen exact D1 R2 source-asset receipts are
+  available. Twelve timing keys are absent; Policing's prior incompatible
+  sidecar is backed up by hash and bytes in a temporary rollback directory.
+- All thirteen affected KV receipts are present in legacy string form. The
+  canonical namespace currently contains 56 published receipt keys, including
+  `WGiAwFmscmc`; this corrects the older 55-item documentation count without
+  broadening the repair replay.
+
+### Held until activation completes
+
+- No production mutation had occurred at this checkpoint. DNS, Beta,
+  authentication, unrelated secrets, unrelated corpus objects, broad replay,
+  database writes, and root-worktree state remain outside the authorized
+  activation.

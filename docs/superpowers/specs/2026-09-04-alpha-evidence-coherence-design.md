@@ -1,7 +1,7 @@
 # Alpha Evidence Coherence Repair Design
 
 **Status:** owner-approved in chat on 2026-09-04  
-**Acceptance source:** [`ISA.md`](../../../ISA.md), ISC-199 through ISC-228  
+**Acceptance source:** [`ISA.md`](../../../ISA.md), ISC-199 through ISC-231
 **Release base:** `release/alpha` at `c0340bb`  
 **Execution branch:** `codex/alpha-evidence-coherence`
 
@@ -51,15 +51,17 @@ The panel displays `searched: <mode>` separately from controls labelled `view th
 
 Extract the legacy queue consumer into a focused module with testable dependencies. Normalize accepted sidecar rows from either canonical `{t,x}` or source-native YouTube `{start,text,duration}` input into `{t,x}`. Reject empty, nonfinite, negative, nonmonotonic, or textless rows.
 
-If a job declares `timestampsKey`, absence or validation failure throws before embeddings, vector upserts, stale cleanup, or KV success. Jobs without `timestampsKey` remain intentionally searchable as untimed evidence. A D1 catalogue-resolution error propagates as retrieval unavailable rather than silently broadening an explicit named-episode query.
+If a job declares `timestampsKey`, absence or validation failure throws before embeddings, vector upserts, stale cleanup, or KV success. Validation includes a normalized text-coverage floor of `0.80` against that job's same-video published transcript; a sparse caption track cannot replace the complete searchable transcript merely because its cue rows are well formed. Jobs without `timestampsKey` remain intentionally searchable as untimed evidence. A D1 catalogue-resolution error propagates as retrieval unavailable rather than silently broadening an explicit named-episode query.
 
 Store a versioned JSON receipt containing `contentHash`, `chunkCount`, and timing origin. After all upserts succeed, delete deterministic vector IDs above the new chunk count through the prior structured count. A bounded, explicitly allowlisted `replaceExisting` repair job may scan a fixed legacy range when the prior receipt is an old string; receipt deletion is unnecessary because every recovered sidecar changes the content hash. Write the new receipt only after cleanup succeeds.
 
 ### 5. Source-native sidecar recovery
 
-Create a focused script that fetches captions without invoking the NVIDIA embedding build. It writes only canonical `{t,x}` JSON, validates before replacement, supports an explicit video allowlist, and has a check-only mode.
+Create a focused script that fetches captions without invoking the NVIDIA embedding build. It writes only canonical `{t,x}` JSON, validates shape, monotonicity, duration, and normalized same-video transcript coverage before replacement, supports an explicit video allowlist, and has a check-only mode. Manual captions are preferred only when they meet the coverage floor; otherwise a complete direct generated track from that same published video is eligible. Translation and cross-timeline alignment remain prohibited.
 
 Use it for the thirteen currently invalid or absent published sidecars: twelve files are absent and `LcWoP6KtZKw` exists in incompatible `{start,text,duration}` form even though the current manifest counts it. Regenerate the provenance manifest from validated content, not file existence; the target local receipt is 56 published transcripts and 56 valid published timing sidecars.
+
+The first content-aware validation found two additional quality defects inside that fixed repair set: `FPV5fAkqyBs` and `2_yA6GoqUnY` had shape-valid manual tracks covering only 0.066287 and 0.151523 of their published transcript text. Replace only those sparse assets with complete direct generated-English tracks from the same videos, and persist neither signed capture URLs nor temporary wrappers.
 
 ### 6. Operations and authority
 
@@ -89,7 +91,7 @@ This is prohibited. Published and uncut edits can differ, so an uncut coordinate
 ## Verification
 
 - Worker unit tests prove catalogue anchoring, actual-anchor dedupe, competitiveness, fallback, sidecar validation, receipt ordering, and stale-vector cleanup.
-- Script tests prove canonical conversion, validation failures, allowlisting, and manifest validity.
+- Script tests prove canonical conversion, shape and coverage failures, source-video capture identity, allowlisting, and manifest validity.
 - Web unit and Playwright tests prove immutable searched scope, view-only controls, citation/candidate namespaces, grouping, hidden-citation restoration, responsive behavior, and native links.
 - Typecheck, lint, full focused suites, production build, Wrangler dry-run, privacy scan, and `git diff --check` run after integration.
 - No live mutation is considered complete without an exact before/after receipt and a query proving the intended vectors or UI behavior.

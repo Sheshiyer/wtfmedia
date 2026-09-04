@@ -71,6 +71,73 @@ describe("catalogue job admission", () => {
     assert.equal(bindings[0][2], privateHash);
   });
 
+  test("exact published repair is admitted only with its declared timing sidecar", async () => {
+    const spy = queueSpy();
+    const publishedJob = {
+      videoId: "RSB58m7Xwhg",
+      title: "Example",
+      transcriptKey: "transcripts/RSB58m7Xwhg.txt",
+      timestampsKey: "timestamps/RSB58m7Xwhg.json",
+      contentHash: "b".repeat(64),
+      sourceMode: "published",
+      replaceExisting: true,
+    };
+    assert.deepEqual(
+      await admitTranscriptJobs(
+        [publishedJob],
+        spy.queue,
+        sourceAssetDb(availableSourceAsset),
+      ),
+      { ok: true, queued: 1 },
+    );
+    assert.deepEqual(spy.batches[0][0].body, publishedJob);
+  });
+
+  test("repair admission rejects missing, mismatched, and uncut timing declarations", async () => {
+    const publishedJob = {
+      videoId: "RSB58m7Xwhg",
+      title: "Example",
+      transcriptKey: "transcripts/RSB58m7Xwhg.txt",
+      timestampsKey: "timestamps/RSB58m7Xwhg.json",
+      contentHash: "b".repeat(64),
+      sourceMode: "published",
+      replaceExisting: true,
+    };
+    const cases = [
+      [{ ...publishedJob, timestampsKey: undefined }, "invalid_replace_existing"],
+      [{ ...publishedJob, timestampsKey: "timestamps/not-the-video.json" }, "invalid_published_timestamps_key"],
+      [{ ...uncutJob, timestampsKey: `uncut/${privateHash}.timestamps.json`, replaceExisting: true }, "invalid_replace_existing"],
+    ];
+    for (const [job, error] of cases) {
+      const spy = queueSpy();
+      assert.deepEqual(
+        await admitTranscriptJobs([job], spy.queue, sourceAssetDb(availableSourceAsset)),
+        { ok: false, error },
+      );
+      assert.equal(spy.batches.length, 0);
+    }
+  });
+
+  test("declared published sidecars must match the admitted episode", async () => {
+    const spy = queueSpy();
+    assert.deepEqual(
+      await admitTranscriptJobs(
+        [{
+          videoId: "RSB58m7Xwhg",
+          title: "Example",
+          transcriptKey: "transcripts/RSB58m7Xwhg.txt",
+          timestampsKey: "timestamps/not-the-video.json",
+          contentHash: "b".repeat(64),
+          sourceMode: "published",
+        }],
+        spy.queue,
+        sourceAssetDb(availableSourceAsset),
+      ),
+      { ok: false, error: "invalid_published_timestamps_key" },
+    );
+    assert.equal(spy.batches.length, 0);
+  });
+
   test("uncut storage key cannot enter as published or unspecified", async () => {
     for (const sourceMode of ["published", undefined, "both"]) {
       const spy = queueSpy();

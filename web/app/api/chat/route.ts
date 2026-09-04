@@ -39,12 +39,16 @@ type EdgeSource = {
 };
 
 type ResponseState = "answered_grounded" | "retrieval_weak" | "synthesis_invalid" | "abstained";
+type SourceFallbackReason = "requested_mode_insufficient" | "requested_mode_not_competitive";
 
 type EdgeAnswer = {
   answer?: string;
   sources?: EdgeSource[];
   grounded?: boolean;
   sourceMode?: SourceMode;
+  requestedSourceMode?: SourceMode;
+  evidenceSourceMode?: SourceMode | null;
+  fallbackReason?: SourceFallbackReason | null;
   uncutUnavailable?: boolean;
   model?: string;
   modelFallback?: boolean;
@@ -54,6 +58,49 @@ type EdgeAnswer = {
   followUps?: string[];
   searchQuery?: string;
 };
+
+const SOURCE_FALLBACK_REASONS = new Set<SourceFallbackReason>([
+  "requested_mode_insufficient",
+  "requested_mode_not_competitive",
+]);
+const RESPONSE_STATES = new Set<ResponseState>([
+  "answered_grounded",
+  "retrieval_weak",
+  "synthesis_invalid",
+  "abstained",
+]);
+const MAPPING_STATUSES = new Set<NonNullable<EdgeSource["mappingStatus"]>>([
+  "mapped",
+  "unmapped",
+  "unavailable",
+  "conflicted",
+]);
+
+function optionalSourceMode(value: unknown): SourceMode | null {
+  return value === "published" || value === "uncut" || value === "both" ? value : null;
+}
+
+function publicSourceFallbackReason(value: unknown): SourceFallbackReason | null {
+  return typeof value === "string" && SOURCE_FALLBACK_REASONS.has(value as SourceFallbackReason)
+    ? value as SourceFallbackReason
+    : null;
+}
+
+function publicResponseState(value: unknown): ResponseState {
+  return typeof value === "string" && RESPONSE_STATES.has(value as ResponseState)
+    ? value as ResponseState
+    : "answered_grounded";
+}
+
+function publicMappingStatus(
+  value: unknown,
+  fallback: NonNullable<EdgeSource["mappingStatus"]>,
+): NonNullable<EdgeSource["mappingStatus"]> {
+  return typeof value === "string"
+    && MAPPING_STATUSES.has(value as NonNullable<EdgeSource["mappingStatus"]>)
+    ? value as NonNullable<EdgeSource["mappingStatus"]>
+    : fallback;
+}
 
 const PUBLIC_TIMESTAMP_REASONS = new Set([
   "This published transcript was ingested without timestamp data; the link opens the full episode.",
@@ -115,7 +162,10 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
       time: start == null ? "" : new Date(start * 1_000).toISOString().slice(11, 19).replace(/^00:/, ""),
       url: mode === "uncut" ? publicUncutUrl : direct,
       source_mode: mode,
-      mapping_status: source.mappingStatus ?? (start == null ? "unmapped" : "mapped"),
+      mapping_status: publicMappingStatus(
+        source.mappingStatus,
+        start == null ? "unmapped" : "mapped",
+      ),
       timestamp_status: timestampStatus,
       timestamp_reason: publicTimestampReason(source, mode, timestampStatus),
       segment_id: source.segmentId ?? (mode === "uncut" ? `uncut:${source.videoId}` : null),
@@ -140,7 +190,17 @@ async function localAnswer(question: string, sourceMode: SourceMode, episodeId: 
   if (sourceMode === "uncut") {
     return new Response("uncut is unavailable in local mode; switch to published.", {
       status: 200,
-      headers: { "Content-Type": "text/plain; charset=utf-8", "X-Sources": encodeURIComponent("[]"), "X-Source-Mode": "uncut", "X-Uncut-Unavailable": "true", "X-Model": "nvidia-local", "X-Fallback": "true" },
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-Sources": encodeURIComponent("[]"),
+        "X-Requested-Source-Mode": "uncut",
+        "X-Evidence-Source-Mode": "none",
+        "X-Source-Mode": "uncut",
+        "X-Source-Fallback-Reason": "requested_mode_insufficient",
+        "X-Uncut-Unavailable": "true",
+        "X-Model": "nvidia-local",
+        "X-Fallback": "true",
+      },
     });
   }
   const hits = search(await embedQuery(question), episodeId ? 48 : 6)
@@ -168,7 +228,12 @@ async function localAnswer(question: string, sourceMode: SourceMode, episodeId: 
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       "X-Sources": encodeURIComponent(sourceHeader(sources, "published")),
+      "X-Requested-Source-Mode": sourceMode,
+      "X-Evidence-Source-Mode": "published",
       "X-Source-Mode": "published",
+      ...(sourceMode === "both"
+        ? { "X-Source-Fallback-Reason": "requested_mode_insufficient" }
+        : {}),
       "X-Uncut-Unavailable": sourceMode === "both" ? "true" : "false",
       "X-Model": "nvidia-local",
       "X-Fallback": "false",
@@ -244,6 +309,14 @@ export async function POST(req: NextRequest) {
   }
   const sources = Array.isArray(result.sources) ? result.sources : [];
   const responseMode = parseSourceMode(result.sourceMode ?? sourceMode);
+  const requestedMode = optionalSourceMode(result.requestedSourceMode) ?? sourceMode;
+  const evidenceMode = result.evidenceSourceMode === null
+    ? null
+    : optionalSourceMode(result.evidenceSourceMode) ?? (sources.length > 0 ? responseMode : null);
+  const fallbackReason = publicSourceFallbackReason(result.fallbackReason);
+  const uncutUnavailable = fallbackReason === "requested_mode_not_competitive"
+    ? false
+    : result.uncutUnavailable === true;
   const citedIndices = Array.isArray(result.citedIndices) ? result.citedIndices : [];
   const followUps = Array.isArray(result.followUps) ? result.followUps.filter((f): f is string => typeof f === "string") : [];
   return new Response(result.answer, {
@@ -251,11 +324,14 @@ export async function POST(req: NextRequest) {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       "X-Sources": encodeURIComponent(sourceHeader(sources, responseMode)),
+      "X-Requested-Source-Mode": requestedMode,
+      "X-Evidence-Source-Mode": evidenceMode ?? "none",
       "X-Source-Mode": responseMode,
-      "X-Uncut-Unavailable": result.uncutUnavailable ? "true" : "false",
+      ...(fallbackReason ? { "X-Source-Fallback-Reason": fallbackReason } : {}),
+      "X-Uncut-Unavailable": uncutUnavailable ? "true" : "false",
       "X-Model": result.model ?? "cloudflare/llama-3.3-70b-instruct",
       "X-Fallback": result.grounded && !result.modelFallback ? "false" : "true",
-      "X-Response-State": result.responseState ?? "answered_grounded",
+      "X-Response-State": publicResponseState(result.responseState),
       "X-Cited-Indices": JSON.stringify(citedIndices),
       ...(followUps.length > 0 ? { "X-Follow-Ups": JSON.stringify(followUps) } : {}),
       "Cache-Control": "no-store",

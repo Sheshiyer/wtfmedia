@@ -6,6 +6,7 @@ import { AskComposer } from "./AskComposer";
 import { ConversationThread, type Message, type Source } from "./ConversationThread";
 import { parsePublicSourceHeader } from "@/lib/provenance/public-source-header";
 import { parseSourceMode, type SourceMode } from "@/lib/provenance/source-mode";
+import type { AnswerQueryScope } from "@/lib/public/source-panel-model";
 
 /* ------------------------------------------------------------------ */
 /* ChatInner (migrated — uses extracted components)                    */
@@ -44,6 +45,10 @@ function ChatInner() {
     const userMessage: Message = { role: "user", content: query };
     const history = options.history ?? messages;
     const requestMessages = options.appendUser === false ? history : [...history, userMessage];
+    const queryScope: AnswerQueryScope = {
+      sourceMode,
+      episodeId,
+    };
     setMessages(requestMessages);
     setInput("");
     setLoading(true);
@@ -57,7 +62,7 @@ function ChatInner() {
             role: m.role,
             content: m.content,
           })),
-          sourceMode,
+          sourceMode: queryScope.sourceMode,
           ...(episodeId ? { episodeId } : {}),
         }),
       });
@@ -69,7 +74,10 @@ function ChatInner() {
       const sourcesHeader = response.headers.get("X-Sources");
       const modelHeader = response.headers.get("X-Model");
       const fallbackHeader = response.headers.get("X-Fallback");
-      const responseSourceMode = parseSourceMode(response.headers.get("X-Source-Mode"));
+      const responseModeHeader = response.headers.get("X-Source-Mode");
+      const responseSourceMode = responseModeHeader
+        ? parseSourceMode(responseModeHeader)
+        : queryScope.sourceMode;
       const responseState = response.headers.get("X-Response-State") || undefined;
       let citedIndices: number[] | undefined;
       try {
@@ -104,6 +112,8 @@ function ChatInner() {
             responseState,
             citedIndices,
             followUps,
+            queryScope,
+            effectiveSourceMode: responseSourceMode,
           },
         ]);
 

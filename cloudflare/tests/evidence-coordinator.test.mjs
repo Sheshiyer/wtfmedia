@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
-import { queryEvidenceSources } from "../src/chat/evidence-coordinator.ts";
+import {
+  queryEvidenceSources,
+  queryEvidenceSourcesForQuestion,
+} from "../src/chat/evidence-coordinator.ts";
 
 describe("evidence coordinator", () => {
   test("both mode reuses one embedding across independent pre-filtered source queries", async () => {
@@ -62,5 +65,77 @@ describe("evidence coordinator", () => {
       { source_mode: { $eq: "uncut" } },
       { source_mode: { $eq: "published" } },
     ]);
+  });
+
+  test("catalogue resolution constrains every source query before topK selection", async () => {
+    const calls = [];
+    const db = {
+      prepare() {
+        return {
+          async all() {
+            return {
+              results: [
+                { title: "Sam Altman x Nikhil Kamath", video_id: "SfOaZIGJ_gs" },
+                { title: "Nikhil Kamath x Neal Mohan", video_id: "8uFOBdle3WY" },
+              ],
+            };
+          },
+        };
+      },
+    };
+    const index = {
+      async query(_vector, options) {
+        calls.push(options);
+        return { matches: [] };
+      },
+    };
+
+    const result = await queryEvidenceSourcesForQuestion(
+      db,
+      index,
+      [1],
+      "What did Sam Altman tell Nikhil Kamath?",
+      "both",
+      null,
+    );
+
+    assert.equal(result.episodeId, "SfOaZIGJ_gs");
+    assert.equal(result.catalogueAnchored, true);
+    assert.equal(calls.length, 2);
+    assert.equal(calls.every((call) => call.topK === 48), true);
+    assert.equal(calls.every((call) => call.filter.video_id.$eq === "SfOaZIGJ_gs"), true);
+  });
+
+  test("an explicit episode scope wins without consulting the catalogue", async () => {
+    let catalogueReads = 0;
+    const db = {
+      prepare() {
+        catalogueReads += 1;
+        throw new Error("catalogue should not be read");
+      },
+    };
+    const filters = [];
+    const index = {
+      async query(_vector, options) {
+        filters.push(options.filter);
+        return { matches: [] };
+      },
+    };
+
+    const result = await queryEvidenceSourcesForQuestion(
+      db,
+      index,
+      [1],
+      "broad question",
+      "published",
+      "RSB58m7Xwhg",
+    );
+
+    assert.equal(catalogueReads, 0);
+    assert.equal(result.episodeId, "RSB58m7Xwhg");
+    assert.deepEqual(filters, [{
+      source_mode: { $eq: "published" },
+      video_id: { $eq: "RSB58m7Xwhg" },
+    }]);
   });
 });

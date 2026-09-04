@@ -7,6 +7,7 @@ import { APPROVED_UNCUT_SKILL } from "./skills/approved-uncut.ts";
 export const SOURCE_MODES = ["published", "uncut", "both"] as const;
 export type SourceMode = (typeof SOURCE_MODES)[number];
 export type StoredSourceMode = Exclude<SourceMode, "both">;
+export const COMPETITIVE_SCORE_DELTA = 0.05;
 
 export const MAPPING_STATUSES = ["mapped", "unmapped", "unavailable", "conflicted"] as const;
 export type MappingStatus = (typeof MAPPING_STATUSES)[number];
@@ -101,27 +102,40 @@ export function extractNamedEntityPhrases(question: string): string[] {
 }
 
 /** Keep explicit named-person questions anchored to matching title/text evidence. */
-export function prioritizeMatchesForQuestion<T extends VectorMatchLike>(
+export function prioritizeMatchesForQuestionWithAnchor<T extends VectorMatchLike>(
   matches: readonly T[],
   question: string,
-): T[] {
+): { matches: T[]; anchored: boolean } {
   const entities = extractNamedEntityPhrases(question);
-  if (entities.length === 0) return [...matches];
+  if (entities.length === 0) return { matches: [...matches], anchored: false };
 
   const anchored = matches.map((match, index) => {
     const metadata = match.metadata ?? {};
-    const searchable = `${String(metadata.title ?? "")} ${String(metadata.text ?? "")}`;
-    const anchorScore = entities.reduce((score, entity) => score + (phraseAppearsIn(searchable, entity) ? 1 : 0), 0);
+    const title = String(metadata.title ?? "");
+    const text = String(metadata.text ?? "");
+    const titleAnchorScore = entities.reduce(
+      (score, entity) => score + (phraseAppearsIn(title, entity) ? 1 : 0),
+      0,
+    );
+    const textAnchorScore = entities.reduce(
+      (score, entity) => score + (phraseAppearsIn(text, entity) ? 1 : 0),
+      0,
+    );
+    // Episode titles identify the right conversation. A direct transcript
+    // mention is stronger passage evidence and must survive the citation cap.
+    const anchorScore = titleAnchorScore + textAnchorScore * (entities.length + 1);
     return { match, index, anchorScore };
   });
   const strongestAnchor = Math.max(...anchored.map((item) => item.anchorScore), 0);
-  if (strongestAnchor === 0) return [...matches];
+  if (strongestAnchor === 0) return { matches: [...matches], anchored: false };
   const stronglyAnchoredEpisodes = new Set(anchored
     .filter((item) => item.anchorScore === strongestAnchor)
     .map((item) => item.match.metadata?.video_id ?? item.match.metadata?.videoId)
     .filter((videoId): videoId is string => typeof videoId === "string" && videoId.length > 0));
 
-  return anchored
+  return {
+    anchored: true,
+    matches: anchored
     .filter((item) => {
       if (item.anchorScore === strongestAnchor) return true;
       const videoId = item.match.metadata?.video_id ?? item.match.metadata?.videoId;
@@ -133,7 +147,15 @@ export function prioritizeMatchesForQuestion<T extends VectorMatchLike>(
       const rightScore = typeof right.match.score === "number" && Number.isFinite(right.match.score) ? right.match.score : -Infinity;
       return rightScore - leftScore || left.index - right.index;
     })
-    .map((item) => item.match);
+    .map((item) => item.match),
+  };
+}
+
+export function prioritizeMatchesForQuestion<T extends VectorMatchLike>(
+  matches: readonly T[],
+  question: string,
+): T[] {
+  return prioritizeMatchesForQuestionWithAnchor(matches, question).matches;
 }
 
 export type DualSourceCitation = {
@@ -324,8 +346,10 @@ export function filterAndProjectMatches(
   const usedEpisodes = new Set<string>();
   const citations: DualSourceCitation[] = [];
 
+  // Preserve the caller's ranking. Vectorize already supplies score order, and
+  // named-entity anchoring may intentionally promote a lower-score passage.
   for (const match of matches) {
-    if (typeof match.score === "number" && match.score < minScore) continue;
+    if (typeof match.score !== "number" || !Number.isFinite(match.score) || match.score < minScore) continue;
     if (!matchPassesSourceFilter(match, requested)) continue;
     const projected = projectDualSourceCitation(match, requested, citations.length);
     if (!projected) continue;
@@ -340,9 +364,37 @@ export function filterAndProjectMatches(
 
 export type ResolvedChatSources = {
   citations: DualSourceCitation[];
+  requestedSourceMode: SourceMode;
+  evidenceSourceMode: SourceMode | null;
+  fallbackReason: "requested_mode_insufficient" | "requested_mode_not_competitive" | null;
+  /** Compatibility alias for the evidence mode when evidence exists. */
   sourceMode: SourceMode;
   uncutUnavailable: boolean;
 };
+
+function evidenceMode(citations: readonly DualSourceCitation[]): SourceMode | null {
+  const modes = new Set(citations.map((citation) => citation.sourceMode));
+  if (modes.size === 0) return null;
+  return modes.size > 1 ? "both" : citations[0].sourceMode;
+}
+
+function resolvedSources(
+  requestedSourceMode: SourceMode,
+  citations: DualSourceCitation[],
+  uncutUnavailable: boolean,
+  fallbackReason: ResolvedChatSources["fallbackReason"] = null,
+): ResolvedChatSources {
+  const renumbered = citations.map((citation, index) => ({ ...citation, n: index + 1 }));
+  const evidenceSourceMode = evidenceMode(renumbered);
+  return {
+    citations: renumbered,
+    requestedSourceMode,
+    evidenceSourceMode,
+    fallbackReason,
+    sourceMode: evidenceSourceMode ?? requestedSourceMode,
+    uncutUnavailable,
+  };
+}
 
 /**
  * Prefer the requested mode. If uncut has no corpus, use published YouTube
@@ -356,42 +408,79 @@ export function resolveRequestedSources(
   options: { dedupeByEpisode?: boolean } = {},
 ): ResolvedChatSources {
   const dedupeByEpisode = options.dedupeByEpisode ?? true;
-  const requestedHits = filterAndProjectMatches(matches, requested, minScore, limit, dedupeByEpisode);
-  if (requested !== "uncut") {
-    if (requested !== "both") {
-      return { citations: requestedHits, sourceMode: "published", uncutUnavailable: false };
-    }
+  if (requested === "published") {
     const publishedHits = filterAndProjectMatches(matches, "published", minScore, limit, dedupeByEpisode);
-    const uncutHits = filterAndProjectMatches(matches, "uncut", minScore, limit, dedupeByEpisode);
-    const reservedPerMode = Math.max(1, Math.floor(limit / 2));
-    const usedSegments = new Set<string>();
-    const citations = [
-      ...uncutHits.slice(0, reservedPerMode),
-      ...publishedHits.slice(0, reservedPerMode),
-      ...uncutHits.slice(reservedPerMode),
-      ...publishedHits.slice(reservedPerMode),
-    ]
-      .filter((citation) => {
-        if (usedSegments.has(citation.segmentId)) return false;
-        usedSegments.add(citation.segmentId);
-        return true;
-      })
-      .slice(0, limit)
-      .map((citation, index) => ({ ...citation, n: index + 1 }));
-    return {
-      citations,
-      sourceMode: "both",
-      uncutUnavailable: uncutHits.length === 0,
-    };
+    return resolvedSources(requested, publishedHits, false);
   }
-  if (requestedHits.length >= 2) {
-    return { citations: requestedHits, sourceMode: "uncut", uncutUnavailable: false };
-  }
+
   const publishedHits = filterAndProjectMatches(matches, "published", minScore, limit, dedupeByEpisode);
-  if (publishedHits.length >= 2) {
-    return { citations: publishedHits, sourceMode: "published", uncutUnavailable: true };
+  const uncutHits = filterAndProjectMatches(matches, "uncut", minScore, limit, dedupeByEpisode);
+  const publishedBest = publishedHits.reduce((best, hit) => Math.max(best, hit.score), -Infinity);
+  const uncutBest = uncutHits.reduce((best, hit) => Math.max(best, hit.score), -Infinity);
+
+  if (requested === "uncut") {
+    if (uncutHits.length === 0 && publishedHits.length > 0) {
+      return resolvedSources(requested, publishedHits, true, "requested_mode_insufficient");
+    }
+    if (publishedHits.length > 0 && publishedBest > uncutBest + COMPETITIVE_SCORE_DELTA) {
+      return resolvedSources(requested, publishedHits, false, "requested_mode_not_competitive");
+    }
+    const publishedFallbackAvailable = publishedHits.length >= 2;
+    if (publishedFallbackAvailable && uncutHits.length < 2) {
+      return resolvedSources(
+        requested,
+        publishedHits,
+        uncutHits.length === 0,
+        "requested_mode_insufficient",
+      );
+    }
+    return resolvedSources(
+      requested,
+      uncutHits,
+      uncutHits.length === 0,
+      uncutHits.length < 2 ? "requested_mode_insufficient" : null,
+    );
   }
-  return { citations: requestedHits, sourceMode: "uncut", uncutUnavailable: true };
+
+  const best = Math.max(publishedBest, uncutBest);
+  const publishedCompetitive = publishedHits.length > 0
+    && publishedBest >= best - COMPETITIVE_SCORE_DELTA;
+  const uncutCompetitive = uncutHits.length > 0
+    && uncutBest >= best - COMPETITIVE_SCORE_DELTA;
+  if (!publishedCompetitive) {
+    return resolvedSources(
+      requested,
+      uncutHits,
+      uncutHits.length === 0,
+      publishedHits.length === 0
+        ? "requested_mode_insufficient"
+        : "requested_mode_not_competitive",
+    );
+  }
+  if (!uncutCompetitive) {
+    return resolvedSources(
+      requested,
+      publishedHits,
+      uncutHits.length === 0,
+      uncutHits.length === 0
+        ? "requested_mode_insufficient"
+        : "requested_mode_not_competitive",
+    );
+  }
+
+  const reservedPerMode = Math.max(1, Math.floor(limit / 2));
+  const usedSegments = new Set<string>();
+  const citations = [
+    ...uncutHits.slice(0, reservedPerMode),
+    ...publishedHits.slice(0, reservedPerMode),
+    ...uncutHits.slice(reservedPerMode),
+    ...publishedHits.slice(reservedPerMode),
+  ].filter((citation) => {
+    if (usedSegments.has(citation.segmentId)) return false;
+    usedSegments.add(citation.segmentId);
+    return true;
+  }).slice(0, limit);
+  return resolvedSources(requested, citations, false);
 }
 
 export function resolveEpisodeScopedSources(

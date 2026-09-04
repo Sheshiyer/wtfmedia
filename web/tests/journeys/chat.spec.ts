@@ -315,12 +315,13 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
+    await page.getByTestId("ask-composer").getByRole("button", { name: "both", exact: true }).click();
     await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Compare the published and uncut sources.");
     await page.locator('button[type="submit"]').click();
 
     const sourcePanel = page.locator('[data-testid="source-panel"]');
     await expect(sourcePanel).toBeVisible({ timeout: 10000 });
-    await sourcePanel.locator("summary").click();
+    await sourcePanel.locator("summary").first().click();
 
     await expect(sourcePanel).toContainText("2 sources cited, 2 candidate excerpts");
     await expect(sourcePanel).toContainText("uncut timestamps come from the response");
@@ -335,31 +336,38 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(uncutButton).toHaveAttribute("aria-pressed", "false");
     await expect(bothButton).toHaveAttribute("aria-pressed", "true");
 
-    const sourceRows = sourcePanel.locator("ul > li");
-    const playbackLinks = sourcePanel.locator("ul > li a[target=\"_blank\"]");
+    const sourceRows = sourcePanel.getByTestId("source-evidence-row");
+    const episodeGroups = sourcePanel.getByTestId("source-episode-group");
+    const playbackLinks = sourceRows.locator('a[target="_blank"]');
     const candidateBadges = sourcePanel.getByText("candidate", { exact: true });
     const timestampReasons = sourcePanel.getByTestId("timestamp-reason");
 
+    await expect(episodeGroups).toHaveCount(4);
     await expect(sourceRows).toHaveCount(4);
     await expect(playbackLinks).toHaveCount(3);
     await expect(candidateBadges).toHaveCount(2);
     await expect(timestampReasons).toHaveCount(1);
     await expect(sourceRows.nth(0)).toContainText("[1]");
-    await expect(sourceRows.nth(0)).toContainText("Published cited source");
     await expect(sourceRows.nth(0)).toContainText("published 2:05");
     await expect(sourceRows.nth(0)).not.toContainText("candidate");
-    await expect(sourceRows.nth(1)).toContainText("[2]");
-    await expect(sourceRows.nth(1)).toContainText("Uncut candidate source");
-    await expect(sourceRows.nth(1)).toContainText("uncut 5:00");
-    await expect(sourceRows.nth(1)).toContainText("candidate");
-    await expect(sourceRows.nth(2)).toContainText("[3]");
-    await expect(sourceRows.nth(2)).toContainText("Published candidate untimed");
-    await expect(sourceRows.nth(2)).toContainText("published time unavailable");
+    await expect(sourceRows.nth(1)).toContainText("[4]");
+    await expect(sourceRows.nth(1)).toContainText("uncut 7:00");
+    await expect(sourceRows.nth(1)).not.toContainText("candidate");
+    await expect(sourceRows.nth(2)).toContainText("C1");
+    await expect(sourceRows.nth(2)).toContainText("uncut 5:00");
     await expect(sourceRows.nth(2)).toContainText("candidate");
-    await expect(sourceRows.nth(3)).toContainText("[4]");
-    await expect(sourceRows.nth(3)).toContainText("Uncut cited source");
-    await expect(sourceRows.nth(3)).toContainText("uncut 7:00");
-    await expect(sourceRows.nth(3)).not.toContainText("candidate");
+    await expect(sourceRows.nth(2)).not.toContainText("[2]");
+    await expect(sourceRows.nth(3)).toContainText("C2");
+    await expect(sourceRows.nth(3)).toContainText("published time unavailable");
+    await expect(sourceRows.nth(3)).toContainText("candidate");
+    await expect(sourceRows.nth(3)).not.toContainText("[3]");
+
+    const candidateEvidence = sourcePanel.getByTestId("candidate-evidence");
+    await expect(candidateEvidence).toHaveCount(2);
+    await expect(candidateEvidence.nth(0)).not.toHaveAttribute("open", "");
+    await expect(candidateEvidence.nth(1)).not.toHaveAttribute("open", "");
+    await candidateEvidence.nth(0).locator("summary").click();
+    await candidateEvidence.nth(1).locator("summary").click();
 
     await expect(sourcePanel.getByRole("link", { name: "open published moment", exact: true }).first()).toHaveCSS(
       "background-color",
@@ -369,19 +377,19 @@ test.describe("/chat journey — migrated variant", () => {
       "color",
       "rgb(26, 26, 26)",
     );
-    await expect(sourceRows.nth(0).getByRole("link", { name: "Published cited source", exact: true })).toHaveAttribute(
+    await expect(sourcePanel.getByRole("link", { name: "Published cited source", exact: true })).toHaveAttribute(
       "href",
       "/episodes/pubsource1a",
     );
-    await expect(sourceRows.nth(1).getByRole("link", { name: "Uncut candidate source", exact: true })).toHaveAttribute(
+    await expect(sourcePanel.getByRole("link", { name: "Uncut candidate source", exact: true })).toHaveAttribute(
       "href",
       "/episodes/uncutsrc02a",
     );
-    await expect(sourceRows.nth(2).getByRole("link", { name: "Published candidate untimed", exact: true })).toHaveAttribute(
+    await expect(sourcePanel.getByRole("link", { name: "Published candidate untimed", exact: true })).toHaveAttribute(
       "href",
       "/episodes/pubsource3c",
     );
-    await expect(sourceRows.nth(3).getByRole("link", { name: "Uncut cited source", exact: true })).toHaveAttribute(
+    await expect(sourcePanel.getByRole("link", { name: "Uncut cited source", exact: true })).toHaveAttribute(
       "href",
       "/episodes/uncutsrc04b",
     );
@@ -390,34 +398,33 @@ test.describe("/chat journey — migrated variant", () => {
       "href",
       /youtube\.com\/watch\?v=pubsource1a&t=125s/,
     );
-    await expect(sourceRows.nth(1).getByRole("link", { name: "open uncut source", exact: true })).toHaveAttribute(
+    await expect(sourceRows.nth(2).getByRole("link", { name: "open uncut source", exact: true })).toHaveAttribute(
       "href",
       "https://f.io/uncut-candidate-token",
     );
-    await expect(sourceRows.nth(2).getByRole("link", { name: "open full published episode", exact: true })).toHaveAttribute(
+    await expect(sourceRows.nth(3).getByRole("link", { name: "open full published episode", exact: true })).toHaveAttribute(
       "href",
       "https://www.youtube.com/watch?v=pubsource3c",
     );
-    await expect(sourceRows.nth(2).getByRole("link", { name: "open full published episode", exact: true })).not.toHaveAttribute(
+    await expect(sourceRows.nth(3).getByRole("link", { name: "open full published episode", exact: true })).not.toHaveAttribute(
       "href",
       /[?&]t=/,
     );
-    await expect(sourceRows.nth(3).getByRole("link", { name: "open uncut source", exact: true })).toHaveCount(0);
+    await expect(sourceRows.nth(1).getByRole("link", { name: "open uncut source", exact: true })).toHaveCount(0);
 
     await publishedButton.click();
     await expect(publishedButton).toHaveAttribute("aria-pressed", "true");
     await expect(uncutButton).toHaveAttribute("aria-pressed", "false");
     await expect(bothButton).toHaveAttribute("aria-pressed", "false");
-    await expect(sourcePanel.locator("summary")).toContainText("1 source cited, 1 candidate excerpt");
+    await expect(sourcePanel.locator("summary").first()).toContainText("2 sources cited, 1 candidate excerpt");
+    await expect(sourcePanel.getByTestId("hidden-citation-notice")).toContainText("1 cited source hidden");
     await expect(sourcePanel).toContainText("some published transcripts have no source timing; those links open the full episode.");
     await expect(sourceRows).toHaveCount(2);
     await expect(playbackLinks).toHaveCount(2);
     await expect(candidateBadges).toHaveCount(1);
     await expect(timestampReasons).toHaveCount(1);
     await expect(sourceRows.nth(0)).toContainText("[1]");
-    await expect(sourceRows.nth(1)).toContainText("[3]");
-    await expect(sourceRows.nth(0)).toContainText("Published cited source");
-    await expect(sourceRows.nth(1)).toContainText("Published candidate untimed");
+    await expect(sourceRows.nth(1)).toContainText("C2");
     await expect(sourceRows.nth(1)).toContainText("candidate");
     await expect(sourceRows.nth(1).getByRole("link", { name: "open full published episode", exact: true })).toHaveAttribute(
       "href",
@@ -428,32 +435,36 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(publishedButton).toHaveAttribute("aria-pressed", "false");
     await expect(uncutButton).toHaveAttribute("aria-pressed", "true");
     await expect(bothButton).toHaveAttribute("aria-pressed", "false");
-    await expect(sourcePanel.locator("summary")).toContainText("1 source cited, 1 candidate excerpt");
+    await expect(sourcePanel.locator("summary").first()).toContainText("2 sources cited, 1 candidate excerpt");
+    await expect(sourcePanel.getByTestId("hidden-citation-notice")).toContainText("1 cited source hidden");
     await expect(sourcePanel).toContainText("uncut timestamps come from the response");
     await expect(sourceRows).toHaveCount(2);
     await expect(playbackLinks).toHaveCount(1);
     await expect(candidateBadges).toHaveCount(1);
     await expect(timestampReasons).toHaveCount(0);
-    await expect(sourceRows.nth(0)).toContainText("[2]");
-    await expect(sourceRows.nth(1)).toContainText("[4]");
-    await expect(sourceRows.nth(0)).toContainText("candidate");
-    await expect(sourceRows.nth(1)).not.toContainText("candidate");
+    await expect(sourceRows.nth(0)).toContainText("[4]");
+    await expect(sourceRows.nth(1)).toContainText("C1");
+    await expect(sourceRows.nth(0)).not.toContainText("candidate");
+    await expect(sourceRows.nth(1)).toContainText("candidate");
 
     await bothButton.click();
     await expect(publishedButton).toHaveAttribute("aria-pressed", "false");
     await expect(uncutButton).toHaveAttribute("aria-pressed", "false");
     await expect(bothButton).toHaveAttribute("aria-pressed", "true");
-    await expect(sourcePanel.locator("summary")).toContainText("2 sources cited, 2 candidate excerpts");
+    await expect(sourcePanel.locator("summary").first()).toContainText("2 sources cited, 2 candidate excerpts");
+    await expect(sourcePanel.getByTestId("hidden-citation-notice")).toHaveCount(0);
     await expect(sourceRows).toHaveCount(4);
     await expect(playbackLinks).toHaveCount(3);
     await expect(candidateBadges).toHaveCount(2);
     await expect(timestampReasons).toHaveCount(1);
     await expect(sourceRows.nth(0)).toContainText("[1]");
-    await expect(sourceRows.nth(1)).toContainText("[2]");
-    await expect(sourceRows.nth(2)).toContainText("[3]");
-    await expect(sourceRows.nth(3)).toContainText("[4]");
+    await expect(sourceRows.nth(1)).toContainText("[4]");
+    await expect(sourceRows.nth(2)).toContainText("C1");
+    await expect(sourceRows.nth(3)).toContainText("C2");
 
-    const sourceModeSummary = sourcePanel.getByRole("group", { name: "Source modes present" });
+    const sourceModeSummary = sourcePanel.getByRole("group", {
+      name: "View evidence returned for this answer (view only)",
+    });
     await expect(sourceModeSummary).toContainText("published");
     await expect(sourceModeSummary).toContainText("uncut");
     await expect(sourceModeSummary).toContainText("both");
@@ -462,6 +473,129 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(citationLinks).toHaveCount(2);
     await expect(citationLinks.nth(0)).toHaveAttribute("href", "/episodes/pubsource1a");
     await expect(citationLinks.nth(1)).toHaveAttribute("href", "/episodes/uncutsrc04b");
+  });
+
+  test("keeps query scope immutable while evidence views remain reversible", async ({ page }) => {
+    let requestedMode: string | undefined;
+    await page.route("/api/chat", (route) => {
+      requestedMode = (route.request().postDataJSON() as { sourceMode?: string }).sourceMode;
+      route.fulfill({
+        status: 200,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "X-Sources": JSON.stringify([
+            {
+              n: 1,
+              video_id: "episode0001",
+              title: "Episode one",
+              source_mode: "published",
+              mapping_status: "mapped",
+              timestamp_status: "verified",
+              t: 125,
+              url: "https://www.youtube.com/watch?v=episode0001",
+            },
+            {
+              n: 2,
+              video_id: "episode0001",
+              title: "Episode one",
+              source_mode: "uncut",
+              mapping_status: "mapped",
+              timestamp_status: "verified",
+              t: 300,
+              url: "https://f.io/episode-one",
+            },
+            {
+              n: 3,
+              video_id: "episode0002",
+              title: "Episode two",
+              source_mode: "published",
+              mapping_status: "unmapped",
+              timestamp_status: "source_timing_unavailable",
+              timestamp_reason: "This published transcript was ingested without timestamp data; the link opens the full episode.",
+              t: null,
+              url: "https://www.youtube.com/watch?v=episode0002",
+            },
+            {
+              n: 4,
+              video_id: "episode0003",
+              title: "Episode three",
+              source_mode: "uncut",
+              mapping_status: "mapped",
+              timestamp_status: "verified",
+              t: 420,
+              url: "https://f.io/episode-three",
+            },
+          ]),
+          "X-Source-Mode": "both",
+          "X-Cited-Indices": JSON.stringify([1, 4]),
+          "X-Fallback": "false",
+        },
+        body: "The answer uses two native sources. [1,4]",
+      });
+    });
+
+    await page.goto("/chat");
+    await settle(page);
+
+    const composer = page.getByTestId("ask-composer");
+    await composer.getByRole("button", { name: "both", exact: true }).click();
+    await composer.getByRole("textbox", { name: "Ask the catalogue" }).fill("Compare the edits.");
+    await composer.locator('button[type="submit"]').click();
+
+    const sourcePanel = page.getByTestId("source-panel");
+    await expect(sourcePanel).toBeVisible({ timeout: 10000 });
+    expect(requestedMode).toBe("both");
+
+    const answerScope = sourcePanel.getByTestId("answer-query-scope");
+    await expect(answerScope).toBeVisible();
+    await expect(answerScope).toContainText("searched: both");
+    await expect(answerScope).toContainText("catalogue scope");
+    await expect(answerScope).toContainText("returned evidence: both");
+    await composer.getByRole("button", { name: "published", exact: true }).click();
+    await expect(answerScope).toContainText("searched: both");
+    await sourcePanel.locator("summary").first().click();
+
+    const viewControls = sourcePanel.getByRole("group", {
+      name: "View evidence returned for this answer (view only)",
+    });
+    const episodeGroups = sourcePanel.getByTestId("source-episode-group");
+    await expect(episodeGroups).toHaveCount(3);
+    await expect(episodeGroups.nth(0)).toHaveAttribute("data-episode-key", "episode0001");
+    await expect(episodeGroups.nth(1)).toHaveAttribute("data-episode-key", "episode0003");
+    await expect(episodeGroups.nth(2)).toHaveAttribute("data-episode-key", "episode0002");
+
+    const firstGroup = episodeGroups.nth(0);
+    await expect(firstGroup.getByText("[1]", { exact: true })).toBeVisible();
+    const firstCandidates = firstGroup.getByTestId("candidate-evidence");
+    await expect(firstCandidates).not.toHaveAttribute("open", "");
+    await firstCandidates.locator("summary").click();
+    await expect(firstCandidates.getByText("C1", { exact: true })).toBeVisible();
+    await expect(firstCandidates.getByText("[2]", { exact: true })).toHaveCount(0);
+
+    const nativeRows = sourcePanel.getByTestId("source-evidence-row");
+    await expect(nativeRows.filter({ hasText: "published 2:05" }).getByRole("link", { name: "open published moment" })).toHaveAttribute(
+      "href",
+      /youtube\.com\/watch\?v=episode0001&t=125s/,
+    );
+    await expect(nativeRows.filter({ hasText: "uncut 5:00" }).getByRole("link", { name: "open uncut source" })).toHaveAttribute(
+      "href",
+      "https://f.io/episode-one",
+    );
+
+    await viewControls.getByRole("button", { name: "published", exact: true }).click();
+    await expect(sourcePanel.locator("summary").first()).toContainText("2 sources cited");
+    await expect(sourcePanel.locator("summary").first()).not.toContainText("no sources cited");
+    const hiddenNotice = sourcePanel.getByTestId("hidden-citation-notice");
+    await expect(hiddenNotice).toContainText("1 cited source hidden");
+    await hiddenNotice.getByRole("button", { name: "show all cited sources" }).click();
+    await expect(viewControls.getByRole("button", { name: "both", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await expect(hiddenNotice).toHaveCount(0);
+
+    await page.setViewportSize({ width: 320, height: 900 });
+    await expect(answerScope).toBeVisible();
+    expect(await page.evaluate(() => (
+      document.documentElement.scrollWidth <= document.documentElement.clientWidth
+    ))).toBe(true);
   });
 
   /* ── abstention ────────────────────────────────────────────────────── */

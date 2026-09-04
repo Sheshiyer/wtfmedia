@@ -8,6 +8,8 @@ import remarkGfm from "remark-gfm";
 import { SourcePanel, type SourceCitation } from "./SourcePanel";
 import { Button } from "@/components/ui/Button";
 import { toCitedMarkdown } from "@/lib/public/chat-citations";
+import type { AnswerQueryScope } from "@/lib/public/source-panel-model";
+import type { SourceMode } from "@/lib/provenance/source-mode";
 
 /**
  * ConversationThread — scrollable message region for the chat route.
@@ -29,6 +31,8 @@ export interface Message {
   responseState?: string;
   citedIndices?: number[];
   followUps?: string[];
+  queryScope?: AnswerQueryScope;
+  effectiveSourceMode?: SourceMode;
 }
 
 export interface ConversationThreadProps {
@@ -194,7 +198,12 @@ export function ConversationThread({
                       </div>
 
                       {msg.sources && msg.sources.length > 0 && (
-                        <SourcePanel sources={msg.sources} citedIndices={msg.citedIndices} />
+                        <SourcePanel
+                          sources={msg.sources}
+                          citedIndices={msg.citedIndices}
+                          queryScope={msg.queryScope}
+                          effectiveSourceMode={msg.effectiveSourceMode}
+                        />
                       )}
 
                       {msg.abstained && (

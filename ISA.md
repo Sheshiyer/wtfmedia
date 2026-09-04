@@ -3,11 +3,11 @@ project: wtfmedia
 task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
-phase: execute
-progress: 82/230
+phase: verify
+progress: 82/231
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-04T15:24:42+05:30
+updated: 2026-09-04T16:15:09+05:30
 ---
 
 ## Problem
@@ -348,6 +348,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [ ] ISC-228: Anti: this repair branch performs no live R2 upload, KV edit, queue enqueue, Vectorize mutation, Worker deployment, DNS change, secret change, or production promotion without a separate explicit owner gate (probe: command ledger and live-state no-mutation readback).
 - [ ] ISC-229: The provenance manifest marks a timing sidecar available only after its rows pass the canonical schema and monotonicity validator (probe: invalid-file manifest fixture).
 - [ ] ISC-230: The named-profile wrapper passes `--profile=wtfmedia` as one Wrangler argument and strips ambient account tokens before invocation (probe: spawned-argument unit test).
+- [ ] ISC-231: A declared timestamp sidecar covers at least 80 percent of its same-video published transcript before any vector mutation, so sparse captions cannot replace complete searchable text (probe: manifest, queue, and ingest failure fixtures).
 
 ## Test Strategy
 
@@ -371,7 +372,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-162..166 | source-panel filtering | `published`, `uncut`, and `both` visibly filter response-backed citations without relabeling or leakage | all unit and browser assertions pass | web unit + Playwright journey |
 | ISC-167..182 | Alpha evidence skills | source-specific retrieval, grounded follow-ups, native timing truth, retry integrity, and stateless/no-new-infra boundaries hold | all Worker, API, parser, and browser assertions pass | Node tests + Vitest + Playwright + diff audit |
 | ISC-183..198 | Alpha source-panel production promotion | reviewed commit reaches `release/alpha` and `wtfmedia-web`, canonical source filters work live, rollback remains concrete, and adjacent systems stay unchanged | all Git, build, deploy, HTTP, browser, and no-mutation probes pass | Git + npm + Wrangler + HTTP + live browser |
-| ISC-199..230 | Alpha evidence coherence | canonical episode anchoring, competitive dual-mode retrieval, honest evidence presentation, source-native timing repair, and fail-closed re-ingest hold together | all focused regressions and local release gates pass; zero live mutations | Node tests + Vitest + Playwright + Wrangler dry-run + provenance audit |
+| ISC-199..231 | Alpha evidence coherence | canonical episode anchoring, competitive dual-mode retrieval, honest evidence presentation, source-native timing repair, and fail-closed re-ingest hold together | all focused regressions and local release gates pass; zero live mutations | Node tests + Vitest + Playwright + Wrangler dry-run + provenance audit |
 
 ## Features
 
@@ -450,7 +451,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 
 - name: AlphaEvidenceCoherenceRepair
   description: Canonical episode retrieval, relevance-aware timeline selection, cited-first episode grouping, and recoverable source-native published timing
-  satisfies: [ISC-199, ISC-200, ISC-201, ISC-202, ISC-203, ISC-204, ISC-205, ISC-206, ISC-207, ISC-208, ISC-209, ISC-210, ISC-211, ISC-212, ISC-213, ISC-214, ISC-215, ISC-216, ISC-217, ISC-218, ISC-219, ISC-220, ISC-221, ISC-222, ISC-223, ISC-224, ISC-225, ISC-226, ISC-227, ISC-228, ISC-229, ISC-230]
+  satisfies: [ISC-199, ISC-200, ISC-201, ISC-202, ISC-203, ISC-204, ISC-205, ISC-206, ISC-207, ISC-208, ISC-209, ISC-210, ISC-211, ISC-212, ISC-213, ISC-214, ISC-215, ISC-216, ISC-217, ISC-218, ISC-219, ISC-220, ISC-221, ISC-222, ISC-223, ISC-224, ISC-225, ISC-226, ISC-227, ISC-228, ISC-229, ISC-230, ISC-231]
   depends_on: [ProvenanceSpine, AlphaEvidenceSkillCoordinator, AlphaSourceFilterProductionPromotion]
   parallelizable: false
 
@@ -558,6 +559,8 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
 - 2026-09-04 15:20 IST: ❌ DEAD END: The mandatory pre-build Advisor call failed because its local OAuth session remains expired and could not refresh. Credentials were not changed; the owner-approved design, deterministic RED/GREEN gates, isolated fleet diffs, and later Cato audit remain required.
 - 2026-09-04 15:20 IST: refined: Read-only production metadata proves the twelve absent R2 sidecars have transcript-only KV hashes, while Policing's present sidecar and receipt hash the incompatible bytes. Canonical replacement sidecars will change every affected content hash, so deleting idempotency receipts is not technically required and must not precede upload plus exact replay. Credential `INGEST_TOKEN` rotation remains a distinct potentially disruptive action.
 - 2026-09-04 15:23 IST: Root-cause-at-ingestion checkpoint: wrong episode state enters when an unscoped named query reaches independent Vectorize top-K calls without a canonical catalogue ID; repeated pseudo-entity rows enter when extraction alone disables dedupe; false timing availability enters when the manifest counts file existence and the active queue consumer accepts a malformed declared sidecar as untimed success. Fixing those three upstream boundaries removes the corresponding retrieval, presentation, and replay failures; the UI repair remains a display-down projection over immutable source identity.
+- 2026-09-04 16:05 IST: refined: Shape validation alone was insufficient because two source-native caption tracks covered only 6.6 and 15.2 percent of their corresponding published transcript text. Both were replaced locally with full same-video generated-English tracks whose normalized text coverage is 1.0, and ISC-231 now requires an 80-percent floor at corpus validation, queue admission, and active Worker ingest before any vector mutation.
+- 2026-09-04 17:16 IST: refined: The owner explicitly opened the held Alpha production gate for the reviewed evidence-coherence slice: edge and web promotion, thirteen approved published sidecar uploads, `INGEST_TOKEN` rotation through the named `wtfmedia` profile, exact thirteen-job repair enqueue, and live production verification. DNS, Beta, authentication, unrelated secrets or objects, broad replay, database writes, and root-worktree state remain outside scope. Read-only prestate proves all thirteen transcript objects and D1 source-asset receipts are exact, twelve timing objects are absent, Policing's prior incompatible object is backed up, and all thirteen affected KV receipts remain legacy strings before activation.
 
 ## Changelog
 
@@ -612,7 +615,7 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
 - 2026-09-04 | conjectured: all missing published timestamps in the screenshots represented absent source data and different published/uncut episode rows were only an expected dual-timeline effect
   refuted by: the twelve legacy episodes currently expose source-native YouTube captions; the Policing JSON exists but uses `{start,text,duration}` rather than the ingest contract's `{t,x}`, while the existence-only manifest counts it as timed; the unscoped Sam Altman query retrieves unrelated episodes but the same query with the canonical episode ID retrieves correctly
   learned: independent timelines remain valid, but source-mode correctness also requires canonical pre-top-K anchoring, relevance-aware mode selection, view-only UI semantics, fail-closed declared-sidecar ingestion, and stale-vector replacement
-  criterion now: ISC-199 through ISC-228 supersede the disproven assumptions without rewriting the earlier release history
+  criterion now: ISC-199 through ISC-231 supersede the disproven assumptions without rewriting the earlier release history and prevent structurally valid but sparse timing data from erasing searchable evidence
 
 ## Verification
 
@@ -706,3 +709,4 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
 - ISC-198 evidence (2026-09-04): the commit contains only the reviewed source panel, regression, ISA, and handoff paths; the command ledger contains one normal Git push and one named-profile web-Worker deploy, with no DNS, secret, corpus, ingest, queue, database, index, bucket, authentication, or edge deployment command.
 - ISA completeness evidence (2026-09-04): the strict E3 project gate passed with all eight required sections present, 198 criteria definitions, 198 unique stable IDs, zero duplicate IDs, and 14 anti-criteria.
 - Alpha evidence-coherence ISA gate (2026-09-04, pre-build): the strict E5 structural audit initially found all twelve sections present, 228 unique sequential criteria, zero gaps or collisions, 15 anti-criteria, and one experiential antecedent. Two preflight defects then added ISC-229 and ISC-230 without renumbering: schema-valid manifest availability and compatible named-profile invocation. The resulting 230 count is a documented soft tier-floor exception; no hard gap remains and the Interview gate ran before BUILD.
+- Alpha evidence-coherence coverage checkpoint (2026-09-04): the first content-aware audit truthfully failed at 54/56 because `FPV5fAkqyBs` and `2_yA6GoqUnY` had structurally valid but sparse source-native cues with normalized text coverage 0.066287 and 0.151523. Direct same-video generated-English JSON3 tracks replaced only those files; the final local audit reports 56/56 valid, minimum coverage 0.997684, and no raw capture wrapper, signed URL, or temporary path persisted.

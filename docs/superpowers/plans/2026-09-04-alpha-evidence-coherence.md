@@ -91,7 +91,7 @@ assert.equal(kv.puts.length, 0);
 assert.equal(vector.upserts.length, 0);
 ```
 
-Cover malformed, empty, negative, nonfinite, and nonmonotonic sidecars; intentional no-sidecar ingestion; legacy `{start,text,duration}` normalization; receipt skip; failure before receipt; and `replaceExisting` deletion of deterministic stale IDs after successful upsert.
+Cover malformed, empty, negative, nonfinite, nonmonotonic, and below-0.80 transcript-coverage sidecars; intentional no-sidecar ingestion; legacy `{start,text,duration}` normalization; receipt skip; failure before receipt; and `replaceExisting` deletion of deterministic stale IDs after successful upsert. The sparse-sidecar fixture must prove zero embeddings, upserts, deletes, and receipt writes.
 
 - [ ] **Step 6: Run RED ingest tests**
 
@@ -101,7 +101,7 @@ Expected: FAIL because the current private consumer silently falls back and writ
 
 - [ ] **Step 7: Extract and implement the ingest transaction**
 
-Validate declared sidecars before embedding. Accept `{t,x}` and `{start,text}` only through explicit normalization into canonical rows. Upsert all new vectors, delete stale IDs in bounded batches, then write the JSON receipt. `replaceExisting` is an optional boolean admitted only as a repair instruction; it never broadens identity or storage keys. Keep jobs without `timestampsKey` deliberately untimed.
+Validate declared sidecars before embedding. Accept `{t,x}` and `{start,text}` only through explicit normalization into canonical rows, then require their normalized text length to cover at least 80 percent of the declared same-video transcript. Upsert all new vectors, delete stale IDs in bounded batches, then write the JSON receipt. `replaceExisting` is an optional boolean admitted only as a repair instruction; it never broadens identity or storage keys. Keep jobs without `timestampsKey` deliberately untimed.
 
 - [ ] **Step 8: Run GREEN Worker tests**
 
@@ -140,7 +140,7 @@ Record changed paths and test output. Do not deploy, enqueue, or access live cre
 
 - [ ] **Step 1: Add RED sidecar and profile tests**
 
-Test canonical `{t,x}`, conversion from `{start,text,duration}`, rejection of empty/textless/negative/nonfinite/nonmonotonic rows, missing-file manifest exclusion, explicit fetch allowlisting, queue repair allowlisting, and the exact spawned argument `--profile=wtfmedia`.
+Test canonical `{t,x}`, conversion from `{start,text,duration}`, rejection of empty/textless/negative/nonfinite/nonmonotonic or sparse rows, exact same-video identity for imported official JSON3 captures, missing-file manifest exclusion, explicit fetch allowlisting, queue repair allowlisting, and the exact spawned argument `--profile=wtfmedia`.
 
 - [ ] **Step 2: Run RED script tests**
 
@@ -155,7 +155,7 @@ Expected: FAIL because the focused script and compatible profile syntax do not y
 
 - [ ] **Step 3: Implement sidecar validation and safe CLIs**
 
-Write files through a sibling temporary path followed by `Path.replace`. Never invoke embeddings. Make the manifest builder parse and validate every sidecar before setting `available: true`. Make queue repair opt-in per video ID and leave normal jobs unchanged.
+Write files through a sibling temporary path followed by `Path.replace`. Never invoke embeddings. Make the manifest builder parse and validate every sidecar, including an 80-percent normalized transcript-coverage floor, before setting `available: true`. Make queue repair opt-in per video ID and leave normal jobs unchanged.
 
 - [ ] **Step 4: Run GREEN script tests**
 
@@ -184,6 +184,8 @@ node scripts/build_provenance_manifest.mjs
 ```
 
 Expected: 56 episodes, 56 valid timestamp sidecars, zero invalid files, every cue nonnegative and monotonic.
+
+If a manual direct track is structurally valid but below the coverage floor, inspect the other direct same-video tracks and use a complete source-native generated track when available. The known sparse manual files are `FPV5fAkqyBs` and `2_yA6GoqUnY`; their replacements must preserve 1.0 normalized text coverage without persisting raw signed capture URLs or wrapper files.
 
 - [ ] **Step 7: Export the script/data diff**
 

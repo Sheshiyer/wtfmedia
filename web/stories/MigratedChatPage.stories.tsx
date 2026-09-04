@@ -219,6 +219,8 @@ type SourceStory = StoryObj;
 export const SingleSource: SourceStory = {
   render: () => (
     <SourcePanel
+      queryScope={{ sourceMode: "uncut", episodeId: null }}
+      effectiveSourceMode="uncut"
       sources={[
         {
           episodeId: "abc123",
@@ -291,8 +293,72 @@ export const MappedUncutSource: SourceStory = {
   ),
   play: async ({ canvasElement }) => {
     const link = canvasElement.querySelector('a[href="https://f.io/0I8LmYs9"]');
-    if (!link || link.textContent?.trim() !== "open Frame.io source") {
+    if (!link || link.textContent?.trim() !== "open uncut source") {
       throw new Error("Mapped uncut citations must expose their approved Frame.io source");
+    }
+  },
+};
+
+export const GroupedBothModeEvidence: SourceStory = {
+  render: () => (
+    <SourcePanel
+      queryScope={{ sourceMode: "both", episodeId: null }}
+      effectiveSourceMode="both"
+      citedIndices={[1, 4]}
+      sources={[
+        {
+          videoId: "episode0001",
+          title: "Episode one",
+          sourceMode: "published",
+          timeSec: 125,
+          timestampStatus: "verified",
+          mappingStatus: "mapped",
+          url: "https://www.youtube.com/watch?v=episode0001",
+        },
+        {
+          videoId: "episode0001",
+          title: "Episode one",
+          sourceMode: "uncut",
+          timeSec: 300,
+          timestampStatus: "verified",
+          mappingStatus: "mapped",
+          url: "https://f.io/episode-one",
+        },
+        {
+          videoId: "episode0002",
+          title: "Episode two",
+          sourceMode: "published",
+          timestampStatus: "source_timing_unavailable",
+          mappingStatus: "unmapped",
+          url: "https://www.youtube.com/watch?v=episode0002",
+        },
+        {
+          videoId: "episode0003",
+          title: "Episode three",
+          sourceMode: "uncut",
+          timeSec: 420,
+          timestampStatus: "verified",
+          mappingStatus: "mapped",
+          url: "https://f.io/episode-three",
+        },
+      ]}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const panel = canvasElement.querySelector<HTMLElement>('[data-testid="source-panel"]');
+    const panelSummary = panel?.querySelector<HTMLElement>(":scope > summary");
+    panelSummary?.click();
+
+    const groups = panel?.querySelectorAll('[data-testid="source-episode-group"]');
+    if (!groups || groups.length !== 3) {
+      throw new Error("Repeated moments must be grouped under their episode");
+    }
+    const firstCandidates = groups[0].querySelector('[data-testid="candidate-evidence"]');
+    if (!firstCandidates || firstCandidates.hasAttribute("open")) {
+      throw new Error("Candidate context must start collapsed beneath cited evidence");
+    }
+    if (!firstCandidates.textContent?.includes("C1") || firstCandidates.textContent.includes("[2]")) {
+      throw new Error("Candidates must use a noncitation evidence namespace");
     }
   },
 };

@@ -12,39 +12,28 @@ import {
   type Operator,
   type AuditAction,
   type DB,
-} from "./db";
-import { handleOpsRequest, type OpsEnv } from "./ops-router";
-import { allowCalendarRequest, handleCalendarRequest } from "./calendar";
+} from "./db.ts";
+import { handleOpsRequest, type OpsEnv } from "./ops-router.ts";
+import { allowCalendarRequest, handleCalendarRequest } from "./calendar.ts";
 import {
-  extractNamedEntityPhrases,
   parseEpisodeId,
   parseSourceMode,
-  prioritizeMatchesForQuestion,
+  prioritizeMatchesForQuestionWithAnchor,
   resolveEpisodeScopedSources,
-} from "./chat/source-mode";
-import { queryEvidenceSources } from "./chat/evidence-coordinator";
+} from "./chat/source-mode.ts";
+import { queryEvidenceSourcesForQuestion } from "./chat/evidence-coordinator.ts";
 import {
   WTF_OS_CONVERSATION_SKILL,
   buildFollowUpGenerationInput,
   parseCitationMarkers,
   parseFollowUpCandidates,
   selectAnswerableFollowUps,
-} from "./chat/skills/wtf-os-conversation";
-import { publishedTimingMetadata } from "./chat/skills/published-youtube";
-import { uncutTimingMetadata } from "./chat/skills/approved-uncut";
-import {
-  ingestStateKey,
-  parseJobSourceMode,
-  resolveCatalogueJobIdentity,
-  vectorRecordId,
-  vectorSourceRef,
-} from "./catalogue/asset-map";
+} from "./chat/skills/wtf-os-conversation.ts";
 import {
   admitTranscriptJobs,
-  assertCatalogueJobSourceAsset,
   type TranscriptJob,
-} from "./catalogue/job-admission";
-import { extractTimestampLines } from "./catalogue/timestamps";
+} from "./catalogue/job-admission.ts";
+import { ingestTranscriptJob } from "./catalogue/transcript-ingest.ts";
 
 export interface Env extends OpsEnv {
   AI: any;
@@ -69,13 +58,8 @@ const ANSWER_MODELS = [
 const FAST_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
 const MAX_BODY_BYTES = 16_000;
 const MAX_QUESTION_CHARS = 2_000;
-const MAX_CHUNK_CHARS = 1_100;
 const MAX_HISTORY_TURNS = 6;
 const MIN_SCORE = 0.45;
-const UPSERT_BATCH_SIZE = 8;
-const UPSERT_ATTEMPTS = 5;
-type Passage = { text: string; start?: number };
-type TimestampLine = { t: number; x: string };
 type HistoryTurn = { role: "user" | "assistant"; content: string };
 
 function cors(request: Request, env: Env) {
@@ -92,41 +76,6 @@ function reply(request: Request, env: Env, body: unknown, status = 200) {
   });
 }
 
-function chunks(text: string): Passage[] {
-  const words = text.replace(/\s+/g, " ").trim().split(" ");
-  const result: Passage[] = [];
-  let current = "";
-  for (const word of words) {
-    if (current.length && current.length + word.length + 1 > MAX_CHUNK_CHARS) {
-      result.push({ text: current });
-      current = word;
-    } else {
-      current += `${current ? " " : ""}${word}`;
-    }
-  }
-  if (current) result.push({ text: current });
-  return result;
-}
-
-function timestampedChunks(lines: TimestampLine[]): Passage[] {
-  const result: Passage[] = [];
-  let text = "";
-  let start: number | undefined;
-  for (const line of lines) {
-    const words = typeof line.x === "string" ? line.x.replace(/\s+/g, " ").trim() : "";
-    if (!words || !Number.isFinite(line.t)) continue;
-    if (text && text.length + words.length + 1 > MAX_CHUNK_CHARS) {
-      result.push({ text, start });
-      text = "";
-      start = undefined;
-    }
-    if (start == null) start = line.t;
-    text += `${text ? " " : ""}${words}`;
-  }
-  if (text) result.push({ text, start });
-  return result;
-}
-
 async function vectorFor(env: Env, text: string): Promise<number[]> {
   const output = await env.AI.run(EMBEDDING_MODEL, { text });
   const vector = output?.data?.[0] ?? output?.data;
@@ -134,20 +83,6 @@ async function vectorFor(env: Env, text: string): Promise<number[]> {
     throw new Error("embedding response was not a 1024-dimensional vector");
   }
   return vector;
-}
-
-async function upsertWithRetry(env: Env, vectors: unknown[]) {
-  let lastError: unknown;
-  for (let attempt = 0; attempt < UPSERT_ATTEMPTS; attempt++) {
-    try {
-      await env.VECTORIZE.upsert(vectors);
-      return;
-    } catch (error) {
-      lastError = error;
-      await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** attempt + Math.floor(Math.random() * 150)));
-    }
-  }
-  throw lastError;
 }
 
 async function answerWithFallback(env: Env, messages: unknown[]) {
@@ -240,18 +175,25 @@ async function retrieveSourcesForQuery(
   episodeId: string | null,
 ) {
   const vector = await vectorFor(env, searchQuery);
-  const rawMatches = await queryEvidenceSources(env.VECTORIZE, vector, sourceMode, episodeId);
-  const relevantMatches = prioritizeMatchesForQuestion(rawMatches, searchQuery);
-  const namedEntityQuestion = extractNamedEntityPhrases(searchQuery).length > 0;
-  const resolved = resolveEpisodeScopedSources(relevantMatches, sourceMode, episodeId, MIN_SCORE, 6, {
-    dedupeByEpisode: !namedEntityQuestion,
+  const queried = await queryEvidenceSourcesForQuestion(
+    env.DB,
+    env.VECTORIZE,
+    vector,
+    searchQuery,
+    sourceMode,
+    episodeId,
+  );
+  const prioritized = prioritizeMatchesForQuestionWithAnchor(queried.matches, searchQuery);
+  const dedupeByEpisode = queried.episodeId == null && !prioritized.anchored;
+  const resolved = resolveEpisodeScopedSources(prioritized.matches, sourceMode, queried.episodeId, MIN_SCORE, 6, {
+    dedupeByEpisode,
   });
   const sources = resolved.citations.map((source) => {
-    const match = relevantMatches.find((item: { id?: unknown }) => String(item.id ?? "") === source.segmentId)
-      ?? relevantMatches.find((item: { metadata?: { video_id?: unknown } }) => item.metadata?.video_id === source.videoId);
+    const match = prioritized.matches.find((item: { id?: unknown }) => String(item.id ?? "") === source.segmentId)
+      ?? prioritized.matches.find((item: { metadata?: { video_id?: unknown } }) => item.metadata?.video_id === source.videoId);
     return { ...source, text: match?.metadata?.text };
   });
-  return { resolved, sources };
+  return { resolved, sources, episodeId: queried.episodeId };
 }
 
 async function generateFollowUps(
@@ -292,94 +234,6 @@ function requiresVerifiedMetadata(question: string) {
     || /\b(?:recur(?:ring|s)?|repeat(?:s|ed|ing)?|appear(?:s|ances?|ing)?|mentioned|occur(?:s|rence)?|most)\b[\s\S]{0,100}\b(?:\d+\s*\+?\s*(?:episodes?|conversations?)|across|throughout)\b/i.test(question);
 }
 
-async function ingest(job: TranscriptJob, env: Env) {
-  const sourceMode = parseJobSourceMode(job.sourceMode);
-  const identity = resolveCatalogueJobIdentity(
-    job.videoId,
-    job.transcriptKey,
-    sourceMode,
-    job.sourceAssetId,
-  );
-  if (!identity) throw new Error(`${sourceMode}_identity_invalid`);
-  await assertCatalogueJobSourceAsset(job, env.DB);
-  const stateKey = ingestStateKey(identity.sourceAssetId, sourceMode);
-  const previousHash = await env.WTFMEDIA_STATE.get(stateKey);
-  if (previousHash === job.contentHash) return;
-  const object = await env.CATALOGUE.get(job.transcriptKey);
-  if (!object) throw new Error(`missing transcript object: ${job.transcriptKey}`);
-  const text = await object.text();
-  let parts = chunks(text);
-  let timingOrigin: "sidecar" | "inline" | null = null;
-  if (job.timestampsKey) {
-    const timestamps = await env.CATALOGUE.get(job.timestampsKey);
-    if (timestamps) {
-      try {
-        const parsed = await timestamps.json<TimestampLine[]>();
-        if (Array.isArray(parsed)) {
-          const timedParts = timestampedChunks(parsed);
-          if (timedParts.length > 0) {
-            parts = timedParts;
-            timingOrigin = "sidecar";
-          }
-        }
-      } catch {
-        console.warn("wtfmedia timestamp sidecar unreadable", { videoId: job.videoId });
-      }
-    } else {
-      console.warn("wtfmedia timestamp sidecar unavailable", { videoId: job.videoId, sourceMode });
-    }
-  } else if (sourceMode === "uncut") {
-    const inline = extractTimestampLines(text);
-    if (inline.length >= 3) {
-      parts = timestampedChunks(inline);
-      timingOrigin = "inline";
-    }
-  }
-  const source = vectorSourceRef(identity.sourceAssetId, sourceMode);
-  const frameIoUrl = sourceMode === "uncut"
-    ? normalizeFrameIoUrl(job.metadata?.frameIoFinalEpUrl ?? job.metadata?.frame_io_final_ep_url)
-    : null;
-  for (let offset = 0; offset < parts.length; offset += UPSERT_BATCH_SIZE) {
-    const batch = parts.slice(offset, offset + UPSERT_BATCH_SIZE);
-    const vectors = await Promise.all(batch.map(async (part, index) => {
-      const timingMetadata = sourceMode === "published"
-        ? publishedTimingMetadata(part.start, timingOrigin === "sidecar")
-        : uncutTimingMetadata(part.start, timingOrigin);
-      return {
-        id: vectorRecordId(identity.sourceAssetId, offset + index, sourceMode),
-        values: await vectorFor(env, part.text),
-        metadata: {
-          video_id: identity.publicVideoId,
-          source_asset_id: identity.sourceAssetId,
-          title: job.title.slice(0, 500),
-          chunk: offset + index,
-          text: part.text,
-          source,
-          start: part.start ?? null,
-          timestamped: part.start != null && timingMetadata.timestamp_status === "verified",
-          source_mode: sourceMode,
-          ...timingMetadata,
-          ...(frameIoUrl ? { frame_io_url: frameIoUrl } : {}),
-        },
-      };
-    }));
-    await upsertWithRetry(env, vectors);
-  }
-  await env.WTFMEDIA_STATE.put(stateKey, job.contentHash);
-}
-
-function normalizeFrameIoUrl(value: unknown): string | null {
-  if (typeof value !== "string" || !value.trim()) return null;
-  try {
-    const parsed = new URL(value);
-    const hostname = parsed.hostname.toLowerCase();
-    const allowedHost = hostname === "f.io" || hostname === "frame.io" || hostname.endsWith(".frame.io");
-    return parsed.protocol === "https:" && allowedHost ? parsed.toString() : null;
-  } catch {
-    return null;
-  }
-}
-
 async function chat(request: Request, env: Env) {
   if (request.headers.get("Content-Type")?.split(";", 1)[0] !== "application/json") return reply(request, env, { error: "content_type_required" }, 415);
   if (!(await rateLimit(request, env))) {
@@ -406,6 +260,8 @@ async function chat(request: Request, env: Env) {
       sources: [],
       grounded: false,
       sourceMode,
+      requestedSourceMode: sourceMode,
+      evidenceSourceMode: null,
       uncutUnavailable: false,
       responseState: "abstained",
       citedIndices: [],
@@ -414,19 +270,22 @@ async function chat(request: Request, env: Env) {
   }
   try {
     const searchQuery = await reformulateQuery(env, question, history);
-    const { resolved, sources } = await retrieveSourcesForQuery(env, searchQuery, sourceMode, episodeId);
+    const { resolved, sources, episodeId: resolvedEpisodeId } = await retrieveSourcesForQuery(env, searchQuery, sourceMode, episodeId);
     if (sources.length < 2) {
       return reply(request, env, {
         answer: resolved.uncutUnavailable
-          ? episodeId
+          ? resolvedEpisodeId
             ? "No sufficiently relevant approved uncut excerpt was returned for this episode, and there is not enough published evidence to answer reliably. no timestamp was inferred."
             : "No sufficiently relevant approved uncut excerpt was returned for this question, and there is not enough published YouTube evidence to answer reliably. no timestamp was inferred."
-          : episodeId
+          : resolvedEpisodeId
             ? "I don’t have enough relevant evidence in this episode to answer that reliably."
             : "I don’t have enough relevant evidence in the catalogue to answer that reliably.",
         sources: sources.map(({ text: _text, ...source }) => source),
         grounded: false,
         sourceMode: resolved.sourceMode,
+        requestedSourceMode: resolved.requestedSourceMode,
+        evidenceSourceMode: resolved.evidenceSourceMode,
+        fallbackReason: resolved.fallbackReason,
         uncutUnavailable: resolved.uncutUnavailable,
         responseState: "retrieval_weak",
         citedIndices: [],
@@ -453,6 +312,9 @@ async function chat(request: Request, env: Env) {
         sources: sources.map(({ text: _text, ...source }) => source),
         grounded: true,
         sourceMode: resolved.sourceMode,
+        requestedSourceMode: resolved.requestedSourceMode,
+        evidenceSourceMode: resolved.evidenceSourceMode,
+        fallbackReason: resolved.fallbackReason,
         uncutUnavailable: resolved.uncutUnavailable,
         model: answered.model,
         modelFallback: true,
@@ -463,12 +325,15 @@ async function chat(request: Request, env: Env) {
       });
     }
     const citedIndices = citationValidation.indices;
-    const followUps = await generateFollowUps(env, question, answer, sources, sourceMode, episodeId);
+    const followUps = await generateFollowUps(env, question, answer, sources, sourceMode, resolvedEpisodeId);
     return reply(request, env, {
       answer,
       sources: sources.map(({ text: _text, ...source }) => source),
       grounded: true,
       sourceMode: resolved.sourceMode,
+      requestedSourceMode: resolved.requestedSourceMode,
+      evidenceSourceMode: resolved.evidenceSourceMode,
+      fallbackReason: resolved.fallbackReason,
       uncutUnavailable: resolved.uncutUnavailable,
       model: answered.model,
       modelFallback: answered.fallback,
@@ -644,7 +509,7 @@ export default {
   },
   async queue(batch: any, env: Env) {
     for (const message of batch.messages) {
-      try { await ingest(message.body as TranscriptJob, env); message.ack(); }
+      try { await ingestTranscriptJob(message.body as TranscriptJob, env); message.ack(); }
       catch (error) { console.error("wtfmedia ingest failed", { message: error instanceof Error ? error.message : "unknown" }); message.retry(); }
     }
   },

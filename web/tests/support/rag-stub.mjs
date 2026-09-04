@@ -116,6 +116,55 @@ export function startRagStub(options = {}) {
           );
           return;
         }
+        case "mode-fallback": {
+          res.writeHead(200, { "Content-Type": "application/json" }).end(
+            JSON.stringify({
+              answer: "Published fallback answer [1].",
+              grounded: true,
+              requestedSourceMode: sourceMode,
+              evidenceSourceMode: "published",
+              sourceMode: "published",
+              fallbackReason: "requested_mode_not_competitive",
+              uncutUnavailable: true,
+              citedIndices: [1],
+              sources: groundedSources().slice(0, 1),
+            }),
+          );
+          return;
+        }
+        case "mode-insufficient": {
+          res.writeHead(200, { "Content-Type": "application/json" }).end(
+            JSON.stringify({
+              answer: "No sufficient requested evidence.",
+              grounded: false,
+              requestedSourceMode: sourceMode,
+              evidenceSourceMode: null,
+              sourceMode,
+              fallbackReason: "requested_mode_insufficient",
+              uncutUnavailable: true,
+              citedIndices: [],
+              sources: [],
+            }),
+          );
+          return;
+        }
+        case "invalid-source-metadata": {
+          res.writeHead(200, { "Content-Type": "application/json" }).end(
+            JSON.stringify({
+              answer: "Grounded answer text.",
+              grounded: true,
+              requestedSourceMode: "private",
+              evidenceSourceMode: "private",
+              sourceMode: "private",
+              fallbackReason: "private_reason",
+              uncutUnavailable: false,
+              responseState: "private_state",
+              citedIndices: [1],
+              sources: [{ ...groundedSources()[0], mappingStatus: "private_status" }],
+            }),
+          );
+          return;
+        }
         default: {
           res.writeHead(200, { "Content-Type": "application/json" }).end(
             JSON.stringify({ answer: "Grounded answer text.", grounded: true, sources: groundedSources() })

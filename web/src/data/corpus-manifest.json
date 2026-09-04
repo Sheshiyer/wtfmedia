@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-03T22:40:00.000Z",
+  "generated_at": "2026-09-04T10:34:45.930Z",
   "corpus": {
     "episodes": 56,
-    "timestamped_episodes": 44
+    "timestamped_episodes": 56
   },
   "entries": [
     {
@@ -17,7 +17,14 @@
       },
       "timestamps": {
         "key": "timestamps/RSB58m7Xwhg.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "1e181b9b6e3c5e4350b8feb1d00c5f5bfcf7e8b5d641592c1b87519bfefef730",
+        "bytes": 99198,
+        "cue_count": 2041,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 5.1,
+        "last_timestamp_sec": 4382.7
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -35,7 +42,14 @@
       },
       "timestamps": {
         "key": "timestamps/SPLFyVyTI1A.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "722d33222ccd245e251593e9e504767fcba9adb01af7783bc8fdf04c3fae7e35",
+        "bytes": 133613,
+        "cue_count": 2430,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 5.3,
+        "last_timestamp_sec": 5623
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -53,7 +67,14 @@
       },
       "timestamps": {
         "key": "timestamps/QdWHGjReLUo.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "eebd91d312426606f1976493002b8f2bca5660fadf589e761ee3016e695c9772",
+        "bytes": 139210,
+        "cue_count": 2579,
+        "text_coverage_ratio": 1.020168,
+        "first_timestamp_sec": 2.6,
+        "last_timestamp_sec": 5030.5
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -71,7 +92,14 @@
       },
       "timestamps": {
         "key": "timestamps/spdUv7OFOu4.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "35947baa31116e2f3283d00ddc0958e1100faef9116bc77ea57e456578ef4879",
+        "bytes": 283339,
+        "cue_count": 5261,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 2,
+        "last_timestamp_sec": 10941.3
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -89,7 +117,14 @@
       },
       "timestamps": {
         "key": "timestamps/hAgqDdPgA3g.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "071df3303c2d75af061149828ea7dc54a5c87dca071ed7d53bfbca7de2be7e3f",
+        "bytes": 107283,
+        "cue_count": 1994,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 2,
+        "last_timestamp_sec": 4223.8
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -107,7 +142,14 @@
       },
       "timestamps": {
         "key": "timestamps/68ylaeBbdsg.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "1973ba4baf8bf2245c8922bf129dbf8d7d3f1316df4968458ab607b2995f3524",
+        "bytes": 110094,
+        "cue_count": 1850,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 1.6,
+        "last_timestamp_sec": 4109.8
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -125,7 +167,14 @@
       },
       "timestamps": {
         "key": "timestamps/N0S048D2tj4.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "d30bb4458a9d7d9baaca5f542b0c48fcb0d175048ee7de7e30a2136691a59df6",
+        "bytes": 116707,
+        "cue_count": 2056,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 15.7,
+        "last_timestamp_sec": 5024.2
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -143,7 +192,14 @@
       },
       "timestamps": {
         "key": "timestamps/Rni7Fz7208c.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "bff5cd5bf22d155f0653ab201bc05085ea3afe3cd57dc723bfbcc4cbf66aad97",
+        "bytes": 155521,
+        "cue_count": 2839,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0,
+        "last_timestamp_sec": 6848.6
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -161,7 +217,14 @@
       },
       "timestamps": {
         "key": "timestamps/ohjXRswUYqM.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "d6a2c787ced056d0a3f6432e6f8825bdf3f5e35338ad0af1eb2e24f8b860da34",
+        "bytes": 164493,
+        "cue_count": 3072,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 5.2,
+        "last_timestamp_sec": 6468.7
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -179,7 +242,14 @@
       },
       "timestamps": {
         "key": "timestamps/2B8gABDfh7I.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "d0af4576d93c2096c4c568893906b49791635dd842f2a01f7f0447dc64718b18",
+        "bytes": 135757,
+        "cue_count": 2376,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.2,
+        "last_timestamp_sec": 5544.2
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -197,7 +267,14 @@
       },
       "timestamps": {
         "key": "timestamps/SfOaZIGJ_gs.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "bd79a645bb456ced14e6a1b3365c6e0df98ab07bcaa22f2c6131a2e9a154a654",
+        "bytes": 65018,
+        "cue_count": 1130,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.9,
+        "last_timestamp_sec": 2704.3
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -215,7 +292,14 @@
       },
       "timestamps": {
         "key": "timestamps/O7O204wD82s.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "3daeabb83343b77c7ec48466e4352ffdb7e9f66acf2495b5fc1f9c2593211a3b",
+        "bytes": 103154,
+        "cue_count": 1917,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0,
+        "last_timestamp_sec": 4920.7
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -233,7 +317,14 @@
       },
       "timestamps": {
         "key": "timestamps/vPvnzWoK24Q.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "6904ad3cf7ecafbbd28cbb14662aea99863d7cbb04a2d201a0f7d0e283707c79",
+        "bytes": 135620,
+        "cue_count": 2265,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 2.1,
+        "last_timestamp_sec": 4930.5
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -251,7 +342,14 @@
       },
       "timestamps": {
         "key": "timestamps/QT2FGbR0nIM.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "1b710d44bc77712f3ec86fb90a7d7f846325c3d2e15910354a08a131d814c897",
+        "bytes": 176533,
+        "cue_count": 2956,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0,
+        "last_timestamp_sec": 6876.6
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -269,7 +367,14 @@
       },
       "timestamps": {
         "key": "timestamps/8uFOBdle3WY.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "00255b543b23f032a4abcee1f739d18ae5b503e36c7bc210487d27c93992b97a",
+        "bytes": 94329,
+        "cue_count": 1581,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 1.5,
+        "last_timestamp_sec": 3954.7
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -287,7 +392,14 @@
       },
       "timestamps": {
         "key": "timestamps/YY7J1pHfSyY.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "fb6c7c2523c17231f90d45b42c4c09542cd1cc4ae4cf599e12cc12c535176f1c",
+        "bytes": 48443,
+        "cue_count": 841,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 1.2,
+        "last_timestamp_sec": 2422.2
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -305,7 +417,14 @@
       },
       "timestamps": {
         "key": "timestamps/tlicx3KKzmQ.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "f366b3d8034c6e34472929c80f750a8e59d6283e66f2e1df351ceba393f6f73a",
+        "bytes": 72642,
+        "cue_count": 1204,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0,
+        "last_timestamp_sec": 2449.9
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -323,7 +442,14 @@
       },
       "timestamps": {
         "key": "timestamps/yTMYtcQLLaw.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "8bc9cb1ad77097d115232d4ae04a642f36fd82ac8c1b64cd3b88d6c817141e13",
+        "bytes": 128097,
+        "cue_count": 1816,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 26,
+        "last_timestamp_sec": 7575.8
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -341,7 +467,14 @@
       },
       "timestamps": {
         "key": "timestamps/e6FqC4pWy8I.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "93621950028e898d1b27f020f999c08e187762d36b13606784705c089ebbfec7",
+        "bytes": 168606,
+        "cue_count": 2966,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.2,
+        "last_timestamp_sec": 8304.5
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -359,7 +492,14 @@
       },
       "timestamps": {
         "key": "timestamps/JAgHUDhaTU0.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "2570bb8ed268205525c4dbc6f91835a34318c4e159d18d365ebd9dec42a4856c",
+        "bytes": 149156,
+        "cue_count": 2583,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 6.5,
+        "last_timestamp_sec": 5753.9
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -377,7 +517,14 @@
       },
       "timestamps": {
         "key": "timestamps/YqdJSu1DX48.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "d44d905e33d92e5d0385f00e2001ec73487395892fa3deda6808bcb0a7ff575e",
+        "bytes": 99031,
+        "cue_count": 1838,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 14.4,
+        "last_timestamp_sec": 3960.9
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -395,7 +542,14 @@
       },
       "timestamps": {
         "key": "timestamps/fEnwMyHejtQ.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "c0dc328f1adc26942081e6b18139b6799aa4918498ca98f662ab67c9db2a4cdc",
+        "bytes": 177480,
+        "cue_count": 3313,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 37.6,
+        "last_timestamp_sec": 6626.1
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -413,7 +567,14 @@
       },
       "timestamps": {
         "key": "timestamps/ckNEdxQ0Tc0.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "75bc7b1406c22692085cc9221ddd5e52f610ef804160f1ac27f452427e6a6ec9",
+        "bytes": 38074,
+        "cue_count": 655,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0,
+        "last_timestamp_sec": 1886.6
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -431,7 +592,14 @@
       },
       "timestamps": {
         "key": "timestamps/tWzalcN_Inc.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "42d66427d1b160fb9e5eb9e6bf327ffd9e99e039f1f8c64534bf0dcecfe795c6",
+        "bytes": 104143,
+        "cue_count": 1813,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0,
+        "last_timestamp_sec": 4499.5
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -449,7 +617,14 @@
       },
       "timestamps": {
         "key": "timestamps/SkU3J2vWUK8.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "712949fd356a1bb26c8b8ed0383ada50b78fb1c2643d7259aa04f69829adc9ca",
+        "bytes": 232474,
+        "cue_count": 3879,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.1,
+        "last_timestamp_sec": 9759.5
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -458,7 +633,7 @@
     },
     {
       "video_id": "UKag4LVAEdU",
-      "title": "Ep #3| WTF is E-commerce: Kishore Biyani, Udaan & Meesho Founders Reveal What Sells and What Doesn\u2019t",
+      "title": "Ep #3| WTF is E-commerce: Kishore Biyani, Udaan & Meesho Founders Reveal What Sells and What Doesn’t",
       "source_url": "https://www.youtube.com/watch?v=UKag4LVAEdU",
       "transcript": {
         "key": "transcripts/UKag4LVAEdU.txt",
@@ -467,7 +642,14 @@
       },
       "timestamps": {
         "key": "timestamps/UKag4LVAEdU.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "bd2f44d54be146f38c4c6e5b39185a23c51777635d4a6040bbd3313df339123c",
+        "bytes": 175221,
+        "cue_count": 2977,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 2.3,
+        "last_timestamp_sec": 7687
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -485,7 +667,14 @@
       },
       "timestamps": {
         "key": "timestamps/-HkBwSazZsM.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "af6b2d59af62b366e569cfc7dfb8e892c524ac4de127ad34edf08c503cd449da",
+        "bytes": 230298,
+        "cue_count": 3951,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0,
+        "last_timestamp_sec": 8917.7
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -494,7 +683,7 @@
     },
     {
       "video_id": "01qfxLY2rhQ",
-      "title": "Ep #5 | EdTech What\u2019s Broken, What\u2019s Next? With Nikhil, Ronnie Screwvala , Gaurav Munjal & Jay Kotak",
+      "title": "Ep #5 | EdTech What’s Broken, What’s Next? With Nikhil, Ronnie Screwvala , Gaurav Munjal & Jay Kotak",
       "source_url": "https://www.youtube.com/watch?v=01qfxLY2rhQ",
       "transcript": {
         "key": "transcripts/01qfxLY2rhQ.txt",
@@ -503,7 +692,14 @@
       },
       "timestamps": {
         "key": "timestamps/01qfxLY2rhQ.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "6c71134c8d82263d4155aeb803b38e8b5c89b5369af21ab241327f27fa0dcf9e",
+        "bytes": 193198,
+        "cue_count": 3338,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0,
+        "last_timestamp_sec": 7670.6
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -521,7 +717,14 @@
       },
       "timestamps": {
         "key": "timestamps/6HE6d0lKh4o.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "830eeea2383f0678aee889dd983316529b810ecba6e759c47d35033ee04074fb",
+        "bytes": 201983,
+        "cue_count": 3521,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.1,
+        "last_timestamp_sec": 7536.1
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -539,7 +742,14 @@
       },
       "timestamps": {
         "key": "timestamps/58i057QXl1A.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "e07cc651b7d1eb285616c1af535941d5efe08891be23f50d8e773a8a693098aa",
+        "bytes": 157852,
+        "cue_count": 2789,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0,
+        "last_timestamp_sec": 7173.1
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -557,7 +767,14 @@
       },
       "timestamps": {
         "key": "timestamps/hNV6urpwrk8.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "4f8140a0d1147fd4c84ac608a8287a1ea0d10a14cc721cac294e31897c865a0f",
+        "bytes": 191960,
+        "cue_count": 3317,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0,
+        "last_timestamp_sec": 8034.3
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -575,7 +792,14 @@
       },
       "timestamps": {
         "key": "timestamps/zCTm1wHcfkI.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "440e305b1f5afe014c9288d69621da5af2d48303dfef9d622d33c9a7d9917968",
+        "bytes": 221006,
+        "cue_count": 3821,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.3,
+        "last_timestamp_sec": 8978.6
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -593,7 +817,14 @@
       },
       "timestamps": {
         "key": "timestamps/nGpir4oUfJI.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "7417afcf121db79a61866dbfa71deec07aff7f3261e6e70e686406a4d558e7f4",
+        "bytes": 241153,
+        "cue_count": 4040,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.1,
+        "last_timestamp_sec": 9403.5
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -611,7 +842,14 @@
       },
       "timestamps": {
         "key": "timestamps/hjiZ11lKCrU.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "f5a9ade9f4a5c254fae34ec6cd58957dacae9730ab2dc754b67d36ec62a52368",
+        "bytes": 328490,
+        "cue_count": 5413,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.4,
+        "last_timestamp_sec": 12238.3
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -629,7 +867,14 @@
       },
       "timestamps": {
         "key": "timestamps/M72Wu2rZE7Y.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "bff50ff0c434645170e42f59528fd7b6c165a5345e555d6152c7c7fb3f66152c",
+        "bytes": 304452,
+        "cue_count": 5067,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.4,
+        "last_timestamp_sec": 12229.8
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -647,7 +892,14 @@
       },
       "timestamps": {
         "key": "timestamps/JjDjDvNgkFo.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "5916bc4e74163113cb42aea7a44ffcfdb7c74f234a4851c4cc294a5cf2f70648",
+        "bytes": 306511,
+        "cue_count": 5071,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0,
+        "last_timestamp_sec": 11354
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -665,7 +917,14 @@
       },
       "timestamps": {
         "key": "timestamps/iuyy1bIgR1s.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "f1ba2d54f95baeb98b521f84d7bccc53d8419eb8b38614fde14346073838e7c6",
+        "bytes": 284580,
+        "cue_count": 4730,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.3,
+        "last_timestamp_sec": 11322
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -682,7 +941,15 @@
         "bytes": 157862
       },
       "timestamps": {
-        "available": false
+        "key": "timestamps/2q7-cTPwf-g.json",
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "31cd3fe08bc54dc8cc9818105ebd5696b855e054d308ee23292e392c9e178229",
+        "bytes": 242766,
+        "cue_count": 4220,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.12,
+        "last_timestamp_sec": 10672.2
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -699,7 +966,15 @@
         "bytes": 216483
       },
       "timestamps": {
-        "available": false
+        "key": "timestamps/FPV5fAkqyBs.json",
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "9cc19633fac38955c02ef53b458e5e8f9f882bc6728313f427a6936f592ec64d",
+        "bytes": 338352,
+        "cue_count": 5955,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.08,
+        "last_timestamp_sec": 15281.399
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -716,7 +991,15 @@
         "bytes": 145013
       },
       "timestamps": {
-        "available": false
+        "key": "timestamps/VIlfHB7Jk2s.json",
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "e3c2342d1dcb05278403886e42f0393a80620fd94cf63d3c3444b50e05a84491",
+        "bytes": 216492,
+        "cue_count": 3266,
+        "text_coverage_ratio": 1.0491,
+        "first_timestamp_sec": 0.28,
+        "last_timestamp_sec": 9727.84
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -733,7 +1016,15 @@
         "bytes": 173193
       },
       "timestamps": {
-        "available": false
+        "key": "timestamps/0JDsFpU6pGQ.json",
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "f76e592919b5e13972f44dd7a46480461a6bb841a4d84d4bc39cc07e7e9d6933",
+        "bytes": 267617,
+        "cue_count": 4673,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.24,
+        "last_timestamp_sec": 11570.67
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -742,7 +1033,7 @@
     },
     {
       "video_id": "2_yA6GoqUnY",
-      "title": "Ep. #19 | WTF is \u201cMaking it\u201d in an Offbeat Career? Nikhil Kamath Ft. Kriti Sanon, Badshah & KL Rahul",
+      "title": "Ep. #19 | WTF is “Making it” in an Offbeat Career? Nikhil Kamath Ft. Kriti Sanon, Badshah & KL Rahul",
       "source_url": "https://www.youtube.com/watch?v=2_yA6GoqUnY",
       "transcript": {
         "key": "transcripts/2_yA6GoqUnY.txt",
@@ -750,7 +1041,15 @@
         "bytes": 120226
       },
       "timestamps": {
-        "available": false
+        "key": "timestamps/2_yA6GoqUnY.json",
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "ec1cb8605c7d46b8022c08e1f60b0bd4cf50d9b2fdd640f367b1fc67277d697e",
+        "bytes": 189881,
+        "cue_count": 3471,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.16,
+        "last_timestamp_sec": 9689.64
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -767,7 +1066,15 @@
         "bytes": 179149
       },
       "timestamps": {
-        "available": false
+        "key": "timestamps/fEUoJSTYtyc.json",
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "29537790ce74e2468dde13a448c88c9ff47d6957c06eb52bc3b57bedf91b2a17",
+        "bytes": 278659,
+        "cue_count": 4907,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0,
+        "last_timestamp_sec": 12586.2
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -784,7 +1091,15 @@
         "bytes": 174611
       },
       "timestamps": {
-        "available": false
+        "key": "timestamps/LqSEfz4YUFA.json",
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "bd0af0738ec2a0d9e4f7ba644f2420323751770e7df579473e86ff20513fcf94",
+        "bytes": 269090,
+        "cue_count": 4673,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.12,
+        "last_timestamp_sec": 11787.439
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -801,7 +1116,15 @@
         "bytes": 153079
       },
       "timestamps": {
-        "available": false
+        "key": "timestamps/lRjprPQHuXw.json",
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "0edc8f1910ba37af5042eb6e33c222f1dc19cffd3719e8951c3c3b786b262fa8",
+        "bytes": 225553,
+        "cue_count": 3495,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.08,
+        "last_timestamp_sec": 9997.013
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -818,7 +1141,15 @@
         "bytes": 187132
       },
       "timestamps": {
-        "available": false
+        "key": "timestamps/wHQiewz8k9g.json",
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "e9aa7900846a96c72528be2f92d336a4d4c33fca43626516655711bafac403b3",
+        "bytes": 290878,
+        "cue_count": 5122,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.44,
+        "last_timestamp_sec": 12341.45
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -827,7 +1158,7 @@
     },
     {
       "video_id": "g0CjWbgsdTQ",
-      "title": "Inside Silicon Valley\u2019s VC Playbook | WTF is Venture Capital? - 2025 Edition | Ep. 24",
+      "title": "Inside Silicon Valley’s VC Playbook | WTF is Venture Capital? - 2025 Edition | Ep. 24",
       "source_url": "https://www.youtube.com/watch?v=g0CjWbgsdTQ",
       "transcript": {
         "key": "transcripts/g0CjWbgsdTQ.txt",
@@ -835,7 +1166,15 @@
         "bytes": 162826
       },
       "timestamps": {
-        "available": false
+        "key": "timestamps/g0CjWbgsdTQ.json",
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "155d44f1c9ffc7f2beb4b41b7e091fb65bf3045d8dc30d6061da9d647ad8ffdf",
+        "bytes": 232406,
+        "cue_count": 3537,
+        "text_coverage_ratio": 0.997684,
+        "first_timestamp_sec": 0.04,
+        "last_timestamp_sec": 10332.8
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -844,7 +1183,7 @@
     },
     {
       "video_id": "AdI_XWv-ZTk",
-      "title": "Tira, Bombay Shaving Co., Inde Wild | WTF is Fueling India\u2019s Beauty & Skincare Revolution? | Ep. 25",
+      "title": "Tira, Bombay Shaving Co., Inde Wild | WTF is Fueling India’s Beauty & Skincare Revolution? | Ep. 25",
       "source_url": "https://www.youtube.com/watch?v=AdI_XWv-ZTk",
       "transcript": {
         "key": "transcripts/AdI_XWv-ZTk.txt",
@@ -852,7 +1191,15 @@
         "bytes": 213526
       },
       "timestamps": {
-        "available": false
+        "key": "timestamps/AdI_XWv-ZTk.json",
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "fbcbd2a56d34754357af14c9c86bff55a6e1fb175c045b6b7253afc7012df692",
+        "bytes": 315770,
+        "cue_count": 4793,
+        "text_coverage_ratio": 1.028695,
+        "first_timestamp_sec": 0.04,
+        "last_timestamp_sec": 12992.36
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -869,7 +1216,15 @@
         "bytes": 146595
       },
       "timestamps": {
-        "available": false
+        "key": "timestamps/WMRO9dvD5T0.json",
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "6c693e789f676a2016fc790dafad21e71423bfd172cfc2b3415e5127d974d103",
+        "bytes": 212758,
+        "cue_count": 3303,
+        "text_coverage_ratio": 1.006228,
+        "first_timestamp_sec": 7.08,
+        "last_timestamp_sec": 10258.96
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -887,7 +1242,14 @@
       },
       "timestamps": {
         "key": "timestamps/ef3D5Ak1HP4.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "b4d334beb6ae01832d87da26ca6fc917919916c3ef505eca92c6b842341ceeae",
+        "bytes": 98088,
+        "cue_count": 1767,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 2,
+        "last_timestamp_sec": 3577.7
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -905,7 +1267,14 @@
       },
       "timestamps": {
         "key": "timestamps/fL2wyVLX08o.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "001b0def0df26f2faecc2a0b9988f6c21ea238fb94093aaa9aaab6154202e081",
+        "bytes": 172288,
+        "cue_count": 2863,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 3.9,
+        "last_timestamp_sec": 5775.5
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -923,7 +1292,14 @@
       },
       "timestamps": {
         "key": "timestamps/y5Ewu8wYgqM.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "8d2459bd589587d715444af058926ba3ed5b64a17d23eb90457d79576e336440",
+        "bytes": 189612,
+        "cue_count": 3207,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.2,
+        "last_timestamp_sec": 8185.9
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -941,7 +1317,14 @@
       },
       "timestamps": {
         "key": "timestamps/0YKTsHr5bDE.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "3d90016896d70a216967415a121aa1ab648535654b3babd6bc1b7675d6ed2d9c",
+        "bytes": 100061,
+        "cue_count": 1780,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0,
+        "last_timestamp_sec": 4358.3
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -950,7 +1333,7 @@
     },
     {
       "video_id": "WGiAwFmscmc",
-      "title": "WTF are Ray Dalio\u2019s Rules to Build a Real Portfolio? | Nikhil Kamath | WTF is Finance Ep 2 Teaser",
+      "title": "WTF are Ray Dalio’s Rules to Build a Real Portfolio? | Nikhil Kamath | WTF is Finance Ep 2 Teaser",
       "source_url": "https://www.youtube.com/watch?v=WGiAwFmscmc",
       "transcript": {
         "key": "transcripts/WGiAwFmscmc.txt",
@@ -959,7 +1342,14 @@
       },
       "timestamps": {
         "key": "timestamps/WGiAwFmscmc.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "93f51145fb023ecf7a97735926272fdc059b661cbe4a634853956076c6e1e187",
+        "bytes": 955,
+        "cue_count": 19,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0.1,
+        "last_timestamp_sec": 62.6
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -977,7 +1367,14 @@
       },
       "timestamps": {
         "key": "timestamps/lTCzIDITaac.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "384fcf5521df3e0883f56aac9bb38be4c14a742de85c5db983f828b65f91d7a2",
+        "bytes": 313956,
+        "cue_count": 5503,
+        "text_coverage_ratio": 1,
+        "first_timestamp_sec": 0,
+        "last_timestamp_sec": 10780.6
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",
@@ -995,7 +1392,14 @@
       },
       "timestamps": {
         "key": "timestamps/LcWoP6KtZKw.json",
-        "available": true
+        "available": true,
+        "schema": "wtfmedia.published_timestamps.v1",
+        "sha256": "06f1d4b756ab16f5e7cfd3c78cfd5caf6bfa3bd94c7e31aef385a8cc2c1c519d",
+        "bytes": 117472,
+        "cue_count": 1817,
+        "text_coverage_ratio": 1.034523,
+        "first_timestamp_sec": 3.12,
+        "last_timestamp_sec": 5299.32
       },
       "embedding": {
         "model": "@cf/baai/bge-large-en-v1.5",

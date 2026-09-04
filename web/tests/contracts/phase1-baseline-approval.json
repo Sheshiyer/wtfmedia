@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "status": "approved",
-  "approval_scope": "ask-wtf-alpha-evidence-skills-timestamp-provenance-and-stateless-retry",
-  "owner_approval_ref": "owner-explicit-alpha-execution-approval-2026-09-03-no-intermediate-hitl",
+  "approval_scope": "ask-wtf-alpha-evidence-coherence-and-requested-versus-effective-source-metadata",
+  "owner_approval_ref": "owner-explicit-alpha-production-ingest-and-verification-2026-09-04",
   "manifest_path": "web/tests/contracts/phase1-compatibility-manifest.json",
-  "manifest_sha256": "94b9d27b7057dc4487d3695b931b13bfb4569c627df58e7b4127755648adb629",
-  "base_sha": "e33156873fbede8f700f38cba0dafaff8a937abc",
+  "manifest_sha256": "44d01a166a011f76d8af75f79874a4c7e43fe34d38bda8afadcd4eed3d68ced1",
+  "base_sha": "c0340bbccece036a36ab339c6842ce95f436f818",
   "approved_protected_hashes": [
     {
       "path": "web/app/layout.tsx",
@@ -29,7 +29,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "642279fd30c103423015076f8ed1de882d211ead3b1eb69ac909356e8491082e"
+      "sha256": "b2bdbe42cc0061aece14b62bae321eed491aba294fe43b543781c4e823674bc6"
     }
   ],
   "streaming_contract": {
