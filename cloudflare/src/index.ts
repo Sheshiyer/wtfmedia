@@ -55,7 +55,7 @@ export interface Env extends OpsEnv {
 const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
 const DEFAULT_OPENROUTER_ANSWER_MODEL = "google/gemini-3.5-flash";
 const ANSWER_MODELS = [
-  "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "@cf/zai-org/glm-5.3-flash",
   "@cf/meta/llama-3.1-8b-instruct-fast",
 ];
 const FAST_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
