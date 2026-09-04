@@ -1,0 +1,61 @@
+[
+  {
+    "id": "battery-explainer",
+    "question": "What is a battery according to the podcast?",
+    "expect": "answer",
+    "titleContains": "Battery"
+  },
+  {
+    "id": "modi-childhood",
+    "question": "What did Modi say about his childhood?",
+    "expect": "answer",
+    "titleContains": "Modi"
+  },
+  {
+    "id": "india-lead",
+    "question": "What does Nikhil Kamath say about why India must lead?",
+    "expect": "answer",
+    "titleContains": "India"
+  },
+  {
+    "id": "cyprus-entity",
+    "question": "What did Nikos Christodoulides say about Cyprus?",
+    "expect": "answer",
+    "titleContains": "Christodoulides"
+  },
+  {
+    "id": "ev-theme",
+    "question": "What did the guests say about electric vehicles?",
+    "expect": "answer"
+  },
+  {
+    "id": "startup-advice",
+    "question": "What advice do guests give to first-time startup founders?",
+    "expect": "answer"
+  },
+  {
+    "id": "wealth-theme",
+    "question": "How do guests on the podcast think about building wealth?",
+    "expect": "answer"
+  },
+  {
+    "id": "quantum-covered",
+    "question": "What does the podcast say about quantum computing breakthroughs?",
+    "expect": "answer"
+  },
+  {
+    "id": "french-revolution-abstain",
+    "question": "What did the guests say about the French Revolution?",
+    "expect": "abstain"
+  },
+  {
+    "id": "sourdough-abstain",
+    "question": "What sourdough baking techniques do the guests recommend?",
+    "expect": "abstain"
+  },
+  {
+    "id": "ownership-guard",
+    "question": "Who owns the WTF podcast?",
+    "expect": "guard"
+  }
+]

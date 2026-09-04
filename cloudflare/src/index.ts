@@ -91,7 +91,7 @@ async function answerWithFallback(env: Env, messages: unknown[]) {
     try {
       const result = await env.AI.run(model, {
         messages,
-        max_tokens: 600,
+        max_tokens: 900,
         temperature: 0.1,
       });
       const answer = typeof result === "string" ? result : result?.response;
@@ -148,6 +148,18 @@ function historyContext(history: HistoryTurn[]): string {
 }
 
 const NEEDS_REFORMULATION = /\b(that|this|those|these|it|they|them|he|she|his|her|the same|more about|else|also|another|previous|earlier|above|you said|you mentioned|what about|how about|and what|tell me more|go deeper|expand|elaborate)\b/i;
+
+// Users naturally address the show by its host ("What does Nikhil Kamath say about X?").
+// His name sits in nearly every episode title, so these questions really ask what the
+// show's episodes say about X — phrased as the host's own speech, the synthesis model
+// abstains even when an episode answers the substance. Normalize to the show-level
+// question; attribution rules in the conversation skill still name the actual speaker.
+function normalizeHostAttribution(question: string): string {
+  return question.replace(
+    /\bwhat\s+(?:does|did|do)\s+(?:nikhil\s+kamath|nikhil|kamath|the\s+host)\s+(?:say|said|think|believe|claim)s?\s+(?:about\s+)?/i,
+    "what was said on the podcast about ",
+  );
+}
 
 async function reformulateQuery(env: Env, question: string, history: HistoryTurn[]): Promise<string> {
   if (history.length === 0 || !NEEDS_REFORMULATION.test(question)) return question;
@@ -246,7 +258,7 @@ async function chat(request: Request, env: Env) {
   if (typeof payload.question !== "string" || !payload.question.trim()) {
     return reply(request, env, { error: "question_required" }, 400);
   }
-  const question = payload.question.trim();
+  const question = normalizeHostAttribution(payload.question.trim());
   const sourceMode = parseSourceMode(payload.sourceMode);
   const episodeId = parseEpisodeId(payload.episodeId);
   const history = parseHistory(payload.history);
@@ -302,14 +314,84 @@ async function chat(request: Request, env: Env) {
         { role: "system", content: WTF_OS_CONVERSATION_SKILL.systemPrompt },
         { role: "user", content: userContent },
       ]);
-    const answer = answered.answer;
-    const citationValidation = parseCitationMarkers(answer, sources.length);
+    // A model-driven "the evidence does not support this" reply carries no
+    // citations by design — return it as an abstention instead of routing it
+    // into the citation-repair/excerpt-dump path.
+    const isModelAbstention = (text: string) =>
+      !/\[[^\]]*\d/.test(text)
+      && /(?:do(?:es)? not establish|not enough relevant evidence|not supported|cannot be answered from|no excerpt)/i.test(text);
+    const projectSources = () => sources.map(({ text: _text, ...source }: any) => source);
+    if (isModelAbstention(answered.answer)) {
+      return reply(request, env, {
+        answer: answered.answer,
+        sources: [],
+        grounded: false,
+        sourceMode: resolved.sourceMode,
+        requestedSourceMode: resolved.requestedSourceMode,
+        evidenceSourceMode: resolved.evidenceSourceMode,
+        fallbackReason: resolved.fallbackReason,
+        uncutUnavailable: resolved.uncutUnavailable,
+        model: answered.model,
+        modelFallback: answered.fallback,
+        responseState: "abstained",
+        citedIndices: [],
+        followUps: [],
+        ...(searchQuery !== question ? { searchQuery } : {}),
+      });
+    }
+    const citationValidation = parseCitationMarkers(answered.answer, sources.length);
     if (!citationValidation.valid) {
-      console.warn("wtfmedia answer rejected: invalid citations", { sourceCount: sources.length, citations: citationValidation.indices });
+      // One repair pass: the model answered but dropped/mangled citations. Ask
+      // it to rewrite the same answer with valid [n] citations before giving up.
+      console.warn("wtfmedia answer missing valid citations; attempting repair", { sourceCount: sources.length, citations: citationValidation.indices });
+      const repaired = await answerWithFallback(env, [
+        { role: "system", content: WTF_OS_CONVERSATION_SKILL.systemPrompt },
+        { role: "user", content: userContent },
+        { role: "assistant", content: answered.answer },
+        { role: "user", content: `Your answer has no valid citations. Rewrite it: cite every factual sentence with [n], using only numbers 1 to ${sources.length}. If the excerpts do not answer the question, say plainly what is not supported instead.` },
+      ]);
+      if (isModelAbstention(repaired.answer)) {
+        return reply(request, env, {
+          answer: repaired.answer,
+          sources: [],
+          grounded: false,
+          sourceMode: resolved.sourceMode,
+          requestedSourceMode: resolved.requestedSourceMode,
+          evidenceSourceMode: resolved.evidenceSourceMode,
+          fallbackReason: resolved.fallbackReason,
+          uncutUnavailable: resolved.uncutUnavailable,
+          model: repaired.model,
+          modelFallback: true,
+          responseState: "abstained",
+          citedIndices: [],
+          followUps: [],
+          ...(searchQuery !== question ? { searchQuery } : {}),
+        });
+      }
+      const repairedValidation = parseCitationMarkers(repaired.answer, sources.length);
+      if (repairedValidation.valid) {
+        return reply(request, env, {
+          answer: repaired.answer,
+          sources: projectSources(),
+          grounded: true,
+          sourceMode: resolved.sourceMode,
+          requestedSourceMode: resolved.requestedSourceMode,
+          evidenceSourceMode: resolved.evidenceSourceMode,
+          fallbackReason: resolved.fallbackReason,
+          uncutUnavailable: resolved.uncutUnavailable,
+          model: repaired.model,
+          modelFallback: true,
+          responseState: "answered_grounded",
+          citedIndices: repairedValidation.indices,
+          followUps: [],
+          ...(searchQuery !== question ? { searchQuery } : {}),
+        });
+      }
+      console.warn("wtfmedia answer rejected: invalid citations after repair", { sourceCount: sources.length, citations: repairedValidation.indices });
       const fallbackCited = sources.slice(0, 3).map((s) => s.n);
       return reply(request, env, {
         answer: citedEvidenceFallback(sources),
-        sources: sources.map(({ text: _text, ...source }) => source),
+        sources: projectSources(),
         grounded: true,
         sourceMode: resolved.sourceMode,
         requestedSourceMode: resolved.requestedSourceMode,
@@ -325,10 +407,10 @@ async function chat(request: Request, env: Env) {
       });
     }
     const citedIndices = citationValidation.indices;
-    const followUps = await generateFollowUps(env, question, answer, sources, sourceMode, resolvedEpisodeId);
+    const followUps = await generateFollowUps(env, question, answered.answer, sources, sourceMode, resolvedEpisodeId);
     return reply(request, env, {
-      answer,
-      sources: sources.map(({ text: _text, ...source }) => source),
+      answer: answered.answer,
+      sources: projectSources(),
       grounded: true,
       sourceMode: resolved.sourceMode,
       requestedSourceMode: resolved.requestedSourceMode,
