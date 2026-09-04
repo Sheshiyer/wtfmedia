@@ -5,7 +5,7 @@ import { parseSourceMode, type SourceMode } from "@/lib/provenance/source-mode";
 import { isReady, search } from "@/lib/vectors";
 
 export const runtime = "nodejs";
-export const maxDuration = 30;
+export const maxDuration = 90;
 
 const EDGE_SHARED_SECRET = process.env.EDGE_SHARED_SECRET ?? process.env.CLOUDFLARE_EDGE_SHARED_SECRET;
 const LOCAL_RAG_ENABLED = process.env.WTFMEDIA_LOCAL_RAG_ENABLED?.trim().toLowerCase() === "true";
@@ -165,9 +165,21 @@ export async function POST(req: NextRequest) {
         "X-Client-IP": req.headers.get("cf-connecting-ip")?.trim() || "unknown",
         "X-Request-ID": crypto.randomUUID(),
       },
-      body: JSON.stringify({ question: last.content, sourceMode, ...(episodeId ? { episodeId } : {}) }),
+      // Forward prior turns so the edge can resolve pronouns/follow-ups
+      // ("what did he say about X?") against the current session. The edge
+      // trims to its own history window; here we send everything but the
+      // current question.
+      body: JSON.stringify({
+        question: last.content,
+        history: messages.slice(0, -1).map((m) => ({ role: m.role, content: m.content })),
+        sourceMode,
+        ...(episodeId ? { episodeId } : {}),
+      }),
       cache: "no-store",
-      signal: AbortSignal.timeout(25_000),
+      // With history reformulation plus a possible citation-repair pass the
+      // edge can make 2-3 sequential model calls; 25s was timing out healthy
+      // answers. 75s stays under the route's maxDuration headroom on Workers.
+      signal: AbortSignal.timeout(75_000),
     }));
   } catch (error) {
     console.error("wtfmedia web chat transport failed", {
