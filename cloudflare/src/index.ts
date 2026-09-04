@@ -59,6 +59,15 @@ const ANSWER_MODELS = [
   "@cf/meta/llama-3.1-8b-instruct-fast",
 ];
 const FAST_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
+// Models a visitor may force for a "retry with model" regeneration. All are
+// served through OpenRouter; the allowlist keeps arbitrary (expensive) model
+// strings out of a public, rate-limited endpoint.
+const RETRYABLE_OPENROUTER_MODELS = new Set([
+  "google/gemini-3.5-flash",
+  "openai/gpt-5",
+  "poolside/laguna-s-2.1",
+  "thinkingmachines/inkling",
+]);
 const MAX_BODY_BYTES = 16_000;
 const MAX_QUESTION_CHARS = 2_000;
 const MAX_HISTORY_TURNS = 6;
@@ -88,9 +97,33 @@ async function vectorFor(env: Env, text: string): Promise<number[]> {
   return vector;
 }
 
-async function answerWithOpenRouter(env: Env, messages: unknown[]) {
+// glm-5.3-flash returns the OpenAI chat-completions shape (choices[0].message.content)
+// while the llama models return { response } — accept both.
+function extractAnswerText(result: any): string {
+  if (typeof result === "string") return result;
+  if (typeof result?.response === "string") return result.response;
+  const content = result?.choices?.[0]?.message?.content;
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content.map((part: any) => (typeof part?.text === "string" ? part.text : "")).join("");
+  }
+  return "";
+}
+
+async function answerWithWorkersAi(env: Env, model: string, messages: unknown[]) {
+  const params: Record<string, unknown> = { messages, max_tokens: 900, temperature: 0.1 };
+  // glm-5.3-flash is a reasoning model; low effort keeps hidden reasoning from
+  // eating the completion budget and adding latency.
+  if (model.includes("glm")) params.reasoning_effort = "low";
+  const result = await env.AI.run(model, params);
+  const answer = extractAnswerText(result);
+  if (!answer.trim()) throw new Error("empty answer response");
+  return { answer, model };
+}
+
+async function answerWithOpenRouter(env: Env, messages: unknown[], modelOverride?: string) {
   if (!env.OPENROUTER_API_KEY) throw new Error("openrouter api key not configured");
-  const model = env.OPENROUTER_ANSWER_MODEL || DEFAULT_OPENROUTER_ANSWER_MODEL;
+  const model = modelOverride || env.OPENROUTER_ANSWER_MODEL || DEFAULT_OPENROUTER_ANSWER_MODEL;
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -122,27 +155,21 @@ async function answerWithOpenRouter(env: Env, messages: unknown[]) {
   return { answer, model };
 }
 
-async function answerWithFallback(env: Env, messages: unknown[]) {
+async function answerWithFallback(env: Env, messages: unknown[], forcedOpenRouterModel?: string) {
   const failures: string[] = [];
   // Primary stays on Workers AI; OpenRouter (Gemini) is the mid-chain fallback,
-  // with the small Workers AI model as the final resort.
-  const providers: Array<() => Promise<{ answer: string; model: string }>> = [
-    async () => {
-      const model = ANSWER_MODELS[0];
-      const result = await env.AI.run(model, { messages, max_tokens: 900, temperature: 0.1 });
-      const answer = typeof result === "string" ? result : result?.response;
-      if (typeof answer !== "string" || !answer.trim()) throw new Error("empty answer response");
-      return { answer, model };
-    },
-    () => answerWithOpenRouter(env, messages),
-    async () => {
-      const model = ANSWER_MODELS[1];
-      const result = await env.AI.run(model, { messages, max_tokens: 900, temperature: 0.1 });
-      const answer = typeof result === "string" ? result : result?.response;
-      if (typeof answer !== "string" || !answer.trim()) throw new Error("empty answer response");
-      return { answer, model };
-    },
-  ];
+  // with the small Workers AI model as the final resort. A user-picked retry
+  // model jumps the queue when present.
+  const providers: Array<() => Promise<{ answer: string; model: string }>> = [];
+  if (forcedOpenRouterModel) {
+    providers.push(() => answerWithOpenRouter(env, messages, forcedOpenRouterModel));
+  }
+  providers.push(() => answerWithWorkersAi(env, ANSWER_MODELS[0], messages));
+  const defaultOpenRouterModel = env.OPENROUTER_ANSWER_MODEL || DEFAULT_OPENROUTER_ANSWER_MODEL;
+  if (forcedOpenRouterModel !== defaultOpenRouterModel) {
+    providers.push(() => answerWithOpenRouter(env, messages));
+  }
+  providers.push(() => answerWithWorkersAi(env, ANSWER_MODELS[1], messages));
   for (const provider of providers) {
     try {
       const { answer, model } = await provider();
@@ -303,10 +330,17 @@ async function chat(request: Request, env: Env) {
   }
   const contentLength = Number(request.headers.get("Content-Length") || "0");
   if (contentLength > MAX_BODY_BYTES) return reply(request, env, { error: "body_too_large" }, 413);
-  let payload: { question?: unknown; sourceMode?: unknown; episodeId?: unknown; history?: unknown };
+  let payload: { question?: unknown; sourceMode?: unknown; episodeId?: unknown; history?: unknown; answerModel?: unknown };
   try { payload = await request.json(); } catch { return reply(request, env, { error: "invalid_json" }, 400); }
   if (typeof payload.question !== "string" || !payload.question.trim()) {
     return reply(request, env, { error: "question_required" }, 400);
+  }
+  let forcedAnswerModel: string | undefined;
+  if (payload.answerModel !== undefined) {
+    if (typeof payload.answerModel !== "string" || !RETRYABLE_OPENROUTER_MODELS.has(payload.answerModel)) {
+      return reply(request, env, { error: "invalid_answer_model" }, 400);
+    }
+    forcedAnswerModel = payload.answerModel;
   }
   const question = normalizeHostAttribution(payload.question.trim());
   const sourceMode = parseSourceMode(payload.sourceMode);
@@ -363,7 +397,7 @@ async function chat(request: Request, env: Env) {
     const answered = await answerWithFallback(env, [
         { role: "system", content: WTF_OS_CONVERSATION_SKILL.systemPrompt },
         { role: "user", content: userContent },
-      ]);
+      ], forcedAnswerModel);
     // A model-driven "the evidence does not support this" reply carries no
     // citations by design — return it as an abstention instead of routing it
     // into the citation-repair/excerpt-dump path.
@@ -399,7 +433,7 @@ async function chat(request: Request, env: Env) {
         { role: "user", content: userContent },
         { role: "assistant", content: answered.answer },
         { role: "user", content: `Your answer has no valid citations. Rewrite it: cite every factual sentence with [n], using only numbers 1 to ${sources.length}. If the excerpts do not answer the question, say plainly what is not supported instead.` },
-      ]);
+      ], forcedAnswerModel);
       if (isModelAbstention(repaired.answer)) {
         return reply(request, env, {
           answer: repaired.answer,

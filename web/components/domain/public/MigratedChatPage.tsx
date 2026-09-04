@@ -38,7 +38,7 @@ function ChatInner() {
 
   async function sendWithQuery(
     query: string,
-    options: { history?: Message[]; appendUser?: boolean } = {},
+    options: { history?: Message[]; appendUser?: boolean; answerModel?: string } = {},
   ) {
     if (loading) return;
 
@@ -64,6 +64,7 @@ function ChatInner() {
           })),
           sourceMode: queryScope.sourceMode,
           ...(episodeId ? { episodeId } : {}),
+          ...(options.answerModel ? { answerModel: options.answerModel } : {}),
         }),
       });
 
@@ -168,7 +169,7 @@ function ChatInner() {
     await sendWithQuery(query);
   }
 
-  async function retry() {
+  async function retry(model?: string) {
     // Find last user message and resend
     const lastUserIdx = [...messages]
       .reverse()
@@ -181,6 +182,7 @@ function ChatInner() {
     await sendWithQuery(lastUserMessage.content, {
       history: historyThroughUser,
       appendUser: false,
+      answerModel: model,
     });
   }
 

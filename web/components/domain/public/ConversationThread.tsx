@@ -38,7 +38,7 @@ export interface Message {
 export interface ConversationThreadProps {
   messages: Message[];
   loading: boolean;
-  onRetry: () => void;
+  onRetry: (model?: string) => void;
   onFollowUp?: (question: string) => void;
   header?: ReactNode;
   footer?: ReactNode;
@@ -59,6 +59,7 @@ export function ConversationThread({
   const contentRef = useRef<HTMLDivElement>(null);
   const userScrolledUp = useRef(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
+  const [retryModel, setRetryModel] = useState("");
 
   const checkOverflow = useCallback(() => {
     const container = scrollContainerRef.current;
@@ -248,8 +249,32 @@ export function ConversationThread({
             {messages.length > 0 &&
               !loading &&
               messages[messages.length - 1]?.role === "assistant" && (
-                <div className="mt-4 flex justify-center border-t-2 border-foreground/15 px-4 py-3">
-                  <Button onClick={onRetry} variant="ghost" className="text-xs" data-testid="retry-button">
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-2 border-t-2 border-foreground/15 px-4 py-3">
+                  <label
+                    htmlFor="retry-model"
+                    className="font-label text-[10px] font-bold uppercase tracking-wider text-muted"
+                  >
+                    retry with
+                  </label>
+                  <select
+                    id="retry-model"
+                    data-testid="retry-model-select"
+                    value={retryModel}
+                    onChange={(event) => setRetryModel(event.target.value)}
+                    className="min-h-8 rounded-control border-2 border-foreground bg-canvas px-2 py-1 text-xs lowercase text-foreground"
+                  >
+                    <option value="">default (auto)</option>
+                    <option value="google/gemini-3.5-flash">gemini 3.5 flash</option>
+                    <option value="openai/gpt-5">gpt-5</option>
+                    <option value="poolside/laguna-s-2.1">laguna s 2.1</option>
+                    <option value="thinkingmachines/inkling">inkling</option>
+                  </select>
+                  <Button
+                    onClick={() => onRetry(retryModel || undefined)}
+                    variant="ghost"
+                    className="text-xs"
+                    data-testid="retry-button"
+                  >
                     retry answer
                   </Button>
                 </div>

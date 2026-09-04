@@ -243,7 +243,7 @@ async function localAnswer(question: string, sourceMode: SourceMode, episodeId: 
 }
 
 export async function POST(req: NextRequest) {
-  let body: { messages?: ChatMessage[]; sourceMode?: unknown; episodeId?: unknown };
+  let body: { messages?: ChatMessage[]; sourceMode?: unknown; episodeId?: unknown; answerModel?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -253,6 +253,20 @@ export async function POST(req: NextRequest) {
   const last = [...messages].reverse().find((message) => message.role === "user");
   if (!last?.content?.trim()) return new Response("no user message", { status: 400 });
   if (last.content.length > MAX_QUESTION_CHARS) return new Response("question too long", { status: 400 });
+  // Must mirror RETRYABLE_OPENROUTER_MODELS in the edge worker.
+  const RETRYABLE_MODELS = new Set([
+    "google/gemini-3.5-flash",
+    "openai/gpt-5",
+    "poolside/laguna-s-2.1",
+    "thinkingmachines/inkling",
+  ]);
+  let answerModel: string | undefined;
+  if (body.answerModel !== undefined) {
+    if (typeof body.answerModel !== "string" || !RETRYABLE_MODELS.has(body.answerModel)) {
+      return new Response("invalid answer model", { status: 400 });
+    }
+    answerModel = body.answerModel;
+  }
   const sourceMode = parseSourceMode(body.sourceMode);
   const episodeId = typeof body.episodeId === "string" && PUBLIC_EPISODE_ID.test(body.episodeId.trim())
     ? body.episodeId.trim()
@@ -285,6 +299,7 @@ export async function POST(req: NextRequest) {
         question: last.content,
         sourceMode,
         ...(episodeId ? { episodeId } : {}),
+        ...(answerModel ? { answerModel } : {}),
         history: messages.slice(0, -1).map((m) => ({ role: m.role, content: m.content })),
       }),
       cache: "no-store",
