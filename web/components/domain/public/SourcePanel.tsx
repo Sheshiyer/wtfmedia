@@ -102,19 +102,16 @@ function SourceEvidenceRow({ entry }: { entry: SourcePanelEntry }) {
           <span className={`font-mono text-[10px] font-bold ${entry.isCited ? "text-foreground" : "text-muted"}`}>
             {entry.evidenceId}
           </span>
-          <span className="rounded bg-surface-subtle px-1 py-0.5 font-label text-[9px] uppercase tracking-wider text-muted">
-            {entry.isCited ? "cited moment" : "candidate"}
-          </span>
-        </div>
-        <span className="flex items-center gap-1.5">
           {typeof source.score === "number" && source.score > 0 ? (
             <span
-              className="rounded border border-foreground/20 bg-surface-subtle px-1.5 py-0.5 font-mono text-[10px] font-bold text-secondary"
+              className="rounded bg-surface-subtle px-1 py-0.5 font-label text-[9px] uppercase tracking-wider text-muted"
               title={`retrieval confidence ${(source.score * 100).toFixed(1)}% — sources are listed most matched first`}
             >
               {matchTier(source.score)} · {Math.round(source.score * 100)}%
             </span>
           ) : null}
+        </div>
+        <span className="flex items-center gap-1.5">
           <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
             {verifiedTimeSec === null
               ? `${sourceMode} time unavailable`
