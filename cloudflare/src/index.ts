@@ -135,7 +135,9 @@ async function answerWithOpenRouter(env: Env, messages: unknown[], modelOverride
     body: JSON.stringify({
       model,
       messages,
-      max_tokens: 900,
+      // Reasoning models (gpt-5, inkling) burn hidden reasoning tokens against
+      // this cap even with exclude:true — 900 starved them into empty answers.
+      max_tokens: 3000,
       temperature: 0.1,
       reasoning: { exclude: true },
     }),
