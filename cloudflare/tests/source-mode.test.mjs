@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
 import {
+  buildCounterpartQueryOptions,
   buildVectorQueryOptions,
   extractNamedEntityPhrases,
   filterMatchesByEpisodeId,
   filterAndProjectMatches,
+  findSingleTimelineGaps,
   parseEpisodeId,
   parseSourceMode,
   prioritizeMatchesForQuestion,
@@ -191,6 +193,41 @@ describe("dual-source chat contract", () => {
       returnMetadata: "all",
       filter: { source_mode: { $eq: "uncut" } },
     });
+  });
+
+  test("counterpart backfill query pins the episode and the missing timeline", () => {
+    assert.deepEqual(buildCounterpartQueryOptions("RSB58m7Xwhg", "uncut"), {
+      topK: 1,
+      returnMetadata: "all",
+      filter: {
+        video_id: { $eq: "RSB58m7Xwhg" },
+        source_mode: { $eq: "uncut" },
+      },
+    });
+  });
+
+  test("single-timeline gaps list each episode's missing mode exactly once", () => {
+    const resolved = resolveRequestedSources([
+      { id: "u-a", score: 0.9, metadata: { video_id: "abcdefghijk", source_asset_id: "asset-a", source_mode: "uncut" } },
+      { id: "p-a", score: 0.88, metadata: { video_id: "abcdefghijk", source_mode: "published" } },
+      { id: "u-b", score: 0.8, metadata: { video_id: "lmnopqrstuv", source_asset_id: "asset-b", source_mode: "uncut" } },
+      { id: "p-c", score: 0.75, metadata: { video_id: "zyxwvutsrqp", source_mode: "published" } },
+      { id: "p-c-2", score: 0.7, metadata: { video_id: "zyxwvutsrqp", source_mode: "published" } },
+    ], "both", 0.45, 40, { dedupeByEpisode: false });
+
+    assert.deepEqual(findSingleTimelineGaps(resolved.citations), [
+      { videoId: "lmnopqrstuv", missing: "published" },
+      { videoId: "zyxwvutsrqp", missing: "uncut" },
+    ]);
+  });
+
+  test("fully paired results have no single-timeline gaps", () => {
+    const resolved = resolveRequestedSources([
+      { id: "u-a", score: 0.9, metadata: { video_id: "abcdefghijk", source_asset_id: "asset-a", source_mode: "uncut" } },
+      { id: "p-a", score: 0.88, metadata: { video_id: "abcdefghijk", source_mode: "published" } },
+    ], "both", 0.45);
+
+    assert.deepEqual(findSingleTimelineGaps(resolved.citations), []);
   });
 
   test("episode scope fails closed when Vectorize returns unrelated matches", () => {

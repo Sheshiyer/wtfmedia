@@ -232,6 +232,23 @@ export function buildVectorQueryOptions(episodeId: string | null, sourceMode: St
 }
 
 /**
+ * Targeted per-episode lookup for the counterpart timeline a both-mode result
+ * is missing. The catalogue window (topK per mode) can exclude an episode's
+ * other timeline entirely when its chunks score low, so pairing alone cannot
+ * surface it — a filtered query pinned to the episode always can.
+ */
+export function buildCounterpartQueryOptions(videoId: string, sourceMode: StoredSourceMode) {
+  return {
+    topK: 1,
+    returnMetadata: "all" as const,
+    filter: {
+      video_id: { $eq: videoId },
+      source_mode: { $eq: sourceMode },
+    },
+  };
+}
+
+/**
  * Re-check the requested scope after Vectorize returns. This prevents a
  * missing or stale metadata index from broadening an episode query.
  */
@@ -551,4 +568,28 @@ export function resolveEpisodeScopedSources(
   return resolveRequestedSources(scopedMatches, requested, minScore, limit, {
     dedupeByEpisode: options.dedupeByEpisode ?? episodeId == null,
   });
+}
+
+/**
+ * Episodes in a resolved result that show only one timeline. In "both" mode
+ * every episode has both timelines ingested, so a gap means the counterpart
+ * fell outside the retrieval window — the caller should backfill it with a
+ * buildCounterpartQueryOptions query.
+ */
+export function findSingleTimelineGaps(
+  citations: readonly DualSourceCitation[],
+): Array<{ videoId: string; missing: StoredSourceMode }> {
+  const modesByEpisode = new Map<string, Set<StoredSourceMode>>();
+  for (const citation of citations) {
+    const stored: StoredSourceMode = citation.sourceMode === "uncut" ? "uncut" : "published";
+    const modes = modesByEpisode.get(citation.videoId) ?? new Set<StoredSourceMode>();
+    modes.add(stored);
+    modesByEpisode.set(citation.videoId, modes);
+  }
+  const gaps: Array<{ videoId: string; missing: StoredSourceMode }> = [];
+  for (const [videoId, modes] of modesByEpisode) {
+    if (!modes.has("uncut")) gaps.push({ videoId, missing: "uncut" });
+    if (!modes.has("published")) gaps.push({ videoId, missing: "published" });
+  }
+  return gaps;
 }

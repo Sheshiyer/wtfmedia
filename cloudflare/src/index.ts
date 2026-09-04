@@ -16,9 +16,12 @@ import {
 import { handleOpsRequest, type OpsEnv } from "./ops-router.ts";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar.ts";
 import {
+  buildCounterpartQueryOptions,
+  findSingleTimelineGaps,
   parseEpisodeId,
   parseSourceMode,
   prioritizeMatchesForQuestionWithAnchor,
+  projectDualSourceCitation,
   resolveEpisodeScopedSources,
 } from "./chat/source-mode.ts";
 import { queryEvidenceSourcesForQuestion } from "./chat/evidence-coordinator.ts";
@@ -284,11 +287,59 @@ async function retrieveSourcesForQuery(
   const resolved = resolveEpisodeScopedSources(prioritized.matches, sourceMode, queried.episodeId, MIN_SCORE, chunkLimit, {
     dedupeByEpisode,
   });
-  const sources = resolved.citations.map((source) => {
+  let sources = resolved.citations.map((source) => {
     const match = prioritized.matches.find((item: { id?: unknown }) => String(item.id ?? "") === source.segmentId)
       ?? prioritized.matches.find((item: { metadata?: { video_id?: unknown } }) => item.metadata?.video_id === source.videoId);
     return { ...source, text: match?.metadata?.text };
   });
+
+  // In "both" mode an episode must never render with a single timeline when
+  // the other timeline is ingested. The per-mode retrieval window can exclude
+  // a weakly scoring counterpart, so backfill each gap with a targeted
+  // per-episode query and insert it next to its pair.
+  if (sourceMode === "both" && queried.episodeId == null && sources.length > 0) {
+    const gaps = findSingleTimelineGaps(resolved.citations);
+    if (gaps.length > 0) {
+      const backfilled = await Promise.all(gaps.map(async ({ videoId, missing }) => {
+        try {
+          const result = await env.VECTORIZE.query(vector, buildCounterpartQueryOptions(videoId, missing));
+          const match = result?.matches?.[0];
+          if (!match) return null;
+          const projected = projectDualSourceCitation(match, "both", 0);
+          if (!projected) return null;
+          return {
+            ...projected,
+            text: typeof match.metadata?.text === "string" ? match.metadata.text : undefined,
+          };
+        } catch (error) {
+          console.warn("wtfmedia counterpart backfill failed", {
+            videoId,
+            missing,
+            error: error instanceof Error ? error.message : "unknown",
+          });
+          return null;
+        }
+      }));
+      const counterpartByEpisode = new Map(
+        backfilled
+          .filter((citation): citation is NonNullable<typeof citation> => citation != null)
+          .map((citation) => [citation.videoId, citation]),
+      );
+      if (counterpartByEpisode.size > 0) {
+        const merged: typeof sources = [];
+        for (const source of sources) {
+          merged.push(source);
+          const counterpart = counterpartByEpisode.get(source.videoId);
+          if (counterpart) {
+            merged.push(counterpart);
+            counterpartByEpisode.delete(source.videoId);
+          }
+        }
+        for (const leftover of counterpartByEpisode.values()) merged.push(leftover);
+        sources = merged.map((source, index) => ({ ...source, n: index + 1 }));
+      }
+    }
+  }
   return { resolved, sources, episodeId: queried.episodeId };
 }
 
