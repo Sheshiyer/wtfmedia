@@ -48,9 +48,12 @@ export interface Env extends OpsEnv {
   EDGE_SHARED_SECRET: string;
   CALENDAR_READ_RATE_LIMIT_PER_MINUTE?: string;
   CALENDAR_WRITE_RATE_LIMIT_PER_MINUTE?: string;
+  OPENROUTER_API_KEY?: string;
+  OPENROUTER_ANSWER_MODEL?: string;
 }
 
 const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
+const DEFAULT_OPENROUTER_ANSWER_MODEL = "google/gemini-3.5-flash";
 const ANSWER_MODELS = [
   "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
   "@cf/meta/llama-3.1-8b-instruct-fast",
@@ -85,23 +88,70 @@ async function vectorFor(env: Env, text: string): Promise<number[]> {
   return vector;
 }
 
+async function answerWithOpenRouter(env: Env, messages: unknown[]) {
+  if (!env.OPENROUTER_API_KEY) throw new Error("openrouter api key not configured");
+  const model = env.OPENROUTER_ANSWER_MODEL || DEFAULT_OPENROUTER_ANSWER_MODEL;
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": "https://wtfhq.in",
+      "X-Title": "Ask WTF",
+    },
+    body: JSON.stringify({
+      model,
+      messages,
+      max_tokens: 900,
+      temperature: 0.1,
+      reasoning: { exclude: true },
+    }),
+  });
+  if (!response.ok) {
+    const detail = (await response.text()).slice(0, 200);
+    throw new Error(`openrouter ${response.status}: ${detail}`);
+  }
+  const payload: any = await response.json();
+  const content = payload?.choices?.[0]?.message?.content;
+  const answer = typeof content === "string"
+    ? content
+    : Array.isArray(content)
+      ? content.map((part: any) => (typeof part?.text === "string" ? part.text : "")).join("")
+      : "";
+  if (!answer.trim()) throw new Error("empty openrouter answer response");
+  return { answer, model };
+}
+
 async function answerWithFallback(env: Env, messages: unknown[]) {
   const failures: string[] = [];
-  for (const model of ANSWER_MODELS) {
-    try {
-      const result = await env.AI.run(model, {
-        messages,
-        max_tokens: 900,
-        temperature: 0.1,
-      });
+  // Primary stays on Workers AI; OpenRouter (Gemini) is the mid-chain fallback,
+  // with the small Workers AI model as the final resort.
+  const providers: Array<() => Promise<{ answer: string; model: string }>> = [
+    async () => {
+      const model = ANSWER_MODELS[0];
+      const result = await env.AI.run(model, { messages, max_tokens: 900, temperature: 0.1 });
       const answer = typeof result === "string" ? result : result?.response;
       if (typeof answer !== "string" || !answer.trim()) throw new Error("empty answer response");
+      return { answer, model };
+    },
+    () => answerWithOpenRouter(env, messages),
+    async () => {
+      const model = ANSWER_MODELS[1];
+      const result = await env.AI.run(model, { messages, max_tokens: 900, temperature: 0.1 });
+      const answer = typeof result === "string" ? result : result?.response;
+      if (typeof answer !== "string" || !answer.trim()) throw new Error("empty answer response");
+      return { answer, model };
+    },
+  ];
+  for (const provider of providers) {
+    try {
+      const { answer, model } = await provider();
       if (failures.length) console.warn("wtfmedia answer model fallback used", { model, failedAttempts: failures.length });
       return { answer, model, fallback: failures.length > 0 };
     } catch (error) {
       const message = error instanceof Error ? error.message : "unknown";
-      failures.push(`${model}:${message}`);
-      console.warn("wtfmedia answer model failed", { model, message });
+      failures.push(message);
+      console.warn("wtfmedia answer model failed", { message });
     }
   }
   throw new Error(`answer models unavailable: ${failures.length}`);
