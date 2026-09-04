@@ -500,12 +500,37 @@ export function resolveRequestedSources(
   const orderedEpisodes = [...episodeBestScore.entries()]
     .sort((left, right) => right[1] - left[1])
     .map(([videoId]) => videoId);
+
+  // Every catalogue episode has both timelines, so once an episode earns its
+  // place above the score floor, attach the other timeline's best chunk even
+  // when that chunk scored below the floor on its own. The sub-floor chunk is
+  // the same conversation; its badge honestly reports the lower confidence.
+  const bestRawByModeAndEpisode = new Map<string, VectorMatchLike>();
+  for (const match of matches) {
+    if (typeof match?.score !== "number" || !Number.isFinite(match.score)) continue;
+    const metadata = match.metadata ?? {};
+    const videoId = text(metadata.video_id ?? metadata.videoId);
+    if (!videoId) continue;
+    const key = `${storedSourceMode(metadata)}:${videoId}`;
+    const current = bestRawByModeAndEpisode.get(key);
+    const currentScore = typeof current?.score === "number" ? current.score : -Infinity;
+    if (match.score > currentScore) bestRawByModeAndEpisode.set(key, match);
+  }
+
   const paired: DualSourceCitation[] = [];
   for (const videoId of orderedEpisodes) {
     if (paired.length >= limit) break;
     const pair = [uncutByEpisode.get(videoId), publishedByEpisode.get(videoId)]
       .filter((hit): hit is DualSourceCitation => hit != null)
       .sort((left, right) => right.score - left.score);
+    for (const stored of ["uncut", "published"] as const) {
+      if (pair.some((hit) => hit.sourceMode === stored)) continue;
+      const raw = bestRawByModeAndEpisode.get(`${stored}:${videoId}`);
+      if (!raw) continue;
+      const counterpart = projectDualSourceCitation(raw, "both", paired.length + pair.length);
+      if (counterpart) pair.push(counterpart);
+    }
+    pair.sort((left, right) => right.score - left.score);
     for (const hit of pair) {
       if (paired.length >= limit) break;
       paired.push(hit);
