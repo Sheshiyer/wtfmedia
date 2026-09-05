@@ -155,7 +155,7 @@ describe("source-panel projection", () => {
       score: 0.9 - index * 0.01,
     }));
 
-    const model = buildSourcePanelModel({ sources: many, visibleMode: "both" });
+    const model = buildSourcePanelModel({ sources: many, citedIndices: [], visibleMode: "both" });
 
     expect(model.groups).toHaveLength(9);
     expect(model.primaryGroups.map((group) => group.key)).toEqual([
@@ -169,22 +169,55 @@ describe("source-panel projection", () => {
     expect(model.overflowEntryCount).toBe(4);
   });
 
-  it("promotes a whole episode group when any of its excerpts is a top match", () => {
+  it("keeps cited excerpts visible and collapses surplus candidates within the same episode", () => {
+    // One episode carrying the whole retrieval set — the screenshot case:
+    // cited rows plus the top-5 candidates stay, the remaining candidates
+    // move behind the "more matches" disclosure.
+    const clustered: PublicSourceCitation[] = [
+      { videoId: "episode0001", title: "Episode one", sourceMode: "published", score: 0.95 },
+      { videoId: "episode0001", title: "Episode one", sourceMode: "uncut", score: 0.93 },
+      ...Array.from({ length: 10 }, (_, index) => ({
+        videoId: "episode0001",
+        title: "Episode one",
+        sourceMode: "uncut" as const,
+        score: 0.9 - index * 0.01,
+      })),
+    ];
+
+    const model = buildSourcePanelModel({
+      sources: clustered,
+      citedIndices: [1, 2],
+      visibleMode: "both",
+    });
+
+    expect(model.primaryGroups.map((group) => group.key)).toEqual(["episode0001"]);
+    const group = model.primaryGroups[0];
+    expect(group.citedEntries.map((entry) => entry.evidenceId)).toEqual(["[1]", "[2]"]);
+    expect(group.visibleCandidateEntries).toHaveLength(5);
+    expect(group.hiddenCandidateEntries).toHaveLength(5);
+    expect(model.overflowGroups).toEqual([
+      { key: "episode0001", label: "Episode one", entries: group.hiddenCandidateEntries },
+    ]);
+    expect(model.overflowEntryCount).toBe(5);
+  });
+
+  it("hides a candidate-only episode entirely behind the disclosure when nothing ranks", () => {
     const clustered: PublicSourceCitation[] = [
       { videoId: "episode0001", title: "Episode one", sourceMode: "published", score: 0.99 },
-      { videoId: "episode0001", title: "Episode one", sourceMode: "uncut", score: 0.50 },
       { videoId: "episode0002", title: "Episode two", sourceMode: "published", score: 0.80 },
     ];
 
     const model = buildSourcePanelModel({
       sources: clustered,
+      citedIndices: [],
       visibleMode: "both",
       topN: 1,
     });
 
     expect(model.primaryGroups.map((group) => group.key)).toEqual(["episode0001"]);
-    expect(model.primaryGroups[0].entries).toHaveLength(2);
-    expect(model.overflowGroups.map((group) => group.key)).toEqual(["episode0002"]);
+    expect(model.overflowGroups.map((group) => [group.key, group.entries.length])).toEqual([
+      ["episode0002", 1],
+    ]);
     expect(model.overflowEntryCount).toBe(1);
   });
 });

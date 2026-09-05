@@ -21,14 +21,25 @@ export interface SourcePanelGroup {
   readonly entries: SourcePanelEntry[];
   readonly citedEntries: SourcePanelEntry[];
   readonly candidateEntries: SourcePanelEntry[];
+  /** Cited entries plus the top-N candidate excerpts — rendered normally. */
+  readonly visibleCandidateEntries: SourcePanelEntry[];
+  /** Remaining candidates — collapsed behind the "more matches" disclosure. */
+  readonly hiddenCandidateEntries: SourcePanelEntry[];
+}
+
+/** An episode's hidden candidates, rendered inside the overflow disclosure. */
+export interface SourcePanelOverflowGroup {
+  readonly key: string;
+  readonly label: string;
+  readonly entries: SourcePanelEntry[];
 }
 
 export interface SourcePanelModel {
   readonly groups: SourcePanelGroup[];
-  /** Groups containing one of the top-N strongest excerpts — always shown. */
+  /** Groups with at least one visible entry — always shown. */
   readonly primaryGroups: SourcePanelGroup[];
-  /** Remaining groups — collapsed behind the "more matches" disclosure. */
-  readonly overflowGroups: SourcePanelGroup[];
+  /** Hidden candidates per episode, behind the "more matches" disclosure. */
+  readonly overflowGroups: SourcePanelOverflowGroup[];
   readonly overflowEntryCount: number;
   readonly totalCitedCount: number;
   readonly visibleCitedCount: number;
@@ -140,28 +151,42 @@ export function buildSourcePanelModel(_input: {
   const totalCitedCount = entries.filter((entry) => entry.isCited).length;
   const visibleCitedCount = visibleEntries.filter((entry) => entry.isCited).length;
 
-  // The strongest excerpts stay on the page; the rest of the relevant
-  // matches collapse behind the "more matches" disclosure. Ordering still
-  // follows content match strength — the badge reports timestamp certainty,
-  // so it must not drive the split.
+  // Only the strongest excerpts stay on the page; every other candidate
+  // collapses behind the "more matches" disclosure. Cited entries are always
+  // visible — they are the answer's evidence. The split follows content
+  // match strength; the badge reports timestamp certainty, so it must not
+  // drive the split.
   const topN = Math.max(1, _input.topN ?? SOURCE_PANEL_TOP_MATCHES);
-  const strongestKeys = new Set(
-    [...visibleEntries]
+  const primaryCandidateIds = new Set(
+    visibleEntries
+      .filter((entry) => !entry.isCited)
       .sort((left, right) => {
         const scoreDelta = entryScore(right) - entryScore(left);
         if (scoreDelta !== 0) return scoreDelta;
-        if (left.isCited !== right.isCited) return left.isCited ? -1 : 1;
         return left.originalIndex - right.originalIndex;
       })
       .slice(0, topN)
-      .map((entry) => entry.source.episodeId ?? entry.source.videoId ?? entry.source.url ?? `source-${entry.citationNumber}`),
+      .map((entry) => entry.originalIndex),
   );
-  const primaryGroups = groups.filter((group) => strongestKeys.has(group.key));
-  const overflowGroups = groups.filter((group) => !strongestKeys.has(group.key));
+  const groupsWithSplit = groups.map((group) => {
+    const visibleCandidateEntries = group.candidateEntries.filter(
+      (entry) => primaryCandidateIds.has(entry.originalIndex),
+    );
+    const hiddenCandidateEntries = group.candidateEntries.filter(
+      (entry) => !primaryCandidateIds.has(entry.originalIndex),
+    );
+    return { ...group, visibleCandidateEntries, hiddenCandidateEntries };
+  });
+  const primaryGroups = groupsWithSplit.filter(
+    (group) => group.citedEntries.length + group.visibleCandidateEntries.length > 0,
+  );
+  const overflowGroups = groupsWithSplit
+    .filter((group) => group.hiddenCandidateEntries.length > 0)
+    .map((group) => ({ key: group.key, label: group.label, entries: group.hiddenCandidateEntries }));
   const overflowEntryCount = overflowGroups.reduce((total, group) => total + group.entries.length, 0);
 
   return {
-    groups,
+    groups: groupsWithSplit,
     primaryGroups,
     overflowGroups,
     overflowEntryCount,

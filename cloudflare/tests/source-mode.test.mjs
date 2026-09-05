@@ -378,7 +378,7 @@ describe("dual-source chat contract", () => {
 
   test("timestamp confidence reflects timing certainty, not content match", () => {
     const base = { sourceMode: "published", timestampStatus: "verified" };
-    assert.equal(timestampConfidenceFor(base, null), 0.98);
+    assert.equal(timestampConfidenceFor(base, null), 0.97);
     assert.equal(timestampConfidenceFor({ ...base, timestampStatus: "source_timing_unavailable" }, null), 0.25);
     assert.equal(timestampConfidenceFor({ ...base, timestampStatus: "requested_timeline_unavailable" }, null), 0.25);
 
@@ -389,9 +389,9 @@ describe("dual-source chat contract", () => {
     assert.equal(timestampConfidenceFor(uncut, { offset: 7, pairs: 10 }), 0.935);
     assert.equal(timestampConfidenceFor(uncut, { offset: 7, pairs: 1 }), 0.904);
     // alignment attempted but failed (marker entry) — below an unmeasured one
-    assert.equal(timestampConfidenceFor(uncut, { offset: 0, pairs: 0 }), 0.55);
+    assert.equal(timestampConfidenceFor(uncut, { offset: 0, pairs: 0 }), 0.5);
     // no measurement at all
-    assert.equal(timestampConfidenceFor(uncut, null), 0.85);
+    assert.equal(timestampConfidenceFor(uncut, null), 0.6);
     assert.equal(timestampConfidenceFor({ ...uncut, timestampStatus: "source_timing_unavailable" }, { offset: 7, pairs: 20 }), 0.25);
   });
 

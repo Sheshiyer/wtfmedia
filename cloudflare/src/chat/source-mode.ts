@@ -725,10 +725,12 @@ export function timestampConfidenceFor(
   citation: Pick<DualSourceCitation, "sourceMode" | "timestampStatus">,
   offset: UncutClockOffset | null,
 ): number {
+  // >90% is reserved for moments we are genuinely sure of; estimated and
+  // weak timing land in the 50–60% band so the badge never overstates.
   if (citation.timestampStatus !== "verified") return 0.25;
-  if (citation.sourceMode !== "uncut") return 0.98;
-  if (!offset) return 0.85;
-  if (offset.pairs <= 0) return 0.55;
+  if (citation.sourceMode !== "uncut") return 0.97;
+  if (!offset) return 0.6;
+  if (offset.pairs <= 0) return 0.5;
   const scaled = 0.9 + 0.07 * (Math.min(offset.pairs, 20) / 20);
   return Math.round(scaled * 1000) / 1000;
 }

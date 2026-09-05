@@ -20,6 +20,7 @@ import {
   type AnswerQueryScope,
   type SourcePanelEntry,
   type SourcePanelGroup,
+  type SourcePanelOverflowGroup,
 } from "@/lib/public/source-panel-model";
 
 export type SourceCitation = PublicSourceCitation;
@@ -201,17 +202,51 @@ function SourceEpisodeGroup({ group }: { group: SourcePanelGroup }) {
         </div>
       ) : null}
 
-      {group.candidateEntries.length > 0 ? (
+      {group.visibleCandidateEntries.length > 0 ? (
         <div className="mt-2 space-y-2 border-t border-foreground/10 pt-2" data-testid="candidate-evidence">
           <p className="font-label text-[10px] font-bold lowercase text-muted">
-            {group.candidateEntries.length} candidate excerpt{group.candidateEntries.length !== 1 ? "s" : ""}
-            <span className="ml-1 font-normal">· retrieval context</span>
+            {group.visibleCandidateEntries.length} top candidate excerpt{group.visibleCandidateEntries.length !== 1 ? "s" : ""}
+            <span className="ml-1 font-normal">· strongest retrieval context</span>
           </p>
-          {group.candidateEntries.map((entry) => (
+          {group.visibleCandidateEntries.map((entry) => (
             <SourceEvidenceRow key={entry.originalIndex} entry={entry} />
           ))}
         </div>
       ) : null}
+    </li>
+  );
+}
+
+function SourceOverflowGroup({ group }: { group: SourcePanelOverflowGroup }) {
+  const episodeHref = publicEpisodeHref(group.entries[0]?.source);
+
+  return (
+    <li
+      className="rounded-control border border-foreground/10 bg-canvas/20 p-2.5"
+      data-testid="source-episode-group"
+      data-episode-key={group.key}
+    >
+      <div className="min-w-0">
+        <p className="font-label text-[9px] font-bold uppercase tracking-[0.08em] text-muted">
+          more matches
+        </p>
+        {episodeHref ? (
+          <Link
+            href={episodeHref}
+            className="block truncate font-medium text-foreground underline decoration-foreground/30 hover:decoration-foreground"
+          >
+            {group.label}
+          </Link>
+        ) : (
+          <p className="truncate font-medium text-foreground">{group.label}</p>
+        )}
+      </div>
+
+      <div className="mt-2 space-y-2">
+        {group.entries.map((entry) => (
+          <SourceEvidenceRow key={entry.originalIndex} entry={entry} />
+        ))}
+      </div>
     </li>
   );
 }
@@ -391,7 +426,7 @@ export function SourcePanel({
                 </summary>
                 <ol className="mt-2.5 space-y-2.5 pl-0">
                   {model.overflowGroups.map((group) => (
-                    <SourceEpisodeGroup key={group.key} group={group} />
+                    <SourceOverflowGroup key={group.key} group={group} />
                   ))}
                 </ol>
               </details>
