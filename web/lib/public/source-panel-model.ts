@@ -133,13 +133,14 @@ export function buildSourcePanelModel(_input: {
       bestScore: Math.max(...group.entries.map(entryScore)),
     }))
     .sort((left, right) => {
-      // Episodes rank by their strongest excerpt's confidence.
+      // Episodes the answer actually cites always rank above candidate-only
+      // episodes, in the answer's citation order. Candidates follow, ranked
+      // by their strongest excerpt's content match.
+      if (left.hasCited !== right.hasCited) return left.hasCited ? -1 : 1;
+      if (left.hasCited) return left.firstCitedIndex - right.firstCitedIndex;
       const scoreDelta = right.bestScore - left.bestScore;
       if (scoreDelta !== 0) return scoreDelta;
-      if (left.hasCited !== right.hasCited) return left.hasCited ? -1 : 1;
-      return left.hasCited
-        ? left.firstCitedIndex - right.firstCitedIndex
-        : left.firstOriginalIndex - right.firstOriginalIndex;
+      return left.firstOriginalIndex - right.firstOriginalIndex;
     })
     .map(({ key, label, entries: groupEntries }) => ({
       key,

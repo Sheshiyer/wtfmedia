@@ -11,6 +11,7 @@
 import { useId, useState } from "react";
 import Link from "next/link";
 import { resolveCitation } from "@/lib/provenance/catalog-mapping";
+import { matchStrength } from "@/lib/provenance/confidence";
 import type { PublicSourceCitation } from "@/lib/provenance/public-source-header";
 import { SOURCE_MODES, type SourceMode } from "@/lib/provenance/source-mode";
 import { formatPlaybackTimestamp } from "@/lib/provenance/useDualPlayback";
@@ -54,9 +55,9 @@ function isApprovedFrameIoUrl(value: string | undefined): value is string {
 
 /**
  * Timestamp-certainty label. The badge reports how sure we are of the
- * moment's timestamp (see timestampConfidence on the edge worker), not how
- * well the excerpt matches the question — content match strength only drives
- * the order sources are listed in.
+ * moment's timestamp (see timestampConfidence on the edge worker). Content
+ * match strength is a separate chip — it reports how closely the excerpt
+ * matches the question and drives the order sources are listed in.
  */
 function timestampTier(source: PublicSourceCitation): { label: string; percent: number | null } {
   const confidence = source.timestampConfidence;
@@ -113,11 +114,23 @@ function SourceEvidenceRow({ entry }: { entry: SourcePanelEntry }) {
             {entry.evidenceId}
           </span>
           {(() => {
+            const match = matchStrength(source.score);
+            return (
+              <span
+                className="rounded bg-surface-subtle px-1 py-0.5 font-label text-[9px] uppercase tracking-wider text-muted"
+                data-testid="match-strength"
+                title={`content match${match.percent === null ? "" : ` ${match.percent}%`} — how closely this excerpt matches your question; this drives the order, strongest first`}
+              >
+                {match.label}{match.percent === null ? "" : ` · ${match.percent}%`}
+              </span>
+            );
+          })()}
+          {(() => {
             const tier = timestampTier(source);
             return (
               <span
                 className="rounded bg-surface-subtle px-1 py-0.5 font-label text-[9px] uppercase tracking-wider text-muted"
-                title={`timestamp confidence${tier.percent === null ? "" : ` ${tier.percent}%`} — how sure we are of this moment's timestamp; sources are ordered by content match, strongest first`}
+                title={`timestamp confidence${tier.percent === null ? "" : ` ${tier.percent}%`} — how sure we are of this moment's timestamp`}
               >
                 {tier.label}{tier.percent === null ? "" : ` · ${tier.percent}%`}
               </span>

@@ -113,7 +113,7 @@ describe("source-panel projection", () => {
     expect(model.groups[0].entries.map((entry) => entry.evidenceId)).toEqual(["[1]", "[2]"]);
   });
 
-  it("ranks episodes and excerpts by confidence score ahead of cited status", () => {
+  it("ranks cited episodes in citation order ahead of higher-scored candidates", () => {
     const scored: PublicSourceCitation[] = [
       { videoId: "episode-low", title: "Low confidence cited", sourceMode: "published", score: 0.54 },
       { videoId: "episode-low", title: "Low confidence cited", sourceMode: "published", score: 0.53 },
@@ -126,9 +126,24 @@ describe("source-panel projection", () => {
       visibleMode: "both",
     });
 
-    expect(model.groups.map((group) => group.key)).toEqual(["episode-high", "episode-low"]);
-    expect(model.groups[0].entries.map((entry) => entry.evidenceId)).toEqual(["C1"]);
-    expect(model.groups[1].entries.map((entry) => entry.evidenceId)).toEqual(["[1]", "[2]"]);
+    expect(model.groups.map((group) => group.key)).toEqual(["episode-low", "episode-high"]);
+    expect(model.groups[0].entries.map((entry) => entry.evidenceId)).toEqual(["[1]", "[2]"]);
+    expect(model.groups[1].entries.map((entry) => entry.evidenceId)).toEqual(["C1"]);
+  });
+
+  it("ranks candidate-only episodes by their strongest excerpt's score", () => {
+    const scored: PublicSourceCitation[] = [
+      { videoId: "episode-weak", title: "Weak candidate", sourceMode: "published", score: 0.41 },
+      { videoId: "episode-strong", title: "Strong candidate", sourceMode: "uncut", score: 0.62 },
+    ];
+
+    const model = buildSourcePanelModel({
+      sources: scored,
+      citedIndices: [],
+      visibleMode: "both",
+    });
+
+    expect(model.groups.map((group) => group.key)).toEqual(["episode-strong", "episode-weak"]);
   });
 
   it("ranks a higher-scored candidate above a lower-scored citation within an episode", () => {
