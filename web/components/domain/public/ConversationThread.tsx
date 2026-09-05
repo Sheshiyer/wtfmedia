@@ -14,8 +14,8 @@ import type { SourceMode } from "@/lib/provenance/source-mode";
 /**
  * ConversationThread — scrollable message region for the chat route.
  *
- * Composer placement:
- *   - Content fits viewport → composer is fixed above the nav pill
+ * Composer placement (the chat surface has no bottom dock):
+ *   - Content fits viewport → composer is fixed at the bottom edge
  *   - Content overflows → composer flows inline at the end of the thread
  */
 
@@ -288,18 +288,18 @@ export function ConversationThread({
         {/* Inline composer — only when content overflows */}
         {isOverflowing && footer}
 
-        {/* Bottom spacer: always clears the nav pill */}
-        <div className="h-[calc(5.5rem+env(safe-area-inset-bottom))]" aria-hidden="true" />
+        {/* Bottom spacer: minimal clearance at the end of the thread */}
+        <div className="h-[calc(1rem+env(safe-area-inset-bottom))]" aria-hidden="true" />
 
         {/* Extra spacer when composer is fixed (so content doesn't hide behind it) */}
-        {!isOverflowing && <div className="h-14" aria-hidden="true" />}
+        {!isOverflowing && <div className="h-20" aria-hidden="true" />}
       </div>
 
-      {/* Fixed composer — pinned above nav pill when content fits */}
+      {/* Fixed composer — pinned to the bottom edge when content fits */}
       {!isOverflowing && (
         <div
           className="fixed inset-x-0 z-40"
-          style={{ bottom: "calc(5.5rem + env(safe-area-inset-bottom))" }}
+          style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
         >
           {footer}
         </div>
