@@ -12,6 +12,7 @@ import {
   parseEpisodeId,
   parseSourceMode,
   parseUncutClockOffset,
+  pickProjectableCounterpart,
   pickSameMomentCounterpart,
   prioritizeMatchesForQuestion,
   prioritizeMatchesForQuestionWithAnchor,
@@ -565,6 +566,50 @@ describe("dual-source chat contract", () => {
       0,
     );
     assert.equal(citation?.url, "uncut:source-a");
+  });
+
+  test("counterpart picking skips legacy chunks that fail projection closed", () => {
+    // Chamath case: the episode's uncut was ingested twice — a legacy copy
+    // whose identity equals the public video id (rejected by the opaque-
+    // identity guard) and a proper copy keyed by the asset hash. The picker
+    // must skip the unprojectable copy instead of leaving the episode
+    // single-timeline.
+    const anchor = "we were iterating on the business model every single week";
+    const legacy = {
+      id: "uncut:legacy:22",
+      score: 0.91,
+      metadata: {
+        video_id: "hAgqDdPgA3g",
+        source: "uncut:hAgqDdPgA3g",
+        source_mode: "uncut",
+        chunk: 22,
+        start: 1549,
+        timestamped: true,
+        text: anchor,
+      },
+    };
+    const proper = {
+      id: "uncut:proper:22",
+      score: 0.9,
+      metadata: {
+        video_id: "hAgqDdPgA3g",
+        source_asset_id: "6a41876abfc2da92a0dd3d61ce567c5c",
+        source_mode: "uncut",
+        chunk: 22,
+        start: 1549,
+        timestamped: true,
+        text: anchor,
+      },
+    };
+    // Fail-closed guard still rejects the legacy copy directly.
+    assert.equal(projectDualSourceCitation(legacy, "both", 0), null);
+    const picked = pickProjectableCounterpart(anchor, [legacy, proper], "both", 0);
+    assert.equal(picked?.match, proper);
+    assert.equal(picked?.citation.videoId, "hAgqDdPgA3g");
+    assert.equal(picked?.citation.sourceMode, "uncut");
+    // When every candidate is unprojectable the episode honestly stays
+    // single-timeline rather than minting an opaque-less citation.
+    assert.equal(pickProjectableCounterpart(anchor, [legacy], "both", 0), null);
   });
 
   test("uncut citations fail closed without an opaque source identity", () => {

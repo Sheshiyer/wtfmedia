@@ -552,12 +552,13 @@ export function resolveRequestedSources(
       const anchorMode: StoredSourceMode = stored === "uncut" ? "published" : "uncut";
       const anchorText = text(bestRawByModeAndEpisode.get(`${anchorMode}:${videoId}`)?.metadata?.text);
       const candidates = candidatesByModeAndEpisode.get(`${stored}:${videoId}`) ?? [];
-      const raw = anchorText
-        ? pickSameMomentCounterpart(anchorText, candidates)
-        : bestRawByModeAndEpisode.get(`${stored}:${videoId}`);
-      if (!raw) continue;
-      const counterpart = projectDualSourceCitation(raw, "both", paired.length + pair.length);
-      if (counterpart) pair.push(counterpart);
+      const picked = pickProjectableCounterpart(
+        anchorText || null,
+        candidates.length > 0 ? candidates : [bestRawByModeAndEpisode.get(`${stored}:${videoId}`)].filter((m): m is VectorMatchLike => m != null),
+        "both",
+        paired.length + pair.length,
+      );
+      if (picked) pair.push(picked.citation);
     }
     pair.sort((left, right) => right.score - left.score);
     for (const hit of pair) {
@@ -631,6 +632,43 @@ export function pickSameMomentCounterpart(
     const strongestScore = typeof strongest?.score === "number" ? strongest.score : -Infinity;
     return score > strongestScore ? candidate : strongest;
   }, null);
+}
+
+
+/**
+ * Order counterpart candidates by text overlap with the anchor (strongest
+ * score breaks ties) and return the first one that survives projection.
+ * Legacy duplicate chunks whose uncut identity equals the public video id
+ * fail closed in projection; skipping unprojectable candidates keeps that
+ * guard intact while the properly-ingested copy still pairs.
+ */
+export function pickProjectableCounterpart(
+  anchorText: string | null,
+  candidates: readonly VectorMatchLike[],
+  requested: SourceMode,
+  index: number,
+): { match: VectorMatchLike; citation: DualSourceCitation } | null {
+  const overlapCache = new Map<VectorMatchLike, number>();
+  const overlapOf = (candidate: VectorMatchLike): number => {
+    if (!anchorText) return 0;
+    const cached = overlapCache.get(candidate);
+    if (cached !== undefined) return cached;
+    const value = textOverlapScore(anchorText, text(candidate.metadata?.text));
+    overlapCache.set(candidate, value);
+    return value;
+  };
+  const ordered = [...candidates].sort((left, right) => {
+    const overlapDelta = overlapOf(right) - overlapOf(left);
+    if (overlapDelta !== 0) return overlapDelta;
+    const leftScore = typeof left.score === "number" ? left.score : -Infinity;
+    const rightScore = typeof right.score === "number" ? right.score : -Infinity;
+    return rightScore - leftScore;
+  });
+  for (const match of ordered) {
+    const citation = projectDualSourceCitation(match, requested, index);
+    if (citation) return { match, citation };
+  }
+  return null;
 }
 
 /**

@@ -22,9 +22,8 @@ import {
   parseEpisodeId,
   parseSourceMode,
   parseUncutClockOffset,
-  pickSameMomentCounterpart,
+  pickProjectableCounterpart,
   prioritizeMatchesForQuestionWithAnchor,
-  projectDualSourceCitation,
   resolveEpisodeScopedSources,
   timestampConfidenceFor,
   UNCUT_OFFSET_KEY_PREFIX,
@@ -343,15 +342,16 @@ async function retrieveSourcesForQuery(
           );
           if (candidates.length === 0) return null;
           const anchorText = sources.find((source) => source.videoId === videoId)?.text;
-          const match = typeof anchorText === "string" && anchorText.length > 0
-            ? pickSameMomentCounterpart(anchorText, candidates)
-            : candidates[0];
-          if (!match) return null;
-          const projected = projectDualSourceCitation(match, "both", 0);
-          if (!projected) return null;
+          const picked = pickProjectableCounterpart(
+            typeof anchorText === "string" && anchorText.length > 0 ? anchorText : null,
+            candidates,
+            "both",
+            0,
+          );
+          if (!picked) return null;
           return {
-            ...projected,
-            text: typeof match.metadata?.text === "string" ? match.metadata.text : undefined,
+            ...picked.citation,
+            text: typeof picked.match.metadata?.text === "string" ? picked.match.metadata.text : undefined,
           };
         } catch (error) {
           console.warn("wtfmedia counterpart backfill failed", {
