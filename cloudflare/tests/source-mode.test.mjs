@@ -17,6 +17,7 @@ import {
   prioritizeMatchesForQuestion,
   prioritizeMatchesForQuestionWithAnchor,
   projectDualSourceCitation,
+  queryCounterpartMatches,
   resolveEpisodeScopedSources,
   resolveRequestedSources,
   storedSourceMode,
@@ -981,5 +982,59 @@ describe("withRestoredDualMode", () => {
     ]);
 
     assert.equal(restored.sourceMode, "uncut");
+  });
+});
+
+describe("queryCounterpartMatches", () => {
+  const fakeVectorize = (behaviour) => {
+    const calls = [];
+    return {
+      calls,
+      query: async (vector, options) => {
+        calls.push(options);
+        return behaviour(calls.length, options);
+      },
+    };
+  };
+
+  test("retries a transient published failure once and returns the retried matches", async () => {
+    const vectorize = fakeVectorize((call) => {
+      if (call === 1) throw new Error("vectorize timeout");
+      return { matches: [{ id: "pub:1", metadata: { video_id: "v1", source_mode: "published" } }] };
+    });
+
+    const matches = await queryCounterpartMatches(vectorize, [0.1], "v1", "published");
+
+    assert.equal(vectorize.calls.length, 2);
+    assert.equal(matches.length, 1);
+    assert.equal(matches[0].id, "pub:1");
+    assert.deepEqual(vectorize.calls[0], vectorize.calls[1]);
+  });
+
+  test("does not retry the uncut direction", async () => {
+    const vectorize = fakeVectorize(() => {
+      throw new Error("vectorize timeout");
+    });
+
+    await assert.rejects(() => queryCounterpartMatches(vectorize, [0.1], "v1", "uncut"));
+    assert.equal(vectorize.calls.length, 1);
+  });
+
+  test("surfaces the published failure when the retry also fails", async () => {
+    const vectorize = fakeVectorize(() => {
+      throw new Error("vectorize down");
+    });
+
+    await assert.rejects(() => queryCounterpartMatches(vectorize, [0.1], "v1", "published"));
+    assert.equal(vectorize.calls.length, 2);
+  });
+
+  test("returns an empty list when the counterpart is genuinely absent", async () => {
+    const vectorize = fakeVectorize(() => ({ matches: [] }));
+
+    const matches = await queryCounterpartMatches(vectorize, [0.1], "v1", "published");
+
+    assert.equal(vectorize.calls.length, 1);
+    assert.deepEqual(matches, []);
   });
 });

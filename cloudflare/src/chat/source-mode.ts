@@ -700,12 +700,36 @@ export function pickProjectableCounterpart(
 }
 
 /**
+ * Run the per-episode counterpart query. Published pairing is a hard
+ * guarantee — an uncut excerpt must never render alone while its published
+ * cut is ingested — so a transient Vectorize failure on the published
+ * direction is retried once instead of leaving the episode single-timeline.
+ * The uncut direction stays single-attempt: a missing uncut copy is
+ * acceptable, a missing published copy is not.
+ */
+export async function queryCounterpartMatches(
+  vectorize: { query: (vector: unknown, options: unknown) => Promise<{ matches?: readonly VectorMatchLike[] }> },
+  vector: unknown,
+  videoId: string,
+  missing: StoredSourceMode,
+): Promise<readonly VectorMatchLike[]> {
+  const options = buildCounterpartQueryOptions(videoId, missing);
+  try {
+    const result = await vectorize.query(vector, options);
+    return result?.matches ?? [];
+  } catch (error) {
+    if (missing !== "published") throw error;
+    const retried = await vectorize.query(vector, options);
+    return retried?.matches ?? [];
+  }
+}
+
+/**
  * Episodes in a resolved result that show only one timeline. In "both" mode
  * every episode has both timelines ingested, so a gap means the counterpart
  * fell outside the retrieval window — the caller should backfill it with a
  * buildCounterpartQueryOptions query.
- */
-export function findSingleTimelineGaps(
+ */export function findSingleTimelineGaps(
   citations: readonly DualSourceCitation[],
 ): Array<{ videoId: string; missing: StoredSourceMode }> {
   const modesByEpisode = new Map<string, Set<StoredSourceMode>>();

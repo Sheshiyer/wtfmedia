@@ -17,7 +17,7 @@ import { handleOpsRequest, type OpsEnv } from "./ops-router.ts";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar.ts";
 import {
   applyUncutClockOffset,
-  buildCounterpartQueryOptions,
+  queryCounterpartMatches,
   findSingleTimelineGaps,
   parseEpisodeId,
   parseSourceMode,
@@ -337,8 +337,8 @@ async function retrieveSourcesForQuery(
     if (gaps.length > 0) {
       const backfilled = await Promise.all(gaps.map(async ({ videoId, missing }) => {
         try {
-          const result = await env.VECTORIZE.query(vector, buildCounterpartQueryOptions(videoId, missing));
-          const candidates = (result?.matches ?? []).filter(
+          const matches = await queryCounterpartMatches(env.VECTORIZE, vector, videoId, missing);
+          const candidates = matches.filter(
             (match: { metadata?: Record<string, unknown> | null }) => match?.metadata,
           );
           if (candidates.length === 0) return null;
