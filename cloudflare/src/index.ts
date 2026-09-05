@@ -57,6 +57,7 @@ export interface Env extends OpsEnv {
   CALENDAR_READ_RATE_LIMIT_PER_MINUTE?: string;
   CALENDAR_WRITE_RATE_LIMIT_PER_MINUTE?: string;
   OPENROUTER_API_KEY?: string;
+  OPENROUTER_API_KEY_2?: string;
   OPENROUTER_ANSWER_MODEL?: string;
 }
 
@@ -129,13 +130,11 @@ async function answerWithWorkersAi(env: Env, model: string, messages: unknown[])
   return { answer, model };
 }
 
-async function answerWithOpenRouter(env: Env, messages: unknown[], modelOverride?: string) {
-  if (!env.OPENROUTER_API_KEY) throw new Error("openrouter api key not configured");
-  const model = modelOverride || env.OPENROUTER_ANSWER_MODEL || DEFAULT_OPENROUTER_ANSWER_MODEL;
+async function openRouterCompletion(apiKey: string, model: string, messages: unknown[]) {
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
+      Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": "https://wtfhq.in",
       "X-Title": "Ask WTF",
@@ -153,7 +152,9 @@ async function answerWithOpenRouter(env: Env, messages: unknown[], modelOverride
   });
   if (!response.ok) {
     const detail = (await response.text()).slice(0, 200);
-    throw new Error(`openrouter ${response.status}: ${detail}`);
+    const error = new Error(`openrouter ${response.status}: ${detail}`);
+    (error as { status?: number }).status = response.status;
+    throw error;
   }
   const payload: any = await response.json();
   const content = payload?.choices?.[0]?.message?.content;
@@ -164,6 +165,35 @@ async function answerWithOpenRouter(env: Env, messages: unknown[], modelOverride
       : "";
   if (!answer.trim()) throw new Error("empty openrouter answer response");
   return { answer, model };
+}
+
+// Key rotation: the primary key is tried first; only an auth/credit failure
+// (401/402/403 — the key itself failing) falls through to the backup key.
+// Transient upstream errors do not, so a model outage never masquerades as a
+// key failure.
+const OPENROUTER_KEY_FALLBACK_STATUSES = new Set([401, 402, 403]);
+
+export async function answerWithOpenRouter(env: Env, messages: unknown[], modelOverride?: string) {
+  const keys = [env.OPENROUTER_API_KEY, env.OPENROUTER_API_KEY_2].filter(
+    (key): key is string => typeof key === "string" && key.length > 0,
+  );
+  if (keys.length === 0) throw new Error("openrouter api key not configured");
+  const model = modelOverride || env.OPENROUTER_ANSWER_MODEL || DEFAULT_OPENROUTER_ANSWER_MODEL;
+  let lastError: Error | null = null;
+  for (const [index, key] of keys.entries()) {
+    try {
+      return await openRouterCompletion(key, model, messages);
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error("openrouter request failed");
+      const status = (lastError as { status?: number }).status;
+      const hasBackupKey = index < keys.length - 1;
+      if (!hasBackupKey || status == null || !OPENROUTER_KEY_FALLBACK_STATUSES.has(status)) {
+        throw lastError;
+      }
+      console.warn("wtfmedia openrouter primary key rejected, trying backup key", { status });
+    }
+  }
+  throw lastError ?? new Error("openrouter request failed");
 }
 
 async function answerWithFallback(env: Env, messages: unknown[], forcedOpenRouterModel?: string) {
