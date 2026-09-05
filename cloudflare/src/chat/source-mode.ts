@@ -656,3 +656,49 @@ export function findSingleTimelineGaps(
   }
   return gaps;
 }
+
+/**
+ * KV key holding the measured uncut-vs-published clock offset for an episode.
+ * Some uncut transcripts were ingested on a different timeline clock than the
+ * published cut (pre-roll, cold open); the alignment job measures the drift
+ * and stores `alignment:uncut-offset:{videoId}` as JSON
+ * `{ "offset": <seconds>, "pairs": <aligned chunk pairs> }`.
+ */
+export const UNCUT_OFFSET_KEY_PREFIX = "alignment:uncut-offset:";
+
+/** Drift below this threshold is normal chunking jitter — leave it alone. */
+export const UNCUT_OFFSET_MIN_SECONDS = 5;
+
+export interface UncutClockOffset {
+  offset: number;
+  pairs: number;
+}
+
+export function parseUncutClockOffset(raw: string | null): UncutClockOffset | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as { offset?: unknown; pairs?: unknown };
+    const offset = typeof parsed.offset === "number" ? parsed.offset : Number.NaN;
+    if (!Number.isFinite(offset) || Math.abs(offset) < UNCUT_OFFSET_MIN_SECONDS) return null;
+    return { offset, pairs: typeof parsed.pairs === "number" ? parsed.pairs : 0 };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Shift an uncut citation onto the published clock by subtracting the
+ * measured offset. Only verified-timestamp uncut citations move — unverified
+ * ones already render as "time unavailable", and offsetting an unverified
+ * number would only make it wrong with more confidence.
+ */
+export function applyUncutClockOffset(
+  citation: DualSourceCitation,
+  offset: UncutClockOffset | null,
+): DualSourceCitation {
+  if (!offset || citation.sourceMode !== "uncut" || citation.start == null || !citation.timestamped) {
+    return citation;
+  }
+  const corrected = Math.max(0, Math.round((citation.start - offset.offset) * 10) / 10);
+  return { ...citation, start: corrected };
+}

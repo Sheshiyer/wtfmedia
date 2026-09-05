@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
 import {
+  applyUncutClockOffset,
   buildCounterpartQueryOptions,
   buildVectorQueryOptions,
   extractNamedEntityPhrases,
@@ -10,6 +11,7 @@ import {
   findSingleTimelineGaps,
   parseEpisodeId,
   parseSourceMode,
+  parseUncutClockOffset,
   pickSameMomentCounterpart,
   prioritizeMatchesForQuestion,
   prioritizeMatchesForQuestionWithAnchor,
@@ -18,6 +20,7 @@ import {
   resolveRequestedSources,
   storedSourceMode,
   textOverlapScore,
+  UNCUT_OFFSET_KEY_PREFIX,
 } from "../src/chat/source-mode.ts";
 
 describe("dual-source chat contract", () => {
@@ -333,6 +336,39 @@ describe("dual-source chat contract", () => {
     ], "both", 0.45);
 
     assert.deepEqual(findSingleTimelineGaps(resolved.citations), []);
+  });
+
+  test("uncut clock offset parses from KV JSON and ignores sub-threshold drift", () => {
+    assert.deepEqual(parseUncutClockOffset('{"offset": 186, "pairs": 12}'), { offset: 186, pairs: 12 });
+    assert.deepEqual(parseUncutClockOffset('{"offset": -42.5, "pairs": 7}'), { offset: -42.5, pairs: 7 });
+    assert.equal(parseUncutClockOffset('{"offset": 2.3, "pairs": 9}'), null);
+    assert.equal(parseUncutClockOffset(null), null);
+    assert.equal(parseUncutClockOffset("not-json"), null);
+    assert.equal(parseUncutClockOffset('{"offset": "big"}'), null);
+    assert.equal(UNCUT_OFFSET_KEY_PREFIX, "alignment:uncut-offset:");
+  });
+
+  test("uncut clock offset shifts verified uncut starts and leaves everything else", () => {
+    const uncutCitation = {
+      n: 1, score: 0.9, videoId: "abcdefghijk", title: "ep", url: "uncut:abcdefghijk",
+      sourceMode: "uncut", segmentId: "u-1", start: 800, timestamped: true,
+      mappingStatus: "mapped", timestampStatus: "verified", timestampReason: null,
+    };
+    const corrected = applyUncutClockOffset(uncutCitation, { offset: 186, pairs: 12 });
+    assert.equal(corrected.start, 614);
+    assert.equal(corrected.timestampStatus, "verified");
+
+    // clamps at zero rather than going negative
+    assert.equal(applyUncutClockOffset(uncutCitation, { offset: 9999, pairs: 3 }).start, 0);
+
+    // published, unverified, and missing-start citations pass through untouched
+    const publishedCitation = { ...uncutCitation, sourceMode: "published" };
+    assert.equal(applyUncutClockOffset(publishedCitation, { offset: 186, pairs: 12 }).start, 800);
+    const unverified = { ...uncutCitation, timestamped: false, timestampStatus: "source_timing_unavailable" };
+    assert.equal(applyUncutClockOffset(unverified, { offset: 186, pairs: 12 }).start, 800);
+    const noStart = { ...uncutCitation, start: null, timestamped: false, timestampStatus: "source_timing_unavailable" };
+    assert.equal(applyUncutClockOffset(noStart, { offset: 186, pairs: 12 }).start, null);
+    assert.equal(applyUncutClockOffset(uncutCitation, null).start, 800);
   });
 
   test("episode scope fails closed when Vectorize returns unrelated matches", () => {
