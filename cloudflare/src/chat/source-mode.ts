@@ -414,6 +414,34 @@ function resolvedSources(
 }
 
 /**
+ * Re-label a both-mode resolution after counterpart backfill re-attached the
+ * timeline the competitiveness gate had dropped. The gate resolves to a
+ * single mode (e.g. "uncut" when published scored > 0.05 below uncut's best),
+ * but the backfill then restores published counterparts — leaving the stale
+ * single-mode label on a response that now carries both timelines. The public
+ * layer reads that label and strips the counterpart's verified timestamps as
+ * cross-timeline, which is exactly the "published time unavailable" bug.
+ * When the final evidence is dual, the response mode must say so; the
+ * not-competitive caveat no longer applies once both timelines are present.
+ */
+export function withRestoredDualMode(
+  resolved: ResolvedChatSources,
+  citations: readonly Pick<DualSourceCitation, "sourceMode">[],
+): ResolvedChatSources {
+  if (resolved.requestedSourceMode !== "both" || resolved.sourceMode === "both") return resolved;
+  const modes = new Set(citations.map((citation) => citation.sourceMode));
+  if (modes.size < 2) return resolved;
+  return {
+    ...resolved,
+    sourceMode: "both",
+    evidenceSourceMode: "both",
+    fallbackReason: resolved.fallbackReason === "requested_mode_not_competitive"
+      ? null
+      : resolved.fallbackReason,
+  };
+}
+
+/**
  * Prefer the requested mode. If uncut has no corpus, use published YouTube
  * and name it published. Never relabel a published timestamp as uncut.
  */

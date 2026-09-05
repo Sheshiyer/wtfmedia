@@ -23,6 +23,7 @@ import {
   parseSourceMode,
   parseUncutClockOffset,
   pickProjectableCounterpart,
+  withRestoredDualMode,
   prioritizeMatchesForQuestionWithAnchor,
   resolveEpisodeScopedSources,
   timestampConfidenceFor,
@@ -318,7 +319,7 @@ async function retrieveSourcesForQuery(
   // both timelines instead of capping at three episodes. The floor and the
   // per-mode retrieval window are the real bounds, not a chunk count.
   const chunkLimit = sourceMode === "both" ? 40 : 6;
-  const resolved = resolveEpisodeScopedSources(prioritized.matches, sourceMode, queried.episodeId, MIN_SCORE, chunkLimit, {
+  let resolved = resolveEpisodeScopedSources(prioritized.matches, sourceMode, queried.episodeId, MIN_SCORE, chunkLimit, {
     dedupeByEpisode,
   });
   let sources = resolved.citations.map((source) => {
@@ -379,6 +380,7 @@ async function retrieveSourcesForQuery(
         }
         for (const leftover of counterpartByEpisode.values()) merged.push(leftover);
         sources = merged.map((source, index) => ({ ...source, n: index + 1 }));
+        resolved = withRestoredDualMode(resolved, sources);
       }
     }
   }

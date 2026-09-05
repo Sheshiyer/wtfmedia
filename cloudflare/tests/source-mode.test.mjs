@@ -23,6 +23,7 @@ import {
   textOverlapScore,
   timestampConfidenceFor,
   UNCUT_OFFSET_KEY_PREFIX,
+  withRestoredDualMode,
 } from "../src/chat/source-mode.ts";
 
 describe("dual-source chat contract", () => {
@@ -927,5 +928,58 @@ describe("dual-source chat contract", () => {
     ], "published", 0.45);
 
     assert.deepEqual(resolved.citations.map((citation) => citation.segmentId), ["valid"]);
+  });
+});
+
+describe("withRestoredDualMode", () => {
+  const baseResolved = {
+    citations: [],
+    requestedSourceMode: "both",
+    evidenceSourceMode: "uncut",
+    fallbackReason: "requested_mode_not_competitive",
+    sourceMode: "uncut",
+    uncutUnavailable: false,
+  };
+
+  test("relabels the response as both once backfill re-attaches the counterpart timeline", () => {
+    const restored = withRestoredDualMode(baseResolved, [
+      { sourceMode: "uncut" },
+      { sourceMode: "published" },
+    ]);
+
+    assert.equal(restored.sourceMode, "both");
+    assert.equal(restored.evidenceSourceMode, "both");
+    // The not-competitive caveat no longer applies: both timelines are present.
+    assert.equal(restored.fallbackReason, null);
+  });
+
+  test("keeps the single-mode label while evidence stays single-timeline", () => {
+    const restored = withRestoredDualMode(baseResolved, [
+      { sourceMode: "uncut" },
+      { sourceMode: "uncut" },
+    ]);
+
+    assert.equal(restored.sourceMode, "uncut");
+    assert.equal(restored.fallbackReason, "requested_mode_not_competitive");
+  });
+
+  test("preserves an insufficient-evidence caveat even when dual mode is restored", () => {
+    const restored = withRestoredDualMode(
+      { ...baseResolved, fallbackReason: "requested_mode_insufficient" },
+      [{ sourceMode: "uncut" }, { sourceMode: "published" }],
+    );
+
+    assert.equal(restored.sourceMode, "both");
+    assert.equal(restored.fallbackReason, "requested_mode_insufficient");
+  });
+
+  test("never relabels a single-mode request", () => {
+    const resolved = { ...baseResolved, requestedSourceMode: "uncut" };
+    const restored = withRestoredDualMode(resolved, [
+      { sourceMode: "uncut" },
+      { sourceMode: "published" },
+    ]);
+
+    assert.equal(restored.sourceMode, "uncut");
   });
 });
