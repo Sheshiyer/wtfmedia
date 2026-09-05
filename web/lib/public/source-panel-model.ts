@@ -169,12 +169,25 @@ export function buildSourcePanelModel(_input: {
       .slice(0, topN)
       .map((entry) => entry.originalIndex),
   );
+  // Published is the floor at display level too: once an episode is on the
+  // page (cited or top-N), its published row must stay visible even when the
+  // uncut excerpt outranked it — otherwise the group reads as uncut-only
+  // while the published companion sits buried in the overflow.
+  const onPageGroupKeys = new Set(
+    groups
+      .filter(
+        (group) => group.citedEntries.length > 0
+          || group.candidateEntries.some((entry) => primaryCandidateIds.has(entry.originalIndex)),
+      )
+      .map((group) => group.key),
+  );
   const groupsWithSplit = groups.map((group) => {
     const visibleCandidateEntries = group.candidateEntries.filter(
-      (entry) => primaryCandidateIds.has(entry.originalIndex),
+      (entry) => primaryCandidateIds.has(entry.originalIndex)
+        || (entry.sourceMode === "published" && onPageGroupKeys.has(group.key)),
     );
     const hiddenCandidateEntries = group.candidateEntries.filter(
-      (entry) => !primaryCandidateIds.has(entry.originalIndex),
+      (entry) => !visibleCandidateEntries.includes(entry),
     );
     return { ...group, visibleCandidateEntries, hiddenCandidateEntries };
   });

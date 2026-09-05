@@ -236,3 +236,78 @@ describe("source-panel projection", () => {
     expect(model.overflowEntryCount).toBe(1);
   });
 });
+
+describe("published floor at display level", () => {
+  it("keeps the published companion of a cited uncut row visible despite top-N", () => {
+    // The screenshot case: cited excerpt is uncut, its published counterpart
+    // is an uncited candidate that does not reach the global top-N.
+    const filler = Array.from({ length: 6 }, (_, index) => ({
+      videoId: `episode-top-${index}`,
+      title: `Top candidate ${index}`,
+      sourceMode: "published" as const,
+      score: 0.95 - index * 0.01,
+    }));
+    const episode: PublicSourceCitation[] = [
+      { videoId: "episode-cited", title: "Cited episode", sourceMode: "uncut", score: 0.84 },
+      { videoId: "episode-cited", title: "Cited episode", sourceMode: "published", score: 0.5 },
+    ];
+
+    const model = buildSourcePanelModel({
+      sources: [episode[0], ...filler, episode[1]],
+      citedIndices: [1],
+      visibleMode: "both",
+    });
+
+    const group = model.primaryGroups.find((item) => item.key === "episode-cited");
+    expect(group).toBeDefined();
+    expect(group!.entries.map((entry) => entry.evidenceId)).toEqual(["[1]", "C7"]);
+    expect(group!.hiddenCandidateEntries).toEqual([]);
+  });
+
+  it("keeps the published companion of a top-N uncut candidate visible", () => {
+    const episode: PublicSourceCitation[] = [
+      { videoId: "episode-pair", title: "Paired episode", sourceMode: "uncut", score: 0.8 },
+      { videoId: "episode-pair", title: "Paired episode", sourceMode: "published", score: 0.4 },
+    ];
+
+    const model = buildSourcePanelModel({
+      sources: episode,
+      citedIndices: [],
+      visibleMode: "both",
+    });
+
+    const group = model.primaryGroups.find((item) => item.key === "episode-pair");
+    expect(group).toBeDefined();
+    expect(group!.visibleCandidateEntries.map((entry) => entry.sourceMode)).toEqual(["uncut", "published"]);
+    expect(model.overflowGroups).toEqual([]);
+  });
+
+  it("still collapses the uncut companion of a visible published row", () => {
+    // Published is the floor; uncut follows the ranking — a visible episode
+    // whose uncut excerpt did not rank shows published only.
+    const filler = Array.from({ length: 6 }, (_, index) => ({
+      videoId: `episode-top-${index}`,
+      title: `Top candidate ${index}`,
+      sourceMode: "published" as const,
+      score: 0.95 - index * 0.01,
+    }));
+    const episode: PublicSourceCitation[] = [
+      { videoId: "episode-cited", title: "Cited episode", sourceMode: "published", score: 0.84 },
+      { videoId: "episode-cited", title: "Cited episode", sourceMode: "uncut", score: 0.4 },
+    ];
+
+    const model = buildSourcePanelModel({
+      sources: [episode[0], ...filler, episode[1]],
+      citedIndices: [1],
+      visibleMode: "both",
+    });
+
+    const group = model.primaryGroups.find((item) => item.key === "episode-cited");
+    expect(group).toBeDefined();
+    expect([
+      ...group!.citedEntries,
+      ...group!.visibleCandidateEntries,
+    ].map((entry) => entry.evidenceId)).toEqual(["[1]"]);
+    expect(group!.hiddenCandidateEntries.map((entry) => entry.sourceMode)).toEqual(["uncut"]);
+  });
+});
