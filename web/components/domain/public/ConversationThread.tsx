@@ -59,7 +59,8 @@ export function ConversationThread({
   const contentRef = useRef<HTMLDivElement>(null);
   const userScrolledUp = useRef(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
-  const [retryModel, setRetryModel] = useState("");
+  // Retry model picker disabled for now — retry always uses the default chain.
+  // const [retryModel, setRetryModel] = useState("");
 
   const checkOverflow = useCallback(() => {
     const container = scrollContainerRef.current;
@@ -250,6 +251,7 @@ export function ConversationThread({
               !loading &&
               messages[messages.length - 1]?.role === "assistant" && (
                 <div className="mt-4 flex flex-wrap items-center justify-center gap-2 border-t-2 border-foreground/15 px-4 py-3">
+                  {/* OpenRouter retry model picker commented out — not needed currently.
                   <label
                     htmlFor="retry-model"
                     className="font-label text-[10px] font-bold uppercase tracking-wider text-muted"
@@ -269,8 +271,9 @@ export function ConversationThread({
                     <option value="poolside/laguna-s-2.1">laguna s 2.1</option>
                     <option value="thinkingmachines/inkling">inkling</option>
                   </select>
+                  */}
                   <Button
-                    onClick={() => onRetry(retryModel || undefined)}
+                    onClick={() => onRetry(undefined)}
                     variant="ghost"
                     className="text-xs"
                     data-testid="retry-button"
