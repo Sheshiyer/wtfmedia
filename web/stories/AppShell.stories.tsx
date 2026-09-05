@@ -2,10 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { AppShell } from "@/components/shells/AppShell";
 
 const publicNavigation = [
-  { href: "/", label: "the room", section: "workspace" as const },
+  { href: "/", label: "ask wtf", section: "workspace" as const },
   { href: "/episodes", label: "episodes", section: "workspace" as const },
   { href: "/connections", label: "connections", section: "workspace" as const },
-  { href: "/chat", label: "ask wtf", section: "workspace" as const },
 ];
 
 const meta: Meta<typeof AppShell> = {
@@ -42,6 +41,14 @@ export const PublicEpisodesActive: Story = {
       throw new Error(
         `Episodes must be the one active workspace; received ${active?.textContent?.trim() ?? "none"}`,
       );
+    }
+    // Non-chat pages keep the bottom dock, and "ask wtf" (the chat home)
+    // leads it.
+    const dockLinks = Array.from(
+      canvasElement.querySelectorAll("#wtf-application-navigation a"),
+    ).map((link) => link.textContent?.trim());
+    if (dockLinks[0] !== "ask wtf") {
+      throw new Error(`Dock must lead with ask wtf; received ${dockLinks.join("|") || "none"}`);
     }
   },
 };
@@ -83,7 +90,7 @@ export const MobileDrawer: Story = {
   render: (args) => (
     <AppShell {...args}>
       <div className="p-4">
-        <h1>mobile control room</h1>
+        <h1>mobile chat home</h1>
       </div>
     </AppShell>
   ),
@@ -92,12 +99,21 @@ export const MobileDrawer: Story = {
     viewport: { width: 320, height: 640 },
   },
   play: async ({ canvasElement }) => {
-    const primaryNav = canvasElement.querySelector("#wtf-application-navigation");
-    const applicationNav = canvasElement.querySelector('nav[aria-label="Application"]');
+    // Chat home contract: header controls (logo + drawer toggle) stay, the
+    // bottom dock is intentionally hidden so the conversation runs
+    // edge-to-edge.
+    const dock = canvasElement.querySelector("#wtf-application-navigation");
     const logo = canvasElement.querySelector('header a[aria-label="WTF OS"]');
     const toggle = canvasElement.querySelector("[data-navigation-toggle]");
-    if (!primaryNav || !applicationNav || !logo || !toggle) {
-      throw new Error("Mobile shell must keep header controls and scroll-safe dock navigation");
+    if (!logo || !toggle) {
+      throw new Error("Mobile chat home must keep header controls");
+    }
+    if (dock) {
+      throw new Error("Chat home must not render the bottom dock");
+    }
+    const logoHref = logo.getAttribute("href");
+    if (logoHref !== "/") {
+      throw new Error(`Logo must return to the chat home; received ${logoHref ?? "none"}`);
     }
   },
 };

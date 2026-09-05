@@ -7,12 +7,17 @@ describe("current-release ungated navigation", () => {
       "/",
       "/episodes",
       "/connections",
-      "/chat",
       "/ops",
       "/ops/production",
       "/ops/episodes",
       "/ops/settings",
     ]);
+  });
+
+  it("leads with ask wtf at the chat home and keeps the room unlinked", () => {
+    expect(currentReleaseNavigation[0]).toMatchObject({ href: "/", label: "ask wtf" });
+    expect(currentReleaseNavigation.some((item) => item.label === "the room")).toBe(false);
+    expect(currentReleaseNavigation.some((item) => item.href === "/chat")).toBe(false);
   });
 
   it("keeps public rooms and active ops in workspace with settings as administration", () => {
@@ -22,7 +27,6 @@ describe("current-release ungated navigation", () => {
       ["/", "workspace"],
       ["/episodes", "workspace"],
       ["/connections", "workspace"],
-      ["/chat", "workspace"],
       ["/ops", "workspace"],
       ["/ops/production", "workspace"],
       ["/ops/episodes", "workspace"],
