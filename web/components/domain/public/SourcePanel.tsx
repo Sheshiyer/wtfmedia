@@ -68,7 +68,10 @@ function timestampTier(source: PublicSourceCitation): { label: string; percent: 
   const confidence = source.timestampConfidence;
   if (typeof confidence === "number" && Number.isFinite(confidence) && confidence > 0) {
     const percent = Math.round(confidence * 100);
-    if (confidence >= 0.9) return { label: "verified time", percent: confidence >= 0.95 ? null : percent };
+    // Hide the number whenever it would display as 95%+ — that is the
+    // baseline-certain case, and a rounded-up 95% next to plain "verified
+    // time" rows reads as less certain when it is not.
+    if (confidence >= 0.9) return { label: "verified time", percent: percent >= 95 ? null : percent };
     if (confidence >= 0.5) return { label: "time estimated", percent };
     return { label: "time uncertain", percent };
   }
