@@ -20,6 +20,7 @@ import {
   findSingleTimelineGaps,
   parseEpisodeId,
   parseSourceMode,
+  pickSameMomentCounterpart,
   prioritizeMatchesForQuestionWithAnchor,
   projectDualSourceCitation,
   resolveEpisodeScopedSources,
@@ -303,7 +304,14 @@ async function retrieveSourcesForQuery(
       const backfilled = await Promise.all(gaps.map(async ({ videoId, missing }) => {
         try {
           const result = await env.VECTORIZE.query(vector, buildCounterpartQueryOptions(videoId, missing));
-          const match = result?.matches?.[0];
+          const candidates = (result?.matches ?? []).filter(
+            (match: { metadata?: Record<string, unknown> | null }) => match?.metadata,
+          );
+          if (candidates.length === 0) return null;
+          const anchorText = sources.find((source) => source.videoId === videoId)?.text;
+          const match = typeof anchorText === "string" && anchorText.length > 0
+            ? pickSameMomentCounterpart(anchorText, candidates)
+            : candidates[0];
           if (!match) return null;
           const projected = projectDualSourceCitation(match, "both", 0);
           if (!projected) return null;

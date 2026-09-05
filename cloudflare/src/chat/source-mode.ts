@@ -239,7 +239,7 @@ export function buildVectorQueryOptions(episodeId: string | null, sourceMode: St
  */
 export function buildCounterpartQueryOptions(videoId: string, sourceMode: StoredSourceMode) {
   return {
-    topK: 1,
+    topK: 8,
     returnMetadata: "all" as const,
     filter: {
       video_id: { $eq: videoId },
@@ -519,16 +519,23 @@ export function resolveRequestedSources(
     .map(([videoId]) => videoId);
 
   // Every catalogue episode has both timelines, so once an episode earns its
-  // place above the score floor, attach the other timeline's best chunk even
-  // when that chunk scored below the floor on its own. The sub-floor chunk is
-  // the same conversation; its badge honestly reports the lower confidence.
+  // place above the score floor, attach the other timeline's chunk even when
+  // that chunk scored below the floor on its own. The counterpart is chosen by
+  // text overlap with the episode's above-floor chunk, so both entries show
+  // the SAME MOMENT of the conversation — a few seconds of edit offset apart,
+  // never two unrelated passages an hour apart. When nothing overlaps, the
+  // strongest-scoring chunk is the honest fallback.
   const bestRawByModeAndEpisode = new Map<string, VectorMatchLike>();
+  const candidatesByModeAndEpisode = new Map<string, VectorMatchLike[]>();
   for (const match of matches) {
     if (typeof match?.score !== "number" || !Number.isFinite(match.score)) continue;
     const metadata = match.metadata ?? {};
     const videoId = text(metadata.video_id ?? metadata.videoId);
     if (!videoId) continue;
     const key = `${storedSourceMode(metadata)}:${videoId}`;
+    const bucket = candidatesByModeAndEpisode.get(key);
+    if (bucket) bucket.push(match);
+    else candidatesByModeAndEpisode.set(key, [match]);
     const current = bestRawByModeAndEpisode.get(key);
     const currentScore = typeof current?.score === "number" ? current.score : -Infinity;
     if (match.score > currentScore) bestRawByModeAndEpisode.set(key, match);
@@ -542,7 +549,12 @@ export function resolveRequestedSources(
       .sort((left, right) => right.score - left.score);
     for (const stored of ["uncut", "published"] as const) {
       if (pair.some((hit) => hit.sourceMode === stored)) continue;
-      const raw = bestRawByModeAndEpisode.get(`${stored}:${videoId}`);
+      const anchorMode: StoredSourceMode = stored === "uncut" ? "published" : "uncut";
+      const anchorText = text(bestRawByModeAndEpisode.get(`${anchorMode}:${videoId}`)?.metadata?.text);
+      const candidates = candidatesByModeAndEpisode.get(`${stored}:${videoId}`) ?? [];
+      const raw = anchorText
+        ? pickSameMomentCounterpart(anchorText, candidates)
+        : bestRawByModeAndEpisode.get(`${stored}:${videoId}`);
       if (!raw) continue;
       const counterpart = projectDualSourceCitation(raw, "both", paired.length + pair.length);
       if (counterpart) pair.push(counterpart);
@@ -568,6 +580,57 @@ export function resolveEpisodeScopedSources(
   return resolveRequestedSources(scopedMatches, requested, minScore, limit, {
     dedupeByEpisode: options.dedupeByEpisode ?? episodeId == null,
   });
+}
+
+/**
+ * Word-shingle containment: how much of `anchor` appears in `candidate`.
+ * Used to pair the same conversation moment across timelines — chunking and
+ * wording differ slightly between uncut and published transcripts, so exact
+ * matching fails where shingle overlap holds.
+ */
+export function textOverlapScore(anchor: string, candidate: string): number {
+  const anchorTokens = tokens(anchor);
+  if (anchorTokens.length === 0) return 0;
+  const candidateTokens = new Set(tokens(candidate));
+  if (candidateTokens.size === 0) return 0;
+  if (anchorTokens.length < 3) {
+    const hits = anchorTokens.filter((token) => candidateTokens.has(token)).length;
+    return hits / anchorTokens.length;
+  }
+  const shingles: string[] = [];
+  for (let i = 0; i + 3 <= anchorTokens.length; i += 1) {
+    shingles.push(anchorTokens.slice(i, i + 3).join(" "));
+  }
+  const candidateText = ` ${tokens(candidate).join(" ")} `;
+  const hits = shingles.filter((shingle) => candidateText.includes(` ${shingle} `)).length;
+  return hits / shingles.length;
+}
+
+/**
+ * Pick the counterpart chunk carrying the same conversation moment as the
+ * anchor citation. Falls back to the strongest-scoring candidate when no
+ * candidate shares text with the anchor.
+ */
+export function pickSameMomentCounterpart(
+  anchorText: string,
+  candidates: readonly VectorMatchLike[],
+): VectorMatchLike | null {
+  if (candidates.length === 0) return null;
+  let best: VectorMatchLike | null = null;
+  let bestOverlap = 0;
+  for (const candidate of candidates) {
+    const overlap = textOverlapScore(anchorText, text(candidate.metadata?.text));
+    if (overlap > bestOverlap) {
+      bestOverlap = overlap;
+      best = candidate;
+    }
+  }
+  if (best) return best;
+  return candidates.reduce<VectorMatchLike | null>((strongest, candidate) => {
+    const score = typeof candidate.score === "number" ? candidate.score : -Infinity;
+    const strongestScore = typeof strongest?.score === "number" ? strongest.score : -Infinity;
+    return score > strongestScore ? candidate : strongest;
+  }, null);
 }
 
 /**

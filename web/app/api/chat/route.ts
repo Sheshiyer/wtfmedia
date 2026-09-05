@@ -7,6 +7,7 @@ import {
   type SourceMode,
   type TimestampStatus,
 } from "@/lib/provenance/source-mode";
+import { calibrateRetrievalScore } from "@/lib/provenance/confidence";
 import { isReady, search } from "@/lib/vectors";
 
 export const runtime = "nodejs";
@@ -157,7 +158,8 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
       n: source.n,
       video_id: source.videoId,
       title: source.title,
-      score: source.score,
+      score: calibrateRetrievalScore(source.score),
+      score_raw: source.score,
       t: start,
       time: start == null ? "" : new Date(start * 1_000).toISOString().slice(11, 19).replace(/^00:/, ""),
       url: mode === "uncut" ? publicUncutUrl : direct,

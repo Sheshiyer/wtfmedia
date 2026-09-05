@@ -10,12 +10,14 @@ import {
   findSingleTimelineGaps,
   parseEpisodeId,
   parseSourceMode,
+  pickSameMomentCounterpart,
   prioritizeMatchesForQuestion,
   prioritizeMatchesForQuestionWithAnchor,
   projectDualSourceCitation,
   resolveEpisodeScopedSources,
   resolveRequestedSources,
   storedSourceMode,
+  textOverlapScore,
 } from "../src/chat/source-mode.ts";
 
 describe("dual-source chat contract", () => {
@@ -197,13 +199,116 @@ describe("dual-source chat contract", () => {
 
   test("counterpart backfill query pins the episode and the missing timeline", () => {
     assert.deepEqual(buildCounterpartQueryOptions("RSB58m7Xwhg", "uncut"), {
-      topK: 1,
+      topK: 8,
       returnMetadata: "all",
       filter: {
         video_id: { $eq: "RSB58m7Xwhg" },
         source_mode: { $eq: "uncut" },
       },
     });
+  });
+
+  test("text overlap scores shared moments above shared vocabulary", () => {
+    const anchor = "we never bought an ipl team because the valuations made no sense for us";
+    const sameMoment = "the reason we never bought an ipl team is that the valuations made no sense for us at all";
+    const sameTopic = "cricket in india is a religion and the ipl is its biggest festival every year";
+    assert.ok(textOverlapScore(anchor, sameMoment) > 0.5);
+    assert.ok(textOverlapScore(anchor, sameTopic) < 0.2);
+    assert.equal(textOverlapScore("", sameMoment), 0);
+  });
+
+  test("same-moment counterpart prefers text overlap over raw score", () => {
+    const picked = pickSameMomentCounterpart(
+      "we never bought an ipl team because the valuations made no sense for us",
+      [
+        { id: "hi-score", score: 0.9, metadata: { text: "cricket in india is a religion and the ipl is its biggest festival" } },
+        { id: "same-moment", score: 0.4, metadata: { text: "the reason we never bought an ipl team is that the valuations made no sense for us at all" } },
+      ],
+    );
+    assert.equal(picked?.id, "same-moment");
+  });
+
+  test("same-moment counterpart falls back to the strongest candidate without overlap", () => {
+    const picked = pickSameMomentCounterpart(
+      "quantum chromodynamics lattice gauge theory",
+      [
+        { id: "weak", score: 0.4, metadata: { text: "cricket in india is a religion" } },
+        { id: "strong", score: 0.9, metadata: { text: "football viewership in turkey" } },
+      ],
+    );
+    assert.equal(picked?.id, "strong");
+  });
+
+  test("both-mode pairing shows the same moment on both timelines", () => {
+    const resolved = resolveRequestedSources([
+      {
+        id: "pub-anchor",
+        score: 0.9,
+        metadata: {
+          video_id: "abcdefghijk",
+          source_mode: "published",
+          start: 792,
+          timestamped: true,
+          text: "we never bought an ipl team because the valuations made no sense for us",
+        },
+      },
+      // Both uncut candidates sit below the 0.55 floor, so the episode relies
+      // on counterpart attach; the second uncut episode keeps the mode
+      // competitive overall.
+      {
+        id: "uncut-different-moment",
+        score: 0.54,
+        metadata: {
+          video_id: "abcdefghijk",
+          source_asset_id: "asset-a",
+          source_mode: "uncut",
+          start: 60,
+          timestamped: true,
+          text: "welcome back to the show everyone today we have a great guest",
+        },
+      },
+      {
+        id: "uncut-same-moment",
+        score: 0.5,
+        metadata: {
+          video_id: "abcdefghijk",
+          source_asset_id: "asset-a",
+          source_mode: "uncut",
+          start: 780,
+          timestamped: true,
+          text: "the reason we never bought an ipl team is that the valuations made no sense for us at all",
+        },
+      },
+      {
+        id: "uncut-other-episode",
+        score: 0.88,
+        metadata: {
+          video_id: "lmnopqrstuv",
+          source_asset_id: "asset-b",
+          source_mode: "uncut",
+          start: 12,
+          timestamped: true,
+          text: "cricket in india is a religion and the ipl is its biggest festival every year",
+        },
+      },
+      {
+        id: "pub-other-episode",
+        score: 0.86,
+        metadata: {
+          video_id: "lmnopqrstuv",
+          source_mode: "published",
+          start: 20,
+          timestamped: true,
+          text: "cricket in india is a religion and the ipl is its biggest festival every year",
+        },
+      },
+    ], "both", 0.55, 40);
+
+    const uncut = resolved.citations.find(
+      (citation) => citation.videoId === "abcdefghijk" && citation.sourceMode === "uncut",
+    );
+    assert.equal(uncut?.segmentId, "uncut-same-moment");
+    assert.equal(uncut?.start, 780);
   });
 
   test("single-timeline gaps list each episode's missing mode exactly once", () => {

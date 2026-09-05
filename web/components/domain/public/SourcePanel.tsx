@@ -51,13 +51,13 @@ function isApprovedFrameIoUrl(value: string | undefined): value is string {
 }
 
 /**
- * Match-strength label for a source's retrieval score. Sources arrive in
- * score order from the edge (most matched first); the badge makes that
- * ranking visible. Thresholds follow the retrieval floor (0.45).
+ * Match-strength label for a source's calibrated confidence (see
+ * lib/provenance/confidence). Sources arrive strongest-first; the badge makes
+ * that ranking visible on the calibrated 35–97% display scale.
  */
 function matchTier(score: number): string {
-  if (score >= 0.7) return "strong match";
-  if (score >= 0.55) return "medium match";
+  if (score >= 0.85) return "strong match";
+  if (score >= 0.65) return "medium match";
   return "loose match";
 }
 
@@ -105,7 +105,7 @@ function SourceEvidenceRow({ entry }: { entry: SourcePanelEntry }) {
           {typeof source.score === "number" && source.score > 0 ? (
             <span
               className="rounded bg-surface-subtle px-1 py-0.5 font-label text-[9px] uppercase tracking-wider text-muted"
-              title={`retrieval confidence ${(source.score * 100).toFixed(1)}% — sources are listed most matched first`}
+              title={`match confidence ${(source.score * 100).toFixed(0)}% — calibrated to this catalogue's match range; sources are listed strongest first`}
             >
               {matchTier(source.score)} · {Math.round(source.score * 100)}%
             </span>

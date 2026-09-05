@@ -21,7 +21,10 @@ export interface PublicSourceCitation {
   videoId?: string;
   title?: string;
   url?: string;
+  /** Calibrated display confidence (0–1); see lib/provenance/confidence. */
   score?: number;
+  /** Raw vector similarity, kept for transparency/debugging. */
+  scoreRaw?: number;
   timeSec?: number;
   sourceMode?: SourceMode;
   mappingStatus?: MappingStatus;
@@ -78,6 +81,7 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
   const title = textField(raw.title);
   const url = textField(raw.url);
   const score = nonNegativeNumber(raw.score);
+  const scoreRaw = nonNegativeNumber(raw.scoreRaw ?? raw.score_raw);
   const timeSec =
     nonNegativeNumber(raw.timeSec) ??
     nonNegativeNumber(raw.timestampSec) ??
@@ -102,6 +106,7 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
   if (title) source.title = title;
   if (url) source.url = url;
   if (score !== undefined) source.score = score;
+  if (scoreRaw !== undefined) source.scoreRaw = scoreRaw;
   if (timeSec !== undefined) source.timeSec = timeSec;
   if (raw.sourceMode != null || raw.source_mode != null) source.sourceMode = sourceMode;
   if (mappingStatus) source.mappingStatus = mappingStatus;

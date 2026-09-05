@@ -47,7 +47,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "b2bdbe42cc0061aece14b62bae321eed491aba294fe43b543781c4e823674bc6",
+      "sha256": "e4ecbc433eba831d415c9466651bd001d0867f55cd469df0305c181fe6530408",
       "mode": "100644",
       "type": "file",
       "worktree_status": " M"
@@ -77,7 +77,7 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "b2bdbe42cc0061aece14b62bae321eed491aba294fe43b543781c4e823674bc6",
+      "sha256": "e4ecbc433eba831d415c9466651bd001d0867f55cd469df0305c181fe6530408",
       "mode": "100644",
       "type": "file",
       "worktree_status": " M"
