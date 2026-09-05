@@ -58,12 +58,17 @@ function isApprovedFrameIoUrl(value: string | undefined): value is string {
  * moment's timestamp (see timestampConfidence on the edge worker). Content
  * match strength is a separate chip — it reports how closely the excerpt
  * matches the question and drives the order sources are listed in.
+ *
+ * The percentage only appears when it discriminates: a timestamp at or
+ * above 95% certainty (published verified rows, strongly aligned uncut
+ * rows) is the baseline and shows a plain "verified time"; anything lower
+ * is an estimate, so the number stays visible.
  */
 function timestampTier(source: PublicSourceCitation): { label: string; percent: number | null } {
   const confidence = source.timestampConfidence;
   if (typeof confidence === "number" && Number.isFinite(confidence) && confidence > 0) {
     const percent = Math.round(confidence * 100);
-    if (confidence >= 0.9) return { label: "verified time", percent };
+    if (confidence >= 0.9) return { label: "verified time", percent: confidence >= 0.95 ? null : percent };
     if (confidence >= 0.5) return { label: "time estimated", percent };
     return { label: "time uncertain", percent };
   }
