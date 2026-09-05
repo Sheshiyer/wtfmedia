@@ -679,7 +679,7 @@ export function parseUncutClockOffset(raw: string | null): UncutClockOffset | nu
   try {
     const parsed = JSON.parse(raw) as { offset?: unknown; pairs?: unknown };
     const offset = typeof parsed.offset === "number" ? parsed.offset : Number.NaN;
-    if (!Number.isFinite(offset) || Math.abs(offset) < UNCUT_OFFSET_MIN_SECONDS) return null;
+    if (!Number.isFinite(offset)) return null;
     return { offset, pairs: typeof parsed.pairs === "number" ? parsed.pairs : 0 };
   } catch {
     return null;
@@ -690,15 +690,45 @@ export function parseUncutClockOffset(raw: string | null): UncutClockOffset | nu
  * Shift an uncut citation onto the published clock by subtracting the
  * measured offset. Only verified-timestamp uncut citations move — unverified
  * ones already render as "time unavailable", and offsetting an unverified
- * number would only make it wrong with more confidence.
+ * number would only make it wrong with more confidence. Drift below
+ * UNCUT_OFFSET_MIN_SECONDS is chunking jitter and is left alone.
  */
 export function applyUncutClockOffset(
   citation: DualSourceCitation,
   offset: UncutClockOffset | null,
 ): DualSourceCitation {
-  if (!offset || citation.sourceMode !== "uncut" || citation.start == null || !citation.timestamped) {
+  if (
+    !offset
+    || citation.sourceMode !== "uncut"
+    || citation.start == null
+    || !citation.timestamped
+    || Math.abs(offset.offset) < UNCUT_OFFSET_MIN_SECONDS
+  ) {
     return citation;
   }
   const corrected = Math.max(0, Math.round((citation.start - offset.offset) * 10) / 10);
   return { ...citation, start: corrected };
+}
+
+/**
+ * How certain we are that a citation's timestamp is exact — this is what the
+ * public confidence badge reports (it is NOT the content-match score).
+ *
+ * - verified published timing is the reference clock: 98%
+ * - verified uncut timing corrected by a measured alignment scales with the
+ *   number of aligned chunk pairs behind the measurement: 90–97%
+ * - verified uncut timing with no alignment measurement: 85%
+ * - uncut timing we tried but failed to align (pairs: 0 marker): 55%
+ * - anything without a verified timestamp: 25%
+ */
+export function timestampConfidenceFor(
+  citation: Pick<DualSourceCitation, "sourceMode" | "timestampStatus">,
+  offset: UncutClockOffset | null,
+): number {
+  if (citation.timestampStatus !== "verified") return 0.25;
+  if (citation.sourceMode !== "uncut") return 0.98;
+  if (!offset) return 0.85;
+  if (offset.pairs <= 0) return 0.55;
+  const scaled = 0.9 + 0.07 * (Math.min(offset.pairs, 20) / 20);
+  return Math.round(scaled * 1000) / 1000;
 }

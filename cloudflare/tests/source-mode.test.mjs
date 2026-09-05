@@ -20,6 +20,7 @@ import {
   resolveRequestedSources,
   storedSourceMode,
   textOverlapScore,
+  timestampConfidenceFor,
   UNCUT_OFFSET_KEY_PREFIX,
 } from "../src/chat/source-mode.ts";
 
@@ -338,10 +339,11 @@ describe("dual-source chat contract", () => {
     assert.deepEqual(findSingleTimelineGaps(resolved.citations), []);
   });
 
-  test("uncut clock offset parses from KV JSON and ignores sub-threshold drift", () => {
+  test("uncut clock offset parses from KV JSON", () => {
     assert.deepEqual(parseUncutClockOffset('{"offset": 186, "pairs": 12}'), { offset: 186, pairs: 12 });
     assert.deepEqual(parseUncutClockOffset('{"offset": -42.5, "pairs": 7}'), { offset: -42.5, pairs: 7 });
-    assert.equal(parseUncutClockOffset('{"offset": 2.3, "pairs": 9}'), null);
+    // sub-threshold drift still parses — the applier decides whether to shift
+    assert.deepEqual(parseUncutClockOffset('{"offset": 2.3, "pairs": 9}'), { offset: 2.3, pairs: 9 });
     assert.equal(parseUncutClockOffset(null), null);
     assert.equal(parseUncutClockOffset("not-json"), null);
     assert.equal(parseUncutClockOffset('{"offset": "big"}'), null);
@@ -361,6 +363,9 @@ describe("dual-source chat contract", () => {
     // clamps at zero rather than going negative
     assert.equal(applyUncutClockOffset(uncutCitation, { offset: 9999, pairs: 3 }).start, 0);
 
+    // sub-threshold drift is chunking jitter — untouched
+    assert.equal(applyUncutClockOffset(uncutCitation, { offset: 2.3, pairs: 9 }).start, 800);
+
     // published, unverified, and missing-start citations pass through untouched
     const publishedCitation = { ...uncutCitation, sourceMode: "published" };
     assert.equal(applyUncutClockOffset(publishedCitation, { offset: 186, pairs: 12 }).start, 800);
@@ -369,6 +374,25 @@ describe("dual-source chat contract", () => {
     const noStart = { ...uncutCitation, start: null, timestamped: false, timestampStatus: "source_timing_unavailable" };
     assert.equal(applyUncutClockOffset(noStart, { offset: 186, pairs: 12 }).start, null);
     assert.equal(applyUncutClockOffset(uncutCitation, null).start, 800);
+  });
+
+  test("timestamp confidence reflects timing certainty, not content match", () => {
+    const base = { sourceMode: "published", timestampStatus: "verified" };
+    assert.equal(timestampConfidenceFor(base, null), 0.98);
+    assert.equal(timestampConfidenceFor({ ...base, timestampStatus: "source_timing_unavailable" }, null), 0.25);
+    assert.equal(timestampConfidenceFor({ ...base, timestampStatus: "requested_timeline_unavailable" }, null), 0.25);
+
+    const uncut = { sourceMode: "uncut", timestampStatus: "verified" };
+    // aligned uncut scales with the number of aligned pairs behind the offset
+    assert.equal(timestampConfidenceFor(uncut, { offset: 7, pairs: 20 }), 0.97);
+    assert.equal(timestampConfidenceFor(uncut, { offset: 7, pairs: 33 }), 0.97);
+    assert.equal(timestampConfidenceFor(uncut, { offset: 7, pairs: 10 }), 0.935);
+    assert.equal(timestampConfidenceFor(uncut, { offset: 7, pairs: 1 }), 0.904);
+    // alignment attempted but failed (marker entry) — below an unmeasured one
+    assert.equal(timestampConfidenceFor(uncut, { offset: 0, pairs: 0 }), 0.55);
+    // no measurement at all
+    assert.equal(timestampConfidenceFor(uncut, null), 0.85);
+    assert.equal(timestampConfidenceFor({ ...uncut, timestampStatus: "source_timing_unavailable" }, { offset: 7, pairs: 20 }), 0.25);
   });
 
   test("episode scope fails closed when Vectorize returns unrelated matches", () => {

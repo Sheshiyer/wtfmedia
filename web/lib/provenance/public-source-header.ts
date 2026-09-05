@@ -30,6 +30,8 @@ export interface PublicSourceCitation {
   mappingStatus?: MappingStatus;
   timestampStatus?: TimestampStatus;
   timestampReason?: string;
+  /** Timestamp certainty (0–1) — what the confidence badge reports. */
+  timestampConfidence?: number;
   segmentId?: string;
 }
 
@@ -99,6 +101,7 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
       ? raw.timestamp_status
       : undefined;
   const timestampReason = textField(raw.timestampReason ?? raw.timestamp_reason)?.slice(0, 320);
+  const timestampConfidence = nonNegativeNumber(raw.timestampConfidence ?? raw.timestamp_confidence);
   const segmentId = textField(raw.segmentId ?? raw.segment_id);
 
   if (episodeId) source.episodeId = episodeId;
@@ -112,6 +115,7 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
   if (mappingStatus) source.mappingStatus = mappingStatus;
   if (timestampStatus) source.timestampStatus = timestampStatus;
   if (timestampReason) source.timestampReason = timestampReason;
+  if (timestampConfidence !== undefined) source.timestampConfidence = Math.min(1, timestampConfidence);
   if (segmentId) source.segmentId = segmentId;
 
   return Object.keys(source).length > 0 ? source : null;

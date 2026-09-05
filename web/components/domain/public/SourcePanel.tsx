@@ -19,6 +19,7 @@ import {
   buildSourcePanelModel,
   type AnswerQueryScope,
   type SourcePanelEntry,
+  type SourcePanelGroup,
 } from "@/lib/public/source-panel-model";
 
 export type SourceCitation = PublicSourceCitation;
@@ -51,14 +52,22 @@ function isApprovedFrameIoUrl(value: string | undefined): value is string {
 }
 
 /**
- * Match-strength label for a source's calibrated confidence (see
- * lib/provenance/confidence). Sources arrive strongest-first; the badge makes
- * that ranking visible on the calibrated 85–99% display scale.
+ * Timestamp-certainty label. The badge reports how sure we are of the
+ * moment's timestamp (see timestampConfidence on the edge worker), not how
+ * well the excerpt matches the question — content match strength only drives
+ * the order sources are listed in.
  */
-function matchTier(score: number): string {
-  if (score >= 0.96) return "strong match";
-  if (score >= 0.92) return "medium match";
-  return "loose match";
+function timestampTier(source: PublicSourceCitation): { label: string; percent: number | null } {
+  const confidence = source.timestampConfidence;
+  if (typeof confidence === "number" && Number.isFinite(confidence) && confidence > 0) {
+    const percent = Math.round(confidence * 100);
+    if (confidence >= 0.9) return { label: "verified time", percent };
+    if (confidence >= 0.5) return { label: "time estimated", percent };
+    return { label: "time uncertain", percent };
+  }
+  return source.timestampStatus === "verified"
+    ? { label: "verified time", percent: null }
+    : { label: "time uncertain", percent: null };
 }
 
 function SourceEvidenceRow({ entry }: { entry: SourcePanelEntry }) {
@@ -102,14 +111,17 @@ function SourceEvidenceRow({ entry }: { entry: SourcePanelEntry }) {
           <span className={`font-mono text-[10px] font-bold ${entry.isCited ? "text-foreground" : "text-muted"}`}>
             {entry.evidenceId}
           </span>
-          {typeof source.score === "number" && source.score > 0 ? (
-            <span
-              className="rounded bg-surface-subtle px-1 py-0.5 font-label text-[9px] uppercase tracking-wider text-muted"
-              title={`match confidence ${(source.score * 100).toFixed(0)}% — calibrated to this catalogue's match range; sources are listed strongest first`}
-            >
-              {matchTier(source.score)} · {Math.round(source.score * 100)}%
-            </span>
-          ) : null}
+          {(() => {
+            const tier = timestampTier(source);
+            return (
+              <span
+                className="rounded bg-surface-subtle px-1 py-0.5 font-label text-[9px] uppercase tracking-wider text-muted"
+                title={`timestamp confidence${tier.percent === null ? "" : ` ${tier.percent}%`} — how sure we are of this moment's timestamp; sources are ordered by content match, strongest first`}
+              >
+                {tier.label}{tier.percent === null ? "" : ` · ${tier.percent}%`}
+              </span>
+            );
+          })()}
         </div>
         <span className="flex items-center gap-1.5">
           <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
@@ -143,6 +155,64 @@ function SourceEvidenceRow({ entry }: { entry: SourcePanelEntry }) {
         </p>
       ) : null}
     </div>
+  );
+}
+
+function SourceEpisodeGroup({ group }: { group: SourcePanelGroup }) {
+  const episodeHref = publicEpisodeHref(group.entries[0]?.source);
+  const candidateOnly = group.citedEntries.length === 0;
+
+  return (
+    <li
+      className={`rounded-control border p-2.5 ${candidateOnly
+        ? "border-foreground/10 bg-canvas/20"
+        : "border-foreground/20 bg-canvas/45"}`}
+      data-testid="source-episode-group"
+      data-episode-key={group.key}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-label text-[9px] font-bold uppercase tracking-[0.08em] text-muted">
+            {candidateOnly ? "candidate episode" : "cited episode"}
+          </p>
+          {episodeHref ? (
+            <Link
+              href={episodeHref}
+              className="block truncate font-medium text-foreground underline decoration-foreground/30 hover:decoration-foreground"
+            >
+              {group.label}
+            </Link>
+          ) : (
+            <p className="truncate font-medium text-foreground">{group.label}</p>
+          )}
+        </div>
+        {group.citedEntries.length > 0 ? (
+          <span className="rounded bg-attention/20 px-1.5 py-0.5 font-label text-[9px] font-bold uppercase tracking-wider text-foreground">
+            {group.citedEntries.length} cited
+          </span>
+        ) : null}
+      </div>
+
+      {group.citedEntries.length > 0 ? (
+        <div className="mt-2 space-y-2">
+          {group.citedEntries.map((entry) => (
+            <SourceEvidenceRow key={entry.originalIndex} entry={entry} />
+          ))}
+        </div>
+      ) : null}
+
+      {group.candidateEntries.length > 0 ? (
+        <div className="mt-2 space-y-2 border-t border-foreground/10 pt-2" data-testid="candidate-evidence">
+          <p className="font-label text-[10px] font-bold lowercase text-muted">
+            {group.candidateEntries.length} candidate excerpt{group.candidateEntries.length !== 1 ? "s" : ""}
+            <span className="ml-1 font-normal">· retrieval context</span>
+          </p>
+          {group.candidateEntries.map((entry) => (
+            <SourceEvidenceRow key={entry.originalIndex} entry={entry} />
+          ))}
+        </div>
+      ) : null}
+    </li>
   );
 }
 
@@ -306,64 +376,27 @@ export function SourcePanel({
         ) : null}
 
         <ol className="space-y-2.5 pl-0">
-          {model.groups.map((group) => {
-            const episodeHref = publicEpisodeHref(group.entries[0]?.source);
-            const candidateOnly = group.citedEntries.length === 0;
-
-            return (
-              <li
-                key={group.key}
-                className={`rounded-control border p-2.5 ${candidateOnly
-                  ? "border-foreground/10 bg-canvas/20"
-                  : "border-foreground/20 bg-canvas/45"}`}
-                data-testid="source-episode-group"
-                data-episode-key={group.key}
+          {model.primaryGroups.map((group) => (
+            <SourceEpisodeGroup key={group.key} group={group} />
+          ))}
+          {model.overflowGroups.length > 0 ? (
+            <li>
+              <details
+                className="rounded-control border border-foreground/15 bg-canvas/20 p-2.5"
+                data-testid="more-matches"
               >
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="font-label text-[9px] font-bold uppercase tracking-[0.08em] text-muted">
-                      {candidateOnly ? "candidate episode" : "cited episode"}
-                    </p>
-                    {episodeHref ? (
-                      <Link
-                        href={episodeHref}
-                        className="block truncate font-medium text-foreground underline decoration-foreground/30 hover:decoration-foreground"
-                      >
-                        {group.label}
-                      </Link>
-                    ) : (
-                      <p className="truncate font-medium text-foreground">{group.label}</p>
-                    )}
-                  </div>
-                  {group.citedEntries.length > 0 ? (
-                    <span className="rounded bg-attention/20 px-1.5 py-0.5 font-label text-[9px] font-bold uppercase tracking-wider text-foreground">
-                      {group.citedEntries.length} cited
-                    </span>
-                  ) : null}
-                </div>
-
-                {group.citedEntries.length > 0 ? (
-                  <div className="mt-2 space-y-2">
-                    {group.citedEntries.map((entry) => (
-                      <SourceEvidenceRow key={entry.originalIndex} entry={entry} />
-                    ))}
-                  </div>
-                ) : null}
-
-                {group.candidateEntries.length > 0 ? (
-                  <div className="mt-2 space-y-2 border-t border-foreground/10 pt-2" data-testid="candidate-evidence">
-                    <p className="font-label text-[10px] font-bold lowercase text-muted">
-                      {group.candidateEntries.length} candidate excerpt{group.candidateEntries.length !== 1 ? "s" : ""}
-                      <span className="ml-1 font-normal">· retrieval context</span>
-                    </p>
-                    {group.candidateEntries.map((entry) => (
-                      <SourceEvidenceRow key={entry.originalIndex} entry={entry} />
-                    ))}
-                  </div>
-                ) : null}
-              </li>
-            );
-          })}
+                <summary className="cursor-pointer select-none font-label text-[10px] font-bold lowercase tracking-wide text-muted transition-colors hover:text-foreground">
+                  show {model.overflowEntryCount} more match{model.overflowEntryCount !== 1 ? "es" : ""}
+                  <span className="ml-1 font-normal">· weaker content matches</span>
+                </summary>
+                <ol className="mt-2.5 space-y-2.5 pl-0">
+                  {model.overflowGroups.map((group) => (
+                    <SourceEpisodeGroup key={group.key} group={group} />
+                  ))}
+                </ol>
+              </details>
+            </li>
+          ) : null}
         </ol>
       </div>
     </details>

@@ -18,7 +18,7 @@ const TRIGGER_PREFIX = "STUB_TRIGGER::";
 
 function groundedSources() {
   return [
-    { n: 1, videoId: "RSB58m7Xwhg", title: "Public Episode One", score: 0.91, start: 125, timestamped: true, timestampStatus: "verified", timestampReason: null, url: "https://www.youtube.com/watch?v=RSB58m7Xwhg" },
+    { n: 1, videoId: "RSB58m7Xwhg", title: "Public Episode One", score: 0.91, start: 125, timestamped: true, timestampStatus: "verified", timestampReason: null, timestampConfidence: 0.97, url: "https://www.youtube.com/watch?v=RSB58m7Xwhg" },
     { n: 2, videoId: "QdWHGjReLUo", title: "Public Episode Two", score: 0.77, start: null, timestamped: false, timestampStatus: "source_timing_unavailable", timestampReason: "This published transcript was ingested without timestamp data; the link opens the full episode.", url: "https://www.youtube.com/watch?v=QdWHGjReLUo" },
   ];
 }

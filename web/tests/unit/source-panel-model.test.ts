@@ -145,4 +145,46 @@ describe("source-panel projection", () => {
 
     expect(model.groups[0].entries.map((entry) => entry.evidenceId)).toEqual(["C1", "[1]"]);
   });
+
+  it("keeps the strongest excerpts visible and collapses the rest behind the overflow", () => {
+    const many: PublicSourceCitation[] = Array.from({ length: 9 }, (_, index) => ({
+      videoId: `episode${String(index + 1).padStart(4, "0")}`,
+      title: `Episode ${index + 1}`,
+      sourceMode: "published",
+      // Descending scores so the split is deterministic.
+      score: 0.9 - index * 0.01,
+    }));
+
+    const model = buildSourcePanelModel({ sources: many, visibleMode: "both" });
+
+    expect(model.groups).toHaveLength(9);
+    expect(model.primaryGroups.map((group) => group.key)).toEqual([
+      "episode0001",
+      "episode0002",
+      "episode0003",
+      "episode0004",
+      "episode0005",
+    ]);
+    expect(model.overflowGroups).toHaveLength(4);
+    expect(model.overflowEntryCount).toBe(4);
+  });
+
+  it("promotes a whole episode group when any of its excerpts is a top match", () => {
+    const clustered: PublicSourceCitation[] = [
+      { videoId: "episode0001", title: "Episode one", sourceMode: "published", score: 0.99 },
+      { videoId: "episode0001", title: "Episode one", sourceMode: "uncut", score: 0.50 },
+      { videoId: "episode0002", title: "Episode two", sourceMode: "published", score: 0.80 },
+    ];
+
+    const model = buildSourcePanelModel({
+      sources: clustered,
+      visibleMode: "both",
+      topN: 1,
+    });
+
+    expect(model.primaryGroups.map((group) => group.key)).toEqual(["episode0001"]);
+    expect(model.primaryGroups[0].entries).toHaveLength(2);
+    expect(model.overflowGroups.map((group) => group.key)).toEqual(["episode0002"]);
+    expect(model.overflowEntryCount).toBe(1);
+  });
 });

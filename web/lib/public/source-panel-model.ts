@@ -25,6 +25,11 @@ export interface SourcePanelGroup {
 
 export interface SourcePanelModel {
   readonly groups: SourcePanelGroup[];
+  /** Groups containing one of the top-N strongest excerpts — always shown. */
+  readonly primaryGroups: SourcePanelGroup[];
+  /** Remaining groups — collapsed behind the "more matches" disclosure. */
+  readonly overflowGroups: SourcePanelGroup[];
+  readonly overflowEntryCount: number;
   readonly totalCitedCount: number;
   readonly visibleCitedCount: number;
   readonly hiddenCitedCount: number;
@@ -37,10 +42,14 @@ function entryScore(entry: SourcePanelEntry): number {
   return typeof score === "number" && Number.isFinite(score) ? score : -1;
 }
 
+export const SOURCE_PANEL_TOP_MATCHES = 5;
+
 export function buildSourcePanelModel(_input: {
   sources: readonly PublicSourceCitation[];
   citedIndices?: readonly number[];
   visibleMode: SourceMode;
+  /** How many of the strongest excerpts stay visible before the overflow. */
+  topN?: number;
 }): SourcePanelModel {  const citedSet = _input.citedIndices === undefined
     ? null
     : new Set(
@@ -131,8 +140,31 @@ export function buildSourcePanelModel(_input: {
   const totalCitedCount = entries.filter((entry) => entry.isCited).length;
   const visibleCitedCount = visibleEntries.filter((entry) => entry.isCited).length;
 
+  // The strongest excerpts stay on the page; the rest of the relevant
+  // matches collapse behind the "more matches" disclosure. Ordering still
+  // follows content match strength — the badge reports timestamp certainty,
+  // so it must not drive the split.
+  const topN = Math.max(1, _input.topN ?? SOURCE_PANEL_TOP_MATCHES);
+  const strongestKeys = new Set(
+    [...visibleEntries]
+      .sort((left, right) => {
+        const scoreDelta = entryScore(right) - entryScore(left);
+        if (scoreDelta !== 0) return scoreDelta;
+        if (left.isCited !== right.isCited) return left.isCited ? -1 : 1;
+        return left.originalIndex - right.originalIndex;
+      })
+      .slice(0, topN)
+      .map((entry) => entry.source.episodeId ?? entry.source.videoId ?? entry.source.url ?? `source-${entry.citationNumber}`),
+  );
+  const primaryGroups = groups.filter((group) => strongestKeys.has(group.key));
+  const overflowGroups = groups.filter((group) => !strongestKeys.has(group.key));
+  const overflowEntryCount = overflowGroups.reduce((total, group) => total + group.entries.length, 0);
+
   return {
     groups,
+    primaryGroups,
+    overflowGroups,
+    overflowEntryCount,
     totalCitedCount,
     visibleCitedCount,
     hiddenCitedCount: totalCitedCount - visibleCitedCount,

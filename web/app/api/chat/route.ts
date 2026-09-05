@@ -36,6 +36,7 @@ type EdgeSource = {
   mappingStatus?: "mapped" | "unmapped" | "unavailable" | "conflicted";
   timestampStatus?: TimestampStatus;
   timestampReason?: string | null;
+  timestampConfidence?: number;
   segmentId?: string;
 };
 
@@ -170,6 +171,10 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
       ),
       timestamp_status: timestampStatus,
       timestamp_reason: publicTimestampReason(source, mode, timestampStatus),
+      timestamp_confidence: typeof source.timestampConfidence === "number"
+          && Number.isFinite(source.timestampConfidence)
+        ? Math.round(Math.min(1, Math.max(0, source.timestampConfidence)) * 1000) / 1000
+        : null,
       segment_id: source.segmentId ?? (mode === "uncut" ? `uncut:${source.videoId}` : null),
     };
   }));

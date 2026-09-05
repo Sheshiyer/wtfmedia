@@ -26,6 +26,7 @@ import {
   prioritizeMatchesForQuestionWithAnchor,
   projectDualSourceCitation,
   resolveEpisodeScopedSources,
+  timestampConfidenceFor,
   UNCUT_OFFSET_KEY_PREFIX,
 } from "./chat/source-mode.ts";
 import { queryEvidenceSourcesForQuestion } from "./chat/evidence-coordinator.ts";
@@ -355,33 +356,36 @@ async function retrieveSourcesForQuery(
   // Some uncut transcripts were ingested on a different clock than the
   // published cut (pre-roll, cold opens). The alignment job stores a measured
   // per-episode offset in KV; shift verified uncut citations onto the
-  // published clock so the pair shows the same moment within seconds.
-  const uncutVideoIds = [
+  // published clock so the pair shows the same moment within seconds, and
+  // stamp every citation with a timestamp confidence for the public badge.
+  const offsetVideoIds = [
     ...new Set(
       sources
-        .filter((source) => source.sourceMode === "uncut" && source.start != null)
+        .filter((source) => source.sourceMode === "uncut")
         .map((source) => source.videoId),
     ),
   ];
-  if (uncutVideoIds.length > 0) {
-    const offsets = new Map(
-      await Promise.all(
-        uncutVideoIds.map(async (videoId) => {
-          try {
-            const raw = await env.WTFMEDIA_STATE.get(`${UNCUT_OFFSET_KEY_PREFIX}${videoId}`);
-            return [videoId, parseUncutClockOffset(raw)] as const;
-          } catch (error) {
-            console.warn("wtfmedia uncut offset lookup failed", {
-              videoId,
-              error: error instanceof Error ? error.message : "unknown",
-            });
-            return [videoId, null] as const;
-          }
-        }),
-      ),
-    );
-    sources = sources.map((source) => applyUncutClockOffset(source, offsets.get(source.videoId) ?? null));
-  }
+  const offsets = new Map(
+    await Promise.all(
+      offsetVideoIds.map(async (videoId) => {
+        try {
+          const raw = await env.WTFMEDIA_STATE.get(`${UNCUT_OFFSET_KEY_PREFIX}${videoId}`);
+          return [videoId, parseUncutClockOffset(raw)] as const;
+        } catch (error) {
+          console.warn("wtfmedia uncut offset lookup failed", {
+            videoId,
+            error: error instanceof Error ? error.message : "unknown",
+          });
+          return [videoId, null] as const;
+        }
+      }),
+    ),
+  );
+  sources = sources.map((source) => {
+    const offset = offsets.get(source.videoId) ?? null;
+    const corrected = applyUncutClockOffset(source, offset);
+    return { ...corrected, timestampConfidence: timestampConfidenceFor(corrected, offset) };
+  });
   return { resolved, sources, episodeId: queried.episodeId };
 }
 
