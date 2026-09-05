@@ -31,12 +31,17 @@ export interface SourcePanelModel {
   readonly visibleCandidateCount: number;
 }
 
+/** Retrieval confidence drives ordering; a missing score sorts last. */
+function entryScore(entry: SourcePanelEntry): number {
+  const score = entry.source.score;
+  return typeof score === "number" && Number.isFinite(score) ? score : -1;
+}
+
 export function buildSourcePanelModel(_input: {
   sources: readonly PublicSourceCitation[];
   citedIndices?: readonly number[];
   visibleMode: SourceMode;
-}): SourcePanelModel {
-  const citedSet = _input.citedIndices === undefined
+}): SourcePanelModel {  const citedSet = _input.citedIndices === undefined
     ? null
     : new Set(
       _input.citedIndices.filter(
@@ -66,9 +71,7 @@ export function buildSourcePanelModel(_input: {
     entries: SourcePanelEntry[];
     firstOriginalIndex: number;
     firstCitedIndex: number;
-  }>();
-
-  for (const entry of visibleEntries) {
+  }>();  for (const entry of visibleEntries) {
     const key = entry.source.episodeId
       ?? entry.source.videoId
       ?? entry.source.url
@@ -96,15 +99,23 @@ export function buildSourcePanelModel(_input: {
     .map((group) => ({
       key: group.key,
       label: group.label,
+      // Confidence first: a high-scoring candidate outranks a low-scoring
+      // citation. Cited status and original rank only break score ties.
       entries: [...group.entries].sort((left, right) => {
+        const scoreDelta = entryScore(right) - entryScore(left);
+        if (scoreDelta !== 0) return scoreDelta;
         if (left.isCited !== right.isCited) return left.isCited ? -1 : 1;
         return left.originalIndex - right.originalIndex;
       }),
       firstOriginalIndex: group.firstOriginalIndex,
       firstCitedIndex: group.firstCitedIndex,
       hasCited: group.entries.some((entry) => entry.isCited),
+      bestScore: Math.max(...group.entries.map(entryScore)),
     }))
     .sort((left, right) => {
+      // Episodes rank by their strongest excerpt's confidence.
+      const scoreDelta = right.bestScore - left.bestScore;
+      if (scoreDelta !== 0) return scoreDelta;
       if (left.hasCited !== right.hasCited) return left.hasCited ? -1 : 1;
       return left.hasCited
         ? left.firstCitedIndex - right.firstCitedIndex

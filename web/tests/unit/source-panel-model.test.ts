@@ -112,4 +112,37 @@ describe("source-panel projection", () => {
     expect(model.visibleCandidateCount).toBe(0);
     expect(model.groups[0].entries.map((entry) => entry.evidenceId)).toEqual(["[1]", "[2]"]);
   });
+
+  it("ranks episodes and excerpts by confidence score ahead of cited status", () => {
+    const scored: PublicSourceCitation[] = [
+      { videoId: "episode-low", title: "Low confidence cited", sourceMode: "published", score: 0.54 },
+      { videoId: "episode-low", title: "Low confidence cited", sourceMode: "published", score: 0.53 },
+      { videoId: "episode-high", title: "High confidence candidate", sourceMode: "uncut", score: 0.59 },
+    ];
+
+    const model = buildSourcePanelModel({
+      sources: scored,
+      citedIndices: [1, 2],
+      visibleMode: "both",
+    });
+
+    expect(model.groups.map((group) => group.key)).toEqual(["episode-high", "episode-low"]);
+    expect(model.groups[0].entries.map((entry) => entry.evidenceId)).toEqual(["C1"]);
+    expect(model.groups[1].entries.map((entry) => entry.evidenceId)).toEqual(["[1]", "[2]"]);
+  });
+
+  it("ranks a higher-scored candidate above a lower-scored citation within an episode", () => {
+    const scored: PublicSourceCitation[] = [
+      { videoId: "episode0001", title: "Episode one", sourceMode: "published", score: 0.54 },
+      { videoId: "episode0001", title: "Episode one", sourceMode: "uncut", score: 0.59 },
+    ];
+
+    const model = buildSourcePanelModel({
+      sources: scored,
+      citedIndices: [1],
+      visibleMode: "both",
+    });
+
+    expect(model.groups[0].entries.map((entry) => entry.evidenceId)).toEqual(["C1", "[1]"]);
+  });
 });
