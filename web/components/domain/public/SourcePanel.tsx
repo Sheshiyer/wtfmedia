@@ -53,11 +53,11 @@ function isApprovedFrameIoUrl(value: string | undefined): value is string {
 /**
  * Match-strength label for a source's calibrated confidence (see
  * lib/provenance/confidence). Sources arrive strongest-first; the badge makes
- * that ranking visible on the calibrated 35–97% display scale.
+ * that ranking visible on the calibrated 85–99% display scale.
  */
 function matchTier(score: number): string {
-  if (score >= 0.85) return "strong match";
-  if (score >= 0.65) return "medium match";
+  if (score >= 0.96) return "strong match";
+  if (score >= 0.92) return "medium match";
   return "loose match";
 }
 

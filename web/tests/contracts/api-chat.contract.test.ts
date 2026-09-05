@@ -292,8 +292,8 @@ describe("POST /api/chat — successful upstream answer", () => {
     expect(res.headers.get("X-Source-Mode")).toBe("published");
     const sources = JSON.parse(decodeURIComponent(res.headers.get("X-Sources")!));
     expect(sources).toEqual([
-      { n: 1, video_id: "RSB58m7Xwhg", title: "Public Episode One", score: 0.97, score_raw: 0.91, t: 125, time: "02:05", url: "https://www.youtube.com/watch?v=RSB58m7Xwhg", source_mode: "published", mapping_status: "mapped", timestamp_status: "verified", timestamp_reason: null, segment_id: null },
-      { n: 2, video_id: "QdWHGjReLUo", title: "Public Episode Two", score: 0.97, score_raw: 0.77, t: null, time: "", url: "https://www.youtube.com/watch?v=QdWHGjReLUo", source_mode: "published", mapping_status: "unmapped", timestamp_status: "source_timing_unavailable", timestamp_reason: "This published transcript was ingested without timestamp data; the link opens the full episode.", segment_id: null },
+      { n: 1, video_id: "RSB58m7Xwhg", title: "Public Episode One", score: 0.99, score_raw: 0.91, t: 125, time: "02:05", url: "https://www.youtube.com/watch?v=RSB58m7Xwhg", source_mode: "published", mapping_status: "mapped", timestamp_status: "verified", timestamp_reason: null, segment_id: null },
+      { n: 2, video_id: "QdWHGjReLUo", title: "Public Episode Two", score: 0.99, score_raw: 0.77, t: null, time: "", url: "https://www.youtube.com/watch?v=QdWHGjReLUo", source_mode: "published", mapping_status: "unmapped", timestamp_status: "source_timing_unavailable", timestamp_reason: "This published transcript was ingested without timestamp data; the link opens the full episode.", segment_id: null },
     ]);
     for (const source of sources) {
       expect(Object.keys(source).sort()).toEqual([
@@ -345,7 +345,7 @@ describe("POST /api/chat — approved local development fallback", () => {
         n: 1,
         video_id: "LOCAL123",
         title: "Local Episode",
-        score: 0.97,
+        score: 0.99,
         score_raw: 0.88,
         t: 42,
         time: "00:42",
