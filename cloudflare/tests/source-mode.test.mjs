@@ -5,6 +5,7 @@ import {
   applyUncutClockOffset,
   buildCounterpartQueryOptions,
   buildVectorQueryOptions,
+  dropUncutOnlyEpisodes,
   extractNamedEntityPhrases,
   filterMatchesByEpisodeId,
   filterAndProjectMatches,
@@ -1036,5 +1037,62 @@ describe("queryCounterpartMatches", () => {
 
     assert.equal(vectorize.calls.length, 1);
     assert.deepEqual(matches, []);
+  });
+});
+
+describe("dropUncutOnlyEpisodes", () => {
+  const row = (videoId, sourceMode) => ({ videoId, sourceMode });
+
+  test("drops episodes that can only show an uncut excerpt", () => {
+    const sources = [
+      row("paired", "published"),
+      row("paired", "uncut"),
+      row("uncut-only", "uncut"),
+      row("published-only", "published"),
+    ];
+
+    assert.deepEqual(
+      dropUncutOnlyEpisodes(sources).map((source) => [source.videoId, source.sourceMode]),
+      [["paired", "published"], ["paired", "uncut"], ["published-only", "published"]],
+    );
+  });
+
+  test("keeps uncut rows whose episode also carries published evidence", () => {
+    const sources = [row("ep", "uncut"), row("ep", "published")];
+    assert.equal(dropUncutOnlyEpisodes(sources).length, 2);
+  });
+
+  test("never empties the evidence set when nothing published remains", () => {
+    const sources = [row("a", "uncut"), row("b", "uncut")];
+    assert.equal(dropUncutOnlyEpisodes(sources).length, 2);
+  });
+});
+
+describe("withRestoredDualMode after the published floor", () => {
+  const baseResolved = {
+    citations: [],
+    requestedSourceMode: "both",
+    evidenceSourceMode: "uncut",
+    fallbackReason: "requested_mode_not_competitive",
+    sourceMode: "uncut",
+    uncutUnavailable: false,
+  };
+
+  test("relabels uncut to published when the surviving evidence is published-only", () => {
+    const restored = withRestoredDualMode(baseResolved, [
+      { sourceMode: "published" },
+      { sourceMode: "published" },
+    ]);
+
+    assert.equal(restored.sourceMode, "published");
+    assert.equal(restored.evidenceSourceMode, "published");
+    assert.equal(restored.fallbackReason, null);
+  });
+
+  test("keeps the uncut label when the surviving evidence is genuinely uncut-only", () => {
+    const restored = withRestoredDualMode(baseResolved, [{ sourceMode: "uncut" }]);
+
+    assert.equal(restored.sourceMode, "uncut");
+    assert.equal(restored.fallbackReason, "requested_mode_not_competitive");
   });
 });

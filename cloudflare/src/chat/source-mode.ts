@@ -423,6 +423,9 @@ function resolvedSources(
  * cross-timeline, which is exactly the "published time unavailable" bug.
  * When the final evidence is dual, the response mode must say so; the
  * not-competitive caveat no longer applies once both timelines are present.
+ * The same staleness applies in the other direction: once uncut-only
+ * episodes are dropped from the evidence (dropUncutOnlyEpisodes), an
+ * "uncut" label over published-only rows must read "published".
  */
 export function withRestoredDualMode(
   resolved: ResolvedChatSources,
@@ -430,11 +433,16 @@ export function withRestoredDualMode(
 ): ResolvedChatSources {
   if (resolved.requestedSourceMode !== "both" || resolved.sourceMode === "both") return resolved;
   const modes = new Set(citations.map((citation) => citation.sourceMode));
-  if (modes.size < 2) return resolved;
+  const evidenceMode = modes.size === 2
+    ? "both"
+    : modes.has("published") && resolved.sourceMode === "uncut"
+      ? "published"
+      : null;
+  if (!evidenceMode) return resolved;
   return {
     ...resolved,
-    sourceMode: "both",
-    evidenceSourceMode: "both",
+    sourceMode: evidenceMode,
+    evidenceSourceMode: evidenceMode,
     fallbackReason: resolved.fallbackReason === "requested_mode_not_competitive"
       ? null
       : resolved.fallbackReason,
@@ -725,11 +733,33 @@ export async function queryCounterpartMatches(
 }
 
 /**
+ * Published is the floor of every answer: an episode that can only show an
+ * uncut excerpt is dropped from the evidence set entirely. Uncut survives
+ * only alongside its published cut. The one exception is a result with no
+ * published evidence at all — dropping everything would leave the answer
+ * unsourced, so the uncut-only set passes through unchanged (an explicit
+ * "uncut" request never reaches this helper).
+ */
+export function dropUncutOnlyEpisodes<T extends { videoId: string; sourceMode: string }>(
+  sources: readonly T[],
+): T[] {
+  const publishedEpisodes = new Set<string>();
+  for (const source of sources) {
+    if (source.sourceMode !== "uncut") publishedEpisodes.add(source.videoId);
+  }
+  if (publishedEpisodes.size === 0) return [...sources];
+  return sources.filter(
+    (source) => source.sourceMode !== "uncut" || publishedEpisodes.has(source.videoId),
+  );
+}
+
+/**
  * Episodes in a resolved result that show only one timeline. In "both" mode
  * every episode has both timelines ingested, so a gap means the counterpart
  * fell outside the retrieval window — the caller should backfill it with a
  * buildCounterpartQueryOptions query.
- */export function findSingleTimelineGaps(
+ */
+export function findSingleTimelineGaps(
   citations: readonly DualSourceCitation[],
 ): Array<{ videoId: string; missing: StoredSourceMode }> {
   const modesByEpisode = new Map<string, Set<StoredSourceMode>>();

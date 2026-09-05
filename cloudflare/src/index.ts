@@ -18,6 +18,7 @@ import { allowCalendarRequest, handleCalendarRequest } from "./calendar.ts";
 import {
   applyUncutClockOffset,
   queryCounterpartMatches,
+  dropUncutOnlyEpisodes,
   findSingleTimelineGaps,
   parseEpisodeId,
   parseSourceMode,
@@ -380,9 +381,19 @@ async function retrieveSourcesForQuery(
         }
         for (const leftover of counterpartByEpisode.values()) merged.push(leftover);
         sources = merged.map((source, index) => ({ ...source, n: index + 1 }));
-        resolved = withRestoredDualMode(resolved, sources);
       }
     }
+  }
+
+  // Published is the floor: an episode that can only show an uncut excerpt
+  // is dropped rather than rendered single-timeline, then the response mode
+  // label is aligned with whatever evidence survived.
+  if (sourceMode === "both" && queried.episodeId == null && sources.length > 0) {
+    const publishedFloor = dropUncutOnlyEpisodes(sources);
+    if (publishedFloor.length !== sources.length) {
+      sources = publishedFloor.map((source, index) => ({ ...source, n: index + 1 }));
+    }
+    resolved = withRestoredDualMode(resolved, sources);
   }
 
   // Some uncut transcripts were ingested on a different clock than the
