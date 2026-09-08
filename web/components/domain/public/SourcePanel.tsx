@@ -10,13 +10,11 @@
 "use client";
 
 import { useId, useState } from "react";
-import Link from "next/link";
 import { resolveCitation } from "@/lib/provenance/catalog-mapping";
 import type { PublicSourceCitation } from "@/lib/provenance/public-source-header";
 import type { SourceMode } from "@/lib/provenance/source-mode";
 import type { PublicMoment, PublicMomentsPayload } from "@/lib/provenance/public-moment-header";
 import { formatPlaybackTimestamp } from "@/lib/provenance/useDualPlayback";
-import { publicEpisodeHref } from "@/lib/public/chat-citations";
 import { downloadMomentsXlsx, formatClock } from "@/lib/public/moments-export";
 import { Button } from "@/components/ui/Button";
 import {
@@ -159,9 +157,16 @@ function SourceEpisodeGroup({
   group: SourcePanelGroup;
   moments?: PublicMoment[];
 }) {
-  const episodeHref = publicEpisodeHref(group.entries[0]?.source);
   const candidateOnly = group.citedEntries.length === 0;
   const momentGuest = moments?.find((moment) => moment.guest)?.guest;
+  // The episode title opens YouTube — at the first moment's start when one
+  // resolved, otherwise the episode from the top.
+  const videoId = moments?.[0]?.videoId ?? group.entries[0]?.source.videoId;
+  const titleHref = moments?.[0]
+    ? momentDeepLink(moments[0])
+    : videoId
+      ? youtubeWatchUrl(videoId, null)
+      : null;
 
   return (
     <li
@@ -176,13 +181,15 @@ function SourceEpisodeGroup({
           <p className="font-label text-[9px] font-bold uppercase tracking-[0.08em] text-muted">
             {candidateOnly ? "candidate episode" : "cited episode"}
           </p>
-          {episodeHref ? (
-            <Link
-              href={episodeHref}
+          {titleHref ? (
+            <a
+              href={titleHref}
+              target="_blank"
+              rel="noreferrer"
               className="block truncate font-medium text-foreground underline decoration-foreground/30 hover:decoration-foreground"
             >
               {momentGuest ? `${momentGuest} — ${group.label}` : group.label}
-            </Link>
+            </a>
           ) : (
             <p className="truncate font-medium text-foreground">
               {momentGuest ? `${momentGuest} — ${group.label}` : group.label}
@@ -226,7 +233,8 @@ function SourceEpisodeGroup({
 }
 
 function SourceOverflowGroup({ group }: { group: SourcePanelOverflowGroup }) {
-  const episodeHref = publicEpisodeHref(group.entries[0]?.source);
+  const videoId = group.entries[0]?.source.videoId;
+  const titleHref = videoId ? youtubeWatchUrl(videoId, null) : null;
 
   return (
     <li
@@ -238,13 +246,15 @@ function SourceOverflowGroup({ group }: { group: SourcePanelOverflowGroup }) {
         <p className="font-label text-[9px] font-bold uppercase tracking-[0.08em] text-muted">
           more matches
         </p>
-        {episodeHref ? (
-          <Link
-            href={episodeHref}
+        {titleHref ? (
+          <a
+            href={titleHref}
+            target="_blank"
+            rel="noreferrer"
             className="block truncate font-medium text-foreground underline decoration-foreground/30 hover:decoration-foreground"
           >
             {group.label}
-          </Link>
+          </a>
         ) : (
           <p className="truncate font-medium text-foreground">{group.label}</p>
         )}

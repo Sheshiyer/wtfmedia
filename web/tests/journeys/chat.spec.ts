@@ -365,13 +365,14 @@ test.describe("/chat journey — migrated variant", () => {
       "rgb(26, 26, 26)",
     );
 
+    // Episode titles open YouTube, not the internal episode page.
     await expect(sourcePanel.getByRole("link", { name: "Published cited source", exact: true })).toHaveAttribute(
       "href",
-      "/episodes/pubsource1a",
+      "https://www.youtube.com/watch?v=pubsource1a",
     );
     await expect(sourcePanel.getByRole("link", { name: "Published candidate untimed", exact: true })).toHaveAttribute(
       "href",
-      "/episodes/pubsource3c",
+      "https://www.youtube.com/watch?v=pubsource3c",
     );
     await expect(sourcePanel.getByRole("link", { name: "Uncut candidate source", exact: true })).toHaveCount(0);
     await expect(sourcePanel.getByRole("link", { name: "Uncut cited source", exact: true })).toHaveCount(0);
