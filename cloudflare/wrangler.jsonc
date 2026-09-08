@@ -12,7 +12,8 @@
   },
   "ai": { "binding": "AI" },
   "vectorize": [
-    { "binding": "VECTORIZE", "index_name": "wtfmedia-catalogue-v1" }
+    // remote: wrangler dev cannot emulate Vectorize; always query the real index
+    { "binding": "VECTORIZE", "index_name": "wtfmedia-catalogue-v1", "remote": true }
   ],
   "kv_namespaces": [
     { "binding": "WTFMEDIA_STATE", "id": "bb48d85f7ebf4f8da02ac0030cfdf816" }
@@ -36,6 +37,7 @@
     ]
   },
   "d1_databases": [
-    { "binding": "DB", "database_name": "wtfmedia-ops", "database_id": "1becf8fa-37e3-49f0-9d7c-9bc91b588466" }
+    // remote: chat reads the real catalogue tables; local D1 starts empty
+    { "binding": "DB", "database_name": "wtfmedia-ops", "database_id": "1becf8fa-37e3-49f0-9d7c-9bc91b588466", "remote": true }
   ]
 }

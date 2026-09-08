@@ -127,16 +127,21 @@ export function buildMoments(sources: readonly MomentSource[]): Moment[] {
  * to the next moment (or was never retrieved), so its start is this moment's
  * end on the episode clock.
  */
+type VectorLookup = { id: string; metadata?: Record<string, unknown> | null };
+// The real binding resolves to a bare VectorizeVector[]; some mocks/SDKs wrap
+// it in { matches }. Accept both.
+type GetByIdsResult = VectorLookup[] | { matches?: VectorLookup[] };
+
 export async function resolveMomentEnds(
-  vectorize: { getByIds(ids: string[]): Promise<{ matches?: Array<{ id: string; metadata?: Record<string, unknown> | null }> }> },
+  vectorize: { getByIds(ids: string[]): Promise<GetByIdsResult> },
   moments: Moment[],
 ): Promise<Moment[]> {
   const ids = [...new Set(moments.map((moment) => `${moment.videoId}:${moment.chunkEnd + 1}`))];
   if (ids.length === 0) return moments;
-  let found: Array<{ id: string; metadata?: Record<string, unknown> | null }> = [];
+  let found: VectorLookup[] = [];
   try {
     const result = await vectorize.getByIds(ids);
-    found = Array.isArray(result?.matches) ? result.matches : [];
+    found = Array.isArray(result) ? result : Array.isArray(result?.matches) ? result.matches : [];
   } catch {
     return moments; // durations stay unknown; the answer must not fail on this
   }

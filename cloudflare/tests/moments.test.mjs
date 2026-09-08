@@ -80,14 +80,13 @@ describe("buildMoments", () => {
 describe("resolveMomentEnds", () => {
   test("fills end and duration from the next chunk's start, batched", async () => {
     const requested = [];
+    // Real env.VECTORIZE.getByIds resolves to a plain VectorizeVector[] array.
     const vectorize = {
       async getByIds(ids) {
         requested.push(ids);
-        return {
-          matches: ids
-            .filter((id) => id === "abc123def45:6")
-            .map((id) => ({ id, metadata: { start: 420 } })),
-        };
+        return ids
+          .filter((id) => id === "abc123def45:6")
+          .map((id) => ({ id, metadata: { start: 420 } }));
       },
     };
     const [moment] = await resolveMomentEnds(vectorize, buildMoments([
@@ -99,11 +98,21 @@ describe("resolveMomentEnds", () => {
   });
 
   test("leaves duration null when the next chunk is missing or lookup fails", async () => {
-    const empty = { async getByIds() { return { matches: [] }; } };
+    const empty = { async getByIds() { return []; } };
     const failing = { async getByIds() { throw new Error("boom"); } };
     const base = buildMoments([source({ n: 1, start: 300, segmentId: "abc123def45:5" })]);
     assert.equal((await resolveMomentEnds(empty, base))[0].durationSec, null);
     assert.equal((await resolveMomentEnds(failing, base))[0].durationSec, null);
+  });
+
+  test("also accepts the wrapped { matches } shape from SDK-style mocks", async () => {
+    const wrapped = {
+      async getByIds() { return { matches: [{ id: "abc123def45:6", metadata: { start: 420 } }] }; },
+    };
+    const [moment] = await resolveMomentEnds(wrapped, buildMoments([
+      source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
+    ]));
+    assert.equal(moment.endSec, 420);
   });
 });
 
