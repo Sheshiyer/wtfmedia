@@ -96,10 +96,10 @@ const MAX_HISTORY_TURNS = 6;
 const MIN_SCORE = 0.45;
 // Wide retrieval slice for moments: distinct from the answer's 6-source
 // citation cap — the sheet view keeps multiple passages per episode.
-const MOMENT_CHUNK_LIMIT = 24;
+const MOMENT_CHUNK_LIMIT = 48;
 // Bound on moments shipped in the response header after merging/budgeting,
 // so the enrichment call and the X-Moments header stay sized sanely.
-const MAX_MOMENTS = 15;
+const MAX_MOMENTS = 25;
 type HistoryTurn = { role: "user" | "assistant"; content: string };
 
 function cors(request: Request, env: Env) {
@@ -521,10 +521,10 @@ async function momentsForAnswer(
 ): Promise<{ moments: EnrichedMoment[]; totalDurationSec: number; budgetSec: number | null }> {
   let moments: Moment[] = buildMoments(sources);
   if (moments.length === 0) return { moments: [], totalDurationSec: 0, budgetSec: null };
-  moments = await resolveMomentEnds(env.VECTORIZE, moments);
-  // Score-ordered cap keeps the enrichment call and the response header
-  // bounded when a broad query resolves many passages.
+  // Score-ordered cap before end resolution keeps the getByIds lookups, the
+  // enrichment call, and the response header bounded on broad queries.
   moments = moments.slice(0, MAX_MOMENTS);
+  moments = await resolveMomentEnds(env.VECTORIZE, moments);
   const budgetSec = parseDurationBudget(question);
   const budgeted = applyDurationBudget(moments, budgetSec);
   const visible = budgeted.moments.filter((moment) => moment.withinBudget);
@@ -537,7 +537,7 @@ async function momentsForAnswer(
         { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
         { role: "user", content: buildMomentEnrichmentInput(question, visible) },
       ],
-      max_tokens: 2400,
+      max_tokens: 3600,
       temperature: 0.2,
     });
     const text = extractAnswerText(result);

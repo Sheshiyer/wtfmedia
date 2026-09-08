@@ -114,6 +114,26 @@ describe("resolveMomentEnds", () => {
     ]));
     assert.equal(moment.endSec, 420);
   });
+
+  test("splits lookups into batches of 20 — the Vectorize getByIds ceiling", async () => {
+    const requested = [];
+    const vectorize = {
+      async getByIds(ids) {
+        requested.push(ids);
+        return ids.map((id) => ({ id, metadata: { start: 1000 } }));
+      },
+    };
+    // 25 moments across distinct episodes → 25 next-chunk ids → 2 batches.
+    const sources = Array.from({ length: 25 }, (_, index) => {
+      const videoId = `video${String(index).padStart(5, "0")}x`;
+      return source({ n: index + 1, videoId, start: 100, segmentId: `${videoId}:3` });
+    });
+    const moments = await resolveMomentEnds(vectorize, buildMoments(sources));
+    assert.equal(requested.length, 2);
+    assert.equal(requested[0].length, 20);
+    assert.equal(requested[1].length, 5);
+    assert.ok(moments.every((moment) => moment.durationSec === 900));
+  });
 });
 
 describe("parseDurationBudget", () => {

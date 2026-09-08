@@ -219,7 +219,7 @@ function SourceEpisodeGroup({
         </div>
       ) : null}
 
-      {group.visibleCandidateEntries.length > 0 ? (
+      {group.visibleCandidateEntries.length > 0 && !(moments && moments.length > 0) ? (
         <div className="mt-2 space-y-2 border-t border-foreground/10 pt-2" data-testid="candidate-evidence">
           <p className="font-label text-[10px] font-bold lowercase text-muted">
             {group.visibleCandidateEntries.length} top candidate excerpt{group.visibleCandidateEntries.length !== 1 ? "s" : ""}

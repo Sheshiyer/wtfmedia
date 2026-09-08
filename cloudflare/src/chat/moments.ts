@@ -122,11 +122,12 @@ export function buildMoments(sources: readonly MomentSource[]): Moment[] {
 }
 
 /**
- * Fill each moment's end from the start of the following chunk, one batched
- * lookup for the whole answer. The chunk after a moment's last chunk belongs
- * to the next moment (or was never retrieved), so its start is this moment's
- * end on the episode clock.
+ * Fill each moment's end from the start of the following chunk. The chunk
+ * after a moment's last chunk belongs to the next moment (or was never
+ * retrieved), so its start is this moment's end on the episode clock.
+ * Vectorize getByIds caps at 20 ids per call, so the lookup is batched.
  */
+const GET_BY_IDS_BATCH = 20;
 type VectorLookup = { id: string; metadata?: Record<string, unknown> | null };
 // The real binding resolves to a bare VectorizeVector[]; some mocks/SDKs wrap
 // it in { matches }. Accept both.
@@ -140,9 +141,17 @@ export async function resolveMomentEnds(
   if (ids.length === 0) return moments;
   let found: VectorLookup[] = [];
   try {
-    const result = await vectorize.getByIds(ids);
-    found = Array.isArray(result) ? result : Array.isArray(result?.matches) ? result.matches : [];
-  } catch {
+    const batches: GetByIdsResult[] = await Promise.all(
+      Array.from({ length: Math.ceil(ids.length / GET_BY_IDS_BATCH) }, (_, index) =>
+        vectorize.getByIds(ids.slice(index * GET_BY_IDS_BATCH, (index + 1) * GET_BY_IDS_BATCH))),
+    );
+    found = batches.flatMap((result) =>
+      Array.isArray(result) ? result : Array.isArray(result?.matches) ? result.matches : []);
+  } catch (error) {
+    console.warn("wtfmedia moment end lookup failed", {
+      message: error instanceof Error ? error.message : "unknown",
+      idCount: ids.length,
+    });
     return moments; // durations stay unknown; the answer must not fail on this
   }
   const startById = new Map<string, number>();
