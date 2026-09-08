@@ -153,9 +153,11 @@ function SourceEvidenceRow({ entry }: { entry: SourcePanelEntry }) {
 function SourceEpisodeGroup({
   group,
   moments,
+  kindLabel,
 }: {
   group: SourcePanelGroup;
   moments?: PublicMoment[];
+  kindLabel?: string;
 }) {
   const candidateOnly = group.citedEntries.length === 0;
   const momentGuest = moments?.find((moment) => moment.guest)?.guest;
@@ -179,7 +181,7 @@ function SourceEpisodeGroup({
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="font-label text-[9px] font-bold uppercase tracking-[0.08em] text-muted">
-            {candidateOnly ? "candidate episode" : "cited episode"}
+            {kindLabel ?? (candidateOnly ? "candidate episode" : "cited episode")}
           </p>
           {titleHref ? (
             <a
@@ -297,6 +299,23 @@ export function SourcePanel({
   const totalLabel = moments ? formatClock(moments.totalDurationSec) : null;
   const budgetLabel = moments?.budgetSec != null ? formatClock(moments.budgetSec) : null;
 
+  // Moments come from a wider retrieval than the answer's citations, so an
+  // episode can hold relevant passages without being cited — surface those
+  // as their own groups instead of dropping them.
+  const coveredVideoIds = new Set<string>();
+  for (const group of [...model.primaryGroups, ...model.overflowGroups]) {
+    const videoId = group.entries[0]?.source.videoId;
+    if (videoId) coveredVideoIds.add(videoId);
+  }
+  const momentOnlyGroups = [...momentsByVideo.entries()]
+    .filter(([videoId]) => !coveredVideoIds.has(videoId))
+    .map(([videoId, episodeMoments]) => ({
+      videoId,
+      episodeMoments,
+      bestScore: Math.max(...episodeMoments.map((moment) => moment.score)),
+    }))
+    .sort((a, b) => b.bestScore - a.bestScore);
+
   async function handleExport() {
     if (!moments) return;
     setExporting(true);
@@ -381,6 +400,22 @@ export function SourcePanel({
               key={group.key}
               group={group}
               moments={momentsByVideo.get(group.entries[0]?.source.videoId ?? "")}
+            />
+          ))}
+          {momentOnlyGroups.map(({ videoId, episodeMoments }) => (
+            <SourceEpisodeGroup
+              key={`moments-${videoId}`}
+              group={{
+                key: videoId,
+                label: episodeMoments[0].title,
+                entries: [],
+                citedEntries: [],
+                candidateEntries: [],
+                visibleCandidateEntries: [],
+                hiddenCandidateEntries: [],
+              }}
+              moments={episodeMoments}
+              kindLabel="related episode"
             />
           ))}
           {model.overflowGroups.length > 0 ? (

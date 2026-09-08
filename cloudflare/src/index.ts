@@ -27,6 +27,7 @@ import {
   withRestoredDualMode,
   prioritizeMatchesForQuestionWithAnchor,
   resolveEpisodeScopedSources,
+  filterAndProjectMatches,
   timestampConfidenceFor,
   UNCUT_OFFSET_KEY_PREFIX,
 } from "./chat/source-mode.ts";
@@ -93,6 +94,12 @@ const MAX_BODY_BYTES = 16_000;
 const MAX_QUESTION_CHARS = 2_000;
 const MAX_HISTORY_TURNS = 6;
 const MIN_SCORE = 0.45;
+// Wide retrieval slice for moments: distinct from the answer's 6-source
+// citation cap — the sheet view keeps multiple passages per episode.
+const MOMENT_CHUNK_LIMIT = 24;
+// Bound on moments shipped in the response header after merging/budgeting,
+// so the enrichment call and the X-Moments header stay sized sanely.
+const MAX_MOMENTS = 15;
 type HistoryTurn = { role: "user" | "assistant"; content: string };
 
 function cors(request: Request, env: Env) {
@@ -440,7 +447,26 @@ async function retrieveSourcesForQuery(
     const corrected = applyUncutClockOffset(source, offset);
     return { ...corrected, timestampConfidence: timestampConfidenceFor(corrected, offset) };
   });
-  return { resolved, sources, episodeId: queried.episodeId };
+
+  // Moments need a wider window than the answer's citation list: the answer
+  // caps at 6 deduped episodes, but the editor sheet wants every relevant
+  // passage — multiple chunks per episode, no episode dedupe. Same ranking,
+  // same score floor, just a bigger slice of the matches already retrieved.
+  // Uncut chunks only form moments when the evidence is uncut-mode; otherwise
+  // published is the floor (its YouTube timestamps are what the sheet links).
+  const momentMode = resolved.sourceMode === "uncut" ? "uncut" : "published";
+  const momentSources = filterAndProjectMatches(
+    prioritized.matches,
+    momentMode,
+    MIN_SCORE,
+    MOMENT_CHUNK_LIMIT,
+    false,
+  ).map((source) => {
+    const match = prioritized.matches.find((item: { id?: unknown }) => String(item.id ?? "") === source.segmentId);
+    return { ...source, text: match?.metadata?.text as string | undefined };
+  });
+
+  return { resolved, sources, momentSources, episodeId: queried.episodeId };
 }
 
 async function generateFollowUps(
@@ -496,6 +522,9 @@ async function momentsForAnswer(
   let moments: Moment[] = buildMoments(sources);
   if (moments.length === 0) return { moments: [], totalDurationSec: 0, budgetSec: null };
   moments = await resolveMomentEnds(env.VECTORIZE, moments);
+  // Score-ordered cap keeps the enrichment call and the response header
+  // bounded when a broad query resolves many passages.
+  moments = moments.slice(0, MAX_MOMENTS);
   const budgetSec = parseDurationBudget(question);
   const budgeted = applyDurationBudget(moments, budgetSec);
   const visible = budgeted.moments.filter((moment) => moment.withinBudget);
@@ -508,7 +537,7 @@ async function momentsForAnswer(
         { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
         { role: "user", content: buildMomentEnrichmentInput(question, visible) },
       ],
-      max_tokens: 900,
+      max_tokens: 2400,
       temperature: 0.2,
     });
     const text = extractAnswerText(result);
@@ -571,7 +600,7 @@ async function chat(request: Request, env: Env) {
   }
   try {
     const searchQuery = await reformulateQuery(env, question, history);
-    const { resolved, sources, episodeId: resolvedEpisodeId } = await retrieveSourcesForQuery(env, searchQuery, sourceMode, episodeId);
+    const { resolved, sources, momentSources, episodeId: resolvedEpisodeId } = await retrieveSourcesForQuery(env, searchQuery, sourceMode, episodeId);
     if (sources.length < 2) {
       return reply(request, env, {
         answer: resolved.uncutUnavailable
@@ -601,7 +630,13 @@ async function chat(request: Request, env: Env) {
       : `CONTEXT:\n${evidenceContext}\n\nQUESTION: ${question}`;
     // Moments don't need the answer text — run the merge/duration/enrichment
     // pipeline alongside answer generation so its LLM call hides behind it.
-    const momentsPromise = momentsForAnswer(env, question, sources);
+    // Moments use the wide retrieval slice (no per-episode dedupe) so an
+    // episode can contribute several distinct passages, like the editor sheet.
+    const momentsPromise = momentsForAnswer(
+      env,
+      question,
+      momentSources.length > 0 ? momentSources : sources,
+    );
     const answered = await answerWithFallback(env, [
         { role: "system", content: WTF_OS_CONVERSATION_SKILL.systemPrompt },
         { role: "user", content: userContent },
