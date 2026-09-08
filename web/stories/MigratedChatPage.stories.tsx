@@ -3,6 +3,7 @@ import { fn } from "storybook/test";
 import { AskComposer } from "@/components/domain/public/AskComposer";
 import { ConversationThread } from "@/components/domain/public/ConversationThread";
 import { SourcePanel } from "@/components/domain/public/SourcePanel";
+import { MomentPanel } from "@/components/domain/public/MomentPanel";
 
 const meta: Meta = {
   title: "Domain/Public/Chat",
@@ -365,4 +366,99 @@ export const GroupedBothModeEvidence: SourceStory = {
 
 export const EmptySources: SourceStory = {
   render: () => <SourcePanel sources={[]} />,
+};
+
+/* ── MomentPanel ─────────────────────────────────────────────────────── */
+
+type MomentStory = StoryObj;
+
+export const GroupedMoments: MomentStory = {
+  render: () => (
+    <MomentPanel
+      question="tell me about relationships"
+      payload={{
+        totalDurationSec: 150,
+        budgetSec: 1800,
+        moments: [
+          {
+            videoId: "fL2wyVLX08o",
+            title: "Ep 12: A Guest on Love",
+            url: "https://www.youtube.com/watch?v=fL2wyVLX08o",
+            startSec: 300,
+            endSec: 345,
+            durationSec: 45,
+            score: 0.9,
+            timestampConfidence: 0.8,
+            citationNumbers: [1],
+            withinBudget: true,
+            guest: "A Guest",
+            theme: "Love",
+            topic: "long distance",
+            summary: "They describe keeping a relationship alive while apart.",
+            whyRelevant: "Directly answers the relationship question.",
+            strength: 5,
+          },
+          {
+            videoId: "fL2wyVLX08o",
+            title: "Ep 12: A Guest on Love",
+            url: "https://www.youtube.com/watch?v=fL2wyVLX08o",
+            startSec: 630,
+            endSec: 705,
+            durationSec: 75,
+            score: 0.7,
+            timestampConfidence: 0.8,
+            citationNumbers: [2],
+            withinBudget: true,
+            topic: "trust after betrayal",
+            summary: "A story about rebuilding trust.",
+            strength: 3,
+          },
+          {
+            videoId: "vPvnzWoK24Q",
+            title: "Ep 20: Another Guest",
+            url: "https://www.youtube.com/watch?v=vPvnzWoK24Q",
+            startSec: 360,
+            endSec: 420,
+            durationSec: 60,
+            score: 0.6,
+            timestampConfidence: null,
+            citationNumbers: [3],
+            withinBudget: true,
+            guest: "Another Guest",
+            topic: "first dates",
+            summary: "Why first dates should be short.",
+            strength: 4,
+          },
+        ],
+      }}
+    />
+  ),
+};
+
+export const MomentsWithoutBudget: MomentStory = {
+  render: () => (
+    <MomentPanel
+      payload={{
+        totalDurationSec: 45,
+        budgetSec: null,
+        moments: [
+          {
+            videoId: "fL2wyVLX08o",
+            title: "Ep 12: A Guest on Love",
+            url: "https://www.youtube.com/watch?v=fL2wyVLX08o",
+            startSec: 300,
+            endSec: 345,
+            durationSec: 45,
+            score: 0.9,
+            timestampConfidence: 0.8,
+            citationNumbers: [1],
+            withinBudget: true,
+            topic: "long distance",
+            summary: "They describe keeping a relationship alive while apart.",
+            strength: 5,
+          },
+        ],
+      }}
+    />
+  ),
 };

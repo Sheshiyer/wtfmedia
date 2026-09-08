@@ -40,6 +40,25 @@ type EdgeSource = {
   segmentId?: string;
 };
 
+type EdgeMoment = {
+  videoId: string;
+  title: string;
+  url: string;
+  startSec: number;
+  endSec: number | null;
+  durationSec: number | null;
+  score: number;
+  timestampConfidence: number | null;
+  citationNumbers: number[];
+  withinBudget: boolean;
+  guest?: string;
+  theme?: string;
+  topic?: string;
+  summary?: string;
+  whyRelevant?: string;
+  strength?: number;
+};
+
 type ResponseState = "answered_grounded" | "retrieval_weak" | "synthesis_invalid" | "abstained";
 type SourceFallbackReason = "requested_mode_insufficient" | "requested_mode_not_competitive";
 
@@ -59,6 +78,9 @@ type EdgeAnswer = {
   citedIndices?: number[];
   followUps?: string[];
   searchQuery?: string;
+  moments?: EdgeMoment[];
+  totalMomentDurationSec?: number;
+  durationBudgetSec?: number | null;
 };
 
 const SOURCE_FALLBACK_REASONS = new Set<SourceFallbackReason>([
@@ -189,6 +211,54 @@ function isApprovedFrameIoUrl(value: string): boolean {
   } catch {
     return false;
   }
+}
+
+function textField(value: unknown, max = 300): string | undefined {
+  return typeof value === "string" && value.trim() ? value.trim().slice(0, max) : undefined;
+}
+
+function secondsField(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
+}
+
+/**
+ * Moments arrive from the edge already structured; this projection re-checks
+ * every field anyway — the header crosses a process boundary and must fail
+ * closed to "no moments" rather than trust the shape.
+ */
+function momentHeader(answer: EdgeAnswer): string {
+  const raw = Array.isArray(answer.moments) ? answer.moments : [];
+  const moments = raw.flatMap((moment) => {
+    const videoId = textField(moment?.videoId, 32);
+    const startSec = secondsField(moment?.startSec);
+    if (!videoId || startSec == null) return [];
+    const strength = Number(moment.strength);
+    return [{
+      video_id: videoId,
+      title: textField(moment.title, 200) ?? videoId,
+      url: textField(moment.url, 500) ?? `https://www.youtube.com/watch?v=${videoId}`,
+      start_sec: startSec,
+      end_sec: secondsField(moment.endSec),
+      duration_sec: secondsField(moment.durationSec),
+      score: secondsField(moment.score) ?? 0,
+      timestamp_confidence: secondsField(moment.timestampConfidence),
+      citation_numbers: Array.isArray(moment.citationNumbers)
+        ? moment.citationNumbers.filter((n) => Number.isSafeInteger(n) && n > 0)
+        : [],
+      within_budget: moment.withinBudget !== false,
+      guest: textField(moment.guest),
+      theme: textField(moment.theme),
+      topic: textField(moment.topic),
+      summary: textField(moment.summary, 400),
+      why_relevant: textField(moment.whyRelevant, 300),
+      strength: Number.isInteger(strength) && strength >= 1 && strength <= 5 ? strength : null,
+    }];
+  });
+  return JSON.stringify({
+    moments,
+    total_duration_sec: secondsField(answer.totalMomentDurationSec) ?? 0,
+    budget_sec: secondsField(answer.durationBudgetSec),
+  });
 }
 
 /** Local-only RAG path for `next dev`; production remains Cloudflare-only. */
@@ -355,6 +425,7 @@ export async function POST(req: NextRequest) {
       "X-Fallback": result.grounded && !result.modelFallback ? "false" : "true",
       "X-Response-State": publicResponseState(result.responseState),
       "X-Cited-Indices": JSON.stringify(citedIndices),
+      "X-Moments": encodeURIComponent(momentHeader(result)),
       ...(followUps.length > 0 ? { "X-Follow-Ups": JSON.stringify(followUps) } : {}),
       "Cache-Control": "no-store",
     },

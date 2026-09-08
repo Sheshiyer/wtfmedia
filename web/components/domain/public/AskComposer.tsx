@@ -2,7 +2,6 @@
 
 import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
-import { SOURCE_MODES, type SourceMode } from "@/lib/provenance/source-mode";
 
 interface AskComposerProps {
   value: string;
@@ -10,8 +9,6 @@ interface AskComposerProps {
   onSubmit: () => void;
   disabled?: boolean;
   loading?: boolean;
-  sourceMode?: SourceMode;
-  onSourceModeChange?: (mode: SourceMode) => void;
 }
 
 export function AskComposer({
@@ -20,8 +17,6 @@ export function AskComposer({
   onSubmit,
   disabled = false,
   loading = false,
-  sourceMode = "published",
-  onSourceModeChange,
 }: AskComposerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -45,30 +40,7 @@ export function AskComposer({
       data-testid="ask-composer"
     >
       <div className="mx-auto flex max-w-5xl items-center gap-1.5 rounded-full border-2 border-foreground bg-surface-raised/95 px-1.5 py-1 shadow-[0_-4px_0_rgb(var(--wtf-foreground-rgb)/0.10)] backdrop-blur-md sm:gap-2 sm:px-3 sm:py-1.5">
-        <div
-          className="inline-flex shrink-0 rounded-full p-0.5"
-          role="group"
-          aria-label="source mode"
-          data-testid="source-mode-toggle"
-        >
-          {SOURCE_MODES.map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              aria-pressed={sourceMode === mode}
-              disabled={disabled || loading}
-              onClick={() => onSourceModeChange?.(mode)}
-              className={[
-                "min-h-7 rounded-full px-2 font-label text-[10px] font-bold lowercase transition-colors sm:px-2.5 sm:text-[11px]",
-                sourceMode === mode
-                  ? "bg-knowledge text-on-knowledge"
-                  : "text-muted hover:text-foreground",
-              ].join(" ")}
-            >
-              {mode}
-            </button>
-          ))}
-        </div>
+        {/* Public beta is published-only; no uncut/both selector. */}
         <div className="relative min-w-0 flex-1">
           <input
             id="ask-wtf-composer"

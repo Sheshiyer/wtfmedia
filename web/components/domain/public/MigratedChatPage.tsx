@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { AskComposer } from "./AskComposer";
 import { ConversationThread, type Message, type Source } from "./ConversationThread";
 import { parsePublicSourceHeader } from "@/lib/provenance/public-source-header";
-import { parseSourceMode, type SourceMode } from "@/lib/provenance/source-mode";
+import { parsePublicMomentsHeader } from "@/lib/provenance/public-moment-header";
+import { parseSourceMode } from "@/lib/provenance/source-mode";
 import type { AnswerQueryScope } from "@/lib/public/source-panel-model";
 
 /* ------------------------------------------------------------------ */
@@ -20,7 +21,8 @@ function ChatInner() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [autoSubmitted, setAutoSubmitted] = useState(false);
-  const [sourceMode, setSourceMode] = useState<SourceMode>("published");
+  // Published-only for the beta — the uncut/both selector is hidden.
+  const sourceMode = "published" as const;
 
   /* Auto-submit from ?q= param (once) */
   useEffect(() => {
@@ -76,9 +78,11 @@ function ChatInner() {
       const modelHeader = response.headers.get("X-Model");
       const fallbackHeader = response.headers.get("X-Fallback");
       const responseModeHeader = response.headers.get("X-Source-Mode");
+      // Requests are always published; the header only describes what came back.
       const responseSourceMode = responseModeHeader
         ? parseSourceMode(responseModeHeader)
         : queryScope.sourceMode;
+      const momentsPayload = parsePublicMomentsHeader(response.headers.get("X-Moments"));
       const responseState = response.headers.get("X-Response-State") || undefined;
       let citedIndices: number[] | undefined;
       try {
@@ -115,6 +119,7 @@ function ChatInner() {
             followUps,
             queryScope,
             effectiveSourceMode: responseSourceMode,
+            moments: momentsPayload.moments.length > 0 ? momentsPayload : undefined,
           },
         ]);
 
@@ -199,8 +204,6 @@ function ChatInner() {
             onChange={setInput}
             onSubmit={send}
             loading={loading}
-            sourceMode={sourceMode}
-            onSourceModeChange={setSourceMode}
           />
         }
       />

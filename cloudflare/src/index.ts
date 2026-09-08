@@ -32,6 +32,17 @@ import {
 } from "./chat/source-mode.ts";
 import { queryEvidenceSourcesForQuestion } from "./chat/evidence-coordinator.ts";
 import {
+  applyDurationBudget,
+  buildMomentEnrichmentInput,
+  buildMoments,
+  MOMENT_ENRICHMENT_PROMPT,
+  parseDurationBudget,
+  parseMomentEnrichment,
+  resolveMomentEnds,
+  type EnrichedMoment,
+  type Moment,
+} from "./chat/moments.ts";
+import {
   WTF_OS_CONVERSATION_SKILL,
   buildFollowUpGenerationInput,
   parseCitationMarkers,
@@ -470,6 +481,53 @@ function requiresVerifiedMetadata(question: string) {
     || /\b(?:recur(?:ring|s)?|repeat(?:s|ed|ing)?|appear(?:s|ances?|ing)?|mentioned|occur(?:s|rence)?|most)\b[\s\S]{0,100}\b(?:\d+\s*\+?\s*(?:episodes?|conversations?)|across|throughout)\b/i.test(question);
 }
 
+/**
+ * Editor-sheet moments: merge adjacent chunks into start–end ranges, fill
+ * durations from the next chunk's start, apply any duration budget in the
+ * question, then label each moment (theme/topic/summary/why/strength) with
+ * one fast-model call. Every step degrades independently — a failure anywhere
+ * still returns moments with timestamps, never blocks the answer.
+ */
+async function momentsForAnswer(
+  env: Env,
+  question: string,
+  sources: Array<{ n: number; videoId: string; title: string; url: string; score: number; start: number | null; segmentId?: string; text?: string; timestampConfidence?: number | null }>,
+): Promise<{ moments: EnrichedMoment[]; totalDurationSec: number; budgetSec: number | null }> {
+  let moments: Moment[] = buildMoments(sources);
+  if (moments.length === 0) return { moments: [], totalDurationSec: 0, budgetSec: null };
+  moments = await resolveMomentEnds(env.VECTORIZE, moments);
+  const budgetSec = parseDurationBudget(question);
+  const budgeted = applyDurationBudget(moments, budgetSec);
+  const visible = budgeted.moments.filter((moment) => moment.withinBudget);
+  if (visible.length === 0) {
+    return { moments: budgeted.moments, totalDurationSec: budgeted.totalDurationSec, budgetSec };
+  }
+  try {
+    const result = await env.AI.run(FAST_MODEL, {
+      messages: [
+        { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
+        { role: "user", content: buildMomentEnrichmentInput(question, visible) },
+      ],
+      max_tokens: 900,
+      temperature: 0.2,
+    });
+    const text = extractAnswerText(result);
+    if (!text.trim()) throw new Error("empty moment enrichment");
+    const enrichments = parseMomentEnrichment(text, visible.length);
+    const enriched = new Map(visible.map((moment, index) => [moment, enrichments[index]]));
+    return {
+      moments: budgeted.moments.map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) })),
+      totalDurationSec: budgeted.totalDurationSec,
+      budgetSec,
+    };
+  } catch (error) {
+    console.warn("wtfmedia moment enrichment failed", {
+      error: error instanceof Error ? error.message : "unknown",
+    });
+    return { moments: budgeted.moments, totalDurationSec: budgeted.totalDurationSec, budgetSec };
+  }
+}
+
 async function chat(request: Request, env: Env) {
   if (request.headers.get("Content-Type")?.split(";", 1)[0] !== "application/json") return reply(request, env, { error: "content_type_required" }, 415);
   if (!(await rateLimit(request, env))) {
@@ -541,6 +599,9 @@ async function chat(request: Request, env: Env) {
     const userContent = priorContext
       ? `PRIOR CONVERSATION:\n${priorContext}\n\nCONTEXT:\n${evidenceContext}\n\nQUESTION: ${question}`
       : `CONTEXT:\n${evidenceContext}\n\nQUESTION: ${question}`;
+    // Moments don't need the answer text — run the merge/duration/enrichment
+    // pipeline alongside answer generation so its LLM call hides behind it.
+    const momentsPromise = momentsForAnswer(env, question, sources);
     const answered = await answerWithFallback(env, [
         { role: "system", content: WTF_OS_CONVERSATION_SKILL.systemPrompt },
         { role: "user", content: userContent },
@@ -552,6 +613,15 @@ async function chat(request: Request, env: Env) {
       !/\[[^\]]*\d/.test(text)
       && /(?:do(?:es)? not establish|not enough relevant evidence|not supported|cannot be answered from|no excerpt)/i.test(text);
     const projectSources = () => sources.map(({ text: _text, ...source }: any) => source);
+    // Excerpt is enrichment input, not public payload.
+    const projectMoments = async () => {
+      const { moments, totalDurationSec, budgetSec } = await momentsPromise;
+      return {
+        moments: moments.map(({ excerpt: _excerpt, ...moment }) => moment),
+        totalMomentDurationSec: totalDurationSec,
+        durationBudgetSec: budgetSec,
+      };
+    };
     if (isModelAbstention(answered.answer)) {
       return reply(request, env, {
         answer: answered.answer,
@@ -604,6 +674,7 @@ async function chat(request: Request, env: Env) {
         return reply(request, env, {
           answer: repaired.answer,
           sources: projectSources(),
+          ...(await projectMoments()),
           grounded: true,
           sourceMode: resolved.sourceMode,
           requestedSourceMode: resolved.requestedSourceMode,
@@ -623,6 +694,7 @@ async function chat(request: Request, env: Env) {
       return reply(request, env, {
         answer: citedEvidenceFallback(sources),
         sources: projectSources(),
+        ...(await projectMoments()),
         grounded: true,
         sourceMode: resolved.sourceMode,
         requestedSourceMode: resolved.requestedSourceMode,
@@ -642,6 +714,7 @@ async function chat(request: Request, env: Env) {
     return reply(request, env, {
       answer: answered.answer,
       sources: projectSources(),
+      ...(await projectMoments()),
       grounded: true,
       sourceMode: resolved.sourceMode,
       requestedSourceMode: resolved.requestedSourceMode,

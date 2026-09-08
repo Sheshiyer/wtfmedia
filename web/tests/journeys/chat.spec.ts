@@ -149,14 +149,14 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(submitButton).toHaveCSS("color", "rgb(26, 26, 26)");
   });
 
-  test("composer is compact and keeps source mode inside the send bar", async ({ page }) => {
+  test("composer is compact and published-only in the beta", async ({ page }) => {
     await page.goto("/chat");
     await settle(page);
 
     const composer = page.locator('[data-testid="ask-composer"]');
     await expect(composer.locator(".wtf-type-rail")).toHaveCount(0);
-    await expect(composer.getByTestId("source-mode-toggle")).toBeVisible();
-    await expect(composer.getByRole("button")).toHaveCount(4);
+    await expect(composer.getByTestId("source-mode-toggle")).toHaveCount(0);
+    await expect(composer.getByRole("button")).toHaveCount(1);
     await expect(composer).not.toContainText("find the exact moment where the guest changes their mind");
   });
 
@@ -315,7 +315,8 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    await page.getByTestId("ask-composer").getByRole("button", { name: "both", exact: true }).click();
+    // The composer is published-only; the mocked response still carries both
+    // timelines, and the panel must render each one faithfully.
     await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Compare the published and uncut sources.");
     await page.locator('button[type="submit"]').click();
 
@@ -339,35 +340,32 @@ test.describe("/chat journey — migrated variant", () => {
     const sourceRows = sourcePanel.getByTestId("source-evidence-row");
     const episodeGroups = sourcePanel.getByTestId("source-episode-group");
     const playbackLinks = sourceRows.locator('a[target="_blank"]');
-    const candidateBadges = sourcePanel.getByText("candidate", { exact: true });
+    const candidateRows = sourcePanel.locator('[data-testid="source-evidence-row"][data-evidence-kind="candidate"]');
     const timestampReasons = sourcePanel.getByTestId("timestamp-reason");
 
     await expect(episodeGroups).toHaveCount(4);
     await expect(sourceRows).toHaveCount(4);
     await expect(playbackLinks).toHaveCount(3);
-    await expect(candidateBadges).toHaveCount(2);
+    await expect(candidateRows).toHaveCount(2);
     await expect(timestampReasons).toHaveCount(1);
     await expect(sourceRows.nth(0)).toContainText("[1]");
     await expect(sourceRows.nth(0)).toContainText("published 2:05");
-    await expect(sourceRows.nth(0)).not.toContainText("candidate");
+    await expect(sourceRows.nth(0)).toHaveAttribute("data-evidence-kind", "citation");
     await expect(sourceRows.nth(1)).toContainText("[4]");
     await expect(sourceRows.nth(1)).toContainText("uncut 7:00");
-    await expect(sourceRows.nth(1)).not.toContainText("candidate");
+    await expect(sourceRows.nth(1)).toHaveAttribute("data-evidence-kind", "citation");
     await expect(sourceRows.nth(2)).toContainText("C1");
     await expect(sourceRows.nth(2)).toContainText("uncut 5:00");
-    await expect(sourceRows.nth(2)).toContainText("candidate");
+    await expect(sourceRows.nth(2)).toHaveAttribute("data-evidence-kind", "candidate");
     await expect(sourceRows.nth(2)).not.toContainText("[2]");
     await expect(sourceRows.nth(3)).toContainText("C2");
     await expect(sourceRows.nth(3)).toContainText("published time unavailable");
-    await expect(sourceRows.nth(3)).toContainText("candidate");
+    await expect(sourceRows.nth(3)).toHaveAttribute("data-evidence-kind", "candidate");
     await expect(sourceRows.nth(3)).not.toContainText("[3]");
 
+    // Candidate excerpts render inline (no disclosure) in the current panel.
     const candidateEvidence = sourcePanel.getByTestId("candidate-evidence");
     await expect(candidateEvidence).toHaveCount(2);
-    await expect(candidateEvidence.nth(0)).not.toHaveAttribute("open", "");
-    await expect(candidateEvidence.nth(1)).not.toHaveAttribute("open", "");
-    await candidateEvidence.nth(0).locator("summary").click();
-    await candidateEvidence.nth(1).locator("summary").click();
 
     await expect(sourcePanel.getByRole("link", { name: "open published moment", exact: true }).first()).toHaveCSS(
       "background-color",
@@ -421,11 +419,11 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(sourcePanel).toContainText("some published transcripts have no source timing; those links open the full episode.");
     await expect(sourceRows).toHaveCount(2);
     await expect(playbackLinks).toHaveCount(2);
-    await expect(candidateBadges).toHaveCount(1);
+    await expect(candidateRows).toHaveCount(1);
     await expect(timestampReasons).toHaveCount(1);
     await expect(sourceRows.nth(0)).toContainText("[1]");
     await expect(sourceRows.nth(1)).toContainText("C2");
-    await expect(sourceRows.nth(1)).toContainText("candidate");
+    await expect(sourceRows.nth(1)).toHaveAttribute("data-evidence-kind", "candidate");
     await expect(sourceRows.nth(1).getByRole("link", { name: "open full published episode", exact: true })).toHaveAttribute(
       "href",
       "https://www.youtube.com/watch?v=pubsource3c",
@@ -440,12 +438,12 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(sourcePanel).toContainText("uncut timestamps come from the response");
     await expect(sourceRows).toHaveCount(2);
     await expect(playbackLinks).toHaveCount(1);
-    await expect(candidateBadges).toHaveCount(1);
+    await expect(candidateRows).toHaveCount(1);
     await expect(timestampReasons).toHaveCount(0);
     await expect(sourceRows.nth(0)).toContainText("[4]");
     await expect(sourceRows.nth(1)).toContainText("C1");
-    await expect(sourceRows.nth(0)).not.toContainText("candidate");
-    await expect(sourceRows.nth(1)).toContainText("candidate");
+    await expect(sourceRows.nth(0)).toHaveAttribute("data-evidence-kind", "citation");
+    await expect(sourceRows.nth(1)).toHaveAttribute("data-evidence-kind", "candidate");
 
     await bothButton.click();
     await expect(publishedButton).toHaveAttribute("aria-pressed", "false");
@@ -455,7 +453,7 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(sourcePanel.getByTestId("hidden-citation-notice")).toHaveCount(0);
     await expect(sourceRows).toHaveCount(4);
     await expect(playbackLinks).toHaveCount(3);
-    await expect(candidateBadges).toHaveCount(2);
+    await expect(candidateRows).toHaveCount(2);
     await expect(timestampReasons).toHaveCount(1);
     await expect(sourceRows.nth(0)).toContainText("[1]");
     await expect(sourceRows.nth(1)).toContainText("[4]");
@@ -538,26 +536,27 @@ test.describe("/chat journey — migrated variant", () => {
     await settle(page);
 
     const composer = page.getByTestId("ask-composer");
-    await composer.getByRole("button", { name: "both", exact: true }).click();
     await composer.getByRole("textbox", { name: "Ask the catalogue" }).fill("Compare the edits.");
     await composer.locator('button[type="submit"]').click();
 
     const sourcePanel = page.getByTestId("source-panel");
     await expect(sourcePanel).toBeVisible({ timeout: 10000 });
-    expect(requestedMode).toBe("both");
+    // The composer no longer offers a mode choice — requests are published-only.
+    expect(requestedMode).toBe("published");
 
     const answerScope = sourcePanel.getByTestId("answer-query-scope");
     await expect(answerScope).toBeVisible();
-    await expect(answerScope).toContainText("searched: both");
+    await expect(answerScope).toContainText("searched: published");
     await expect(answerScope).toContainText("catalogue scope");
     await expect(answerScope).toContainText("returned evidence: both");
-    await composer.getByRole("button", { name: "published", exact: true }).click();
-    await expect(answerScope).toContainText("searched: both");
     await sourcePanel.locator("summary").first().click();
 
     const viewControls = sourcePanel.getByRole("group", {
       name: "View evidence returned for this answer (view only)",
     });
+    // The request went out published-only, so the default view is published;
+    // switch the view-only control to both to inspect the uncut evidence too.
+    await viewControls.getByRole("button", { name: "both", exact: true }).click();
     const episodeGroups = sourcePanel.getByTestId("source-episode-group");
     await expect(episodeGroups).toHaveCount(3);
     await expect(episodeGroups.nth(0)).toHaveAttribute("data-episode-key", "episode0001");
@@ -566,9 +565,8 @@ test.describe("/chat journey — migrated variant", () => {
 
     const firstGroup = episodeGroups.nth(0);
     await expect(firstGroup.getByText("[1]", { exact: true })).toBeVisible();
+    // Candidate excerpts render inline (no disclosure) in the current panel.
     const firstCandidates = firstGroup.getByTestId("candidate-evidence");
-    await expect(firstCandidates).not.toHaveAttribute("open", "");
-    await firstCandidates.locator("summary").click();
     await expect(firstCandidates.getByText("C1", { exact: true })).toBeVisible();
     await expect(firstCandidates.getByText("[2]", { exact: true })).toHaveCount(0);
 
@@ -898,6 +896,8 @@ test.describe("/chat journey — migrated variant", () => {
 
     await expect(page.locator("[data-workspace-header]")).toHaveCount(0);
     await expect(page.locator("h1")).toBeAttached();
-    await expect(page.locator(".wtf-bottom-pill")).toBeVisible();
+    // The chat surface drops the bottom dock; the composer pins to the edge.
+    await expect(page.locator(".wtf-bottom-pill")).toHaveCount(0);
+    await expect(page.getByTestId("ask-composer")).toBeVisible();
   });
 });

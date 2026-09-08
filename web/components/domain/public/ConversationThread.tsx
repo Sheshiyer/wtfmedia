@@ -6,10 +6,12 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { SourcePanel, type SourceCitation } from "./SourcePanel";
+import { MomentPanel } from "./MomentPanel";
 import { Button } from "@/components/ui/Button";
 import { toCitedMarkdown } from "@/lib/public/chat-citations";
 import type { AnswerQueryScope } from "@/lib/public/source-panel-model";
 import type { SourceMode } from "@/lib/provenance/source-mode";
+import type { PublicMomentsPayload } from "@/lib/provenance/public-moment-header";
 
 /**
  * ConversationThread — scrollable message region for the chat route.
@@ -33,6 +35,7 @@ export interface Message {
   followUps?: string[];
   queryScope?: AnswerQueryScope;
   effectiveSourceMode?: SourceMode;
+  moments?: PublicMomentsPayload;
 }
 
 export interface ConversationThreadProps {
@@ -198,6 +201,13 @@ export function ConversationThread({
                           {toCitedMarkdown(msg.content, msg.sources ?? [])}
                         </ReactMarkdown>
                       </div>
+
+                      {msg.moments && (
+                        <MomentPanel
+                          payload={msg.moments}
+                          question={messages.slice(0, i).reverse().find((m) => m.role === "user")?.content}
+                        />
+                      )}
 
                       {msg.sources && msg.sources.length > 0 && (
                         <SourcePanel
