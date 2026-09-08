@@ -3,7 +3,6 @@ import { fn } from "storybook/test";
 import { AskComposer } from "@/components/domain/public/AskComposer";
 import { ConversationThread } from "@/components/domain/public/ConversationThread";
 import { SourcePanel } from "@/components/domain/public/SourcePanel";
-import { MomentPanel } from "@/components/domain/public/MomentPanel";
 
 const meta: Meta = {
   title: "Domain/Public/Chat",
@@ -368,15 +367,44 @@ export const EmptySources: SourceStory = {
   render: () => <SourcePanel sources={[]} />,
 };
 
-/* ── MomentPanel ─────────────────────────────────────────────────────── */
+/* ── SourcePanel with moments ────────────────────────────────────────── */
 
-type MomentStory = StoryObj;
+const MOMENT_SOURCES = [
+  {
+    episodeId: "ep-12",
+    videoId: "fL2wyVLX08o",
+    title: "Ep 12: A Guest on Love",
+    url: "https://www.youtube.com/watch?v=fL2wyVLX08o",
+    score: 0.9,
+    t: 300,
+    timestampStatus: "verified" as const,
+  },
+  {
+    episodeId: "ep-12",
+    videoId: "fL2wyVLX08o",
+    title: "Ep 12: A Guest on Love",
+    url: "https://www.youtube.com/watch?v=fL2wyVLX08o",
+    score: 0.7,
+    t: 630,
+    timestampStatus: "verified" as const,
+  },
+  {
+    episodeId: "ep-20",
+    videoId: "vPvnzWoK24Q",
+    title: "Ep 20: Another Guest",
+    url: "https://www.youtube.com/watch?v=vPvnzWoK24Q",
+    score: 0.6,
+    t: 360,
+    timestampStatus: "verified" as const,
+  },
+];
 
-export const GroupedMoments: MomentStory = {
+export const GroupedMoments: SourceStory = {
   render: () => (
-    <MomentPanel
+    <SourcePanel
+      sources={MOMENT_SOURCES}
       question="tell me about relationships"
-      payload={{
+      moments={{
         totalDurationSec: 150,
         budgetSec: 1800,
         moments: [
@@ -435,10 +463,11 @@ export const GroupedMoments: MomentStory = {
   ),
 };
 
-export const MomentsWithoutBudget: MomentStory = {
+export const MomentsWithoutBudget: SourceStory = {
   render: () => (
-    <MomentPanel
-      payload={{
+    <SourcePanel
+      sources={MOMENT_SOURCES.slice(0, 1)}
+      moments={{
         totalDurationSec: 45,
         budgetSec: null,
         moments: [

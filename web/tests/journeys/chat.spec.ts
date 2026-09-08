@@ -265,7 +265,7 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(sourcePanel.getByRole("link", { name: "open full published episode" })).not.toHaveAttribute("href", /[?&]t=/);
   });
 
-  test("preserves each source timeline in a both-mode response", async ({ page }) => {
+  test("shows only published evidence from a both-mode response", async ({ page }) => {
     mockChatStream(page, ["The answer is grounded in both timelines. [1,4]"], {
       "X-Sources": JSON.stringify([
         {
@@ -315,8 +315,8 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    // The composer is published-only; the mocked response still carries both
-    // timelines, and the panel must render each one faithfully.
+    // The composer is published-only; even when a response carries uncut
+    // timelines, the panel renders only the published evidence.
     await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Compare the published and uncut sources.");
     await page.locator('button[type="submit"]').click();
 
@@ -324,18 +324,13 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(sourcePanel).toBeVisible({ timeout: 10000 });
     await sourcePanel.locator("summary").first().click();
 
-    await expect(sourcePanel).toContainText("2 sources cited, 2 candidate excerpts");
-    await expect(sourcePanel).toContainText("uncut timestamps come from the response");
+    await expect(sourcePanel).toContainText("2 sources cited, 1 candidate excerpt");
 
-    const publishedButton = sourcePanel.getByRole("button", { name: "published", exact: true });
-    const uncutButton = sourcePanel.getByRole("button", { name: "uncut", exact: true });
-    const bothButton = sourcePanel.getByRole("button", { name: "both", exact: true });
-    await expect(publishedButton).toBeEnabled();
-    await expect(uncutButton).toBeEnabled();
-    await expect(bothButton).toBeEnabled();
-    await expect(publishedButton).toHaveAttribute("aria-pressed", "false");
-    await expect(uncutButton).toHaveAttribute("aria-pressed", "false");
-    await expect(bothButton).toHaveAttribute("aria-pressed", "true");
+    // No published/uncut/both view control — the panel is published-only.
+    await expect(sourcePanel.getByRole("group", {
+      name: "View evidence returned for this answer (view only)",
+    })).toHaveCount(0);
+    await expect(sourcePanel.getByTestId("hidden-citation-notice")).toHaveCount(0);
 
     const sourceRows = sourcePanel.getByTestId("source-evidence-row");
     const episodeGroups = sourcePanel.getByTestId("source-episode-group");
@@ -343,29 +338,23 @@ test.describe("/chat journey — migrated variant", () => {
     const candidateRows = sourcePanel.locator('[data-testid="source-evidence-row"][data-evidence-kind="candidate"]');
     const timestampReasons = sourcePanel.getByTestId("timestamp-reason");
 
-    await expect(episodeGroups).toHaveCount(4);
-    await expect(sourceRows).toHaveCount(4);
-    await expect(playbackLinks).toHaveCount(3);
-    await expect(candidateRows).toHaveCount(2);
+    await expect(episodeGroups).toHaveCount(2);
+    await expect(sourceRows).toHaveCount(2);
+    await expect(playbackLinks).toHaveCount(2);
+    await expect(candidateRows).toHaveCount(1);
     await expect(timestampReasons).toHaveCount(1);
     await expect(sourceRows.nth(0)).toContainText("[1]");
     await expect(sourceRows.nth(0)).toContainText("published 2:05");
     await expect(sourceRows.nth(0)).toHaveAttribute("data-evidence-kind", "citation");
-    await expect(sourceRows.nth(1)).toContainText("[4]");
-    await expect(sourceRows.nth(1)).toContainText("uncut 7:00");
-    await expect(sourceRows.nth(1)).toHaveAttribute("data-evidence-kind", "citation");
-    await expect(sourceRows.nth(2)).toContainText("C1");
-    await expect(sourceRows.nth(2)).toContainText("uncut 5:00");
-    await expect(sourceRows.nth(2)).toHaveAttribute("data-evidence-kind", "candidate");
-    await expect(sourceRows.nth(2)).not.toContainText("[2]");
-    await expect(sourceRows.nth(3)).toContainText("C2");
-    await expect(sourceRows.nth(3)).toContainText("published time unavailable");
-    await expect(sourceRows.nth(3)).toHaveAttribute("data-evidence-kind", "candidate");
-    await expect(sourceRows.nth(3)).not.toContainText("[3]");
+    await expect(sourceRows.nth(1)).toContainText("C2");
+    await expect(sourceRows.nth(1)).toContainText("published time unavailable");
+    await expect(sourceRows.nth(1)).toHaveAttribute("data-evidence-kind", "candidate");
+    // Uncut rows never render.
+    await expect(sourcePanel.locator('[data-testid="source-evidence-row"]', { hasText: "uncut" })).toHaveCount(0);
 
     // Candidate excerpts render inline (no disclosure) in the current panel.
     const candidateEvidence = sourcePanel.getByTestId("candidate-evidence");
-    await expect(candidateEvidence).toHaveCount(2);
+    await expect(candidateEvidence).toHaveCount(1);
 
     await expect(sourcePanel.getByRole("link", { name: "open published moment", exact: true }).first()).toHaveCSS(
       "background-color",
@@ -375,97 +364,30 @@ test.describe("/chat journey — migrated variant", () => {
       "color",
       "rgb(26, 26, 26)",
     );
+
     await expect(sourcePanel.getByRole("link", { name: "Published cited source", exact: true })).toHaveAttribute(
       "href",
       "/episodes/pubsource1a",
-    );
-    await expect(sourcePanel.getByRole("link", { name: "Uncut candidate source", exact: true })).toHaveAttribute(
-      "href",
-      "/episodes/uncutsrc02a",
     );
     await expect(sourcePanel.getByRole("link", { name: "Published candidate untimed", exact: true })).toHaveAttribute(
       "href",
       "/episodes/pubsource3c",
     );
-    await expect(sourcePanel.getByRole("link", { name: "Uncut cited source", exact: true })).toHaveAttribute(
-      "href",
-      "/episodes/uncutsrc04b",
-    );
+    await expect(sourcePanel.getByRole("link", { name: "Uncut candidate source", exact: true })).toHaveCount(0);
+    await expect(sourcePanel.getByRole("link", { name: "Uncut cited source", exact: true })).toHaveCount(0);
 
     await expect(sourceRows.nth(0).getByRole("link", { name: "open published moment", exact: true })).toHaveAttribute(
       "href",
       /youtube\.com\/watch\?v=pubsource1a&t=125s/,
     );
-    await expect(sourceRows.nth(2).getByRole("link", { name: "open uncut source", exact: true })).toHaveAttribute(
-      "href",
-      "https://f.io/uncut-candidate-token",
-    );
-    await expect(sourceRows.nth(3).getByRole("link", { name: "open full published episode", exact: true })).toHaveAttribute(
-      "href",
-      "https://www.youtube.com/watch?v=pubsource3c",
-    );
-    await expect(sourceRows.nth(3).getByRole("link", { name: "open full published episode", exact: true })).not.toHaveAttribute(
-      "href",
-      /[?&]t=/,
-    );
-    await expect(sourceRows.nth(1).getByRole("link", { name: "open uncut source", exact: true })).toHaveCount(0);
-
-    await publishedButton.click();
-    await expect(publishedButton).toHaveAttribute("aria-pressed", "true");
-    await expect(uncutButton).toHaveAttribute("aria-pressed", "false");
-    await expect(bothButton).toHaveAttribute("aria-pressed", "false");
-    await expect(sourcePanel.locator("summary").first()).toContainText("2 sources cited, 1 candidate excerpt");
-    await expect(sourcePanel.getByTestId("hidden-citation-notice")).toContainText("1 cited source hidden");
-    await expect(sourcePanel).toContainText("some published transcripts have no source timing; those links open the full episode.");
-    await expect(sourceRows).toHaveCount(2);
-    await expect(playbackLinks).toHaveCount(2);
-    await expect(candidateRows).toHaveCount(1);
-    await expect(timestampReasons).toHaveCount(1);
-    await expect(sourceRows.nth(0)).toContainText("[1]");
-    await expect(sourceRows.nth(1)).toContainText("C2");
-    await expect(sourceRows.nth(1)).toHaveAttribute("data-evidence-kind", "candidate");
     await expect(sourceRows.nth(1).getByRole("link", { name: "open full published episode", exact: true })).toHaveAttribute(
       "href",
       "https://www.youtube.com/watch?v=pubsource3c",
     );
-
-    await uncutButton.click();
-    await expect(publishedButton).toHaveAttribute("aria-pressed", "false");
-    await expect(uncutButton).toHaveAttribute("aria-pressed", "true");
-    await expect(bothButton).toHaveAttribute("aria-pressed", "false");
-    await expect(sourcePanel.locator("summary").first()).toContainText("2 sources cited, 1 candidate excerpt");
-    await expect(sourcePanel.getByTestId("hidden-citation-notice")).toContainText("1 cited source hidden");
-    await expect(sourcePanel).toContainText("uncut timestamps come from the response");
-    await expect(sourceRows).toHaveCount(2);
-    await expect(playbackLinks).toHaveCount(1);
-    await expect(candidateRows).toHaveCount(1);
-    await expect(timestampReasons).toHaveCount(0);
-    await expect(sourceRows.nth(0)).toContainText("[4]");
-    await expect(sourceRows.nth(1)).toContainText("C1");
-    await expect(sourceRows.nth(0)).toHaveAttribute("data-evidence-kind", "citation");
-    await expect(sourceRows.nth(1)).toHaveAttribute("data-evidence-kind", "candidate");
-
-    await bothButton.click();
-    await expect(publishedButton).toHaveAttribute("aria-pressed", "false");
-    await expect(uncutButton).toHaveAttribute("aria-pressed", "false");
-    await expect(bothButton).toHaveAttribute("aria-pressed", "true");
-    await expect(sourcePanel.locator("summary").first()).toContainText("2 sources cited, 2 candidate excerpts");
-    await expect(sourcePanel.getByTestId("hidden-citation-notice")).toHaveCount(0);
-    await expect(sourceRows).toHaveCount(4);
-    await expect(playbackLinks).toHaveCount(3);
-    await expect(candidateRows).toHaveCount(2);
-    await expect(timestampReasons).toHaveCount(1);
-    await expect(sourceRows.nth(0)).toContainText("[1]");
-    await expect(sourceRows.nth(1)).toContainText("[4]");
-    await expect(sourceRows.nth(2)).toContainText("C1");
-    await expect(sourceRows.nth(3)).toContainText("C2");
-
-    const sourceModeSummary = sourcePanel.getByRole("group", {
-      name: "View evidence returned for this answer (view only)",
-    });
-    await expect(sourceModeSummary).toContainText("published");
-    await expect(sourceModeSummary).toContainText("uncut");
-    await expect(sourceModeSummary).toContainText("both");
+    await expect(sourceRows.nth(1).getByRole("link", { name: "open full published episode", exact: true })).not.toHaveAttribute(
+      "href",
+      /[?&]t=/,
+    );
 
     const citationLinks = page.locator('[data-testid="message-1"] .prose-chat a');
     await expect(citationLinks).toHaveCount(2);
@@ -473,7 +395,7 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(citationLinks.nth(1)).toHaveAttribute("href", "/episodes/uncutsrc04b");
   });
 
-  test("keeps query scope immutable while evidence views remain reversible", async ({ page }) => {
+  test("keeps query scope immutable with a published-only evidence view", async ({ page }) => {
     let requestedMode: string | undefined;
     await page.route("/api/chat", (route) => {
       requestedMode = (route.request().postDataJSON() as { sourceMode?: string }).sourceMode;
@@ -551,43 +473,31 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(answerScope).toContainText("returned evidence: both");
     await sourcePanel.locator("summary").first().click();
 
-    const viewControls = sourcePanel.getByRole("group", {
+    // No view control — the panel is published-only even when the response
+    // carries uncut evidence.
+    await expect(sourcePanel.getByRole("group", {
       name: "View evidence returned for this answer (view only)",
-    });
-    // The request went out published-only, so the default view is published;
-    // switch the view-only control to both to inspect the uncut evidence too.
-    await viewControls.getByRole("button", { name: "both", exact: true }).click();
+    })).toHaveCount(0);
     const episodeGroups = sourcePanel.getByTestId("source-episode-group");
-    await expect(episodeGroups).toHaveCount(3);
+    await expect(episodeGroups).toHaveCount(2);
     await expect(episodeGroups.nth(0)).toHaveAttribute("data-episode-key", "episode0001");
-    await expect(episodeGroups.nth(1)).toHaveAttribute("data-episode-key", "episode0003");
-    await expect(episodeGroups.nth(2)).toHaveAttribute("data-episode-key", "episode0002");
+    await expect(episodeGroups.nth(1)).toHaveAttribute("data-episode-key", "episode0002");
 
     const firstGroup = episodeGroups.nth(0);
     await expect(firstGroup.getByText("[1]", { exact: true })).toBeVisible();
-    // Candidate excerpts render inline (no disclosure) in the current panel.
-    const firstCandidates = firstGroup.getByTestId("candidate-evidence");
-    await expect(firstCandidates.getByText("C1", { exact: true })).toBeVisible();
-    await expect(firstCandidates.getByText("[2]", { exact: true })).toHaveCount(0);
+    // Episode one's uncut candidate is not rendered.
+    await expect(firstGroup.getByTestId("candidate-evidence")).toHaveCount(0);
 
     const nativeRows = sourcePanel.getByTestId("source-evidence-row");
     await expect(nativeRows.filter({ hasText: "published 2:05" }).getByRole("link", { name: "open published moment" })).toHaveAttribute(
       "href",
       /youtube\.com\/watch\?v=episode0001&t=125s/,
     );
-    await expect(nativeRows.filter({ hasText: "uncut 5:00" }).getByRole("link", { name: "open uncut source" })).toHaveAttribute(
-      "href",
-      "https://f.io/episode-one",
-    );
+    await expect(nativeRows.filter({ hasText: "uncut" })).toHaveCount(0);
 
-    await viewControls.getByRole("button", { name: "published", exact: true }).click();
     await expect(sourcePanel.locator("summary").first()).toContainText("2 sources cited");
     await expect(sourcePanel.locator("summary").first()).not.toContainText("no sources cited");
-    const hiddenNotice = sourcePanel.getByTestId("hidden-citation-notice");
-    await expect(hiddenNotice).toContainText("1 cited source hidden");
-    await hiddenNotice.getByRole("button", { name: "show all cited sources" }).click();
-    await expect(viewControls.getByRole("button", { name: "both", exact: true })).toHaveAttribute("aria-pressed", "true");
-    await expect(hiddenNotice).toHaveCount(0);
+    await expect(sourcePanel.getByTestId("hidden-citation-notice")).toHaveCount(0);
 
     await page.setViewportSize({ width: 320, height: 900 });
     await expect(answerScope).toBeVisible();

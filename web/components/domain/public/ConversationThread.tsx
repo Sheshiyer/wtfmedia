@@ -6,7 +6,6 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { SourcePanel, type SourceCitation } from "./SourcePanel";
-import { MomentPanel } from "./MomentPanel";
 import { Button } from "@/components/ui/Button";
 import { toCitedMarkdown } from "@/lib/public/chat-citations";
 import type { AnswerQueryScope } from "@/lib/public/source-panel-model";
@@ -202,19 +201,14 @@ export function ConversationThread({
                         </ReactMarkdown>
                       </div>
 
-                      {msg.moments && (
-                        <MomentPanel
-                          payload={msg.moments}
-                          question={messages.slice(0, i).reverse().find((m) => m.role === "user")?.content}
-                        />
-                      )}
-
                       {msg.sources && msg.sources.length > 0 && (
                         <SourcePanel
                           sources={msg.sources}
                           citedIndices={msg.citedIndices}
                           queryScope={msg.queryScope}
                           effectiveSourceMode={msg.effectiveSourceMode}
+                          moments={msg.moments}
+                          question={messages.slice(0, i).reverse().find((m) => m.role === "user")?.content}
                         />
                       )}
 
