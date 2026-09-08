@@ -412,34 +412,34 @@ export const GroupedMoments: SourceStory = {
             videoId: "fL2wyVLX08o",
             title: "Ep 12: A Guest on Love",
             url: "https://www.youtube.com/watch?v=fL2wyVLX08o",
-            startSec: 300,
-            endSec: 345,
-            durationSec: 45,
+            startSec: 630,
+            endSec: 705,
+            durationSec: 75,
             score: 0.9,
             timestampConfidence: 0.8,
             citationNumbers: [1],
             withinBudget: true,
             guest: "A Guest",
             theme: "Love",
-            topic: "long distance",
-            summary: "They describe keeping a relationship alive while apart.",
-            whyRelevant: "Directly answers the relationship question.",
-            strength: 5,
+            topic: "trust after betrayal",
+            summary: "A story about rebuilding trust.",
+            strength: 3,
           },
           {
             videoId: "fL2wyVLX08o",
             title: "Ep 12: A Guest on Love",
             url: "https://www.youtube.com/watch?v=fL2wyVLX08o",
-            startSec: 630,
-            endSec: 705,
-            durationSec: 75,
+            startSec: 300,
+            endSec: 345,
+            durationSec: 45,
             score: 0.7,
             timestampConfidence: 0.8,
             citationNumbers: [2],
             withinBudget: true,
-            topic: "trust after betrayal",
-            summary: "A story about rebuilding trust.",
-            strength: 3,
+            topic: "long distance",
+            summary: "They describe keeping a relationship alive while apart.",
+            whyRelevant: "Directly answers the relationship question.",
+            strength: 5,
           },
           {
             videoId: "vPvnzWoK24Q",
@@ -461,6 +461,23 @@ export const GroupedMoments: SourceStory = {
       }}
     />
   ),
+  play: async ({ canvasElement }) => {
+    const panel = canvasElement.querySelector<HTMLElement>('[data-testid="source-panel"]');
+    panel?.querySelector<HTMLElement>(":scope > summary")?.click();
+    const rows = [...canvasElement.querySelectorAll<HTMLElement>('[data-testid="moment-row"]')];
+    const topics = rows.map((row) => row.textContent ?? "");
+    // Moments render on the episode clock even though the payload is
+    // score-ordered (trust/630s outranks long-distance/300s).
+    const longDistance = topics.findIndex((text) => text.includes("long distance"));
+    const trust = topics.findIndex((text) => text.includes("trust after betrayal"));
+    if (longDistance === -1 || trust === -1 || longDistance > trust) {
+      throw new Error("Moments within an episode must render earliest first");
+    }
+    const plays = canvasElement.querySelectorAll('a[href*="&t="]');
+    if (plays.length < rows.length) {
+      throw new Error("Every moment must expose a play link at its start");
+    }
+  },
 };
 
 export const MomentsWithoutBudget: SourceStory = {

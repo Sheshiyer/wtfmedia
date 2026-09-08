@@ -77,6 +77,14 @@ function MomentDetailRow({ moment }: { moment: PublicMoment }) {
         {moment.durationSec != null && (
           <span className="ml-1 text-muted">({formatClock(moment.durationSec)})</span>
         )}
+        <a
+          href={momentDeepLink(moment)}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-1 flex w-fit items-center gap-1 rounded-control border border-foreground bg-attention px-2 py-0.5 text-[10px] font-bold lowercase tracking-wide text-on-attention transition-colors hover:bg-attention/85"
+        >
+          ▶ play
+        </a>
       </div>
       <div className="min-w-0 space-y-0.5 text-xs">
         <div className="flex flex-wrap items-baseline gap-x-2">
@@ -291,6 +299,11 @@ export function SourcePanel({
     const bucket = momentsByVideo.get(moment.videoId);
     if (bucket) bucket.push(moment);
     else momentsByVideo.set(moment.videoId, [moment]);
+  }
+  // Moments arrive score-ordered; within an episode the sheet reads on the
+  // episode clock — earliest passage first.
+  for (const episodeMoments of momentsByVideo.values()) {
+    episodeMoments.sort((a, b) => a.startSec - b.startSec);
   }
 
   if (!sources || sources.length === 0) return null;
