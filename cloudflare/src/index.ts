@@ -534,15 +534,20 @@ async function momentsForAnswer(
   }
   // Enrich in parallel batches: one 25-moment call truncates near the token
   // cap and silently leaves the tail unlabeled. A failed batch only leaves
-  // its own moments unlabeled.
-  const enrichBatch = async (batch: Moment[]): Promise<MomentEnrichment[]> => {
+  // its own moments unlabeled. Strict mode (single-moment retries) forbids
+  // empty text fields — the excerpt always supports a conservative label,
+  // and the sheet must not ship blank columns.
+  const enrichBatch = async (batch: Moment[], strict = false): Promise<MomentEnrichment[]> => {
+    const suffix = strict
+      ? `There is 1 MOMENT. Output exactly 1 JSON object labeling it. Every text field (guest, theme, topic, summary, whyRelevant) is REQUIRED — never output empty strings; infer conservatively from the excerpt and episode title.`
+      : `There are ${batch.length} MOMENTs. Output exactly ${batch.length} JSON objects, one per MOMENT, in order — use empty strings when a text field cannot be honest, but never skip a MOMENT and never default strength.`;
     try {
       const result = await env.AI.run(FAST_MODEL, {
         messages: [
           { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
           // The model silently skips moments it can't label unless the exact
           // object count is demanded — a short count costs the tail slots.
-          { role: "user", content: `${buildMomentEnrichmentInput(question, batch)}\n\nThere are ${batch.length} MOMENTs. Output exactly ${batch.length} JSON objects, one per MOMENT, in order — use empty strings when a text field cannot be honest, but never skip a MOMENT and never default strength.` },
+          { role: "user", content: `${buildMomentEnrichmentInput(question, batch)}\n\n${suffix}` },
         ],
         max_tokens: 2000,
         temperature: 0.2,
@@ -560,18 +565,24 @@ async function momentsForAnswer(
   const ENRICH_BATCH = 10;
   const batches = Array.from({ length: Math.ceil(visible.length / ENRICH_BATCH) }, (_, index) =>
     visible.slice(index * ENRICH_BATCH, (index + 1) * ENRICH_BATCH));
-  const settled = await Promise.all(batches.map(enrichBatch));
+  const settled = await Promise.all(batches.map((batch) => enrichBatch(batch)));
   const enrichments = visible.map((_, index) =>
     settled[Math.floor(index / ENRICH_BATCH)]?.[index % ENRICH_BATCH] ?? {});
-  // Retry pass: a moment with neither topic nor summary renders a bare row in
-  // the panel and empty columns in the sheet. Single-moment calls are tiny,
-  // so each gap gets its own focused retry — fields the batch already found
-  // (guest, strength) survive the merge.
-  const missingIndices = enrichments
-    .map((enrichment, index) => (!enrichment.topic && !enrichment.summary ? index : -1))
+  // Retry pass: ANY blank text field shows up as an empty column in the
+  // sheet, so partially-labeled moments retry too — not just fully empty
+  // ones. Single-moment strict calls are tiny and can't truncate; fields the
+  // batch already found survive the merge. Two rounds: the fast model
+  // occasionally ignores the no-empty-fields rule once, almost never twice.
+  const incomplete = () => enrichments
+    .map((enrichment, index) =>
+      (!enrichment.guest || !enrichment.theme || !enrichment.topic || !enrichment.summary || !enrichment.whyRelevant)
+        ? index
+        : -1)
     .filter((index) => index !== -1);
-  if (missingIndices.length > 0) {
-    const retried = await Promise.all(missingIndices.map((index) => enrichBatch([visible[index]])));
+  for (let round = 0; round < 2; round += 1) {
+    const missingIndices = incomplete();
+    if (missingIndices.length === 0) break;
+    const retried = await Promise.all(missingIndices.map((index) => enrichBatch([visible[index]], true)));
     missingIndices.forEach((visibleIndex, retryIndex) => {
       const retry = retried[retryIndex]?.[0];
       if (retry && Object.keys(retry).length > 0) {
@@ -579,6 +590,18 @@ async function momentsForAnswer(
       }
     });
   }
+  // Last resort for summary only: the model sometimes refuses to summarize a
+  // thin or off-topic excerpt no matter how often it is asked. Fall back to
+  // the excerpt's own first sentence — a quote, never a fabrication — rather
+  // than ship a blank sheet column.
+  visible.forEach((moment, index) => {
+    if (!enrichments[index].summary) {
+      const firstSentence = moment.excerpt.trim().split(/(?<=[.?!])\s+/)[0] ?? "";
+      if (firstSentence) {
+        enrichments[index] = { ...enrichments[index], summary: firstSentence.slice(0, 200) };
+      }
+    }
+  });
   const enriched = new Map(visible.map((moment, index) => [moment, enrichments[index]]));
   return {
     moments: budgeted.moments.map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) })),
