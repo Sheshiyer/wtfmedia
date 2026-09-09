@@ -1,10 +1,11 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 import { maybeLocalDevOpsHeaders } from "@/lib/ops/local-dev-headers";
 
-const recoveryPaths = new Set(["/ops/recover", "/sign-in", "/request-access"]);
+const recoveryPaths = new Set(["/ops/recover", "/sign-in", "/request-access", "/sign-up"]);
 const authenticatedChatDeepLink = /^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0-9_-]*$/u;
 
-export async function middleware(request: NextRequest) {
+async function routeMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (recoveryPaths.has(pathname)) {
     const forwarded = new Headers(request.headers);
@@ -38,5 +39,15 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/ops/:path*", "/api/ops/:path*", "/chat/:path*", "/sign-in", "/request-access"],
+  matcher: ["/ops/:path*", "/api/ops/:path*", "/chat/:path*", "/sign-in/:path*", "/sign-up/:path*", "/request-access"],
 };
+
+const clerkHandler = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim()
+  ? clerkMiddleware((_auth, request) => routeMiddleware(request))
+  : null;
+
+export async function middleware(request: NextRequest, event: NextFetchEvent) {
+  return clerkHandler ? clerkHandler(request, event) : routeMiddleware(request);
+}
+
+export default middleware;

@@ -14,6 +14,7 @@ import {
   type DB,
 } from "./db.ts";
 import { handleOpsRequest, type OpsEnv } from "./ops-router.ts";
+import { createRemoteClerkVerifier } from "./auth/clerk.ts";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar.ts";
 import {
   buildVectorQueryOptions,
@@ -363,9 +364,15 @@ async function chat(request: Request, env: Env) {
 }
 
 async function requireAuth(request: Request, env: Env): Promise<Operator | null> {
-  const email = request.headers.get("Cf-Access-Authenticated-User-Email");
-  if (!email) return null;
-  return getOperatorByEmail(env.DB, email);
+  const authorizedParties = env.CLERK_AUTHORIZED_PARTIES?.split(",").map((value) => value.trim()).filter(Boolean);
+  if (!env.CLERK_ISSUER || !env.CLERK_JWKS_URL || !authorizedParties?.length) return null;
+  const identity = await createRemoteClerkVerifier({
+    issuer: env.CLERK_ISSUER,
+    jwksUrl: env.CLERK_JWKS_URL,
+    authorizedParties: authorizedParties ?? [],
+    ...(env.CLERK_AUDIENCE ? { audience: env.CLERK_AUDIENCE } : {}),
+  })(request);
+  return identity.ok ? getOperatorByEmail(env.DB, identity.email) : null;
 }
 
 async function requireAdmin(request: Request, env: Env): Promise<Operator | null> {
@@ -482,12 +489,12 @@ export default {
   async fetch(request: Request, env: Env) {
     const url = new URL(request.url);
     if (request.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: { ...cors(request, env), "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Cf-Access-Authenticated-User-Email, Cf-Access-Jwt-Assertion" } });
+      return new Response(null, { status: 204, headers: { ...cors(request, env), "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization, Cookie, X-Request-ID, Idempotency-Key" } });
     }
     if (request.method === "GET" && url.pathname === "/v1/health") {
       return reply(request, env, { status: "ok", service: "wtfmedia-edge", index: "wtfmedia-catalogue-v1" });
     }
-    if (url.pathname === "/ops" || url.pathname.startsWith("/ops/")) {
+    if (url.pathname === "/ops" || url.pathname.startsWith("/ops/") || url.pathname === "/api/ops" || url.pathname.startsWith("/api/ops/")) {
       return handleOpsRequest(request, env);
     }
     if (url.pathname === "/v1/calendar" || url.pathname.startsWith("/v1/calendar/")) {

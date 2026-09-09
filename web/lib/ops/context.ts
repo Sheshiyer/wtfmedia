@@ -52,17 +52,18 @@ type EdgeFetch = (request: Request) => Promise<Response>;
 
 /**
  * Server-rendered operator pages arrive at the web Worker directly. Ask the
- * bound edge Worker to verify the Access assertion so page chrome and API
- * permissions use the same authority without exposing the assertion to the
- * browser or trusting a decoded JWT at the origin.
+ * bound edge Worker to verify the Clerk session credential so page chrome and
+ * API permissions use the same authority without trusting a decoded JWT at
+ * the origin.
  */
 export async function fetchEdgeVerifiedOpsContext(
   requestHeaders: Pick<Headers, "get">,
   edgeFetch?: EdgeFetch,
 ): Promise<VerifiedOpsContext | null> {
-  const assertion = requestHeaders.get("cf-access-jwt-assertion");
+  const authorization = requestHeaders.get("authorization");
+  const cookie = requestHeaders.get("cookie");
   const host = requestHeaders.get("host");
-  if (!assertion || !host || /[\r\n]/u.test(host)) return null;
+  if ((!authorization && !cookie) || !host || /[\r\n]/u.test(host)) return null;
 
   let fetcher = edgeFetch;
   if (!fetcher) {
@@ -82,7 +83,8 @@ export async function fetchEdgeVerifiedOpsContext(
       method: "GET",
       headers: {
         accept: "application/json",
-        "cf-access-jwt-assertion": assertion,
+        ...(authorization ? { authorization } : {}),
+        ...(cookie ? { cookie } : {}),
         "x-request-id": requestHeaders.get("x-request-id") ?? crypto.randomUUID(),
       },
     }));

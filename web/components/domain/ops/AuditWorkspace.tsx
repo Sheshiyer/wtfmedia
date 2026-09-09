@@ -13,6 +13,7 @@ const actions = [
   "",
   "auth_allowed",
   "auth_denied",
+  "protected_search",
   "protected_view",
   "operator_invite",
   "operator_role_change",
@@ -198,6 +199,17 @@ export function AuditWorkspace() {
           export audit records
         </button>
       </div>
+      <section className="mt-5 border-l-4 border-information bg-surface-subtle px-4 py-3" data-query-activity>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">beta query activity</p>
+            <p className="mt-1 max-w-3xl text-sm leading-relaxed text-secondary">One allowlisted ledger row is recorded for each authenticated Ask WTF query. Prompt and answer bodies stay in the owner-scoped conversation view; this ledger exposes metadata and the protected conversation link only.</p>
+          </div>
+          <button type="button" onClick={() => setFilters((current) => ({ ...current, action: "protected_search" }))} className={secondary} data-query-activity-filter>
+            view query activity
+          </button>
+        </div>
+      </section>
       <div aria-live="polite" className="sr-only">
         {notice}
       </div>

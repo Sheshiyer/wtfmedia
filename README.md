@@ -31,14 +31,20 @@
 
 ---
 
-## Release candidate
+## Pre-release track
 
-`v0.3.0-alpha.1` is the consolidated episode-scoped dual-source Ask WTF
-release candidate. The root, web, and Worker packages are aligned to this
-version. It adds source-aware episode retrieval, approved uncut activation,
-Frame.io citation links, deterministic uncut metadata refreshes, navigation
-cleanup, and the calendar control-plane API. See the [release notes](docs/releases/v0.3.0-alpha.1.md)
-and [changelog](CHANGELOG.md).
+`v0.3.3-beta.1` is the latest pre-release. It restores the AppRail contract
+from alpha, wires the login flow through protected settings, and adds an
+authenticated Ask WTF staging lane with server-side RAG, persisted chat
+history, and consolidation policy panels for memory governance, RAG source
+health, and session history.
+
+`v0.3.2-alpha.1` is the latest alpha. It adds named-person retrieval anchors,
+truthful abstention for missing guests, and public source-panel filtering by
+`published`, `uncut`, and `both` modes.
+
+See the [release notes](docs/releases/v0.3.3-beta.1.md) and
+[changelog](CHANGELOG.md).
 
 Cross-timeline alignment and synchronized uncut playback remain explicitly
 held; an approved Frame.io episode URL is not itself a timestamp mapping.

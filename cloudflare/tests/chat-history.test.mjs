@@ -24,3 +24,14 @@ test("chat release and deep-link policy fail closed unless explicitly enabled", 
   assert.equal(decide("editor", "chat", "export"), false);
   assert.equal(decide("admin", "chat", "export"), true);
 });
+
+test("saved memory is explicit, owner-scoped, and archive-only", () => {
+  const sql = readFileSync(join(root, "migrations", "0009_saved_memory.sql"), "utf8");
+  assert.match(sql, /REFERENCES operators\(id\) ON DELETE RESTRICT/);
+  assert.match(sql, /REFERENCES chat_conversations\(id\) ON DELETE RESTRICT/);
+  assert.match(sql, /saved_memories_no_delete/);
+  assert.match(sql, /saved_memories_archive_only/);
+  assert.equal(decide("editor", "memory", "read"), true);
+  assert.equal(decide("editor", "memory", "write"), true);
+  assert.equal(decide("public_link", "memory", "read"), false);
+});

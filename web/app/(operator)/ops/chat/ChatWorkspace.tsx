@@ -1,16 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { ChatSessionNavigator } from "./ChatSessionNavigator";
 import {
   CHAT_ACTIVITY_EVENT,
   CHAT_API_ROOT,
-  chatCacheKey,
   bumpChatActivityEpoch,
   parseChatConversationResponse,
   parseChatHistoryResponse,
-  readChatCache,
-  writeChatCache,
   type ChatConversation,
   type ChatConversationResponse,
   type ChatMessage,
@@ -36,7 +35,7 @@ function StateMessage({ state, onRetry }: { state: ViewState; onRetry: () => voi
   const copy: Record<Exclude<ViewState, "loading" | "ready">, { title: string; body: string }> = {
     empty: { title: "no conversations yet", body: "start an authenticated Ask WTF conversation and it will appear here." },
     error: { title: "history could not load", body: "the server did not return a valid history response. nothing from browser storage was treated as authority." },
-    expired: { title: "operator session expired", body: "reauthenticate through Cloudflare Access, then return to this conversation." },
+    expired: { title: "operator session expired", body: "reauthenticate through Clerk, then return to this conversation." },
     unavailable: { title: "authenticated chat is unavailable", body: "the server release gate or history endpoint is not active." },
   };
   if (state === "loading") return <p role="status" className="border-2 border-foreground/20 bg-surface-subtle p-6 font-label text-sm text-secondary">loading authenticated history…</p>;
@@ -190,7 +189,7 @@ function ChatComposer({ conversationId, sourceMode = "both", onSent }: { convers
   }
 
   return (
-    <form data-chat-composer onSubmit={submit} className="border-2 border-foreground bg-surface-subtle p-4">
+    <form id="new-chat" data-chat-composer onSubmit={submit} className="border-2 border-foreground bg-surface-subtle p-4">
       <label htmlFor="authenticated-chat-question" className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">ask WTF with account history</label>
       <textarea id="authenticated-chat-question" value={question} onChange={(event) => setQuestion(event.target.value)} maxLength={2000} rows={3} placeholder="Ask about the published YouTube or approved uncut evidence…" className="mt-2 block w-full border-2 border-foreground bg-surface-raised p-3 text-sm text-foreground outline-none focus-visible:ring-4 focus-visible:ring-attention" disabled={busy} />
       <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -210,11 +209,11 @@ function ChatComposer({ conversationId, sourceMode = "both", onSent }: { convers
 }
 
 export function ChatWorkspace({ view, conversationId }: { view: ChatView; conversationId?: string }) {
-  const cacheKey = useMemo(() => chatCacheKey(view, conversationId), [view, conversationId]);
   const [state, setState] = useState<ViewState>("loading");
   const [history, setHistory] = useState<ChatHistoryResponse | null>(null);
   const [conversation, setConversation] = useState<ChatConversation | null>(null);
   const [policy, setPolicy] = useState<ChatPolicy>({ archive: false, export: false });
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const load = useCallback(async () => {
     if (view === "conversation" && !conversationId) {
@@ -240,7 +239,6 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
         }
         setHistory(parsed);
         setPolicy(parsed.policy);
-        writeChatCache(cacheKey, parsed);
         setState(parsed.conversations.length ? "ready" : "empty");
       } else {
         const parsed = parseChatConversationResponse(body);
@@ -250,20 +248,34 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
         }
         setConversation(parsed.conversation);
         setPolicy(parsed.policy);
-        writeChatCache(cacheKey, parsed);
         setState("ready");
       }
     } catch {
       setState("error");
     }
-  }, [cacheKey, conversationId, view]);
+  }, [conversationId, view]);
+
+  const loadMore = useCallback(async () => {
+    const cursor = history?.nextCursor;
+    if (view !== "history" || !cursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const response = await fetch(`${CHAT_API_ROOT}/conversations?cursor=${encodeURIComponent(cursor)}`, { credentials: "same-origin", cache: "no-store" });
+      if (!response.ok) throw new Error("history_page_failed");
+      const parsed = parseChatHistoryResponse(await response.json());
+      if (!parsed) throw new Error("history_page_invalid");
+      setHistory((current) => current ? { ...parsed, conversations: [...current.conversations, ...parsed.conversations] } : parsed);
+      setPolicy(parsed.policy);
+    } catch {
+      // Keep the already-authoritative page visible when a later page fails.
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [history?.nextCursor, loadingMore, view]);
 
   useEffect(() => {
-    // Reading the cache is intentionally non-authoritative: the server fetch
-    // above must succeed before any cached response is rendered.
-    void readChatCache<ChatHistoryResponse | ChatConversationResponse>(cacheKey);
     void load();
-  }, [cacheKey, load]);
+  }, [load]);
 
   useEffect(() => {
     const sync = () => void load();
@@ -281,6 +293,18 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
   if (view === "history") {
     return (
       <div data-chat-history className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-foreground pb-3">
+          <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
+            account conversation ledger
+          </p>
+          <Link
+            href="/ops/chat#new-chat"
+            data-new-chat
+            className="inline-flex min-h-11 items-center border-2 border-foreground bg-attention px-4 py-2 font-label text-sm font-bold lowercase text-on-attention shadow-[4px_4px_0_var(--wtf-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information"
+          >
+            new chat
+          </Link>
+        </div>
         <ChatComposer onSent={load} />
         <StateMessage state={state} onRetry={load} />
         {state === "ready" && history ? (
@@ -290,7 +314,7 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <h2 className="font-heading text-xl font-bold lowercase text-foreground">{item.title}</h2>
-                    <p className="mt-1 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{item.sourceMode} · {item.messageCount} messages</p>
+                    <p className="mt-1 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{item.sourceMode} · {item.messageCount} messages · {item.state}</p>
                     {item.operatorDisplayName || item.operatorEmail ? <p data-chat-owner className="mt-2 text-xs text-secondary">owner: {item.operatorDisplayName ?? item.operatorEmail}{item.operatorDisplayName && item.operatorEmail ? ` · ${item.operatorEmail}` : ""}</p> : null}
                   </div>
                   <span className="font-label text-[11px] uppercase tracking-[0.1em] text-secondary">{formatDate(item.updatedAt)}</span>
@@ -299,22 +323,40 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
             ))}
           </div>
         ) : null}
+        {state === "ready" && history?.nextCursor ? (
+          <div className="flex justify-center pt-2">
+            <Button type="button" variant="secondary" onClick={() => void loadMore()} loading={loadingMore} disabled={loadingMore}>
+              load more conversations
+            </Button>
+          </div>
+        ) : null}
       </div>
     );
   }
 
   return (
-    <div data-testid="authenticated-chat-thread" className="space-y-5">
-      <StateMessage state={state} onRetry={load} />
-      {state === "ready" && conversation ? (
-        <>
+    <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(15rem,19rem)_minmax(0,1fr)]" data-chat-conversation-layout>
+      <ChatSessionNavigator activeConversationId={conversationId ?? ""} />
+      <div data-testid="authenticated-chat-thread" className="min-w-0 space-y-5">
+        <StateMessage state={state} onRetry={load} />
+        {state === "ready" && conversation ? (
+          <>
           <div className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-foreground pb-4">
             <div>
               <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{conversation.sourceMode} · {conversation.state}</p>
               <h2 className="mt-2 font-heading text-2xl font-bold lowercase text-foreground">{conversation.title}</h2>
               {conversation.operatorDisplayName || conversation.operatorEmail ? <p data-chat-owner className="mt-2 text-xs text-secondary">owner: {conversation.operatorDisplayName ?? conversation.operatorEmail}{conversation.operatorDisplayName && conversation.operatorEmail ? ` · ${conversation.operatorEmail}` : ""}</p> : null}
             </div>
-            <PolicyActions policy={policy} conversationId={conversation.id} onChanged={load} />
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              <Link
+                href="/ops/chat"
+                data-history-back
+                className="inline-flex min-h-11 items-center border-2 border-foreground bg-canvas px-3 py-2 font-label text-xs font-bold lowercase text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information"
+              >
+                back to history
+              </Link>
+              <PolicyActions policy={policy} conversationId={conversation.id} onChanged={load} />
+            </div>
           </div>
           <ChatComposer conversationId={conversation.id} sourceMode={conversation.sourceMode} onSent={load} />
           <div className="space-y-4" aria-label="conversation messages">
@@ -326,8 +368,9 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
               </article>
             ))}
           </div>
-        </>
-      ) : null}
+          </>
+        ) : null}
+      </div>
     </div>
   );
 }

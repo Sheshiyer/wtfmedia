@@ -7,6 +7,12 @@ import { before, test } from "node:test";
 
 import { handleOpsRequest } from "../src/ops-router.ts";
 import {
+  activeMemoryContext,
+  archiveMemory,
+  createMemory,
+  listMemoriesForActor,
+} from "../src/chat/memory.ts";
+import {
   appendMessage,
   archiveConversation,
   createConversation,
@@ -28,6 +34,7 @@ const migrations = [
   "0006_chat_history.sql",
   "0007_release_manifest.sql",
   "0008_release_track.sql",
+  "0009_saved_memory.sql",
 ];
 
 function sqlite(input, json = false) {
@@ -107,9 +114,9 @@ const env = {
   OPS_ORIGIN: "https://origin.staging.test",
   OPS_ORIGIN_PROOF: "staging-proof",
   OPS_ENVIRONMENT: "staging",
-  ACCESS_ISSUER: "https://issuer.test",
-  ACCESS_AUDIENCE: "staging-audience",
-  ACCESS_JWKS_URL: "https://issuer.test/certs",
+  CLERK_ISSUER: "https://clerk.example.test",
+  CLERK_JWKS_URL: "https://clerk.example.test/.well-known/jwks.json",
+  CLERK_AUTHORIZED_PARTIES: "https://ops.staging.test",
 };
 
 before(applyMigrations);
@@ -161,12 +168,12 @@ test("D1 history is durable, idempotent, owner-scoped, and archive-only", async 
   assert.notEqual(deleteAttempt.status, 0);
 });
 
-test("Access/D1 context is rechecked on every protected request and cannot cross owners", async () => {
+test("Clerk/D1 context is rechecked on every protected request and cannot cross owners", async () => {
   const db = d1();
   const request = (email, path, init = {}, dependencies = {}) => handleOpsRequest(new Request(`https://ops.staging.test${path}`, {
     ...init,
-    headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-e2e-1234", ...(init.headers ?? {}) },
-  }), { ...env, DB: db }, { verifyAccess: async () => ({ ok: true, email }), ...dependencies });
+    headers: { authorization: "Bearer verified", "x-request-id": "corr-e2e-1234", ...(init.headers ?? {}) },
+  }), { ...env, DB: db }, { verifyClerk: async () => ({ ok: true, email, userId: "user_test_123" }), ...dependencies });
   const own = await request("sai@allthingswtf.com", "/ops/api/chat", {
     method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify({ question: "owner-only", idempotencyKey: "owner-question-1" }),
@@ -212,6 +219,11 @@ test("Access/D1 context is rechecked on every protected request and cannot cross
   assert.equal(generatedBody.messages.at(-1).model, "test-model");
   assert.equal(generatedBody.messages.at(-1).model_fallback, 1);
 
+  const queryAudit = await request("aditi@allthingswtf.com", "/api/ops/audit?action=protected_search");
+  assert.equal(queryAudit.status, 200);
+  const queryAuditBody = await queryAudit.json();
+  assert.ok(queryAuditBody.records.some((record) => record.action === "protected_search" && record.entityId === generatedId));
+
   const generatedRetry = await request("sai@allthingswtf.com", "/ops/api/chat", {
     method: "POST",
     headers: { "content-type": "application/json", "idempotency-key": "server-answer-1" },
@@ -254,12 +266,24 @@ test("Access/D1 context is rechecked on every protected request and cannot cross
   assert.equal(generatedSummary.operator_display_name, "Sai Date");
   assert.equal(generatedSummary.operator_email, "sai@allthingswtf.com");
 
+  const memoryCreate = await request("aditi@allthingswtf.com", "/ops/api/memory", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ content: "prefers evidence-first answers" }),
+  });
+  assert.equal(memoryCreate.status, 201);
+  const memoryBody = await memoryCreate.json();
+  assert.equal(memoryBody.memory.content, "prefers evidence-first answers");
+  const memoryList = await request("aditi@allthingswtf.com", "/ops/api/memory");
+  assert.equal(memoryList.status, 200);
+  assert.equal((await memoryList.json()).memories.length, 1);
+
   const crossOwner = await request("naisthika@allthingswtf.com", `/ops/api/chat/conversations/${id}`);
   assert.equal(crossOwner.status, 404);
   const adminRead = await request("aditi@allthingswtf.com", `/ops/api/chat/conversations/${id}`);
   assert.equal(adminRead.status, 200);
 
-  const expired = await handleOpsRequest(new Request(`https://ops.staging.test/ops/api/chat/conversations/${id}`, { headers: { "cf-access-jwt-assertion": "expired" } }), { ...env, DB: db }, { verifyAccess: async () => ({ ok: false }) });
+  const expired = await handleOpsRequest(new Request(`https://ops.staging.test/ops/api/chat/conversations/${id}`, { headers: { authorization: "Bearer expired" } }), { ...env, DB: db }, { verifyClerk: async () => ({ ok: false }) });
   assert.equal(expired.status, 404);
   const editor = await db.prepare("SELECT id FROM operators WHERE email = ?").bind("sai@allthingswtf.com").first();
   const deactivated = sqlite(`UPDATE operators SET active = 0 WHERE id = ${editor.id};`);
@@ -268,4 +292,27 @@ test("Access/D1 context is rechecked on every protected request and cannot cross
   assert.equal(inactive.status, 404);
   const context = await resolveOperatorContext(db, { ok: true, email: "sai@allthingswtf.com" }, "staging", "corr-e2e-1234");
   assert.equal(context, null);
+});
+
+test("saved memory persists across sessions without crossing operator ownership", async () => {
+  const db = d1();
+  const source = await createConversation(db, 4, {
+    userMessage: { content: "memory provenance source", sourceMetadata: {} },
+    now: "2026-09-02T00:05:00.000Z",
+  });
+  assert.ok(source);
+  const actor = { operatorId: 4, role: "editor" };
+  const memory = await createMemory(db, actor, {
+    content: "keep source trails visible",
+    sourceConversationId: source.conversation.id,
+    now: "2026-09-02T00:06:00.000Z",
+  });
+  assert.ok(memory);
+  assert.equal((await activeMemoryContext(db, 4))[0], "keep source trails visible");
+  assert.equal((await listMemoriesForActor(db, { operatorId: 3, role: "editor" })).length, 0);
+  assert.equal(await archiveMemory(db, { operatorId: 3, role: "editor" }, memory.id), null);
+  assert.equal((await archiveMemory(db, actor, memory.id, "2026-09-02T00:07:00.000Z"))?.lifecycle_state, "archived");
+  assert.equal((await activeMemoryContext(db, 4)).length, 0);
+  const deleteAttempt = sqlite(`DELETE FROM saved_memories WHERE id = '${memory.id}';`);
+  assert.notEqual(deleteAttempt.status, 0);
 });

@@ -12,7 +12,7 @@
 
 export type AppUiVariant = "legacy" | "wtfos";
 export type PublicUiVariant = "legacy" | "migrated";
-export type WtfThemePreference = "light";
+export type WtfThemePreference = "light" | "dark";
 
 export function appUiVariant(): AppUiVariant {
   return process.env.WTF_PUBLIC_UI_VARIANT === "legacy" ? "legacy" : "wtfos";

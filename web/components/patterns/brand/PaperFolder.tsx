@@ -25,15 +25,13 @@ function darken(hex: string, percent: number) {
 export function PaperFolder({
   label,
   items = [],
-  color = "var(--wtf-attention)",
+  color = "#f1b333",
   className = "",
 }: PaperFolderProps) {
   const [open, setOpen] = useState(false);
   const papers = [...items.slice(0, 3)];
   while (papers.length < 3) papers.push(null);
-  const back = color.startsWith("var(")
-    ? `color-mix(in srgb, ${color} 88%, var(--wtf-surface-structure) 12%)`
-    : darken(color, 0.12);
+  const back = darken(color, 0.12);
 
   return (
     <div className={className}>
