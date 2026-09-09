@@ -12,12 +12,14 @@ activated, or tested with real Clerk accounts; public Alpha is unchanged.
 - `/beta/api/*` requires the staging host, the dedicated enabled release,
   verified Clerk JWT, and active matching D1 member. First acceptance binds and
   re-reads the Clerk subject before admission.
+- Persisted Beta assistant responses retain the safe source projection and
+  render the established citation panel, including the edge timestamp field.
 - `/ops/settings/users` offers admin-only roster, invite, pending-invitation
   revoke, suspend, and reactivate. It exposes no member chat/memory content.
 
 ### Verification
 
-- 206 Cloudflare tests, 93 web unit tests, and 86 web contract tests passed;
+- 206 Cloudflare tests, 94 web unit tests, and 86 web contract tests passed;
   lint, typecheck, production build, and `git diff --check` also passed.
 
 ### Remaining staging gates
