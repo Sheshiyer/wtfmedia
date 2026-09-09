@@ -14,6 +14,7 @@ import {
   type DB,
 } from "./db.ts";
 import { handleOpsRequest, type OpsEnv } from "./ops-router.ts";
+import { handleMemberRequest } from "./member-router.ts";
 import { createRemoteClerkVerifier } from "./auth/clerk.ts";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar.ts";
 import {
@@ -497,6 +498,7 @@ export default {
     if (url.pathname === "/ops" || url.pathname.startsWith("/ops/") || url.pathname === "/api/ops" || url.pathname.startsWith("/api/ops/")) {
       return handleOpsRequest(request, env);
     }
+    if (url.pathname.startsWith("/beta/api/")) return handleMemberRequest(request, env);
     if (url.pathname === "/v1/calendar" || url.pathname.startsWith("/v1/calendar/")) {
       if (!env.EDGE_SHARED_SECRET || request.headers.get("X-Edge-Secret") !== env.EDGE_SHARED_SECRET) {
         return reply(request, env, { error: "unauthorized" }, 401);

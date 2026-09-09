@@ -16,8 +16,8 @@ baseline commit, but this document does not independently certify production.
 The owner re-authorized repository-local reconciliation and a bounded local
 implementation wave. The following decisions remain binding:
 
-- Cloudflare Zero Trust Access is the sole authentication/session authority.
-- The Worker resolves the normalized Access identity to one active D1 operator
+- Clerk is the sole authentication/session authority for the Beta lanes.
+- The Worker resolves the normalized Clerk identity to one active D1 operator
   with a recognized role before protected capability access.
 - The shared server policy is deny-by-default; UI visibility never grants
   authority; no WTF authentication cookie or long-lived application token is
@@ -26,8 +26,23 @@ implementation wave. The following decisions remain binding:
   authorization system, with a `/chat/{conversation_id}-{username}` deep link
   and `/ops/api/chat/*` API; the public `/chat` root and `/api/chat` remain
   anonymous, stateless, and contract-compatible.
-- Production Access configuration, remote D1 migration, deployment, queue or
+- Production Clerk configuration, remote D1 migration, deployment, queue or
   ingest mutation, secrets, DNS, and live activation remain out of scope.
+
+### Invite-only company member Beta — 2026-09-09
+
+This is a separate staging-only lane, with Bangalore as the first rollout
+cohort in one shared company workspace. Public `/chat` and `/api/chat` remain
+anonymous Alpha contracts. `/ops` remains operator-only. `/beta` and
+`/beta/api/*` require a verified Clerk session plus an active D1 member record
+created through the administrator invite flow.
+
+Member conversations, messages, and explicit saved memory are private to their
+D1 owner. Operators may manage the minimal membership lifecycle but cannot
+read, export, archive, or project member content. History and memory are
+archive-only; memory is explicit-save only and never automatically extracted.
+The dedicated `member_beta_releases` manifest starts paused and rejects
+production unconditionally; it does not inherit the operator chat-release flag.
 
 The owner has set a 720-hour (30-day) Access application/policy session target,
 approved browser-local caching with idempotent activity-epoch synchronization,

@@ -8,7 +8,7 @@ import { after, before, test } from "node:test";
 const root = new URL("..", import.meta.url).pathname;
 const persistTo = mkdtempSync(join(tmpdir(), "wtfmedia-phase2-d1-"));
 const database = join(persistTo, "ops.sqlite");
-const migrations = ["0001_ops_foundation.sql", "0002_bootstrap_roster.sql", "0003_super_admin_transfer_guard.sql", "0004_operator_invitation_approvals.sql", "0005_provenance_spine.sql", "0006_chat_history.sql", "0007_release_manifest.sql", "0008_release_track.sql", "0009_saved_memory.sql"];
+const migrations = ["0001_ops_foundation.sql", "0002_bootstrap_roster.sql", "0003_super_admin_transfer_guard.sql", "0004_operator_invitation_approvals.sql", "0005_provenance_spine.sql", "0006_chat_history.sql", "0007_release_manifest.sql", "0008_release_track.sql", "0009_saved_memory.sql", "0010_member_beta.sql"];
 
 function sql(input) {
   return spawnSync("sqlite3", [database], {
@@ -59,8 +59,12 @@ test("fresh local migrations are repeatable", () => {
   assert.match(listing, /0007_release_manifest/);
   assert.match(listing, /0008_release_track/);
   assert.match(listing, /0009_saved_memory/);
+  assert.match(listing, /0010_member_beta/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'release_manifests';"), /release_manifests/);
   assert.match(succeeds("PRAGMA table_info(release_manifests);"), /release_track/);
+  assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'member_users';"), /member_users/);
+  assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'member_chat_conversations';"), /member_chat_conversations/);
+  assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'member_beta_releases';"), /member_beta_releases/);
 });
 
 test("invitation approvals are explicit, normalized, and reusable only before consumption", () => {
@@ -86,4 +90,11 @@ test("bootstrap roster has the approved active role distribution", () => {
 test("roles and audit envelopes are database-enforced", () => {
   fails("INSERT INTO operators (email, display_name, role, active) VALUES ('unknown@example.test', 'Unknown', 'owner', 1);");
   fails("INSERT INTO audit_events (event_id, occurred_at, action, entity_type, entity_id, outcome, environment, correlation_id, schema_version) VALUES ('bad-audit', '2026-01-01T00:00:00.000Z', 'unknown', 'operator', '1', 'allowed', 'local', 'corr', 1);");
+});
+
+test("member activation requires a verified Clerk subject and member records remain lifecycle-managed", () => {
+  succeeds("INSERT INTO member_users (email, role, lifecycle_state, pilot_cohort, office, created_at, updated_at) VALUES ('bangalore@example.test', 'member', 'invited', 'bangalore', 'Bangalore', '2026-09-09T00:00:00.000Z', '2026-09-09T00:00:00.000Z');");
+  fails("UPDATE member_users SET lifecycle_state = 'active' WHERE email = 'bangalore@example.test';");
+  succeeds("UPDATE member_users SET clerk_user_id = 'user_bangalore_1', lifecycle_state = 'active', activated_at = '2026-09-09T00:01:00.000Z', updated_at = '2026-09-09T00:01:00.000Z' WHERE email = 'bangalore@example.test';");
+  fails("DELETE FROM member_users WHERE email = 'bangalore@example.test';");
 });

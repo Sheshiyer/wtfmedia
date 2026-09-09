@@ -1,5 +1,5 @@
 export const roles = ["super_admin", "admin", "editor"] as const;
-export const resources = ["control_room", "operators", "audit", "chat", "memory", "assets", "episodes", "ingest", "transcripts"] as const;
+export const resources = ["control_room", "operators", "members", "audit", "chat", "memory", "assets", "episodes", "ingest", "transcripts"] as const;
 export const actions = ["read", "write", "export", "manage", "transfer", "approve", "create", "upload", "confirm"] as const;
 export type Role = typeof roles[number];
 export type Resource = typeof resources[number];
@@ -7,7 +7,7 @@ export type Action = typeof actions[number];
 
 const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
   super_admin: new Set([
-    "control_room:read", "operators:read", "operators:manage", "operators:transfer", "operators:approve",
+    "control_room:read", "operators:read", "operators:manage", "operators:transfer", "operators:approve", "members:read", "members:manage",
     "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm", "assets:manage",
     "episodes:read", "episodes:write", "episodes:create", "episodes:manage",
@@ -15,7 +15,7 @@ const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
     "transcripts:read", "transcripts:write", "transcripts:create", "transcripts:manage",
   ]),
   admin: new Set([
-    "control_room:read", "operators:read", "operators:manage", "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
+    "control_room:read", "operators:read", "operators:manage", "members:read", "members:manage", "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm", "assets:manage",
     "episodes:read", "episodes:write", "episodes:create", "episodes:manage",
     "ingest:read", "ingest:write", "ingest:create", "ingest:manage",
@@ -44,6 +44,8 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/api/ops/operator-context": ["control_room", "read"],
   "/ops/api/profile": ["control_room", "read"],
   "/api/ops/profile": ["control_room", "read"],
+  "/ops/api/members": ["members", "read"],
+  "/api/ops/members": ["members", "read"],
   "/ops/production": ["control_room", "read"],
   "/ops/operators": ["operators", "read"],
   "/ops/audit": ["audit", "read"],
@@ -78,6 +80,7 @@ export function decide(role: unknown, resource: unknown, action: unknown, option
 export function policyForPath(pathname: string): readonly [Resource, Action] | null {
   if (routeRequirements[pathname]) return routeRequirements[pathname];
   if (pathname === "/ops/settings/access") return ["operators", "read"];
+  if (pathname === "/ops/settings/users") return ["members", "read"];
   if (pathname.startsWith("/ops/settings/")) return ["control_room", "read"];
   if (/^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0-9_-]*$/u.test(pathname)) return ["chat", "read"];
   if (pathname.startsWith("/ops/api/chat/") || pathname.startsWith("/api/ops/chat/") || pathname.startsWith("/ops/chat/")) return ["chat", "read"];

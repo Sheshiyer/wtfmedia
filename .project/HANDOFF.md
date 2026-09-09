@@ -1,5 +1,35 @@
 # Project handoff
 
+## 2026-09-09 Invite-only company member Beta source checkpoint
+
+**Status:** REVIEWED LOCAL IMPLEMENTATION — private member Beta source is
+implemented and locally verified. It has not been deployed, migrated,
+activated, or tested with real Clerk accounts; public Alpha is unchanged.
+
+- Added `0010_member_beta.sql`: isolated member identity/invitation/audit
+  lifecycle, member-owned archive-only chat and memory, plus an independently
+  paused, production-denying member release manifest.
+- `/beta/api/*` requires the staging host, the dedicated enabled release,
+  verified Clerk JWT, and active matching D1 member. First acceptance binds and
+  re-reads the Clerk subject before admission.
+- `/ops/settings/users` offers admin-only roster, invite, pending-invitation
+  revoke, suspend, and reactivate. It exposes no member chat/memory content.
+
+### Verification
+
+- 206 Cloudflare tests, 93 web unit tests, and 86 web contract tests passed;
+  lint, typecheck, production build, and `git diff --check` also passed.
+
+### Remaining staging gates
+
+- The read-only staging inventory found no pending `0009_saved_memory.sql` or
+  `0010_member_beta.sql`, no release-manifest row, and no `CLERK_SECRET_KEY`
+  in the staging Worker secret list. It records a distinct historical
+  `0009_temporary_super_admin_roster.sql`; do not overwrite it.
+- Apply pending migrations to staging, deploy reviewed artifacts, configure and
+  verify the staging Clerk keys/invite-only mode, enable the dedicated member
+  manifest, and run one admin plus two Bangalore-member acceptance accounts.
+
 ## 2026-09-09 Authenticated history, explicit memory, and query activity
 
 **Status:** LOCAL BETA IMPLEMENTATION — the remaining account-history and
