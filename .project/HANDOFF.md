@@ -2,9 +2,10 @@
 
 ## 2026-09-09 Invite-only company member Beta source checkpoint
 
-**Status:** REVIEWED LOCAL IMPLEMENTATION — private member Beta source is
-implemented and locally verified. It has not been deployed, migrated,
-activated, or tested with real Clerk accounts; public Alpha is unchanged.
+**Status:** MERGED BETA SOURCE CHECKPOINT — private member Beta source merged
+through PR #54 as `1e6afd7` into `release/beta`. It has not been deployed,
+migrated, activated, or tested with real Clerk accounts; public Alpha is
+unchanged.
 
 - Added `0010_member_beta.sql`: isolated member identity/invitation/audit
   lifecycle, member-owned archive-only chat and memory, plus an independently
@@ -31,6 +32,8 @@ activated, or tested with real Clerk accounts; public Alpha is unchanged.
 - Apply pending migrations to staging, deploy reviewed artifacts, configure and
   verify the staging Clerk keys/invite-only mode, enable the dedicated member
   manifest, and run one admin plus two Bangalore-member acceptance accounts.
+- Issues #50, #51, and #52 remain open until those staging receipts are
+  verified; their source implementation merge receipts are on the issues.
 
 ## 2026-09-09 Authenticated history, explicit memory, and query activity
 
