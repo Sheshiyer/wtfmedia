@@ -321,6 +321,23 @@ export function SourcePanel({
     ? model.primaryGroups.filter((group) => momentsByVideo.has(group.entries[0]?.source.videoId ?? ""))
     : model.primaryGroups;
 
+  // Editor reading order: the episode holding the strongest moment leads,
+  // then descending strength; retrieval score breaks ties.
+  const strengthOf = (episodeMoments: PublicMoment[] | undefined): number =>
+    episodeMoments ? Math.max(...episodeMoments.map((moment) => moment.strength ?? 0)) : -1;
+  const scoreOf = (episodeMoments: PublicMoment[] | undefined): number =>
+    episodeMoments && episodeMoments.length > 0 ? Math.max(...episodeMoments.map((moment) => moment.score)) : -1;
+  const byStrengthThenScore = (left: PublicMoment[] | undefined, right: PublicMoment[] | undefined): number => {
+    const strengthDelta = strengthOf(right) - strengthOf(left);
+    return strengthDelta !== 0 ? strengthDelta : scoreOf(right) - scoreOf(left);
+  };
+  if (hasMoments) {
+    primaryGroups.sort((left, right) => byStrengthThenScore(
+      momentsByVideo.get(left.entries[0]?.source.videoId ?? ""),
+      momentsByVideo.get(right.entries[0]?.source.videoId ?? ""),
+    ));
+  }
+
   // Moments come from a wider retrieval than the answer's citations, so an
   // episode can hold relevant passages without being cited — surface those
   // as their own groups instead of dropping them.
@@ -331,12 +348,8 @@ export function SourcePanel({
   }
   const momentOnlyGroups = [...momentsByVideo.entries()]
     .filter(([videoId]) => !coveredVideoIds.has(videoId))
-    .map(([videoId, episodeMoments]) => ({
-      videoId,
-      episodeMoments,
-      bestScore: Math.max(...episodeMoments.map((moment) => moment.score)),
-    }))
-    .sort((a, b) => b.bestScore - a.bestScore);
+    .map(([videoId, episodeMoments]) => ({ videoId, episodeMoments }))
+    .sort((a, b) => byStrengthThenScore(a.episodeMoments, b.episodeMoments));
 
   async function handleExport() {
     if (!moments) return;
