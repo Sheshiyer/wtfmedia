@@ -312,6 +312,15 @@ export function SourcePanel({
   const totalLabel = moments ? formatClock(moments.totalDurationSec) : null;
   const budgetLabel = moments?.budgetSec != null ? formatClock(moments.budgetSec) : null;
 
+  // Moments are the editor-sheet view; once they exist, bare timestamp rows
+  // (cited sources that never resolved into a moment, candidate excerpts,
+  // overflow matches) are noise — the sheet shows only episodes with real
+  // labeled moments. With no moments at all, the slim evidence rows remain
+  // the fallback so citations still resolve.
+  const primaryGroups = hasMoments
+    ? model.primaryGroups.filter((group) => momentsByVideo.has(group.entries[0]?.source.videoId ?? ""))
+    : model.primaryGroups;
+
   // Moments come from a wider retrieval than the answer's citations, so an
   // episode can hold relevant passages without being cited — surface those
   // as their own groups instead of dropping them.
@@ -351,7 +360,7 @@ export function SourcePanel({
             {model.totalCitedCount > 0
               ? `${model.totalCitedCount} source${model.totalCitedCount !== 1 ? "s" : ""} cited`
               : "no sources cited"}
-            {model.visibleCandidateCount > 0
+            {!hasMoments && model.visibleCandidateCount > 0
               ? `, ${model.visibleCandidateCount} candidate excerpt${model.visibleCandidateCount !== 1 ? "s" : ""}`
               : ""}
           </span>
@@ -410,7 +419,7 @@ export function SourcePanel({
         </section>
 
         <ol className="space-y-2.5 pl-0">
-          {model.primaryGroups.map((group) => (
+          {primaryGroups.map((group) => (
             <SourceEpisodeGroup
               key={group.key}
               group={group}
@@ -433,7 +442,7 @@ export function SourcePanel({
               kindLabel="related episode"
             />
           ))}
-          {model.overflowGroups.length > 0 ? (
+          {!hasMoments && model.overflowGroups.length > 0 ? (
             <li>
               <details
                 className="rounded-control border border-foreground/15 bg-canvas/20 p-2.5"
