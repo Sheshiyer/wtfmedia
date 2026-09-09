@@ -35,6 +35,36 @@ unchanged.
 - Issues #50, #51, and #52 remain open until those staging receipts are
   verified; their source implementation merge receipts are on the issues.
 
+## 2026-09-09 Invite-only company member Beta staging activation
+
+**Status:** STAGING PREVIEW READY — the reviewed `release/beta` source is
+deployed only to `wtfmedia-edge-staging` and `wtfmedia-web-staging`. Production
+was not deployed, migrated, configured, or activated.
+
+- Remote D1 now records migrations `0009_saved_memory.sql` and
+  `0010_member_beta.sql`; the dedicated `member_beta_releases` row is
+  `staging/preview`, attributed to the active staging super-admin record.
+- `CLERK_SECRET_KEY` is a Worker secret on both staging Workers. It is absent
+  from source and was not logged. The linked Clerk development instance now
+  uses restricted sign-up, so access requires an invitation.
+- Staging `/chat` and `/beta` return `200`. Unsigned `/beta/api/context`
+  returns the intentionally non-disclosing `404`; production `/chat` remains
+  `200` and production `/beta/api/context` remains `404`.
+- The full Cloudflare suite passed 206/206, including member invitation,
+  invitation-to-subject activation, owner isolation, archive-only history,
+  explicit-save memory, and independent member-release-gate coverage.
+
+### Remaining acceptance gates
+
+- An existing staging super-admin must sign into `/ops/settings/users` and
+  dispatch two Bangalore-cohort invitations to owner-approved test addresses.
+- Each recipient must accept the Clerk invitation, sign in, and complete a
+  private-chat, history/archive, explicit-memory/archive, and cross-member
+  isolation check. Verify the resulting D1 lifecycle/audit receipts without
+  reading chat or memory payloads.
+- Keep issues #50, #51, and #52 open until those live receipts exist. No
+  production Beta release is authorized by this checkpoint.
+
 ## 2026-09-09 Authenticated history, explicit memory, and query activity
 
 **Status:** LOCAL BETA IMPLEMENTATION — the remaining account-history and

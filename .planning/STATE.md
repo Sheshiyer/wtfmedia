@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 status: active
 stopped_at: Episode-scoped Ask WTF production slice complete; broader Phase 3/4 acceptance remains planned
-last_updated: "2026-09-01T00:00:00.000Z"
-last_activity: 2026-09-01
+last_updated: "2026-09-09T13:47:00.000Z"
+last_activity: 2026-09-09
 progress:
   total_phases: 10
   completed_phases: 2
@@ -122,6 +122,7 @@ authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
 - [Current release 2026-08-30]: The owner temporarily authorizes an ungated public URL. Anonymous visitors may view WTF OS and list/create/update production-calendar records; anonymous delete, ingestion control, transcript activation, provider configuration, secrets, and release approval remain outside the exception. Cloudflare Access and fine-grained RBAC move to the next release.
 - [Cloudflare migration 2026-08-30]: Live evidence resolves three accounts: `9d9d` is the retained read/copy source, repository-bound `wtfmedia` is the target that owns `wtfhq.in`, and `default` is unrelated and untouched. The initial target foundation wave is complete: R2 reconciles at 99 objects / 13,204,194 bytes with all-object hash equality; KV reconciles at 55 keys with value equality and no logged values; Vectorize reconciles at 5,742 unique matching IDs, 1,024 dimensions, and cosine; both queue shells exist; and D1 has migrations `0001`–`0005` applied. Target Workers, queue bindings, the calendar migration, secrets, domain/DNS, final delta, and cutover remain gated. See `.planning/inputs/2026-08-30-9d9d-cloudflare-migration-inventory.md`.
 - [Episode-scoped Ask WTF release 2026-08-31]: Owner-approved production receipt confirms 55/55 published and 49/49 mapped uncut KV memberships, 11,948 Vectorize vectors with `source_mode` and `video_id` indexes, queue backlog 0, DLQ baseline 18, and grounded live `published`, `uncut`, and `both` chat for mapped episodes. Web version `90099f42-13b6-4a4e-8d97-bd93b9f953fa` and edge version `75b96e1f-6fa6-4182-bbdd-99047399de64` are the final deployed versions. This is a bounded production slice, not proof of trusted timeline alignment or synchronized uncut playback.
+- [Member Beta staging preview 2026-09-09]: `release/beta` source is deployed to the separate staging web/edge Workers, D1 migrations `0009_saved_memory` and `0010_member_beta` are applied, and the dedicated staging member-release manifest is `preview`. The linked Clerk development instance is restricted-sign-up (invitation required). This is not a production release and does not complete #50–#52: a staging super-admin plus two Bangalore members must still prove invitation, Clerk-to-D1 activation, private history/archive, explicit memory/archive, and cross-member isolation with live receipts.
 
 ### Completed bounded release slice
 
