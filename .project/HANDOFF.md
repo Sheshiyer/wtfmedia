@@ -1,5 +1,44 @@
 # Project handoff
 
+## 2026-09-09 Clerk session-token configuration receipt
+
+**Status:** READ-ONLY CONFIGURATION VERIFIED — the linked Clerk development
+instance contains the required custom session claim. No Clerk mutation,
+credential write, staging migration, deployment, or live-account acceptance
+was performed.
+
+- `clerk --version` returned `3.3.0`; `clerk doctor --json` reported the CLI
+  authenticated and linked to the repository's development instance.
+- `config pull --keys session` returned the exact claims editor projection:
+
+  ```json
+  {
+    "claims": {
+      "email": "{{user.primary_email_address}}"
+    }
+  }
+  ```
+
+- `api /jwt_templates` returned `[]`. A custom JWT template is not needed for
+  this session flow: Clerk's default `sub` identifies the user, while the
+  custom session `email` claim supports the existing normalized-email-to-D1
+  operator mapping.
+- Runtime authority remains unchanged: the edge verifies issuer, JWKS,
+  expiry, authorized party, `sub`, and email; D1 resolves the active operator
+  and owns role RBAC. Role, operator id, and permissions are not token claims.
+
+### Remaining activation gates
+
+- Local web is missing the build-time publishable key, so its provider-unavailable
+  state is truthful; staging needs the matching publishable key and authorized
+  party configuration.
+- Staging still needs its separate Clerk secret/configuration, pending D1
+  migrations, release-manifest readback, and interactive sign-in/sign-out,
+  revocation, and role-isolation checks.
+- Production Clerk instance, secrets, DNS, deployment, and live activation
+  remain out of scope. Issues #50–#52 remain open pending their agreed
+  acceptance receipts.
+
 ## 2026-09-09 Invite-only company member Beta source checkpoint
 
 **Status:** MERGED BETA SOURCE CHECKPOINT — private member Beta source merged
