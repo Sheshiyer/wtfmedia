@@ -4,6 +4,7 @@ export const opsRoles = ["super_admin", "admin", "editor"] as const;
 export type OpsRole = typeof opsRoles[number];
 export const opsDestinations = [
   "/ops",
+  "/ops/profile",
   "/ops/production",
   "/ops/episodes",
   "/ops/chat",
@@ -16,7 +17,7 @@ export type OpsDestination = typeof opsDestinations[number];
 const grants: Record<OpsRole, ReadonlySet<OpsDestination>> = {
   super_admin: new Set(opsDestinations),
   admin: new Set(opsDestinations),
-  editor: new Set(["/ops", "/ops/production", "/ops/chat"]),
+  editor: new Set(["/ops", "/ops/profile", "/ops/production", "/ops/chat"]),
 };
 
 export function isOpsRole(value: unknown): value is OpsRole {

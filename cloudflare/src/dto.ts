@@ -11,6 +11,20 @@ export const protectedResponseHeaders: Readonly<Record<string, string>> = {
 
 export type OperatorContextDto = Pick<OperatorContext, "operatorId" | "role" | "environment" | "correlationId">;
 export type OperatorDto = Pick<Operator, "id" | "email" | "display_name" | "role" | "active" | "updated_at">;
+export type OperatorProfileDto = {
+  displayName: string;
+  email: string;
+  role: OperatorRole;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+  identityProvider: "clerk";
+  mapping: "normalized_email_to_active_d1_operator";
+  mappingStatus: "matched";
+  environment: OperatorContext["environment"];
+  workspace: "operations";
+  organizationScope: "unknown";
+};
 export type AuditRowDto = Pick<AuditEvent, "occurred_at" | "actor_subject_digest" | "effective_role" | "action" | "entity_type" | "entity_id" | "outcome" | "environment" | "correlation_id">;
 export type SafeOpsError = { error: "operator_unavailable" | "unauthorized" | "not_found" | "bad_request" | "conflict" };
 
@@ -20,6 +34,23 @@ export function operatorContextDto(context: OperatorContext): OperatorContextDto
 
 export function operatorDto(operator: Operator): OperatorDto {
   return { id: operator.id, email: operator.email, display_name: operator.display_name, role: operator.role, active: operator.active, updated_at: operator.updated_at };
+}
+
+export function operatorProfileDto(operator: Operator, context: OperatorContext): OperatorProfileDto {
+  return {
+    displayName: operator.display_name,
+    email: operator.email,
+    role: operator.role,
+    active: operator.active === 1,
+    createdAt: operator.created_at,
+    updatedAt: operator.updated_at,
+    identityProvider: "clerk",
+    mapping: "normalized_email_to_active_d1_operator",
+    mappingStatus: "matched",
+    environment: context.environment,
+    workspace: "operations",
+    organizationScope: "unknown",
+  };
 }
 
 export function auditRowDto(event: AuditEvent): AuditRowDto {

@@ -28,7 +28,7 @@ test.describe("authenticated Ask WTF projection", () => {
     await page.goto("/chat/conversation_01-alice", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByRole("heading", { name: "operator chat unavailable", exact: true })).toBeVisible();
-    await expect(page.getByText("sign in through the approved operator access path to continue.", { exact: true })).toBeVisible();
+    await expect(page.getByText("sign in through the approved Clerk operator path to continue.", { exact: true })).toBeVisible();
     await expect(page.locator("[data-testid=authenticated-chat-thread]")).toHaveCount(0);
     await expect(page.locator("body")).not.toContainText("conversation_01");
   });

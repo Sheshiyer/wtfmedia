@@ -96,7 +96,7 @@ test.describe("WTF OS light theme journeys", () => {
       await useSystemTheme(page, systemTheme);
 
       for (const [path, heading] of [
-        ["/sign-in", "sign-in is not in this release"],
+        ["/sign-in", "operations unavailable"],
         ["/request-access", "seats are not open yet"],
         ["/ops/recover?mode=unavailable", "operations unavailable"],
       ] as const) {

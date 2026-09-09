@@ -1,9 +1,9 @@
 import { appendAudit, exportAuditCsv, projectAuditLedger, queryAuditEvents, type AuditFilters } from "./audit.ts";
-import { createRemoteAccessVerifier, type AccessVerification } from "./auth/access.ts";
+import { createRemoteClerkVerifier, type ClerkVerification } from "./auth/clerk.ts";
 import { resolveOperatorContext, type OperatorContext } from "./auth/operator-context.ts";
 import { decide, policyForPath } from "./auth/policy.ts";
-import type { DB } from "./db.ts";
-import { operatorContextDto, protectedResponseHeaders, safeOpsError } from "./dto.ts";
+import { getOperatorById, type DB } from "./db.ts";
+import { operatorContextDto, operatorProfileDto, protectedResponseHeaders, safeOpsError } from "./dto.ts";
 import { approveOperatorInvitation, changeOperatorLifecycle, inviteApprovedOperator, listOperatorRoster, transferSuperAdmin } from "./operators.ts";
 import { handleAssetConfirmUpload, handleAssetUploadIntent, handleAssetUploadStream } from "./assets/upload-handler.ts";
 import {
@@ -25,6 +25,14 @@ import {
   type ChatActor,
   type MessageInput,
 } from "./chat/history.ts";
+import {
+  activeMemoryContext,
+  archiveMemory,
+  createMemory,
+  getMemoryForActor,
+  listMemoriesForActor,
+  type MemoryActor,
+} from "./chat/memory.ts";
 import { runChat, type ChatAnswer, type ChatAnswerInput } from "./chat/answer.ts";
 import { parseSourceMode } from "./chat/source-mode.ts";
 import {
@@ -41,9 +49,10 @@ export type OpsEnv = {
   OPS_ORIGIN: string;
   OPS_ORIGIN_PROOF: string;
   OPS_ENVIRONMENT: OpsEnvironment;
-  ACCESS_ISSUER: string;
-  ACCESS_AUDIENCE: string;
-  ACCESS_JWKS_URL: string;
+  CLERK_ISSUER: string;
+  CLERK_JWKS_URL: string;
+  CLERK_AUTHORIZED_PARTIES: string;
+  CLERK_AUDIENCE?: string;
   CATALOGUE?: any;
   AI?: any;
   VECTORIZE?: any;
@@ -52,7 +61,7 @@ export type OpsEnv = {
 };
 
 type OpsDependencies = {
-  verifyAccess?: (assertion: string | null) => Promise<AccessVerification>;
+  verifyClerk?: (request: Request) => Promise<ClerkVerification>;
   fetchOrigin?: typeof fetch;
   now?: () => number;
   runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer>;
@@ -74,10 +83,14 @@ function protectedPath(pathname: string): string | null {
   if (pathname.startsWith("/ops/api/episodes/") || pathname.startsWith("/api/ops/episodes/")) return pathname;
   if (pathname === "/ops") return pathname;
   if (pathname === "/ops/settings") return pathname;
+  if (pathname === "/ops/profile") return pathname;
+  if (pathname.startsWith("/ops/settings/")) return pathname;
   if (pathname === "/ops/chat" || pathname.startsWith("/ops/chat/")) return pathname;
   if (pathname === "/ops/api/chat" || pathname.startsWith("/ops/api/chat/") || pathname === "/api/ops/chat" || pathname.startsWith("/api/ops/chat/")) return pathname;
+  if (pathname === "/ops/api/memory" || pathname.startsWith("/ops/api/memory/") || pathname === "/api/ops/memory" || pathname.startsWith("/api/ops/memory/")) return pathname;
   if (pathname === "/ops/api/release/authenticated-chat" || pathname === "/api/ops/release/authenticated-chat") return pathname;
   if (pathname === "/ops/api/operator-context" || pathname === "/api/ops/operator-context") return pathname;
+  if (pathname === "/ops/api/profile" || pathname === "/api/ops/profile") return "/ops/api/profile";
   if (/^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0-9_-]*$/u.test(pathname)) return pathname;
   if (pathname === "/ops/operators" || pathname === "/ops/audit" || pathname === "/ops/production" || pathname === "/ops/ingest" || pathname === "/ops/episodes" || pathname.startsWith("/ops/episodes/")) return pathname;
   return null;
@@ -96,6 +109,15 @@ function releaseRoute(pathname: string): boolean {
 
 function operatorContextRoute(pathname: string): boolean {
   return pathname === "/ops/api/operator-context" || pathname === "/api/ops/operator-context";
+}
+
+function operatorProfileRoute(pathname: string): boolean {
+  return pathname === "/ops/api/profile" || pathname === "/api/ops/profile";
+}
+
+function memoryRoute(pathname: string): boolean {
+  return pathname === "/ops/api/memory" || pathname.startsWith("/ops/api/memory/")
+    || pathname === "/api/ops/memory" || pathname.startsWith("/api/ops/memory/");
 }
 
 function jsonBody(request: Request): Promise<Record<string, unknown> | null> {
@@ -200,6 +222,13 @@ async function chatApi(request: Request, env: OpsEnv, context: OperatorContext, 
     if (!view) return denied();
   }
 
+  const queryAudited = await appendAudit(env.DB, {
+    action: "protected_search", entityType: "control_room", entityId: view.conversation.id, outcome: "allowed",
+    environment: context.environment, correlationId: context.correlationId, actorId: context.operatorId, role: context.role,
+    metadata: { count: 1, scope: "authenticated_chat" },
+  }).catch(() => false);
+  if (!queryAudited) return denied();
+
   const assistantKey = typeof idempotencyKey === "string" ? `${idempotencyKey}:assistant` : null;
   if (!assistantKey || !view.messages.some((message) => message.idempotency_key === assistantKey)) {
     const answerInput: ChatAnswerInput = {
@@ -207,6 +236,7 @@ async function chatApi(request: Request, env: OpsEnv, context: OperatorContext, 
       sourceMode: requestedSourceMode ?? view.conversation.source_mode,
       episodeId: view.conversation.episode_id ?? undefined,
       requestId,
+      memory: await activeMemoryContext(env.DB, context.operatorId).catch(() => []),
     };
     let answer: ChatAnswer;
     let unavailable = false;
@@ -236,6 +266,50 @@ async function chatApi(request: Request, env: OpsEnv, context: OperatorContext, 
     if (!view) return denied();
   }
   return Response.json(view, { status: 201, headers: protectedResponseHeaders });
+}
+
+function memoryIdFromPath(pathname: string): string | null {
+  const match = pathname.match(/\/memory\/(mem_[A-Za-z0-9-]{8,88})(?:\/archive)?$/u);
+  return match?.[1] ?? null;
+}
+
+async function memoryApi(request: Request, env: OpsEnv, context: OperatorContext): Promise<Response> {
+  const actor: MemoryActor = { operatorId: context.operatorId, role: context.role };
+  const path = new URL(request.url).pathname;
+  const memoryId = memoryIdFromPath(path);
+  const isCollection = path === "/ops/api/memory" || path === "/api/ops/memory";
+  if (!isCollection && !memoryId) return denied();
+  if (request.method === "GET") {
+    if (!decide(context.role, "memory", "read")) return denied();
+    if (memoryId) {
+      const memory = await getMemoryForActor(env.DB, actor, memoryId);
+      return memory ? Response.json({ memory, policy: { archive: true, create: true } }, { headers: protectedResponseHeaders }) : denied();
+    }
+    const includeArchived = new URL(request.url).searchParams.get("includeArchived") === "1";
+    const memories = await listMemoriesForActor(env.DB, actor, includeArchived);
+    return memories ? Response.json({ memories, policy: { archive: true, create: true } }, { headers: protectedResponseHeaders }) : denied();
+  }
+  if (request.method !== "POST" || !decide(context.role, "memory", "write")) return denied();
+  const body = await jsonBody(request);
+  if (!body) return denied();
+  if (body.action === "archive") {
+    const archived = await archiveMemory(env.DB, actor, body.memoryId ?? memoryId);
+    if (!archived) return denied();
+    const audited = await appendAudit(env.DB, {
+      action: "settings_policy_change", entityType: "policy", entityId: archived.id, outcome: "succeeded",
+      environment: context.environment, correlationId: context.correlationId, actorId: context.operatorId, role: context.role,
+      metadata: { scope: "saved_memory_archive" },
+    }).catch(() => false);
+    return audited ? Response.json({ memory: archived, policy: { archive: true, create: true } }, { headers: protectedResponseHeaders }) : denied();
+  }
+  const memory = await createMemory(env.DB, actor, { content: body.content, sourceConversationId: body.sourceConversationId });
+  if (!memory) return denied();
+  const audited = await appendAudit(env.DB, {
+    action: "settings_policy_change", entityType: "policy", entityId: memory.id, outcome: "succeeded",
+    environment: context.environment, correlationId: context.correlationId, actorId: context.operatorId, role: context.role,
+    metadata: { scope: "saved_memory_create" },
+  }).catch(() => false);
+  return audited ? Response.json({ memory, policy: { archive: true, create: true } }, { status: 201, headers: protectedResponseHeaders }) : denied();
 }
 
 async function releaseApi(request: Request, env: OpsEnv, context: OperatorContext): Promise<Response> {
@@ -296,6 +370,13 @@ async function operatorApi(request: Request, env: OpsEnv, context: OperatorConte
   return operators ? Response.json({ operators }, { headers: protectedResponseHeaders }) : denied();
 }
 
+async function operatorProfileApi(request: Request, env: OpsEnv, context: OperatorContext): Promise<Response> {
+  if (request.method !== "GET") return denied();
+  const operator = await getOperatorById(env.DB, context.operatorId).catch(() => null);
+  if (!operator || operator.active !== 1 || operator.email !== context.email || operator.role !== context.role) return denied();
+  return Response.json({ profile: operatorProfileDto(operator, context) }, { headers: protectedResponseHeaders });
+}
+
 function validEnvironment(value: unknown): value is OpsEnvironment {
   return value === "local" || value === "staging" || value === "production";
 }
@@ -333,9 +414,15 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
   }
   const requirement = policyForPath(path);
   if (!requirement) return denied();
-
-  const verifyAccess = dependencies.verifyAccess ?? createRemoteAccessVerifier({ issuer: env.ACCESS_ISSUER, audience: env.ACCESS_AUDIENCE, jwksUrl: env.ACCESS_JWKS_URL });
-  const identity = await verifyAccess(request.headers.get("cf-access-jwt-assertion"));
+  const authorizedParties = env.CLERK_AUTHORIZED_PARTIES?.split(",").map((value) => value.trim()).filter(Boolean);
+  if (!env.CLERK_ISSUER || !env.CLERK_JWKS_URL || !authorizedParties?.length) return denied();
+  const verifyClerk = dependencies.verifyClerk ?? createRemoteClerkVerifier({
+    issuer: env.CLERK_ISSUER,
+    jwksUrl: env.CLERK_JWKS_URL,
+    authorizedParties: authorizedParties ?? [],
+    ...(env.CLERK_AUDIENCE ? { audience: env.CLERK_AUDIENCE } : {}),
+  });
+  const identity = await verifyClerk(request);
   const correlationId = request.headers.get("x-request-id") ?? crypto.randomUUID();
   const context = await resolveOperatorContext(env.DB, identity, env.OPS_ENVIRONMENT, correlationId);
   if (!context || !decide(context.role, requirement[0], requirement[1], { environment: context.environment })) return denied();
@@ -352,6 +439,8 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
       if (request.method !== "GET") return denied();
       return Response.json(operatorContextDto(context), { headers: protectedResponseHeaders });
     }
+    if (operatorProfileRoute(url.pathname)) return operatorProfileApi(request, env, context);
+    if (memoryRoute(url.pathname)) return memoryApi(request, env, context);
     if (url.pathname === "/api/ops/operators") return operatorApi(request, env, context);
     if (url.pathname === "/api/ops/audit") return auditApi(request, env, context);
     if (chatRoute(url.pathname) && (url.pathname.includes("/api/chat"))) return chatApi(request, env, context, dependencies);

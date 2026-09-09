@@ -17,9 +17,9 @@ const baseEnv = {
   OPS_ORIGIN: "https://origin.local.test",
   OPS_ORIGIN_PROOF: "test-proof",
   OPS_ENVIRONMENT: "staging",
-  ACCESS_ISSUER: "https://issuer.test",
-  ACCESS_AUDIENCE: "audience",
-  ACCESS_JWKS_URL: "https://issuer.test/certs",
+  CLERK_ISSUER: "https://clerk.example.test",
+  CLERK_JWKS_URL: "https://clerk.example.test/.well-known/jwks.json",
+  CLERK_AUTHORIZED_PARTIES: "https://ops.local.test",
   CHAT_HISTORY_ENABLED: "stable",
 };
 
@@ -55,7 +55,7 @@ function releaseDb({ row = null, role = "super_admin" } = {}) {
 }
 
 function authDependencies() {
-  return { verifyAccess: async () => ({ ok: true, email: "operator@example.test" }) };
+  return { verifyClerk: async () => ({ ok: true, email: "operator@example.test", userId: "user_test_123" }) };
 }
 
 test("release migration is environment-scoped, paused by default, and excludes payload fields", () => {
@@ -121,7 +121,7 @@ test("release endpoint is protected and GET returns the server readback", async 
   assert.deepEqual(policyForPath("/ops/api/release/authenticated-chat"), ["control_room", "read"]);
   const db = releaseDb({ row: { environment: "staging", state: "stable", release_track: "beta", updated_at: "2026-09-02T00:00:00.000Z", updated_by_operator_id: 7 } });
   const response = await handleOpsRequest(new Request("https://ops.local.test/ops/api/release/authenticated-chat", {
-    headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-release-1" },
+    headers: { authorization: "Bearer verified", "x-request-id": "corr-release-1" },
   }), { ...baseEnv, DB: db }, authDependencies());
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), {
@@ -139,7 +139,7 @@ test("operator context endpoint is protected and returns only the verified conte
   assert.deepEqual(policyForPath("/ops/api/operator-context"), ["control_room", "read"]);
   const db = releaseDb();
   const response = await handleOpsRequest(new Request("https://ops.local.test/ops/api/operator-context", {
-    headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-context-1" },
+    headers: { authorization: "Bearer verified", "x-request-id": "corr-context-1" },
   }), { ...baseEnv, DB: db }, authDependencies());
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), {
@@ -155,7 +155,7 @@ test("only super_admin can mutate local/staging release state and every success 
     const db = releaseDb();
     const response = await handleOpsRequest(new Request("https://ops.local.test/ops/api/release/authenticated-chat", {
       method: "POST",
-      headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-release-1", "content-type": "application/json" },
+      headers: { authorization: "Bearer verified", "x-request-id": "corr-release-1", "content-type": "application/json" },
       body: JSON.stringify({ state }),
     }), { ...baseEnv, DB: db }, authDependencies());
     assert.equal(response.status, 200);
@@ -168,7 +168,7 @@ test("only super_admin can mutate local/staging release state and every success 
   const adminDb = releaseDb({ role: "admin" });
   const adminResponse = await handleOpsRequest(new Request("https://ops.local.test/ops/api/release/authenticated-chat", {
     method: "POST",
-    headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-release-2", "content-type": "application/json" },
+    headers: { authorization: "Bearer verified", "x-request-id": "corr-release-2", "content-type": "application/json" },
     body: JSON.stringify({ state: "stable" }),
   }), { ...baseEnv, DB: adminDb }, authDependencies());
   assert.equal(adminResponse.status, 404);
@@ -179,7 +179,7 @@ test("track-only changes preserve the lifecycle state and use the same audited w
   const db = releaseDb({ row: { environment: "staging", state: "stable", release_track: "beta" } });
   const response = await handleOpsRequest(new Request("https://ops.local.test/ops/api/release/authenticated-chat", {
     method: "POST",
-    headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-release-track", "content-type": "application/json" },
+    headers: { authorization: "Bearer verified", "x-request-id": "corr-release-track", "content-type": "application/json" },
     body: JSON.stringify({ track: "alpha" }),
   }), { ...baseEnv, DB: db }, authDependencies());
   assert.equal(response.status, 200);
@@ -199,7 +199,7 @@ test("production release mutations fail closed and staging chat consults server 
   const productionDb = releaseDb();
   const productionResponse = await handleOpsRequest(new Request("https://ops.local.test/ops/api/release/authenticated-chat", {
     method: "POST",
-    headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-release-3", "content-type": "application/json" },
+    headers: { authorization: "Bearer verified", "x-request-id": "corr-release-3", "content-type": "application/json" },
     body: JSON.stringify({ state: "stable" }),
   }), { ...baseEnv, OPS_ENVIRONMENT: "production", DB: productionDb }, authDependencies());
   assert.equal(productionResponse.status, 404);
@@ -209,9 +209,9 @@ test("production release mutations fail closed and staging chat consults server 
   let verified = false;
   const chatResponse = await handleOpsRequest(new Request("https://ops.local.test/ops/api/chat", {
     method: "POST",
-    headers: { "cf-access-jwt-assertion": "verified", "x-request-id": "corr-chat-1", "content-type": "application/json" },
+    headers: { authorization: "Bearer verified", "x-request-id": "corr-chat-1", "content-type": "application/json" },
     body: JSON.stringify({ question: "hello" }),
-  }), { ...baseEnv, DB: pausedDb }, { verifyAccess: async () => { verified = true; return { ok: true, email: "operator@example.test" }; } });
+  }), { ...baseEnv, DB: pausedDb }, { verifyClerk: async () => { verified = true; return { ok: true, email: "operator@example.test", userId: "user_test_123" }; } });
   assert.equal(chatResponse.status, 404);
   assert.equal(verified, false);
 });
