@@ -91,6 +91,14 @@ describe("dual-source public DTO", () => {
     }]);
   });
 
+  it("accepts the edge answer start field without exposing extra metadata", () => {
+    const sources = parsePublicSourceHeader(JSON.stringify([
+      { videoId: "UKag4LVAEdU", title: "Persisted Beta answer", start: 240, sourceMode: "published", internal_rank: 1 },
+    ]));
+
+    expect(sources).toEqual([{ videoId: "UKag4LVAEdU", title: "Persisted Beta answer", timeSec: 240, sourceMode: "published" }]);
+  });
+
   it("filters cited sources by published, uncut, or both mode", () => {
     expect(typeof sourceMode.filterSourcesByMode).toBe("function");
     if (typeof sourceMode.filterSourcesByMode !== "function") return;

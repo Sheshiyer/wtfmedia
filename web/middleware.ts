@@ -12,7 +12,7 @@ async function routeMiddleware(request: NextRequest) {
     forwarded.set("x-wtf-route-kind", "ops-recovery");
     return NextResponse.next({ request: { headers: forwarded } });
   }
-  if (!pathname.startsWith("/ops") && !authenticatedChatDeepLink.test(pathname)) return NextResponse.next();
+  if (!pathname.startsWith("/ops") && !pathname.startsWith("/beta") && !authenticatedChatDeepLink.test(pathname)) return NextResponse.next();
 
   let context = request.headers.get("x-wtf-ops-context");
   let proof = request.headers.get("x-wtf-ops-proof");
@@ -34,12 +34,12 @@ async function routeMiddleware(request: NextRequest) {
     forwarded.set("x-wtf-ops-context", context);
     forwarded.set("x-wtf-ops-proof", proof);
   }
-  forwarded.set("x-wtf-route-kind", authenticatedChatDeepLink.test(pathname) ? "ops-chat" : "ops");
+  forwarded.set("x-wtf-route-kind", pathname.startsWith("/beta") ? "beta" : authenticatedChatDeepLink.test(pathname) ? "ops-chat" : "ops");
   return NextResponse.next({ request: { headers: forwarded } });
 }
 
 export const config = {
-  matcher: ["/", "/ops/:path*", "/api/ops/:path*", "/chat/:path*", "/sign-in/:path*", "/sign-up/:path*", "/request-access"],
+  matcher: ["/", "/ops/:path*", "/api/ops/:path*", "/beta/:path*", "/chat/:path*", "/sign-in/:path*", "/sign-up/:path*", "/request-access"],
 };
 
 const clerkHandler = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim()

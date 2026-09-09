@@ -1,0 +1,67 @@
+import { createRemoteClerkVerifier, type ClerkVerification } from "./auth/clerk.ts";
+import { resolveMemberContext } from "./auth/member-context.ts";
+import { appendMemberAssistant, archiveMemberConversation, createMemberConversation, getMemberConversation, listMemberConversations } from "./chat/member-history.ts";
+import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "./chat/member-memory.ts";
+import { runChat, type ChatAnswerInput, type ChatAnswer } from "./chat/answer.ts";
+import { isMemberBetaEnabled, resolveMemberBetaRelease } from "./member-release.ts";
+import type { OpsEnv } from "./ops-router.ts";
+
+type Dependencies = { verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer> };
+const headers = { "cache-control": "private, no-store", "x-content-type-options": "nosniff" };
+const denied = () => Response.json({ error: "ops_unavailable" }, { status: 404, headers });
+const body = (request: Request) => request.json().then((value) => value && typeof value === "object" ? value as Record<string, unknown> : null).catch(() => null);
+
+export async function handleMemberRequest(request: Request, env: OpsEnv, dependencies: Dependencies = {}) {
+  const url = new URL(request.url);
+  if (!url.pathname.startsWith("/beta/api/") || url.hostname !== env.OPS_HOSTNAME || env.OPS_ENVIRONMENT === "production") return denied();
+  const release = await resolveMemberBetaRelease(env.DB, env.OPS_ENVIRONMENT);
+  if (!isMemberBetaEnabled(release)) return denied();
+  const parties = env.CLERK_AUTHORIZED_PARTIES?.split(",").map((value) => value.trim()).filter(Boolean);
+  if (!env.CLERK_ISSUER || !env.CLERK_JWKS_URL || !parties?.length) return denied();
+  const verify = dependencies.verifyClerk ?? createRemoteClerkVerifier({ issuer: env.CLERK_ISSUER, jwksUrl: env.CLERK_JWKS_URL, authorizedParties: parties, ...(env.CLERK_AUDIENCE ? { audience: env.CLERK_AUDIENCE } : {}) });
+  const context = await resolveMemberContext(env.DB, await verify(request), env.OPS_ENVIRONMENT, request.headers.get("x-request-id") ?? crypto.randomUUID());
+  if (!context) return denied();
+  if (url.pathname === "/beta/api/context" && request.method === "GET") return Response.json({ member: context }, { headers });
+  if (url.pathname === "/beta/api/memory" && request.method === "GET") {
+    const memories = await listMemberMemories(env.DB, context.memberId);
+    return memories ? Response.json({ memories }, { headers }) : denied();
+  }
+  if (url.pathname === "/beta/api/memory" && request.method === "POST") {
+    const input = await body(request);
+    const memory = await createMemberMemory(env.DB, context.memberId, input?.content);
+    return memory ? Response.json({ memory }, { status: 201, headers }) : denied();
+  }
+  if (url.pathname === "/beta/api/chat" && request.method === "GET") {
+    const page = await listMemberConversations(env.DB, context.memberId);
+    return page ? Response.json(page, { headers }) : denied();
+  }
+  if (url.pathname === "/beta/api/chat" && request.method === "POST") {
+    const input = await body(request);
+    if (!input) return denied();
+    const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
+    const view = await createMemberConversation(env.DB, context.memberId, input.question, input.sourceMode, requestId);
+    if (!view) return denied();
+    try {
+      const memories = await listMemberMemories(env.DB, context.memberId);
+      const answer = await (dependencies.runChat ?? runChat)({ question: String(input.question ?? ""), sourceMode: input.sourceMode, episodeId: input.episodeId, requestId, memory: (memories ?? []).map((memory: any) => String(memory.content)).slice(0, 8) }, env);
+      const stored = await appendMemberAssistant(env.DB, context.memberId, view.conversation.id, { content: answer.answer, metadata: { sources: answer.sources, sourceMode: answer.sourceMode, uncutUnavailable: answer.uncutUnavailable }, grounded: answer.grounded, model: answer.model, fallback: answer.modelFallback, requestId: answer.requestId });
+      return stored ? Response.json(stored, { status: 201, headers }) : denied();
+    } catch { return denied(); }
+  }
+  const match = url.pathname.match(/^\/beta\/api\/chat\/(mcnv_[A-Za-z0-9-]{8,88})$/u);
+  if (match && request.method === "GET") {
+    const view = await getMemberConversation(env.DB, context.memberId, match[1]);
+    return view ? Response.json(view, { headers }) : denied();
+  }
+  const archiveChat = url.pathname.match(/^\/beta\/api\/chat\/(mcnv_[A-Za-z0-9-]{8,88})\/archive$/u);
+  if (archiveChat && request.method === "POST") {
+    const conversation = await archiveMemberConversation(env.DB, context.memberId, archiveChat[1]);
+    return conversation ? Response.json({ conversation }, { headers }) : denied();
+  }
+  const archiveMemory = url.pathname.match(/^\/beta\/api\/memory\/(mmem_[A-Za-z0-9-]{8,88})\/archive$/u);
+  if (archiveMemory && request.method === "POST") {
+    const memory = await archiveMemberMemory(env.DB, context.memberId, archiveMemory[1]);
+    return memory ? Response.json({ memory }, { headers }) : denied();
+  }
+  return denied();
+}

@@ -12,6 +12,8 @@ describe("nested settings navigation", () => {
       "readiness", "release", "ai", "analytics", "sessions", "memory", "sources",
     ]);
     expect(settingsSectionsFor("admin").map((section) => section.id)).toContain("access");
+    expect(settingsSectionsFor("admin").map((section) => section.id)).toContain("users");
+    expect(settingsSectionsFor("editor").map((section) => section.id)).not.toContain("users");
     expect(settingsSectionsFor("public_link")).toEqual([]);
   });
 

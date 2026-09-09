@@ -9,6 +9,7 @@ import {
   RELEASE_TRACKS,
   RELEASE_STATES,
 } from "../src/release-manifest.ts";
+import { isMemberBetaEnabled, resolveMemberBetaRelease } from "../src/member-release.ts";
 import { policyForPath } from "../src/auth/policy.ts";
 
 const root = new URL("..", import.meta.url).pathname;
@@ -71,6 +72,13 @@ test("release migration is environment-scoped, paused by default, and excludes p
   assert.match(trackMigration, /ADD COLUMN release_track TEXT NOT NULL DEFAULT 'alpha'/);
   assert.match(trackMigration, /CHECK \(release_track IN \('alpha', 'beta'\)\)/);
   assert.deepEqual(RELEASE_TRACKS, ["alpha", "beta"]);
+});
+
+test("member beta is an independently paused staging-only release gate", async () => {
+  const db = { prepare() { return { bind() { return this; }, async first() { return null; } }; } };
+  assert.equal(isMemberBetaEnabled(await resolveMemberBetaRelease(db, "staging")), false);
+  assert.equal(isMemberBetaEnabled({ environment: "production", state: "stable", source: "manifest" }), false);
+  assert.match(readFileSync(join(root, "migrations", "0010_member_beta.sql"), "utf8"), /CREATE TABLE member_beta_releases/);
 });
 
 test("staging defaults paused and ignores the local environment seam", async () => {

@@ -5,6 +5,8 @@ import { decide, policyForPath } from "./auth/policy.ts";
 import { getOperatorById, type DB } from "./db.ts";
 import { operatorContextDto, operatorProfileDto, protectedResponseHeaders, safeOpsError } from "./dto.ts";
 import { approveOperatorInvitation, changeOperatorLifecycle, inviteApprovedOperator, listOperatorRoster, transferSuperAdmin } from "./operators.ts";
+import { changeCompanyMemberLifecycle, inviteCompanyMember, listCompanyMembers } from "./members.ts";
+import { createClerkInvitationClient } from "./clerk/invitations.ts";
 import { handleAssetConfirmUpload, handleAssetUploadIntent, handleAssetUploadStream } from "./assets/upload-handler.ts";
 import {
   handleActivateTranscriptVersion,
@@ -53,6 +55,7 @@ export type OpsEnv = {
   CLERK_JWKS_URL: string;
   CLERK_AUTHORIZED_PARTIES: string;
   CLERK_AUDIENCE?: string;
+  CLERK_SECRET_KEY?: string;
   CATALOGUE?: any;
   AI?: any;
   VECTORIZE?: any;
@@ -65,6 +68,7 @@ type OpsDependencies = {
   fetchOrigin?: typeof fetch;
   now?: () => number;
   runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer>;
+  fetchClerk?: typeof fetch;
 };
 
 function denied(): Response {
@@ -73,6 +77,7 @@ function denied(): Response {
 
 function protectedPath(pathname: string): string | null {
   if (pathname === "/api/ops/operators") return "/ops/operators";
+  if (pathname === "/api/ops/members") return "/ops/api/members";
   if (pathname === "/api/ops/audit") return "/ops/audit";
   if (pathname === "/ops/api/assets/upload-intent" || pathname === "/api/ops/assets/upload-intent") return "/ops/api/assets/upload-intent";
   if (pathname === "/ops/api/assets/upload-stream" || pathname === "/api/ops/assets/upload-stream") return "/ops/api/assets/upload-stream";
@@ -91,6 +96,7 @@ function protectedPath(pathname: string): string | null {
   if (pathname === "/ops/api/release/authenticated-chat" || pathname === "/api/ops/release/authenticated-chat") return pathname;
   if (pathname === "/ops/api/operator-context" || pathname === "/api/ops/operator-context") return pathname;
   if (pathname === "/ops/api/profile" || pathname === "/api/ops/profile") return "/ops/api/profile";
+  if (pathname === "/ops/api/members") return pathname;
   if (/^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0-9_-]*$/u.test(pathname)) return pathname;
   if (pathname === "/ops/operators" || pathname === "/ops/audit" || pathname === "/ops/production" || pathname === "/ops/ingest" || pathname === "/ops/episodes" || pathname.startsWith("/ops/episodes/")) return pathname;
   return null;
@@ -377,6 +383,28 @@ async function operatorProfileApi(request: Request, env: OpsEnv, context: Operat
   return Response.json({ profile: operatorProfileDto(operator, context) }, { headers: protectedResponseHeaders });
 }
 
+async function memberApi(request: Request, env: OpsEnv, context: OperatorContext, dependencies: OpsDependencies): Promise<Response> {
+  const actor = { operatorId: context.operatorId, role: context.role };
+  if (request.method === "GET") {
+    const members = await listCompanyMembers(env.DB, actor, context.environment);
+    return members ? Response.json({ members }, { headers: protectedResponseHeaders }) : denied();
+  }
+  if (request.method !== "POST" || !env.CLERK_SECRET_KEY) return denied();
+  const body = await jsonBody(request);
+  if (!body || !["invite", "revoke", "suspend", "reactivate"].includes(String(body.action))) return denied();
+  const invitations = createClerkInvitationClient(env.CLERK_SECRET_KEY, dependencies.fetchClerk);
+  if (body.action !== "invite") {
+    const changed = await changeCompanyMemberLifecycle(env.DB, actor, body.email, body.action, context.environment, context.correlationId, invitations);
+    if (!changed) return denied();
+    const members = await listCompanyMembers(env.DB, actor, context.environment);
+    return members ? Response.json({ members }, { headers: protectedResponseHeaders }) : denied();
+  }
+  let redirectUrl: string;
+  try { redirectUrl = new URL("/beta", env.OPS_ORIGIN).toString(); } catch { return denied(); }
+  const member = await inviteCompanyMember(env.DB, actor, { email: body.email, pilotCohort: body.pilotCohort, office: body.office, redirectUrl }, context.environment, context.correlationId, invitations);
+  return member ? Response.json({ member }, { status: member.invitationStatus === "sent" ? 201 : 502, headers: protectedResponseHeaders }) : denied();
+}
+
 function validEnvironment(value: unknown): value is OpsEnvironment {
   return value === "local" || value === "staging" || value === "production";
 }
@@ -440,6 +468,7 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
       return Response.json(operatorContextDto(context), { headers: protectedResponseHeaders });
     }
     if (operatorProfileRoute(url.pathname)) return operatorProfileApi(request, env, context);
+    if (url.pathname === "/ops/api/members" || url.pathname === "/api/ops/members") return memberApi(request, env, context, dependencies);
     if (memoryRoute(url.pathname)) return memoryApi(request, env, context);
     if (url.pathname === "/api/ops/operators") return operatorApi(request, env, context);
     if (url.pathname === "/api/ops/audit") return auditApi(request, env, context);

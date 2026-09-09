@@ -20,6 +20,8 @@ import {
   getConversationForActor,
   listConversationsForActor,
 } from "../src/chat/history.ts";
+import { archiveMemberConversation, createMemberConversation, getMemberConversation, listMemberConversations } from "../src/chat/member-history.ts";
+import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "../src/chat/member-memory.ts";
 import { resolveOperatorContext } from "../src/auth/operator-context.ts";
 
 const root = new URL("..", import.meta.url).pathname;
@@ -35,6 +37,7 @@ const migrations = [
   "0007_release_manifest.sql",
   "0008_release_track.sql",
   "0009_saved_memory.sql",
+  "0010_member_beta.sql",
 ];
 
 function sqlite(input, json = false) {
@@ -315,4 +318,25 @@ test("saved memory persists across sessions without crossing operator ownership"
   assert.equal((await activeMemoryContext(db, 4)).length, 0);
   const deleteAttempt = sqlite(`DELETE FROM saved_memories WHERE id = '${memory.id}';`);
   assert.notEqual(deleteAttempt.status, 0);
+});
+
+test("member beta history and explicit memory are durable, private, and archive-only", async () => {
+  const db = d1();
+  const seed = sqlite("INSERT INTO member_users (id, email, clerk_user_id, role, lifecycle_state, pilot_cohort, office, created_at, updated_at, activated_at) VALUES (91, 'member-one@example.test', 'user_member_one', 'member', 'active', 'bangalore', 'bangalore', '2026-09-09T00:00:00.000Z', '2026-09-09T00:00:00.000Z', '2026-09-09T00:00:00.000Z'), (92, 'member-two@example.test', 'user_member_two', 'member', 'active', 'bangalore', 'bangalore', '2026-09-09T00:00:00.000Z', '2026-09-09T00:00:00.000Z', '2026-09-09T00:00:00.000Z');");
+  assert.equal(seed.status, 0, seed.stderr);
+  const first = await createMemberConversation(db, 91, "private member one question", "published", "member-request-001", "2026-09-09T00:01:00.000Z");
+  assert.ok(first);
+  assert.ok(await createMemberConversation(db, 92, "private member two question", "published", "member-request-002", "2026-09-09T00:02:00.000Z"));
+  assert.equal((await listMemberConversations(db, 91))?.conversations.length, 1);
+  assert.equal(await getMemberConversation(db, 92, first.conversation.id), null);
+  assert.equal(await archiveMemberConversation(db, 92, first.conversation.id), null);
+  assert.equal((await archiveMemberConversation(db, 91, first.conversation.id, "2026-09-09T00:03:00.000Z"))?.lifecycle_state, "archived");
+  assert.equal((await listMemberConversations(db, 91))?.conversations.length, 0);
+  const saved = await createMemberMemory(db, 91, "explicit member one preference", "2026-09-09T00:04:00.000Z");
+  assert.ok(saved);
+  assert.equal((await listMemberMemories(db, 92))?.length, 0);
+  assert.equal(await archiveMemberMemory(db, 92, saved.id), null);
+  assert.equal((await archiveMemberMemory(db, 91, saved.id, "2026-09-09T00:05:00.000Z"))?.lifecycle_state, "archived");
+  assert.notEqual(sqlite(`DELETE FROM member_chat_conversations WHERE id = '${first.conversation.id}';`).status, 0);
+  assert.notEqual(sqlite(`DELETE FROM member_saved_memories WHERE id = '${saved.id}';`).status, 0);
 });

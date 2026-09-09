@@ -39,6 +39,14 @@ authenticated Ask WTF staging lane with server-side RAG, persisted chat
 history, and consolidation policy panels for memory governance, RAG source
 health, and session history.
 
+The `release/beta` branch now also contains the reviewed Clerk-backed operator
+session/history/memory slice and the separate invite-only member Beta from PRs
+[#53](https://github.com/Sheshiyer/wtfmedia/pull/53),
+[#54](https://github.com/Sheshiyer/wtfmedia/pull/54), and
+[#55](https://github.com/Sheshiyer/wtfmedia/pull/55). These are repository
+source receipts only: staging migration, keys, activation, and real-account
+acceptance remain open.
+
 `v0.3.2-alpha.1` is the latest alpha. It adds named-person retrieval anchors,
 truthful abstention for missing guests, and public source-panel filtering by
 `published`, `uncut`, and `both` modes.

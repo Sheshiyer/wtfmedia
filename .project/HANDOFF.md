@@ -1,5 +1,79 @@
 # Project handoff
 
+## 2026-09-09 Clerk session-token configuration receipt
+
+**Status:** READ-ONLY CONFIGURATION VERIFIED — the linked Clerk development
+instance contains the required custom session claim. No Clerk mutation,
+credential write, staging migration, deployment, or live-account acceptance
+was performed.
+
+- `clerk --version` returned `3.3.0`; `clerk doctor --json` reported the CLI
+  authenticated and linked to the repository's development instance.
+- `config pull --keys session` returned the exact claims editor projection:
+
+  ```json
+  {
+    "claims": {
+      "email": "{{user.primary_email_address}}"
+    }
+  }
+  ```
+
+- `api /jwt_templates` returned `[]`. A custom JWT template is not needed for
+  this session flow: Clerk's default `sub` identifies the user, while the
+  custom session `email` claim supports the existing normalized-email-to-D1
+  operator mapping.
+- Runtime authority remains unchanged: the edge verifies issuer, JWKS,
+  expiry, authorized party, `sub`, and email; D1 resolves the active operator
+  and owns role RBAC. Role, operator id, and permissions are not token claims.
+
+### Remaining activation gates
+
+- Local web is missing the build-time publishable key, so its provider-unavailable
+  state is truthful; staging needs the matching publishable key and authorized
+  party configuration.
+- Staging still needs its separate Clerk secret/configuration, pending D1
+  migrations, release-manifest readback, and interactive sign-in/sign-out,
+  revocation, and role-isolation checks.
+- Production Clerk instance, secrets, DNS, deployment, and live activation
+  remain out of scope. Issues #50–#52 remain open pending their agreed
+  acceptance receipts.
+
+## 2026-09-09 Invite-only company member Beta source checkpoint
+
+**Status:** MERGED BETA SOURCE CHECKPOINT — private member Beta source merged
+through PR #54 as `1e6afd7` into `release/beta`. It has not been deployed,
+migrated, activated, or tested with real Clerk accounts; public Alpha is
+unchanged.
+
+- Added `0010_member_beta.sql`: isolated member identity/invitation/audit
+  lifecycle, member-owned archive-only chat and memory, plus an independently
+  paused, production-denying member release manifest.
+- `/beta/api/*` requires the staging host, the dedicated enabled release,
+  verified Clerk JWT, and active matching D1 member. First acceptance binds and
+  re-reads the Clerk subject before admission.
+- Persisted Beta assistant responses retain the safe source projection and
+  render the established citation panel, including the edge timestamp field.
+- `/ops/settings/users` offers admin-only roster, invite, pending-invitation
+  revoke, suspend, and reactivate. It exposes no member chat/memory content.
+
+### Verification
+
+- 206 Cloudflare tests, 94 web unit tests, and 86 web contract tests passed;
+  lint, typecheck, production build, and `git diff --check` also passed.
+
+### Remaining staging gates
+
+- The read-only staging inventory found no pending `0009_saved_memory.sql` or
+  `0010_member_beta.sql`, no release-manifest row, and no `CLERK_SECRET_KEY`
+  in the staging Worker secret list. It records a distinct historical
+  `0009_temporary_super_admin_roster.sql`; do not overwrite it.
+- Apply pending migrations to staging, deploy reviewed artifacts, configure and
+  verify the staging Clerk keys/invite-only mode, enable the dedicated member
+  manifest, and run one admin plus two Bangalore-member acceptance accounts.
+- Issues #50, #51, and #52 remain open until those staging receipts are
+  verified; their source implementation merge receipts are on the issues.
+
 ## 2026-09-09 Authenticated history, explicit memory, and query activity
 
 **Status:** LOCAL BETA IMPLEMENTATION — the remaining account-history and

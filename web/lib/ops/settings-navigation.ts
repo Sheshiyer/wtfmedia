@@ -8,7 +8,8 @@ export type SettingsSectionId =
   | "sessions"
   | "memory"
   | "sources"
-  | "access";
+  | "access"
+  | "users";
 
 export type SettingsSection = {
   id: SettingsSectionId;
@@ -101,6 +102,16 @@ export const SETTINGS_SECTIONS: readonly SettingsSection[] = [
     label: "operator access",
     eyebrow: "protected administration",
     description: "Review the roster and governed seat-management boundary.",
+    status: "admin only",
+    group: "access",
+    readRoles: adminRoles,
+  },
+  {
+    id: "users",
+    href: "/ops/settings/users",
+    label: "company users",
+    eyebrow: "invite-only beta",
+    description: "Invite Bangalore pilot members and review company membership lifecycle.",
     status: "admin only",
     group: "access",
     readRoles: adminRoles,

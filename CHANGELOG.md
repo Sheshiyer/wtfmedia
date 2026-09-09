@@ -11,6 +11,13 @@ versioning; the web application version is held in `web/package.json`.
   or structurally incompatible episodes, completing 56/56 published sidecars.
 - Added grouped evidence presentation that separates answer citations from
   secondary retrieval candidates without changing their original identities.
+- Reconciled the beta release documentation with the Clerk session-token flow:
+  the custom email claim is read from the session token, `sub` remains the
+  default Clerk subject, D1 remains the role authority, and no JWT template or
+  live environment activation is implied.
+- Recorded the merged `release/beta` receipts for operator history/memory and
+  the paused invite-only member lane while keeping #50–#52 open for their
+  remaining acceptance gates.
 - Replaced the operator Cloudflare Access boundary with Clerk verification
   while preserving the D1 email-to-role mapping and deny-by-default RBAC.
 - Added per-user authenticated Ask WTF conversations, durable message/source
