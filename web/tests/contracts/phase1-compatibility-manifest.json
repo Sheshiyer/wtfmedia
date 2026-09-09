@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "authority": "owner-approved-alpha-evidence-coherence-production-2026-09-04",
-  "base_sha": "c0340bbccece036a36ab339c6842ce95f436f818",
+  "authority": "current-dirty-worktree-pending-owner-approval",
+  "base_sha": "52eb513029f7efe185787115cf9c5ba43fd2b15c",
   "protected_routes": [
     "/",
     "/episodes",
@@ -12,110 +12,61 @@
   "protected_files": [
     {
       "path": "web/app/layout.tsx",
-      "sha256": "7f7ddb592ac029ae10a6f635f2981a8bd81c9b5a59782ee060c3501817f08655",
-      "mode": "100644",
+      "sha256": "25bad92d367519cc5911c5ef9fe1005934905798db9a49ee9aecf8a156f8d2ff",
+      "mode": "100664",
       "type": "file",
-      "worktree_status": " M"
+      "worktree_status": "M "
     },
     {
       "path": "web/app/page.tsx",
-      "sha256": "a46a96eef2e9557cb3a0f362357de34bd67e44a44d73b50a1cbe55eae37ab0a1",
-      "mode": "100644",
+      "sha256": "bbeb34eaedc9e7e3082b3cba01661d81411ef655b9d1538127beb382a95a00b0",
+      "mode": "100664",
       "type": "file",
-      "worktree_status": " M"
+      "worktree_status": "clean"
     },
     {
       "path": "web/app/episodes/page.tsx",
-      "sha256": "7138a212a1f69170088ba358424b8ab1832f1bc46ee95d7a0adac065689b93b3",
-      "mode": "100644",
+      "sha256": "b118e0e908da7997efc2f0ca77fc4cac2e4becd720a090289913971040e90e12",
+      "mode": "100664",
       "type": "file",
       "worktree_status": "clean"
     },
     {
       "path": "web/app/connections/page.tsx",
-      "sha256": "a58a2024c634635358a3a8f4cf191be870c23aa5e7dc728fbddc33f57a6f0855",
-      "mode": "100644",
+      "sha256": "5ba2c390e89de6652479fd00f1cf1c851f1b6f4348b282ac3a9854d989391ff0",
+      "mode": "100664",
       "type": "file",
       "worktree_status": "clean"
     },
     {
       "path": "web/app/chat/page.tsx",
-      "sha256": "73e4fb084a07b899806b27bb67dcd24fa5634dab0c06bea47de7b262db8d5078",
-      "mode": "100644",
+      "sha256": "8e7cf613b3ef29dd1c9ddc166c896e4597b3e6238fcebfd30af1339e44794fb3",
+      "mode": "100664",
       "type": "file",
-      "worktree_status": " M"
+      "worktree_status": "clean"
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "1b44b88d3028381eb35d7e009242744e0b721d7e73fd5b8de7f3c9733700f724",
-      "mode": "100644",
+      "sha256": "d3859345b07644d371e2bc7df34ca21b385c03f2a6292540bfbf8b20c8b65916",
+      "mode": "100664",
       "type": "file",
-      "worktree_status": " M"
+      "worktree_status": "M "
     }
   ],
   "relevant_dirty_paths": [
     {
       "path": "web/app/layout.tsx",
-      "sha256": "7f7ddb592ac029ae10a6f635f2981a8bd81c9b5a59782ee060c3501817f08655",
-      "mode": "100644",
+      "sha256": "25bad92d367519cc5911c5ef9fe1005934905798db9a49ee9aecf8a156f8d2ff",
+      "mode": "100664",
       "type": "file",
-      "worktree_status": " M"
-    },
-    {
-      "path": "web/app/page.tsx",
-      "sha256": "a46a96eef2e9557cb3a0f362357de34bd67e44a44d73b50a1cbe55eae37ab0a1",
-      "mode": "100644",
-      "type": "file",
-      "worktree_status": " M"
-    },
-    {
-      "path": "web/app/chat/page.tsx",
-      "sha256": "73e4fb084a07b899806b27bb67dcd24fa5634dab0c06bea47de7b262db8d5078",
-      "mode": "100644",
-      "type": "file",
-      "worktree_status": " M"
+      "worktree_status": "M "
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "1b44b88d3028381eb35d7e009242744e0b721d7e73fd5b8de7f3c9733700f724",
-      "mode": "100644",
+      "sha256": "d3859345b07644d371e2bc7df34ca21b385c03f2a6292540bfbf8b20c8b65916",
+      "mode": "100664",
       "type": "file",
-      "worktree_status": " M"
-    },
-    {
-      "path": "web/lib/models.ts",
-      "sha256": "4a4f376fe29a02fceb9ef271b1091c1b02d404f533547b9b32e3d9e3100e3579",
-      "mode": "100644",
-      "type": "file",
-      "worktree_status": " M"
-    },
-    {
-      "path": "web/lib/nvidia.ts",
-      "sha256": "1b684592af6d1618d1668de2470828e9153d12b21359d06a38451a78b177ffab",
-      "mode": "100644",
-      "type": "file",
-      "worktree_status": " M"
-    },
-    {
-      "path": "web/src/data/episodes.json",
-      "sha256": "8bd0597fccac551aa1a6667a252d8afce781112e6be1a7f00d0e32c1f67a56c2",
-      "mode": "100644",
-      "type": "file",
-      "worktree_status": " M"
-    },
-    {
-      "path": "web/src/data/connections.json",
-      "sha256": "843a13900066a7fc509e0d8813b9787de18c335ff65d990cc4ec22cca060c307",
-      "mode": "100644",
-      "type": "file",
-      "worktree_status": " M"
-    },
-    {
-      "path": "web/src/data/corpus-manifest.json",
-      "sha256": "ac2dd77e56180aed4f04df5e0624e90fb7a497747c4d8ca2ca31e28582d2fd13",
-      "mode": "100644",
-      "type": "file",
-      "worktree_status": "??"
+      "worktree_status": "M "
     }
   ],
   "navigation": [
@@ -159,7 +110,7 @@
           "Escape"
         ],
         "refresh_back_share": "open episode is not reproduced",
-        "ask_destination": "/chat?q=<encoded episode question>&episodeId=<public YouTube id>"
+        "ask_destination": "/chat?q=<encoded episode question>"
       },
       "data_semantics": "episodes grouped by existing playlist title with public transcript fallback"
     },
@@ -175,7 +126,6 @@
         "value_selection": "URLSearchParams.get first value",
         "non_empty_value": "auto-submit exactly once per mounted page",
         "empty_or_absent_value": "no automatic submission",
-        "episode_parameter": "an optional valid 11-character public YouTube id is retained and forwarded; invalid values are omitted by the client",
         "unrelated_parameters": "left in the URL and ignored by the current page"
       },
       "data_semantics": "visitor question, public answer text, and cited public sources"
@@ -183,7 +133,7 @@
     "/api/chat": {
       "kind": "public POST endpoint",
       "query_behavior": "none",
-      "data_semantics": "server-authenticated edge retrieval with an optional validated public episode scope, projected into the browser compatibility contract"
+      "data_semantics": "server-authenticated edge retrieval projected into the browser compatibility contract"
     }
   },
   "public_field_allowlists": {
@@ -226,23 +176,13 @@
       "score",
       "t",
       "time",
-      "url",
-      "source_mode",
-      "mapping_status",
-      "timestamp_status",
-      "timestamp_reason",
-      "segment_id"
+      "url"
     ]
   },
   "chat_contract": {
     "method": "POST",
     "request": {
       "accepted_body_member": "messages",
-      "optional_body_members": [
-        "sourceMode",
-        "episodeId"
-      ],
-      "episode_id_rule": "episodeId must be an 11-character public YouTube id when present",
       "non_array_messages": "treated as an empty message list",
       "history_window": "last 8 messages only",
       "selected_question": "last user-role message in the retained window",
@@ -253,7 +193,7 @@
       "client_model_member": "sent by the current client but ignored by the current route"
     },
     "upstream_boundary": {
-      "request_body": "selected question, parsed source mode, and optional validated public episode id",
+      "request_body": "selected question only",
       "timeout_ms": 25000,
       "route_max_duration_seconds": 30,
       "cache": "no-store",
@@ -280,13 +220,6 @@
         "status": 400,
         "body_kind": "plain text",
         "safe_body": "question too long",
-        "upstream_called": false
-      },
-      {
-        "case": "episodeId is present but is not a public YouTube id",
-        "status": 400,
-        "body_kind": "plain text",
-        "safe_body": "invalid episode id",
         "upstream_called": false
       },
       {
@@ -317,14 +250,6 @@
     ],
     "headers": [
       "X-Sources",
-      "X-Requested-Source-Mode",
-      "X-Evidence-Source-Mode",
-      "X-Source-Mode",
-      "X-Source-Fallback-Reason",
-      "X-Uncut-Unavailable",
-      "X-Response-State",
-      "X-Cited-Indices",
-      "X-Follow-Ups",
       "X-Model",
       "X-Fallback",
       "Content-Type",
@@ -333,11 +258,6 @@
     "success_headers": {
       "Content-Type": "text/plain; charset=utf-8",
       "X-Sources": "URI-encoded JSON array of mapped public source fields",
-      "X-Requested-Source-Mode": "the parsed query-time source mode requested by the browser",
-      "X-Evidence-Source-Mode": "published, uncut, both, or none for the evidence actually returned",
-      "X-Source-Mode": "backwards-compatible effective evidence mode",
-      "X-Source-Fallback-Reason": "allowlisted requested_mode_insufficient or requested_mode_not_competitive when applicable",
-      "X-Uncut-Unavailable": "true only when sufficient uncut evidence is absent, never merely noncompetitive",
       "X-Model": "fixed server-selected compatibility label",
       "X-Fallback": "false only when the upstream grounded flag is truthy; otherwise true",
       "Cache-Control": "no-store"
@@ -349,12 +269,7 @@
       "score",
       "t",
       "time",
-      "url",
-      "source_mode",
-      "mapping_status",
-      "timestamp_status",
-      "timestamp_reason",
-      "segment_id"
+      "url"
     ],
     "source_mapping": {
       "n": "upstream source number",
@@ -363,12 +278,7 @@
       "score": "upstream score",
       "t": "upstream start number or null",
       "time": "empty for null start; otherwise UTC clock text derived from start seconds",
-      "url": "upstream public URL; an untimed published source opens the full episode without a seek parameter",
-      "source_mode": "the source's own published or uncut evidence mode",
-      "mapping_status": "the source-native timeline mapping state",
-      "timestamp_status": "verified, source_timing_unavailable, or requested_timeline_unavailable",
-      "timestamp_reason": "a fixed public explanation for an unavailable native time, otherwise null",
-      "segment_id": "the bounded public retrieval segment reference"
+      "url": "upstream public URL"
     },
     "streaming": {
       "proxy": "awaits the complete Worker JSON response before constructing a plain-text Response",

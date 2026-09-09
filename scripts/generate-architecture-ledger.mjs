@@ -49,7 +49,7 @@ function read(relativePath) {
 }
 
 function readJson(relativePath) {
-  return JSON.parse(read(relativePath));
+  return JSON.parse(read(relativePath).replaceAll(/^\s*\/\/.*$/gm, ""));
 }
 
 function escapeHtml(value) {

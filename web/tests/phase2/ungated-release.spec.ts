@@ -49,14 +49,47 @@ test("ungated release can open ops pages without an access proof", async ({ page
   await expect(page.getByRole("heading", { name: "production", exact: true })).toBeVisible();
 });
 
-test("operator context is shown on settings, not repeated as every ops header", async ({ page }) => {
+test("operator context belongs to access evidence, not the settings navigation rail", async ({ page }) => {
   await page.goto("/ops", { waitUntil: "domcontentloaded" });
   await expect(page.locator("[data-ops-context-strip]")).toHaveCount(0);
 
   await page.goto("/ops/settings", { waitUntil: "domcontentloaded" });
-  await expect(page.locator("[data-ops-context-strip]")).toBeVisible();
+  await expect(page.locator("[data-ops-context-strip]")).toHaveCount(0);
+  await expect(page.locator("[data-settings-navigation] [data-operator-access-context]")).toHaveCount(0);
+  await expect(page.locator("[data-bottom-navigation] [data-shell-profile]")).toHaveCount(0);
+  await expect(page.locator("[data-bottom-navigation] [data-shell-settings]")).toHaveCount(0);
+  await expect(page.locator("[data-bottom-navigation] [data-theme-toggle]")).toHaveCount(0);
+  const menu = page.locator("[data-navigation-disclosure]");
+  await expect(menu).toHaveAttribute("data-state", "closed");
+  await page.locator("[data-navigation-toggle]").click();
+  await expect(menu).toHaveAttribute("data-state", "open");
+  await expect(menu.locator("[data-shell-profile]")).toBeVisible();
+  await expect(menu.locator("[data-shell-settings]")).toBeVisible();
+  await expect(menu.locator("[data-theme-toggle]")).toBeVisible();
+  await expect(page.locator(".wtf-bottom-pill [data-operator-logout]")).toHaveCount(0);
+  await expect(page.locator("[data-settings-account] [data-operator-logout]")).toBeVisible();
+
+  await page.goto("/ops/settings/access", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("[data-operator-access-context]")).toBeVisible();
+  await expect(page.locator("[data-settings-navigation] [data-operator-access-context]")).toHaveCount(0);
+  await expect(page.locator("[data-operator-logout]")).toHaveCount(0);
   await expect(page.locator("dt", { hasText: /^environment$/ })).toBeVisible();
   await expect(page.getByRole("heading", { name: "v0.3.2-alpha.1", exact: true })).toBeVisible();
+});
+
+test("profile is a dedicated operator workspace and keeps logout inside settings", async ({ page }) => {
+  await page.goto("/ops/profile", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "profile", exact: true })).toBeVisible();
+  await expect(page.locator("[data-profile-page]")).toBeVisible();
+  await expect(page.locator("[data-profile-settings-map]")).toBeVisible();
+  await expect(page.locator(".wtf-bottom-pill [data-operator-logout]")).toHaveCount(0);
+  await expect(page.locator("[data-bottom-navigation] [data-shell-profile]")).toHaveCount(0);
+  await page.locator("[data-navigation-toggle]").click();
+  await expect(page.locator("[data-navigation-disclosure] [data-shell-profile]")).toHaveAttribute("href", "/ops/profile");
+
+  await page.goto("/ops/settings", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("[data-settings-account] [data-operator-logout]")).toBeVisible();
+  await expect(page.locator(".wtf-bottom-pill [data-operator-logout]")).toHaveCount(0);
 });
 
 test("public-link held ops pages use coming soon widgets instead of dead controls", async ({ page }) => {
@@ -118,12 +151,15 @@ test("home ledger can open every current destination", async ({ page }) => {
   }
 });
 
-test("settings roadmap links to held destinations", async ({ page }) => {
+test("settings keeps held and protected destinations explicit", async ({ page }) => {
   await page.goto("/ops/settings", { waitUntil: "domcontentloaded" });
   const roadmap = page.locator("[aria-labelledby=\"release-roadmap-title\"]");
-  for (const destination of heldDestinations) {
-    await expect(roadmap.getByText(destination.label, { exact: true })).toBeVisible();
-    await expect(roadmap.locator(`a[href="${destination.href}"]`)).toBeVisible();
+  await expect(roadmap.getByText("ingest", { exact: true })).toBeVisible();
+  await expect(roadmap.locator('a[href="/ops/ingest"]')).toBeVisible();
+
+  const protectedWorkspaces = page.getByRole("navigation", { name: "protected operator workspaces" });
+  for (const destination of heldDestinations.filter((item) => item.href !== "/ops/ingest")) {
+    await expect(protectedWorkspaces.locator(`a[href="${destination.href}"]`)).toBeVisible();
   }
 });
 

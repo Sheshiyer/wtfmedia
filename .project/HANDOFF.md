@@ -1,8 +1,299 @@
 # Project handoff
 
+## 2026-09-09 Authenticated history, explicit memory, and query activity
+
+**Status:** LOCAL BETA IMPLEMENTATION — the remaining account-history and
+memory slice is wired in repository source and verified with local tests. No
+Clerk credential entry, live account access, D1/Worker migration, deployment,
+KV secret write, DNS change, or production mutation was performed.
+
+- Authenticated Ask WTF history remains owned by the verified Clerk-to-D1
+  operator mapping. The existing conversation/message tables stay
+  owner-scoped and archive-only; the history UI now exposes the server cursor
+  as an explicit “load more conversations” action and no longer writes chat
+  payloads to browser storage.
+- Added `0009_saved_memory.sql` and the owner-scoped `saved_memories` DAL.
+  Memory is explicit-save only, bounded to 2,000 characters per entry and
+  8,000 characters of model context, optionally anchored to an owned
+  conversation, and reversible through archive rather than destructive delete.
+- `/ops/api/memory` now supports owner-only list/read/create/archive behavior
+  behind the shared RBAC policy. Active memory reaches the authenticated
+  answer runner as context only; it is explicitly excluded from transcript
+  evidence and automatic extraction remains disabled.
+- Each authenticated chat query now emits one allowlisted `protected_search`
+  audit row with the conversation id, count, and `authenticated_chat` scope.
+  `/ops/audit` exposes a query-activity filter and protected conversation link;
+  raw prompts, answers, tokens, and private payloads are not copied into the
+  audit ledger. Memory lifecycle writes use the existing audited policy-write
+  envelope.
+- The Settings memory page now owns the actual account-context ledger,
+  explicit save form, source-conversation field, unavailable/empty/loading
+  states, and archive action. The Settings directory and readiness copy now
+  describe memory as “explicit only” rather than “not activated.”
+- The sessions policy grid now stays two-up until the wide breakpoint and
+  allows long policy values to wrap within their cells, preventing the
+  nested Settings content from clipping at operator laptop widths.
+- The authenticated conversation route now includes an account-session rail
+  with active-session state, direct navigation, new-session entry, paginated
+  loading, empty/error/unavailable states, and server-authorized owner labels.
+  Public `/chat` remains the anonymous Alpha composer and now links into the
+  protected account-session lane without sharing its transient conversation.
+
+### Verification
+
+- Cloudflare suite: 180/180, including migration, owner-isolation, archive,
+  memory-context, and `protected_search` assertions.
+- Web unit suite: 93/93; web lint, typecheck, production build, and
+  `git diff --check` pass.
+- In-app browser confirms `/ops/settings/memory` renders the branded nested
+  page with the explicit-only status and truthful local unavailable state;
+  the local `/ops/api/memory` call returns 503 because this seam has no edge
+  binding/Clerk provider. This is not a live-account acceptance receipt.
+- In-app browser confirms the authenticated conversation route renders the
+  branded account-session rail and truthful unavailable state when the local
+  history endpoint has no edge binding; the public Ask WTF page retains its
+  anonymous composer and exposes the protected account-session link.
+
+### Remaining live gates
+
+- Apply `0009_saved_memory.sql` through the approved staging Wrangler path,
+  then test two real Clerk accounts across login, logout, reauthentication,
+  owner isolation, memory save/archive, and conversation continuation.
+- Capture staging D1 receipts for persisted conversations, memories, and
+  query ledger rows; verify admin/super-admin query visibility and editor
+  denial without exposing another operator’s memory.
+- Reconcile the live Clerk widget, release-manifest state, provider bindings,
+  and deployment commit before calling the Beta feature set released.
+
+## 2026-09-09 Hamburger utility placement
+
+**Status:** LOCAL UI REFINEMENT — utility actions now live in the existing
+hamburger disclosure; no deployment, credential, KV, Worker Secret, OAuth, D1,
+DNS, or live provider mutation performed.
+
+- Moved operator profile, light/dark theme, and Settings icon actions out of
+  the fixed bottom pill into the top-right hamburger disclosure.
+- The disclosure exposes them as a labelled “Account and display” icon group;
+  the bottom pill remains reserved for primary workspace navigation.
+- Profile and Settings active states, focus-on-open, Escape-to-toggle, and the
+  public sign-in/theme placement remain preserved. Logout remains only in the
+  root Settings account section.
+
+### Verification
+
+- Web unit: 93/93; typecheck, lint, and `git diff --check` pass.
+- In-app browser confirms the closed disclosure has no profile, theme, or
+  Settings actions in the bottom pill. The open-state Playwright assertion is
+  present but local Chromium is not installed.
+
+## 2026-09-09 Signed Super Admin Beta settings review
+
+**Status:** REVIEWED LOCAL IMPLEMENTATION — a synthetic non-local signed
+`staging` context was used for read-only rendering checks; this is not a live
+Clerk session, staging deployment, D1 receipt, or account-acceptance result.
+
+- The signed `super_admin` view returned 200 for the Settings overview, all
+  eight nested Settings pages, and `/ops/profile`, with the shared shell,
+  hamburger disclosure, and workspace-only bottom pill present on every route.
+- The Super Admin view exposes all Settings destinations, including the
+  admin-only Access page. The signed RBAC comparison hides Access for `editor`
+  while keeping AI and YouTube Analytics visible with read-only notices;
+  `admin` retains Access and provider-management visibility.
+- In-app visual review covered the Settings directory, AI route, YouTube
+  Analytics, Release Control, Operator Access, and Profile pages. The design
+  reads as the existing WTF OS system: semantic accents, bordered panels,
+  explicit state badges, dedicated route ownership, and no global settings
+  dump.
+
+### Remaining live gates
+
+- Local Clerk has no `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, so the real widget
+  correctly renders the provider-unavailable recovery state. No account or
+  Chrome profile was accessed.
+- The local release API is unavailable, so Release Control remains visibly
+  server-unavailable; AI and YouTube Analytics remain local fixture/mock
+  states. Profile identity and D1 mapping remain edge-unavailable in the
+  local seam.
+- Playwright open-state launch remains unavailable because the local Chromium
+  executable is not installed. Live Clerk sign-in, edge-to-D1 identity
+  readback, release-manifest readback, and owner acceptance remain open.
+
+## 2026-09-08 Dedicated operator profile and settings mapping
+
+**Status:** LOCAL IMPLEMENTATION — the profile workspace and safe backend
+readback are wired in the repository; no deployment, credential, KV, Worker
+Secret, OAuth, D1, DNS, or live provider mutation performed.
+
+- Added `/ops/profile` as a dedicated operator workspace. It renders identity
+  and role, verified scope, Clerk provider, normalized email-to-active-D1
+  mapping, active state, and account timestamps without projecting raw claims.
+- Added the protected `GET /ops/api/profile` edge route. It re-reads the active
+  D1 operator by the already verified operator id, cross-checks normalized
+  email and role, emits a safe profile DTO, and reuses the existing protected
+  headers and audit boundary.
+- The profile page maps `settingsSectionsFor(role)` into a role-filtered access
+  map. The edge policy remains authoritative; anonymous public-link mode gets a
+  verification-required state, and local missing-edge responses are labelled
+  local preview rather than fabricated account data.
+- The hamburger disclosure profile icon opens `/ops/profile`, the Settings icon
+  opens `/ops/settings`, and logout remains only in the root Settings account
+  section.
+
+### Verification
+
+- Profile edge DTO and policy tests were added; web route, parser, policy, and
+  browser coverage were added.
+- Web unit: 93/93; web contracts: 86/86; Cloudflare suite: 178/178.
+- Web typecheck, lint, production build, privacy scan, and `git diff --check`
+  passed. The in-app browser showed the profile page, role-filtered settings
+  map, 200 profile/settings responses, and a 200 stylesheet response. The
+  repository Playwright assertion is present but could not launch because its
+  local Chromium executable is not installed.
+
+## 2026-09-08 Settings route architecture rework
+
+**Status:** LOCAL IMPLEMENTATION — the monolithic settings panel has been
+replaced with a nested settings directory; no deployment, credential, KV,
+Worker Secret, OAuth, D1, DNS, or live provider mutation performed.
+
+- `/ops/settings` is now a directory only. It presents governed cards and does
+  not render the AI, analytics, sessions, memory, RAG, access, or release
+  workspaces inline.
+- Added nested pages for `/readiness`, `/release`, `/ai`, `/analytics`,
+  `/sessions`, `/memory`, `/sources`, and `/access` under the Settings layout.
+  The layout owns the nested navigation and explicit denied state; each child
+  owns one focused workspace. The Settings navigation is directory-only and
+  does not carry request metadata or account actions.
+- Settings navigation is role-filtered from one route contract. Verified
+  operators can read the shared settings workspaces; the access child requires
+  admin/super-admin authority; AI and Analytics mutation controls remain
+  admin/super-admin only; release mutation remains super-admin only.
+- Edge `policyForPath` and the edge router now recognize nested settings paths,
+  with `/ops/settings/access` mapped to `operators:read` and other children to
+  `control_room:read`. The older web policy projection matches that boundary.
+- Repaired the local render failure by restarting the dev server after the
+  production build had replaced its `.next` output, restoring the CSS asset
+  from 404 to 200. Also made the verified-time display deterministic in UTC
+  to remove the server/browser hydration mismatch, and added intrinsic
+  wordmark dimensions as a stylesheet-failure fallback.
+- Moved the verified environment, workspace, organization scope, effective
+  role, and last-verification readback into the protected operator-access
+  workspace. The Settings navigation now stays focused on nested route
+  discovery rather than carrying request metadata.
+- Replaced the global operator logout utility with non-destructive profile,
+  light/dark theme, and Settings icon controls in the WTF OS hamburger
+  disclosure. The bottom pill remains primary workspace navigation only. Logout
+  remains available only in the root `/ops/settings` account section; nested
+  settings pages do not render it.
+- The active local page was browser-reviewed at
+  `http://localhost:3000/ops/settings`, `/ops/settings/ai`, and
+  `/ops/settings/access`. The local harness uses the signed `super_admin` seam;
+  it is not a live Clerk or D1 receipt. The refreshed settings page renders
+  with the WTF OS stylesheet and no recoverable hydration issue overlay.
+
+### Verification
+
+- Web unit: 93/93; web contracts: 86/86; Cloudflare suite: 177/177.
+- Web build, sequential typecheck, lint, privacy scan, and `git diff --check`
+  passed. The build enumerates all eight nested settings routes.
+- Public Alpha routes remain outside the settings tree. Existing dirty work is
+  preserved and no files were staged, committed, reset, or cleaned.
+
+## 2026-09-08 Admin integrations settings UI and local verification
+
+**Status:** LOCAL UI IMPLEMENTATION — branch `codex/clerk-auth-swap`; no
+provider credential, KV, Worker Secret, OAuth grant, D1 migration, deployment,
+DNS, or live data mutation performed.
+
+- Added the protected settings composition for the global OpenRouter route:
+  allowlisted primary model, ordered fallback controls, keyboard-operable
+  add/remove/reorder actions, admin-only mutation affordances, write-only key
+  handoff, local verification/save states, and redacted KV/audit readback copy.
+- Added the YouTube Analytics connection surface with OAuth-first/read-only
+  policy, explicit not-configured/verifying/connected/revoked states, a
+  write-only local preview field, and a mock dashboard whose values are
+  labelled fixture data, not provider data; freshness remains `not observed`.
+- Kept sessions/history, memory governance, RAG health, and operator access in
+  the same settings route. Reconciled the older web capability projection so
+  editors may read settings while only admin and super-admin roles receive
+  mutation affordances, matching the edge control-room read authority.
+- Local browser review used the in-app browser at
+  `http://localhost:3000/ops/settings`, `/ops/chat`, and `/ops/operators`.
+  The mock dashboard transition passed locally. Chat remains held behind the
+  server release gate; the local harness emitted a read-only D1 503 for its
+  release readback, so no live session/history receipt is claimed.
+
+### Remaining implementation gaps
+
+- The save/test actions are intentionally local UI seams. A server-authorized
+  settings endpoint, D1/KV policy persistence, Worker Secret custody, audit
+  event, and OpenRouter health probe still need a separately reviewed backend
+  slice. KV must hold only redacted policy/health projections; raw keys do not
+  belong in KV or browser state.
+- YouTube Analytics remains OAuth-first. The local API-key control is only a
+  preview seam; the real OAuth connection, account scope, refresh receipt,
+  quota/error states, and server-backed analytics adapter are not activated.
+- Clerk live configuration and staging D1/operator readback remain required
+  before account-based sessions can be enabled. Existing live probes were
+  stale Access builds and the configured staging D1 lookup returned API 7404.
+
+### Verification
+
+- Web unit: 89/89; web contracts: 86/86; Cloudflare suite: 177/177.
+- Web typecheck, lint, Next production build, privacy scan, and
+  `git diff --check` passed; privacy scan reported 0 violations across 318
+  bounded files.
+- No pull/merge/reset was performed: the dirty working tree is preserved and
+  `HEAD` remains equal to `origin/main` at `66f434a`.
+
+## 2026-09-08 Clerk-backed operator Beta auth migration
+
+**Status:** LOCAL IMPLEMENTATION — branch `codex/clerk-auth-swap`; no deployment,
+production instance, secret, DNS, Cloudflare policy, D1 migration, or live data
+mutation performed.
+
+- Cloudflare Access authentication was replaced in the repository adapter with
+  Clerk JWT verification from `Authorization: Bearer` or the `__session` cookie.
+  Issuer, JWKS, expiry, authorized-party, user-id, and normalized-email checks
+  fail closed.
+- Existing email-to-active-D1-operator mapping, `super_admin`/`admin`/`editor`
+  RBAC policy, signed edge-to-origin context, audit projections, routes, release
+  manifest, and recovery/unavailable states were preserved.
+- Public Alpha remains anonymous at `/`, `/chat`, and `/api/chat`. Clerk sign-in
+  and sign-up are available under `/sign-in` and `/sign-up`; operator logout
+  clears `wtf-ops:*` browser state before Clerk sign-out.
+- The linked Clerk development instance passed CLI health checks and has the
+  session email claim configured. The web publishable key is intentionally not
+  committed; staging still needs its build-time key and an owner-approved
+  interactive auth/revocation check.
+- Verification: Cloudflare `npm test` 177/177; web unit 85/85; web contracts
+  86/86; privacy scan 0 violations; TypeScript, lint, and production build pass.
+
+This checkpoint is repository evidence only. Keep the public Alpha/Beta
+boundary and complete staging configuration review before any deployment.
+
+## 2026-09-04 WTFMedia v0.3.3-beta.1
+
+**Status:** PUBLISHED — tag `v0.3.3-beta.1` created, PR #46 merged.
+
+- AppRail contract restored from the alpha baseline; login flow wired through
+  protected settings.
+- Authenticated Ask WTF staging lane with server-side RAG, persisted chat
+  answers, and protected chat history.
+- Consolidation policy panels exposed: memory governance, RAG source health,
+  and session history.
+- Beta sign-in routed through protected settings; staging integration boundary
+  hardened; unverified operator release UI hidden behind the staging gate.
+- Edge fallback to episode Frame.io links added.
+- Alpha baseline separated from the beta track so authenticated features do not
+  regress the public production path.
+- Repo docs refreshed: README, AGENTS.md, CHANGELOG, release notes, package
+  version, AGENT-ONBOARDING scaffolding prompt, and GitHub repo description
+  updated to reflect the beta.
+
 ## 2026-09-01 WTFMedia v0.3.2-alpha.1 release candidate
 
-**Status:** LOCAL RELEASE CANDIDATE — PR and tag publication remain pending.
+**Status:** PUBLISHED — tag `v0.3.2-alpha.1` and PR #44 merged.
 
 - Ask WTF now widens retrieval for explicit named-person questions, anchors
   candidates to title/text evidence, tolerates the observed Sunil/Suniel
@@ -1881,3 +2172,192 @@ and reviewed-but-undeployed Policing selector follow-up. Detailed pickup:
   ledger check is green; Phase 2 currently fails three Control Room browser
   assertions because the expected visible `Application` navigation is absent.
   Resolve that Alpha/Beta integration boundary before changing PR readiness.
+## 2026-09-03 Beta consolidation — staging verification checkpoint
+
+The isolated `codex/beta-consolidation` worktree reconciles the authenticated
+history, server-generated answer persistence, server RAG path, Alpha/Beta
+track gate, Access-protected release entry, logout return, and `03-00`
+file-level integration receipt. The candidate's old Worker entrypoint,
+temporary super-admin roster migration, broad public UI sweep, workflow noise,
+and root checkout WIP were excluded.
+
+Staging is isolated behind `wtfmedia-web-staging` and
+`wtfmedia-edge-staging`. The committed Wrangler environments now default to
+those suffixed names. Remote staging migration listing and apply both reported
+no pending migrations. Edge and web staging deployments completed, and queue
+inspection shows one staging producer/consumer owned by the staging edge.
+
+The base Worker was restored from clean Alpha source after a target-resolution
+mistake briefly changed its queue trigger. Production ingest now has exactly
+one producer/consumer owned by the base edge. No production web deployment,
+migration, data, secret, DNS, or ingest payload mutation was performed.
+
+### Verification
+
+- Cloudflare: 175/175 tests.
+- Web unit: 81/81; contracts: 86/86; typecheck, lint, and privacy passed.
+- OpenNext Cloudflare build passed and includes the same-origin operator API
+  proxy, which preserves the Access assertion for edge enforcement.
+- Full non-visual Playwright behavior/a11y/journey run: 228 passed, 8 skipped
+  of 236; visual snapshot comparisons were not run.
+- Rollback: 19 legacy plus 19 migrated checks passed across 8 route/variant
+  combinations, with data integrity unchanged.
+- Live staging: public `/` and `/chat` returned 200; `/ops/settings` and
+  `/ops/api/*` returned Access 302; direct edge operator access returned 404.
+
+Full evidence is in
+`.planning/inputs/2026-09-03-beta-consolidation-evidence.md`. Interactive
+Access login is still required for live session continuity, logout/reauth,
+authenticated settings readback, and owner approval. PR #46 is open. The
+hydrated public Alpha Playwright probe passed against `wtfhq.in` for `/` and
+`/chat`; do not merge until the remaining authenticated rows are completed,
+PR checks are green, and that public invariance result remains green.
+
+## 2026-09-03 Beta consolidation UI and Alpha-preserving production cut
+
+The Beta settings surface now projects sessions/history policy, disabled memory
+governance, read-only RAG/source receipts, and protected operator-administration
+readbacks from the reviewed `codex/beta-consolidation` branch. The existing
+Access-to-edge context bridge is included so a verified session can hydrate the
+server-rendered operator shell without trusting browser state.
+
+The production code cut was deliberately Alpha-preserving: edge version
+`1bd58a00-edbf-4c1e-a60d-fdc236ab5190` and web version
+`3628cc71-e743-4dcc-bd5e-e9416ea560a5` were deployed with Beta remaining
+server-disabled. Production has no operator secret set or production release
+manifest activation, so no authenticated Beta session or release mutation was
+enabled by this deployment.
+
+### Verification
+
+- Web unit: 86/86; contracts: 86/86; typecheck, lint, Next build, OpenNext
+  build, and privacy scan passed.
+- Cloudflare Worker suite: 176/176 passed.
+- Non-browser live probes after deployment: public `/` and `/chat` returned
+  200, malformed public `/api/chat` returned 400, `/ops/settings` returned
+  Access 302, and unauthenticated operator-context access returned 404.
+- The user-requested no-Playwright constraint was honored locally. The GitHub
+  Phase 1 aggregate was canceled after its Playwright step began; Phase 2 and
+  architecture checks passed. PR #46 remains open and unmerged.
+
+## 2026-09-03 Beta consolidation navigation restoration (local, deploy held)
+
+The shared WTF OS shell now restores the persistent `wtf-bottom-pill` on the
+isolated `codex/beta-consolidation` branch. The header and bottom navigation
+use distinct IDs, the shared WTF OS wordmark is rendered in both shell
+surfaces, and the fixed Ask Composer is offset above the bottom rail. Public
+`/chat` and `/api/chat` contracts remain unchanged; authenticated history
+continues to live at protected `/ops/chat`.
+
+The branch already contained the canonical same-origin Access login target:
+`/cdn-cgi/access/login?redirect_url=%2Fops%2Fsettings%3FreleaseTrack%3Dbeta`.
+No Access, D1, cache, secret, DNS, deployment, or Beta activation mutation was
+performed. The shared checkout's unrelated dirty ISA/architecture work was not
+edited.
+
+### Verification
+
+- Web unit: 87/87; contracts: 86/86; typecheck, lint, production build, and
+  privacy scan passed.
+- Cloudflare Worker suite: 176/176 passed.
+- Architecture ledger was regenerated and its freshness check passed.
+- Read-only production probes found `wtf-bottom-pill` and two WTF OS wordmark
+  markers on `/` and `/chat`; `/ops/settings?releaseTrack=beta` returned the
+  Cloudflare Access 302 with the canonical return target.
+- Playwright was not run, per the current checklist. Browser layout, signed
+  session continuity, logout/reauthentication, and live deployment parity
+  remain evidence gates before PR #46 can merge or Beta can activate.
+
+The two bounded external read-only audits were unavailable during this pass:
+Antigravity returned quota 429 and the GitHub Claude audit aborted without
+substantive output. Repository evidence was used instead; no worker output was
+accepted as validation.
+
+## 2026-09-08 Clerk Beta auth UI flow and motion slice (local, deploy held)
+
+The Clerk operator entry and recovery states now share a branded
+`OperatorAuthFrame` that makes the protected handoff explicit: Clerk identity,
+edge-resolved roster role, then permitted Control Room access. The public Alpha
+route remains anonymous and keeps its own shell. Recovery and unavailable states
+use the same frame without loading operator data or inferring access from the
+browser, URL, or local storage.
+
+The public WTF OS boot overlay now includes a restrained “receipts become
+actions” status moment and print-rule separator. The staggered text and animated-list
+patterns were selected through the React Bits registry/MCP and adapted locally
+to the existing semantic tokens, wordmark plate, motion durations, and reduced
+motion policy. No React Bits credential, env file, provider secret, deployment,
+or external project state was changed.
+
+### Verification
+
+- Web unit: 86/86; contracts: 86/86; typecheck, lint, and Next production build
+  passed.
+- In-app browser verification at desktop and emulated 320px reduced-motion
+  state confirmed the recovery flow, three handoff steps, no document overflow,
+  and no running animation under reduced motion.
+- Non-reduced-motion browser verification confirmed the text/list transitions
+  settle to opacity 1 and zero transform, with no runtime error overlay.
+- Headless Playwright could not start because the local Chromium executable is
+  not installed; visual snapshot approval and live Clerk widget interaction
+  remain open gates.
+- The local environment has no `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, so the
+  rendered route is the truthful provider-unavailable state. Staging Clerk
+  sign-in and the post-auth RBAC readback still require interactive verification.
+
+## 2026-09-08 Clerk live-widget and beta UI readiness audit (local, deploy held)
+
+The local operator route was re-run with the development Clerk configuration
+loaded only into the running process. The actual Clerk widget rendered at
+`/sign-in?redirect_url=%2Fops`, with email/password, Google, sign-up, and
+Clerk development-mode states visible inside the WTF OS operator frame. No
+credential, verification code, session value, or provider secret was entered or
+committed. Interactive account completion remains a user handoff.
+
+The deployed evidence does not yet match this source state. Staging
+`/sign-in` still renders the former Cloudflare Access recovery page and
+staging `/ops` still renders the Access-required shell; production `/sign-in`
+still says sign-in is not in this release. The configured staging D1 lookup
+returned Cloudflare API 7404, so there is no trustworthy live operator-roster,
+chat-history, or memory receipt from the current account. No deployment,
+migration, DNS, secret, or external provider mutation was performed.
+
+The settings surface now includes a static Beta Readiness Ledger, alongside
+the session/history and memory-governance panels. It makes the current states
+explicit: Clerk widget and session/recovery need live receipts; Clerk-to-D1
+mapping and account history have local contracts; cross-chat memory remains
+not activated. Chat navigation now has explicit `new chat` and `back to
+history` affordances. These are truthful UI states, not activation claims.
+
+### Remaining UI and settings gaps
+
+- The operator context strip still shows environment, workspace, effective
+  role, and verification time, but not the signed-in Clerk identity or session
+  lifecycle controls. Add a safe identity/session readback and active-session
+  revoke/reauth path after live policy approval.
+- Clerk development configuration currently has a seven-day maximum session,
+  public sign-up, MFA disabled, and development only. The beta policy target
+  is a 720-hour session with approved MFA and a production Clerk configuration;
+  these must be activated and re-verified before deployment.
+- History is intentionally operator-scoped and archive-only. The current UI
+  has no pagination for the API cursor, per-row archive action, rename flow, or
+  rendered moments table; persisted source metadata remains the available
+  provenance surface.
+- Cross-chat memory has no D1 store, extractor, injection, forget controls, or
+  runtime route. The settings panel is a governance gate only until the
+  memory policy and implementation are separately approved.
+- The navigation contract exposes history under protected `/ops/chat`, but
+  there is no memory destination while memory is held. The secondary web
+  policy map still contains an older settings/admin-only interpretation that
+  should be reconciled with the edge control-room read policy before release.
+
+### Verification
+
+- Local Clerk widget: rendered in the in-app browser; credentials intentionally
+  not entered by the agent.
+- Web unit: 86/86; contracts: 86/86; typecheck, lint, and Next production
+  build passed.
+- Privacy scan: 0 violations across 314 bounded files; `git diff --check`
+  passed.
+- Staging and production HTTP/UI probes remain stale Access builds; staging D1
+  operator verification is blocked by API 7404.

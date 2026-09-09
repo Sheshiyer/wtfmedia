@@ -111,6 +111,7 @@ export function startRagStub(options = {}) {
                 timestamped: true,
                 sourceMode: "uncut",
                 url: "https://f.io/0I8LmYs9",
+                segmentId: "uncut:source-a:0",
               }],
             }),
           );

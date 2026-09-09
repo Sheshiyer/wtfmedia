@@ -14,6 +14,7 @@ export const runtime = "nodejs";
 export const maxDuration = 90;
 
 const EDGE_SHARED_SECRET = process.env.EDGE_SHARED_SECRET ?? process.env.CLOUDFLARE_EDGE_SHARED_SECRET;
+const LOCAL_RAG_ENABLED = process.env.WTFMEDIA_LOCAL_RAG_ENABLED?.trim().toLowerCase() === "true";
 const MAX_MESSAGES = 8;
 const MAX_QUESTION_CHARS = 2_000;
 const PUBLIC_EPISODE_ID = /^[A-Za-z0-9_-]{11}$/;
@@ -173,11 +174,12 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
         : "verified";
     const start = timestampStatus === "verified" ? candidateStart : null;
     const direct = mode === "uncut"
-      ? (typeof source.url === "string" && (source.url.startsWith("uncut:") || isApprovedFrameIoUrl(source.url))
+      ? (isApprovedFrameIoUrl(source.url)
         ? source.url
-        : `uncut:${source.videoId}`)
+        : typeof source.url === "string" && source.url.startsWith("uncut:")
+          ? source.url
+          : `uncut:${source.videoId}`)
       : source.url;
-    const publicUncutUrl = mode === "uncut" && isApprovedFrameIoUrl(direct) ? direct : undefined;
     return {
       n: source.n,
       video_id: source.videoId,
@@ -186,7 +188,9 @@ function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
       score_raw: source.score,
       t: start,
       time: start == null ? "" : new Date(start * 1_000).toISOString().slice(11, 19).replace(/^00:/, ""),
-      url: mode === "uncut" ? publicUncutUrl : direct,
+      url: mode === "uncut"
+        ? (isApprovedFrameIoUrl(direct) ? direct : undefined)
+        : direct,
       source_mode: mode,
       mapping_status: publicMappingStatus(
         source.mappingStatus,
@@ -354,7 +358,7 @@ export async function POST(req: NextRequest) {
     return new Response("invalid episode id", { status: 400 });
   }
   if (!EDGE_SHARED_SECRET) {
-    if (process.env.NODE_ENV !== "production" && process.env.NVIDIA_API_KEY) {
+    if (process.env.NODE_ENV !== "production" && LOCAL_RAG_ENABLED && process.env.NVIDIA_API_KEY) {
       try { return await localAnswer(last.content, sourceMode, episodeId); }
       catch (error) {
         console.error("local NVIDIA RAG failed", error instanceof Error ? error.message : "unknown");

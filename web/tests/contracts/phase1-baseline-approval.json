@@ -1,35 +1,36 @@
 {
   "schema_version": 1,
-  "status": "approved",
-  "approval_scope": "ask-wtf-alpha-evidence-coherence-and-requested-versus-effective-source-metadata",
-  "owner_approval_ref": "owner-explicit-alpha-production-ingest-and-verification-2026-09-04",
+  "status": "pending_owner_approval",
+  "approval_scope": "release-beta-auth-history-memory-merge-into-rag-alpha-answer-accuracy",
+  "owner_approval_ref": null,
+  "pending_note": "Merged tree (release/beta into rag/alpha-answer-accuracy, 2026-09-09) changed protected files; the owner must re-approve this receipt before capture-phase1-performance.mjs preflight can pass. Prior approvals: owner-explicit-alpha-production-ingest-and-verification-2026-09-04 (alpha); owner-explicit-production-approval-2026-08-31-episode-scoped-ask-wtf (beta).",
   "manifest_path": "web/tests/contracts/phase1-compatibility-manifest.json",
-  "manifest_sha256": "44d01a166a011f76d8af75f79874a4c7e43fe34d38bda8afadcd4eed3d68ced1",
-  "base_sha": "c0340bbccece036a36ab339c6842ce95f436f818",
+  "manifest_sha256": "5c5b45fc00a99b4add523fd1ad3abc4baaf27627cfad27f7d173faa576023742",
+  "base_sha": "52eb513029f7efe185787115cf9c5ba43fd2b15c",
   "approved_protected_hashes": [
     {
       "path": "web/app/layout.tsx",
-      "sha256": "7f7ddb592ac029ae10a6f635f2981a8bd81c9b5a59782ee060c3501817f08655"
+      "sha256": "25bad92d367519cc5911c5ef9fe1005934905798db9a49ee9aecf8a156f8d2ff"
     },
     {
       "path": "web/app/page.tsx",
-      "sha256": "a46a96eef2e9557cb3a0f362357de34bd67e44a44d73b50a1cbe55eae37ab0a1"
+      "sha256": "bbeb34eaedc9e7e3082b3cba01661d81411ef655b9d1538127beb382a95a00b0"
     },
     {
       "path": "web/app/episodes/page.tsx",
-      "sha256": "7138a212a1f69170088ba358424b8ab1832f1bc46ee95d7a0adac065689b93b3"
+      "sha256": "b118e0e908da7997efc2f0ca77fc4cac2e4becd720a090289913971040e90e12"
     },
     {
       "path": "web/app/connections/page.tsx",
-      "sha256": "a58a2024c634635358a3a8f4cf191be870c23aa5e7dc728fbddc33f57a6f0855"
+      "sha256": "5ba2c390e89de6652479fd00f1cf1c851f1b6f4348b282ac3a9854d989391ff0"
     },
     {
       "path": "web/app/chat/page.tsx",
-      "sha256": "73e4fb084a07b899806b27bb67dcd24fa5634dab0c06bea47de7b262db8d5078"
+      "sha256": "8e7cf613b3ef29dd1c9ddc166c896e4597b3e6238fcebfd30af1339e44794fb3"
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "1b44b88d3028381eb35d7e009242744e0b721d7e73fd5b8de7f3c9733700f724"
+      "sha256": "d3859345b07644d371e2bc7df34ca21b385c03f2a6292540bfbf8b20c8b65916"
     }
   ],
   "streaming_contract": {

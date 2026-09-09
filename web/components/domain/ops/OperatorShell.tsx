@@ -3,9 +3,11 @@ import { AppShell, type AppNavItem, type AppShellProps } from "@/components/shel
 export function OperatorShell({
   children,
   nav,
+  utility,
 }: {
   children: React.ReactNode;
   nav: readonly AppNavItem[];
+  utility?: React.ReactNode;
 }) {
   const workspaceHrefs = new Set([
     "/",
@@ -25,7 +27,7 @@ export function OperatorShell({
   }));
   return (
     <div data-ops-shell="true">
-      <AppShell mode="operator" navigation={navigation}>
+      <AppShell mode="operator" navigation={navigation} utility={utility}>
         {children}
       </AppShell>
     </div>

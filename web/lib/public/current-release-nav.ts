@@ -15,6 +15,7 @@ export const currentReleaseNavigation: readonly AppNavItem[] = [
   { href: "/ops/production", label: "production", section: "workspace" },
   { href: "/ops/episodes", label: "episode map", section: "workspace" },
   { href: "/ops/settings", label: "settings", section: "administration" },
+  { href: "/ops/chat", label: "chat history", section: "administration" },
 ];
 
 export const releaseRoadmapNavigation = [

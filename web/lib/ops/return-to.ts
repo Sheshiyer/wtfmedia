@@ -11,9 +11,3 @@ export function validatedReturnTo(value: string | null | undefined): "/ops" | st
     return "/ops";
   }
 }
-
-export function accessLogoutUrl(returnTo = "/"): string {
-  const teamDomain = process.env.CF_ACCESS_TEAM_DOMAIN;
-  if (!teamDomain || !/^[a-z0-9-]+$/i.test(teamDomain)) return "/";
-  return `https://${teamDomain}.cloudflareaccess.com/cdn-cgi/access/logout?returnTo=${encodeURIComponent(returnTo)}`;
-}

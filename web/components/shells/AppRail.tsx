@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { MigratedWordmarkMini } from "@/components/patterns/brand/MigratedWordmark";
+import { ThemeToggle } from "@/components/patterns/ThemeToggle";
 import { routeIsActive } from "@/lib/public/route-is-active";
 
 export { routeIsActive };
@@ -121,6 +122,33 @@ export function AppRail({
       );
     });
 
+  const iconLinkClass = (active = false) => [
+    "grid h-11 w-11 shrink-0 place-items-center rounded-full border-2",
+    "transition-[background-color,color,border-color,transform] duration-fast",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
+    active
+      ? "border-foreground bg-attention text-on-attention"
+      : "border-transparent bg-surface-subtle text-foreground hover:-translate-y-0.5 hover:border-foreground hover:bg-information/20",
+  ].join(" ");
+
+  function ProfileIcon() {
+    return (
+      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <circle cx="12" cy="8" r="3.25" />
+        <path strokeLinecap="round" d="M5.5 20c.7-3.2 3-5 6.5-5s5.8 1.8 6.5 5" />
+      </svg>
+    );
+  }
+
+  function SettingsIcon() {
+    return (
+      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8.75a3.25 3.25 0 1 0 0 6.5 3.25 3.25 0 0 0 0-6.5Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="m19.2 13.3 1.1.85-1.7 2.95-1.3-.5a7.7 7.7 0 0 1-1.9 1.1l-.2 1.4h-3.4l-.2-1.4a7.7 7.7 0 0 1-1.9-1.1l-1.3.5-1.7-2.95 1.1-.85a7.6 7.6 0 0 1 0-2.1l-1.1-.85 1.7-2.95 1.3.5a7.7 7.7 0 0 1 1.9-1.1l.2-1.4h3.4l.2 1.4a7.7 7.7 0 0 1 1.9 1.1l1.3-.5 1.7 2.95-1.1.85a7.6 7.6 0 0 1 0 2.1Z" />
+      </svg>
+    );
+  }
+
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-50 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5">
@@ -160,7 +188,43 @@ export function AppRail({
               data-state={utilityOpen ? "open" : "closed"}
               className={`${utilityOpen ? "flex" : "hidden"} absolute right-0 top-14 w-[min(15rem,calc(100vw-2rem))] flex-col gap-1.5 rounded-[1.75rem] border-2 border-foreground bg-surface-raised/95 p-2 shadow-[5px_5px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md`}
             >
-              {renderNavLinks(disclosureNavigation)}
+              <div
+                role="group"
+                aria-label="Account and display"
+                data-navigation-utilities
+                className="flex items-center justify-center gap-1 border-b-2 border-foreground/20 pb-2"
+              >
+                {mode === "operator" ? (
+                  <Link
+                    href="/ops/profile"
+                    aria-label="operator profile"
+                    title="operator profile"
+                    data-shell-profile
+                    aria-current={routeIsActive(pathname, "/ops/profile") ? "page" : undefined}
+                    className={iconLinkClass(routeIsActive(pathname, "/ops/profile"))}
+                  >
+                    <ProfileIcon />
+                  </Link>
+                ) : utility ? (
+                  utility
+                ) : null}
+                <ThemeToggle />
+                {mode === "operator" ? (
+                  <Link
+                    href="/ops/settings"
+                    aria-label="settings"
+                    title="settings"
+                    data-shell-settings
+                    aria-current={routeIsActive(pathname, "/ops/settings") ? "page" : undefined}
+                    className={iconLinkClass(routeIsActive(pathname, "/ops/settings"))}
+                  >
+                    <SettingsIcon />
+                  </Link>
+                ) : null}
+              </div>
+              <div data-navigation-links className="flex flex-col gap-1.5">
+                {renderNavLinks(disclosureNavigation)}
+              </div>
             </nav>
           </div>
         </div>
@@ -171,6 +235,7 @@ export function AppRail({
           <nav
             id="wtf-application-navigation"
             aria-label={mode === "operator" ? "Workspace" : "Application"}
+            data-bottom-navigation
             className="flex min-w-max items-center gap-0.5 sm:gap-1"
           >
             {renderNavLinks(primaryNavigation)}

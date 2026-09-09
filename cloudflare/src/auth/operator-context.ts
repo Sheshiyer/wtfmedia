@@ -1,5 +1,5 @@
 import { getOperatorByEmail, type DB, type OperatorRole } from "../db.ts";
-import type { AccessVerification } from "./access.ts";
+import type { ClerkVerification } from "./clerk.ts";
 
 export type OperatorContext = {
   operatorId: number;
@@ -13,7 +13,7 @@ const roles = new Set<OperatorRole>(["super_admin", "admin", "editor"]);
 
 export async function resolveOperatorContext(
   db: DB,
-  identity: AccessVerification,
+  identity: ClerkVerification,
   environment: OperatorContext["environment"],
   correlationId: string,
 ): Promise<OperatorContext | null> {

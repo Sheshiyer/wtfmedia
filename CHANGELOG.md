@@ -11,6 +11,16 @@ versioning; the web application version is held in `web/package.json`.
   or structurally incompatible episodes, completing 56/56 published sidecars.
 - Added grouped evidence presentation that separates answer citations from
   secondary retrieval candidates without changing their original identities.
+- Replaced the operator Cloudflare Access boundary with Clerk verification
+  while preserving the D1 email-to-role mapping and deny-by-default RBAC.
+- Added per-user authenticated Ask WTF conversations, durable message/source
+  receipts, paginated session navigation, and protected query audit events.
+- Added explicit, owner-scoped saved memory with archive-only lifecycle and
+  bounded memory context for authenticated answers; anonymous Alpha remains
+  stateless and memory-free.
+- Split operator identity and configuration into role-governed profile and
+  nested Settings routes, with utility actions in the hamburger disclosure
+  and logout only on the Settings overview.
 
 ### Changed
 
@@ -28,6 +38,7 @@ versioning; the web application version is held in `web/package.json`.
 - Prevented generic connector phrases and topic confusables from hard-scoping
   retrieval; exact Bangalore/Bengaluru police aliases now select the canonical
   Policing episode and fail closed on cross-episode conflicts.
+- Fixed ingest queue URL to use the connect2nikhai subdomain.
 
 ### Production
 
@@ -41,6 +52,31 @@ versioning; the web application version is held in `web/package.json`.
 - Queue and embedding throughput optimization is explicitly deferred to a
   separate session. Completed production jobs must not be replayed merely to
   benchmark an optimization.
+
+## [0.3.3-beta.1] - 2026-09-04
+
+### Added
+
+- Restored the AppRail contract from the alpha baseline and wired the login
+  flow through protected settings.
+- Added an authenticated Ask WTF staging lane with server-side RAG, persisted
+  chat answers, and protected chat history.
+- Added consolidation policy panels: memory governance, RAG source health, and
+  session history.
+- Added a release gate separating the alpha baseline from the beta track.
+
+### Changed
+
+- Routed beta sign-in through protected settings and hardened the staging
+  integration boundary.
+- Hidden unverified operator release UI behind the staging gate.
+- Separated the alpha baseline from the beta track so authenticated features
+  do not regress public production paths.
+
+### Fixed
+
+- Added edge fallback to episode Frame.io links when direct URLs are
+  unavailable.
 
 ## [0.3.2-alpha.1] - 2026-09-01
 

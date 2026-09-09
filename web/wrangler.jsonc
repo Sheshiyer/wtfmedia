@@ -20,5 +20,21 @@
       "service": "wtfmedia-edge"
     }
   ],
-  "images": { "binding": "IMAGES" }
+  "images": { "binding": "IMAGES" },
+  "env": {
+    "staging": {
+      "name": "wtfmedia-web-staging",
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "wtfmedia-web-staging"
+        },
+        {
+          "binding": "WTFMEDIA_EDGE",
+          "service": "wtfmedia-edge-staging"
+        }
+      ],
+      "images": { "binding": "IMAGES" }
+    }
+  }
 }

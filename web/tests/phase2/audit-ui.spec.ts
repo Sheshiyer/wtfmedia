@@ -12,7 +12,7 @@ test("ledger renders only its allowlisted envelope", async ({ page }) => {
   } else {
     await expect(page.getByRole("cell", { name: "fixture-correlation" })).toBeVisible();
   }
-  await expect(page.getByText(/token|prompt|provider/i)).toHaveCount(0);
+  await expect(page.locator('[aria-labelledby="audit-ledger-title"]').getByText(/token|prompt|provider/i)).toHaveCount(0);
 });
 
 test("denied roles can view the audit page without export authority", async ({ page }) => {

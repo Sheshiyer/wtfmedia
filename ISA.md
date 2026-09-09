@@ -7,7 +7,7 @@ phase: verify
 progress: 115/231
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-04T18:10:12+05:30
+updated: 2026-09-09T00:06:23+05:30
 ---
 
 ## Problem
@@ -485,7 +485,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 <!-- arch-assets:start -->
 
 _Auto-maintained by `ArchitectureAssetsSync.hook.ts` on release events._  
-_Last refreshed: 2026-09-01T03:23:21.800Z_
+_Last refreshed: 2026-09-09T09:09:45.629Z_
 
 | Asset | Status | How it's generated |
 |---|---|---|
@@ -561,6 +561,8 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
 - 2026-09-04 15:23 IST: Root-cause-at-ingestion checkpoint: wrong episode state enters when an unscoped named query reaches independent Vectorize top-K calls without a canonical catalogue ID; repeated pseudo-entity rows enter when extraction alone disables dedupe; false timing availability enters when the manifest counts file existence and the active queue consumer accepts a malformed declared sidecar as untimed success. Fixing those three upstream boundaries removes the corresponding retrieval, presentation, and replay failures; the UI repair remains a display-down projection over immutable source identity.
 - 2026-09-04 16:05 IST: refined: Shape validation alone was insufficient because two source-native caption tracks covered only 6.6 and 15.2 percent of their corresponding published transcript text. Both were replaced locally with full same-video generated-English tracks whose normalized text coverage is 1.0, and ISC-231 now requires an 80-percent floor at corpus validation, queue admission, and active Worker ingest before any vector mutation.
 - 2026-09-04 17:16 IST: refined: The owner explicitly opened the held Alpha production gate for the reviewed evidence-coherence slice: edge and web promotion, thirteen approved published sidecar uploads, `INGEST_TOKEN` rotation through the named `wtfmedia` profile, exact thirteen-job repair enqueue, and live production verification. DNS, Beta, authentication, unrelated secrets or objects, broad replay, database writes, and root-worktree state remain outside scope. Read-only prestate proves all thirteen transcript objects and D1 source-asset receipts are exact, twelve timing objects are absent, Policing's prior incompatible object is backed up, and all thirteen affected KV receipts remain legacy strings before activation.
+- 2026-09-08: refined: The operator settings surface is a directory with nested, role-governed workspaces. Release, provider, session, memory, source, readiness, and operator-access concerns remain separate pages; the root route does not render their panels inline, the Settings navigation is directory-only, verified request context is owned by the protected access workspace, and the access route is admin-only at both UI and edge policy layers.
+- 2026-09-08: refined: Operator identity is a dedicated `/ops/profile` workspace, not a settings-navigation item. Its edge-backed read route returns only display name, normalized email mapping, active role, scope, provider, and timestamps; the profile maps the same role-filtered settings contract, anonymous public-link mode receives no identity readback, and logout remains only in root Settings.
 
 ## Changelog
 
@@ -616,6 +618,14 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
   refuted by: the twelve legacy episodes currently expose source-native YouTube captions; the Policing JSON exists but uses `{start,text,duration}` rather than the ingest contract's `{t,x}`, while the existence-only manifest counts it as timed; the unscoped Sam Altman query retrieves unrelated episodes but the same query with the canonical episode ID retrieves correctly
   learned: independent timelines remain valid, but source-mode correctness also requires canonical pre-top-K anchoring, relevance-aware mode selection, view-only UI semantics, fail-closed declared-sidecar ingestion, and stale-vector replacement
   criterion now: ISC-199 through ISC-231 supersede the disproven assumptions without rewriting the earlier release history and prevent structurally valid but sparse timing data from erasing searchable evidence
+- 2026-09-08 | conjectured: operator identity could remain a utility affordance inside the Settings directory
+  refuted by: the requested profile/settings separation and local browser review show that identity, scope, mapping, and account navigation need a dedicated operator workspace
+  learned: `/ops/profile` owns safe Clerk-to-active-D1 readback and role-filtered settings links, while Settings owns configuration routes and the sole logout action
+  criterion now: the profile route, profile edge DTO, RBAC policy, local fallback state, and Settings logout boundary have separate probes
+- 2026-09-09 | conjectured: Profile, display theme, and Settings actions belonged in the fixed bottom pill
+  refuted by: the visual review requires the pill to stay focused on workspace destinations and moves utility actions into the hamburger disclosure
+  learned: the disclosure owns account/display actions while the bottom pill remains primary workspace navigation, with profile and Settings active states preserved
+  criterion now: disclosure-only utility placement has dedicated selectors and a browser assertion covering the closed and open states
 
 ## Verification
 
@@ -651,6 +661,9 @@ _Last refreshed: 2026-09-01T03:23:21.800Z_
 - ISC-139: coverage script — the bounded Node probe returned 102 definitions, 102 unique definitions, 102 trace rows, 102 roadmap assignments, zero duplicates, zero missing IDs, and zero extras.
 - ISC-140: Git hash comparison — `git diff --exit-code 0f80677 -- '.planning/phases/01-compatibility-component-proof-harness/01-*-PLAN.md'` exited zero with no changed plan path.
 - Client-scope audit evidence: the independent read-only audit found no critical issue; after normalizing the PROJECT reference date and both STATE stop markers, a focused re-audit returned `VERDICT pass` with matching line evidence.
+- Nested settings route evidence (2026-09-08): the Next build enumerates `/ops/settings` plus eight child routes; web unit tests pass 92/92, contract tests pass 86/86, Cloudflare tests pass 177/177, and the privacy scan reports zero violations across 329 bounded files.
+- Dedicated profile evidence (2026-09-08): the Next build enumerates `/ops/profile`; the safe profile DTO and policy tests pass, web unit tests pass 93/93, contract tests pass 86/86, Cloudflare tests pass 178/178, typecheck/lint/privacy/diff checks pass, and the in-app browser shows the role-filtered profile/settings map with no logout in the bottom pill. Playwright launch remains unavailable because the local Chromium executable is not installed.
+- Utility placement evidence (2026-09-09): AppRail source and the focused browser assertion place profile, theme, and Settings in the hamburger disclosure while the bottom pill contains workspace navigation only; web unit tests pass 93/93, typecheck/lint/diff checks pass, and the in-app browser confirms the closed state. Playwright open-state launch remains deferred because the local Chromium executable is not installed.
 - ISC-12: static plan-contract probe — `passed: true`, `plans: 12`, `tasks: 24`, `requirements: 15/15`, `decisions: 26/26`, and `threat_definitions: 35/35`; `gsd-sdk query phase-plan-index 2` parsed eight ordered waves and confirmed Plan 02-12 is non-autonomous.
 - ISC-141: generated ledger static probe — `npm run docs:architecture:check` is deterministic; the rendered artifact contains 24 sections and six inline SVG diagrams.
 - ISC-142: boundary probe — the ledger decision and `web/scripts/verify-phase1.mjs` record public Phase 1 as independent of Cloudflare Zero Trust, Access Applications, policies, and D1 provisioning.
