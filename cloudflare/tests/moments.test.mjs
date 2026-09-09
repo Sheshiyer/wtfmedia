@@ -222,6 +222,13 @@ describe("applyDurationBudget", () => {
     assert.deepEqual(moments.map((m) => m.withinBudget), [true, true]);
   });
 
+  test("weak matches never pad the budget — the sheet shows what we have", () => {
+    const weak = { ...withDurations[2], score: 0.5 };
+    const { moments, totalDurationSec } = applyDurationBudget([withDurations[0], weak], 3600);
+    assert.equal(totalDurationSec, 600);
+    assert.deepEqual(moments.map((m) => m.withinBudget), [true, false]);
+  });
+
   test("no budget keeps everything and reports the total", () => {
     const { moments, totalDurationSec, budgetSec } = applyDurationBudget(withDurations, null);
     assert.equal(budgetSec, null);

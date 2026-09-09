@@ -45,7 +45,6 @@ describe("Beta consolidation admin panels", () => {
     const youtube = source("components/domain/ops/YouTubeAnalyticsSettingsPanel.tsx");
     const chat = source("app/(operator)/ops/chat/ChatWorkspace.tsx");
     const sessionNavigator = source("app/(operator)/ops/chat/ChatSessionNavigator.tsx");
-    const publicChat = source("components/domain/public/MigratedChatPage.tsx");
     const settings = source("app/(operator)/ops/settings/page.tsx");
     const settingsLayout = source("app/(operator)/ops/settings/layout.tsx");
     const settingsNavigation = source("components/domain/ops/SettingsNavigation.tsx");
@@ -85,7 +84,10 @@ describe("Beta consolidation admin panels", () => {
     for (const value of ["data-chat-session-navigator", "data-chat-session-link", "data-chat-new-session", "load more", "Session navigation is unavailable right now."]) {
       expect(sessionNavigator).toContain(value);
     }
-    expect(publicChat).toContain("sign in for account sessions");
+    const publicShell = source("components/patterns/PublicShell.tsx");
+    // Sign-in stays hidden until the operator auth flow ships.
+    expect(publicShell).not.toContain("data-public-sign-in");
+    expect(appRail).toContain("data-header-utility");
     for (const href of ["/ops/settings/readiness", "/ops/settings/release", "/ops/settings/ai", "/ops/settings/analytics", "/ops/settings/sessions", "/ops/settings/memory", "/ops/settings/sources", "/ops/settings/access"]) {
       expect(settingsContract + settingsLayout + settingsNavigation + settings).toContain(href);
     }

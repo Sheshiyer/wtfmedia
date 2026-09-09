@@ -3,7 +3,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { MigratedWordmark } from "@/components/patterns/brand/MigratedWordmark";
-import { WtfMotionList } from "@/components/patterns/brand/WtfMotionList";
 import { WtfStaggeredText } from "@/components/patterns/brand/WtfStaggeredText";
 
 export type OperatorAuthFrameMode =
@@ -50,9 +49,9 @@ const frameCopy: Record<
 };
 
 const handoff = [
-  { label: "identity", detail: "Clerk verifies the session.", tone: "editorial" as const },
-  { label: "roster", detail: "The edge resolves the operator role.", tone: "attention" as const },
-  { label: "control room", detail: "Permitted controls appear only then.", tone: "live" as const },
+  { index: "01", label: "identity", detail: "Clerk verifies the session.", tone: "bg-editorial" },
+  { index: "02", label: "roster", detail: "The edge resolves the operator role.", tone: "bg-attention" },
+  { index: "03", label: "control room", detail: "Permitted controls appear only then.", tone: "bg-live" },
 ];
 
 export function OperatorAuthFrame({
@@ -69,53 +68,76 @@ export function OperatorAuthFrame({
       id="operator-auth"
       data-operator-auth
       data-operator-auth-mode={mode}
-      className="relative isolate min-h-screen overflow-hidden bg-surface-structure text-on-structure"
+      className="min-h-screen bg-canvas text-foreground"
     >
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-y-0 left-0 w-1 bg-editorial" />
-        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-editorial/20 blur-3xl" />
-        <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-attention/10 blur-3xl" />
-        <div className="absolute inset-0 opacity-10 [background-image:radial-gradient(rgb(var(--wtf-text-on-structure-rgb)/0.9)_0.8px,transparent_0.8px)] [background-size:14px_14px]" />
-      </div>
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-8">
+        <Link
+          href="/"
+          aria-label="return to wtf os"
+          className="inline-flex shrink-0 rounded-control focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
+        >
+          <MigratedWordmark size="md" plate />
+        </Link>
+        <Link
+          href="/"
+          className="font-label text-xs font-bold lowercase tracking-wide text-secondary underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention sm:text-sm"
+        >
+          continue without an account
+        </Link>
+      </header>
 
-      <div className="relative mx-auto grid min-h-screen w-full max-w-[1400px] items-center gap-10 px-4 py-8 sm:px-8 sm:py-12 lg:grid-cols-[minmax(0,1fr)_minmax(380px,520px)] lg:gap-16 lg:px-12">
-        <section className="order-2 max-w-2xl lg:order-1" aria-labelledby="operator-auth-title">
-          <Link
-            href="/"
-            aria-label="return to wtf os"
-            className="inline-flex rounded-control focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-canvas focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
-          >
-            <MigratedWordmark size="md" plate />
-          </Link>
-          <p className="mt-6 flex items-center gap-3 font-label text-[11px] font-semibold uppercase tracking-[0.18em] text-on-structure/70">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-10 sm:px-8 sm:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(360px,460px)] lg:gap-14">
+        <section className="order-2 max-w-xl lg:order-1" aria-labelledby="operator-auth-title">
+          <p className="flex items-center gap-3 font-label text-[11px] font-semibold uppercase tracking-[0.18em] text-secondary">
             <span aria-hidden="true" className="h-2 w-2 rounded-full bg-live" />
             {copy.eyebrow}
           </p>
           <h1
             id="operator-auth-title"
-            className="mt-5 max-w-[10ch] font-heading text-[clamp(3.2rem,8vw,7rem)] font-bold leading-[0.88] tracking-[-0.06em] text-balance"
+            className="mt-4 max-w-[12ch] font-heading text-[clamp(2.4rem,5.5vw,4.25rem)] font-bold leading-[0.92] tracking-[-0.04em] text-balance"
           >
             <WtfStaggeredText text={copy.title} />
           </h1>
-          <p className="mt-6 max-w-[54ch] font-body text-base leading-7 text-on-structure/80">
+          <p className="mt-5 max-w-[54ch] font-body text-base leading-7 text-secondary">
             {copy.body}
           </p>
-          <WtfMotionList items={handoff} />
-          <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-on-structure/30 pt-5">
-            <span className="border border-on-structure/50 px-2 py-1 font-label text-[10px] font-bold uppercase tracking-[0.12em]">
+          <ol aria-label="operator access flow" className="mt-7 border-t-2 border-foreground">
+            {handoff.map((step) => (
+              <li
+                key={step.index}
+                className="flex items-center gap-3 border-b border-foreground/15 py-3"
+              >
+                <span
+                  aria-hidden="true"
+                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 border-foreground font-label text-xs font-bold text-foreground ${step.tone}`}
+                >
+                  {step.index}
+                </span>
+                <div>
+                  <strong className="block font-label text-sm font-bold uppercase tracking-[0.08em]">
+                    {step.label}
+                  </strong>
+                  <span className="block font-body text-sm text-secondary">{step.detail}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-6 flex flex-wrap items-center gap-3">
+            <span className="border-2 border-foreground px-2 py-1 font-label text-[10px] font-bold uppercase tracking-[0.12em]">
               public alpha
             </span>
-            <p className="font-body text-sm text-on-structure/70">
-              <Link href="/" className="underline decoration-editorial underline-offset-4 hover:text-on-structure">
-                continue without an account
-              </Link>
-            </p>
-          </div>
+            <Link
+              href="/"
+              className="font-body text-sm text-secondary underline decoration-knowledge underline-offset-4 hover:text-foreground"
+            >
+              ask the catalogue without an account
+            </Link>
+          </p>
         </section>
 
         <section aria-label={copy.panelLabel} className="order-1 lg:order-2">
-          <div className="overflow-hidden rounded-panel border-2 border-foreground bg-canvas text-foreground shadow-[8px_8px_0_var(--wtf-surface-structure)]">
-            <div className="flex items-center justify-between border-b-2 border-foreground bg-surface-raised px-4 py-3 sm:px-6">
+          <div className="overflow-hidden rounded-panel border-2 border-foreground bg-surface-raised shadow-[8px_8px_0_rgb(var(--wtf-foreground-rgb)/0.16)]">
+            <div className="flex items-center justify-between border-b-2 border-foreground bg-surface-subtle px-4 py-3 sm:px-6">
               <div className="flex items-center gap-2">
                 <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-editorial" />
                 <span className="font-label text-[11px] font-bold uppercase tracking-[0.12em]">
@@ -126,9 +148,9 @@ export function OperatorAuthFrame({
                 Clerk
               </span>
             </div>
-            <div className="p-5 sm:p-8">{children}</div>
+            <div className="p-5 sm:p-7">{children}</div>
           </div>
-          <p className="mt-4 text-center font-label text-[10px] font-semibold uppercase tracking-[0.12em] text-on-structure/60">
+          <p className="mt-4 text-center font-label text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">
             protected lane · server-resolved role
           </p>
         </section>

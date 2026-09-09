@@ -39,11 +39,20 @@ async function routeMiddleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/ops/:path*", "/api/ops/:path*", "/chat/:path*", "/sign-in/:path*", "/sign-up/:path*", "/request-access"],
+  matcher: ["/", "/ops/:path*", "/api/ops/:path*", "/chat/:path*", "/sign-in/:path*", "/sign-up/:path*", "/request-access"],
 };
 
 const clerkHandler = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim()
-  ? clerkMiddleware((_auth, request) => routeMiddleware(request))
+  ? clerkMiddleware(async (auth, request) => {
+      // Signed-in operators land on the authenticated workspace; logged-out
+      // visitors keep the public chat on / and /chat.
+      const { pathname } = request.nextUrl;
+      if (pathname === "/" || pathname === "/chat") {
+        const { userId } = await auth();
+        if (userId) return NextResponse.redirect(new URL("/ops/chat", request.url));
+      }
+      return routeMiddleware(request);
+    })
   : null;
 
 export async function middleware(request: NextRequest, event: NextFetchEvent) {

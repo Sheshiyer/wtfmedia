@@ -43,10 +43,10 @@ export function ClerkSignUpPage({ redirectTo = OPERATOR_RETURN_TO }: { redirectT
 
 const clerkAppearance = {
   variables: {
-    colorPrimary: "var(--wtf-editorial)",
+    colorPrimary: "var(--wtf-attention)",
     colorText: "var(--wtf-foreground)",
     colorTextSecondary: "var(--wtf-text-secondary)",
-    colorBackground: "var(--wtf-canvas)",
+    colorBackground: "var(--wtf-surface-raised)",
     colorInputBackground: "var(--wtf-canvas)",
     colorInputText: "var(--wtf-foreground)",
     borderRadius: "var(--wtf-radius-control)",
@@ -54,16 +54,24 @@ const clerkAppearance = {
   },
   elements: {
     rootBox: "w-full",
-    card: "w-full bg-transparent p-0 shadow-none",
-    headerTitle: "font-heading text-2xl font-bold tracking-tight",
+    cardBox: "w-full shadow-none",
+    card: "w-full gap-4 border-0 bg-transparent p-0 shadow-none",
+    header: "gap-1",
+    headerTitle: "font-heading text-xl font-bold lowercase tracking-tight text-foreground",
     headerSubtitle: "font-body text-sm text-secondary",
-    formFieldLabel: "font-label text-xs font-bold uppercase tracking-wide",
-    formFieldInput: "min-h-11 border-2 border-foreground bg-canvas font-body shadow-none",
+    formFieldLabel: "font-label text-xs font-bold uppercase tracking-wide text-foreground",
+    formFieldInput:
+      "min-h-11 rounded-control border-2 border-foreground bg-canvas font-body text-foreground shadow-none focus:border-knowledge",
     formButtonPrimary:
-      "min-h-11 rounded-control border-2 border-foreground bg-editorial font-label text-sm font-bold text-on-editorial shadow-[4px_4px_0_var(--wtf-foreground)] hover:bg-editorial",
+      "min-h-11 rounded-control border-2 border-foreground bg-attention font-label text-sm font-bold lowercase tracking-wide text-on-attention shadow-[4px_4px_0_rgb(var(--wtf-foreground-rgb)/0.18)] hover:bg-attention/85",
     socialButtonsBlockButton:
-      "min-h-11 rounded-control border-2 border-foreground bg-surface-raised font-label text-sm font-bold text-foreground shadow-none",
-    footerActionLink: "font-label font-bold text-editorial underline underline-offset-4",
-    identityPreviewEditButton: "text-editorial",
+      "min-h-11 rounded-control border-2 border-foreground bg-canvas font-label text-sm font-bold text-foreground shadow-none hover:bg-surface-subtle",
+    footerActionLink: "font-label font-bold text-knowledge underline underline-offset-4",
+    identityPreviewEditButton: "text-knowledge",
+    otpCodeFieldInput: "border-2 border-foreground bg-canvas shadow-none",
+    formFieldInputShowPasswordButton: "text-secondary hover:text-foreground",
+    dividerLine: "bg-foreground/20",
+    dividerText: "font-label text-xs text-muted",
+    footer: "bg-transparent",
   },
 };

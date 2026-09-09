@@ -219,7 +219,12 @@ export function parseDurationBudget(question: string): number | null {
  * Greedy score-ordered selection under a duration budget. Moments with an
  * unknown duration are kept but do not spend the budget — hiding a relevant
  * moment over a missing end chunk is worse than a slightly soft total.
+ * Budget spending stops at the relevance cutoff: padding a "10 minutes"
+ * request with weak matches just to reach 10:00 is dishonest — the sheet
+ * shows the duration we actually have instead.
  */
+const BUDGET_RELEVANCE_RATIO = 0.7;
+
 export function applyDurationBudget(moments: Moment[], budgetSec: number | null): {
   moments: Moment[];
   totalDurationSec: number;
@@ -232,10 +237,13 @@ export function applyDurationBudget(moments: Moment[], budgetSec: number | null)
       budgetSec: null,
     };
   }
+  const topScore = moments.reduce((best, moment) => Math.max(best, moment.score), 0);
+  const relevanceFloor = topScore * BUDGET_RELEVANCE_RATIO;
   let spent = 0;
   const selected = moments.map((moment) => {
     const duration = moment.durationSec;
     if (duration == null) return moment;
+    if (moment.score < relevanceFloor) return { ...moment, withinBudget: false };
     if (spent + duration <= budgetSec || spent === 0) {
       spent += duration;
       return moment;

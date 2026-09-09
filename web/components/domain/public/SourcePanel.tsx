@@ -3,7 +3,7 @@
  *
  * Retrieval is published-only, so this panel has no mode controls. Each cited
  * episode lists its moments with a real start–end range, duration, and the
- * LLM editorial labels (topic / summary / why relevant). Sources
+ * LLM editorial labels (topic / summary / why relevant / strength). Sources
  * without a resolved moment keep a slim timestamp row.
  */
 
@@ -48,8 +48,17 @@ function momentDeepLink(moment: PublicMoment): string {
   return `${moment.url}${moment.url.includes("?") ? "&" : "?"}t=${Math.round(moment.startSec)}`;
 }
 
-/** One clip range with the editorial labels, deep-linked at its start.
- *  Strength stars live only in the Excel export, not the UI. */
+function StrengthStars({ value }: { value?: number }) {
+  if (value == null) return null;
+  return (
+    <span aria-label={`strength ${value} of 5`} className="tracking-tight">
+      <span className="text-knowledge">{"★".repeat(value)}</span>
+      <span className="text-muted">{"☆".repeat(5 - value)}</span>
+    </span>
+  );
+}
+
+/** One clip range with the editorial labels, deep-linked at its start. */
 function MomentDetailRow({ moment }: { moment: PublicMoment }) {
   return (
     <li
@@ -78,7 +87,10 @@ function MomentDetailRow({ moment }: { moment: PublicMoment }) {
         </a>
       </div>
       <div className="min-w-0 space-y-0.5 text-xs">
-        {moment.topic && <p className="font-bold text-foreground">{moment.topic}</p>}
+        <div className="flex flex-wrap items-baseline gap-x-2">
+          {moment.topic && <span className="font-bold text-foreground">{moment.topic}</span>}
+          <StrengthStars value={moment.strength} />
+        </div>
         {moment.summary && <p className="text-secondary">{moment.summary}</p>}
         {moment.whyRelevant && <p className="italic text-muted">{moment.whyRelevant}</p>}
       </div>
@@ -377,7 +389,9 @@ export function SourcePanel({
               </p>
               <p className="mt-1 text-[11px] text-muted">
                 {hasMoments && totalLabel !== null
-                  ? `${totalLabel} of moments across ${momentsByVideo.size} episode${momentsByVideo.size === 1 ? "" : "s"}${budgetLabel ? ` (budget: ${budgetLabel})` : ""}`
+                  ? budgetLabel
+                    ? `${totalLabel} of the ${budgetLabel} requested, across ${momentsByVideo.size} episode${momentsByVideo.size === 1 ? "" : "s"}`
+                    : `${totalLabel} of moments across ${momentsByVideo.size} episode${momentsByVideo.size === 1 ? "" : "s"}`
                   : "published moments from the current catalogue."}
               </p>
             </div>
