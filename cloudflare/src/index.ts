@@ -42,6 +42,7 @@ import {
   resolveMomentEnds,
   type EnrichedMoment,
   type Moment,
+  type MomentEnrichment,
 } from "./chat/moments.ts";
 import {
   WTF_OS_CONVERSATION_SKILL,
@@ -534,10 +535,7 @@ async function momentsForAnswer(
   // Enrich in parallel batches: one 25-moment call truncates near the token
   // cap and silently leaves the tail unlabeled. A failed batch only leaves
   // its own moments unlabeled.
-  const ENRICH_BATCH = 10;
-  const batches = Array.from({ length: Math.ceil(visible.length / ENRICH_BATCH) }, (_, index) =>
-    visible.slice(index * ENRICH_BATCH, (index + 1) * ENRICH_BATCH));
-  const settled = await Promise.all(batches.map(async (batch) => {
+  const enrichBatch = async (batch: Moment[]): Promise<MomentEnrichment[]> => {
     try {
       const result = await env.AI.run(FAST_MODEL, {
         messages: [
@@ -558,29 +556,28 @@ async function momentsForAnswer(
       });
       return batch.map(() => ({}));
     }
-  }));
+  };
+  const ENRICH_BATCH = 10;
+  const batches = Array.from({ length: Math.ceil(visible.length / ENRICH_BATCH) }, (_, index) =>
+    visible.slice(index * ENRICH_BATCH, (index + 1) * ENRICH_BATCH));
+  const settled = await Promise.all(batches.map(enrichBatch));
   const enrichments = visible.map((_, index) =>
     settled[Math.floor(index / ENRICH_BATCH)]?.[index % ENRICH_BATCH] ?? {});
-  // Retry pass: whatever the batches left unlabeled gets one focused call.
-  const missing = visible.filter((_, index) => Object.keys(enrichments[index]).length === 0);
-  if (missing.length > 0) {
-    try {
-      const result = await env.AI.run(FAST_MODEL, {
-        messages: [
-          { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
-          { role: "user", content: `${buildMomentEnrichmentInput(question, missing)}\n\nThere are ${missing.length} MOMENTs. Output exactly ${missing.length} JSON objects, one per MOMENT, in order — use empty strings when a text field cannot be honest, but never skip a MOMENT and never default strength.` },
-        ],
-        max_tokens: 2000,
-        temperature: 0.2,
-      });
-      const retried = parseMomentEnrichment(extractAnswerText(result), missing.length);
-      missing.forEach((moment, index) => {
-        const visibleIndex = visible.indexOf(moment);
-        if (Object.keys(retried[index]).length > 0) enrichments[visibleIndex] = retried[index];
-      });
-    } catch {
-      // Labels for these moments stay empty; the rows still render timings.
-    }
+  // Retry pass: a moment with neither topic nor summary renders a bare row in
+  // the panel and empty columns in the sheet. Single-moment calls are tiny,
+  // so each gap gets its own focused retry — fields the batch already found
+  // (guest, strength) survive the merge.
+  const missingIndices = enrichments
+    .map((enrichment, index) => (!enrichment.topic && !enrichment.summary ? index : -1))
+    .filter((index) => index !== -1);
+  if (missingIndices.length > 0) {
+    const retried = await Promise.all(missingIndices.map((index) => enrichBatch([visible[index]])));
+    missingIndices.forEach((visibleIndex, retryIndex) => {
+      const retry = retried[retryIndex]?.[0];
+      if (retry && Object.keys(retry).length > 0) {
+        enrichments[visibleIndex] = { ...retry, ...enrichments[visibleIndex] };
+      }
+    });
   }
   const enriched = new Map(visible.map((moment, index) => [moment, enrichments[index]]));
   return {

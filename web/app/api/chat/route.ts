@@ -47,6 +47,7 @@ type EdgeMoment = {
   startSec: number;
   endSec: number | null;
   durationSec: number | null;
+  durationEstimated?: boolean;
   score: number;
   timestampConfidence: number | null;
   citationNumbers: number[];
@@ -240,6 +241,7 @@ function momentHeader(answer: EdgeAnswer): string {
       start_sec: startSec,
       end_sec: secondsField(moment.endSec),
       duration_sec: secondsField(moment.durationSec),
+      duration_estimated: moment.durationEstimated === true ? true : null,
       score: secondsField(moment.score) ?? 0,
       timestamp_confidence: secondsField(moment.timestampConfidence),
       citation_numbers: Array.isArray(moment.citationNumbers)

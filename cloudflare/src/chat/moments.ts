@@ -42,6 +42,8 @@ export interface Moment {
   excerpt: string;
   /** Set when the moment survived a duration-budget cut. */
   withinBudget: boolean;
+  /** True when endSec comes from a text-length estimate, not the next chunk. */
+  durationEstimated?: boolean;
 }
 
 export interface MomentEnrichment {
@@ -126,8 +128,15 @@ export function buildMoments(sources: readonly MomentSource[]): Moment[] {
  * after a moment's last chunk belongs to the next moment (or was never
  * retrieved), so its start is this moment's end on the episode clock.
  * Vectorize getByIds caps at 20 ids per call, so the lookup is batched.
+ * When the next chunk does not exist (the moment ends at the episode's final
+ * chunk), the end is estimated from that chunk's transcript length instead —
+ * speech runs ~2.5 words per second — and flagged durationEstimated so the
+ * panel and sheet can show "~" rather than a bare "–?".
  */
 const GET_BY_IDS_BATCH = 20;
+const WORDS_PER_SECOND = 2.5;
+const MIN_ESTIMATED_CHUNK_SEC = 5;
+const MAX_ESTIMATED_CHUNK_SEC = 300;
 type VectorLookup = { id: string; metadata?: Record<string, unknown> | null };
 // The real binding resolves to a bare VectorizeVector[]; some mocks/SDKs wrap
 // it in { matches }. Accept both.
@@ -137,7 +146,12 @@ export async function resolveMomentEnds(
   vectorize: { getByIds(ids: string[]): Promise<GetByIdsResult> },
   moments: Moment[],
 ): Promise<Moment[]> {
-  const ids = [...new Set(moments.map((moment) => `${moment.videoId}:${moment.chunkEnd + 1}`))];
+  // Next-chunk ids give exact ends; each moment's own last chunk rides along
+  // so a final-chunk moment can fall back to a text-length estimate.
+  const ids = [...new Set(moments.flatMap((moment) => [
+    `${moment.videoId}:${moment.chunkEnd + 1}`,
+    `${moment.videoId}:${moment.chunkEnd}`,
+  ]))];
   if (ids.length === 0) return moments;
   let found: VectorLookup[] = [];
   try {
@@ -155,16 +169,31 @@ export async function resolveMomentEnds(
     return moments; // durations stay unknown; the answer must not fail on this
   }
   const startById = new Map<string, number>();
+  const textById = new Map<string, string>();
   for (const match of found) {
     const start = match?.metadata?.start;
     if (typeof start === "number" && Number.isFinite(start) && start >= 0) {
       startById.set(match.id, start);
     }
+    const text = match?.metadata?.text;
+    if (typeof text === "string" && text.trim()) textById.set(match.id, text);
   }
   return moments.map((moment) => {
     const end = startById.get(`${moment.videoId}:${moment.chunkEnd + 1}`);
-    if (end == null || end <= moment.startSec) return moment;
-    return { ...moment, endSec: end, durationSec: end - moment.startSec };
+    if (end != null && end > moment.startSec) {
+      return { ...moment, endSec: end, durationSec: end - moment.startSec };
+    }
+    // Final chunk of the episode: no next chunk exists, so estimate the last
+    // chunk's own length from its transcript and add it to its start.
+    const ownId = `${moment.videoId}:${moment.chunkEnd}`;
+    const lastStart = startById.get(ownId);
+    const lastText = textById.get(ownId);
+    if (lastStart == null || !lastText) return moment;
+    const words = lastText.trim().split(/\s+/).length;
+    const estimate = Math.min(MAX_ESTIMATED_CHUNK_SEC, Math.max(MIN_ESTIMATED_CHUNK_SEC, words / WORDS_PER_SECOND));
+    const estimatedEnd = lastStart + estimate;
+    if (estimatedEnd <= moment.startSec) return moment;
+    return { ...moment, endSec: estimatedEnd, durationSec: estimatedEnd - moment.startSec, durationEstimated: true };
   });
 }
 

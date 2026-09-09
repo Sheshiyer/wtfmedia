@@ -63,10 +63,10 @@ function MomentDetailRow({ moment }: { moment: PublicMoment }) {
           rel="noreferrer"
           className="font-bold text-knowledge underline underline-offset-2"
         >
-          {formatClock(moment.startSec)}–{moment.endSec != null ? formatClock(moment.endSec) : "?"}
+          {formatClock(moment.startSec)}–{moment.endSec != null ? `${moment.durationEstimated ? "~" : ""}${formatClock(moment.endSec)}` : "?"}
         </a>
         {moment.durationSec != null && (
-          <span className="ml-1 text-muted">({formatClock(moment.durationSec)})</span>
+          <span className="ml-1 text-muted">({moment.durationEstimated ? "~" : ""}{formatClock(moment.durationSec)})</span>
         )}
         <a
           href={momentDeepLink(moment)}

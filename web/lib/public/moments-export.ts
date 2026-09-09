@@ -42,7 +42,7 @@ export function momentExportRows(payload: PublicMomentsPayload): MomentExportRow
       "Name of EP": moment.title,
       Start: formatClock(moment.startSec),
       End: formatClock(moment.endSec),
-      Duration: formatClock(moment.durationSec),
+      Duration: `${moment.durationEstimated ? "~" : ""}${formatClock(moment.durationSec)}`,
       Theme: moment.theme ?? "",
       Topic: moment.topic ?? "",
       Summary: moment.summary ?? "",

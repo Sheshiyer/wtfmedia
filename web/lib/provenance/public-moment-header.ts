@@ -13,6 +13,8 @@ export interface PublicMoment {
   startSec: number;
   endSec: number | null;
   durationSec: number | null;
+  /** True when durationSec is a transcript-length estimate, not an exact range. */
+  durationEstimated?: boolean;
   score: number;
   timestampConfidence: number | null;
   citationNumbers: number[];
@@ -69,6 +71,7 @@ function normalizeMoment(value: unknown): PublicMoment | null {
     startSec,
     endSec: secondsField(raw.end_sec),
     durationSec: secondsField(raw.duration_sec),
+    ...(raw.duration_estimated === true ? { durationEstimated: true } : {}),
     score: secondsField(raw.score) ?? 0,
     timestampConfidence: secondsField(raw.timestamp_confidence),
     citationNumbers: Array.isArray(raw.citation_numbers)

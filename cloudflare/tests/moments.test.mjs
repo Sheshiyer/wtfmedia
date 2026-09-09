@@ -92,7 +92,7 @@ describe("resolveMomentEnds", () => {
     const [moment] = await resolveMomentEnds(vectorize, buildMoments([
       source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
     ]));
-    assert.deepEqual(requested, [["abc123def45:6"]]);
+    assert.deepEqual(requested, [["abc123def45:6", "abc123def45:5"]]);
     assert.equal(moment.endSec, 420);
     assert.equal(moment.durationSec, 120);
   });
@@ -123,16 +123,67 @@ describe("resolveMomentEnds", () => {
         return ids.map((id) => ({ id, metadata: { start: 1000 } }));
       },
     };
-    // 25 moments across distinct episodes → 25 next-chunk ids → 2 batches.
+    // 25 moments across distinct episodes → 50 ids (next + own) → 3 batches.
     const sources = Array.from({ length: 25 }, (_, index) => {
       const videoId = `video${String(index).padStart(5, "0")}x`;
       return source({ n: index + 1, videoId, start: 100, segmentId: `${videoId}:3` });
     });
     const moments = await resolveMomentEnds(vectorize, buildMoments(sources));
-    assert.equal(requested.length, 2);
+    assert.equal(requested.length, 3);
     assert.equal(requested[0].length, 20);
-    assert.equal(requested[1].length, 5);
+    assert.equal(requested[2].length, 10);
     assert.ok(moments.every((moment) => moment.durationSec === 900));
+  });
+
+  test("estimates the end from the final chunk's transcript when no next chunk exists", async () => {
+    const transcript = Array.from({ length: 150 }, () => "word").join(" "); // 150 words ≈ 60s
+    const vectorize = {
+      async getByIds(ids) {
+        // Only the moment's own last chunk exists — it is the episode's end.
+        return ids
+          .filter((id) => id === "abc123def45:5")
+          .map((id) => ({ id, metadata: { start: 300, text: transcript } }));
+      },
+    };
+    const [moment] = await resolveMomentEnds(vectorize, buildMoments([
+      source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
+    ]));
+    assert.equal(moment.endSec, 360);
+    assert.equal(moment.durationSec, 60);
+    assert.equal(moment.durationEstimated, true);
+  });
+
+  test("exact next-chunk ends are never flagged as estimates", async () => {
+    const vectorize = {
+      async getByIds(ids) {
+        return ids.map((id) => ({ id, metadata: { start: 420, text: "some words here" } }));
+      },
+    };
+    const [moment] = await resolveMomentEnds(vectorize, buildMoments([
+      source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
+    ]));
+    assert.equal(moment.endSec, 420);
+    assert.equal(moment.durationEstimated, undefined);
+  });
+
+  test("clamps estimates and leaves duration null when the final chunk has no text", async () => {
+    const longText = Array.from({ length: 5000 }, () => "word").join(" "); // way past the cap
+    const vectorize = {
+      async getByIds(ids) {
+        return ids
+          .filter((id) => id === "abc123def45:5")
+          .map((id) => ({ id, metadata: { start: 300, text: longText } }));
+      },
+    };
+    const [clamped] = await resolveMomentEnds(vectorize, buildMoments([
+      source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
+    ]));
+    assert.equal(clamped.durationSec, 300);
+    const noText = { async getByIds() { return [{ id: "abc123def45:5", metadata: { start: 300 } }]; } };
+    const [unresolved] = await resolveMomentEnds(noText, buildMoments([
+      source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
+    ]));
+    assert.equal(unresolved.durationSec, null);
   });
 });
 
