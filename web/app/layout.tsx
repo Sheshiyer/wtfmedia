@@ -49,7 +49,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const Shell = variant === "wtfos" ? PublicShell : LegacyPublicShell;
   const requestHeaders = await headers();
   const routeKind = requestHeaders.get("x-wtf-route-kind");
-  const isOperatorRoute = routeKind === "ops" || routeKind === "ops-recovery";
+  const isOperatorRoute = routeKind === "ops" || routeKind === "ops-recovery" || routeKind === "beta";
   const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim();
   const page = isOperatorRoute ? (
     children

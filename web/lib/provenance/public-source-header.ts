@@ -73,6 +73,7 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
     nonNegativeNumber(raw.timeSec) ??
     nonNegativeNumber(raw.timestampSec) ??
     nonNegativeNumber(raw.startTimeSec) ??
+    nonNegativeNumber(raw.start) ??
     nonNegativeNumber(raw.t);
   const sourceMode = parseSourceMode(raw.sourceMode ?? raw.source_mode);
   const mappingStatus = isMappingStatus(raw.mappingStatus)

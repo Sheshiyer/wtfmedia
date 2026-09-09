@@ -120,6 +120,14 @@ The beta track adds authenticated features (server-side RAG, persisted chat,
 consolidation panels) that do not regress the public production path. The
 alpha track adds retrieval and UI improvements to the public surface.
 
+The invite-only company member Beta is a separate staging-only `/beta` lane.
+It needs both Clerk verification and an active D1 member invitation record.
+Bangalore is the first cohort in one shared company workspace. Members own
+private archive-only chat and explicit saved memory; the operator roster may
+manage lifecycle but never exposes member content. Its dedicated release
+manifest begins paused, rejects production, and cannot change `/chat` or
+`/api/chat`.
+
 ## Ingest safety rule
 
 Transcript queue ingestion is fail-closed. Before staging vectors, the consumer
