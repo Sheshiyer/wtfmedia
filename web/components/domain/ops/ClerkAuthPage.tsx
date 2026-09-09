@@ -1,7 +1,7 @@
 import { SignIn, SignUp } from "@clerk/nextjs";
 import { AccessRecovery } from "./AccessRecovery";
 import { OperatorAuthFrame } from "./OperatorAuthFrame";
-import { OPERATOR_RETURN_TO } from "@/lib/ops/clerk-url";
+import { MEMBER_BETA_RETURN_TO, OPERATOR_RETURN_TO } from "@/lib/ops/clerk-url";
 
 function AuthUnavailable() {
   return <AccessRecovery mode="unavailable" returnTo="/ops" />;
@@ -10,16 +10,16 @@ function AuthUnavailable() {
 export function ClerkSignInPage({ redirectTo = OPERATOR_RETURN_TO }: { redirectTo?: string }) {
   if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) return <AuthUnavailable />;
   return (
-    <OperatorAuthFrame mode="sign-in">
-        <SignIn
-          routing="path"
-          path="/sign-in"
-          signUpUrl="/sign-up"
-          forceRedirectUrl={redirectTo}
-          signUpForceRedirectUrl={redirectTo}
-          fallbackRedirectUrl={OPERATOR_RETURN_TO}
-          appearance={clerkAppearance}
-        />
+    <OperatorAuthFrame mode="sign-in" audience={redirectTo === MEMBER_BETA_RETURN_TO ? "member" : "operator"}>
+      <SignIn
+        routing="path"
+        path="/sign-in"
+        signUpUrl={`/sign-up?redirect_url=${encodeURIComponent(redirectTo)}`}
+        forceRedirectUrl={redirectTo}
+        signUpForceRedirectUrl={redirectTo}
+        fallbackRedirectUrl={OPERATOR_RETURN_TO}
+        appearance={clerkAppearance}
+      />
     </OperatorAuthFrame>
   );
 }
@@ -27,16 +27,16 @@ export function ClerkSignInPage({ redirectTo = OPERATOR_RETURN_TO }: { redirectT
 export function ClerkSignUpPage({ redirectTo = OPERATOR_RETURN_TO }: { redirectTo?: string }) {
   if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) return <AuthUnavailable />;
   return (
-    <OperatorAuthFrame mode="sign-up">
-        <SignUp
-          routing="path"
-          path="/sign-up"
-          signInUrl="/sign-in"
-          forceRedirectUrl={redirectTo}
-          signInForceRedirectUrl={redirectTo}
-          fallbackRedirectUrl={OPERATOR_RETURN_TO}
-          appearance={clerkAppearance}
-        />
+    <OperatorAuthFrame mode="sign-up" audience={redirectTo === MEMBER_BETA_RETURN_TO ? "member" : "operator"}>
+      <SignUp
+        routing="path"
+        path="/sign-up"
+        signInUrl={`/sign-in?redirect_url=${encodeURIComponent(redirectTo)}`}
+        forceRedirectUrl={redirectTo}
+        signInForceRedirectUrl={redirectTo}
+        fallbackRedirectUrl={OPERATOR_RETURN_TO}
+        appearance={clerkAppearance}
+      />
     </OperatorAuthFrame>
   );
 }

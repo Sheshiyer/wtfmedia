@@ -1,5 +1,38 @@
 # Project handoff
 
+## 2026-09-09 Member Beta onboarding and Clerk return-target refresh
+
+**Status:** REVIEW-READY SOURCE SLICE — the invite-only member entry now
+distinguishes private Beta access from operator access. No staging or production
+deployment, Clerk configuration change, D1 mutation, invitation lifecycle
+change, or public Alpha change was made in this slice.
+
+- `/sign-in?redirect_url=/beta` now preserves the allowlisted `/beta` target,
+  so an invited member returns to the private Beta dashboard after Clerk
+  authentication rather than being silently sent to `/ops`.
+- The Clerk entry frame selects a member narrative for that destination:
+  invite-only company Beta, Bangalore-first cohort, private Ask WTF workspace,
+  and three concise verify/join/ask steps. `/ops` retains its separate operator
+  narrative and authorization language.
+- The redesigned frame removes the heavy nested faux-browser treatment,
+  narrows the desktop form rail, improves the mobile reading order, and keeps
+  the existing WTF OS wordmark, semantic palette, texture, reduced-motion
+  components, and visible public-Alpha boundary.
+
+### Verification
+
+- New return-target unit contract passed after a verified red failure;
+  the full web unit suite passed 96/96, along with strict typecheck, lint,
+  Next production build, and `git diff --check`.
+- The test runner still emits its pre-existing Vite native-config and Node
+  deprecation warnings; no test, type, lint, or build failure was present.
+
+### Next acceptance
+
+- Review and merge the source PR, deploy only to the existing staging Workers,
+  then accept the pending Clerk invitation. Confirm the first authenticated
+  landing is `/beta`, followed by the private-chat and member-isolation checks.
+
 ## 2026-09-09 Invite-only company member Beta source checkpoint
 
 **Status:** MERGED BETA SOURCE CHECKPOINT — private member Beta source merged

@@ -3,9 +3,13 @@
  * path so release controls cannot turn the sign-in link into an open redirect.
  */
 export const BETA_RELEASE_RETURN_TO = "/ops/settings?releaseTrack=beta";
+export const MEMBER_BETA_RETURN_TO = "/beta";
 export const OPERATOR_RETURN_TO = "/ops";
 
-export function clerkRedirectTarget(value: string | null | undefined): typeof OPERATOR_RETURN_TO | typeof BETA_RELEASE_RETURN_TO {
+export function clerkRedirectTarget(
+  value: string | null | undefined,
+): typeof OPERATOR_RETURN_TO | typeof BETA_RELEASE_RETURN_TO | typeof MEMBER_BETA_RETURN_TO {
+  if (value === MEMBER_BETA_RETURN_TO) return MEMBER_BETA_RETURN_TO;
   return value === BETA_RELEASE_RETURN_TO ? BETA_RELEASE_RETURN_TO : OPERATOR_RETURN_TO;
 }
 
