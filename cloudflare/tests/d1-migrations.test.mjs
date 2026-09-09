@@ -8,7 +8,7 @@ import { after, before, test } from "node:test";
 const root = new URL("..", import.meta.url).pathname;
 const persistTo = mkdtempSync(join(tmpdir(), "wtfmedia-phase2-d1-"));
 const database = join(persistTo, "ops.sqlite");
-const migrations = ["0001_ops_foundation.sql", "0002_bootstrap_roster.sql", "0003_super_admin_transfer_guard.sql", "0004_operator_invitation_approvals.sql", "0005_provenance_spine.sql", "0006_chat_history.sql", "0007_release_manifest.sql", "0008_release_track.sql", "0009_saved_memory.sql", "0010_member_beta.sql"];
+const migrations = ["0001_ops_foundation.sql", "0002_bootstrap_roster.sql", "0003_super_admin_transfer_guard.sql", "0004_operator_invitation_approvals.sql", "0005_provenance_spine.sql", "0006_chat_history.sql", "0007_release_manifest.sql", "0008_release_track.sql", "0009_saved_memory.sql", "0010_member_beta.sql", "0011_clerk_invitation_id_prefix.sql"];
 
 function sql(input) {
   return spawnSync("sqlite3", [database], {
@@ -60,6 +60,7 @@ test("fresh local migrations are repeatable", () => {
   assert.match(listing, /0008_release_track/);
   assert.match(listing, /0009_saved_memory/);
   assert.match(listing, /0010_member_beta/);
+  assert.match(listing, /0011_clerk_invitation_id_prefix/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'release_manifests';"), /release_manifests/);
   assert.match(succeeds("PRAGMA table_info(release_manifests);"), /release_track/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'member_users';"), /member_users/);
@@ -97,4 +98,9 @@ test("member activation requires a verified Clerk subject and member records rem
   fails("UPDATE member_users SET lifecycle_state = 'active' WHERE email = 'bangalore@example.test';");
   succeeds("UPDATE member_users SET clerk_user_id = 'user_bangalore_1', lifecycle_state = 'active', activated_at = '2026-09-09T00:01:00.000Z', updated_at = '2026-09-09T00:01:00.000Z' WHERE email = 'bangalore@example.test';");
   fails("DELETE FROM member_users WHERE email = 'bangalore@example.test';");
+});
+
+test("member invitation receipts accept Clerk's current inv_ identifier", () => {
+  succeeds("INSERT INTO member_users (email, role, lifecycle_state, pilot_cohort, office, created_at, updated_at) VALUES ('clerk-inv@example.test', 'member', 'invited', 'bangalore', 'Bangalore', '2026-09-09T00:00:00.000Z', '2026-09-09T00:00:00.000Z');");
+  succeeds("INSERT INTO member_invitations (id, member_id, clerk_invitation_id, status, created_by_operator_id, correlation_id, sent_at, created_at, updated_at) VALUES ('minv_1234567890ab', (SELECT id FROM member_users WHERE email = 'clerk-inv@example.test'), 'inv_3J5wa6p9DSLYvGFvYsNsugSdP8Y', 'sent', 1, 'member-invite-contract-1', '2026-09-09T00:00:00.000Z', '2026-09-09T00:00:00.000Z', '2026-09-09T00:00:00.000Z');");
 });
