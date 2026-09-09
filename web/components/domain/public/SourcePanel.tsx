@@ -51,9 +51,9 @@ function momentDeepLink(moment: PublicMoment): string {
 function StrengthStars({ value }: { value?: number }) {
   if (value == null) return <span className="text-muted">—</span>;
   return (
-    <span aria-label={`strength ${value} of 5`} className="tracking-tight text-knowledge">
-      {"★".repeat(value)}
-      <span className="text-muted">{"★".repeat(5 - value)}</span>
+    <span aria-label={`strength ${value} of 5`} className="tracking-tight">
+      <span className="text-knowledge">{"★".repeat(value)}</span>
+      <span className="text-muted">{"☆".repeat(5 - value)}</span>
     </span>
   );
 }

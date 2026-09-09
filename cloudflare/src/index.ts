@@ -531,30 +531,63 @@ async function momentsForAnswer(
   if (visible.length === 0) {
     return { moments: budgeted.moments, totalDurationSec: budgeted.totalDurationSec, budgetSec };
   }
-  try {
-    const result = await env.AI.run(FAST_MODEL, {
-      messages: [
-        { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
-        { role: "user", content: buildMomentEnrichmentInput(question, visible) },
-      ],
-      max_tokens: 3600,
-      temperature: 0.2,
-    });
-    const text = extractAnswerText(result);
-    if (!text.trim()) throw new Error("empty moment enrichment");
-    const enrichments = parseMomentEnrichment(text, visible.length);
-    const enriched = new Map(visible.map((moment, index) => [moment, enrichments[index]]));
-    return {
-      moments: budgeted.moments.map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) })),
-      totalDurationSec: budgeted.totalDurationSec,
-      budgetSec,
-    };
-  } catch (error) {
-    console.warn("wtfmedia moment enrichment failed", {
-      error: error instanceof Error ? error.message : "unknown",
-    });
-    return { moments: budgeted.moments, totalDurationSec: budgeted.totalDurationSec, budgetSec };
+  // Enrich in parallel batches: one 25-moment call truncates near the token
+  // cap and silently leaves the tail unlabeled. A failed batch only leaves
+  // its own moments unlabeled.
+  const ENRICH_BATCH = 10;
+  const batches = Array.from({ length: Math.ceil(visible.length / ENRICH_BATCH) }, (_, index) =>
+    visible.slice(index * ENRICH_BATCH, (index + 1) * ENRICH_BATCH));
+  const settled = await Promise.all(batches.map(async (batch) => {
+    try {
+      const result = await env.AI.run(FAST_MODEL, {
+        messages: [
+          { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
+          // The model silently skips moments it can't label unless the exact
+          // object count is demanded — a short count costs the tail slots.
+          { role: "user", content: `${buildMomentEnrichmentInput(question, batch)}\n\nThere are ${batch.length} MOMENTs. Output exactly ${batch.length} JSON objects, one per MOMENT, in order — use empty strings when a text field cannot be honest, but never skip a MOMENT and never default strength.` },
+        ],
+        max_tokens: 2000,
+        temperature: 0.2,
+      });
+      const text = extractAnswerText(result);
+      if (!text.trim()) throw new Error("empty moment enrichment");
+      return parseMomentEnrichment(text, batch.length);
+    } catch (error) {
+      console.warn("wtfmedia moment enrichment failed", {
+        error: error instanceof Error ? error.message : "unknown",
+      });
+      return batch.map(() => ({}));
+    }
+  }));
+  const enrichments = visible.map((_, index) =>
+    settled[Math.floor(index / ENRICH_BATCH)]?.[index % ENRICH_BATCH] ?? {});
+  // Retry pass: whatever the batches left unlabeled gets one focused call.
+  const missing = visible.filter((_, index) => Object.keys(enrichments[index]).length === 0);
+  if (missing.length > 0) {
+    try {
+      const result = await env.AI.run(FAST_MODEL, {
+        messages: [
+          { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
+          { role: "user", content: `${buildMomentEnrichmentInput(question, missing)}\n\nThere are ${missing.length} MOMENTs. Output exactly ${missing.length} JSON objects, one per MOMENT, in order — use empty strings when a text field cannot be honest, but never skip a MOMENT and never default strength.` },
+        ],
+        max_tokens: 2000,
+        temperature: 0.2,
+      });
+      const retried = parseMomentEnrichment(extractAnswerText(result), missing.length);
+      missing.forEach((moment, index) => {
+        const visibleIndex = visible.indexOf(moment);
+        if (Object.keys(retried[index]).length > 0) enrichments[visibleIndex] = retried[index];
+      });
+    } catch {
+      // Labels for these moments stay empty; the rows still render timings.
+    }
   }
+  const enriched = new Map(visible.map((moment, index) => [moment, enrichments[index]]));
+  return {
+    moments: budgeted.moments.map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) })),
+    totalDurationSec: budgeted.totalDurationSec,
+    budgetSec,
+  };
 }
 
 async function chat(request: Request, env: Env) {

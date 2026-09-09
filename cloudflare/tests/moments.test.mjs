@@ -212,6 +212,41 @@ describe("moment enrichment", () => {
     assert.equal(parsed[0].strength, undefined);
   });
 
+  test("recovers objects the model split across lines", () => {
+    const output = [
+      '{"guest":"A","topic":"t1","summary":"s","whyRelevant":"w","strength":2}',
+      '{"guest":"B","topic":"t2",',
+      '"summary":"split across lines","whyRelevant":"w","strength":4}',
+      '{"guest":"C","topic":"t3","summary":"s","whyRelevant":"w","strength":1}',
+    ].join("\n");
+    const parsed = parseMomentEnrichment(output, 3);
+    assert.equal(parsed[0].guest, "A");
+    assert.equal(parsed[1].guest, "B");
+    assert.equal(parsed[1].strength, 4);
+    assert.equal(parsed[2].guest, "C");
+  });
+
+  test("a token-cut object does not swallow the following one", () => {
+    const output = [
+      '{"guest":"A","topic":"t1","summary":"never closes',
+      '{"guest":"B","topic":"t2","summary":"s","whyRelevant":"w","strength":3}',
+    ].join("\n");
+    const parsed = parseMomentEnrichment(output, 2);
+    assert.equal(parsed[0].guest, "B");
+    assert.deepEqual(parsed[1], {});
+  });
+
+  test("the m key anchors objects so a skipped MOMENT leaves a gap, not a shift", () => {
+    const output = [
+      '{"m":1,"guest":"A","topic":"t1","summary":"s","whyRelevant":"w","strength":2}',
+      '{"m":3,"guest":"C","topic":"t3","summary":"s","whyRelevant":"w","strength":4}',
+    ].join("\n");
+    const parsed = parseMomentEnrichment(output, 3);
+    assert.equal(parsed[0].guest, "A");
+    assert.deepEqual(parsed[1], {});
+    assert.equal(parsed[2].guest, "C");
+  });
+
   test("enrichment input carries the question, title, range, and excerpt", () => {
     const [moment] = buildMoments([source({ n: 1, start: 305, segmentId: "abc123def45:5", text: "hello world" })]);
     const input = buildMomentEnrichmentInput("relationships?", [{ ...moment, endSec: 425, durationSec: 120 }]);

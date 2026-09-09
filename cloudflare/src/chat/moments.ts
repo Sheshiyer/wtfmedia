@@ -229,36 +229,62 @@ export function buildMomentEnrichmentInput(question: string, moments: readonly M
 }
 
 export const MOMENT_ENRICHMENT_PROMPT = `You label podcast moments for an editorial clip sheet. For each MOMENT, output one JSON object on one line, in order, with keys:
+"m" (integer: the MOMENT number this object labels — required, the parser anchors on it),
 "guest" (guest name(s) from the episode title, without the show title),
 "theme" (2-4 word umbrella theme, e.g. "Grief / father"),
 "topic" (3-6 word specific topic, lowercase),
 "summary" (one sentence, max 25 words, what is actually said),
 "whyRelevant" (one sentence, max 20 words, why an editor would cut this for the question),
 "strength" (integer 1-5: how strongly the moment answers the question).
-Output ONLY the JSON objects, no commentary, no code fences. If a field cannot be honest from the excerpt, use an empty string (or 1 for strength).`;
+Output ONLY the JSON objects, no commentary, no code fences. If a text field cannot be honest from the excerpt, use an empty string; strength is always your honest 1-5 judgment.`;
 
-/** Parse one-JSON-object-per-line enrichment output. Tolerant of fences/extra text. */
+/** Parse one-JSON-object-per-line enrichment output. Tolerant of fences,
+ * extra text, and objects the model splits across lines. The "m" key anchors
+ * each object to its MOMENT number; without it, the next unfilled slot is
+ * used (positional fallback). */
 export function parseMomentEnrichment(text: string, count: number): MomentEnrichment[] {
   const results: MomentEnrichment[] = Array.from({ length: count }, () => ({}));
+  const filled = new Set<number>();
   const cleaned = text.replace(/```(?:json)?/g, "");
-  let index = 0;
+  let buffer = "";
   for (const line of cleaned.split("\n")) {
     const trimmed = line.trim();
-    if (!trimmed.startsWith("{") || index >= count) continue;
-    try {
-      const parsed = JSON.parse(trimmed) as Record<string, unknown>;
-      const enrichment: MomentEnrichment = {};
-      for (const key of ["guest", "theme", "topic", "summary", "whyRelevant"] as const) {
-        const value = parsed[key];
-        if (typeof value === "string" && value.trim()) enrichment[key] = value.trim().slice(0, 300);
-      }
-      const strength = Number(parsed.strength);
-      if (Number.isInteger(strength) && strength >= 1 && strength <= 5) enrichment.strength = strength;
-      results[index] = enrichment;
-      index += 1;
-    } catch {
-      // A malformed line skips its moment; others still land.
+    if (!buffer) {
+      if (!trimmed.startsWith("{")) continue;
+      buffer = trimmed;
+    } else if (trimmed.startsWith("{")) {
+      buffer = trimmed; // previous object never closed (token cutoff) — drop it
+    } else {
+      buffer = `${buffer}\n${trimmed}`;
     }
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = JSON.parse(buffer) as Record<string, unknown>;
+    } catch {
+      continue; // incomplete or malformed — accumulate the next line
+    }
+    buffer = "";
+    // Anchor on the "m" key when present and unfilled; otherwise take the
+    // next unfilled slot so a skipped MOMENT never shifts the rest.
+    const anchor = Number(parsed.m);
+    let slot = Number.isInteger(anchor) && anchor >= 1 && anchor <= count && !filled.has(anchor - 1)
+      ? anchor - 1
+      : -1;
+    if (slot === -1) {
+      for (let candidate = 0; candidate < count; candidate += 1) {
+        if (!filled.has(candidate)) { slot = candidate; break; }
+      }
+    }
+    if (slot === -1) continue;
+    const enrichment: MomentEnrichment = {};
+    for (const key of ["guest", "theme", "topic", "summary", "whyRelevant"] as const) {
+      const value = parsed[key];
+      if (typeof value === "string" && value.trim()) enrichment[key] = value.trim().slice(0, 300);
+    }
+    const strength = Number(parsed.strength);
+    if (Number.isInteger(strength) && strength >= 1 && strength <= 5) enrichment.strength = strength;
+    results[slot] = enrichment;
+    filled.add(slot);
   }
   return results;
 }
