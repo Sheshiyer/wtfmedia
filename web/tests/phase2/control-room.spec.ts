@@ -38,9 +38,10 @@ test("truthful role-projected Control Room shell shows only activated administra
   await expect(promoted).toHaveAttribute("href", "/ops/production");
   await expect(promoted).not.toHaveClass(/bg-attention/);
   const operationsNavigation = await openOperationsNav(page);
-  await expect(operationsNavigation.getByRole("link", { name: "settings" })).toBeVisible();
-  await expect(operationsNavigation.getByRole("link", { name: "operators" })).toHaveCount(0);
-  await expect(operationsNavigation.getByRole("link", { name: "audit" })).toHaveCount(0);
+  const operationsLinks = operationsNavigation.locator("[data-navigation-links]");
+  await expect(operationsLinks.getByRole("link", { name: "settings" })).toBeVisible();
+  await expect(operationsLinks.getByRole("link", { name: "operators" })).toHaveCount(0);
+  await expect(operationsLinks.getByRole("link", { name: "audit" })).toHaveCount(0);
 });
 
 test("editor role exposes only the activated Control Room destination", async ({ page }) => {
@@ -53,11 +54,12 @@ test("editor role exposes only the activated Control Room destination", async ({
   await expect(promoted).toContainText("production");
   await expect(promoted).toHaveAttribute("href", "/ops/production");
   const operationsNavigation = await openOperationsNav(page);
-  await expect(operationsNavigation.getByRole("link", { name: "control room" })).toBeVisible();
-  await expect(operationsNavigation.getByRole("link", { name: "episode map" })).toBeVisible();
-  await expect(operationsNavigation.getByRole("link", { name: "settings" })).toBeVisible();
-  await expect(operationsNavigation.getByRole("link", { name: "operators" })).toHaveCount(0);
-  await expect(operationsNavigation.getByRole("link", { name: "audit" })).toHaveCount(0);
+  const operationsLinks = operationsNavigation.locator("[data-navigation-links]");
+  await expect(operationsLinks.getByRole("link", { name: "control room" })).toBeVisible();
+  await expect(operationsLinks.getByRole("link", { name: "episode map" })).toBeVisible();
+  await expect(operationsLinks.getByRole("link", { name: "settings" })).toBeVisible();
+  await expect(operationsLinks.getByRole("link", { name: "operators" })).toHaveCount(0);
+  await expect(operationsLinks.getByRole("link", { name: "audit" })).toHaveCount(0);
 });
 
 test("responsive shell has no horizontal overflow", async ({ page }) => {
