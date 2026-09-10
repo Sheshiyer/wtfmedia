@@ -27,8 +27,8 @@ export function AppRail({
   utility,
 }: AppRailProps) {
   const pathname = usePathname() ?? "/";
-  const utilityHrefs = new Set(["/ops", "/ops/production", "/ops/episodes", "/ops/settings"]);
-  const utilityOrder = ["/ops", "/ops/production", "/ops/episodes", "/ops/settings"];
+  const utilityHrefs = new Set(["/beta/ops", "/beta/ops/production", "/beta/ops/episodes", "/beta/ops/settings"]);
+  const utilityOrder = ["/beta/ops", "/beta/ops/production", "/beta/ops/episodes", "/beta/ops/settings"];
   const utilityNavigation = navigation
     .filter((item) => item.section === "administration" || utilityHrefs.has(item.href))
     .sort((a, b) => {
@@ -148,7 +148,7 @@ export function AppRail({
       <header className="fixed inset-x-0 top-0 z-50 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5">
         <div className="mx-auto flex max-w-[92rem] items-start justify-between gap-3">
           <Link
-            href={mode === "operator" ? "/ops" : "/"}
+            href={mode === "operator" ? "/beta/ops" : "/"}
             aria-label="WTF OS"
             className="shrink-0 rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
           >
@@ -190,12 +190,12 @@ export function AppRail({
               >
                 {mode === "operator" ? (
                   <Link
-                    href="/ops/profile"
+                    href="/beta/ops/profile"
                     aria-label="operator profile"
                     title="operator profile"
                     data-shell-profile
-                    aria-current={routeIsActive(pathname, "/ops/profile") ? "page" : undefined}
-                    className={iconLinkClass(routeIsActive(pathname, "/ops/profile"))}
+                    aria-current={routeIsActive(pathname, "/beta/ops/profile") ? "page" : undefined}
+                    className={iconLinkClass(routeIsActive(pathname, "/beta/ops/profile"))}
                   >
                     <ProfileIcon />
                   </Link>
@@ -205,12 +205,12 @@ export function AppRail({
                 <ThemeToggle />
                 {mode === "operator" ? (
                   <Link
-                    href="/ops/settings"
+                    href="/beta/ops/settings"
                     aria-label="settings"
                     title="settings"
                     data-shell-settings
-                    aria-current={routeIsActive(pathname, "/ops/settings") ? "page" : undefined}
-                    className={iconLinkClass(routeIsActive(pathname, "/ops/settings"))}
+                    aria-current={routeIsActive(pathname, "/beta/ops/settings") ? "page" : undefined}
+                    className={iconLinkClass(routeIsActive(pathname, "/beta/ops/settings"))}
                   >
                     <SettingsIcon />
                   </Link>

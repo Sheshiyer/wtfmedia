@@ -29,8 +29,8 @@ describe("production calendar model", () => {
   });
 
   it("does not mark control room current on nested production routes", () => {
-    expect(routeIsActive("/ops/production", "/ops")).toBe(false);
-    expect(routeIsActive("/ops/production", "/ops/production")).toBe(true);
-    expect(routeIsActive("/ops", "/ops")).toBe(true);
+    expect(routeIsActive("/beta/ops/production", "/beta/ops")).toBe(false);
+    expect(routeIsActive("/beta/ops/production", "/beta/ops/production")).toBe(true);
+    expect(routeIsActive("/beta/ops", "/beta/ops")).toBe(true);
   });
 });

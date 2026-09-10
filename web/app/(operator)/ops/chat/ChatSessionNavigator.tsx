@@ -132,14 +132,14 @@ export function ChatSessionNavigator({ activeConversationId }: { activeConversat
 
         <div className="mt-3 grid gap-2">
           <Link
-            href="/ops/chat#new-chat"
+            href="/beta/ops/chat#new-chat"
             data-chat-new-session
             className="inline-flex min-h-11 items-center justify-center border-2 border-foreground bg-attention px-3 py-2 font-label text-xs font-bold lowercase text-on-attention shadow-[3px_3px_0_var(--wtf-foreground)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-information"
           >
             new session
           </Link>
           <Link
-            href="/ops/chat"
+            href="/beta/ops/chat"
             data-chat-all-sessions
             className="inline-flex min-h-11 items-center justify-center border-2 border-foreground bg-canvas px-3 py-2 font-label text-xs font-bold lowercase text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-information"
           >

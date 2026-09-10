@@ -8,9 +8,10 @@ import { formatOpsRole, formatVerifiedTime } from "@/lib/ops/display";
 import { createHmac } from "node:crypto";
 
 describe("operator lifecycle", () => {
-  it("redirect corpus accepts only canonical /ops destinations", () => {
-    expect(validatedReturnTo("/ops/operators")).toBe("/ops/operators");
-    for (const unsafe of ["https://evil.test", "//evil.test", "/%2f%2fevil.test", "/chat", "/ops?next=/chat", "/ops/%2e%2e/chat"]) expect(validatedReturnTo(unsafe)).toBe("/ops");
+  it("redirect corpus accepts only canonical Beta operator destinations", () => {
+    expect(validatedReturnTo("/beta/ops/operators")).toBe("/beta/ops/operators");
+    expect(validatedReturnTo("/ops/operators")).toBe("/beta/ops/operators");
+    for (const unsafe of ["https://evil.test", "//evil.test", "/%2f%2fevil.test", "/chat", "/ops?next=/chat", "/ops/%2e%2e/chat"]) expect(validatedReturnTo(unsafe)).toBe("/beta/ops");
   });
 
   it("requires a signed unexpired edge context instead of headers or decoded JWT", () => {
@@ -46,6 +47,19 @@ describe("operator lifecycle", () => {
     expect(new URL(request.url).pathname).toBe("/ops/api/operator-context");
     expect(request.headers.get("authorization")).toBe("Bearer clerk-assertion");
     expect(request.headers.get("x-request-id")).toBe("corr-context-1");
+  });
+
+  it("mints a Clerk token from a server-rendered session before asking the edge", async () => {
+    let forwarded: Request | null = null;
+    await fetchEdgeVerifiedOpsContext(
+      new Headers({ host: "wtfmedia-web-staging.connect2nikhai.workers.dev", cookie: "__session=opaque" }),
+      async (request) => {
+        forwarded = request;
+        return Response.json({ operatorId: 7, role: "super_admin", environment: "staging", correlationId: "corr-context-2" });
+      },
+      async () => "server-session-token",
+    );
+    expect((forwarded as unknown as Request).headers.get("authorization")).toBe("Bearer server-session-token");
   });
 
   it("keeps editor navigation limited to the activated Control Room", () => {

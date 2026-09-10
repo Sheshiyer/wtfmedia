@@ -81,9 +81,9 @@ const operatorFrameCopy: Record<OperatorAuthFrameMode, FrameCopy> = {
   },
 };
 
-const memberFrameCopy: Record<Extract<OperatorAuthFrameMode, "sign-in" | "sign-up">, FrameCopy> = {
+const memberFrameCopy: Record<OperatorAuthFrameMode, FrameCopy> = {
   "sign-in": {
-    eyebrow: "invite-only company beta · Bangalore first",
+    eyebrow: "invite-only company beta",
     title: "enter the beta",
     body: "Your verified invitation opens a private Ask WTF workspace. Your chats and saved notes remain private to your account.",
     panelLabel: "member sign in",
@@ -94,7 +94,7 @@ const memberFrameCopy: Record<Extract<OperatorAuthFrameMode, "sign-in" | "sign-u
     ],
   },
   "sign-up": {
-    eyebrow: "invite-only company beta · Bangalore first",
+    eyebrow: "invite-only company beta",
     title: "accept your invite",
     body: "Create the account linked to your invitation, then enter your private Ask WTF workspace.",
     panelLabel: "member account setup",
@@ -102,6 +102,39 @@ const memberFrameCopy: Record<Extract<OperatorAuthFrameMode, "sign-in" | "sign-u
       { label: "verify", detail: "Use the invited email address.", tone: "editorial" },
       { label: "join", detail: "We match your session to company access.", tone: "attention" },
       { label: "ask", detail: "Open your private Ask WTF workspace.", tone: "live" },
+    ],
+  },
+  recovery: {
+    eyebrow: "invite-only company beta",
+    title: "verifying your invitation",
+    body: "We are opening your private Ask WTF workspace only after the session and member record agree.",
+    panelLabel: "member access check",
+    proof: [
+      { label: "verify", detail: "Confirm the signed-in session.", tone: "editorial" },
+      { label: "match", detail: "Resolve the invited member record.", tone: "attention" },
+      { label: "enter", detail: "Open private history and saved notes.", tone: "live" },
+    ],
+  },
+  unavailable: {
+    eyebrow: "invite-only company beta",
+    title: "beta access is unavailable",
+    body: "Your private workspace could not be opened. No conversation, history, or saved note has been shown.",
+    panelLabel: "member access state",
+    proof: [
+      { label: "verify", detail: "Your session remains protected.", tone: "editorial" },
+      { label: "retry", detail: "We can safely check access again.", tone: "attention" },
+      { label: "private", detail: "Workspace data stays withheld until ready.", tone: "live" },
+    ],
+  },
+  "request-access": {
+    eyebrow: "invite-only company beta",
+    title: "finish your invitation",
+    body: "Your sign-in did not resolve to an active member record yet. Complete the emailed invitation with the invited address, then return here.",
+    panelLabel: "member invitation required",
+    proof: [
+      { label: "verify", detail: "Use the invited email address.", tone: "editorial" },
+      { label: "match", detail: "We bind one verified session to membership.", tone: "attention" },
+      { label: "enter", detail: "Private data appears only after that match.", tone: "live" },
     ],
   },
 };
@@ -115,10 +148,7 @@ export function OperatorAuthFrame({
   children: ReactNode;
   audience?: AuthAudience;
 }) {
-  const copy =
-    audience === "member" && (mode === "sign-in" || mode === "sign-up")
-      ? memberFrameCopy[mode]
-      : operatorFrameCopy[mode];
+  const copy = audience === "member" ? memberFrameCopy[mode] : operatorFrameCopy[mode];
 
   return (
     <main
@@ -140,7 +170,7 @@ export function OperatorAuthFrame({
         />
       </div>
 
-      <div className="relative mx-auto grid min-h-screen w-full max-w-[1240px] items-center gap-10 px-5 py-10 sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(360px,440px)] lg:gap-20 lg:px-12">
+      <div className="relative mx-auto grid min-h-screen w-full max-w-[1240px] items-center gap-8 px-4 py-6 sm:px-6 sm:py-10 lg:grid-cols-[minmax(0,1fr)_minmax(360px,440px)] lg:gap-20 lg:px-12">
         <section className="max-w-xl" aria-labelledby="operator-auth-title">
           <Link
             href="/"
@@ -163,34 +193,29 @@ export function OperatorAuthFrame({
             {copy.body}
           </p>
           <WtfMotionList items={copy.proof} />
-          <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-on-structure/30 pt-5">
-            <span className="border border-on-structure/50 px-2 py-1 font-label text-[10px] font-bold uppercase tracking-[0.12em]">
+          <div className="mt-8 border-t border-on-structure/30 pt-5">
+            <a
+              href="https://wtfhq.in"
+              className="inline-flex border border-on-structure/50 px-2 py-1 font-label text-[10px] font-bold uppercase tracking-[0.12em] transition-colors hover:border-on-structure hover:bg-canvas hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-canvas focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
+            >
               public alpha
-            </span>
-            <p className="font-body text-sm text-on-structure/70">
-              <Link href="/" className="underline decoration-editorial underline-offset-4 hover:text-on-structure">
-                stay anonymous in the public room
-              </Link>
-            </p>
+            </a>
           </div>
         </section>
 
-        <section aria-label={copy.panelLabel}>
+        <section aria-label={copy.panelLabel} className="mx-auto w-full max-w-[30rem] lg:max-w-none">
           <div className="overflow-hidden rounded-panel border border-on-structure/40 bg-canvas text-foreground shadow-[8px_8px_0_rgb(var(--wtf-editorial-rgb)/0.45)]">
-            <div className="flex items-center justify-between border-b border-foreground/25 bg-surface-raised px-4 py-3 sm:px-5">
+            <div className="flex items-center border-b border-foreground/25 bg-surface-raised px-5 py-4 sm:px-6">
               <div className="flex items-center gap-2">
                 <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-editorial" />
                 <span className="font-label text-[11px] font-bold uppercase tracking-[0.12em]">
                   {copy.panelLabel}
                 </span>
               </div>
-              <span className="font-label text-[10px] font-semibold uppercase tracking-[0.12em] text-secondary">
-                Clerk
-              </span>
             </div>
-            <div className="p-4 sm:p-6">{children}</div>
+            <div className="p-5 sm:p-6">{children}</div>
           </div>
-          <p className="mt-4 text-center font-label text-[10px] font-semibold uppercase tracking-[0.12em] text-on-structure/60">
+          <p className="mt-3 text-center font-label text-[10px] font-semibold uppercase tracking-[0.12em] text-on-structure/60">
             protected lane · server-resolved role or member access
           </p>
         </section>

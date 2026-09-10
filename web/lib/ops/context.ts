@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { auth } from "@clerk/nextjs/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cache } from "react";
 import { headers } from "next/headers";
@@ -49,6 +50,7 @@ export function verifyTrustedOpsContext(payload: string | null, proof: string | 
 }
 
 type EdgeFetch = (request: Request) => Promise<Response>;
+type ClerkTokenGetter = () => Promise<string | null>;
 
 /**
  * Server-rendered operator pages arrive at the web Worker directly. Ask the
@@ -59,11 +61,21 @@ type EdgeFetch = (request: Request) => Promise<Response>;
 export async function fetchEdgeVerifiedOpsContext(
   requestHeaders: Pick<Headers, "get">,
   edgeFetch?: EdgeFetch,
+  clerkTokenGetter: ClerkTokenGetter = async () => (await auth()).getToken(),
 ): Promise<VerifiedOpsContext | null> {
-  const authorization = requestHeaders.get("authorization");
+  let authorization = requestHeaders.get("authorization");
   const cookie = requestHeaders.get("cookie");
   const host = requestHeaders.get("host");
-  if ((!authorization && !cookie) || !host || /[\r\n]/u.test(host)) return null;
+  if (!host || /[\r\n]/u.test(host)) return null;
+  if (!authorization && cookie) {
+    try {
+      const token = await clerkTokenGetter();
+      if (token) authorization = `Bearer ${token}`;
+    } catch {
+      // The edge remains the authority and will reject an unverified session.
+    }
+  }
+  if (!authorization && !cookie) return null;
 
   let fetcher = edgeFetch;
   if (!fetcher) {

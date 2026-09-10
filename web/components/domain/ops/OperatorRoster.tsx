@@ -52,7 +52,7 @@ export function OperatorRoster({
           operator records are unavailable right now. no roster details were loaded.
         </p>
         <a
-          href="/ops/operators"
+          href="/beta/ops/operators"
           className="mt-5 inline-flex min-h-11 items-center border-2 border-foreground px-4 py-3 font-label text-sm font-bold"
         >
           retry

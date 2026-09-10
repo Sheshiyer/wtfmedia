@@ -2182,3 +2182,142 @@ history` affordances. These are truthful UI states, not activation claims.
   passed.
 - Staging and production HTTP/UI probes remain stale Access builds; staging D1
   operator verification is blocked by API 7404.
+
+## 2026-09-10 staging member callback and sign-in refinement
+
+The staging member sign-in surface now uses the compact, padded Beta frame and
+keeps the public shell out of protected client transitions. Clerk's same-site
+absolute callback is normalized back to the fixed internal `/beta` route; an
+external callback remains rejected. The member-entry copy is invite-only and
+the public Alpha chip resolves to `https://wtfhq.in`.
+
+### Verification
+
+- Targeted Clerk callback and theme tests: 12/12; web lint, TypeScript, and
+  Cloudflare production build passed.
+- Live staging probe confirmed the absolute `/beta` callback shows the member
+  frame without the public navigation rail.
+- The correct Clerk instance has one existing pending member invitation; no
+  duplicate invitation was created or sent.
+- Remaining human gate: accept that invitation, sign in, and verify the
+  authenticated `/beta` member-context readback.
+
+## 2026-09-10 member Beta admission gate and token-forwarding repair
+
+The staging `/beta` route no longer streams the raw member-chat scaffold before
+the member context has been admitted. An unsigned visitor is redirected into
+the refined member sign-in frame at `/sign-in?redirect_url=/beta`; a signed
+session whose member record cannot be resolved receives a polished invitation
+state instead. Chat, history, and saved memory render only after the context,
+chat, and memory reads all succeed.
+
+The same-origin Beta proxy now obtains the Clerk server-session token when the
+browser has not supplied a bearer credential and forwards that token to the
+staging edge. A caller-supplied bearer token is preserved unchanged. Edge D1
+membership remains the authorization decision point.
+
+### Verification
+
+- Added proxy tests prove server-session token forwarding and preservation of
+  explicit bearer credentials; focused unit suite passed 5/5. Web lint and
+  TypeScript passed, and the Cloudflare production build completed cleanly.
+- Deployed only `wtfmedia-web-staging`, version
+  `711e807f-f1de-4e14-a00a-b994c1cffe7e`; production was not touched.
+- Live unsigned `/beta` response contains the member-access-check frame and
+  no `data-member-beta` or `private member chat` scaffold. Its context probe
+  remains the intentional non-enumerating `404 ops_unavailable`.
+- In-app browser navigation from `/beta` settled at
+  `/sign-in?redirect_url=/beta` and visibly rendered the refined member sign-in
+  UI. The remaining human gate is one invited-account session to prove the
+  D1 activation, private chat, history, and memory reads end to end.
+
+## 2026-09-10 staging invitation-ticket preservation repair
+
+Clerk application invitations return a one-time `__clerk_ticket` to their
+configured callback. The member Beta route now preserves a well-formed ticket
+and routes it into the existing branded `/sign-up` Clerk component; ordinary
+ticketless `/beta` visits continue to use the refined `/sign-in` member frame.
+Future member invitations are issued with `/sign-up` as their bounded HTTPS
+callback, while the member invitation validator continues to accept the legacy
+`/beta` callback for invitations already sent.
+
+The staging D1 invitation receipt was reconciled before this change: the
+revoked provider invitation is terminally recorded as revoked, and the sole
+pending Clerk invitation is the only `sent` receipt. Both reconciliation
+steps have append-only member audit entries. No production resource was
+changed.
+
+### Verification
+
+- Web: 102/102 unit tests, TypeScript, ESLint, and OpenNext Cloudflare build
+  pass; the focused callback tests cover ticket preservation, malformed-ticket
+  fallback, and the normal sign-in path.
+- Edge: 208/208 tests pass, including member activation, private history,
+  explicit memory, RBAC, and invitation lifecycle coverage.
+- Staging deployments: `wtfmedia-edge-staging`
+  `dd8e42ca-df07-4040-9abb-e30458036921`; `wtfmedia-web-staging`
+  `e2df5d81-4633-4b49-a597-8251d8057a96`.
+- Live unsigned `/beta/api/context` remains the intentional non-enumerating
+  `404 ops_unavailable`; the authenticated member acceptance is the remaining
+  human gate. The in-app browser cannot load Clerk's account host, so account
+  completion must occur in a normal browser session.
+
+## 2026-09-10 Beta canonical operator routing and verified session transport
+
+All browser-facing operator work now has `/beta/ops` as its canonical route.
+Legacy `/ops` UI routes redirect to their `/beta/ops` equivalents, while the
+existing `/ops/api/*` Edge namespace remains unchanged as the protected
+authority boundary. A Next rewrite serves the audited operator page tree at
+the canonical Beta URLs, so the migration does not duplicate page logic or
+weaken its existing server-side policy checks.
+
+The browser and server-rendered operator paths now mint a Clerk server-session
+token when the browser has not supplied a bearer credential, and forward that
+token to the Edge for issuer/JWKS verification and D1 role resolution. The
+Beta entry page checks verified operator context first, so an active operator
+session enters `/beta/ops` rather than being shown the member-invitation state.
+
+### Verification
+
+- Web unit suite: 104/104 pass. New contracts prove `/ops/api` preserves an
+  explicit bearer, forwards a minted Clerk token, and canonicalizes legacy
+  protected return paths to `/beta/ops`.
+- Web TypeScript, ESLint, and OpenNext Cloudflare build pass. Staging web
+  deployment `432fe47e-e9be-41a3-956e-bfd5207e6279` is live; `/ops` returns a
+  `307` to `/beta/ops`, `/beta/ops` and `/beta/ops/settings` return `200`, and
+  unsigned `/beta/api/context` remains the intentional `404 ops_unavailable`.
+  The full local Phase 2 gate passes after its browser assertion was updated
+  from the retired `/ops/production` URL to `/beta/ops/production`. Production
+  is out of scope. The remaining human receipt is one signed-in session
+  reaching `/beta/ops` through the Clerk-to-Edge token handoff.
+
+## 2026-09-10 invitation callback session-precedence repair
+
+The `/beta` callback now gives a well-formed `__clerk_ticket` precedence over
+an existing or partial Clerk session. It redirects that ticket immediately to
+the branded `/sign-up` component, which is the only page allowed to consume
+the invitation. This prevents a callback with `__clerk_status=sign_in` from
+trying to fetch the private workspace before Clerk finishes invitation
+acceptance.
+
+### Verification
+
+- Focused callback/proxy unit tests: 10/10; TypeScript, ESLint, and OpenNext
+  Cloudflare build pass. The Clerk CLI was read-only healthy but linked to a
+  different development instance, so it was not used to inspect, create, or
+  revoke the target invitation.
+
+## 2026-09-10 explicit browser-token forwarding repair
+
+The staging D1 release row is `preview`; the intended address still has an
+`invited` member row without a Clerk user ID, while its independent operator
+row is active `super_admin`. The Beta client now obtains Clerk's browser token
+and supplies it explicitly on every operator-context, member-context, chat,
+and memory request. The web proxy preserves that bearer for Edge issuer/JWKS
+verification, allowing the existing invitation to activate membership only
+when the verified Clerk subject and normalized email match.
+
+### Verification
+
+- Web unit suite: 104/104; TypeScript, ESLint, and OpenNext Cloudflare build
+  pass. This is an authorization transport repair, not a staging data bypass.
