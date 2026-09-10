@@ -1,5 +1,38 @@
 # Project handoff
 
+## 2026-09-11 Member Beta workspace remediation map
+
+**Status:** PLANNING-READY — the authenticated `/beta` shell remains the live
+staging integration baseline, but the 2026-09-10 visual review rejected its
+single-page information architecture as the final member product. No product
+code, deployment, provider configuration, D1 data, Worker, DNS, production, or
+Public Alpha state changed in this planning checkpoint.
+
+- The comprehensive implementation handoff is
+  `.planning/inputs/2026-09-11-member-beta-workspace-routing-remediation-plan.md`.
+- The mapping confirms that Clerk identity, D1 operator/member authority,
+  owner-scoped conversation persistence, explicit saved memory, source panels,
+  WTF OS shell tokens, responsive disclosure, and Alpha/Beta isolation already
+  exist and must be preserved.
+- The actual gaps are member conversation continuation, history pagination,
+  deep-linked/current-session routing, per-conversation request isolation,
+  normal-member Settings, explicit preference-import review, member navigation,
+  and non-internal copy.
+- The target experience uses a persistent ChatGPT/Claude-style conversation rail
+  and route-backed chat workspace. Memory moves to member Settings and remains
+  distinct from conversation history; operator Settings remain admin-only.
+- The existing open-enrollment acceptance plan is incorporated unchanged. The
+  feature is not accepted until one active super-admin and two ordinary members
+  pass routing, persistence, logout/login, and cross-member isolation on staging.
+
+### Next session
+
+Start at Wave 0 of the mapped plan in an isolated worktree rooted at the current
+reviewed Beta source. Re-verify the preserve/adapt/build ledger, write the member
+UI addendum, and add red tests for gaps G1–G12 before implementation. Do not
+delete or rebuild working auth/data seams, do not use a browser fixture, and do
+not deploy until the implementation slice passes review and deterministic checks.
+
 ## 2026-09-10 Authenticated member dashboard shell
 
 **Status:** STAGING DEPLOYED AND VISUALLY VERIFIED — the authenticated member
