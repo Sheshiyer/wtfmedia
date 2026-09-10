@@ -28,6 +28,18 @@ describe("dual-source chat contract", () => {
     assert.deepEqual(matches.map((match) => match.id), ["target-1", "target-2"]);
   });
 
+  test("anchors a lower-case named-person question instead of admitting a higher-scoring unrelated guest", () => {
+    const question = "what did sunil shetty say?";
+    const matches = prioritizeMatchesForQuestion([
+      { id: "wrong", score: 0.99, metadata: { video_id: "QdWHGjReLUo", title: "Nikhil Kamath x Neal Mohan" } },
+      { id: "target-1", score: 0.58, metadata: { video_id: "6HE6d0lKh4o", title: "Ep #6 | WTF is Health? ft. Nikhil Kamath, Suniel Shetty, Nithin Kamath and Mukesh Bansal" } },
+      { id: "target-2", score: 0.55, metadata: { video_id: "6HE6d0lKh4o", title: "Ep #6 | WTF is Health? ft. Nikhil Kamath, Suniel Shetty, Nithin Kamath and Mukesh Bansal" } },
+    ], question);
+
+    assert.deepEqual(extractNamedEntityPhrases(question), ["Sunil Shetty"]);
+    assert.deepEqual(matches.map((match) => match.id), ["target-1", "target-2"]);
+  });
+
   test("fails closed when an explicit named person has no evidence anchor", () => {
     assert.deepEqual(
       prioritizeMatchesForQuestion([
