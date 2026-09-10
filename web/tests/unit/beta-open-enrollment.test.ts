@@ -48,6 +48,10 @@ describe("Beta open-enrollment copy", () => {
     expect(memberWorkspace).toContain("font-display");
     expect(memberWorkspace).toContain("<ConversationEmptyState />");
     expect(memberWorkspace).toContain("<AskComposer");
+    expect(memberWorkspace).toContain('variant="compact"');
+    expect(askComposer).toContain('data-composer-variant="compact"');
+    expect(askComposer).toContain('type="text"');
+    expect(askComposer).toContain("rounded-full border-2 border-foreground");
     expect(memberWorkspace).not.toContain('aria-label="Your workspace"');
     expect(memberWorkspace).not.toContain("Source-backed answers");
     expect(memberWorkspace).not.toMatch(/#[0-9a-f]{3,8}/iu);
@@ -73,6 +77,9 @@ describe("Beta open-enrollment copy", () => {
     expect(sessionNavigator).toContain("paginationError");
     expect(sessionNavigator).toContain("retry loading more");
     expect(sessionNavigator).toContain("refreshKey");
+    expect(sessionNavigator).toContain("grid min-w-0 grid-cols-1");
+    expect(sessionNavigator).toContain("line-clamp-2");
+    expect(memberWorkspace).toContain("max-h-[calc(100dvh-27rem)]");
   });
 
   it("keeps answer and archive completion state in independent operation generations", () => {
@@ -89,5 +96,7 @@ describe("Beta open-enrollment copy", () => {
   it("locks the shared composer textarea while an answer is pending", () => {
     const textarea = askComposer.split("<textarea")[1]?.split("/>")[0] ?? "";
     expect(textarea).toContain("disabled={disabled || loading}");
+    const compactInput = askComposer.split("<input")[1]?.split("/>")[0] ?? "";
+    expect(compactInput).toContain("disabled={disabled || loading}");
   });
 });

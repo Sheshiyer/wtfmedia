@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Member Beta anti-drift remediation and authenticated staging acceptance in progress
-last_updated: "2026-09-11T01:30:00+05:30"
+stopped_at: Annotated Member Beta rail clamp and live-Alpha compact composer implemented; staging redeploy and same-viewport IAB proof pending
+last_updated: "2026-09-11T02:00:00+05:30"
 last_activity: 2026-09-11
 progress:
   total_phases: 10
@@ -41,17 +41,30 @@ Settings chrome are not accepted fallbacks.
 - Visual authority: the live Public Alpha at `https://wtfhq.in`, compared with
   the real authenticated staging `/beta` in the Codex in-app browser.
 - Direct component lock: ordinary-member empty Ask uses
-  `ConversationEmptyState`; its composer uses `AskComposer`.
+  `ConversationEmptyState`; its composer uses the live-production compact
+  `AskComposer` capsule rather than the expanded source-mode panel.
 - Navigation lock: the floating wordmark and hamburger remain global;
   account/display utilities live only in the hamburger; the bottom pill carries
-  only the primary Ask WTF and Settings routes; nested Settings adds no second
-  global header.
+  only icon-labelled Ask WTF and Settings routes; sessions remain in the
+  rail/drawer; nested Settings adds no second global header.
+- Layout lock: desktop session grids/links are zero-min-width, titles clamp to
+  two wrapped lines, and long history scrolls inside a bounded rail without
+  crossing the evidence card or compact composer at 1382x887.
 - Data lock: Clerk verifies identity, D1 remains authority, private records stay
   owner-scoped, memory is explicit-save only, and operators route separately.
 - Forbidden fallback: `/beta/preview`, fake member data, browser-only fixtures,
   demo acceptance, or a generic dashboard may not substitute for the real flow.
 - Remaining live gate: one active super-admin plus two ordinary members must
   still prove routing and cross-member isolation before full Beta acceptance.
+- Staging receipt: source commit `5bdbd3e`, web version
+  `51cce902-fdde-4327-80f3-758f79d38d30`; authenticated IAB verified real
+  create, continue, reload, browser history, and all four member Settings
+  destinations. The tested answer abstained truthfully, so sourced-answer
+  rendering remains covered by deterministic contracts rather than this probe.
+- Owner annotations supersede that version's visual acceptance because its
+  session item overlapped the Alpha evidence card and its composer used the
+  rejected expanded panel. The underlying authenticated flow evidence remains
+  valid; visual acceptance requires the corrected redeploy.
 
 ## Current Position
 

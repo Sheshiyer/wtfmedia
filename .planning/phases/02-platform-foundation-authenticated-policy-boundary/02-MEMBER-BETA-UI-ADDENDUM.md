@@ -21,11 +21,13 @@ license an alternate dashboard aesthetic or a visual reset.
 
 This is a composition and component contract, not a palette-only guideline.
 The ordinary-member empty Ask surface reuses the Public Alpha
-`ConversationEmptyState`, and its input reuses `AskComposer`. The Alpha source
-prompt, editorial question card, source-mode selector, floating wordmark,
-hamburger, and workspace-only bottom pill remain recognizable before private
-history or Settings is added. A personalized greeting is subordinate account
-context; it never replaces the Alpha Ask WTF hero.
+`ConversationEmptyState`, and its input reuses the live-production compact
+`AskComposer` capsule: one line, one compact Ask WTF button, and no permanent
+source-mode strip, type rail, tall panel, or full-width background band. The
+Alpha source prompt, editorial question card, floating wordmark, hamburger, and
+workspace-only bottom pill remain recognizable before private history or
+Settings is added. A personalized greeting is subordinate account context; it
+never replaces the Alpha Ask WTF hero.
 
 The following regressions fail acceptance even when semantic tokens match:
 
@@ -53,13 +55,17 @@ member gate; children never mount while that admission is unresolved or after
 the authenticated identity changes.
 
 Wide desktop uses a persistent 240px conversation rail inside the Ask WTF
-workspace. Below the wide-shell breakpoint the rail becomes a labelled modal drawer. The trigger
+workspace. Its grid and links use zero-min-width tracks, session titles clamp to
+two lines with long-word wrapping, and long history scrolls inside a bounded
+rail. It must never intrude into the Alpha evidence card or composer. Below the
+wide-shell breakpoint the rail becomes a labelled modal drawer. The trigger
 has a 44px target, Escape/backdrop close the drawer, focus stays inside while
 open, and close restores focus to the trigger. Conversation navigation and the
 sticky composer must not overlap the bottom product pill at 320px width or a
 710px-tall viewport.
 
-The bottom pill contains only Ask WTF and Settings. The hamburger groups
+The bottom pill contains only icon-labelled Ask WTF and Settings destinations.
+Individual conversations stay in the desktop rail or mobile drawer. The hamburger groups
 active Beta destinations separately from explicit Public Alpha exits. It never
 lists `/beta/ops`, operator Settings, disabled future modules, or individual
 conversations.
@@ -168,8 +174,9 @@ The deterministic web unit contract is:
 
 The source-level anti-drift contract additionally asserts direct reuse of
 `ConversationEmptyState` and `AskComposer`, absence of the rejected feature
-grid, the Alpha-composed member entry frame, workspace-only bottom navigation,
-and no duplicate Appearance shortcut in the hamburger.
+grid, the live-production compact composer variant, bounded two-line session
+items, the Alpha-composed member entry frame, icon-labelled workspace-only
+bottom navigation, and no duplicate Appearance shortcut in the hamburger.
 
 These checks establish route registry, member-safe copy, bounded local parsing,
 active-record projection, and per-candidate save wiring. They do not establish

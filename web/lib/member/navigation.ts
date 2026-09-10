@@ -3,8 +3,8 @@ import type { AppNavGroup, AppNavItem } from "@/components/shells/AppShell";
 export type MemberDestination = "ask" | "settings" | null;
 
 export const memberBottomNavigation: readonly AppNavItem[] = [
-  { href: "/beta", label: "ask wtf", match: ["/beta", "/beta/chat/*"] },
-  { href: "/beta/settings", label: "settings", match: ["/beta/settings*"] },
+  { href: "/beta", label: "ask wtf", icon: "chat", match: ["/beta", "/beta/chat/*"] },
+  { href: "/beta/settings", label: "settings", icon: "settings", match: ["/beta/settings*"] },
 ];
 
 export const memberDisclosureGroups: readonly AppNavGroup[] = [

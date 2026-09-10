@@ -10,6 +10,7 @@ describe("member workspace navigation", () => {
     expect(memberDestinationForPath("/beta/chat/mcnv_12345678")).toBe("ask");
     expect(memberDestinationForPath("/beta/settings")).toBe("settings");
     expect(memberBottomNavigation.map((item) => item.href)).toEqual(["/beta", "/beta/settings"]);
+    expect(memberBottomNavigation.map((item) => item.icon)).toEqual(["chat", "settings"]);
   });
 
   it("exposes only member destinations and explicit public exits", () => {

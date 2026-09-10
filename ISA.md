@@ -4,10 +4,10 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: verify
-progress: 77/198
+progress: 78/201
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-11T01:08:00+05:30
+updated: 2026-09-11T02:00:00+05:30
 ---
 
 ## Problem
@@ -286,7 +286,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-172: Member conversation pagination returns at most 25 active owner-scoped rows per page (probe: SQLite integration test).
 - [x] ISC-173: Member conversation pagination returns an opaque cursor only when another owned row exists (probe: SQLite integration test).
 - [x] ISC-174: Equal-timestamp conversation rows paginate deterministically without duplicates (probe: SQLite integration test).
-- [DEFERRED-VERIFY] ISC-175: `/beta/chat/[conversationId]` is the canonical selected-conversation route across reload and navigation (probe: route contract and authenticated browser test; follow-up `WTF-BETA-LIVE-01`).
+- [x] ISC-175: `/beta/chat/[conversationId]` is the canonical selected-conversation route across reload and navigation (probe: route contract and authenticated browser test).
 - [x] ISC-176: Switching routes cannot attach a late answer to a different conversation (probe: out-of-order response unit test).
 - [x] ISC-177: Member chat, conversation loading, archiving, pagination, and memory writes use independent request states (probe: component unit test).
 - [x] ISC-178: The member navigation registry exposes Ask WTF and Settings but no operator route (probe: registry unit test).
@@ -304,12 +304,15 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-190: Anti: this slice performs no production, DNS, Clerk, D1, or migration mutation; any staging deployment uses the named profile, reviewed commit, and recorded version receipt (probe: Git diff and command ledger review).
 - [DEFERRED-VERIFY] ISC-191: One active super-admin and two ordinary members pass staging routing, persistence, reauthentication, and cross-member isolation (probe: authenticated staging matrix and metadata-only D1 readback; follow-up `WTF-BETA-LIVE-01`).
 - [x] ISC-192: Anti: the temporary browser-only `/beta/preview` fixture is absent, returns `404`, and cannot be used as a member experience or acceptance fallback (probe: source guard, clean build route table, and HTTP checks).
-- [DEFERRED-VERIFY] ISC-193: Authenticated Member Beta extends the Public Alpha WTF OS visual system without replacing its wordmark, palette, typography, panel language, or navigation grammar (probe: side-by-side authenticated IAB review; follow-up `WTF-BETA-VISUAL-01`).
+- [DEFERRED-VERIFY] ISC-193: Authenticated Member Beta extends the Public Alpha WTF OS visual system without replacing its wordmark, palette, typography, panel language, or navigation grammar (probe: side-by-side authenticated IAB review of the corrected deployment).
 - [x] ISC-194: The ordinary-member empty Ask surface directly reuses Public Alpha's `ConversationEmptyState` rather than a welcome dashboard or feature-summary grid (probe: component source contract).
-- [x] ISC-195: The ordinary-member Ask input directly reuses Public Alpha's `AskComposer`, including evidence-mode controls and keyboard behavior (probe: component source and unit contract).
+- [x] ISC-195: The ordinary-member Ask input directly reuses Public Alpha's `AskComposer`, selecting its live-production compact input and keyboard behavior (probe: component source and unit contract).
 - [x] ISC-196: Member Settings adds no second global header, Ask link, private-workspace strip, utility rail, or bottom pill beneath the shared shell (probe: layout source contract).
 - [x] ISC-197: The ordinary-member sign-in/recovery frame uses the Alpha cream/ink evidence-card composition while the dark operator gateway remains operator-only (probe: audience branch and render contract).
 - [x] ISC-198: The owner-approved anti-drift contract is identical in the handoff, GSD state, Phase 2 member UI addendum, ISA, and durable memory note (probe: bounded document comparison).
+- [DEFERRED-VERIFY] ISC-199: Member Beta uses the live production Alpha compact composer capsule with one line and one Ask WTF button, without the expanded source-mode/type rail or full-width panel band (probe: source contract plus authenticated 1382x887 IAB comparison).
+- [DEFERRED-VERIFY] ISC-200: Desktop session navigation uses zero-min-width tracks, two-line long-word clamping, and bounded scrolling without intruding into the evidence card or composer (probe: source contract plus authenticated 1382x887 IAB comparison).
+- [DEFERRED-VERIFY] ISC-201: The bottom pill retains only icon-labelled Ask WTF and Settings destinations; individual conversations remain in the rail/drawer and member subfeatures remain inside Settings (probe: navigation contract plus authenticated IAB comparison).
 
 ## Test Strategy
 
@@ -331,7 +334,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-145..155 | Cloudflare estate | profile topology, paginated source resources, target gaps, action boundaries, final-delta consistency, exact rollback, and no-mutation posture are explicit | all live read-only and document probes pass | Wrangler/API lists + public DNS/HTTP + bounded scans |
 | ISC-156..161 | named-guest relevance | explicit named-person questions stay anchored to matching evidence and abstain when no anchor exists | all source-mode contract assertions pass | Worker unit tests + prompt inspection |
 | ISC-162..166 | source-panel filtering | `published`, `uncut`, and `both` visibly filter response-backed citations without relabeling or leakage | all unit and browser assertions pass | web unit + Playwright journey |
-| ISC-167..198 | member Beta workspace | owned continuation, pagination, route state, Settings, explicit memory review, responsive behavior, fixture retirement, literal Alpha component continuity, anti-drift state, and authority boundaries | all deterministic local probes pass; live personas separately deferred | Edge SQLite tests + web unit/contracts + authenticated IAB accessibility |
+| ISC-167..201 | member Beta workspace | owned continuation, pagination, route state, Settings, explicit memory review, responsive behavior, fixture retirement, live-Alpha composer continuity, clamped session layout, anti-drift state, and authority boundaries | all deterministic local probes pass; live personas separately deferred | Edge SQLite tests + web unit/contracts + authenticated IAB accessibility |
 
 ## Features
 
@@ -422,7 +425,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 
 - name: MemberBetaConversationWorkspace
   description: Owner-scoped conversational continuation, route-backed history, member Settings, explicit preference review, and responsive member navigation
-  satisfies: [ISC-167, ISC-168, ISC-169, ISC-170, ISC-171, ISC-172, ISC-173, ISC-174, ISC-175, ISC-176, ISC-177, ISC-178, ISC-179, ISC-180, ISC-181, ISC-182, ISC-183, ISC-184, ISC-185, ISC-186, ISC-187, ISC-188, ISC-189, ISC-190, ISC-191, ISC-192, ISC-193, ISC-194, ISC-195, ISC-196, ISC-197, ISC-198]
+  satisfies: [ISC-167, ISC-168, ISC-169, ISC-170, ISC-171, ISC-172, ISC-173, ISC-174, ISC-175, ISC-176, ISC-177, ISC-178, ISC-179, ISC-180, ISC-181, ISC-182, ISC-183, ISC-184, ISC-185, ISC-186, ISC-187, ISC-188, ISC-189, ISC-190, ISC-191, ISC-192, ISC-193, ISC-194, ISC-195, ISC-196, ISC-197, ISC-198, ISC-199, ISC-200, ISC-201]
   depends_on: [ProjectGovernanceSpine, BrandTokenFoundation, EvidenceNativeKnowledge, QualityAndSafetyGates]
   parallelizable: true
 ```
@@ -639,9 +642,13 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 - ISC-190 evidence: the repository diff contains no migration, deployment configuration, credential, or external-state mutation; staging and production were read only.
 - ISC-191 deferred verification: no authorized super-admin plus two-member staging session matrix was available; complete `WTF-BETA-LIVE-01` after an approved deployment.
 - ISC-192 evidence: the preview page and empty route residue are absent; the clean build route table omits `/beta/preview`; local, staging, and production HTTP checks each return `404`; a unit guard prevents route recreation.
-- ISC-193 deferred verification: source and unit contracts reuse the shared AppShell and semantic WTF OS tokens with no local hex palette, while final proof awaits the authenticated staging IAB comparison in `WTF-BETA-VISUAL-01`.
+- ISC-175 evidence: authenticated staging created a private conversation at `/beta/chat/mcnv_de758418-defc-4d13-9d82-4d7dbafe7986`; two turns survived reload, and browser back/forward preserved the root/new-chat and selected-conversation states.
+- ISC-193 deferred verification: authenticated IAB confirmed the shared empty state and functional flow, but owner annotations rejected the deployed rail overflow and expanded composer; re-run the comparison after the corrected deployment.
 - ISC-194 evidence: `MemberChatWorkspace` imports and renders the same exported `ConversationEmptyState` used by Public Alpha; the rejected `Your workspace` feature grid is absent.
-- ISC-195 evidence: `MemberChatWorkspace` renders `AskComposer` directly, while new-chat source selection and locked continuation scope retain the member idempotency contract.
+- ISC-195 evidence: `MemberChatWorkspace` renders `AskComposer` directly in its live-production compact variant, while continuation retains the conversation's locked evidence scope and idempotency contract.
 - ISC-196 evidence: the member Settings layout contains only the settings navigation/content grid beneath `MemberBetaShell`; the duplicated header, Ask link, and private-workspace strip are absent.
 - ISC-197 evidence: `OperatorAuthFrame` branches ordinary members into the cream/ink Alpha evidence-card composition with the floating compact wordmark; the existing dark structure remains only in the operator branch.
 - ISC-198 evidence: `.project/HANDOFF.md`, `.planning/STATE.md`, `02-MEMBER-BETA-UI-ADDENDUM.md`, this ISA, and the ad-hoc memory note all state the same literal-component, navigation, fixture, and live-IAB rules.
+- ISC-199 deferred verification: source selects the compact composer variant whose DOM and classes match the live production Alpha capsule; the corrected staging visual is not yet deployed.
+- ISC-200 deferred verification: session containers now use zero-minimum single-column grids, two-line long-word clamping, and a bounded scrolling rail; the owner's 1382x887 overlap case awaits corrected staging.
+- ISC-201 deferred verification: navigation contracts preserve only icon-labelled Ask WTF and Settings in the pill while session links remain in the rail/drawer; corrected staging IAB proof is pending.

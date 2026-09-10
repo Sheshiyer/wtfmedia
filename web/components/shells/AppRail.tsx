@@ -12,6 +12,7 @@ export { routeIsActive };
 export type AppNavItem = {
   href: string;
   label: string;
+  icon?: "chat" | "settings";
   section?: "workspace" | "administration";
   match?: readonly string[];
 };
@@ -116,15 +117,19 @@ export function AppRail({
                 : "border-transparent bg-canvas text-foreground hover:border-foreground hover:bg-surface-subtle",
           ].join(" ")}
         >
-          <span
-            aria-hidden="true"
-            className={[
-              "hidden h-1.5 w-1.5 shrink-0 rounded-full border border-current sm:mr-2 sm:block sm:h-2 sm:w-2",
-              active
-                ? "bg-surface-structure"
-                : "bg-transparent group-hover:bg-current",
-            ].join(" ")}
-          />
+          {item.icon ? (
+            <span aria-hidden="true" className="mr-1.5 grid shrink-0 place-items-center">
+              {item.icon === "settings" ? <SettingsIcon /> : <ChatIcon />}
+            </span>
+          ) : (
+            <span
+              aria-hidden="true"
+              className={[
+                "hidden h-1.5 w-1.5 shrink-0 rounded-full border border-current sm:mr-2 sm:block sm:h-2 sm:w-2",
+                active ? "bg-surface-structure" : "bg-transparent group-hover:bg-current",
+              ].join(" ")}
+            />
+          )}
           {item.label}
         </Link>
       );
@@ -153,6 +158,14 @@ export function AppRail({
       <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 8.75a3.25 3.25 0 1 0 0 6.5 3.25 3.25 0 0 0 0-6.5Z" />
         <path strokeLinecap="round" strokeLinejoin="round" d="m19.2 13.3 1.1.85-1.7 2.95-1.3-.5a7.7 7.7 0 0 1-1.9 1.1l-.2 1.4h-3.4l-.2-1.4a7.7 7.7 0 0 1-1.9-1.1l-1.3.5-1.7-2.95 1.1-.85a7.6 7.6 0 0 1 0-2.1l-1.1-.85 1.7-2.95 1.3.5a7.7 7.7 0 0 1 1.9-1.1l.2-1.4h3.4l.2 1.4a7.7 7.7 0 0 1 1.9 1.1l1.3-.5 1.7 2.95-1.1.85a7.6 7.6 0 0 1 0 2.1Z" />
+      </svg>
+    );
+  }
+
+  function ChatIcon() {
+    return (
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5.5 6.5h13v9h-7l-4.5 3v-3H5.5z" />
       </svg>
     );
   }

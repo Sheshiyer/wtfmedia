@@ -2,11 +2,11 @@
 
 ## 2026-09-11 Member Beta anti-drift correction
 
-**Status:** SOURCE REMEDIATION IN PROGRESS — the owner reaffirmed that ordinary
-Member Beta must preserve and extend the actual Public Alpha UI, not merely
-reuse its colors and tokens. The current candidate is being corrected and will
-not be treated as accepted until the real authenticated staging route is
-compared with Public Alpha in the Codex in-app browser.
+**Status:** ANNOTATED LAYOUT REMEDIATION IN PROGRESS — authenticated acceptance
+proved the real data flow, then the owner's 1382x887 annotations identified a
+session-rail overflow and rejected the expanded Beta composer in favor of the
+live production Alpha capsule. Source corrections are implemented; a new
+staging receipt and same-viewport IAB proof are required.
 
 ### Recovered owner contract
 
@@ -26,11 +26,19 @@ compared with Public Alpha in the Codex in-app browser.
 
 - The member empty Ask surface directly reuses Public Alpha's
   `ConversationEmptyState` and `AskComposer`.
+- Member Beta selects the live-production compact `AskComposer` variant: a
+  single-line input and compact Ask WTF button without the expanded source-mode
+  rail or full-width panel background.
+- Desktop session grids and links remain zero-min-width; titles clamp to two
+  lines with long-word wrapping; long history scrolls inside its bounded rail.
 - The rejected welcome/dashboard feature grid is absent.
 - The member auth frame uses Alpha's cream/ink evidence-card composition;
   the dark operator gateway remains operator-only.
 - Member Settings nests only its route navigation and content beneath the shared
   shell; it does not add another global header.
+- The bottom pill retains only Ask WTF and Settings as icon-labelled primary
+  destinations. Sessions remain in the rail/drawer and Settings owns memory,
+  sessions/privacy, and appearance.
 - The Phase 2 member UI addendum, `.planning/STATE.md`, ISA criteria, and durable
   memory record this same contract and must be updated together after any future
   owner-approved change.
@@ -40,9 +48,23 @@ compared with Public Alpha in the Codex in-app browser.
 - Commit `adf8494` was deployed to staging before this visual correction as Edge
   `f19c1ad8-80b3-4841-b86a-95efd67ec640` and web
   `510da7f5-0218-42d1-a01f-d9ac9a581df7`.
-- That web receipt is superseded for visual acceptance because it still showed
-  the rejected welcome/dashboard composition. A new staging web receipt and
-  authenticated IAB comparison are required after this correction.
+- The corrected web source at commit `5bdbd3e` was deployed through the named
+  `wtfmedia` staging profile as web version
+  `51cce902-fdde-4327-80f3-758f79d38d30`. Edge remained on the reviewed
+  `f19c1ad8-80b3-4841-b86a-95efd67ec640` release because this correction did
+  not change Edge source.
+- Authenticated IAB proved the shared Alpha evidence card and composer on
+  `/beta`, persisted a real private conversation at a route-backed URL,
+  continued it, restored both turns after reload, and preserved selection
+  through browser back/forward. Account, memory, sessions, and appearance
+  Settings routes opened under one shared shell without duplicate chrome.
+- The answer truthfully abstained when the current catalogue did not support
+  the question; that is a valid evidence boundary, not sourced-answer proof.
+- `/beta/preview` remains `404` on staging and production.
+- The owner's annotations supersede the visual acceptance of web version
+  `51cce902-fdde-4327-80f3-758f79d38d30`: its real flow passed, but the rail
+  overlap and expanded composer did not. Do not reuse that version as visual
+  approval.
 - Production, `wtfhq.in`, DNS, Clerk configuration, and production data remain
   untouched.
 
