@@ -153,13 +153,26 @@ export function AppRail({
     <>
       <header className="fixed inset-x-0 top-0 z-50 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5">
         <div className="mx-auto flex max-w-[92rem] items-start justify-between gap-3">
-          <Link
-            href={mode === "operator" ? "/ops" : "/"}
-            aria-label="WTF OS"
-            className="shrink-0 rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
-          >
-            <MigratedWordmarkMini plate />
-          </Link>
+          {/* On the chat surface the wordmark means "new chat": client nav to
+              the same route never remounts, so force a full reload there. */}
+          {mode === "public" && (pathname === "/" || pathname === "/chat") ? (
+            // eslint-disable-next-line @next/next/no-html-link-for-pages -- deliberate full reload: starts a new chat
+            <a
+              href="/"
+              aria-label="WTF OS"
+              className="shrink-0 rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
+            >
+              <MigratedWordmarkMini plate />
+            </a>
+          ) : (
+            <Link
+              href={mode === "operator" ? "/ops" : "/"}
+              aria-label="WTF OS"
+              className="shrink-0 rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
+            >
+              <MigratedWordmarkMini plate />
+            </Link>
+          )}
           <div className="relative flex min-w-0 items-start justify-end gap-2">
             {mode === "public" && utility ? (
               <div className="mt-1 flex items-center" data-header-utility>
