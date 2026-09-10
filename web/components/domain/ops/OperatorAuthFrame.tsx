@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { MigratedWordmark } from "@/components/patterns/brand/MigratedWordmark";
+import { MigratedWordmark, MigratedWordmarkMini } from "@/components/patterns/brand/MigratedWordmark";
 import { WtfMotionList } from "@/components/patterns/brand/WtfMotionList";
 import { WtfStaggeredText } from "@/components/patterns/brand/WtfStaggeredText";
 
@@ -149,6 +149,68 @@ export function OperatorAuthFrame({
   audience?: AuthAudience;
 }) {
   const copy = audience === "member" ? memberFrameCopy[mode] : operatorFrameCopy[mode];
+
+  if (audience === "member") {
+    return (
+      <main
+        id="operator-auth"
+        data-operator-auth
+        data-operator-auth-mode={mode}
+        data-member-auth-frame
+        className="relative min-h-screen overflow-hidden bg-canvas text-foreground"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0"
+          style={{
+            opacity: "var(--wtf-texture-dot-opacity)",
+            backgroundImage: "radial-gradient(rgb(var(--wtf-foreground-rgb) / 1) var(--wtf-texture-dot-size), transparent var(--wtf-texture-dot-size))",
+            backgroundSize: "var(--wtf-texture-dot-spacing) var(--wtf-texture-dot-spacing)",
+          }}
+        />
+        <header className="relative z-10 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5">
+          <Link
+            href="https://wtfhq.in"
+            aria-label="return to public wtf os"
+            className="inline-flex rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
+          >
+            <MigratedWordmarkMini plate />
+          </Link>
+        </header>
+
+        <div className="relative z-10 mx-auto flex min-h-[calc(100vh-5.5rem)] w-full max-w-[var(--wtf-content-max)] items-center px-4 py-8 sm:px-8 lg:py-12 xl:px-12">
+          <div className="grid w-full overflow-hidden border-2 border-foreground bg-surface-raised shadow-[6px_6px_0_rgb(var(--wtf-foreground-rgb)/0.14)] lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.72fr)]">
+            <section className="relative min-w-0 overflow-hidden p-6 sm:p-9 lg:p-12" aria-labelledby="operator-auth-title">
+              <div aria-hidden="true" className="wtf-question-lattice absolute inset-x-0 top-0 h-2" />
+              <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-knowledge">
+                {copy.eyebrow}
+              </p>
+              <h1 id="operator-auth-title" className="mt-4 max-w-[10ch] font-display text-4xl font-extrabold lowercase leading-[0.92] sm:text-6xl">
+                {copy.title}
+              </h1>
+              <p className="mt-5 max-w-[52ch] font-body text-sm leading-relaxed text-secondary sm:text-base">
+                {copy.body}
+              </p>
+              <WtfMotionList items={copy.proof} surface="light" />
+              <Link
+                href="https://wtfhq.in"
+                className="mt-8 inline-flex min-h-11 items-center border-b-2 border-knowledge font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-knowledge"
+              >
+                return to public alpha ↗
+              </Link>
+            </section>
+
+            <section aria-label={copy.panelLabel} className="border-t-2 border-foreground bg-canvas p-4 sm:p-7 lg:border-l-2 lg:border-t-0 lg:p-8">
+              <p className="mb-4 font-label text-[11px] font-bold uppercase tracking-[0.14em] text-secondary">
+                {copy.panelLabel}
+              </p>
+              <div className="mx-auto w-full max-w-[28rem]">{children}</div>
+            </section>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main

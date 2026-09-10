@@ -65,6 +65,66 @@ export interface ConversationThreadProps {
   onRetry: () => void;
 }
 
+export function ConversationEmptyState() {
+  return (
+    <div
+      className="mx-auto flex w-full max-w-5xl items-center py-4 sm:min-h-[28rem] sm:py-6"
+      data-testid="empty-state"
+      data-evidence-empty
+    >
+      <div className="grid w-full overflow-hidden border-2 border-foreground bg-surface-raised md:grid-cols-[minmax(0,1fr)_minmax(18rem,0.72fr)]">
+        <section className="relative min-w-0 overflow-hidden p-4 sm:p-8">
+          <div
+            aria-hidden="true"
+            className="wtf-question-lattice absolute inset-x-0 top-0 h-2"
+          />
+          <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-knowledge">
+            start with the source
+          </p>
+          <h2 className="mt-3 max-w-[13ch] font-display text-3xl font-extrabold lowercase leading-none sm:max-w-[12ch] sm:text-5xl">
+            ask the catalogue. get a cited moment.
+          </h2>
+          <p className="mt-4 max-w-[52ch] font-body text-sm leading-relaxed text-secondary sm:mt-5">
+            ask across published conversations. uncut is used only when a
+            verified mapping exists.
+          </p>
+          <div className="mt-4 hidden max-w-2xl border-l-4 border-knowledge bg-canvas px-4 py-3 sm:mt-7 sm:block">
+            <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
+              example question
+            </p>
+            <p className="mt-2 font-serif text-base text-foreground wtf-decrypt-line sm:text-lg">
+              what did guests say about building through uncertainty?
+            </p>
+          </div>
+        </section>
+        <aside className="hidden border-t-2 border-foreground bg-canvas p-4 text-foreground sm:block sm:p-5 md:border-l-2 md:border-t-0">
+          <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-secondary">
+            evidence rail
+          </p>
+          <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t-2 border-foreground pt-3 font-label text-xs text-foreground sm:mt-5 sm:block sm:divide-y sm:divide-foreground/20 sm:border-y-2 sm:pt-0 sm:text-sm">
+            <div className="wtf-stagger-in py-3">
+              <dt className="text-secondary">scope</dt>
+              <dd className="mt-1 font-bold">current catalogue</dd>
+            </div>
+            <div className="wtf-stagger-in py-3 [animation-delay:120ms]">
+              <dt className="text-secondary">quoted evidence</dt>
+              <dd className="mt-1 font-bold">separate from synthesis</dd>
+            </div>
+            <div className="wtf-stagger-in py-3 [animation-delay:240ms]">
+              <dt className="text-secondary">source</dt>
+              <dd className="mt-1 font-bold">published or uncut, named</dd>
+            </div>
+            <div className="wtf-stagger-in py-3 [animation-delay:360ms]">
+              <dt className="text-secondary">timing</dt>
+              <dd className="mt-1 font-bold">only when mapped</dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
 export function ConversationThread({
   messages,
   loading,
@@ -106,61 +166,7 @@ export function ConversationThread({
       aria-live="polite"
     >
       {messages.length === 0 ? (
-        <div
-          className="mx-auto flex w-full max-w-5xl items-center py-4 sm:min-h-[28rem] sm:py-6"
-          data-testid="empty-state"
-          data-evidence-empty
-        >
-          <div className="grid w-full overflow-hidden border-2 border-foreground bg-surface-raised md:grid-cols-[minmax(0,1fr)_minmax(18rem,0.72fr)]">
-            <section className="relative min-w-0 overflow-hidden p-4 sm:p-8">
-              <div
-                aria-hidden="true"
-                className="wtf-question-lattice absolute inset-x-0 top-0 h-2"
-              />
-              <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-knowledge">
-                start with the source
-              </p>
-              <h2 className="mt-3 max-w-[13ch] font-display text-3xl font-extrabold lowercase leading-none sm:max-w-[12ch] sm:text-5xl">
-                ask the catalogue. get a cited moment.
-              </h2>
-              <p className="mt-4 max-w-[52ch] font-body text-sm leading-relaxed text-secondary sm:mt-5">
-                ask across published conversations. uncut is used only when a
-                verified mapping exists.
-              </p>
-              <div className="mt-4 hidden max-w-2xl border-l-4 border-knowledge bg-canvas px-4 py-3 sm:mt-7 sm:block">
-                <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
-                  example question
-                </p>
-                <p className="mt-2 font-serif text-base text-foreground wtf-decrypt-line sm:text-lg">
-                  what did guests say about building through uncertainty?
-                </p>
-              </div>
-            </section>
-            <aside className="hidden border-t-2 border-foreground bg-canvas p-4 text-foreground sm:block sm:p-5 md:border-l-2 md:border-t-0">
-              <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-secondary">
-                evidence rail
-              </p>
-              <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t-2 border-foreground pt-3 font-label text-xs text-foreground sm:mt-5 sm:block sm:divide-y sm:divide-foreground/20 sm:border-y-2 sm:pt-0 sm:text-sm">
-                <div className="wtf-stagger-in py-3">
-                  <dt className="text-secondary">scope</dt>
-                  <dd className="mt-1 font-bold">current catalogue</dd>
-                </div>
-                <div className="wtf-stagger-in py-3 [animation-delay:120ms]">
-                  <dt className="text-secondary">quoted evidence</dt>
-                  <dd className="mt-1 font-bold">separate from synthesis</dd>
-                </div>
-                <div className="wtf-stagger-in py-3 [animation-delay:240ms]">
-                  <dt className="text-secondary">source</dt>
-                  <dd className="mt-1 font-bold">published or uncut, named</dd>
-                </div>
-                <div className="wtf-stagger-in py-3 [animation-delay:360ms]">
-                  <dt className="text-secondary">timing</dt>
-                  <dd className="mt-1 font-bold">only when mapped</dd>
-                </div>
-              </dl>
-            </aside>
-          </div>
-        </div>
+        <ConversationEmptyState />
       ) : (
         <div className="max-w-2xl mx-auto space-y-6">
           {messages.map((msg, i) => (

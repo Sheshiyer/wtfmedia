@@ -18,8 +18,15 @@ describe("Beta open-enrollment copy", () => {
   it("offers verified account creation without invitation-only language", () => {
     expect(authFrame).toContain('eyebrow: "company beta"');
     expect(authFrame).toContain("We create your private member account.");
-    expect(memberWorkspace).toContain("Ask WTF · company beta");
+    expect(memberWorkspace).toContain("company beta · private workspace");
     expect(memberWorkspace).not.toContain("Finish the emailed invitation");
+  });
+
+  it("keeps member entry on the Public Alpha composition instead of the dark operator frame", () => {
+    expect(authFrame).toContain("data-member-auth-frame");
+    expect(authFrame).toContain("<MigratedWordmarkMini plate />");
+    expect(authFrame).toContain("wtf-question-lattice");
+    expect(authFrame).toContain("return to public alpha");
   });
 
   it("puts the member gate in the shared route shell and keeps chat selection route-backed", () => {
@@ -38,6 +45,10 @@ describe("Beta open-enrollment copy", () => {
     expect(memberShell).toContain('mode="member"');
     expect(memberWorkspace).toContain("bg-surface-raised");
     expect(memberWorkspace).toContain("font-display");
+    expect(memberWorkspace).toContain("<ConversationEmptyState />");
+    expect(memberWorkspace).toContain("<AskComposer");
+    expect(memberWorkspace).not.toContain('aria-label="Your workspace"');
+    expect(memberWorkspace).not.toContain("Source-backed answers");
     expect(memberWorkspace).not.toMatch(/#[0-9a-f]{3,8}/iu);
   });
 

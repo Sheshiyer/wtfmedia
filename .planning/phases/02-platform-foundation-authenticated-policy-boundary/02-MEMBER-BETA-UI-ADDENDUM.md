@@ -19,6 +19,24 @@ navigation. Authentication, private conversation routing, history, memory, and
 member Settings are additive capabilities inside that system; they do not
 license an alternate dashboard aesthetic or a visual reset.
 
+This is a composition and component contract, not a palette-only guideline.
+The ordinary-member empty Ask surface reuses the Public Alpha
+`ConversationEmptyState`, and its input reuses `AskComposer`. The Alpha source
+prompt, editorial question card, source-mode selector, floating wordmark,
+hamburger, and workspace-only bottom pill remain recognizable before private
+history or Settings is added. A personalized greeting is subordinate account
+context; it never replaces the Alpha Ask WTF hero.
+
+The following regressions fail acceptance even when semantic tokens match:
+
+- a welcome/dashboard hero replacing the Alpha Ask surface;
+- a three-card feature-summary or infrastructure-status introduction;
+- a dark operator gateway for ordinary-member sign-in or recovery;
+- a second global header inside member Settings;
+- Account, Appearance, Theme, or Settings duplicated outside the hamburger;
+- a member route accepted from source tests without authenticated staging IAB
+  comparison against `https://wtfhq.in`.
+
 The retired `/beta/preview` fixture is not a design reference, route, fallback,
 demo, or acceptance substitute. Visual acceptance uses the real authenticated
 staging lane in the Codex in-app browser and compares it directly with Public
@@ -33,8 +51,8 @@ The route is always nested beneath the existing operator-first Clerk-to-D1
 member gate; children never mount while that admission is unresolved or after
 the authenticated identity changes.
 
-Desktop uses a persistent 240px conversation rail inside the Ask WTF
-workspace. Below 1024px the rail becomes a labelled modal drawer. The trigger
+Wide desktop uses a persistent 240px conversation rail inside the Ask WTF
+workspace. Below the wide-shell breakpoint the rail becomes a labelled modal drawer. The trigger
 has a 44px target, Escape/backdrop close the drawer, focus stays inside while
 open, and close restores focus to the trigger. Conversation navigation and the
 sticky composer must not overlap the bottom product pill at 320px width or a
@@ -47,15 +65,14 @@ conversations.
 
 ## Ask WTF screen contract
 
-The new-chat state shows a safe greeting using `firstName`, then the first
-display segment of `fullName`, then `Welcome to your workspace`. Email,
-provider subject, member ID, role, issuer, D1 state, and raw claims never become
-the heading or member-facing copy.
-
-The small `Your workspace` guide names three benefits: source-backed answers,
-private history, and preferences the member deliberately saves. Conversation
-threads reuse the established source panel and never present prior chat or
-memory as transcript evidence.
+The new-chat state reuses the Alpha evidence-first empty state and composer.
+A compact account-context line may show a safe greeting using `firstName`, then
+the first display segment of `fullName`, then `Welcome to your workspace`.
+Email, provider subject, member ID, role, issuer, D1 state, and raw claims never
+become the heading or member-facing copy. A separate `Your workspace` feature
+grid is forbidden because it recreates the rejected dashboard composition.
+Conversation threads reuse the established source panel and never present prior
+chat or memory as transcript evidence.
 
 Loading names the user action without naming infrastructure. Empty history
 invites a first question. Access denial remains non-enumerating. Failed turns
@@ -86,11 +103,11 @@ uses `aria-current="page"`, visible text, and a structural border/background
 marker for the active route. No Settings component renders a hidden admin link,
 role control, infrastructure identifier, or third-party integration.
 
-The route-local layout provides a labelled return to Ask WTF, a responsive
-Settings navigation, and a single main landmark. It must remain usable at 320px
-without horizontal overflow; at wider sizes the navigation may sit beside the
-content. A future shared member shell may inject this layout without changing
-the route contracts.
+The route-local layout provides responsive Settings navigation inside the
+existing member shell and a single main landmark. It does not add a second
+global header, Ask link, private-workspace strip, utility rail, or bottom pill.
+It must remain usable at 320px without horizontal overflow; at wider sizes the
+navigation may sit beside the content.
 
 ## Screen contracts
 
@@ -147,6 +164,11 @@ The deterministic web unit contract is:
 - `npm --prefix web run test:unit -- member-settings member-memory-import`
 - `npm --prefix web run typecheck`
 - `npm --prefix web run lint`
+
+The source-level anti-drift contract additionally asserts direct reuse of
+`ConversationEmptyState` and `AskComposer`, absence of the rejected feature
+grid, the Alpha-composed member entry frame, workspace-only bottom navigation,
+and no duplicate Appearance shortcut in the hamburger.
 
 These checks establish route registry, member-safe copy, bounded local parsing,
 active-record projection, and per-candidate save wiring. They do not establish

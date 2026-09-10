@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Episode-scoped Ask WTF production slice complete; broader Phase 3/4 acceptance remains planned
-last_updated: "2026-09-09T13:47:00.000Z"
-last_activity: 2026-09-09
+stopped_at: Member Beta anti-drift remediation and authenticated staging acceptance in progress
+last_updated: "2026-09-11T01:30:00+05:30"
+last_activity: 2026-09-11
 progress:
   total_phases: 10
   completed_phases: 2
@@ -24,11 +24,33 @@ See: `.planning/PROJECT.md` (updated 2026-08-20)
 its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
-**Current focus:** The bounded episode-scoped Ask WTF production slice is live
-and verified on `wtfhq.in`: published, approved uncut, and combined retrieval
-are scoped by public YouTube `episodeId`. Trusted uncut timeline alignment,
-synchronized playback, and the broader Phase 3/4 evaluation gates remain
-planned and explicitly open.
+**Current focus:** Complete the ordinary-member Beta workspace on the separate
+staging lane without altering Public Alpha. The owner reaffirmed that Beta must
+reuse Alpha's actual Ask WTF composition and components, not merely its palette:
+floating wordmark, minimal workspace pill, hamburger-owned utilities,
+evidence-first empty state, and shared composer. Private auth, conversations,
+history, memory, and Settings are additive. The rejected preview fixture,
+welcome dashboard, feature-summary cards, dark member gateway, and duplicate
+Settings chrome are not accepted fallbacks.
+
+## Active Member Beta lane — anti-drift authority
+
+- Source branch: `codex/beta-e2e-acceptance`; PR #60 targets `release/beta`.
+- Acceptance authorities: `.project/HANDOFF.md`, this state file,
+  `02-MEMBER-BETA-UI-ADDENDUM.md`, and Member Beta ISC criteria must agree.
+- Visual authority: the live Public Alpha at `https://wtfhq.in`, compared with
+  the real authenticated staging `/beta` in the Codex in-app browser.
+- Direct component lock: ordinary-member empty Ask uses
+  `ConversationEmptyState`; its composer uses `AskComposer`.
+- Navigation lock: the floating wordmark and hamburger remain global;
+  account/display utilities live only in the hamburger; the bottom pill carries
+  only Ask WTF and Settings; nested Settings adds no second global header.
+- Data lock: Clerk verifies identity, D1 remains authority, private records stay
+  owner-scoped, memory is explicit-save only, and operators route separately.
+- Forbidden fallback: `/beta/preview`, fake member data, browser-only fixtures,
+  demo acceptance, or a generic dashboard may not substitute for the real flow.
+- Remaining live gate: one active super-admin plus two ordinary members must
+  still prove routing and cross-member isolation before full Beta acceptance.
 
 ## Current Position
 
@@ -94,6 +116,10 @@ authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
 
 ### Decisions
 
+- [Member Beta anti-drift 2026-09-11]: Public Alpha is the ordinary-member
+  composition and component baseline. Beta must extend the shared Ask WTF empty
+  state and composer directly; token-only similarity, welcome dashboards, dark
+  member gateways, duplicated settings chrome, and preview fixtures fail.
 - ISA remains acceptance authority; GSD remains execution-planning authority.
 - Public and operator projections stay separate over shared evidence.
 - Phase 1 ships the proof harness, starts with the Episodes proof slice, and visibly migrates every protected public route without changing its contract.

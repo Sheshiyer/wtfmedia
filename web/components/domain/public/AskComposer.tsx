@@ -23,6 +23,7 @@ interface AskComposerProps {
   loading?: boolean;
   sourceMode?: SourceMode;
   onSourceModeChange?: (mode: SourceMode) => void;
+  sourceModeDisabled?: boolean;
 }
 
 export function AskComposer({
@@ -33,6 +34,7 @@ export function AskComposer({
   loading = false,
   sourceMode = "published",
   onSourceModeChange,
+  sourceModeDisabled = false,
 }: AskComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const promptRail = useMemo(
@@ -81,7 +83,7 @@ export function AskComposer({
                   key={mode}
                   type="button"
                   aria-pressed={sourceMode === mode}
-                  disabled={disabled || loading}
+                  disabled={disabled || loading || sourceModeDisabled}
                   onClick={() => onSourceModeChange?.(mode)}
                   className={[
                     "min-h-8 px-3 font-label text-[11px] font-bold lowercase transition-colors",

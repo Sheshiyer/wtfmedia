@@ -2,11 +2,13 @@
 
 import { useUser } from "@clerk/nextjs";
 import { usePathname, useRouter } from "next/navigation";
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AskComposer } from "@/components/domain/public/AskComposer";
+import { ConversationEmptyState } from "@/components/domain/public/ConversationThread";
 import { SourcePanel } from "@/components/domain/public/SourcePanel";
 import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/Button";
-import { memberCommittedRequestForRetry, memberConversationHref, memberGreeting, newMemberRequestKey, parseMemberConversationResponse, retryIntentForMemberResponse, shouldApplyMemberResponse, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversationResponse, type MemberRetryIntent } from "@/lib/member/chat";
+import { memberCommittedRequestForRetry, memberConversationHref, memberGreeting, newMemberRequestKey, parseMemberConversationResponse, retryIntentForMemberResponse, shouldApplyMemberResponse, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversationResponse, type MemberRetryIntent, type MemberSourceMode } from "@/lib/member/chat";
 import { useMemberFetch } from "./MemberBetaGate";
 import { MemberSessionNavigator } from "./MemberSessionNavigator";
 
@@ -26,6 +28,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
   const [question, setQuestion] = useState("");
   const [retryIntent, setRetryIntent] = useState<MemberRetryIntent | null>(null);
   const [committedRequest, setCommittedRequest] = useState<MemberCommittedRequest | null>(null);
+  const [selectedSourceMode, setSelectedSourceMode] = useState<MemberSourceMode>("published");
   const [sending, setSending] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -57,6 +60,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     if (!conversationId) {
       setView(null);
       setState("idle");
+      setSelectedSourceMode("published");
       return;
     }
     const epoch = ++loadEpoch.current;
@@ -69,6 +73,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
       setView(parsed);
       const recoveredRetry = retryIntentForMemberResponse(parsed);
       setRetryIntent(recoveredRetry);
+      setSelectedSourceMode(recoveredRetry?.sourceMode ?? parsed.conversation.sourceMode);
       if (recoveredRetry) setQuestion(recoveredRetry.question);
       setState(recoveredRetry ? "error" : "idle");
     } catch {
@@ -83,14 +88,13 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     archiveEpoch.current += 1;
   }, []);
 
-  const submit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const submit = useCallback(async () => {
     const trimmed = question.trim();
     if (!trimmed || sendingRef.current) return;
     const selectedRoute = conversationId;
     const requestPath = pathname;
     const resumeMessageId = retryIntent?.question === trimmed ? retryIntent.resumeMessageId : null;
-    const sourceMode = sourceModeForMemberQuestion(view?.conversation ?? null, retryIntent, trimmed);
+    const sourceMode = sourceModeForMemberQuestion(view?.conversation ?? null, retryIntent, trimmed, selectedSourceMode);
     const turn = { conversationId: selectedRoute ?? null, question: trimmed, sourceMode, resumeMessageId };
     const request = memberCommittedRequestForRetry(committedRequestRef.current, turn) ?? { ...turn, idempotencyKey: newMemberRequestKey() };
     loadEpoch.current += 1;
@@ -140,7 +144,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
         setSending(false);
       }
     }
-  }, [conversationId, memberFetch, pathname, question, rememberCommittedRequest, retryIntent, router, view?.conversation]);
+  }, [conversationId, memberFetch, pathname, question, rememberCommittedRequest, retryIntent, router, selectedSourceMode, view?.conversation]);
 
   const archive = useCallback(async () => {
     if (!conversationId || archiving) return;
@@ -166,19 +170,36 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     setDrawerOpen(open);
   }, []);
 
-  return <div className="mx-auto grid max-w-[var(--wtf-content-max)] gap-6 px-4 py-8 sm:px-8 xl:grid-cols-[15rem_minmax(0,1fr)] xl:px-12" data-member-chat-workspace>
-    <aside className="hidden self-start xl:sticky xl:top-28 xl:block"><div className="border-2 border-foreground bg-surface-raised p-3 shadow-[4px_4px_0_rgb(var(--wtf-foreground-rgb)/0.12)]">{navigator}</div></aside>
-    <Drawer open={drawerOpen} onOpenChange={onDrawerChange} triggerRef={drawerTriggerRef} title="Your conversations" description="Open a saved conversation or start a new question." side="left">{navigator}</Drawer>
-    <section className="min-w-0 space-y-6" aria-live="polite">
+  return <div className="min-h-[calc(100vh-5.5rem)] bg-canvas" data-member-chat-workspace>
+    <div className="mx-auto max-w-[var(--wtf-content-max)] px-4 pt-5 sm:px-8 xl:px-12">
       <div className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-foreground pb-4">
-        <div>{conversationId && view ? <><p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-knowledge">private conversation</p><h1 className="mt-1 font-display text-3xl font-extrabold lowercase">{view.conversation.title}</h1></> : <><p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-knowledge">Ask WTF · company beta</p><h1 className="mt-1 font-display text-3xl font-extrabold lowercase">{greeting}</h1><p className="mt-3 max-w-2xl text-sm leading-relaxed text-secondary">Ask source-backed questions, return to saved conversations, and choose the preferences you want future chats to use.</p></>}</div>
+        <div>
+          <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-knowledge">company beta · private workspace</p>
+          {conversationId && view ? <h1 className="mt-1 font-display text-3xl font-extrabold lowercase">{view.conversation.title}</h1> : <><h1 className="mt-1 font-display text-lg font-extrabold lowercase">ask wtf</h1><p className="mt-1 text-xs text-secondary">{greeting}. Your history stays with this signed-in workspace.</p></>}
+        </div>
         <div className="flex flex-wrap gap-2"><Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="xl:hidden">conversations</Button>{conversationId ? <Button type="button" variant="secondary" onClick={() => void archive()} loading={archiving} disabled={archiving}>archive</Button> : null}</div>
       </div>
-      {!conversationId ? <section aria-label="Your workspace" className="grid gap-3 border-2 border-foreground bg-surface-subtle p-5 sm:grid-cols-3"><div><h2 className="font-heading text-base font-bold">Source-backed answers</h2><p className="mt-1 text-sm text-secondary">See the evidence behind each response.</p></div><div><h2 className="font-heading text-base font-bold">Private history</h2><p className="mt-1 text-sm text-secondary">Return to conversations from any signed-in session.</p></div><div><h2 className="font-heading text-base font-bold">Your preferences</h2><p className="mt-1 text-sm text-secondary">Only notes you choose to save shape future chats.</p></div></section> : null}
-      {state === "loading" ? <p role="status" className="border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary">loading conversation…</p> : null}
-      {state === "unavailable" ? <div role="status" className="border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary">This conversation is unavailable. Return to your conversations to choose another one.</div> : null}
-      {view ? <Thread view={view} /> : null}
-      <form onSubmit={submit} className="sticky bottom-24 border-2 border-foreground bg-surface-raised p-4 shadow-[4px_4px_0_rgb(var(--wtf-foreground-rgb)/0.12)]"><label htmlFor="member-question" className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">Ask WTF</label><textarea id="member-question" value={question} onChange={(event) => { setQuestion(event.target.value); if (retryIntent) setRetryIntent(null); if (committedRequest) rememberCommittedRequest(null); }} maxLength={2000} rows={3} disabled={sending} placeholder="Ask from podcast evidence…" className="mt-2 w-full resize-y border-2 border-foreground bg-canvas p-3 text-sm text-foreground outline-none focus-visible:ring-4 focus-visible:ring-knowledge disabled:opacity-60" /><div className="mt-3 flex flex-wrap items-center justify-between gap-3"><p className="text-xs text-secondary">Your conversation stays private to your member workspace.</p><div className="flex gap-2"><Button type="submit" variant="attention" loading={sending} disabled={!question.trim() || sending}>{canRetry ? "retry answer" : "ask WTF"}</Button></div></div>{state === "error" ? <p role="status" className="mt-3 text-sm text-secondary">We could not finish that answer. {canRetry ? "Retry with the same question." : "Try again."}</p> : null}</form>
-    </section>
+    </div>
+    <div className="mx-auto grid max-w-[var(--wtf-content-max)] gap-6 px-4 sm:px-8 xl:grid-cols-[15rem_minmax(0,1fr)] xl:px-12">
+      <aside className="hidden self-start pt-6 xl:sticky xl:top-28 xl:block"><div className="border-2 border-foreground bg-surface-raised p-3 shadow-[4px_4px_0_rgb(var(--wtf-foreground-rgb)/0.12)]">{navigator}</div></aside>
+      <Drawer open={drawerOpen} onOpenChange={onDrawerChange} triggerRef={drawerTriggerRef} title="Your conversations" description="Open a saved conversation or start a new question." side="left">{navigator}</Drawer>
+      <section className="min-w-0 pb-60" aria-live="polite">
+        {!conversationId ? <ConversationEmptyState /> : null}
+        {state === "loading" ? <p role="status" className="mt-6 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary">loading conversation…</p> : null}
+        {state === "unavailable" ? <div role="status" className="mt-6 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary">This conversation is unavailable. Return to your conversations to choose another one.</div> : null}
+        {view ? <div className="pt-6"><Thread view={view} /></div> : null}
+        {state === "error" ? <p role="status" className="mx-auto mt-4 max-w-3xl border-l-4 border-attention px-4 text-sm text-secondary">We could not finish that answer. {canRetry ? "Retry with the same question." : "Try again."}</p> : null}
+      </section>
+    </div>
+    <AskComposer
+      value={question}
+      onChange={(value) => { setQuestion(value); if (retryIntent) setRetryIntent(null); if (committedRequest) rememberCommittedRequest(null); }}
+      onSubmit={() => void submit()}
+      disabled={sending}
+      loading={sending}
+      sourceMode={selectedSourceMode}
+      sourceModeDisabled={Boolean(conversationId) || retryIntent !== null}
+      onSourceModeChange={(mode) => setSelectedSourceMode(mode)}
+    />
   </div>;
 }

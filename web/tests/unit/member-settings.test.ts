@@ -32,6 +32,10 @@ describe("member settings route contract", () => {
   });
 
   it("does not nest a second main landmark inside the shared application shell", () => {
-    expect(fromWeb("app/beta/settings/layout.tsx")).not.toContain("<main");
+    const layout = fromWeb("app/beta/settings/layout.tsx");
+    expect(layout).not.toContain("<main");
+    expect(layout).not.toContain("<header");
+    expect(layout).not.toContain('href="/beta"');
+    expect(layout).not.toContain("private workspace");
   });
 });

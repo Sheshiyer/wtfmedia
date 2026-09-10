@@ -168,8 +168,9 @@ export function sourceModeForMemberQuestion(
   conversation: Pick<MemberConversation, "sourceMode"> | null,
   retryIntent: MemberRetryIntent | null,
   question: string,
+  selectedMode: MemberSourceMode = "published",
 ): MemberSourceMode {
-  return retryIntent?.question === question ? retryIntent.sourceMode : conversation?.sourceMode ?? "published";
+  return retryIntent?.question === question ? retryIntent.sourceMode : conversation?.sourceMode ?? selectedMode;
 }
 
 export function memberSessionIsAdmitted({

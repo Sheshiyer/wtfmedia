@@ -82,6 +82,7 @@ describe("member chat client contract", () => {
   it("keeps the loaded conversation evidence mode for a continuation", () => {
     expect(sourceModeForMemberQuestion({ sourceMode: "uncut" }, null, "A follow-up")).toBe("uncut");
     expect(sourceModeForMemberQuestion({ sourceMode: "published" }, { question: "Retry me", sourceMode: "both", resumeMessageId: "mmsg_abcdefgh" }, "Retry me")).toBe("both");
+    expect(sourceModeForMemberQuestion(null, null, "A new private question", "uncut")).toBe("uncut");
   });
 
   it("renders private member UI only for the admitted current session identity", () => {

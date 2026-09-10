@@ -1,5 +1,51 @@
 # Project handoff
 
+## 2026-09-11 Member Beta anti-drift correction
+
+**Status:** SOURCE REMEDIATION IN PROGRESS — the owner reaffirmed that ordinary
+Member Beta must preserve and extend the actual Public Alpha UI, not merely
+reuse its colors and tokens. The current candidate is being corrected and will
+not be treated as accepted until the real authenticated staging route is
+compared with Public Alpha in the Codex in-app browser.
+
+### Recovered owner contract
+
+- Preserve the floating top-left WTF OS wordmark and minimal navigation pill.
+- Keep Account, Theme, Appearance, and Settings utilities in the hamburger;
+  the bottom pill is workspace navigation only.
+- Begin with the existing Alpha Ask WTF experience. Authentication, persistent
+  conversations, history, memory, and member Settings are additions to that
+  experience, not permission to replace it with a dashboard.
+- Do not render private destinations or data before verified sign-in.
+- Keep ordinary members and D1-authorized operators on separate routes and
+  authority paths.
+- Permanently reject `/beta/preview`, fake member data, browser fixtures, and
+  demo pages as product or acceptance surfaces.
+
+### Anti-drift implementation lock
+
+- The member empty Ask surface directly reuses Public Alpha's
+  `ConversationEmptyState` and `AskComposer`.
+- The rejected welcome/dashboard feature grid is absent.
+- The member auth frame uses Alpha's cream/ink evidence-card composition;
+  the dark operator gateway remains operator-only.
+- Member Settings nests only its route navigation and content beneath the shared
+  shell; it does not add another global header.
+- The Phase 2 member UI addendum, `.planning/STATE.md`, ISA criteria, and durable
+  memory record this same contract and must be updated together after any future
+  owner-approved change.
+
+### Release boundary
+
+- Commit `adf8494` was deployed to staging before this visual correction as Edge
+  `f19c1ad8-80b3-4841-b86a-95efd67ec640` and web
+  `510da7f5-0218-42d1-a01f-d9ac9a581df7`.
+- That web receipt is superseded for visual acceptance because it still showed
+  the rejected welcome/dashboard composition. A new staging web receipt and
+  authenticated IAB comparison are required after this correction.
+- Production, `wtfhq.in`, DNS, Clerk configuration, and production data remain
+  untouched.
+
 ## 2026-09-11 Member Beta workspace remediation map
 
 **Status:** PLANNING-READY — the authenticated `/beta` shell remains the live

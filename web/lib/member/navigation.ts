@@ -13,7 +13,6 @@ export const memberDisclosureGroups: readonly AppNavGroup[] = [
     items: [
       memberBottomNavigation[0],
       memberBottomNavigation[1],
-      { href: "/beta/settings/appearance", label: "appearance", match: ["/beta/settings/appearance*"] },
     ],
   },
   {
