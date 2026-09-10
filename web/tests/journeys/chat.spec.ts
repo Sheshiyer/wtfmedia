@@ -483,11 +483,9 @@ test.describe("/chat journey — migrated variant", () => {
     // The composer no longer offers a mode choice — requests are published-only.
     expect(requestedMode).toBe("published");
 
-    const answerScope = sourcePanel.getByTestId("answer-query-scope");
-    await expect(answerScope).toBeVisible();
-    await expect(answerScope).toContainText("searched: published");
-    await expect(answerScope).toContainText("catalogue scope");
-    await expect(answerScope).toContainText("returned evidence: both");
+    // Retrieval provenance stays out of the collapsed header — the summary
+    // leads with the citation count only.
+    await expect(sourcePanel.getByTestId("answer-query-scope")).toHaveCount(0);
     await sourcePanel.locator("summary").first().click();
 
     // No view control — the panel is published-only even when the response
@@ -517,7 +515,7 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(sourcePanel.getByTestId("hidden-citation-notice")).toHaveCount(0);
 
     await page.setViewportSize({ width: 320, height: 900 });
-    await expect(answerScope).toBeVisible();
+    await expect(sourcePanel.locator("summary").first()).toBeVisible();
     expect(await page.evaluate(() => (
       document.documentElement.scrollWidth <= document.documentElement.clientWidth
     ))).toBe(true);

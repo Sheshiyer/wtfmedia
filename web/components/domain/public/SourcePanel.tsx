@@ -282,8 +282,6 @@ function SourceOverflowGroup({ group }: { group: SourcePanelOverflowGroup }) {
 export function SourcePanel({
   sources,
   citedIndices,
-  queryScope,
-  effectiveSourceMode,
   moments,
   question,
 }: SourcePanelProps) {
@@ -351,6 +349,12 @@ export function SourcePanel({
     .map(([videoId, episodeMoments]) => ({ videoId, episodeMoments }))
     .sort((a, b) => byStrengthThenScore(a.episodeMoments, b.episodeMoments));
 
+  // Moments mode reads as an episode sheet, so the summary counts distinct
+  // cited episodes rather than individual citation marks.
+  const citedEpisodeCount = hasMoments
+    ? primaryGroups.filter((group) => group.entries.some((entry) => entry.isCited)).length
+    : 0;
+
   async function handleExport() {
     if (!moments) return;
     setExporting(true);
@@ -370,32 +374,20 @@ export function SourcePanel({
         <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
           <span className="font-bold text-attention">●</span>
           <span>
-            {model.totalCitedCount > 0
-              ? `${model.totalCitedCount} source${model.totalCitedCount !== 1 ? "s" : ""} cited`
-              : "no sources cited"}
+            {hasMoments
+              ? citedEpisodeCount > 0
+                ? `${citedEpisodeCount} episode${citedEpisodeCount !== 1 ? "s" : ""} cited`
+                : "no episodes cited"
+              : model.totalCitedCount > 0
+                ? `${model.totalCitedCount} source${model.totalCitedCount !== 1 ? "s" : ""} cited`
+                : "no sources cited"}
             {!hasMoments && model.visibleCandidateCount > 0
               ? `, ${model.visibleCandidateCount} candidate excerpt${model.visibleCandidateCount !== 1 ? "s" : ""}`
               : ""}
           </span>
         </span>
-        <span className="flex min-w-0 flex-col items-end text-right">
-          {queryScope ? (
-            <span
-              className="font-label text-[10px] font-bold normal-case leading-tight text-foreground"
-              data-testid="answer-query-scope"
-            >
-              <span className="block">searched: {queryScope.sourceMode}</span>
-              <span className="block font-normal text-muted">
-                {queryScope.episodeId ? `episode scope: ${queryScope.episodeId}` : "catalogue scope"}
-              </span>
-              {effectiveSourceMode ? (
-                <span className="block font-normal text-muted">returned evidence: {effectiveSourceMode}</span>
-              ) : null}
-            </span>
-          ) : null}
-          <span className="font-mono text-[10px] uppercase tracking-wider text-secondary">
-            view sources
-          </span>
+        <span className="font-mono text-[10px] uppercase tracking-wider text-secondary">
+          view sources
         </span>
       </summary>
 
