@@ -44,7 +44,8 @@ Settings chrome are not accepted fallbacks.
   `ConversationEmptyState`; its composer uses `AskComposer`.
 - Navigation lock: the floating wordmark and hamburger remain global;
   account/display utilities live only in the hamburger; the bottom pill carries
-  only Ask WTF and Settings; nested Settings adds no second global header.
+  only the primary Ask WTF and Settings routes; nested Settings adds no second
+  global header.
 - Data lock: Clerk verifies identity, D1 remains authority, private records stay
   owner-scoped, memory is explicit-save only, and operators route separately.
 - Forbidden fallback: `/beta/preview`, fake member data, browser-only fixtures,

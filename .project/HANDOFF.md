@@ -11,8 +11,8 @@ compared with Public Alpha in the Codex in-app browser.
 ### Recovered owner contract
 
 - Preserve the floating top-left WTF OS wordmark and minimal navigation pill.
-- Keep Account, Theme, Appearance, and Settings utilities in the hamburger;
-  the bottom pill is workspace navigation only.
+- Keep Account, Theme, and Appearance utilities in the hamburger; the bottom
+  pill is workspace navigation only and may carry the primary Settings route.
 - Begin with the existing Alpha Ask WTF experience. Authentication, persistent
   conversations, history, memory, and member Settings are additions to that
   experience, not permission to replace it with a dashboard.

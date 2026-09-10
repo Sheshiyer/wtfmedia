@@ -104,6 +104,7 @@ export function AskComposer({
               value={value}
               onChange={(e) => onChange(e.target.value)}
               onKeyDown={handleKeyDown}
+              disabled={disabled || loading}
               placeholder="what moment are you after?"
               rows={2}
               aria-label="Ask the catalogue"

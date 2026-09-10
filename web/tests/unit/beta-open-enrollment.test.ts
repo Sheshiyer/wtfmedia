@@ -9,6 +9,7 @@ const memberShell = readFileSync(new URL("../../components/domain/member/MemberB
 const memberWorkspace = readFileSync(new URL("../../components/domain/member/MemberChatWorkspace.tsx", import.meta.url), "utf8");
 const memberGate = readFileSync(new URL("../../components/domain/member/MemberBetaGate.tsx", import.meta.url), "utf8");
 const sessionNavigator = readFileSync(new URL("../../components/domain/member/MemberSessionNavigator.tsx", import.meta.url), "utf8");
+const askComposer = readFileSync(new URL("../../components/domain/public/AskComposer.tsx", import.meta.url), "utf8");
 
 describe("Beta open-enrollment copy", () => {
   it("permanently removes the temporary browser-only preview route", () => {
@@ -83,5 +84,10 @@ describe("Beta open-enrollment copy", () => {
   it("invalidates an older conversation load when a submitted turn begins", () => {
     const submitSection = memberWorkspace.split("const submit =")[1]?.split("const archive =")[0] ?? "";
     expect(submitSection).toContain("loadEpoch.current += 1");
+  });
+
+  it("locks the shared composer textarea while an answer is pending", () => {
+    const textarea = askComposer.split("<textarea")[1]?.split("/>")[0] ?? "";
+    expect(textarea).toContain("disabled={disabled || loading}");
   });
 });

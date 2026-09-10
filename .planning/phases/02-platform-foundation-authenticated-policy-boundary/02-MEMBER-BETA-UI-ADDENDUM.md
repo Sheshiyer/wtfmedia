@@ -33,7 +33,8 @@ The following regressions fail acceptance even when semantic tokens match:
 - a three-card feature-summary or infrastructure-status introduction;
 - a dark operator gateway for ordinary-member sign-in or recovery;
 - a second global header inside member Settings;
-- Account, Appearance, Theme, or Settings duplicated outside the hamburger;
+- Account, Appearance, or Theme utilities duplicated outside the hamburger, or
+  any Settings shortcut beyond the primary Settings route in the bottom pill;
 - a member route accepted from source tests without authenticated staging IAB
   comparison against `https://wtfhq.in`.
 
