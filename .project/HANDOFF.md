@@ -2,7 +2,7 @@
 
 ## 2026-09-10 Staging Clerk issuer alignment
 
-**Status:** REVIEW-READY CONFIGURATION FIX — staging web served Clerk from
+**Status:** STAGING DEPLOYED — staging web served Clerk from
 `mighty-hedgehog-2913.clerk.accounts.dev`, while the staging edge Worker was
 configured to verify `trusted-platypus-25.clerk.accounts.dev` tokens. This
 made the edge reject valid browser sessions before D1 membership resolution.
@@ -17,12 +17,22 @@ made the edge reject valid browser sessions before D1 membership resolution.
   it remains an explicit future configuration gate rather than an inferred
   release claim.
 
-### Remaining activation
+### Staging receipt
 
-- Merge this reviewed source change and deploy the edge Worker to the existing
-  staging environment before retrying Clerk sign-in. Production remains out of
-  scope. Confirm an authenticated `/beta/api/context` request then reaches the
-  existing D1 membership gate.
+- Deployed the reviewed `release/beta` commit `b98a446` via the named
+  `wtfmedia` Cloudflare profile only: Edge deployment
+  `3b8f375f-95b5-493d-bf88-2072808456eb` and web deployment
+  `e3d25662-7183-4be0-8d70-65946ae60dc1`. Production was not touched.
+- Cloudflare confirmed the staging Edge binding set, including the matching
+  Clerk issuer/JWKS, D1, KV, R2, Vectorize, Queue, and existing
+  `CLERK_SECRET_KEY`. The staging web keeps the Edge service binding.
+- Staging D1 already contains all member-Beta tables and the environment's
+  `member_beta_releases` row is `preview`.
+- An unsigned `/beta` probe returns the deployed member page; unsigned
+  `/beta/api/context` returns the intentional non-enumerating `404
+  ops_unavailable` denial. An invited member must now complete the real
+  Clerk sign-in and reach this endpoint to prove Clerk-to-D1 membership
+  resolution and private-chat access.
 
 ## 2026-09-09 Member Beta onboarding and Clerk return-target refresh
 
