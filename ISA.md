@@ -3,11 +3,11 @@ project: wtfmedia
 task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
-phase: execute
+phase: verify
 progress: 95/240
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-11T03:54:00+05:30
+updated: 2026-09-11T04:02:00+05:30
 ---
 
 ## Problem
@@ -336,8 +336,8 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 
 ### Alpha-bedrock / Beta modular convergence
 
-- [ ] ISC-219: A committed branch-and-symbol ledger maps `origin/release/alpha`, `origin/rag/alpha-answer-accuracy`, `origin/release/beta`, and checkpoint `3e4c887` without treating any branch name or deployment receipt as automatic adoption authority (probe: Git ancestry and path ledger).
-- [ ] ISC-220: Every later Alpha Ask WTF capability is classified bedrock, adapt, defer, or reject before code integration (probe: capability ledger completeness check).
+- [x] ISC-219: A committed branch-and-symbol ledger maps `origin/release/alpha`, `origin/rag/alpha-answer-accuracy`, `origin/release/beta`, and checkpoint `3e4c887` without treating any branch name or deployment receipt as automatic adoption authority (probe: Git ancestry and path ledger).
+- [x] ISC-220: Every later Alpha Ask WTF capability is classified bedrock, adapt, defer, or reject before code integration (probe: capability ledger completeness check).
 - [ ] ISC-221: Public Alpha and Member Beta render one shared conversation/composer/source presentation primitive; member persistence is supplied through a typed adapter rather than a forked thread implementation (probe: import graph and component contract).
 - [ ] ISC-222: Member Ask routes preserve the live Alpha `/chat` frame: no bottom navigation dock, the top-right hamburger retains Ask WTF/Episodes/Connections/theme, and one member Settings gear is added inside that disclosure; the rejected two-button Ask WTF/Settings pill is absent (probe: navigation source and authenticated IAB comparison).
 - [ ] ISC-223: Loading, unavailable, retry, empty, answer, and long-history states occupy one bounded selected-conversation viewport without a large dead canvas (probe: component and 1382x1180 browser tests).
@@ -510,6 +510,7 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 ## Decisions
 
 - 2026-09-11 03:49 IST: refined: execution resumes from the committed Alpha-bedrock handoff. The current live IAB reproduction shows a selected member route with an unavailable banner, a separate header archive control, and the incorrect member navigation disclosure. Display-down correction starts with shared Alpha shell/composer behavior; private mutation contracts remain owner-scoped behind the existing Beta API.
+- 2026-09-11 04:02 IST: verified locally: the convergence slice is committed in four bounded source commits. It restores the shared Alpha frame without a member bottom dock, adds direct Archive plus confirmed owner-scoped Delete, preserves separately saved preferences through minimal provenance tombstones, blocks replay resurrection, and records a retrieval-capability ledger. Long-session paging/checkpoints and live persona acceptance remain open; no remote state changed.
 - 2026-09-11 03:48 IST: The required pre-build Advisor call was attempted and failed because the local OAuth session could not refresh. No credentials, provider configuration, deployment, or remote state changed. Three bounded Codex implementation lanes plus local tests and IAB evidence remain the review path.
 - 2026-09-11 03:30 IST: The final Codex cross-audit found no critical or high issue. It corrected the two distinct Alpha merge bases, removed Fleet B/C ownership overlap, labelled future UI assertions honestly, and surfaced two Delete preconditions: the saved-memory `ON DELETE RESTRICT` link needs reviewed detach/tombstone semantics, and anti-resurrection must replay original create idempotency keys after deletion.
 - 2026-09-11 03:29 IST: The mandatory post-deliverable Advisor audit was attempted against the convergence handoff and failed because the local OAuth session could not refresh. No credential or provider state changed; direct Git evidence, three Codex audits, full local suites, privacy, build, and architecture checks govern this planning checkpoint.
@@ -736,4 +737,6 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 - ISC-216 evidence: the 90-test web contract run includes explicit production web to production edge and staging web to staging edge/data-plane pairing assertions plus the production member deny guard.
 - ISC-217 evidence: member proxy tests preserve the buffered JSON response contract and no component claims token streaming; public `/api/chat` remains the streamed transport adapter.
 - ISC-218 and ISC-240 evidence: the command ledger contains only local source, test, Git, documentation, and read-only IAB operations; no deploy, remote D1/data write, corpus/queue operation, binding, secret, Clerk, DNS, or production action occurred.
+- ISC-219 and ISC-220 evidence: `.planning/inputs/2026-09-11-alpha-beta-inference-retrieval-capability-ledger.md` records the exact Alpha, later-Alpha, Beta, and checkpoint references plus an explicit bedrock/adapt/defer/reject admission for every examined later Ask WTF capability; it rejects branch-name and deployment-receipt adoption by default.
+- Convergence execution evidence (local only): `53ef445`, `6811564`, `66d79b6`, and `0df461f` pass the full 253-test Cloudflare suite, 144 web unit tests, 90 web contract tests, web typecheck/lint/build, a 360-file zero-violation privacy scan, architecture freshness, and `git diff --check`. This proves source and deterministic contracts, not a staging deployment or the authenticated persona/viewport matrix.
 - Final convergence audit evidence: the independent Codex cross-audit reported no critical/high finding; architecture freshness passed for 551 inputs, privacy passed with 0 violations across 359 bounded files, and `git diff --check` passed after all ancestry, ownership, future-assertion, and Delete-safety corrections.

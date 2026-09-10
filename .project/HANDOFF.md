@@ -1,5 +1,67 @@
 # Project handoff
 
+## 2026-09-11 Alpha-bedrock / Beta modular convergence execution checkpoint
+
+**Status:** LOCAL SOURCE AND BUILD VERIFIED — no deployment or remote state was
+changed. The isolated `codex/beta-chat-refinement` branch now contains the
+bounded convergence slice. It is ready for an owner-authorized staging
+acceptance wave, not a release claim.
+
+### Commits in this checkpoint
+
+- `53ef445`: adds the confirmed owner-scoped permanent-delete contract and
+  migration `0012_member_chat_deletion.sql`. It erases the selected
+  conversation and messages, retains immutable minimal deletion/provenance
+  tombstones, detaches but does not delete separately saved preferences, and
+  blocks replay of the original create idempotency key.
+- `6811564`: replaces the ambiguous session control with direct `archive
+  conversation` and separately labelled `delete` actions. Delete is a
+  focus-managed confirmation dialog whose copy makes the irreversible storage
+  effect and saved-preference boundary explicit.
+- `66d79b6`: adds the committed Alpha/Beta inference-retrieval capability
+  ledger and a fail-closed lower-case named-guest retrieval adaptation.
+- `0df461f`: restores Alpha chat-frame rules in shared UI: Ask routes have no
+  bottom dock, the Alpha hamburger remains the disclosure, and member Settings
+  is one additive gear inside it. The member selected-route states now share a
+  bounded conversation viewport with retry/new-question recovery.
+
+### Local receipts
+
+- `npm --prefix cloudflare test`: 253 passing tests, including confirmed
+  permanent deletion, owner isolation, anti-resurrection, archive-generation
+  race handling, role policy, release policy, and retrieval source contracts.
+- `npm --prefix web run test:unit`: 144 passing tests.
+- `npm --prefix web run test:contracts`: 90 passing tests.
+- `npm --prefix web run typecheck`, `lint`, and `build`: pass; the build
+  enumerates the existing public, member, and operator routes.
+- `npm --prefix web run test:privacy -- --check`: zero violations across 360
+  bounded files. `npm run docs:architecture:update`,
+  `npm run docs:architecture:check`, and `git diff --check` pass.
+
+### Still deliberately open
+
+- The selected conversation endpoint still returns full message history. The
+  existing history rail has keyset pagination, but reverse message pagination,
+  versioned owner-scoped untrusted context checkpoints, compaction failure
+  behavior, and long-thread UI acceptance remain open work.
+- The source role-policy suite is deterministic, but the signed-out, Member A,
+  Member B, editor, admin, super-admin, and suspended/revoked authenticated
+  staging UI/API matrix is not yet proven.
+- No current source change is deployed. The stale staging page is evidence of
+  the prior defect only; it cannot validate this local checkpoint until an
+  owner authorizes a staging deployment and authenticated IAB acceptance.
+
+### Next session
+
+Start from `.planning/inputs/2026-09-11-alpha-bedrock-beta-modular-convergence-handoff.md`
+and this checkpoint. Keep Public Alpha as the shared presentation bedrock;
+extend it only through modular member storage, lifecycle, preferences, and
+policy adapters. Before any release request, complete message paging/context
+evaluation and the owner-authorized persona/viewport matrix. Do not restore
+`/beta/preview`, add a member bottom dock, merge divergent Alpha branches
+wholesale, or mutate Cloudflare/Clerk/D1/corpus state without separate owner
+approval.
+
 ## 2026-09-11 Alpha-bedrock / Beta modular convergence correction
 
 **Status:** PLANNING-READY WITH A LOCAL SOURCE CHECKPOINT — Alpha's actual Ask
