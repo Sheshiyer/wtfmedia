@@ -1,5 +1,40 @@
 # Project handoff
 
+## 2026-09-10 Worker topology and deploy-target containment
+
+**Status:** STAGING PREVIEW DEPLOYED — no Worker was deleted. The required
+topology is a pair per environment, not duplicate application assets:
+
+- Production: `wtfmedia-web` owns `https://wtfhq.in`; its private service
+  binding targets `wtfmedia-edge`. Public Alpha remains routes on this web
+  worker, not a separate Worker.
+- Staging: `wtfmedia-web-staging` owns the Workers staging hostname and binds
+  only to `wtfmedia-edge-staging`.
+- The staging-only `/beta/preview` route renders two clearly labelled,
+  browser-only fake member fixtures. It is hostname-gated, `noindex`, has no
+  Clerk/D1/API calls, and exists only for visual review of member history and
+  explicit-memory separation while live identity acceptance remains blocked.
+
+### Containment receipt
+
+- An ambiguous web deploy command briefly targeted the top-level production
+  worker. It was immediately rolled back to prior Worker version
+  `3d5a5965-14f3-486a-a608-330d539dec81`; no migration, secret, D1, queue, or
+  production-route change occurred.
+- Staging preview then deployed explicitly with `--env staging` as Worker
+  version `6d5b9997-d728-4c74-ab44-0c34c12dc5ed`. A live staging probe returned
+  the fixture; `https://wtfhq.in/beta/preview` returns 404.
+- Ambiguous `cf:deploy` / `deploy` package scripts now fail closed. Staging
+  and production each require an explicit script, and the named `wtfmedia`
+  web alias now means staging.
+
+### Remaining live acceptance
+
+- Do not delete either Edge Worker: they are the corresponding web worker's
+  service-binding API authority. The unresolved gate is one correct-instance
+  Clerk identity reaching staging Edge and activating the invited D1 member
+  record, followed by two-account owner-isolation checks.
+
 ## 2026-09-10 Staging Clerk issuer alignment
 
 **Status:** STAGING DEPLOYED — staging web served Clerk from

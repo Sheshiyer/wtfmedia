@@ -120,6 +120,20 @@ The beta track adds authenticated features (server-side RAG, persisted chat,
 consolidation panels) that do not regress the public production path. The
 alpha track adds retrieval and UI improvements to the public surface.
 
+### Worker topology and deployment targeting
+
+The two-worker design is duplicated by environment: `wtfmedia-web` serves
+`wtfhq.in` and binds privately to `wtfmedia-edge`; `wtfmedia-web-staging`
+serves the staging Workers hostname and binds privately to
+`wtfmedia-edge-staging`. Public Alpha is a set of routes on the production web
+worker, not a third Worker. Do not delete either Edge Worker as a cleanup step.
+
+Deploy scripts fail closed when no environment is named. Use
+`npm --prefix web run cf:deploy:staging` for the reviewed staging lane, and
+reserve `cf:deploy:production` for an explicitly authorized production action.
+The Edge package follows the same `deploy:staging` / `deploy:production`
+pattern.
+
 The invite-only company member Beta is a separate staging-only `/beta` lane.
 It needs both Clerk verification and an active D1 member invitation record.
 Bangalore is the first cohort in one shared company workspace. Members own
