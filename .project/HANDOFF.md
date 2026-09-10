@@ -2182,3 +2182,22 @@ history` affordances. These are truthful UI states, not activation claims.
   passed.
 - Staging and production HTTP/UI probes remain stale Access builds; staging D1
   operator verification is blocked by API 7404.
+
+## 2026-09-10 staging member callback and sign-in refinement
+
+The staging member sign-in surface now uses the compact, padded Beta frame and
+keeps the public shell out of protected client transitions. Clerk's same-site
+absolute callback is normalized back to the fixed internal `/beta` route; an
+external callback remains rejected. The member-entry copy is invite-only and
+the public Alpha chip resolves to `https://wtfhq.in`.
+
+### Verification
+
+- Targeted Clerk callback and theme tests: 12/12; web lint, TypeScript, and
+  Cloudflare production build passed.
+- Live staging probe confirmed the absolute `/beta` callback shows the member
+  frame without the public navigation rail.
+- The correct Clerk instance has one existing pending member invitation; no
+  duplicate invitation was created or sent.
+- Remaining human gate: accept that invitation, sign in, and verify the
+  authenticated `/beta` member-context readback.

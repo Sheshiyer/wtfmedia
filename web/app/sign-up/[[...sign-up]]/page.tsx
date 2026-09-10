@@ -1,5 +1,6 @@
 import { ClerkSignUpPage } from "@/components/domain/ops/ClerkAuthPage";
 import { clerkRedirectTarget } from "@/lib/ops/clerk-url";
+import { headers } from "next/headers";
 
 export default async function SignUpPage({
   searchParams,
@@ -7,5 +8,9 @@ export default async function SignUpPage({
   searchParams: Promise<{ redirect_url?: string }>;
 }) {
   const params = await searchParams;
-  return <ClerkSignUpPage redirectTo={clerkRedirectTarget(params.redirect_url)} />;
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
+  const protocol = requestHeaders.get("x-forwarded-proto") ?? "https";
+  const requestOrigin = host ? `${protocol}://${host}` : null;
+  return <ClerkSignUpPage redirectTo={clerkRedirectTarget(params.redirect_url, requestOrigin)} />;
 }
