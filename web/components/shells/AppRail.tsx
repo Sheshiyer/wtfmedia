@@ -27,6 +27,18 @@ export type AppRailProps = {
   disclosureGroups?: readonly AppNavGroup[];
 };
 
+/**
+ * The Alpha chat is deliberately an edge-to-edge workspace, not a dock page.
+ * Member Beta inherits that frame and puts its account utility in the
+ * hamburger disclosure instead of reintroducing a two-item bottom pill.
+ */
+export function shouldHideBottomDock(
+  mode: AppRailProps["mode"],
+  pathname: string,
+): boolean {
+  return mode === "member" || (mode === "public" && (pathname === "/" || pathname === "/chat"));
+}
+
 export function AppRail({
   mode,
   navigation,
@@ -54,6 +66,7 @@ export function AppRail({
     });
   const disclosureNavigation = mode === "operator" ? utilityNavigation : primaryNavigation;
   const resolvedBottomNavigation = bottomNavigation ?? primaryNavigation;
+  const hideBottomDock = shouldHideBottomDock(mode, pathname);
   const disclosureId = mode === "operator"
     ? "wtf-operations-navigation"
     : mode === "member"
@@ -230,14 +243,14 @@ export function AppRail({
                   utility
                 ) : null}
                 <ThemeToggle />
-                {mode === "operator" ? (
+                {mode === "operator" || mode === "member" ? (
                   <Link
-                    href="/beta/ops/settings"
+                    href={mode === "operator" ? "/beta/ops/settings" : "/beta/settings"}
                     aria-label="settings"
                     title="settings"
                     data-shell-settings
-                    aria-current={routeIsActive(pathname, "/beta/ops/settings") ? "page" : undefined}
-                    className={iconLinkClass(routeIsActive(pathname, "/beta/ops/settings"))}
+                    aria-current={routeIsActive(pathname, mode === "operator" ? "/beta/ops/settings" : "/beta/settings") ? "page" : undefined}
+                    className={iconLinkClass(routeIsActive(pathname, mode === "operator" ? "/beta/ops/settings" : "/beta/settings"))}
                   >
                     <SettingsIcon />
                   </Link>
@@ -255,7 +268,7 @@ export function AppRail({
           </div>
         </div>
       </header>
-      <div className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
+      {hideBottomDock ? null : <div className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
         <div className="wtf-bottom-pill mx-auto flex w-fit max-w-[min(74rem,calc(100vw-1.5rem))] items-center overflow-x-auto rounded-full border-2 border-foreground bg-surface-raised/95 px-1.5 py-1 shadow-[0_10px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md sm:px-3 sm:py-2">
           <nav
             id="wtf-application-navigation"
@@ -266,7 +279,7 @@ export function AppRail({
             {renderNavLinks(resolvedBottomNavigation)}
           </nav>
         </div>
-      </div>
+      </div>}
     </>
   );
 }

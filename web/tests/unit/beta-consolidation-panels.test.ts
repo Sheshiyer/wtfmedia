@@ -85,7 +85,9 @@ describe("Beta consolidation admin panels", () => {
     for (const value of ["data-chat-session-navigator", "data-chat-session-link", "data-chat-new-session", "load more", "Session navigation is unavailable right now."]) {
       expect(sessionNavigator).toContain(value);
     }
-    expect(publicChat).toContain("sign in for account sessions");
+    expect(publicChat).toContain('data-chat-frame="alpha"');
+    expect(publicChat).toContain('placement="inline"');
+    expect(publicChat).not.toContain("WorkspaceHeader");
     for (const href of ["/beta/ops/settings/readiness", "/beta/ops/settings/release", "/beta/ops/settings/ai", "/beta/ops/settings/analytics", "/beta/ops/settings/sessions", "/beta/ops/settings/memory", "/beta/ops/settings/sources", "/beta/ops/settings/access"]) {
       expect(settingsContract + settingsLayout + settingsNavigation + settings).toContain(href);
     }

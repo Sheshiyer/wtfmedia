@@ -1,6 +1,7 @@
 "use client";
 
-import { AppRail, type AppNavGroup, type AppNavItem } from "./AppRail";
+import { AppRail, shouldHideBottomDock, type AppNavGroup, type AppNavItem } from "./AppRail";
+import { usePathname } from "next/navigation";
 import { SkipLink } from "@/components/ui/SkipLink";
 
 export type { AppNavGroup, AppNavItem };
@@ -22,6 +23,9 @@ export function AppShell({
   bottomNavigation,
   disclosureGroups,
 }: AppShellProps) {
+  const pathname = usePathname() ?? "/";
+  const hideBottomDock = shouldHideBottomDock(mode, pathname);
+
   return (
     <div
       data-wtf-shell="wtfos"
@@ -32,7 +36,12 @@ export function AppShell({
 
       <div data-wtf-shell="migrated" className="min-h-screen">
         <AppRail mode={mode} navigation={navigation} utility={utility} bottomNavigation={bottomNavigation} disclosureGroups={disclosureGroups} />
-        <div className="relative min-h-screen overflow-hidden pb-28 pt-[calc(5.5rem+env(safe-area-inset-top))] sm:pb-24">
+        <div
+          className={[
+            "relative min-h-screen overflow-hidden pt-[calc(4.5rem+env(safe-area-inset-top))]",
+            hideBottomDock ? "" : "pb-28 sm:pb-24",
+          ].join(" ")}
+        >
           <div
             aria-hidden="true"
             className="pointer-events-none fixed inset-0 z-0"
@@ -47,7 +56,7 @@ export function AppShell({
           <main
             id="wtf-main"
             tabIndex={-1}
-            className="relative z-10 min-h-screen focus:outline-none"
+            className="relative z-10 min-h-[calc(100vh-4.5rem-env(safe-area-inset-top))] focus:outline-none"
           >
             {children}
           </main>
