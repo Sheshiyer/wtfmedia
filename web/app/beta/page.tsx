@@ -64,7 +64,7 @@ function MemberBetaGate({
 export default function MemberBetaPage() {
   const router = useRouter();
   const invitationTicket = useSearchParams().get("__clerk_ticket");
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn, getToken } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [active, setActive] = useState<ConversationResponse | null>(null);
   const [memories, setMemories] = useState<Memory[]>([]);
@@ -73,26 +73,33 @@ export default function MemberBetaPage() {
   const [state, setState] = useState<BetaState>("loading");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const memberFetch = useCallback(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const headers = new Headers(init?.headers);
+    const token = await getToken();
+    if (token) headers.set("authorization", `Bearer ${token}`);
+    return fetch(input, { ...init, headers });
+  }, [getToken]);
+
   const load = useCallback(async () => {
     setState("loading");
     try {
       // A verified operator is sent to the canonical Beta control room before
       // the member-only endpoint is consulted. This avoids treating an admin
       // session as an uninvited member merely because it entered through /beta.
-      const operator = await fetch("/ops/api/operator-context", { cache: "no-store" });
+      const operator = await memberFetch("/ops/api/operator-context", { cache: "no-store" });
       if (operator.ok) {
         router.replace("/beta/ops");
         return;
       }
-      const context = await fetch("/beta/api/context", { cache: "no-store" });
+      const context = await memberFetch("/beta/api/context", { cache: "no-store" });
       if (!context.ok) {
         setState("member-unavailable");
         return;
       }
 
       const [chats, saved] = await Promise.all([
-        fetch("/beta/api/chat", { cache: "no-store" }),
-        fetch("/beta/api/memory", { cache: "no-store" }),
+        memberFetch("/beta/api/chat", { cache: "no-store" }),
+        memberFetch("/beta/api/memory", { cache: "no-store" }),
       ]);
       const chatBody = await chats.json();
       const memoryBody = await saved.json();
@@ -105,7 +112,7 @@ export default function MemberBetaPage() {
     } catch {
       setState("unavailable");
     }
-  }, [router]);
+  }, [memberFetch, router]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -128,7 +135,7 @@ export default function MemberBetaPage() {
     if (!question.trim() || state !== "ready") return;
     setIsSubmitting(true);
     try {
-      const response = await fetch("/beta/api/chat", {
+      const response = await memberFetch("/beta/api/chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ question, sourceMode: "published" }),
@@ -153,7 +160,7 @@ export default function MemberBetaPage() {
     if (!memory.trim() || state !== "ready") return;
     setIsSubmitting(true);
     try {
-      const response = await fetch("/beta/api/memory", {
+      const response = await memberFetch("/beta/api/memory", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ content: memory }),
@@ -174,7 +181,7 @@ export default function MemberBetaPage() {
   const archive = async (path: string) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch(path, { method: "POST" });
+      const response = await memberFetch(path, { method: "POST" });
       if (!response.ok) {
         setState(response.status === 404 ? "member-unavailable" : "unavailable");
         return;
@@ -200,7 +207,7 @@ export default function MemberBetaPage() {
         <button disabled={isSubmitting} className="w-fit border-2 border-foreground bg-attention px-4 py-2 font-bold text-on-attention disabled:opacity-50">ask WTF</button>
       </form>
       {active && <section className="mt-8 space-y-3" aria-label="active conversation"><div className="flex items-center justify-between gap-3"><h2 className="font-heading text-2xl font-bold">{active.conversation.title}</h2><button disabled={isSubmitting} onClick={() => void archive(`/beta/api/chat/${active.conversation.id}/archive`)} className="border-2 border-foreground px-3 py-1 text-sm">archive</button></div>{active.messages?.map((message) => <article key={message.id} className="border-2 border-foreground/30 p-4"><b>{message.role}</b><p className="mt-2 whitespace-pre-wrap">{message.content}</p>{message.role === "assistant" && <div className="mt-3"><SourcePanel sources={sourcesFor(message)} /></div>}</article>)}</section>}
-      <section className="mt-8"><h2 className="font-heading text-2xl font-bold">your history</h2><ul className="mt-3 grid gap-2">{conversations.map((conversation) => <li key={conversation.id}><button disabled={isSubmitting} onClick={async () => { const response = await fetch(`/beta/api/chat/${conversation.id}`); if (response.ok) setActive(await response.json()); }} className="w-full border-2 border-foreground p-3 text-left">{conversation.title}</button></li>)}</ul></section>
+      <section className="mt-8"><h2 className="font-heading text-2xl font-bold">your history</h2><ul className="mt-3 grid gap-2">{conversations.map((conversation) => <li key={conversation.id}><button disabled={isSubmitting} onClick={async () => { const response = await memberFetch(`/beta/api/chat/${conversation.id}`); if (response.ok) setActive(await response.json()); }} className="w-full border-2 border-foreground p-3 text-left">{conversation.title}</button></li>)}</ul></section>
       <section className="mt-8 border-2 border-foreground p-4"><h2 className="font-heading text-2xl font-bold">saved memory</h2><p className="mt-1 text-sm text-secondary">Only notes you explicitly save are available to future Beta chats. You can archive a note at any time.</p><form onSubmit={saveMemory} className="mt-3 flex flex-wrap gap-2"><input value={memory} onChange={(event) => setMemory(event.target.value)} maxLength={2000} disabled={isSubmitting} className="min-w-64 flex-1 border-2 border-foreground bg-canvas p-2" placeholder="Save a preference or context note" /><button disabled={isSubmitting} className="border-2 border-foreground px-3 py-1">save memory</button></form><ul className="mt-4 grid gap-2">{memories.map((item) => <li key={item.id} className="flex items-start justify-between gap-3 border border-foreground/30 p-2"><span>{item.content}</span><button disabled={isSubmitting} onClick={() => void archive(`/beta/api/memory/${item.id}/archive`)} className="shrink-0 text-sm underline">archive</button></li>)}</ul></section>
     </main>
   );

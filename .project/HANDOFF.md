@@ -2306,3 +2306,18 @@ acceptance.
   Cloudflare build pass. The Clerk CLI was read-only healthy but linked to a
   different development instance, so it was not used to inspect, create, or
   revoke the target invitation.
+
+## 2026-09-10 explicit browser-token forwarding repair
+
+The staging D1 release row is `preview`; the intended address still has an
+`invited` member row without a Clerk user ID, while its independent operator
+row is active `super_admin`. The Beta client now obtains Clerk's browser token
+and supplies it explicitly on every operator-context, member-context, chat,
+and memory request. The web proxy preserves that bearer for Edge issuer/JWKS
+verification, allowing the existing invitation to activate membership only
+when the verified Clerk subject and normalized email match.
+
+### Verification
+
+- Web unit suite: 104/104; TypeScript, ESLint, and OpenNext Cloudflare build
+  pass. This is an authorization transport repair, not a staging data bypass.
