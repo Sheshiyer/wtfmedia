@@ -3,11 +3,11 @@ project: wtfmedia
 task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
-phase: complete
+phase: execute
 progress: 95/240
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-11T03:30:00+05:30
+updated: 2026-09-11T03:54:00+05:30
 ---
 
 ## Problem
@@ -509,6 +509,8 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 
 ## Decisions
 
+- 2026-09-11 03:49 IST: refined: execution resumes from the committed Alpha-bedrock handoff. The current live IAB reproduction shows a selected member route with an unavailable banner, a separate header archive control, and the incorrect member navigation disclosure. Display-down correction starts with shared Alpha shell/composer behavior; private mutation contracts remain owner-scoped behind the existing Beta API.
+- 2026-09-11 03:48 IST: The required pre-build Advisor call was attempted and failed because the local OAuth session could not refresh. No credentials, provider configuration, deployment, or remote state changed. Three bounded Codex implementation lanes plus local tests and IAB evidence remain the review path.
 - 2026-09-11 03:30 IST: The final Codex cross-audit found no critical or high issue. It corrected the two distinct Alpha merge bases, removed Fleet B/C ownership overlap, labelled future UI assertions honestly, and surfaced two Delete preconditions: the saved-memory `ON DELETE RESTRICT` link needs reviewed detach/tombstone semantics, and anti-resurrection must replay original create idempotency keys after deletion.
 - 2026-09-11 03:29 IST: The mandatory post-deliverable Advisor audit was attempted against the convergence handoff and failed because the local OAuth session could not refresh. No credential or provider state changed; direct Git evidence, three Codex audits, full local suites, privacy, build, and architecture checks govern this planning checkpoint.
 - 2026-09-11 03:22 IST: refined: The owner's latest annotated review supersedes ISC-201's two-button pill acceptance. Alpha's actual product-menu grammar remains the navigation bedrock; Settings is one additive icon utility, not a second labelled destination replacing the Alpha menu.

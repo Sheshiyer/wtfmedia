@@ -175,5 +175,16 @@ describe("member chat client contract", () => {
     const unavailablePanel = memberWorkspace.split('state === "unavailable"')[1]?.split("{view ?")[0] ?? "";
     expect(unavailablePanel).toContain("onClick={() => void load()}");
     expect(unavailablePanel).toContain("retry loading conversation");
+    expect(unavailablePanel).toContain("start a new question");
+    expect(unavailablePanel).toContain("data-conversation-unavailable");
+  });
+
+  it("keeps archive and permanent deletion as distinct selected-session actions", () => {
+    expect(memberWorkspace).toContain("archive conversation");
+    expect(memberWorkspace).toContain("delete permanently");
+    expect(memberWorkspace).toContain('method: "DELETE"');
+    expect(memberWorkspace).toContain('confirmation: "DELETE"');
+    expect(memberWorkspace).toContain("Saved preferences are separate and will not be deleted.");
+    expect(memberWorkspace).toContain("data-selected-conversation-viewport");
   });
 });

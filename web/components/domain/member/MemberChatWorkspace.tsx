@@ -1,6 +1,7 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
+import * as Dialog from "@radix-ui/react-dialog";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AskComposer } from "@/components/domain/public/AskComposer";
@@ -32,6 +33,27 @@ function Thread({ view, sending, canRetry, onRetry }: { view: MemberConversation
   })}{sending ? <p role="status" className="border-l-4 border-knowledge pl-4 text-sm font-semibold text-secondary" data-testid="loading-indicator">looking through the catalogue</p> : null}{canRetry ? <div className="flex justify-center border-t-2 border-foreground/15 px-4 py-3"><Button type="button" variant="ghost" className="text-xs" onClick={onRetry} data-testid="retry-button">retry answer</Button></div> : null}<div ref={messagesEndRef} /></div>;
 }
 
+function DeleteConversationDialog({ conversationTitle, pending, error, onClose, onConfirm }: { conversationTitle: string; pending: boolean; error: boolean; onClose: () => void; onConfirm: () => Promise<boolean> }) {
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
+  return <Dialog.Root open={true} onOpenChange={(open) => { if (!open && !pending) onClose(); }}>
+    <Dialog.Portal>
+      <Dialog.Overlay className="fixed inset-0 z-50 bg-overlay/70" />
+      <Dialog.Content aria-labelledby="delete-conversation-title" aria-describedby="delete-conversation-description" onOpenAutoFocus={(event) => { event.preventDefault(); cancelRef.current?.focus(); }} className="fixed inset-0 z-50 grid place-items-center p-4 focus:outline-none">
+        <section className="w-full max-w-lg rounded-panel border-2 border-foreground bg-surface-raised p-6 shadow-[6px_6px_0_rgb(var(--wtf-foreground-rgb)/0.16)]">
+          <Dialog.Title id="delete-conversation-title" className="font-heading text-2xl font-bold lowercase">delete this conversation permanently?</Dialog.Title>
+          <Dialog.Description id="delete-conversation-description" className="mt-3 font-body text-sm leading-relaxed text-secondary">“{conversationTitle}”, its messages, and its private context checkpoints will be removed from your workspace and cannot be restored. Saved preferences are separate and will not be deleted.</Dialog.Description>
+          {error ? <p role="status" className="mt-3 border-l-4 border-attention px-3 text-sm text-secondary">We could not delete this conversation. Nothing was changed. Please try again.</p> : null}
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Button ref={cancelRef} type="button" variant="secondary" onClick={onClose} disabled={pending}>keep conversation</Button>
+            <Button type="button" variant="secondary" className="border-editorial bg-editorial text-on-editorial hover:bg-editorial/90" onClick={() => void onConfirm()} loading={pending} disabled={pending}>delete permanently</Button>
+          </div>
+        </section>
+      </Dialog.Content>
+    </Dialog.Portal>
+  </Dialog.Root>;
+}
+
 export function MemberChatWorkspace({ conversationId }: { conversationId?: string }) {
   const { user } = useUser();
   const router = useRouter();
@@ -44,6 +66,9 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
   const [committedRequest, setCommittedRequest] = useState<MemberCommittedRequest | null>(null);
   const [sending, setSending] = useState(false);
   const [archiving, setArchiving] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sessionRevision, setSessionRevision] = useState(0);
   const loadEpoch = useRef(0);
@@ -68,6 +93,9 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     sendingRef.current = false;
     setSending(false);
     setArchiving(false);
+    setDeleting(false);
+    setDeleteDialogOpen(false);
+    setDeleteError(false);
   }, [conversationId, pathname]);
   const load = useCallback(async () => {
     if (!conversationId) {
@@ -174,6 +202,27 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     }
   }, [archiving, conversationId, memberFetch, pathname, router]);
 
+  const deleteConversation = useCallback(async (): Promise<boolean> => {
+    if (!conversationId || deleting) return false;
+    const epoch = ++archiveEpoch.current;
+    const requestPath = pathname;
+    setDeleting(true);
+    setDeleteError(false);
+    try {
+      const response = await memberFetch(`/beta/api/chat/${encodeURIComponent(conversationId)}`, { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ confirmation: "DELETE" }) });
+      if (!response.ok) throw new Error("member_delete_unavailable");
+      if (!shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) || currentConversation.current !== conversationId) return false;
+      setDeleteDialogOpen(false);
+      router.push("/beta");
+      return true;
+    } catch {
+      if (shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) && currentConversation.current === conversationId) setDeleteError(true);
+      return false;
+    } finally {
+      if (epoch === archiveEpoch.current) setDeleting(false);
+    }
+  }, [conversationId, deleting, memberFetch, pathname, router]);
+
   const greeting = memberGreeting(user?.firstName, user?.fullName);
   const navigator = <MemberSessionNavigator activeConversationId={conversationId} refreshKey={sessionRevision} onNavigate={() => setDrawerOpen(false)} />;
   const canRetry = state === "error" && (retryIntent !== null || committedRequest !== null) && question.trim().length > 0;
@@ -188,16 +237,16 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
           <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-knowledge">company beta · private workspace</p>
           {conversationId && view ? <h1 className="mt-1 line-clamp-2 font-display text-3xl font-extrabold lowercase [overflow-wrap:anywhere]">{view.conversation.title}</h1> : <><h1 className="mt-1 font-display text-lg font-extrabold lowercase">ask wtf</h1><p className="mt-1 text-xs text-secondary">{greeting}. Your history stays with this signed-in workspace.</p></>}
         </div>
-        <div className="flex flex-wrap gap-2"><Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="xl:hidden">conversations</Button>{conversationId ? <Button type="button" variant="secondary" onClick={() => void archive()} loading={archiving} disabled={archiving}>archive</Button> : null}</div>
+        <div className="flex flex-wrap gap-2"><Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="xl:hidden">conversations</Button>{conversationId ? <><Button type="button" variant="secondary" onClick={() => void archive()} loading={archiving} disabled={archiving || deleting}>archive conversation</Button><Button type="button" variant="ghost" onClick={() => { setDeleteError(false); setDeleteDialogOpen(true); }} disabled={archiving || deleting}>delete</Button></> : null}</div>
       </div>
     </div>
     <div className="mx-auto grid min-w-0 max-w-[var(--wtf-content-max)] gap-6 px-4 sm:px-8 xl:grid-cols-[15rem_minmax(0,1fr)] xl:px-12">
       <aside className="hidden min-w-0 self-start pt-6 xl:sticky xl:top-28 xl:block"><div className="max-h-[calc(100dvh-27rem)] min-w-0 overflow-y-auto border-2 border-foreground bg-surface-raised p-3 shadow-[4px_4px_0_rgb(var(--wtf-foreground-rgb)/0.12)]">{navigator}</div></aside>
       <Drawer open={drawerOpen} onOpenChange={onDrawerChange} triggerRef={drawerTriggerRef} title="Your conversations" description="Open a saved conversation or start a new question." side="left">{navigator}</Drawer>
-      <section className="min-w-0 pb-60" aria-live="polite">
+      <section className="min-w-0 pb-60" aria-live="polite" data-selected-conversation-viewport>
         {!conversationId ? <ConversationEmptyState /> : null}
         {state === "loading" ? <p role="status" className="mt-6 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary">loading conversation…</p> : null}
-        {state === "unavailable" ? <div role="status" className="mt-6 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary"><p>This conversation is unavailable. Return to your conversations to choose another one.</p><Button type="button" variant="secondary" onClick={() => void load()} className="mt-3 min-h-9 px-3 py-1 text-xs">retry loading conversation</Button></div> : null}
+        {state === "unavailable" ? <div role="status" className="mx-auto mt-6 grid max-w-3xl gap-4 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary" data-conversation-unavailable><p>This conversation is unavailable. It may have been archived, deleted, or opened from an expired link.</p><div className="flex flex-wrap gap-3"><Button type="button" variant="secondary" onClick={() => void load()} className="min-h-9 px-3 py-1 text-xs">retry loading conversation</Button><Button type="button" variant="ghost" onClick={() => router.push("/beta")} className="min-h-9 px-3 py-1 text-xs">start a new question</Button></div></div> : null}
         {view ? <div className="pt-6"><Thread view={view} sending={sending} canRetry={canRetry} onRetry={() => void submit()} /></div> : null}
         {state === "error" ? <p role="status" className="mx-auto mt-4 max-w-3xl border-l-4 border-attention px-4 text-sm text-secondary">We could not finish that answer. {canRetry ? "Retry with the same question." : "Try again."}</p> : null}
       </section>
@@ -210,5 +259,6 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
       loading={sending}
       variant="compact"
     />
+    {deleteDialogOpen && conversationId && view ? <DeleteConversationDialog conversationTitle={view.conversation.title} pending={deleting} error={deleteError} onClose={() => { if (!deleting) setDeleteDialogOpen(false); }} onConfirm={deleteConversation} /> : null}
   </div>;
 }
