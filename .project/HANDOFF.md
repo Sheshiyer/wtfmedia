@@ -2230,3 +2230,34 @@ membership remains the authorization decision point.
   `/sign-in?redirect_url=/beta` and visibly rendered the refined member sign-in
   UI. The remaining human gate is one invited-account session to prove the
   D1 activation, private chat, history, and memory reads end to end.
+
+## 2026-09-10 staging invitation-ticket preservation repair
+
+Clerk application invitations return a one-time `__clerk_ticket` to their
+configured callback. The member Beta route now preserves a well-formed ticket
+and routes it into the existing branded `/sign-up` Clerk component; ordinary
+ticketless `/beta` visits continue to use the refined `/sign-in` member frame.
+Future member invitations are issued with `/sign-up` as their bounded HTTPS
+callback, while the member invitation validator continues to accept the legacy
+`/beta` callback for invitations already sent.
+
+The staging D1 invitation receipt was reconciled before this change: the
+revoked provider invitation is terminally recorded as revoked, and the sole
+pending Clerk invitation is the only `sent` receipt. Both reconciliation
+steps have append-only member audit entries. No production resource was
+changed.
+
+### Verification
+
+- Web: 102/102 unit tests, TypeScript, ESLint, and OpenNext Cloudflare build
+  pass; the focused callback tests cover ticket preservation, malformed-ticket
+  fallback, and the normal sign-in path.
+- Edge: 208/208 tests pass, including member activation, private history,
+  explicit memory, RBAC, and invitation lifecycle coverage.
+- Staging deployments: `wtfmedia-edge-staging`
+  `dd8e42ca-df07-4040-9abb-e30458036921`; `wtfmedia-web-staging`
+  `e2df5d81-4633-4b49-a597-8251d8057a96`.
+- Live unsigned `/beta/api/context` remains the intentional non-enumerating
+  `404 ops_unavailable`; the authenticated member acceptance is the remaining
+  human gate. The in-app browser cannot load Clerk's account host, so account
+  completion must occur in a normal browser session.

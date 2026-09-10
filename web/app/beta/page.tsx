@@ -2,10 +2,11 @@
 
 import { useAuth } from "@clerk/nextjs";
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { OperatorAuthFrame } from "@/components/domain/ops/OperatorAuthFrame";
 import { SourcePanel } from "@/components/domain/public/SourcePanel";
 import { parsePublicSourceHeader } from "@/lib/provenance/public-source-header";
+import { memberBetaEntryTarget } from "@/lib/ops/clerk-url";
 
 type Conversation = {
   id: string;
@@ -62,6 +63,7 @@ function MemberBetaGate({
 
 export default function MemberBetaPage() {
   const router = useRouter();
+  const invitationTicket = useSearchParams().get("__clerk_ticket");
   const { isLoaded, isSignedIn } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [active, setActive] = useState<ConversationResponse | null>(null);
@@ -100,11 +102,11 @@ export default function MemberBetaPage() {
   useEffect(() => {
     if (!isLoaded) return;
     if (!isSignedIn) {
-      router.replace("/sign-in?redirect_url=/beta");
+      router.replace(memberBetaEntryTarget(invitationTicket));
       return;
     }
     void load();
-  }, [isLoaded, isSignedIn, load, router]);
+  }, [invitationTicket, isLoaded, isSignedIn, load, router]);
 
   const ask = async (event: FormEvent) => {
     event.preventDefault();
