@@ -8,7 +8,7 @@ export type { AppNavItem };
 export type AppShellProps = {
   children: React.ReactNode;
   navigation: readonly AppNavItem[];
-  mode: "public" | "operator";
+  mode: "public" | "member" | "operator";
   utility?: React.ReactNode;
 };
 

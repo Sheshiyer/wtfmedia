@@ -20,6 +20,7 @@ function ClerkEnabledLogoutButton() {
     <button
       type="button"
       data-operator-logout
+      data-auth-logout
       className={className}
       onClick={() => {
         clearProtectedState();
@@ -33,7 +34,7 @@ function ClerkEnabledLogoutButton() {
 
 export function ClerkLogoutButton() {
   if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
-    return <Link href="/" data-operator-logout className={className}>log out to public alpha</Link>;
+    return <Link href="/" data-operator-logout data-auth-logout className={className}>log out to public alpha</Link>;
   }
   return <ClerkEnabledLogoutButton />;
 }
