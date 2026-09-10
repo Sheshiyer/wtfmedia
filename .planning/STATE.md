@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Annotated Member Beta rail clamp and live-Alpha compact composer implemented; staging redeploy and same-viewport IAB proof pending
-last_updated: "2026-09-11T02:00:00+05:30"
+stopped_at: Annotated Member Beta rail clamp, compact composer, and icon pill verified in authenticated staging IAB; mobile and three-persona gates remain
+last_updated: "2026-09-11T02:09:00+05:30"
 last_activity: 2026-09-11
 progress:
   total_phases: 10
@@ -65,6 +65,11 @@ Settings chrome are not accepted fallbacks.
   session item overlapped the Alpha evidence card and its composer used the
   rejected expanded panel. The underlying authenticated flow evidence remains
   valid; visual acceptance requires the corrected redeploy.
+- Corrected staging receipt: source commit `56aad90`, web version
+  `e298b69c-d0a0-49a4-b528-5f3914703e0e`. Authenticated 1382x887 IAB now shows
+  two clamped session cards wholly inside the rail, the unobscured Alpha
+  evidence card, compact one-line composer, and icon-labelled Ask/Settings pill;
+  the compact bar also continued a real persisted conversation.
 
 ## Current Position
 

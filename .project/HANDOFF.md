@@ -2,11 +2,11 @@
 
 ## 2026-09-11 Member Beta anti-drift correction
 
-**Status:** ANNOTATED LAYOUT REMEDIATION IN PROGRESS — authenticated acceptance
-proved the real data flow, then the owner's 1382x887 annotations identified a
-session-rail overflow and rejected the expanded Beta composer in favor of the
-live production Alpha capsule. Source corrections are implemented; a new
-staging receipt and same-viewport IAB proof are required.
+**Status:** ANNOTATED LAYOUT + AUTHENTICATED IAB VERIFIED — the owner's 1382x887
+overlap and composer annotations are resolved on the real signed-in staging
+route. Session cards remain inside their rail, titles clamp to two lines, the
+chat bar is the live-production Alpha capsule, and the icon-labelled Ask WTF /
+Settings pill remains below it.
 
 ### Recovered owner contract
 
@@ -65,6 +65,19 @@ staging receipt and same-viewport IAB proof are required.
   `51cce902-fdde-4327-80f3-758f79d38d30`: its real flow passed, but the rail
   overlap and expanded composer did not. Do not reuse that version as visual
   approval.
+- Commit `56aad90` was deployed through the named `wtfmedia` staging profile as
+  web version `e298b69c-d0a0-49a4-b528-5f3914703e0e`. At the annotated 1382x887
+  IAB viewport, two real session cards stayed within the 240px rail, their
+  titles clamped to two lines, the evidence card remained unobscured, the
+  compact single-line composer had no background band or mode rail, and the
+  Ask WTF / Settings pill displayed chat and settings icons.
+- The corrected compact composer successfully continued the existing private
+  conversation, and the truthful evidence fallback remained attached to that
+  canonical route.
+- The independent QA subagent could not see the parent task's authenticated IAB
+  surface and exposed only unauthenticated Chrome sessions. It correctly left
+  that check blocked rather than substituting a signed-out page; the visual
+  receipt above is the primary task's direct authenticated IAB evidence.
 - Production, `wtfhq.in`, DNS, Clerk configuration, and production data remain
   untouched.
 
