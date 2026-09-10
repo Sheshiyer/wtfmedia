@@ -47,8 +47,8 @@
         "OPS_HOSTNAME": "wtfmedia-web-staging.connect2nikhai.workers.dev",
         "OPS_ORIGIN": "https://wtfmedia-web-staging.connect2nikhai.workers.dev",
         "OPS_ENVIRONMENT": "staging",
-        "CLERK_ISSUER": "https://trusted-platypus-25.clerk.accounts.dev",
-        "CLERK_JWKS_URL": "https://trusted-platypus-25.clerk.accounts.dev/.well-known/jwks.json",
+        "CLERK_ISSUER": "https://mighty-hedgehog-2913.clerk.accounts.dev",
+        "CLERK_JWKS_URL": "https://mighty-hedgehog-2913.clerk.accounts.dev/.well-known/jwks.json",
         "CLERK_AUTHORIZED_PARTIES": "https://wtfmedia-web-staging.connect2nikhai.workers.dev"
       },
       "ai": { "binding": "AI" },

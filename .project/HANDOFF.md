@@ -1,5 +1,29 @@
 # Project handoff
 
+## 2026-09-10 Staging Clerk issuer alignment
+
+**Status:** REVIEW-READY CONFIGURATION FIX — staging web served Clerk from
+`mighty-hedgehog-2913.clerk.accounts.dev`, while the staging edge Worker was
+configured to verify `trusted-platypus-25.clerk.accounts.dev` tokens. This
+made the edge reject valid browser sessions before D1 membership resolution.
+
+- Aligned the staging `CLERK_ISSUER` and `CLERK_JWKS_URL` declarations with
+  the public Clerk instance loaded by the deployed staging web sign-in page.
+- Read-only Clerk verification confirms that instance has the normal session
+  `email` claim and no custom JWT templates. The Beta edge uses that standard
+  session credential; it does not request a session-customization template.
+- The Clerk development session lifetime is currently 60 minutes. This is a
+  live configuration fact and does not match the planned 720-hour policy, so
+  it remains an explicit future configuration gate rather than an inferred
+  release claim.
+
+### Remaining activation
+
+- Merge this reviewed source change and deploy the edge Worker to the existing
+  staging environment before retrying Clerk sign-in. Production remains out of
+  scope. Confirm an authenticated `/beta/api/context` request then reaches the
+  existing D1 membership gate.
+
 ## 2026-09-09 Member Beta onboarding and Clerk return-target refresh
 
 **Status:** REVIEW-READY SOURCE SLICE — the invite-only member entry now
