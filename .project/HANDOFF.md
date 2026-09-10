@@ -2201,3 +2201,32 @@ the public Alpha chip resolves to `https://wtfhq.in`.
   duplicate invitation was created or sent.
 - Remaining human gate: accept that invitation, sign in, and verify the
   authenticated `/beta` member-context readback.
+
+## 2026-09-10 member Beta admission gate and token-forwarding repair
+
+The staging `/beta` route no longer streams the raw member-chat scaffold before
+the member context has been admitted. An unsigned visitor is redirected into
+the refined member sign-in frame at `/sign-in?redirect_url=/beta`; a signed
+session whose member record cannot be resolved receives a polished invitation
+state instead. Chat, history, and saved memory render only after the context,
+chat, and memory reads all succeed.
+
+The same-origin Beta proxy now obtains the Clerk server-session token when the
+browser has not supplied a bearer credential and forwards that token to the
+staging edge. A caller-supplied bearer token is preserved unchanged. Edge D1
+membership remains the authorization decision point.
+
+### Verification
+
+- Added proxy tests prove server-session token forwarding and preservation of
+  explicit bearer credentials; focused unit suite passed 5/5. Web lint and
+  TypeScript passed, and the Cloudflare production build completed cleanly.
+- Deployed only `wtfmedia-web-staging`, version
+  `711e807f-f1de-4e14-a00a-b994c1cffe7e`; production was not touched.
+- Live unsigned `/beta` response contains the member-access-check frame and
+  no `data-member-beta` or `private member chat` scaffold. Its context probe
+  remains the intentional non-enumerating `404 ops_unavailable`.
+- In-app browser navigation from `/beta` settled at
+  `/sign-in?redirect_url=/beta` and visibly rendered the refined member sign-in
+  UI. The remaining human gate is one invited-account session to prove the
+  D1 activation, private chat, history, and memory reads end to end.

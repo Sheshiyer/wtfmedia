@@ -81,7 +81,7 @@ const operatorFrameCopy: Record<OperatorAuthFrameMode, FrameCopy> = {
   },
 };
 
-const memberFrameCopy: Record<Extract<OperatorAuthFrameMode, "sign-in" | "sign-up">, FrameCopy> = {
+const memberFrameCopy: Record<OperatorAuthFrameMode, FrameCopy> = {
   "sign-in": {
     eyebrow: "invite-only company beta",
     title: "enter the beta",
@@ -104,6 +104,39 @@ const memberFrameCopy: Record<Extract<OperatorAuthFrameMode, "sign-in" | "sign-u
       { label: "ask", detail: "Open your private Ask WTF workspace.", tone: "live" },
     ],
   },
+  recovery: {
+    eyebrow: "invite-only company beta",
+    title: "verifying your invitation",
+    body: "We are opening your private Ask WTF workspace only after the session and member record agree.",
+    panelLabel: "member access check",
+    proof: [
+      { label: "verify", detail: "Confirm the signed-in session.", tone: "editorial" },
+      { label: "match", detail: "Resolve the invited member record.", tone: "attention" },
+      { label: "enter", detail: "Open private history and saved notes.", tone: "live" },
+    ],
+  },
+  unavailable: {
+    eyebrow: "invite-only company beta",
+    title: "beta access is unavailable",
+    body: "Your private workspace could not be opened. No conversation, history, or saved note has been shown.",
+    panelLabel: "member access state",
+    proof: [
+      { label: "verify", detail: "Your session remains protected.", tone: "editorial" },
+      { label: "retry", detail: "We can safely check access again.", tone: "attention" },
+      { label: "private", detail: "Workspace data stays withheld until ready.", tone: "live" },
+    ],
+  },
+  "request-access": {
+    eyebrow: "invite-only company beta",
+    title: "finish your invitation",
+    body: "Your sign-in did not resolve to an active member record yet. Complete the emailed invitation with the invited address, then return here.",
+    panelLabel: "member invitation required",
+    proof: [
+      { label: "verify", detail: "Use the invited email address.", tone: "editorial" },
+      { label: "match", detail: "We bind one verified session to membership.", tone: "attention" },
+      { label: "enter", detail: "Private data appears only after that match.", tone: "live" },
+    ],
+  },
 };
 
 export function OperatorAuthFrame({
@@ -115,10 +148,7 @@ export function OperatorAuthFrame({
   children: ReactNode;
   audience?: AuthAudience;
 }) {
-  const copy =
-    audience === "member" && (mode === "sign-in" || mode === "sign-up")
-      ? memberFrameCopy[mode]
-      : operatorFrameCopy[mode];
+  const copy = audience === "member" ? memberFrameCopy[mode] : operatorFrameCopy[mode];
 
   return (
     <main
