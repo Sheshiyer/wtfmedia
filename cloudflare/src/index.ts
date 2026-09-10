@@ -320,6 +320,16 @@ async function reformulateQuery(env: Env, question: string, history: HistoryTurn
   }
 }
 
+async function resolveSearchQuery(env: Env, question: string, history: HistoryTurn[]): Promise<string> {
+  if (parseDurationBudget(question) != null && NEEDS_REFORMULATION.test(question)) {
+    const priorStandalone = [...history].reverse().find(
+      (t) => t.role === "user" && !NEEDS_REFORMULATION.test(t.content),
+    );
+    if (priorStandalone) return priorStandalone.content;
+  }
+  return reformulateQuery(env, question, history);
+}
+
 async function retrieveSourcesForQuery(
   env: Env,
   searchQuery: string,
@@ -529,8 +539,15 @@ async function momentsForAnswer(
   moments = moments.slice(0, MAX_MOMENTS);
   moments = await resolveMomentEnds(env.VECTORIZE, moments);
   const budgetSec = parseDurationBudget(question);
-  const budgeted = applyDurationBudget(moments, budgetSec);
-  const visible = budgeted.moments.filter((moment) => moment.withinBudget);
+  // Strength only exists after enrichment, so with a budget in play enrich
+  // the whole candidate pool first and cut by strength after — otherwise the
+  // score-greedy cut fills the reel with ★2 moments while ★4s sit outside.
+  const budgeted = budgetSec == null
+    ? applyDurationBudget(moments, null)
+    : { moments, totalDurationSec: 0, budgetSec };
+  const visible = budgetSec == null
+    ? budgeted.moments.filter((moment) => moment.withinBudget)
+    : moments;
   if (visible.length === 0) {
     return { moments: budgeted.moments, totalDurationSec: budgeted.totalDurationSec, budgetSec };
   }
@@ -605,6 +622,13 @@ async function momentsForAnswer(
     }
   });
   const enriched = new Map(visible.map((moment, index) => [moment, enrichments[index]]));
+  if (budgetSec != null) {
+    const ranked = moments
+      .map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) }))
+      .sort((a, b) => (b.strength ?? 0) - (a.strength ?? 0) || b.score - a.score);
+    const cut = applyDurationBudget(ranked, budgetSec);
+    return { moments: cut.moments, totalDurationSec: cut.totalDurationSec, budgetSec };
+  }
   return {
     moments: budgeted.moments.map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) })),
     totalDurationSec: budgeted.totalDurationSec,
@@ -654,7 +678,13 @@ async function chat(request: Request, env: Env) {
     });
   }
   try {
-    const searchQuery = await reformulateQuery(env, question, history);
+    // A budget-only follow-up ("top 10 mins of this") asks to re-cut the
+    // moments the reader just saw, not to search again — an LLM rewrite can
+    // drift the topic (and the episode anchor can collapse the reel to one
+    // wrong episode). Reuse the last standalone user question verbatim so
+    // retrieval reproduces the previous turn exactly; the new budget then
+    // ranks that same pool by strength.
+    const searchQuery = await resolveSearchQuery(env, question, history);
     const { resolved, sources, momentSources, episodeId: resolvedEpisodeId } = await retrieveSourcesForQuery(env, searchQuery, sourceMode, episodeId);
     if (sources.length < 2) {
       return reply(request, env, {
@@ -680,9 +710,16 @@ async function chat(request: Request, env: Env) {
     }
     const evidenceContext = sources.map((source: any) => `[${source.n}] ${source.title}\n${source.text}`).join("\n\n---\n\n");
     const priorContext = historyContext(history);
+    // When the question carries a duration budget ("top 10 mins of this"),
+    // the response already includes a ranked reel of timestamped moments
+    // filling it — the answer must summarize that reel, not refuse it.
+    const answerBudgetSec = parseDurationBudget(question);
+    const budgetNote = answerBudgetSec != null
+      ? `\n\nNOTE: Alongside your answer, the interface shows a ranked reel of the top timestamped moments filling ~${Math.round(answerBudgetSec / 60)} minutes for this question, ordered by relevance and strength. Summarize what the strongest moments cover in 2-4 sentences and point the reader to the reel for playback. The excerpts DO carry timestamps — never claim timestamps or durations are unavailable.`
+      : "";
     const userContent = priorContext
-      ? `PRIOR CONVERSATION:\n${priorContext}\n\nCONTEXT:\n${evidenceContext}\n\nQUESTION: ${question}`
-      : `CONTEXT:\n${evidenceContext}\n\nQUESTION: ${question}`;
+      ? `PRIOR CONVERSATION:\n${priorContext}\n\nCONTEXT:\n${evidenceContext}\n\nQUESTION: ${question}${budgetNote}`
+      : `CONTEXT:\n${evidenceContext}\n\nQUESTION: ${question}${budgetNote}`;
     // Moments don't need the answer text — run the merge/duration/enrichment
     // pipeline alongside answer generation so its LLM call hides behind it.
     // Moments use the wide retrieval slice (no per-episode dedupe) so an
