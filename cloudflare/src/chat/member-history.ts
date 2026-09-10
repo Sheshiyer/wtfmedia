@@ -71,6 +71,10 @@ export async function prepareMemberTurn(db: DB, memberId: number, conversationId
     const existing = await db.prepare("SELECT id FROM member_chat_conversations WHERE create_idempotency_key = ? AND member_id = ?").bind(key, memberId).first<{ id: string }>();
     if (existing) conversationId = existing.id;
     else {
+      // A deletion tombstone intentionally outlives the erased conversation so
+      // an original create-key replay cannot resurrect private history.
+      const deleted = await db.prepare("SELECT conversation_id FROM member_chat_deletion_tombstones WHERE create_idempotency_key = ? AND member_id = ?").bind(key, memberId).first<{ conversation_id: string }>();
+      if (deleted) return null;
       const newId = `mcnv_${crypto.randomUUID()}`;
       const sourceMode = parseSourceMode(input.sourceMode);
       const episodeId = typeof input.episodeId === "string" ? input.episodeId : null;
@@ -181,5 +185,30 @@ export async function archiveMemberConversation(db: DB, memberId: number, conver
   try {
     await db.prepare("UPDATE member_chat_conversations SET lifecycle_state = 'archived', archived_at = ?, updated_at = ? WHERE id = ? AND member_id = ? AND lifecycle_state = 'active'").bind(now, now, conversationId, memberId).run();
     return await db.prepare(`SELECT ${columns} FROM member_chat_conversations WHERE id = ? AND member_id = ?`).bind(conversationId, memberId).first<MemberConversation>() ?? null;
+  } catch { return null; }
+}
+
+/**
+ * Permanently removes one member-owned conversation and its messages.
+ * Explicit saved memories are never cascaded: their source link is detached
+ * after a minimal provenance tombstone is recorded. The create-key tombstone
+ * prevents an old retry from recreating the deleted conversation.
+ */
+export async function deleteMemberConversation(db: DB, memberId: number, conversationId: unknown, now = new Date().toISOString()): Promise<boolean | null> {
+  if (!member(memberId) || !id(conversationId) || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(now) || !Number.isFinite(Date.parse(now)) || new Date(now).toISOString() !== now) return null;
+  try {
+    const alreadyDeleted = await db.prepare("SELECT conversation_id FROM member_chat_deletion_tombstones WHERE conversation_id = ? AND member_id = ?").bind(conversationId, memberId).first<{ conversation_id: string }>();
+    if (alreadyDeleted) return true;
+    const target = await db.prepare("SELECT id, member_id, create_idempotency_key FROM member_chat_conversations WHERE id = ? AND member_id = ?").bind(conversationId, memberId).first<{ id: string; member_id: number; create_idempotency_key: string | null }>();
+    if (!target) return null;
+    await db.batch([
+      db.prepare("INSERT INTO member_chat_deletion_tombstones (conversation_id, member_id, create_idempotency_key, deleted_at) SELECT id, member_id, create_idempotency_key, ? FROM member_chat_conversations WHERE id = ? AND member_id = ?").bind(now, conversationId, memberId),
+      db.prepare("INSERT INTO member_saved_memory_conversation_tombstones (memory_id, member_id, source_conversation_id, deleted_at) SELECT id, member_id, source_conversation_id, ? FROM member_saved_memories WHERE member_id = ? AND source_conversation_id = ?").bind(now, memberId, conversationId),
+      db.prepare("UPDATE member_saved_memories SET source_conversation_id = NULL WHERE member_id = ? AND source_conversation_id = ?").bind(memberId, conversationId),
+      db.prepare("DELETE FROM member_chat_messages WHERE conversation_id = ?").bind(conversationId),
+      db.prepare("DELETE FROM member_chat_conversations WHERE id = ? AND member_id = ?").bind(conversationId, memberId),
+    ]);
+    const tombstone = await db.prepare("SELECT conversation_id FROM member_chat_deletion_tombstones WHERE conversation_id = ? AND member_id = ?").bind(conversationId, memberId).first<{ conversation_id: string }>();
+    return tombstone ? true : null;
   } catch { return null; }
 }

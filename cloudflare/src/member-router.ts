@@ -1,6 +1,6 @@
 import { createRemoteClerkVerifier, type ClerkVerification } from "./auth/clerk.ts";
 import { resolveMemberContext } from "./auth/member-context.ts";
-import { archiveMemberConversation, completeMemberTurn, getMemberConversation, listMemberConversations, prepareMemberTurn } from "./chat/member-history.ts";
+import { archiveMemberConversation, completeMemberTurn, deleteMemberConversation, getMemberConversation, listMemberConversations, prepareMemberTurn } from "./chat/member-history.ts";
 import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "./chat/member-memory.ts";
 import { boundedPriorTurns, runChat, type ChatAnswerInput, type ChatAnswer } from "./chat/answer.ts";
 import { isMemberBetaEnabled, resolveMemberBetaRelease } from "./member-release.ts";
@@ -63,6 +63,14 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
   if (archiveChat && request.method === "POST") {
     const conversation = await archiveMemberConversation(env.DB, context.memberId, archiveChat[1]);
     return conversation ? Response.json({ conversation }, { headers }) : denied();
+  }
+  if (match && request.method === "DELETE") {
+    const input = await body(request);
+    // The client confirmation dialog must send this literal acknowledgement;
+    // a bare route request cannot erase a private conversation.
+    if (input?.confirmation !== "DELETE") return denied();
+    const deleted = await deleteMemberConversation(env.DB, context.memberId, match[1]);
+    return deleted ? Response.json({ deleted: true }, { headers }) : denied();
   }
   const archiveMemory = url.pathname.match(/^\/beta\/api\/memory\/(mmem_[A-Za-z0-9-]{8,88})\/archive$/u);
   if (archiveMemory && request.method === "POST") {

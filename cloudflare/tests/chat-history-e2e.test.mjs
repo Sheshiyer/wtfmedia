@@ -21,7 +21,7 @@ import {
   getConversationForActor,
   listConversationsForActor,
 } from "../src/chat/history.ts";
-import { archiveMemberConversation, createMemberConversation, getMemberConversation, listMemberConversations } from "../src/chat/member-history.ts";
+import { archiveMemberConversation, createMemberConversation, deleteMemberConversation, getMemberConversation, listMemberConversations } from "../src/chat/member-history.ts";
 import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "../src/chat/member-memory.ts";
 import { resolveOperatorContext } from "../src/auth/operator-context.ts";
 
@@ -39,6 +39,8 @@ const migrations = [
   "0008_release_track.sql",
   "0009_saved_memory.sql",
   "0010_member_beta.sql",
+  "0011_clerk_invitation_id_prefix.sql",
+  "0012_member_chat_deletion.sql",
 ];
 
 function sqlite(input, json = false) {
@@ -358,6 +360,14 @@ function memberRequest(identity, path, payload, key, runChat, database = d1()) {
   }), { ...env, DB: database }, { verifyClerk: async () => identity, runChat });
 }
 
+function memberDeleteRequest(identity, conversationId, payload, database = d1()) {
+  return handleMemberRequest(new Request(`https://ops.staging.test/beta/api/chat/${conversationId}`, {
+    method: "DELETE",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(payload),
+  }), { ...env, DB: database }, { verifyClerk: async () => identity });
+}
+
 const memberAnswer = (input) => ({ answer: "A sourced answer [1].", sources: [], grounded: true, sourceMode: input.sourceMode ?? "published", uncutUnavailable: false, model: "test-model", modelFallback: false, requestId: input.requestId });
 
 test("member create and continuation replay retain one ordered turn pair and bounded prior context", async () => {
@@ -410,6 +420,45 @@ test("member turn authorization and validation fail before generation and owner 
   const archived = await memberRequest(one, path, payload, "archived-id-key", generate);
   assert.equal(archived.status, 404);
   assert.equal(generations, 2);
+});
+
+test("member permanent delete is confirmed, owner-scoped, preserves preferences, and blocks create-key resurrection", async () => {
+  const one = seedMember(117), two = seedMember(118);
+  const db = d1();
+  const payload = { question: "forget this private conversation", sourceMode: "published" };
+  let generations = 0;
+  const generate = async (input) => { generations++; return memberAnswer(input); };
+  const created = await (await memberRequest(one, "/beta/api/chat", payload, "delete-create-key-117", generate, db)).json();
+  const conversationId = created.conversation.id;
+  await db.prepare("INSERT INTO member_saved_memories (id, member_id, content, source_conversation_id, lifecycle_state, created_at, updated_at, archived_at) VALUES (?, ?, ?, ?, 'active', ?, ?, NULL)").bind("mmem_delete_117", 117, "retain this explicit preference", conversationId, "2026-09-11T00:01:00.000Z", "2026-09-11T00:01:00.000Z").run();
+
+  const missingConfirmation = await memberDeleteRequest(one, conversationId, {}, db);
+  const crossOwner = await memberDeleteRequest(two, conversationId, { confirmation: "DELETE" }, db);
+  const unknown = await memberDeleteRequest(two, "mcnv_unknown1234", { confirmation: "DELETE" }, db);
+  assert.equal(missingConfirmation.status, 404);
+  assert.equal(crossOwner.status, 404);
+  assert.deepEqual(await crossOwner.json(), await unknown.json());
+
+  const deleted = await memberDeleteRequest(one, conversationId, { confirmation: "DELETE" }, db);
+  assert.equal(deleted.status, 200);
+  assert.deepEqual(await deleted.json(), { deleted: true });
+  assert.equal(await getMemberConversation(db, 117, conversationId), null);
+  assert.equal((await listMemberConversations(db, 117))?.conversations.length, 0);
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM member_chat_conversations WHERE id = ?").bind(conversationId).first()).count, 0);
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM member_chat_messages WHERE conversation_id = ?").bind(conversationId).first()).count, 0);
+  const memory = await db.prepare("SELECT content, source_conversation_id FROM member_saved_memories WHERE id = ? AND member_id = ?").bind("mmem_delete_117", 117).first();
+  assert.deepEqual(memory, { content: "retain this explicit preference", source_conversation_id: null });
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM member_saved_memory_conversation_tombstones WHERE memory_id = ? AND member_id = ? AND source_conversation_id = ?").bind("mmem_delete_117", 117, conversationId).first()).count, 1);
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM member_chat_deletion_tombstones WHERE conversation_id = ? AND member_id = ?").bind(conversationId, 117).first()).count, 1);
+
+  const replay = await memberRequest(one, "/beta/api/chat", payload, "delete-create-key-117", async () => { assert.fail("deleted create key must not invoke generation"); }, db);
+  assert.equal(replay.status, 404);
+  assert.equal(generations, 1);
+  const fresh = await memberRequest(one, "/beta/api/chat", payload, "fresh-create-key-117", generate, db);
+  assert.equal(fresh.status, 201);
+  assert.notEqual((await fresh.json()).conversation.id, conversationId);
+  assert.equal((await memberDeleteRequest(one, conversationId, { confirmation: "DELETE" }, db)).status, 200);
+  assert.equal(await deleteMemberConversation(db, 118, conversationId), null);
 });
 
 test("member route accepts pagination cursors and rejects impossible cursor timestamps", async () => {
