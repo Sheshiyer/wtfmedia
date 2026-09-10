@@ -26,6 +26,20 @@ test("Clerk invitation client sends only the documented server-side payload", as
   });
 });
 
+test("Clerk invitation client accepts the current inv_ provider identifier", async () => {
+  const client = createClerkInvitationClient("sk_test_worker_only", async () => {
+    return Response.json({ id: "inv_3J5wa6p9DSLYvGFvYsNsugSdP8Y", status: "pending" }, { status: 201 });
+  });
+
+  const invitation = await client.create({
+    email: "pilot@example.test",
+    redirectUrl: "https://staging.example.test/beta",
+    publicMetadata: { workspace: "wtfmedia", pilot_cohort: "bangalore" },
+  });
+
+  assert.deepEqual(invitation, { id: "inv_3J5wa6p9DSLYvGFvYsNsugSdP8Y", status: "pending" });
+});
+
 test("Clerk invitation client exposes no provider body when invitation delivery fails", async () => {
   const client = createClerkInvitationClient("sk_test_worker_only", async () => new Response("rate limited", {
     status: 429,

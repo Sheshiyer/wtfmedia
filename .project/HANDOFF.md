@@ -1,5 +1,72 @@
 # Project handoff
 
+## 2026-09-10 Staging Clerk issuer alignment
+
+**Status:** STAGING DEPLOYED — staging web served Clerk from
+`mighty-hedgehog-2913.clerk.accounts.dev`, while the staging edge Worker was
+configured to verify `trusted-platypus-25.clerk.accounts.dev` tokens. This
+made the edge reject valid browser sessions before D1 membership resolution.
+
+- Aligned the staging `CLERK_ISSUER` and `CLERK_JWKS_URL` declarations with
+  the public Clerk instance loaded by the deployed staging web sign-in page.
+- Read-only Clerk verification confirms that instance has the normal session
+  `email` claim and no custom JWT templates. The Beta edge uses that standard
+  session credential; it does not request a session-customization template.
+- The Clerk development session lifetime is currently 60 minutes. This is a
+  live configuration fact and does not match the planned 720-hour policy, so
+  it remains an explicit future configuration gate rather than an inferred
+  release claim.
+
+### Staging receipt
+
+- Deployed the reviewed `release/beta` commit `b98a446` via the named
+  `wtfmedia` Cloudflare profile only: Edge deployment
+  `3b8f375f-95b5-493d-bf88-2072808456eb` and web deployment
+  `e3d25662-7183-4be0-8d70-65946ae60dc1`. Production was not touched.
+- Cloudflare confirmed the staging Edge binding set, including the matching
+  Clerk issuer/JWKS, D1, KV, R2, Vectorize, Queue, and existing
+  `CLERK_SECRET_KEY`. The staging web keeps the Edge service binding.
+- Staging D1 already contains all member-Beta tables and the environment's
+  `member_beta_releases` row is `preview`.
+- An unsigned `/beta` probe returns the deployed member page; unsigned
+  `/beta/api/context` returns the intentional non-enumerating `404
+  ops_unavailable` denial. An invited member must now complete the real
+  Clerk sign-in and reach this endpoint to prove Clerk-to-D1 membership
+  resolution and private-chat access.
+
+## 2026-09-09 Member Beta onboarding and Clerk return-target refresh
+
+**Status:** REVIEW-READY SOURCE SLICE — the invite-only member entry now
+distinguishes private Beta access from operator access. No staging or production
+deployment, Clerk configuration change, D1 mutation, invitation lifecycle
+change, or public Alpha change was made in this slice.
+
+- `/sign-in?redirect_url=/beta` now preserves the allowlisted `/beta` target,
+  so an invited member returns to the private Beta dashboard after Clerk
+  authentication rather than being silently sent to `/ops`.
+- The Clerk entry frame selects a member narrative for that destination:
+  invite-only company Beta, Bangalore-first cohort, private Ask WTF workspace,
+  and three concise verify/join/ask steps. `/ops` retains its separate operator
+  narrative and authorization language.
+- The redesigned frame removes the heavy nested faux-browser treatment,
+  narrows the desktop form rail, improves the mobile reading order, and keeps
+  the existing WTF OS wordmark, semantic palette, texture, reduced-motion
+  components, and visible public-Alpha boundary.
+
+### Verification
+
+- New return-target unit contract passed after a verified red failure;
+  the full web unit suite passed 96/96, along with strict typecheck, lint,
+  Next production build, and `git diff --check`.
+- The test runner still emits its pre-existing Vite native-config and Node
+  deprecation warnings; no test, type, lint, or build failure was present.
+
+### Next acceptance
+
+- Review and merge the source PR, deploy only to the existing staging Workers,
+  then accept the pending Clerk invitation. Confirm the first authenticated
+  landing is `/beta`, followed by the private-chat and member-isolation checks.
+
 ## 2026-09-09 Clerk session-token configuration receipt
 
 **Status:** READ-ONLY CONFIGURATION VERIFIED — the linked Clerk development
@@ -73,6 +140,36 @@ unchanged.
   manifest, and run one admin plus two Bangalore-member acceptance accounts.
 - Issues #50, #51, and #52 remain open until those staging receipts are
   verified; their source implementation merge receipts are on the issues.
+
+## 2026-09-09 Invite-only company member Beta staging activation
+
+**Status:** STAGING PREVIEW READY — the reviewed `release/beta` source is
+deployed only to `wtfmedia-edge-staging` and `wtfmedia-web-staging`. Production
+was not deployed, migrated, configured, or activated.
+
+- Remote D1 now records migrations `0009_saved_memory.sql` and
+  `0010_member_beta.sql`; the dedicated `member_beta_releases` row is
+  `staging/preview`, attributed to the active staging super-admin record.
+- `CLERK_SECRET_KEY` is a Worker secret on both staging Workers. It is absent
+  from source and was not logged. The linked Clerk development instance now
+  uses restricted sign-up, so access requires an invitation.
+- Staging `/chat` and `/beta` return `200`. Unsigned `/beta/api/context`
+  returns the intentionally non-disclosing `404`; production `/chat` remains
+  `200` and production `/beta/api/context` remains `404`.
+- The full Cloudflare suite passed 206/206, including member invitation,
+  invitation-to-subject activation, owner isolation, archive-only history,
+  explicit-save memory, and independent member-release-gate coverage.
+
+### Remaining acceptance gates
+
+- An existing staging super-admin must sign into `/ops/settings/users` and
+  dispatch two Bangalore-cohort invitations to owner-approved test addresses.
+- Each recipient must accept the Clerk invitation, sign in, and complete a
+  private-chat, history/archive, explicit-memory/archive, and cross-member
+  isolation check. Verify the resulting D1 lifecycle/audit receipts without
+  reading chat or memory payloads.
+- Keep issues #50, #51, and #52 open until those live receipts exist. No
+  production Beta release is authorized by this checkpoint.
 
 ## 2026-09-09 Authenticated history, explicit memory, and query activity
 
@@ -2435,3 +2532,22 @@ history` affordances. These are truthful UI states, not activation claims.
   passed.
 - Staging and production HTTP/UI probes remain stale Access builds; staging D1
   operator verification is blocked by API 7404.
+
+## 2026-09-10 staging member callback and sign-in refinement
+
+The staging member sign-in surface now uses the compact, padded Beta frame and
+keeps the public shell out of protected client transitions. Clerk's same-site
+absolute callback is normalized back to the fixed internal `/beta` route; an
+external callback remains rejected. The member-entry copy is invite-only and
+the public Alpha chip resolves to `https://wtfhq.in`.
+
+### Verification
+
+- Targeted Clerk callback and theme tests: 12/12; web lint, TypeScript, and
+  Cloudflare production build passed.
+- Live staging probe confirmed the absolute `/beta` callback shows the member
+  frame without the public navigation rail.
+- The correct Clerk instance has one existing pending member invitation; no
+  duplicate invitation was created or sent.
+- Remaining human gate: accept that invitation, sign in, and verify the
+  authenticated `/beta` member-context readback.

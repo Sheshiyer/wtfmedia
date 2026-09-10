@@ -10,6 +10,8 @@ export type ClerkInvitationResult =
 
 type Fetcher = (request: Request) => Promise<Response>;
 
+const clerkInvitationId = /^(?:invitation|inv)_[A-Za-z0-9_-]{1,148}$/u;
+
 function retryAfterSeconds(response: Response): number | undefined {
   const value = Number(response.headers.get("retry-after"));
   return Number.isSafeInteger(value) && value > 0 && value <= 86_400 ? value : undefined;
@@ -19,7 +21,7 @@ function validInvitation(value: unknown): value is { id: string; status: "pendin
   if (!value || typeof value !== "object") return false;
   const candidate = value as { id?: unknown; status?: unknown };
   return typeof candidate.id === "string"
-    && /^invitation_[A-Za-z0-9_-]{1,148}$/u.test(candidate.id)
+    && clerkInvitationId.test(candidate.id)
     && ["pending", "accepted", "revoked", "expired"].includes(String(candidate.status));
 }
 
@@ -53,7 +55,7 @@ export function createClerkInvitationClient(secret: unknown, fetcher: Fetcher = 
       return validInvitation(payload) ? payload : { error: "unavailable" };
     },
     async revoke(invitationId: string): Promise<ClerkInvitationResult> {
-      if (!bearer || !/^invitation_[A-Za-z0-9_-]{1,148}$/u.test(invitationId)) return { error: "unavailable" };
+      if (!bearer || !clerkInvitationId.test(invitationId)) return { error: "unavailable" };
       let response: Response;
       try {
         response = await fetcher(new Request(`https://api.clerk.com/v1/invitations/${invitationId}/revoke`, {
