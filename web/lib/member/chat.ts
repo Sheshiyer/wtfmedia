@@ -1,3 +1,5 @@
+import { parsePublicSourceRecords, type PublicSourceCitation } from "@/lib/provenance/public-source-header";
+
 export type MemberSourceMode = "published" | "uncut" | "both";
 export type MemberMessageRole = "user" | "assistant";
 
@@ -6,7 +8,10 @@ export type MemberMessage = {
   role: MemberMessageRole;
   content: string;
   createdAt: string;
-  sources?: unknown[];
+  sources?: PublicSourceCitation[];
+  sourceMode?: MemberSourceMode;
+  groundingState?: "grounded" | "ungrounded" | "unavailable";
+  uncutUnavailable?: boolean;
 };
 
 export type MemberConversation = {
@@ -51,15 +56,15 @@ function retrySourceMode(value: unknown): MemberSourceMode | null {
   return value === "uncut" || value === "both" || value === "published" ? value : null;
 }
 
-function parseSources(value: unknown): unknown[] | undefined {
+function parseMetadata(value: unknown): Record<string, unknown> {
   const record = asRecord(value);
-  const raw = record?.source_metadata_json;
-  if (typeof raw !== "string") return Array.isArray(record?.sources) ? record.sources : undefined;
+  if (!record) return {};
+  const raw = record.source_metadata_json;
+  if (typeof raw !== "string") return record;
   try {
-    const metadata = asRecord(JSON.parse(raw));
-    return Array.isArray(metadata?.sources) ? metadata.sources : undefined;
+    return asRecord(JSON.parse(raw)) ?? {};
   } catch {
-    return undefined;
+    return {};
   }
 }
 
@@ -68,12 +73,19 @@ function parseMessage(value: unknown): MemberMessage | null {
   const role = record?.role;
   const content = asString(record?.content).trim();
   if (!record || (role !== "user" && role !== "assistant") || !content) return null;
+  const metadata = parseMetadata(record);
+  const sources = parsePublicSourceRecords(Array.isArray(record.sources) ? record.sources : metadata.sources);
+  const source = sourceMode(record.sourceMode ?? record.source_mode ?? metadata.sourceMode ?? metadata.source_mode);
+  const grounding = record.groundingState ?? record.grounding_state;
   return {
     id: asString(record.id, `${role}-${content.slice(0, 16)}`),
     role,
     content,
     createdAt: asString(record.created_at, asString(record.createdAt)),
-    sources: parseSources(record),
+    ...(sources.length ? { sources } : {}),
+    ...(role === "assistant" ? { sourceMode: source } : {}),
+    ...(grounding === "grounded" || grounding === "ungrounded" || grounding === "unavailable" ? { groundingState: grounding } : {}),
+    ...(record.uncutUnavailable === true || metadata.uncutUnavailable === true ? { uncutUnavailable: true } : {}),
   };
 }
 
@@ -150,6 +162,18 @@ export function shouldFinishMemberPaginationRequest({ requestGeneration, current
 
 export function shouldApplyMemberResponse({ requestEpoch, currentEpoch, requestPath, currentPath }: { requestEpoch: number; currentEpoch: number; requestPath: string; currentPath: string }): boolean {
   return requestEpoch === currentEpoch && requestPath === currentPath;
+}
+
+export function memberAnswerPresentation(message: MemberMessage): { abstained: boolean; uncutUnavailable: boolean; sources: PublicSourceCitation[] } {
+  return {
+    abstained: message.role === "assistant" && message.groundingState === "ungrounded",
+    uncutUnavailable: message.uncutUnavailable === true,
+    sources: message.sources ?? [],
+  };
+}
+
+export function shouldKeepMemberScrollPinned({ scrollTop, scrollHeight, clientHeight }: { scrollTop: number; scrollHeight: number; clientHeight: number }): boolean {
+  return scrollHeight - scrollTop - clientHeight < 50;
 }
 
 export function retryIntentForMemberResponse(response: MemberConversationResponse): MemberRetryIntent | null {

@@ -8,14 +8,28 @@ import { ConversationEmptyState } from "@/components/domain/public/ConversationT
 import { SourcePanel } from "@/components/domain/public/SourcePanel";
 import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/Button";
-import { memberCommittedRequestForRetry, memberConversationHref, memberGreeting, newMemberRequestKey, parseMemberConversationResponse, retryIntentForMemberResponse, shouldApplyMemberResponse, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversationResponse, type MemberRetryIntent } from "@/lib/member/chat";
+import { memberAnswerPresentation, memberCommittedRequestForRetry, memberConversationHref, memberGreeting, newMemberRequestKey, parseMemberConversationResponse, retryIntentForMemberResponse, shouldApplyMemberResponse, shouldKeepMemberScrollPinned, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversationResponse, type MemberRetryIntent } from "@/lib/member/chat";
 import { useMemberFetch } from "./MemberBetaGate";
 import { MemberSessionNavigator } from "./MemberSessionNavigator";
 
 type WorkspaceState = "idle" | "loading" | "error" | "unavailable";
 
-function Thread({ view }: { view: MemberConversationResponse }) {
-  return <div className="mx-auto max-w-3xl space-y-6" role="log" aria-label="Conversation">{view.messages.map((message) => <article key={message.id} className={message.role === "user" ? "flex justify-end" : "space-y-3"}>{message.role === "user" ? <p className="max-w-[85%] rounded-control border-2 border-foreground bg-attention px-4 py-3 text-sm text-on-attention">{message.content}</p> : <><div className="border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary whitespace-pre-wrap">{message.content}</div>{message.sources ? <SourcePanel sources={message.sources as never[]} /> : null}</>}</article>)}</div>;
+function Thread({ view, sending, canRetry, onRetry }: { view: MemberConversationResponse; sending: boolean; canRetry: boolean; onRetry: () => void }) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const readerScrolledUp = useRef(false);
+
+  useEffect(() => {
+    if (!readerScrolledUp.current) messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [sending, view.messages]);
+
+  return <div ref={scrollContainerRef} onScroll={() => {
+    const container = scrollContainerRef.current;
+    if (container) readerScrolledUp.current = !shouldKeepMemberScrollPinned(container);
+  }} className="mx-auto max-h-[calc(100dvh-17rem)] max-w-3xl overflow-y-auto overscroll-contain scroll-pb-60 space-y-6 pr-1" role="log" aria-label="Conversation" aria-live="polite">{view.messages.map((message) => {
+    const presentation = memberAnswerPresentation(message);
+    return <article key={message.id} className={message.role === "user" ? "flex justify-end" : "space-y-3"}>{message.role === "user" ? <p className="max-w-[85%] rounded-control border-2 border-foreground bg-attention px-4 py-3 text-sm text-on-attention">{message.content}</p> : <><div className="border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary whitespace-pre-wrap">{message.content}</div>{presentation.sources.length ? <SourcePanel sources={presentation.sources} /> : null}{presentation.abstained ? <p className="text-xs font-medium italic text-secondary" data-testid="abstention-label">the catalogue doesn&apos;t support that claim</p> : null}{presentation.uncutUnavailable ? <p className="text-xs text-secondary">uncut evidence was unavailable; any published evidence remains labelled.</p> : null}</>}</article>;
+  })}{sending ? <p role="status" className="border-l-4 border-knowledge pl-4 text-sm font-semibold text-secondary" data-testid="loading-indicator">looking through the catalogue</p> : null}{canRetry ? <div className="flex justify-center border-t-2 border-foreground/15 px-4 py-3"><Button type="button" variant="ghost" className="text-xs" onClick={onRetry} data-testid="retry-button">retry answer</Button></div> : null}<div ref={messagesEndRef} /></div>;
 }
 
 export function MemberChatWorkspace({ conversationId }: { conversationId?: string }) {
@@ -183,8 +197,8 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
       <section className="min-w-0 pb-60" aria-live="polite">
         {!conversationId ? <ConversationEmptyState /> : null}
         {state === "loading" ? <p role="status" className="mt-6 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary">loading conversation…</p> : null}
-        {state === "unavailable" ? <div role="status" className="mt-6 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary">This conversation is unavailable. Return to your conversations to choose another one.</div> : null}
-        {view ? <div className="pt-6"><Thread view={view} /></div> : null}
+        {state === "unavailable" ? <div role="status" className="mt-6 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary"><p>This conversation is unavailable. Return to your conversations to choose another one.</p><Button type="button" variant="secondary" onClick={() => void load()} className="mt-3 min-h-9 px-3 py-1 text-xs">retry loading conversation</Button></div> : null}
+        {view ? <div className="pt-6"><Thread view={view} sending={sending} canRetry={canRetry} onRetry={() => void submit()} /></div> : null}
         {state === "error" ? <p role="status" className="mx-auto mt-4 max-w-3xl border-l-4 border-attention px-4 text-sm text-secondary">We could not finish that answer. {canRetry ? "Retry with the same question." : "Try again."}</p> : null}
       </section>
     </div>

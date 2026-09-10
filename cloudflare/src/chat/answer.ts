@@ -7,6 +7,7 @@ import {
   resolveEpisodeScopedSources,
   type DualSourceCitation,
   type SourceMode,
+  type VectorMatchLike,
 } from "./source-mode.ts";
 
 export type ChatAnswerEnvironment = {
@@ -62,7 +63,8 @@ Every factual sentence needs a matching [source] citation. A mention of a person
 ownership, employment, authorship, guest status, or any other relationship. Do not infer catalogue-wide counts
 from excerpts. If the excerpts do not establish the answer, say so plainly.
 When the question names a person, use only excerpts whose title or text contains that named person.
-Do not answer from semantically similar excerpts about another guest or episode.`;
+Do not answer from semantically similar excerpts about another guest or episode.
+Put a numeric citation such as [1] on every factual sentence and every list item. Avoid uncited introductory prose.`;
 
 function requestId(value: unknown): string {
   return typeof value === "string" && REQUEST_ID_PATTERN.test(value) ? value : crypto.randomUUID();
@@ -106,6 +108,34 @@ function citedEvidenceFallback(sources: Array<{ n: number; title: string; text?:
   ].join("\n\n");
 }
 
+/** A conservative attribution check, not a claim of semantic entailment. */
+function hasCitationCoverage(answer: string, sourceCount: number): boolean {
+  const citations = [...answer.matchAll(/\[(\d+)\]/gu)].map((match) => Number(match[1]));
+  if (!citations.length || citations.some((citation) => citation < 1 || citation > sourceCount)) return false;
+  let hasProse = false;
+  for (const rawLine of answer.split(/\r?\n/u)) {
+    // Only neutral section labels are exempt; a factual heading still needs a cite.
+    if (/^\s{0,3}#{1,6}\s+(?:answer|summary|findings|evidence|sources|conclusion)\s*$/iu.test(rawLine)) continue;
+    const line = rawLine
+      .replace(/^\s*(?:[-*+]|\d+[.)])\s+/u, "")
+      // Associate "A claim. [1]" with its preceding sentence, not the next one.
+      .replace(/([.!?])([ \t]+(?:\[\d+\][ \t]*)+)/gu, "$2$1 ")
+      // These common titles/abbreviations are not sentence boundaries.
+      .replace(/\b(?:Mr|Mrs|Ms|Dr|Prof|Sr|Jr|vs|etc)\./giu, (abbreviation) => abbreviation.replace(".", "．"));
+    for (const sentence of line.split(/[.!?]+(?=[ \t]+|$)/u)) {
+      if (!/[\p{L}\p{N}]/u.test(sentence.replace(/\[\d+\]/gu, ""))) continue;
+      hasProse = true;
+      if (!/\[\d+\]/u.test(sentence)) return false;
+    }
+  }
+  return hasProse;
+}
+
+function hasUsableExcerpt(match: VectorMatchLike): boolean {
+  return typeof match.score === "number" && Number.isFinite(match.score)
+    && typeof match.metadata?.text === "string" && match.metadata.text.trim().length > 0;
+}
+
 function requiresVerifiedMetadata(question: string) {
   return /\b(?:own|owner|owns|ownership|co-?founder|founder|host|producer|created|runs)\b[\s\S]{0,100}\b(?:wtf|podcast|show|channel)\b/i.test(question)
     || /\b(?:recur(?:ring|s)?|repeat(?:s|ed|ing)?|appear(?:s|ances?|ing)?|mentioned|occur(?:s|rence)?|most)\b[\s\S]{0,100}\b(?:\d+\s*\+?\s*(?:episodes?|conversations?)|across|throughout)\b/i.test(question);
@@ -139,13 +169,17 @@ export async function runChat(input: ChatAnswerInput, env: ChatAnswerEnvironment
   }
 
   try {
+    const currentNames = extractNamedEntityPhrases(question);
     const priorQuestion = priorTurns.findLast((turn) => turn.role === "user")?.content;
-    const retrievalQuestion = priorQuestion ? `${priorQuestion.slice(0, 1_000)}\nFollow-up question: ${question}` : question;
+    const priorNamedQuestion = priorTurns.findLast((turn) => turn.role === "user" && extractNamedEntityPhrases(turn.content).length > 0)?.content;
+    const anchorQuestion = currentNames.length ? question : priorNamedQuestion ?? question;
+    const priorContext = currentNames.length ? undefined : priorNamedQuestion ?? priorQuestion;
+    const retrievalQuestion = priorContext ? `${priorContext.slice(0, 1_000)}\nFollow-up question: ${question}` : question;
     const matches = await env.VECTORIZE.query(await vectorFor(env, retrievalQuestion), buildVectorQueryOptions(episodeId));
-    const relevantMatches = prioritizeMatchesForQuestion(matches.matches ?? [], question);
-    const namedEntityQuestion = extractNamedEntityPhrases(question).length > 0;
+    const relevantMatches = prioritizeMatchesForQuestion((matches.matches ?? []).filter(hasUsableExcerpt), anchorQuestion);
+    const namedEntityQuestion = extractNamedEntityPhrases(anchorQuestion).length > 0;
     const resolved = resolveEpisodeScopedSources(relevantMatches, sourceMode, episodeId, MIN_SCORE, 6, {
-      dedupeByEpisode: !namedEntityQuestion,
+      dedupeByEpisode: episodeId === null && !namedEntityQuestion,
     });
     const sources = resolved.citations.map((source) => {
       const match = relevantMatches.find((item: { id?: string; metadata?: { video_id?: string } }) => item.id === source.segmentId)
@@ -174,7 +208,7 @@ export async function runChat(input: ChatAnswerInput, env: ChatAnswerEnvironment
     ]);
     const citations = [...answered.answer.matchAll(/\[(\d+)\]/g)].map((match) => Number(match[1]));
     const projectedSources = sources.map(({ text: _text, ...source }) => source);
-    if (citations.length === 0 || citations.some((citation) => citation < 1 || citation > sources.length)) {
+    if (!hasCitationCoverage(answered.answer, sources.length)) {
       console.warn("wtfmedia answer rejected: invalid citations", { sourceCount: sources.length, citations });
       return {
         answer: citedEvidenceFallback(sources), sources: projectedSources, grounded: true,

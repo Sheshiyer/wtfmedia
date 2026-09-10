@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   appendMemberHistoryPage,
@@ -7,11 +8,15 @@ import {
   memberGreeting,
   parseMemberConversationResponse,
   parseMemberHistoryResponse,
+  memberAnswerPresentation,
   retryIntentForMemberResponse,
   shouldFinishMemberPaginationRequest,
   sourceModeForMemberQuestion,
   shouldApplyMemberResponse,
+  shouldKeepMemberScrollPinned,
 } from "@/lib/member/chat";
+
+const memberWorkspace = readFileSync(new URL("../../components/domain/member/MemberChatWorkspace.tsx", import.meta.url), "utf8");
 
 describe("member chat client contract", () => {
   it("projects an owned retryable conversation without exposing infrastructure fields", () => {
@@ -127,5 +132,48 @@ describe("member chat client contract", () => {
   it("does not let a superseded pagination request finish the current loading state", () => {
     expect(shouldFinishMemberPaginationRequest({ requestGeneration: 4, currentGeneration: 4 })).toBe(true);
     expect(shouldFinishMemberPaginationRequest({ requestGeneration: 4, currentGeneration: 5 })).toBe(false);
+  });
+
+  it("keeps only safe persisted answer state for truthful member presentation", () => {
+    const parsed = parseMemberConversationResponse({
+      conversation: { id: "mcnv_abcdefgh", title: "Evidence", source_mode: "both", lifecycle_state: "active" },
+      messages: [{
+        id: "mmsg_abcdefgh",
+        role: "assistant",
+        content: "The catalogue cannot support that claim.",
+        created_at: "2026-09-11T00:01:00.000Z",
+        grounding_state: "ungrounded",
+        source_metadata_json: JSON.stringify({
+          sourceMode: "both",
+          uncutUnavailable: true,
+          sources: [{ n: 4, title: "Cited episode", source_mode: "published", t: 42, model: "hidden" }],
+          model: "hidden",
+          requestId: "hidden",
+        }),
+        model: "hidden",
+        request_id: "hidden",
+        idempotency_key: "hidden",
+      }],
+    });
+
+    expect(memberAnswerPresentation(parsed!.messages[0]!)).toEqual({
+      abstained: true,
+      uncutUnavailable: true,
+      sources: [{ n: 4, title: "Cited episode", timeSec: 42, sourceMode: "published" }],
+    });
+    expect(parsed!.messages[0]).not.toHaveProperty("model");
+    expect(parsed!.messages[0]).not.toHaveProperty("requestId");
+    expect(parsed!.messages[0]).not.toHaveProperty("idempotencyKey");
+  });
+
+  it("only keeps a member thread pinned while the reader remains near its end", () => {
+    expect(shouldKeepMemberScrollPinned({ scrollTop: 451, scrollHeight: 1000, clientHeight: 500 })).toBe(true);
+    expect(shouldKeepMemberScrollPinned({ scrollTop: 300, scrollHeight: 1000, clientHeight: 500 })).toBe(false);
+  });
+
+  it("retries an unavailable selected conversation through its existing load path", () => {
+    const unavailablePanel = memberWorkspace.split('state === "unavailable"')[1]?.split("{view ?")[0] ?? "";
+    expect(unavailablePanel).toContain("onClick={() => void load()}");
+    expect(unavailablePanel).toContain("retry loading conversation");
   });
 });

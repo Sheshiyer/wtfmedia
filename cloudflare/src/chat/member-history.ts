@@ -1,4 +1,4 @@
-import { parseSourceMode, type SourceMode } from "./source-mode.ts";
+import { parseEpisodeId, parseSourceMode, type SourceMode } from "./source-mode.ts";
 import type { DB } from "../db.ts";
 
 export type MemberConversation = { id: string; member_id: number; title: string; source_mode: SourceMode; episode_id: string | null; lifecycle_state: "active" | "archived"; created_at: string; updated_at: string; archived_at: string | null };
@@ -61,7 +61,7 @@ export async function prepareMemberTurn(db: DB, memberId: number, conversationId
   if (conversationId !== undefined && !id(conversationId)) return null;
   if (input.resumeMessageId !== undefined && (conversationId === undefined || typeof input.resumeMessageId !== "string" || !/^mmsg_[A-Za-z0-9-]{8,88}$/u.test(input.resumeMessageId))) return null;
   if (input.sourceMode !== undefined && (typeof input.sourceMode !== "string" || !["published", "uncut", "both"].includes(input.sourceMode))) return null;
-  if (input.episodeId !== undefined && (typeof input.episodeId !== "string" || !/^[A-Za-z0-9_-]{1,128}$/u.test(input.episodeId))) return null;
+  if (input.episodeId !== undefined && (typeof input.episodeId !== "string" || parseEpisodeId(input.episodeId) !== input.episodeId)) return null;
   if (!/^[A-Za-z0-9._:-]{1,160}$/u.test(input.requestId)) return null;
   const key = await scopedKey(memberId, input.idempotencyKey);
   const userKey = `user:${key}`;
