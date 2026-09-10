@@ -48,19 +48,35 @@ changed by this deployment.
   remains enabled and authenticatable, the seven-day maximum session lifetime
   and single-session policy are unchanged, and the sole redirect remains the
   staging `/beta` URL.
+- Live tracing then proved the browser bearer reached the staging Edge but both
+  role lookups returned 404 before D1 admission. The instance had no custom
+  session claims while the Edge identity verifier requires a normalized
+  `email`. A second dry run and exact-instance patch added only
+  `session.claims.email = {{user.primary_email_address}}`; Clerk retained its
+  default 60-second token lifetime and five-second clock skew.
 - Immediate readback found the same three Clerk users and no additional page.
-  No user, invitation, D1 row, Worker, secret, route, DNS record, production
-  instance, or Public Alpha resource was created or changed by this provider
-  update.
+  No user, invitation, operator row, Worker, secret, route, DNS record,
+  production instance, or Public Alpha resource was created or changed by
+  either provider update.
+
+### First live acceptance
+
+- After Clerk's one-minute token refresh, the existing
+  `thoughtseedlabs@gmail.com` session passed `/beta/api/context`, chat, and
+  memory loading and rendered the real private member workspace. D1 readback
+  shows one active, Clerk-bound company member created by open enrollment.
+- Read-only D1 verification confirms `sheshnarayan.iyer@gmail.com` remains the
+  one active `super_admin`; its historical invited member row remains unbound
+  and did not override operator authority.
 
 ### Remaining live acceptance
 
 - Sign out and complete one fresh Google sign-in with the active D1
   super-admin. It must route from `/beta` to `/beta/ops` without creating a
   member row.
-- Complete fresh sign-ins with two ordinary accounts. Each must receive a
-  distinct owner-scoped member workspace, then pass private chat, history,
-  saved-memory, logout/reauthentication, and cross-member isolation checks.
+- Complete a fresh sign-in with a second ordinary account, then verify the two
+  member workspaces remain owner-isolated across private chat, history,
+  saved-memory, logout, and reauthentication.
 
 ## 2026-09-10 Worker topology and deploy-target containment
 
