@@ -134,13 +134,14 @@ reserve `cf:deploy:production` for an explicitly authorized production action.
 The Edge package follows the same `deploy:staging` / `deploy:production`
 pattern.
 
-The invite-only company member Beta is a separate staging-only `/beta` lane.
-It needs both Clerk verification and an active D1 member invitation record.
-Bangalore is the first cohort in one shared company workspace. Members own
-private archive-only chat and explicit saved memory; the operator roster may
-manage lifecycle but never exposes member content. Its dedicated release
-manifest begins paused, rejects production, and cannot change `/chat` or
-`/api/chat`.
+The company member Beta is a separate staging-only `/beta` lane. Any verified
+Clerk user who is not an active D1 operator receives an owner-scoped member
+account on first access. Admin, editor, and super-admin authority remains an
+explicit `operators` allowlist and is never derived from Clerk metadata or
+ordinary membership. Members own private archive-only chat and explicit saved
+memory; the operator roster may manage lifecycle but never exposes member
+content. Its dedicated release manifest rejects production and cannot change
+`/chat` or `/api/chat`.
 
 ## Ingest safety rule
 

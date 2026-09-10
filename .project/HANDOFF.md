@@ -1,8 +1,58 @@
 # Project handoff
 
+## 2026-09-10 Beta open enrollment and fixture withdrawal
+
+**Status:** STAGING DEPLOYED — verified non-operator Clerk users now receive a
+private member account on first access. Administrator authority remains an
+explicit active D1 `operators` mapping. Production and Public Alpha were not
+changed by this deployment.
+
+- Edge staging version: `44e03259-df3b-4e55-a6e0-89a354c5c597`.
+- Web staging version: `1493c650-fd4a-488e-9492-9cfce43cb10c`.
+- `/beta` returns 200, the rejected `/beta/preview` fixture now returns 404,
+  and unsigned `/beta/api/context` retains the non-enumerating `404
+  ops_unavailable` boundary.
+- `https://wtfhq.in/beta/preview` remains 404.
+
+### Authorization contract
+
+- Clerk verifies identity only. A verified user without an active operator row
+  self-provisions one active `member_users` row bound to the exact Clerk
+  subject and receives only member authority.
+- An active operator email is excluded from member self-provisioning and routes
+  through `/beta/ops`; only D1 may confer editor, admin, or super-admin rights.
+- Suspended and revoked member rows remain denied. Existing member chat,
+  history, and saved-memory queries remain owner-bound at the SQL boundary.
+- The fake browser-only member fixture and its route, data module, component,
+  and unit test were deleted rather than retained as an authentication bypass.
+
+### Verification
+
+- Phase 2 deterministic verification passed, including 210/210 Edge tests,
+  10/10 Phase 2 browser tests, TypeScript, unit coverage, and the privacy scan.
+- Live probes confirmed the staging and production boundaries listed above.
+- The correct staging Edge still verifies the `mighty-hedgehog-2913` Clerk
+  issuer/JWKS and binds only staging resources.
+- Read-only staging D1 verification confirms the requested account remains the
+  one active `super_admin`; its older unbound invited member row cannot override
+  that operator mapping. The member release remains `staging/preview`.
+
+### Remaining external gate
+
+- The correct Clerk development instance still presents provider-side
+  restricted sign-up. Disable that setting in `mighty-hedgehog-2913` and keep
+  Google enabled before ordinary users can create Clerk accounts.
+- The available local Clerk CLI is linked to a different application, so it
+  was intentionally not used. The in-app browser bridge failed before exposing
+  any tab with `Unable to load browser request-header policy`; no Clerk setting
+  was mutated in this run.
+- After the exact-instance toggle, verify one active super-admin routes to
+  `/beta/ops` without creating a member row, then verify two ordinary accounts
+  receive distinct owner-scoped member workspaces.
+
 ## 2026-09-10 Worker topology and deploy-target containment
 
-**Status:** STAGING PREVIEW DEPLOYED — no Worker was deleted. The required
+**Status:** DEPLOY TARGETS CONTAINED — no Worker was deleted. The required
 topology is a pair per environment, not duplicate application assets:
 
 - Production: `wtfmedia-web` owns `https://wtfhq.in`; its private service
@@ -10,10 +60,8 @@ topology is a pair per environment, not duplicate application assets:
   worker, not a separate Worker.
 - Staging: `wtfmedia-web-staging` owns the Workers staging hostname and binds
   only to `wtfmedia-edge-staging`.
-- The staging-only `/beta/preview` route renders two clearly labelled,
-  browser-only fake member fixtures. It is hostname-gated, `noindex`, has no
-  Clerk/D1/API calls, and exists only for visual review of member history and
-  explicit-memory separation while live identity acceptance remains blocked.
+- The temporary staging-only `/beta/preview` fixture was withdrawn in the
+  subsequent open-enrollment deployment above.
 
 ### Containment receipt
 
@@ -21,19 +69,18 @@ topology is a pair per environment, not duplicate application assets:
   worker. It was immediately rolled back to prior Worker version
   `3d5a5965-14f3-486a-a608-330d539dec81`; no migration, secret, D1, queue, or
   production-route change occurred.
-- Staging preview then deployed explicitly with `--env staging` as Worker
+- Staging preview was then deployed explicitly with `--env staging` as Worker
   version `6d5b9997-d728-4c74-ab44-0c34c12dc5ed`. A live staging probe returned
-  the fixture; `https://wtfhq.in/beta/preview` returns 404.
+  the fixture at that historical point; the fixture is now removed from
+  staging, and `https://wtfhq.in/beta/preview` remains 404.
 - Ambiguous `cf:deploy` / `deploy` package scripts now fail closed. Staging
   and production each require an explicit script, and the named `wtfmedia`
   web alias now means staging.
 
-### Remaining live acceptance
+### Topology rule
 
-- Do not delete either Edge Worker: they are the corresponding web worker's
-  service-binding API authority. The unresolved gate is one correct-instance
-  Clerk identity reaching staging Edge and activating the invited D1 member
-  record, followed by two-account owner-isolation checks.
+- Do not delete either Edge Worker: each is its corresponding web worker's
+  service-binding API authority.
 
 ## 2026-09-10 Staging Clerk issuer alignment
 

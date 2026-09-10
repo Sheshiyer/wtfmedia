@@ -66,7 +66,7 @@ export default function CompanyUsersPage() {
   };
 
   return <div>
-    <WorkspaceHeader size="page" eyebrow="settings / company users" title="company users" summary="Bangalore is the first invite-only cohort in one shared company workspace. Membership never grants operator access or visibility into another member’s private chat." accent="information" />
+    <WorkspaceHeader size="page" eyebrow="settings / company users" title="company users" summary="Verified users receive a private member account automatically. Membership never grants operator access or visibility into another member’s private chat." accent="information" />
     <form onSubmit={invite} className="mt-6 grid gap-4 rounded-panel border-2 border-foreground bg-surface-raised p-5 md:grid-cols-4" aria-label="invite company user">
       <label className="grid gap-1 text-sm font-semibold">email<input required name="email" type="email" className="border-2 border-foreground bg-canvas px-3 py-2" /></label>
       <label className="grid gap-1 text-sm font-semibold">office<input required name="office" defaultValue="Bangalore" className="border-2 border-foreground bg-canvas px-3 py-2" /></label>

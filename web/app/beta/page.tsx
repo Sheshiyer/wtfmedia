@@ -39,7 +39,7 @@ function MemberBetaGate({
   const copy = state === "loading"
     ? { mode: "recovery" as const, heading: "Checking your private workspace", body: "Private chat, history, and saved notes stay hidden until this check succeeds." }
     : state === "member-unavailable"
-      ? { mode: "request-access" as const, heading: "Your session is not a Beta member yet", body: "Finish the emailed invitation using the invited address, then return to this page." }
+      ? { mode: "request-access" as const, heading: "We could not finish your Beta account", body: "Sign out, sign in again with your verified address, then retry this access check." }
       : { mode: "unavailable" as const, heading: "We could not open the Beta workspace", body: "Nothing private is being displayed. You can safely try the access check again." };
 
   return (
@@ -199,7 +199,7 @@ export default function MemberBetaPage() {
 
   return (
     <main className="mx-auto w-full max-w-5xl p-6" data-member-beta>
-      <p className="font-label text-xs font-bold uppercase tracking-wider text-muted">Ask WTF · invite-only company beta</p>
+      <p className="font-label text-xs font-bold uppercase tracking-wider text-muted">Ask WTF · company beta</p>
       <h1 className="mt-2 font-heading text-4xl font-bold lowercase">private member chat</h1>
       <p className="mt-3 max-w-2xl text-secondary">Your conversation history is private to your account. Public Alpha remains separate and anonymous.</p>
       <form onSubmit={ask} className="mt-6 grid gap-3">
