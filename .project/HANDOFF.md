@@ -1,5 +1,264 @@
 # Project handoff
 
+## 2026-09-11 Member Beta anti-drift correction
+
+**Status:** ANNOTATED LAYOUT + AUTHENTICATED IAB VERIFIED — the owner's 1382x887
+overlap and composer annotations are resolved on the real signed-in staging
+route. Session cards remain inside their rail, titles clamp to two lines, the
+chat bar is the live-production Alpha capsule, and the icon-labelled Ask WTF /
+Settings pill remains below it.
+
+### Recovered owner contract
+
+- Preserve the floating top-left WTF OS wordmark and minimal navigation pill.
+- Keep Account, Theme, and Appearance utilities in the hamburger; the bottom
+  pill is workspace navigation only and may carry the primary Settings route.
+- Begin with the existing Alpha Ask WTF experience. Authentication, persistent
+  conversations, history, memory, and member Settings are additions to that
+  experience, not permission to replace it with a dashboard.
+- Do not render private destinations or data before verified sign-in.
+- Keep ordinary members and D1-authorized operators on separate routes and
+  authority paths.
+- Permanently reject `/beta/preview`, fake member data, browser fixtures, and
+  demo pages as product or acceptance surfaces.
+
+### Anti-drift implementation lock
+
+- The member empty Ask surface directly reuses Public Alpha's
+  `ConversationEmptyState` and `AskComposer`.
+- Member Beta selects the live-production compact `AskComposer` variant: a
+  single-line input and compact Ask WTF button without the expanded source-mode
+  rail or full-width panel background.
+- Desktop session grids and links remain zero-min-width; titles clamp to two
+  lines with long-word wrapping; long history scrolls inside its bounded rail.
+- The rejected welcome/dashboard feature grid is absent.
+- The member auth frame uses Alpha's cream/ink evidence-card composition;
+  the dark operator gateway remains operator-only.
+- Member Settings nests only its route navigation and content beneath the shared
+  shell; it does not add another global header.
+- The bottom pill retains only Ask WTF and Settings as icon-labelled primary
+  destinations. Sessions remain in the rail/drawer and Settings owns memory,
+  sessions/privacy, and appearance.
+- The Phase 2 member UI addendum, `.planning/STATE.md`, ISA criteria, and durable
+  memory record this same contract and must be updated together after any future
+  owner-approved change.
+
+### Release boundary
+
+- Commit `adf8494` was deployed to staging before this visual correction as Edge
+  `f19c1ad8-80b3-4841-b86a-95efd67ec640` and web
+  `510da7f5-0218-42d1-a01f-d9ac9a581df7`.
+- The corrected web source at commit `5bdbd3e` was deployed through the named
+  `wtfmedia` staging profile as web version
+  `51cce902-fdde-4327-80f3-758f79d38d30`. Edge remained on the reviewed
+  `f19c1ad8-80b3-4841-b86a-95efd67ec640` release because this correction did
+  not change Edge source.
+- Authenticated IAB proved the shared Alpha evidence card and composer on
+  `/beta`, persisted a real private conversation at a route-backed URL,
+  continued it, restored both turns after reload, and preserved selection
+  through browser back/forward. Account, memory, sessions, and appearance
+  Settings routes opened under one shared shell without duplicate chrome.
+- The answer truthfully abstained when the current catalogue did not support
+  the question; that is a valid evidence boundary, not sourced-answer proof.
+- `/beta/preview` remains `404` on staging and production.
+- The owner's annotations supersede the visual acceptance of web version
+  `51cce902-fdde-4327-80f3-758f79d38d30`: its real flow passed, but the rail
+  overlap and expanded composer did not. Do not reuse that version as visual
+  approval.
+- Commit `56aad90` was deployed through the named `wtfmedia` staging profile as
+  web version `e298b69c-d0a0-49a4-b528-5f3914703e0e`. At the annotated 1382x887
+  IAB viewport, two real session cards stayed within the 240px rail, their
+  titles clamped to two lines, the evidence card remained unobscured, the
+  compact single-line composer had no background band or mode rail, and the
+  Ask WTF / Settings pill displayed chat and settings icons.
+- The corrected compact composer successfully continued the existing private
+  conversation, and the truthful evidence fallback remained attached to that
+  canonical route.
+- The independent QA subagent could not see the parent task's authenticated IAB
+  surface and exposed only unauthenticated Chrome sessions. It correctly left
+  that check blocked rather than substituting a signed-out page; the visual
+  receipt above is the primary task's direct authenticated IAB evidence.
+- Production, `wtfhq.in`, DNS, Clerk configuration, and production data remain
+  untouched.
+
+## 2026-09-11 Member Beta workspace remediation map
+
+**Status:** PLANNING-READY — the authenticated `/beta` shell remains the live
+staging integration baseline, but the 2026-09-10 visual review rejected its
+single-page information architecture as the final member product. No product
+code, deployment, provider configuration, D1 data, Worker, DNS, production, or
+Public Alpha state changed in this planning checkpoint.
+
+- The comprehensive implementation handoff is
+  `.planning/inputs/2026-09-11-member-beta-workspace-routing-remediation-plan.md`.
+- The mapping confirms that Clerk identity, D1 operator/member authority,
+  owner-scoped conversation persistence, explicit saved memory, source panels,
+  WTF OS shell tokens, responsive disclosure, and Alpha/Beta isolation already
+  exist and must be preserved.
+- The actual gaps are member conversation continuation, history pagination,
+  deep-linked/current-session routing, per-conversation request isolation,
+  normal-member Settings, explicit preference-import review, member navigation,
+  and non-internal copy.
+- The target experience uses a persistent ChatGPT/Claude-style conversation rail
+  and route-backed chat workspace. Memory moves to member Settings and remains
+  distinct from conversation history; operator Settings remain admin-only.
+- The existing open-enrollment acceptance plan is incorporated unchanged. The
+  feature is not accepted until one active super-admin and two ordinary members
+  pass routing, persistence, logout/login, and cross-member isolation on staging.
+
+### Next session
+
+Start at Wave 0 of the mapped plan in an isolated worktree rooted at the current
+reviewed Beta source. Re-verify the preserve/adapt/build ledger, write the member
+UI addendum, and add red tests for gaps G1–G12 before implementation. Do not
+delete or rebuild working auth/data seams, do not use a browser fixture, and do
+not deploy until the implementation slice passes review and deterministic checks.
+
+## 2026-09-10 Authenticated member dashboard shell
+
+**Status:** STAGING DEPLOYED AND VISUALLY VERIFIED — the authenticated member
+route now renders the reviewed WTF OS workspace instead of the unframed
+implementation page. Authentication, operator routing, member ownership, and
+the existing Edge/D1 API boundary are unchanged.
+
+- Web staging version: `3e7789c2-08c9-4999-93b9-dde4c73da447` from source
+  commit `aa0c745`. No Edge or production deployment was performed.
+- `/beta` now enters an explicit member-mode `AppShell` with the WTF OS top
+  rail, member navigation, theme control, logout, and bottom workspace pill.
+- The ready state presents the account-scoped Ask WTF composer, active sourced
+  conversation, private session history, and explicit-save memory as one
+  responsive member dashboard. The earlier raw cream page is no longer the
+  authenticated presentation.
+- Member navigation is intentionally limited to Ask WTF, sessions, and memory.
+  Operator Profile, Settings, release controls, and cross-account data remain
+  absent; a verified D1 operator still redirects to `/beta/ops` before the
+  member endpoint is consulted.
+
+### Verification
+
+- Web unit tests pass 106/106 and contract tests pass 86/86; strict typecheck,
+  lint, production build, and `git diff --check` pass.
+- The authenticated in-app-browser session resolved the real staging context,
+  chat history, and memory APIs, then rendered the member shell and all three
+  private sections. The disclosure opened with logout, theme, and the three
+  member destinations.
+- Runtime logs contain no application error. The only browser warning is
+  Clerk's expected development-key notice for this staging development
+  instance.
+- Remaining multi-account acceptance is unchanged: verify the active D1
+  super-admin redirects to `/beta/ops`, then use a second ordinary account to
+  prove owner isolation across chat, history, memory, logout, and sign-in.
+
+## 2026-09-10 Beta open enrollment and fixture withdrawal
+
+**Status:** STAGING DEPLOYED — verified non-operator Clerk users now receive a
+private member account on first access. Administrator authority remains an
+explicit active D1 `operators` mapping. Production and Public Alpha were not
+changed by this deployment.
+
+- Edge staging version: `44e03259-df3b-4e55-a6e0-89a354c5c597`.
+- Web staging version: `1493c650-fd4a-488e-9492-9cfce43cb10c`.
+- `/beta` returns 200, the rejected `/beta/preview` fixture now returns 404,
+  and unsigned `/beta/api/context` retains the non-enumerating `404
+  ops_unavailable` boundary.
+- `https://wtfhq.in/beta/preview` remains 404.
+
+### Authorization contract
+
+- Clerk verifies identity only. A verified user without an active operator row
+  self-provisions one active `member_users` row bound to the exact Clerk
+  subject and receives only member authority.
+- An active operator email is excluded from member self-provisioning and routes
+  through `/beta/ops`; only D1 may confer editor, admin, or super-admin rights.
+- Suspended and revoked member rows remain denied. Existing member chat,
+  history, and saved-memory queries remain owner-bound at the SQL boundary.
+- The fake browser-only member fixture and its route, data module, component,
+  and unit test were deleted rather than retained as an authentication bypass.
+
+### Verification
+
+- Phase 2 deterministic verification passed, including 210/210 Edge tests,
+  10/10 Phase 2 browser tests, TypeScript, unit coverage, and the privacy scan.
+- Live probes confirmed the staging and production boundaries listed above.
+- The correct staging Edge still verifies the `mighty-hedgehog-2913` Clerk
+  issuer/JWKS and binds only staging resources.
+- Read-only staging D1 verification confirms the requested account remains the
+  one active `super_admin`; its older unbound invited member row cannot override
+  that operator mapping. The member release remains `staging/preview`.
+
+### Clerk provider gate
+
+- The Clerk CLI was authenticated and explicitly linked to the `WtfOS`
+  application (`app_3J5UCAhqn41tl3oO9tAV1D9totj`) and its
+  `mighty-hedgehog-2913` development instance
+  (`ins_3J5UCE1dosqLPdOcdxZ5ZXnkBVm`).
+- A dry run and immediate exact-instance patch changed only
+  `auth_access_control.sign_up_mode` from `restricted` to `public`. Google
+  remains enabled and authenticatable, the seven-day maximum session lifetime
+  and single-session policy are unchanged, and the sole redirect remains the
+  staging `/beta` URL.
+- Live tracing then proved the browser bearer reached the staging Edge but both
+  role lookups returned 404 before D1 admission. The instance had no custom
+  session claims while the Edge identity verifier requires a normalized
+  `email`. A second dry run and exact-instance patch added only
+  `session.claims.email = {{user.primary_email_address}}`; Clerk retained its
+  default 60-second token lifetime and five-second clock skew.
+- Immediate readback found the same three Clerk users and no additional page.
+  No user, invitation, operator row, Worker, secret, route, DNS record,
+  production instance, or Public Alpha resource was created or changed by
+  either provider update.
+
+### First live acceptance
+
+- After Clerk's one-minute token refresh, the existing
+  `thoughtseedlabs@gmail.com` session passed `/beta/api/context`, chat, and
+  memory loading and rendered the real private member workspace. D1 readback
+  shows one active, Clerk-bound company member created by open enrollment.
+- Read-only D1 verification confirms `sheshnarayan.iyer@gmail.com` remains the
+  one active `super_admin`; its historical invited member row remains unbound
+  and did not override operator authority.
+
+### Remaining live acceptance
+
+- Sign out and complete one fresh Google sign-in with the active D1
+  super-admin. It must route from `/beta` to `/beta/ops` without creating a
+  member row.
+- Complete a fresh sign-in with a second ordinary account, then verify the two
+  member workspaces remain owner-isolated across private chat, history,
+  saved-memory, logout, and reauthentication.
+
+## 2026-09-10 Worker topology and deploy-target containment
+
+**Status:** DEPLOY TARGETS CONTAINED — no Worker was deleted. The required
+topology is a pair per environment, not duplicate application assets:
+
+- Production: `wtfmedia-web` owns `https://wtfhq.in`; its private service
+  binding targets `wtfmedia-edge`. Public Alpha remains routes on this web
+  worker, not a separate Worker.
+- Staging: `wtfmedia-web-staging` owns the Workers staging hostname and binds
+  only to `wtfmedia-edge-staging`.
+- The temporary staging-only `/beta/preview` fixture was withdrawn in the
+  subsequent open-enrollment deployment above.
+
+### Containment receipt
+
+- An ambiguous web deploy command briefly targeted the top-level production
+  worker. It was immediately rolled back to prior Worker version
+  `3d5a5965-14f3-486a-a608-330d539dec81`; no migration, secret, D1, queue, or
+  production-route change occurred.
+- Staging preview was then deployed explicitly with `--env staging` as Worker
+  version `6d5b9997-d728-4c74-ab44-0c34c12dc5ed`. A live staging probe returned
+  the fixture at that historical point; the fixture is now removed from
+  staging, and `https://wtfhq.in/beta/preview` remains 404.
+- Ambiguous `cf:deploy` / `deploy` package scripts now fail closed. Staging
+  and production each require an explicit script, and the named `wtfmedia`
+  web alias now means staging.
+
+### Topology rule
+
+- Do not delete either Edge Worker: each is its corresponding web worker's
+  service-binding API authority.
+
 ## 2026-09-10 Staging Clerk issuer alignment
 
 **Status:** STAGING DEPLOYED — staging web served Clerk from
@@ -2182,3 +2441,142 @@ history` affordances. These are truthful UI states, not activation claims.
   passed.
 - Staging and production HTTP/UI probes remain stale Access builds; staging D1
   operator verification is blocked by API 7404.
+
+## 2026-09-10 staging member callback and sign-in refinement
+
+The staging member sign-in surface now uses the compact, padded Beta frame and
+keeps the public shell out of protected client transitions. Clerk's same-site
+absolute callback is normalized back to the fixed internal `/beta` route; an
+external callback remains rejected. The member-entry copy is invite-only and
+the public Alpha chip resolves to `https://wtfhq.in`.
+
+### Verification
+
+- Targeted Clerk callback and theme tests: 12/12; web lint, TypeScript, and
+  Cloudflare production build passed.
+- Live staging probe confirmed the absolute `/beta` callback shows the member
+  frame without the public navigation rail.
+- The correct Clerk instance has one existing pending member invitation; no
+  duplicate invitation was created or sent.
+- Remaining human gate: accept that invitation, sign in, and verify the
+  authenticated `/beta` member-context readback.
+
+## 2026-09-10 member Beta admission gate and token-forwarding repair
+
+The staging `/beta` route no longer streams the raw member-chat scaffold before
+the member context has been admitted. An unsigned visitor is redirected into
+the refined member sign-in frame at `/sign-in?redirect_url=/beta`; a signed
+session whose member record cannot be resolved receives a polished invitation
+state instead. Chat, history, and saved memory render only after the context,
+chat, and memory reads all succeed.
+
+The same-origin Beta proxy now obtains the Clerk server-session token when the
+browser has not supplied a bearer credential and forwards that token to the
+staging edge. A caller-supplied bearer token is preserved unchanged. Edge D1
+membership remains the authorization decision point.
+
+### Verification
+
+- Added proxy tests prove server-session token forwarding and preservation of
+  explicit bearer credentials; focused unit suite passed 5/5. Web lint and
+  TypeScript passed, and the Cloudflare production build completed cleanly.
+- Deployed only `wtfmedia-web-staging`, version
+  `711e807f-f1de-4e14-a00a-b994c1cffe7e`; production was not touched.
+- Live unsigned `/beta` response contains the member-access-check frame and
+  no `data-member-beta` or `private member chat` scaffold. Its context probe
+  remains the intentional non-enumerating `404 ops_unavailable`.
+- In-app browser navigation from `/beta` settled at
+  `/sign-in?redirect_url=/beta` and visibly rendered the refined member sign-in
+  UI. The remaining human gate is one invited-account session to prove the
+  D1 activation, private chat, history, and memory reads end to end.
+
+## 2026-09-10 staging invitation-ticket preservation repair
+
+Clerk application invitations return a one-time `__clerk_ticket` to their
+configured callback. The member Beta route now preserves a well-formed ticket
+and routes it into the existing branded `/sign-up` Clerk component; ordinary
+ticketless `/beta` visits continue to use the refined `/sign-in` member frame.
+Future member invitations are issued with `/sign-up` as their bounded HTTPS
+callback, while the member invitation validator continues to accept the legacy
+`/beta` callback for invitations already sent.
+
+The staging D1 invitation receipt was reconciled before this change: the
+revoked provider invitation is terminally recorded as revoked, and the sole
+pending Clerk invitation is the only `sent` receipt. Both reconciliation
+steps have append-only member audit entries. No production resource was
+changed.
+
+### Verification
+
+- Web: 102/102 unit tests, TypeScript, ESLint, and OpenNext Cloudflare build
+  pass; the focused callback tests cover ticket preservation, malformed-ticket
+  fallback, and the normal sign-in path.
+- Edge: 208/208 tests pass, including member activation, private history,
+  explicit memory, RBAC, and invitation lifecycle coverage.
+- Staging deployments: `wtfmedia-edge-staging`
+  `dd8e42ca-df07-4040-9abb-e30458036921`; `wtfmedia-web-staging`
+  `e2df5d81-4633-4b49-a597-8251d8057a96`.
+- Live unsigned `/beta/api/context` remains the intentional non-enumerating
+  `404 ops_unavailable`; the authenticated member acceptance is the remaining
+  human gate. The in-app browser cannot load Clerk's account host, so account
+  completion must occur in a normal browser session.
+
+## 2026-09-10 Beta canonical operator routing and verified session transport
+
+All browser-facing operator work now has `/beta/ops` as its canonical route.
+Legacy `/ops` UI routes redirect to their `/beta/ops` equivalents, while the
+existing `/ops/api/*` Edge namespace remains unchanged as the protected
+authority boundary. A Next rewrite serves the audited operator page tree at
+the canonical Beta URLs, so the migration does not duplicate page logic or
+weaken its existing server-side policy checks.
+
+The browser and server-rendered operator paths now mint a Clerk server-session
+token when the browser has not supplied a bearer credential, and forward that
+token to the Edge for issuer/JWKS verification and D1 role resolution. The
+Beta entry page checks verified operator context first, so an active operator
+session enters `/beta/ops` rather than being shown the member-invitation state.
+
+### Verification
+
+- Web unit suite: 104/104 pass. New contracts prove `/ops/api` preserves an
+  explicit bearer, forwards a minted Clerk token, and canonicalizes legacy
+  protected return paths to `/beta/ops`.
+- Web TypeScript, ESLint, and OpenNext Cloudflare build pass. Staging web
+  deployment `432fe47e-e9be-41a3-956e-bfd5207e6279` is live; `/ops` returns a
+  `307` to `/beta/ops`, `/beta/ops` and `/beta/ops/settings` return `200`, and
+  unsigned `/beta/api/context` remains the intentional `404 ops_unavailable`.
+  The full local Phase 2 gate passes after its browser assertion was updated
+  from the retired `/ops/production` URL to `/beta/ops/production`. Production
+  is out of scope. The remaining human receipt is one signed-in session
+  reaching `/beta/ops` through the Clerk-to-Edge token handoff.
+
+## 2026-09-10 invitation callback session-precedence repair
+
+The `/beta` callback now gives a well-formed `__clerk_ticket` precedence over
+an existing or partial Clerk session. It redirects that ticket immediately to
+the branded `/sign-up` component, which is the only page allowed to consume
+the invitation. This prevents a callback with `__clerk_status=sign_in` from
+trying to fetch the private workspace before Clerk finishes invitation
+acceptance.
+
+### Verification
+
+- Focused callback/proxy unit tests: 10/10; TypeScript, ESLint, and OpenNext
+  Cloudflare build pass. The Clerk CLI was read-only healthy but linked to a
+  different development instance, so it was not used to inspect, create, or
+  revoke the target invitation.
+
+## 2026-09-10 explicit browser-token forwarding repair
+
+The staging D1 release row is `preview`; the intended address still has an
+`invited` member row without a Clerk user ID, while its independent operator
+row is active `super_admin`. The Beta client now obtains Clerk's browser token
+and supplies it explicitly on every operator-context, member-context, chat,
+and memory request. The web proxy preserves that bearer for Edge issuer/JWKS
+verification, allowing the existing invitation to activate membership only
+when the verified Clerk subject and normalized email match.
+
+### Verification
+
+- Web unit suite: 104/104; TypeScript, ESLint, and OpenNext Cloudflare build
+  pass. This is an authorization transport repair, not a staging data bypass.

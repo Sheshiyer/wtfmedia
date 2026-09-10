@@ -1,15 +1,17 @@
 "use client";
 
-import { AppRail, type AppNavItem } from "./AppRail";
+import { AppRail, type AppNavGroup, type AppNavItem } from "./AppRail";
 import { SkipLink } from "@/components/ui/SkipLink";
 
-export type { AppNavItem };
+export type { AppNavGroup, AppNavItem };
 
 export type AppShellProps = {
   children: React.ReactNode;
   navigation: readonly AppNavItem[];
-  mode: "public" | "operator";
+  mode: "public" | "member" | "operator";
   utility?: React.ReactNode;
+  bottomNavigation?: readonly AppNavItem[];
+  disclosureGroups?: readonly AppNavGroup[];
 };
 
 export function AppShell({
@@ -17,6 +19,8 @@ export function AppShell({
   navigation,
   mode,
   utility,
+  bottomNavigation,
+  disclosureGroups,
 }: AppShellProps) {
   return (
     <div
@@ -27,7 +31,7 @@ export function AppShell({
       <SkipLink targetId="wtf-main">skip to workspace</SkipLink>
 
       <div data-wtf-shell="migrated" className="min-h-screen">
-        <AppRail mode={mode} navigation={navigation} utility={utility} />
+        <AppRail mode={mode} navigation={navigation} utility={utility} bottomNavigation={bottomNavigation} disclosureGroups={disclosureGroups} />
         <div className="relative min-h-screen overflow-hidden pb-28 pt-[calc(5.5rem+env(safe-area-inset-top))] sm:pb-24">
           <div
             aria-hidden="true"

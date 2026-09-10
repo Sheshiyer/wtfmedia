@@ -1,8 +1,8 @@
 import { createRemoteClerkVerifier, type ClerkVerification } from "./auth/clerk.ts";
 import { resolveMemberContext } from "./auth/member-context.ts";
-import { appendMemberAssistant, archiveMemberConversation, createMemberConversation, getMemberConversation, listMemberConversations } from "./chat/member-history.ts";
+import { archiveMemberConversation, completeMemberTurn, getMemberConversation, listMemberConversations, prepareMemberTurn } from "./chat/member-history.ts";
 import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "./chat/member-memory.ts";
-import { runChat, type ChatAnswerInput, type ChatAnswer } from "./chat/answer.ts";
+import { boundedPriorTurns, runChat, type ChatAnswerInput, type ChatAnswer } from "./chat/answer.ts";
 import { isMemberBetaEnabled, resolveMemberBetaRelease } from "./member-release.ts";
 import type { OpsEnv } from "./ops-router.ts";
 
@@ -32,23 +32,29 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     return memory ? Response.json({ memory }, { status: 201, headers }) : denied();
   }
   if (url.pathname === "/beta/api/chat" && request.method === "GET") {
-    const page = await listMemberConversations(env.DB, context.memberId);
+    const page = await listMemberConversations(env.DB, context.memberId, url.searchParams.get("cursor") ?? undefined);
     return page ? Response.json(page, { headers }) : denied();
   }
-  if (url.pathname === "/beta/api/chat" && request.method === "POST") {
+  const match = url.pathname.match(/^\/beta\/api\/chat\/(mcnv_[A-Za-z0-9-]{8,88})$/u);
+  if ((url.pathname === "/beta/api/chat" || match) && request.method === "POST") {
     const input = await body(request);
     if (!input) return denied();
     const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
-    const view = await createMemberConversation(env.DB, context.memberId, input.question, input.sourceMode, requestId);
-    if (!view) return denied();
+    const turn = await prepareMemberTurn(env.DB, context.memberId, match?.[1], { question: input.question, sourceMode: input.sourceMode, episodeId: input.episodeId, resumeMessageId: input.resumeMessageId, idempotencyKey: request.headers.get("idempotency-key"), requestId });
+    if (!turn) return denied();
+    if (turn.completed) return Response.json(turn.view, { headers });
     try {
       const memories = await listMemberMemories(env.DB, context.memberId);
-      const answer = await (dependencies.runChat ?? runChat)({ question: String(input.question ?? ""), sourceMode: input.sourceMode, episodeId: input.episodeId, requestId, memory: (memories ?? []).map((memory: any) => String(memory.content)).slice(0, 8) }, env);
-      const stored = await appendMemberAssistant(env.DB, context.memberId, view.conversation.id, { content: answer.answer, metadata: { sources: answer.sources, sourceMode: answer.sourceMode, uncutUnavailable: answer.uncutUnavailable }, grounded: answer.grounded, model: answer.model, fallback: answer.modelFallback, requestId: answer.requestId });
-      return stored ? Response.json(stored, { status: 201, headers }) : denied();
-    } catch { return denied(); }
+      const priorTurns = boundedPriorTurns(turn.view.messages.filter((message) => message.sequence < turn.userMessage.sequence).map(({ role, content }) => ({ role, content })));
+      const answer = await (dependencies.runChat ?? runChat)({ question: turn.userMessage.content, sourceMode: turn.sourceMode, ...(turn.episodeId ? { episodeId: turn.episodeId } : {}), requestId, priorTurns, memory: (memories ?? []).map((memory: any) => String(memory.content)).slice(0, 8) }, env);
+      const stored = await completeMemberTurn(env.DB, context.memberId, turn, { content: answer.answer, metadata: { sources: answer.sources, sourceMode: answer.sourceMode, uncutUnavailable: answer.uncutUnavailable }, grounded: answer.grounded, model: answer.model, fallback: answer.modelFallback, requestId: answer.requestId });
+      return stored ? Response.json(stored, { status: turn.created ? 201 : 200, headers }) : denied();
+    } catch {
+      const pending = await getMemberConversation(env.DB, context.memberId, turn.view.conversation.id);
+      if (!pending || pending.conversation.lifecycle_state !== "active") return denied();
+      return Response.json({ ...pending, error: "chat_unavailable", retryable: true }, { status: 503, headers });
+    }
   }
-  const match = url.pathname.match(/^\/beta\/api\/chat\/(mcnv_[A-Za-z0-9-]{8,88})$/u);
   if (match && request.method === "GET") {
     const view = await getMemberConversation(env.DB, context.memberId, match[1]);
     return view ? Response.json(view, { headers }) : denied();

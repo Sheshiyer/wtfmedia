@@ -26,8 +26,8 @@ describe("nested settings navigation", () => {
   });
 
   it("resolves only canonical nested settings paths", () => {
-    expect(settingsSectionForPath("/ops/settings/analytics")?.id).toBe("analytics");
-    expect(settingsSectionForPath("/ops/settings")).toBeNull();
-    expect(settingsSectionForPath("/ops/settings/analytics/extra")).toBeNull();
+    expect(settingsSectionForPath("/beta/ops/settings/analytics")?.id).toBe("analytics");
+    expect(settingsSectionForPath("/beta/ops/settings")).toBeNull();
+    expect(settingsSectionForPath("/beta/ops/settings/analytics/extra")).toBeNull();
   });
 });

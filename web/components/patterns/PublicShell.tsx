@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AppShell } from "@/components/shells/AppShell";
 import { currentReleaseNavigation } from "@/lib/public/current-release-nav";
 
@@ -18,6 +21,18 @@ import { currentReleaseNavigation } from "@/lib/public/current-release-nav";
  */
 
 export function PublicShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname() ?? "/";
+  const isProtectedRoute =
+    pathname === "/sign-in" ||
+    pathname.startsWith("/sign-in/") ||
+    pathname === "/sign-up" ||
+    pathname.startsWith("/sign-up/") ||
+    pathname === "/request-access" ||
+    pathname.startsWith("/ops") ||
+    pathname.startsWith("/beta");
+
+  if (isProtectedRoute) return <>{children}</>;
+
   return (
     <AppShell
       mode="public"

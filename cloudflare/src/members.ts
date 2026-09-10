@@ -78,7 +78,7 @@ function validRedirectUrl(value: unknown): value is string {
   if (typeof value !== "string") return false;
   try {
     const url = new URL(value);
-    return url.protocol === "https:" && url.pathname === "/beta";
+    return url.protocol === "https:" && ["/beta", "/sign-up"].includes(url.pathname);
   } catch {
     return false;
   }

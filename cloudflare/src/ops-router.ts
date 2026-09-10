@@ -400,7 +400,7 @@ async function memberApi(request: Request, env: OpsEnv, context: OperatorContext
     return members ? Response.json({ members }, { headers: protectedResponseHeaders }) : denied();
   }
   let redirectUrl: string;
-  try { redirectUrl = new URL("/beta", env.OPS_ORIGIN).toString(); } catch { return denied(); }
+  try { redirectUrl = new URL("/sign-up", env.OPS_ORIGIN).toString(); } catch { return denied(); }
   const member = await inviteCompanyMember(env.DB, actor, { email: body.email, pilotCohort: body.pilotCohort, office: body.office, redirectUrl }, context.environment, context.correlationId, invitations);
   return member ? Response.json({ member }, { status: member.invitationStatus === "sent" ? 201 : 502, headers: protectedResponseHeaders }) : denied();
 }

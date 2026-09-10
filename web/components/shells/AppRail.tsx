@@ -12,23 +12,31 @@ export { routeIsActive };
 export type AppNavItem = {
   href: string;
   label: string;
+  icon?: "chat" | "settings";
   section?: "workspace" | "administration";
+  match?: readonly string[];
 };
 
+export type AppNavGroup = { label: string; items: readonly AppNavItem[] };
+
 export type AppRailProps = {
-  mode: "public" | "operator";
+  mode: "public" | "member" | "operator";
   navigation: readonly AppNavItem[];
   utility?: React.ReactNode;
+  bottomNavigation?: readonly AppNavItem[];
+  disclosureGroups?: readonly AppNavGroup[];
 };
 
 export function AppRail({
   mode,
   navigation,
   utility,
+  bottomNavigation,
+  disclosureGroups,
 }: AppRailProps) {
   const pathname = usePathname() ?? "/";
-  const utilityHrefs = new Set(["/ops", "/ops/production", "/ops/episodes", "/ops/settings"]);
-  const utilityOrder = ["/ops", "/ops/production", "/ops/episodes", "/ops/settings"];
+  const utilityHrefs = new Set(["/beta/ops", "/beta/ops/production", "/beta/ops/episodes", "/beta/ops/settings"]);
+  const utilityOrder = ["/beta/ops", "/beta/ops/production", "/beta/ops/episodes", "/beta/ops/settings"];
   const utilityNavigation = navigation
     .filter((item) => item.section === "administration" || utilityHrefs.has(item.href))
     .sort((a, b) => {
@@ -45,9 +53,12 @@ export function AppRail({
       return (aIndex === -1 ? primaryOrder.length : aIndex) - (bIndex === -1 ? primaryOrder.length : bIndex);
     });
   const disclosureNavigation = mode === "operator" ? utilityNavigation : primaryNavigation;
+  const resolvedBottomNavigation = bottomNavigation ?? primaryNavigation;
   const disclosureId = mode === "operator"
     ? "wtf-operations-navigation"
-    : "wtf-application-navigation-menu";
+    : mode === "member"
+      ? "wtf-member-navigation-menu"
+      : "wtf-application-navigation-menu";
   const [utilityOpen, setUtilityOpen] = useState(false);
   const utilityToggleRef = useRef<HTMLButtonElement>(null);
   const utilityNavRef = useRef<HTMLElement>(null);
@@ -80,9 +91,13 @@ export function AppRail({
     };
   }, [utilityOpen]);
 
+  const isActive = (item: AppNavItem) => item.match
+    ? item.match.some((pattern) => pattern.endsWith("*") ? pathname.startsWith(pattern.slice(0, -1)) : pathname === pattern)
+    : routeIsActive(pathname, item.href);
+
   const renderNavLinks = (items: readonly AppNavItem[]) =>
     items.map((item) => {
-      const active = routeIsActive(pathname, item.href);
+      const active = isActive(item);
 
       return (
         <Link
@@ -102,15 +117,19 @@ export function AppRail({
                 : "border-transparent bg-canvas text-foreground hover:border-foreground hover:bg-surface-subtle",
           ].join(" ")}
         >
-          <span
-            aria-hidden="true"
-            className={[
-              "hidden h-1.5 w-1.5 shrink-0 rounded-full border border-current sm:mr-2 sm:block sm:h-2 sm:w-2",
-              active
-                ? "bg-surface-structure"
-                : "bg-transparent group-hover:bg-current",
-            ].join(" ")}
-          />
+          {item.icon ? (
+            <span aria-hidden="true" className="mr-1.5 grid shrink-0 place-items-center">
+              {item.icon === "settings" ? <SettingsIcon /> : <ChatIcon />}
+            </span>
+          ) : (
+            <span
+              aria-hidden="true"
+              className={[
+                "hidden h-1.5 w-1.5 shrink-0 rounded-full border border-current sm:mr-2 sm:block sm:h-2 sm:w-2",
+                active ? "bg-surface-structure" : "bg-transparent group-hover:bg-current",
+              ].join(" ")}
+            />
+          )}
           {item.label}
         </Link>
       );
@@ -143,12 +162,20 @@ export function AppRail({
     );
   }
 
+  function ChatIcon() {
+    return (
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5.5 6.5h13v9h-7l-4.5 3v-3H5.5z" />
+      </svg>
+    );
+  }
+
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-50 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5">
         <div className="mx-auto flex max-w-[92rem] items-start justify-between gap-3">
           <Link
-            href={mode === "operator" ? "/ops" : "/"}
+            href={mode === "operator" ? "/beta/ops" : mode === "member" ? "/beta" : "/"}
             aria-label="WTF OS"
             className="shrink-0 rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
           >
@@ -159,8 +186,8 @@ export function AppRail({
               ref={utilityToggleRef}
               type="button"
               aria-label={utilityOpen
-                ? `Close ${mode === "operator" ? "operations" : "application"} navigation`
-                : `Open ${mode === "operator" ? "operations" : "application"} navigation`}
+                ? `Close ${mode === "operator" ? "operations" : mode === "member" ? "member workspace" : "application"} navigation`
+                : `Open ${mode === "operator" ? "operations" : mode === "member" ? "member workspace" : "application"} navigation`}
               aria-expanded={utilityOpen}
               aria-controls={disclosureId}
               aria-haspopup="true"
@@ -177,7 +204,7 @@ export function AppRail({
             <nav
               ref={utilityNavRef}
               id={disclosureId}
-              aria-label={mode === "operator" ? "Operations" : "Application"}
+              aria-label={mode === "operator" ? "Operations" : mode === "member" ? "Member workspace" : "Application"}
               data-navigation-disclosure
               data-state={utilityOpen ? "open" : "closed"}
               className={`${utilityOpen ? "flex" : "hidden"} absolute right-0 top-14 w-[min(15rem,calc(100vw-2rem))] flex-col gap-1.5 rounded-[1.75rem] border-2 border-foreground bg-surface-raised/95 p-2 shadow-[5px_5px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md`}
@@ -190,12 +217,12 @@ export function AppRail({
               >
                 {mode === "operator" ? (
                   <Link
-                    href="/ops/profile"
+                    href="/beta/ops/profile"
                     aria-label="operator profile"
                     title="operator profile"
                     data-shell-profile
-                    aria-current={routeIsActive(pathname, "/ops/profile") ? "page" : undefined}
-                    className={iconLinkClass(routeIsActive(pathname, "/ops/profile"))}
+                    aria-current={routeIsActive(pathname, "/beta/ops/profile") ? "page" : undefined}
+                    className={iconLinkClass(routeIsActive(pathname, "/beta/ops/profile"))}
                   >
                     <ProfileIcon />
                   </Link>
@@ -205,19 +232,24 @@ export function AppRail({
                 <ThemeToggle />
                 {mode === "operator" ? (
                   <Link
-                    href="/ops/settings"
+                    href="/beta/ops/settings"
                     aria-label="settings"
                     title="settings"
                     data-shell-settings
-                    aria-current={routeIsActive(pathname, "/ops/settings") ? "page" : undefined}
-                    className={iconLinkClass(routeIsActive(pathname, "/ops/settings"))}
+                    aria-current={routeIsActive(pathname, "/beta/ops/settings") ? "page" : undefined}
+                    className={iconLinkClass(routeIsActive(pathname, "/beta/ops/settings"))}
                   >
                     <SettingsIcon />
                   </Link>
                 ) : null}
               </div>
               <div data-navigation-links className="flex flex-col gap-1.5">
-                {renderNavLinks(disclosureNavigation)}
+                {disclosureGroups ? disclosureGroups.map((group) => (
+                  <section key={group.label} aria-label={group.label} className="grid gap-1.5 border-b border-foreground/15 pb-2 last:border-0 last:pb-0">
+                    <p className="px-2 pt-1 font-label text-[9px] font-bold uppercase tracking-[0.12em] text-muted">{group.label}</p>
+                    {renderNavLinks(group.items)}
+                  </section>
+                )) : renderNavLinks(disclosureNavigation)}
               </div>
             </nav>
           </div>
@@ -227,11 +259,11 @@ export function AppRail({
         <div className="wtf-bottom-pill mx-auto flex w-fit max-w-[min(74rem,calc(100vw-1.5rem))] items-center overflow-x-auto rounded-full border-2 border-foreground bg-surface-raised/95 px-1.5 py-1 shadow-[0_10px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md sm:px-3 sm:py-2">
           <nav
             id="wtf-application-navigation"
-            aria-label={mode === "operator" ? "Workspace" : "Application"}
+            aria-label={mode === "operator" ? "Workspace" : mode === "member" ? "Member workspace" : "Application"}
             data-bottom-navigation
             className="flex min-w-max items-center gap-0.5 sm:gap-1"
           >
-            {renderNavLinks(primaryNavigation)}
+            {renderNavLinks(resolvedBottomNavigation)}
           </nav>
         </div>
       </div>

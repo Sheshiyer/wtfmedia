@@ -7,6 +7,11 @@ const authenticatedChatDeepLink = /^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0
 
 async function routeMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  if (pathname === "/ops" || (pathname.startsWith("/ops/") && pathname !== "/ops/api" && !pathname.startsWith("/ops/api/"))) {
+    const target = request.nextUrl.clone();
+    target.pathname = pathname === "/ops" ? "/beta/ops" : `/beta${pathname}`;
+    return NextResponse.redirect(target);
+  }
   if (recoveryPaths.has(pathname)) {
     const forwarded = new Headers(request.headers);
     forwarded.set("x-wtf-route-kind", "ops-recovery");

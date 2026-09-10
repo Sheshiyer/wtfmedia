@@ -21,14 +21,14 @@ const toneClasses: Record<MotionListItem["tone"], string> = {
  * This list describes the auth handoff rather than inventing a live status.
  * It remains readable and still when reduced motion is enabled.
  */
-export function WtfMotionList({ items }: { items: MotionListItem[] }) {
+export function WtfMotionList({ items, surface = "dark" }: { items: MotionListItem[]; surface?: "dark" | "light" }) {
   const reducedMotion = useReducedMotion();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
   return (
-    <ol className="mt-8 grid gap-3" aria-label="operator access flow">
+    <ol className="mt-8 grid gap-3" aria-label="access flow">
       {items.map((item, index) => (
         <motion.li
           key={item.label}
@@ -40,7 +40,7 @@ export function WtfMotionList({ items }: { items: MotionListItem[] }) {
               ? { duration: 0 }
               : { duration: 0.2, delay: 0.18 + index * 0.07, ease: [0.22, 1, 0.36, 1] }
           }
-          className="flex items-center gap-3 border-b border-on-structure/20 pb-3 pt-1"
+          className={`flex items-center gap-3 border-b pb-3 pt-1 ${surface === "light" ? "border-foreground/20" : "border-on-structure/20"}`}
         >
           <span
             aria-hidden="true"
@@ -52,7 +52,7 @@ export function WtfMotionList({ items }: { items: MotionListItem[] }) {
             <strong className="block font-label text-sm font-bold uppercase tracking-[0.08em]">
               {item.label}
             </strong>
-            <span className="block font-body text-sm text-on-structure/70">{item.detail}</span>
+            <span className={`block font-body text-sm ${surface === "light" ? "text-secondary" : "text-on-structure/70"}`}>{item.detail}</span>
           </span>
         </motion.li>
       ))}

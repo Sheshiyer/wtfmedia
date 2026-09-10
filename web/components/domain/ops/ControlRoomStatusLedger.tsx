@@ -8,14 +8,14 @@ export function ControlRoomStatusLedger(_props: { role: ControlRoomRole }) {
       label: "production",
       state: "active",
       detail: "list, create, and update records. delete is unavailable.",
-      href: "/ops/production",
+      href: "/beta/ops/production",
       promoted: true,
     },
     {
       label: "episode map",
       state: "active",
       detail: "title map from the catalogue snapshot. not a live source.",
-      href: "/ops/episodes",
+      href: "/beta/ops/episodes",
     },
     {
       label: "public rooms",
@@ -34,7 +34,7 @@ export function ControlRoomStatusLedger(_props: { role: ControlRoomRole }) {
       label: "settings",
       state: "active",
       detail: "release context and roadmap for held operators, audit, ingest, and integrations.",
-      href: "/ops/settings",
+      href: "/beta/ops/settings",
       observed: "roadmap lives here",
     },
   ];

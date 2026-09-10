@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { before, test } from "node:test";
 
 import { handleOpsRequest } from "../src/ops-router.ts";
+import { handleMemberRequest } from "../src/member-router.ts";
 import {
   activeMemoryContext,
   archiveMemory,
@@ -58,6 +59,8 @@ function applyMigrations() {
     }
   }
   result = sqlite("INSERT INTO release_manifests (environment, state, release_track, version, updated_at, updated_by_operator_id) VALUES ('staging', 'stable', 'beta', 1, '2026-09-02T00:00:00.000Z', 1);");
+  assert.equal(result.status, 0, result.stderr);
+  result = sqlite("INSERT INTO member_beta_releases (environment, state, updated_at) VALUES ('staging', 'preview', '2026-09-11T00:00:00.000Z');");
   assert.equal(result.status, 0, result.stderr);
 }
 
@@ -339,4 +342,305 @@ test("member beta history and explicit memory are durable, private, and archive-
   assert.equal((await archiveMemberMemory(db, 91, saved.id, "2026-09-09T00:05:00.000Z"))?.lifecycle_state, "archived");
   assert.notEqual(sqlite(`DELETE FROM member_chat_conversations WHERE id = '${first.conversation.id}';`).status, 0);
   assert.notEqual(sqlite(`DELETE FROM member_saved_memories WHERE id = '${saved.id}';`).status, 0);
+});
+
+function seedMember(number) {
+  const result = sqlite(`INSERT INTO member_users (id, email, clerk_user_id, role, lifecycle_state, pilot_cohort, office, created_at, updated_at) VALUES (${number}, 'member-${number}@example.test', 'user_member_${number}', 'member', 'active', 'company', 'remote', '2026-09-11T00:00:00.000Z', '2026-09-11T00:00:00.000Z');`);
+  assert.equal(result.status, 0, result.stderr);
+  return { ok: true, email: `member-${number}@example.test`, userId: `user_member_${number}` };
+}
+
+function memberRequest(identity, path, payload, key, runChat, database = d1()) {
+  return handleMemberRequest(new Request(`https://ops.staging.test${path}`, {
+    method: payload === undefined ? "GET" : "POST",
+    headers: { "content-type": "application/json", ...(key ? { "idempotency-key": key } : {}) },
+    ...(payload === undefined ? {} : { body: JSON.stringify(payload) }),
+  }), { ...env, DB: database }, { verifyClerk: async () => identity, runChat });
+}
+
+const memberAnswer = (input) => ({ answer: "A sourced answer [1].", sources: [], grounded: true, sourceMode: input.sourceMode ?? "published", uncutUnavailable: false, model: "test-model", modelFallback: false, requestId: input.requestId });
+
+test("member create and continuation replay retain one ordered turn pair and bounded prior context", async () => {
+  const identity = seedMember(101);
+  let generations = 0;
+  const inputs = [];
+  const generate = async (input) => { generations++; inputs.push(input); return memberAnswer(input); };
+  const payload = { question: "Tell me about the guest", sourceMode: "published" };
+  const created = await memberRequest(identity, "/beta/api/chat", payload, "create-key-101", generate);
+  assert.equal(created.status, 201);
+  const first = await created.json();
+  const replay = await memberRequest(identity, "/beta/api/chat", payload, "create-key-101", generate);
+  assert.equal(replay.status, 200);
+  assert.equal((await replay.json()).conversation.id, first.conversation.id);
+  assert.equal(generations, 1);
+  const path = `/beta/api/chat/${first.conversation.id}`;
+  const continuation = { question: "What was the second point?", sourceMode: "uncut" };
+  const continued = await memberRequest(identity, path, continuation, "continue-key-101", generate);
+  assert.equal(continued.status, 200);
+  const view = await continued.json();
+  assert.deepEqual(view.messages.map(({ role, sequence }) => [role, sequence]), [["user", 1], ["assistant", 2], ["user", 3], ["assistant", 4]]);
+  assert.deepEqual(inputs[1].priorTurns.map(({ role, content }) => [role, content]), [["user", payload.question], ["assistant", "A sourced answer [1]."]]);
+  assert.equal((await memberRequest(identity, path, continuation, "continue-key-101", generate)).status, 200);
+  assert.equal(generations, 2);
+  assert.equal((await memberRequest(identity, path, { ...continuation, question: "different question" }, "continue-key-101", generate)).status, 404);
+  assert.equal((await memberRequest(identity, path, { ...continuation, sourceMode: "both" }, "continue-key-101", generate)).status, 404);
+  assert.equal(generations, 2);
+});
+
+test("member turn authorization and validation fail before generation and owner keys cannot collide", async () => {
+  const one = seedMember(102), two = seedMember(103);
+  let generations = 0;
+  const generate = async (input) => { generations++; return memberAnswer(input); };
+  const payload = { question: "valid question", sourceMode: "published" };
+  for (const key of [undefined, "short", "invalid key"]) assert.equal((await memberRequest(one, "/beta/api/chat", payload, key, generate)).status, 404);
+  for (const invalid of [{ question: " " }, { question: "x".repeat(2001) }, { ...payload, sourceMode: "invalid" }, { ...payload, sourceMode: ["published"] }, { ...payload, episodeId: "invalid/id" }]) {
+    assert.equal((await memberRequest(one, "/beta/api/chat", invalid, "validation-key", generate)).status, 404);
+  }
+  assert.equal(generations, 0);
+  const first = await (await memberRequest(one, "/beta/api/chat", payload, "same-owner-key", generate)).json();
+  const second = await memberRequest(two, "/beta/api/chat", payload, "same-owner-key", generate);
+  assert.equal(second.status, 201);
+  assert.notEqual((await second.json()).conversation.id, first.conversation.id);
+  const path = `/beta/api/chat/${first.conversation.id}`;
+  const denied = await memberRequest(two, path, payload, "cross-owner-key", generate);
+  const missing = await memberRequest(one, "/beta/api/chat/mcnv_unknown1234", payload, "unknown-id-key", generate);
+  assert.equal(denied.status, 404);
+  assert.deepEqual(await denied.json(), await missing.json());
+  await archiveMemberConversation(d1(), 102, first.conversation.id);
+  const archived = await memberRequest(one, path, payload, "archived-id-key", generate);
+  assert.equal(archived.status, 404);
+  assert.equal(generations, 2);
+});
+
+test("member route accepts pagination cursors and rejects impossible cursor timestamps", async () => {
+  const identity = seedMember(108);
+  const db = d1();
+  for (let index = 0; index < 26; index++) await createMemberConversation(db, 108, `route history ${index}`, "published", `route-page-${index}`, "2026-09-11T00:00:00.000Z");
+  const first = await (await memberRequest(identity, "/beta/api/chat")).json();
+  const second = await (await memberRequest(identity, `/beta/api/chat?cursor=${first.nextCursor}`)).json();
+  assert.equal(second.conversations.length, 1);
+  assert.equal(second.nextCursor, null);
+  const invalid = btoa(JSON.stringify({ updatedAt: "2026-02-31T00:00:00.000Z", id: first.conversations[0].id })).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
+  assert.equal((await memberRequest(identity, `/beta/api/chat?cursor=${invalid}`)).status, 404);
+});
+
+test("failed member generation retries the pending turn and concurrent requests cannot interleave", async () => {
+  const identity = seedMember(104);
+  const payload = { question: "retry this question", sourceMode: "published" };
+  const failed = await memberRequest(identity, "/beta/api/chat", payload, "retry-create-key", async () => { throw new Error("model offline"); });
+  assert.equal(failed.status, 503);
+  const pending = await failed.json();
+  assert.equal(pending.retryable, true);
+  assert.equal(pending.messages.length, 1);
+  assert.equal((await memberRequest(identity, "/beta/api/chat", payload, "retry-create-key", async (input) => memberAnswer(input))).status, 200);
+  const path = `/beta/api/chat/${pending.conversation.id}`;
+  let release;
+  let started;
+  const entered = new Promise((resolve) => { started = resolve; });
+  const gate = new Promise((resolve) => { release = resolve; });
+  const slow = async (input) => { started(); await gate; return memberAnswer(input); };
+  const turn = { question: "follow up", sourceMode: "published" };
+  const first = memberRequest(identity, path, turn, "concurrent-turn", slow);
+  await entered;
+  const competing = await memberRequest(identity, path, { question: "different turn" }, "competing-turn", async () => { assert.fail("a second pending turn must not invoke generation"); });
+  assert.equal(competing.status, 404);
+  const duplicate = memberRequest(identity, path, turn, "concurrent-turn", slow);
+  release();
+  const results = await Promise.all([first, duplicate]);
+  assert.deepEqual(results.map((response) => response.status), [200, 200]);
+  const view = await getMemberConversation(d1(), 104, pending.conversation.id);
+  assert.deepEqual(view.messages.map((message) => message.sequence), [1, 2, 3, 4]);
+});
+
+test("archiving during generation prevents a late member assistant write", async () => {
+  const identity = seedMember(105);
+  const created = await (await memberRequest(identity, "/beta/api/chat", { question: "first question" }, "archive-create-key", async (input) => memberAnswer(input))).json();
+  const result = await memberRequest(identity, `/beta/api/chat/${created.conversation.id}`, { question: "late response" }, "archive-late-key", async (input) => {
+    await archiveMemberConversation(d1(), 105, created.conversation.id);
+    return memberAnswer(input);
+  });
+  assert.equal(result.status, 404);
+  assert.equal((await getMemberConversation(d1(), 105, created.conversation.id)).messages.length, 3);
+});
+
+test("a failed assistant persistence write remains retryable without duplicating the user turn", async () => {
+  const identity = seedMember(109);
+  const db = d1();
+  const batch = db.batch;
+  let failCompletion = true;
+  db.batch = async (statements) => {
+    if (failCompletion && statements.some((statement) => statement._query.includes("SELECT ?, c.id") && statement._query.includes("'assistant'"))) {
+      failCompletion = false;
+      throw new Error("transient database write failure");
+    }
+    return batch(statements);
+  };
+  const payload = { question: "persist this answer" };
+  const failed = await memberRequest(identity, "/beta/api/chat", payload, "retry-persistence", async (input) => memberAnswer(input), db);
+  assert.equal(failed.status, 503);
+  const pending = await failed.json();
+  assert.equal(pending.messages.length, 1);
+  const replay = await memberRequest(identity, `/beta/api/chat/${pending.conversation.id}`, payload, "retry-persistence", async (input) => memberAnswer(input), db);
+  assert.equal(replay.status, 200);
+  assert.deepEqual((await replay.json()).messages.map((message) => message.role), ["user", "assistant"]);
+});
+
+test("reloaded member history exposes and resumes the exact pending turn using a fresh key", async () => {
+  const identity = seedMember(110);
+  const payload = { question: "recover my uncut question", sourceMode: "uncut", episodeId: "episode_110" };
+  const failed = await memberRequest(identity, "/beta/api/chat", payload, "original-reload-key", async () => { throw new Error("offline"); });
+  const pending = await failed.json();
+  const path = `/beta/api/chat/${pending.conversation.id}`;
+  const loaded = await (await memberRequest(identity, path)).json();
+  assert.equal(loaded.retryable, true);
+  assert.doesNotMatch(JSON.stringify(loaded), /original-reload-key/);
+  const refuseGeneration = async () => { assert.fail("a changed recovery payload must be denied"); };
+  for (const changed of [{ question: "changed question" }, { question: payload.question, sourceMode: "both" }, { question: payload.question, episodeId: "different_episode" }]) {
+    assert.equal((await memberRequest(identity, path, changed, "new-mismatched-key", refuseGeneration)).status, 404);
+  }
+  const inputs = [];
+  const recovered = await memberRequest(identity, path, { question: payload.question, resumeMessageId: loaded.messages.at(-1).id }, "fresh-reload-key", async (input) => { inputs.push(input); return memberAnswer(input); });
+  assert.equal(recovered.status, 200);
+  assert.equal(inputs[0].sourceMode, "uncut");
+  assert.equal(inputs[0].episodeId, "episode_110");
+  assert.deepEqual((await recovered.json()).messages.map(({ role }) => role), ["user", "assistant"]);
+  assert.notEqual((await (await memberRequest(identity, path)).json()).retryable, true);
+  const originalReplay = await memberRequest(identity, path, payload, "original-reload-key", refuseGeneration);
+  assert.equal(originalReplay.status, 200);
+});
+
+test("old and fresh recovery keys converge on one stored assistant and replay the resumed message", async () => {
+  const identity = seedMember(111);
+  const payload = { question: "recover concurrently", sourceMode: "both" };
+  const failed = await memberRequest(identity, "/beta/api/chat", payload, "old-concurrent-key", async () => { throw new Error("offline"); });
+  const pending = await failed.json();
+  const path = `/beta/api/chat/${pending.conversation.id}`;
+  const resumeMessageId = pending.messages[0].id;
+  let release;
+  const gate = new Promise((resolve) => { release = resolve; });
+  let resolveStarted;
+  const bothStarted = new Promise((resolve) => { resolveStarted = resolve; });
+  let starts = 0;
+  const slow = async (input) => { if (++starts === 2) resolveStarted(); await gate; return memberAnswer(input); };
+  const old = memberRequest(identity, path, payload, "old-concurrent-key", slow);
+  const fresh = memberRequest(identity, path, { ...payload, resumeMessageId }, "new-concurrent-key", slow);
+  const signal = await Promise.race([bothStarted.then(() => "started"), fresh.then((response) => `early:${response.status}`)]);
+  release();
+  assert.equal(signal, "started");
+  assert.deepEqual((await Promise.all([old, fresh])).map(({ status }) => status), [200, 200]);
+  const replay = await memberRequest(identity, path, { question: payload.question, resumeMessageId }, "new-concurrent-key", async () => { assert.fail("completed recovery must not generate again"); });
+  assert.equal(replay.status, 200);
+  const view = await replay.json();
+  assert.deepEqual(view.messages.map(({ sequence, role }) => [sequence, role]), [[1, "user"], [2, "assistant"]]);
+});
+
+test("continuation inherits the most recent turn scope when source mode is omitted", async () => {
+  const identity = seedMember(112);
+  const first = await (await memberRequest(identity, "/beta/api/chat", { question: "first", sourceMode: "published" }, "inherit-create-key", async (input) => memberAnswer(input))).json();
+  const path = `/beta/api/chat/${first.conversation.id}`;
+  await memberRequest(identity, path, { question: "use uncut", sourceMode: "uncut", episodeId: "episode_112" }, "inherit-switch-key", async (input) => memberAnswer(input));
+  let inherited;
+  const next = await memberRequest(identity, path, { question: "next question" }, "inherit-next-key", async (input) => { inherited = input; return memberAnswer(input); });
+  assert.equal(next.status, 200);
+  assert.equal(inherited.sourceMode, "uncut");
+  assert.equal(inherited.episodeId, "episode_112");
+});
+
+test("recovery message IDs preserve owner, active, latest-user and payload boundaries", async () => {
+  const identity = seedMember(113), other = seedMember(114);
+  const legacy = await createMemberConversation(d1(), 113, "legacy pending question", "uncut", "legacy-pending-request");
+  const path = `/beta/api/chat/${legacy.conversation.id}`;
+  const resumeMessageId = legacy.messages[0].id;
+  const fail = async () => { assert.fail("invalid recovery target must not invoke generation"); };
+  const payload = { question: "legacy pending question", resumeMessageId };
+  const denied = await memberRequest(other, path, payload, "other-recovery-key", fail);
+  const unknown = await memberRequest(identity, "/beta/api/chat/mcnv_unknown1234", payload, "unknown-recovery-key", fail);
+  assert.equal(denied.status, 404);
+  assert.deepEqual(await denied.json(), await unknown.json());
+  for (const invalid of ["", "mmsg_unknown1234", "mmsg_" + "x".repeat(89), null]) {
+    assert.equal((await memberRequest(identity, path, { ...payload, resumeMessageId: invalid }, "invalid-recovery-key", fail)).status, 404);
+  }
+  const recovered = await memberRequest(identity, path, payload, "legacy-recovery-key", async (input) => memberAnswer(input));
+  assert.equal(recovered.status, 200);
+  const completed = await recovered.json();
+  assert.equal((await memberRequest(identity, path, { ...payload, resumeMessageId: completed.messages[1].id }, "assistant-recovery-key", fail)).status, 404);
+  assert.equal((await memberRequest(identity, path, { ...payload, question: "changed" }, "changed-recovery-key", fail)).status, 404);
+  await memberRequest(identity, path, { question: "another question" }, "later-question-key", async (input) => memberAnswer(input));
+  assert.equal((await memberRequest(identity, path, payload, "stale-recovery-key", fail)).status, 404);
+  await archiveMemberConversation(d1(), 113, legacy.conversation.id);
+  assert.notEqual((await (await memberRequest(identity, path)).json()).retryable, true);
+  assert.equal((await memberRequest(identity, path, payload, "archived-recovery-key", fail)).status, 404);
+});
+
+test("fresh recovery keys require a stable message target and replay it without another turn", async () => {
+  const identity = seedMember(115);
+  const payload = { question: "recover without duplicating", sourceMode: "uncut" };
+  const pending = await (await memberRequest(identity, "/beta/api/chat", payload, "initial-recovery-115", async () => { throw new Error("offline"); })).json();
+  const path = `/beta/api/chat/${pending.conversation.id}`;
+  let generations = 0;
+  const generate = async (input) => { generations++; return memberAnswer(input); };
+  const implicit = await memberRequest(identity, path, payload, "fresh-recovery-115", generate);
+  assert.equal(implicit.status, 404, "an unrecordable fresh alias must not be admitted without its stable target");
+  assert.equal(generations, 0);
+  assert.equal((await getMemberConversation(d1(), 115, pending.conversation.id)).messages.length, 1);
+  const explicit = { ...payload, resumeMessageId: pending.messages[0].id };
+  assert.equal((await memberRequest(identity, path, explicit, "fresh-recovery-115", generate)).status, 200);
+  const replay = await memberRequest(identity, path, explicit, "fresh-recovery-115", generate);
+  assert.equal(replay.status, 200);
+  assert.equal(generations, 1);
+  assert.deepEqual((await replay.json()).messages.map(({ role }) => role), ["user", "assistant"]);
+  assert.equal((await memberRequest(identity, path, payload, "initial-recovery-115", generate)).status, 200);
+  assert.equal(generations, 1);
+});
+
+test("pending retry scope is projected independently of the conversation's original mode", async () => {
+  const identity = seedMember(116);
+  const created = await (await memberRequest(identity, "/beta/api/chat", { question: "published first", sourceMode: "published" }, "scope-create-116", async (input) => memberAnswer(input))).json();
+  const path = `/beta/api/chat/${created.conversation.id}`;
+  const payload = { question: "uncut follow-up", sourceMode: "uncut", episodeId: "episode_116" };
+  const failed = await memberRequest(identity, path, payload, "scope-pending-116", async () => { throw new Error("offline"); });
+  assert.equal(failed.status, 503);
+  const pending = await (await memberRequest(identity, path)).json();
+  assert.equal(pending.conversation.source_mode, "published");
+  assert.equal(pending.retrySourceMode, "uncut");
+  assert.equal(pending.resumeMessageId, pending.messages.at(-1).id);
+  assert.equal((await failed.json()).retrySourceMode, "uncut");
+  const recovered = await memberRequest(identity, path, { question: payload.question, sourceMode: pending.retrySourceMode, resumeMessageId: pending.resumeMessageId }, "scope-reloaded-116", async (input) => {
+    assert.equal(input.sourceMode, "uncut");
+    assert.equal(input.episodeId, "episode_116");
+    return memberAnswer(input);
+  });
+  assert.equal(recovered.status, 200);
+  const completed = await recovered.json();
+  assert.equal(completed.retrySourceMode, undefined);
+  assert.equal(completed.resumeMessageId, undefined);
+  assert.equal(completed.conversation.source_mode, "published");
+});
+
+test("member history keyset pagination preserves ties, owner scope and archived exclusions", async () => {
+  seedMember(106);
+  seedMember(107);
+  const db = d1();
+  assert.deepEqual(await listMemberConversations(db, 106), { conversations: [], nextCursor: null });
+  for (let index = 0; index < 51; index++) await createMemberConversation(db, 106, `history ${index}`, "published", `page-request-${index}`, "2026-09-11T00:00:00.000Z");
+  await createMemberConversation(db, 107, "other member", "published", "other-page-request", "2026-09-11T00:00:00.000Z");
+  const first = await listMemberConversations(db, 106);
+  assert.equal(first.conversations.length, 25);
+  assert.ok(first.nextCursor);
+  const second = await listMemberConversations(db, 106, first.nextCursor);
+  assert.equal(second.conversations.length, 25);
+  const third = await listMemberConversations(db, 106, second.nextCursor);
+  assert.equal(third.conversations.length, 1);
+  assert.equal(third.nextCursor, null);
+  const all = [...first.conversations, ...second.conversations, ...third.conversations];
+  assert.equal(new Set(all.map(({ id }) => id)).size, 51);
+  assert.ok(all.every(({ member_id }) => member_id === 106));
+  assert.equal(await listMemberConversations(db, 106, "invalid cursor"), null);
+  assert.ok((await listMemberConversations(db, 107, first.nextCursor)).conversations.every(({ member_id }) => member_id === 107));
+  await archiveMemberConversation(db, 106, first.conversations[0].id);
+  const refreshed = await listMemberConversations(db, 106);
+  assert.ok(!refreshed.conversations.some(({ id }) => id === first.conversations[0].id));
+  const terminal = await listMemberConversations(db, 106, refreshed.nextCursor);
+  assert.equal(terminal.conversations.length, 25);
+  assert.equal(terminal.nextCursor, null);
 });

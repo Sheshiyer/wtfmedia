@@ -23,6 +23,8 @@ interface AskComposerProps {
   loading?: boolean;
   sourceMode?: SourceMode;
   onSourceModeChange?: (mode: SourceMode) => void;
+  sourceModeDisabled?: boolean;
+  variant?: "expanded" | "compact";
 }
 
 export function AskComposer({
@@ -33,8 +35,11 @@ export function AskComposer({
   loading = false,
   sourceMode = "published",
   onSourceModeChange,
+  sourceModeDisabled = false,
+  variant = "expanded",
 }: AskComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const compactInputRef = useRef<HTMLInputElement>(null);
   const promptRail = useMemo(
     () => [
       "find the exact moment where the guest changes their mind",
@@ -46,14 +51,59 @@ export function AskComposer({
 
   /* Focus on mount */
   useEffect(() => {
-    textareaRef.current?.focus({ preventScroll: true });
-  }, []);
+    if (variant === "compact") compactInputRef.current?.focus({ preventScroll: true });
+    else textareaRef.current?.focus({ preventScroll: true });
+  }, [variant]);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       onSubmit();
     }
+  }
+
+  if (variant === "compact") {
+    return (
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSubmit();
+        }}
+        className="wtf-ask-composer fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-40 px-3 py-2 sm:px-5"
+        data-testid="ask-composer"
+        data-composer-variant="compact"
+      >
+        <div className="mx-auto flex max-w-5xl items-center gap-1.5 rounded-full border-2 border-foreground bg-surface-raised/95 px-1.5 py-1 shadow-[0_-4px_0_rgb(var(--wtf-foreground-rgb)/0.10)] backdrop-blur-md focus-within:outline focus-within:outline-[3px] focus-within:outline-offset-2 focus-within:outline-foreground sm:gap-2 sm:px-3 sm:py-1.5">
+          <div className="relative min-w-0 flex-1">
+            <input
+              id="ask-wtf-composer"
+              ref={compactInputRef}
+              type="text"
+              value={value}
+              onChange={(event) => onChange(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter") return;
+                event.preventDefault();
+                onSubmit();
+              }}
+              disabled={disabled || loading}
+              placeholder="what moment are you after?"
+              aria-label="Ask the catalogue"
+              className="h-9 w-full bg-transparent px-2 font-body text-sm text-foreground placeholder:text-muted focus-visible:!outline-none focus-visible:after:!shadow-none disabled:opacity-60 sm:h-10 sm:px-3"
+            />
+          </div>
+          <Button
+            type="submit"
+            variant="attention"
+            disabled={disabled || loading || !value.trim()}
+            loading={loading}
+            className="h-8 shrink-0 rounded-full px-3 sm:h-9 sm:px-4"
+          >
+            ask wtf
+          </Button>
+        </div>
+      </form>
+    );
   }
 
   return (
@@ -81,7 +131,7 @@ export function AskComposer({
                   key={mode}
                   type="button"
                   aria-pressed={sourceMode === mode}
-                  disabled={disabled || loading}
+                  disabled={disabled || loading || sourceModeDisabled}
                   onClick={() => onSourceModeChange?.(mode)}
                   className={[
                     "min-h-8 px-3 font-label text-[11px] font-bold lowercase transition-colors",
@@ -102,6 +152,7 @@ export function AskComposer({
               value={value}
               onChange={(e) => onChange(e.target.value)}
               onKeyDown={handleKeyDown}
+              disabled={disabled || loading}
               placeholder="what moment are you after?"
               rows={2}
               aria-label="Ask the catalogue"

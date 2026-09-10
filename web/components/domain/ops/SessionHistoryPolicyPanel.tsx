@@ -54,16 +54,16 @@ export function SessionHistoryPolicyPanel() {
       </div>
 
       <nav className="mt-5 flex flex-wrap gap-3" aria-label="protected operator workspaces">
-        <Link href="/ops/chat" className="inline-flex min-h-11 items-center border-2 border-foreground bg-canvas px-4 py-3 font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">
+        <Link href="/beta/ops/chat" className="inline-flex min-h-11 items-center border-2 border-foreground bg-canvas px-4 py-3 font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">
           open account history
         </Link>
-        <Link href="/ops/operators" className="inline-flex min-h-11 items-center border-2 border-foreground bg-canvas px-4 py-3 font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">
+        <Link href="/beta/ops/operators" className="inline-flex min-h-11 items-center border-2 border-foreground bg-canvas px-4 py-3 font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">
           open operator administration
         </Link>
-        <Link href="/ops/audit" className="inline-flex min-h-11 items-center border-2 border-foreground bg-canvas px-4 py-3 font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">
+        <Link href="/beta/ops/audit" className="inline-flex min-h-11 items-center border-2 border-foreground bg-canvas px-4 py-3 font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">
           open audit ledger
         </Link>
-        <Link href="/ops/audit" className="inline-flex min-h-11 items-center border-2 border-information bg-information/15 px-4 py-3 font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">
+        <Link href="/beta/ops/audit" className="inline-flex min-h-11 items-center border-2 border-information bg-information/15 px-4 py-3 font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">
           review query activity
         </Link>
       </nav>

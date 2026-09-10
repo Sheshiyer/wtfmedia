@@ -35,7 +35,7 @@ test("truthful role-projected Control Room shell shows only activated administra
   const promoted = page.locator("[data-promoted=true]");
   await expect(promoted).toHaveCount(1);
   await expect(promoted).toContainText("do this next");
-  await expect(promoted).toHaveAttribute("href", "/ops/production");
+  await expect(promoted).toHaveAttribute("href", "/beta/ops/production");
   await expect(promoted).not.toHaveClass(/bg-attention/);
   const operationsNavigation = await openOperationsNav(page);
   const operationsLinks = operationsNavigation.locator("[data-navigation-links]");
@@ -52,7 +52,7 @@ test("editor role exposes only the activated Control Room destination", async ({
   const promoted = page.locator("[data-promoted=true]");
   await expect(promoted).toHaveCount(1);
   await expect(promoted).toContainText("production");
-  await expect(promoted).toHaveAttribute("href", "/ops/production");
+  await expect(promoted).toHaveAttribute("href", "/beta/ops/production");
   const operationsNavigation = await openOperationsNav(page);
   const operationsLinks = operationsNavigation.locator("[data-navigation-links]");
   await expect(operationsLinks.getByRole("link", { name: "control room" })).toBeVisible();
