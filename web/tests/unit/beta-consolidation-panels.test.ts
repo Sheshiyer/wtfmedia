@@ -85,8 +85,9 @@ describe("Beta consolidation admin panels", () => {
       expect(sessionNavigator).toContain(value);
     }
     const publicShell = source("components/patterns/PublicShell.tsx");
-    // Sign-in stays hidden until the operator auth flow ships.
-    expect(publicShell).not.toContain("data-public-sign-in");
+    // The member auth flow shipped, so the public shell links to /sign-in and
+    // bypasses public chrome on protected routes.
+    expect(publicShell).toContain("data-public-sign-in");
     expect(appRail).toContain("data-header-utility");
     for (const href of ["/ops/settings/readiness", "/ops/settings/release", "/ops/settings/ai", "/ops/settings/analytics", "/ops/settings/sessions", "/ops/settings/memory", "/ops/settings/sources", "/ops/settings/access"]) {
       expect(settingsContract + settingsLayout + settingsNavigation + settings).toContain(href);
