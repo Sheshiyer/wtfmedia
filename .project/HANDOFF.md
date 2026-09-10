@@ -1,6 +1,108 @@
 # Project handoff
 
-## 2026-09-11 Member Beta anti-drift correction
+## 2026-09-11 Alpha-bedrock / Beta modular convergence correction
+
+**Status:** PLANNING-READY WITH A LOCAL SOURCE CHECKPOINT — Alpha's actual Ask
+WTF product is now the explicit bedrock; Beta is an authenticated, persistent,
+role-aware extension around it. The fresh-session authority is
+`.planning/inputs/2026-09-11-alpha-bedrock-beta-modular-convergence-handoff.md`.
+
+### Why the UI kept drifting
+
+- `origin/release/alpha` is at `e86923b`, while the later Alpha chat and
+  answer-accuracy work lives on `origin/rag/alpha-answer-accuracy` at
+  `d4e45b4`; accepted composer geometry is directly represented by `887699e`.
+- `origin/release/beta` at `498c0e0` is not descended from that later Alpha
+  line. It inherited an older shared base and then implemented a separate
+  member composition. Reusing colors and a few components did not preserve the
+  real Alpha interaction model.
+- The next implementation must forward-port capabilities from exact Alpha
+  commits into shared primitives. It must not merge the divergent Alpha
+  accuracy branch wholesale because that line also contains earlier Beta
+  merges, provider experiments, and other independently gated work.
+
+### Owner annotations incorporated
+
+- The session rail remains 240px, bounded, independently scrolling, and clamps
+  only session-card titles. The active conversation heading may wrap.
+- Like live Alpha `/chat`, member Ask routes have no bottom dock. Preserve the
+  floating wordmark and top-right Alpha hamburger; its Ask WTF, Episodes,
+  Connections, and theme grammar remains, with one additive member Settings
+  gear plus account/logout utilities. The current two icon-labelled Ask
+  WTF/Settings buttons are not the intended menu.
+- Loading, unavailable, retry, empty, answer, and long-history states remain
+  inside one bounded conversation viewport; an error banner above a large dead
+  canvas is not accepted.
+- A selected session needs its own action. The current header `archive` control
+  behaves like navigation and does not satisfy that requirement.
+- Archive and permanent delete are different. Archive retains D1 storage.
+  Permanent delete requires a confirmation dialog plus a new owner-scoped
+  schema/API contract that removes the conversation, messages, and internal
+  context checkpoints without touching transcript corpus data or silently
+  deleting explicit saved preferences. The existing immutable
+  `member_saved_memories.source_conversation_id` `ON DELETE RESTRICT` link must
+  receive a reviewed detach/tombstone design, and anti-resurrection tests must
+  replay the original create idempotency key after deletion.
+- There is no automatic long-session compaction today. The browser receives the
+  full selected message history, while inference sees at most the latest eight
+  turns within 8,000 characters. Message pagination and versioned,
+  non-evidence context checkpoints are now required before full-session memory
+  can be claimed.
+
+### Preserved local implementation
+
+Local commit `3e4c887` on the isolated `codex/beta-chat-refinement` worktree
+contains a source-only chat hardening slice:
+
+- public and member answer paths share `runChat`;
+- episode-scoped retrieval keeps multiple chunks from one episode;
+- malformed scores and blank excerpts fail closed before inference;
+- prior named-user context anchors follow-ups without becoming evidence;
+- factual prose requires bounded citations or falls back to excerpts;
+- persisted member citations retain safe numbers/times/modes;
+- selected-load and failed-turn retry states, truthful loading, abstention copy,
+  and reader-respecting bounded scrolling are covered;
+- production/staging web-to-edge and data-binding separation has direct tests.
+
+Fresh local verification at that checkpoint passed 251/251 Cloudflare tests,
+142/142 web unit tests, 90/90 web contract tests, TypeScript, ESLint, and
+`git diff --check`. This is not Alpha-parity proof, semantic-entailment proof,
+a commit on a remote branch, a staging deployment, or live acceptance.
+
+### Remaining role and release gates
+
+The existing authenticated IAB receipt proves only one ordinary staging member
+at desktop size. It does not prove:
+
+- Member A versus Member B isolation and logout/login recovery;
+- editor screen/action restrictions;
+- admin screen/action restrictions;
+- super-admin `/beta` to `/beta/ops` routing without member creation;
+- the single-seat transfer/release controls;
+- suspended/revoked behavior;
+- 320x710 drawer/focus/overlap behavior;
+- permanent deletion or long-session compaction.
+
+Production Alpha and staging Beta remain separate Cloudflare pairs:
+`wtfmedia-web` → `wtfmedia-edge`, and `wtfmedia-web-staging` →
+`wtfmedia-edge-staging`, each with its own data plane. Shared code does not
+authorize asset or data convergence.
+
+### Next session
+
+Open the isolated worktree and use the exact fresh-session prompt at the end of
+`.planning/inputs/2026-09-11-alpha-bedrock-beta-modular-convergence-handoff.md`.
+Start with Wave 0's branch/symbol ledger, then fan out the shared Alpha UI,
+inference/retrieval, and private lifecycle/long-session lanes to bounded Codex
+workers. Integrate member composition and role screens only after those lanes
+stabilize. Do not deploy or mutate remote data until the full local matrix,
+independent review, and a new owner-authorized staging wave pass.
+
+## 2026-09-11 Member Beta anti-drift correction (superseded in part)
+
+**Superseded visual acceptance:** the later owner annotations and convergence
+entry above replace this entry's bottom-pill and selected-session UI claims.
+Its authenticated create/continue/reload evidence remains valid.
 
 **Status:** ANNOTATED LAYOUT + AUTHENTICATED IAB VERIFIED — the owner's 1382x887
 overlap and composer annotations are resolved on the real signed-in staging
