@@ -1,5 +1,40 @@
 # Project handoff
 
+## 2026-09-10 Authenticated member dashboard shell
+
+**Status:** STAGING DEPLOYED AND VISUALLY VERIFIED — the authenticated member
+route now renders the reviewed WTF OS workspace instead of the unframed
+implementation page. Authentication, operator routing, member ownership, and
+the existing Edge/D1 API boundary are unchanged.
+
+- Web staging version: `3e7789c2-08c9-4999-93b9-dde4c73da447` from source
+  commit `aa0c745`. No Edge or production deployment was performed.
+- `/beta` now enters an explicit member-mode `AppShell` with the WTF OS top
+  rail, member navigation, theme control, logout, and bottom workspace pill.
+- The ready state presents the account-scoped Ask WTF composer, active sourced
+  conversation, private session history, and explicit-save memory as one
+  responsive member dashboard. The earlier raw cream page is no longer the
+  authenticated presentation.
+- Member navigation is intentionally limited to Ask WTF, sessions, and memory.
+  Operator Profile, Settings, release controls, and cross-account data remain
+  absent; a verified D1 operator still redirects to `/beta/ops` before the
+  member endpoint is consulted.
+
+### Verification
+
+- Web unit tests pass 106/106 and contract tests pass 86/86; strict typecheck,
+  lint, production build, and `git diff --check` pass.
+- The authenticated in-app-browser session resolved the real staging context,
+  chat history, and memory APIs, then rendered the member shell and all three
+  private sections. The disclosure opened with logout, theme, and the three
+  member destinations.
+- Runtime logs contain no application error. The only browser warning is
+  Clerk's expected development-key notice for this staging development
+  instance.
+- Remaining multi-account acceptance is unchanged: verify the active D1
+  super-admin redirects to `/beta/ops`, then use a second ordinary account to
+  prove owner isolation across chat, history, memory, logout, and sign-in.
+
 ## 2026-09-10 Beta open enrollment and fixture withdrawal
 
 **Status:** STAGING DEPLOYED — verified non-operator Clerk users now receive a
