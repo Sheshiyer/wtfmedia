@@ -177,7 +177,7 @@ function ChatInner() {
             <span>{episodeId ? "episode scope" : "catalogue scope"}</span>
             <span>source-backed answers</span>
             <span>mapped time only</span>
-            <Link href="/ops/chat" className="text-knowledge underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-knowledge">
+            <Link href="/beta/ops/chat" className="text-knowledge underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-knowledge">
               sign in for account sessions
             </Link>
           </div>

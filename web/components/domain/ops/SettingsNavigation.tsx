@@ -13,7 +13,7 @@ const groupLabels = {
 } as const;
 
 export function SettingsNavigation() {
-  const pathname = usePathname() ?? "/ops/settings";
+  const pathname = usePathname() ?? "/beta/ops/settings";
   const { role } = useOperatorContext();
   const sections = settingsSectionsFor(role);
 
@@ -27,9 +27,9 @@ export function SettingsNavigation() {
         </div>
         <nav className="mt-3 grid gap-3" aria-label="Settings sections">
           <Link
-            href="/ops/settings"
-            aria-current={pathname === "/ops/settings" ? "page" : undefined}
-            className={`block min-h-11 rounded-control border-2 px-3 py-2 font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information ${pathname === "/ops/settings" ? "border-attention bg-attention text-on-attention" : "border-transparent text-foreground hover:border-foreground/50 hover:bg-surface-subtle"}`}
+            href="/beta/ops/settings"
+            aria-current={pathname === "/beta/ops/settings" ? "page" : undefined}
+            className={`block min-h-11 rounded-control border-2 px-3 py-2 font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information ${pathname === "/beta/ops/settings" ? "border-attention bg-attention text-on-attention" : "border-transparent text-foreground hover:border-foreground/50 hover:bg-surface-subtle"}`}
           >
             overview
           </Link>

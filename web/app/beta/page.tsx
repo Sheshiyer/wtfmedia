@@ -76,6 +76,14 @@ export default function MemberBetaPage() {
   const load = useCallback(async () => {
     setState("loading");
     try {
+      // A verified operator is sent to the canonical Beta control room before
+      // the member-only endpoint is consulted. This avoids treating an admin
+      // session as an uninvited member merely because it entered through /beta.
+      const operator = await fetch("/ops/api/operator-context", { cache: "no-store" });
+      if (operator.ok) {
+        router.replace("/beta/ops");
+        return;
+      }
       const context = await fetch("/beta/api/context", { cache: "no-store" });
       if (!context.ok) {
         setState("member-unavailable");
@@ -97,7 +105,7 @@ export default function MemberBetaPage() {
     } catch {
       setState("unavailable");
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (!isLoaded) return;

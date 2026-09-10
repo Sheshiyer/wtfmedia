@@ -298,7 +298,7 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
             account conversation ledger
           </p>
           <Link
-            href="/ops/chat#new-chat"
+            href="/beta/ops/chat#new-chat"
             data-new-chat
             className="inline-flex min-h-11 items-center border-2 border-foreground bg-attention px-4 py-2 font-label text-sm font-bold lowercase text-on-attention shadow-[4px_4px_0_var(--wtf-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information"
           >
@@ -349,7 +349,7 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
             </div>
             <div className="flex flex-wrap items-center justify-end gap-3">
               <Link
-                href="/ops/chat"
+                href="/beta/ops/chat"
                 data-history-back
                 className="inline-flex min-h-11 items-center border-2 border-foreground bg-canvas px-3 py-2 font-label text-xs font-bold lowercase text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information"
               >

@@ -2261,3 +2261,32 @@ changed.
   `404 ops_unavailable`; the authenticated member acceptance is the remaining
   human gate. The in-app browser cannot load Clerk's account host, so account
   completion must occur in a normal browser session.
+
+## 2026-09-10 Beta canonical operator routing and verified session transport
+
+All browser-facing operator work now has `/beta/ops` as its canonical route.
+Legacy `/ops` UI routes redirect to their `/beta/ops` equivalents, while the
+existing `/ops/api/*` Edge namespace remains unchanged as the protected
+authority boundary. A Next rewrite serves the audited operator page tree at
+the canonical Beta URLs, so the migration does not duplicate page logic or
+weaken its existing server-side policy checks.
+
+The browser and server-rendered operator paths now mint a Clerk server-session
+token when the browser has not supplied a bearer credential, and forward that
+token to the Edge for issuer/JWKS verification and D1 role resolution. The
+Beta entry page checks verified operator context first, so an active operator
+session enters `/beta/ops` rather than being shown the member-invitation state.
+
+### Verification
+
+- Web unit suite: 104/104 pass. New contracts prove `/ops/api` preserves an
+  explicit bearer, forwards a minted Clerk token, and canonicalizes legacy
+  protected return paths to `/beta/ops`.
+- Web TypeScript, ESLint, and OpenNext Cloudflare build pass. Staging web
+  deployment `432fe47e-e9be-41a3-956e-bfd5207e6279` is live; `/ops` returns a
+  `307` to `/beta/ops`, `/beta/ops` and `/beta/ops/settings` return `200`, and
+  unsigned `/beta/api/context` remains the intentional `404 ops_unavailable`.
+  The full local Phase 2 gate passes after its browser assertion was updated
+  from the retired `/ops/production` URL to `/beta/ops/production`. Production
+  is out of scope. The remaining human receipt is one signed-in session
+  reaching `/beta/ops` through the Clerk-to-Edge token handoff.

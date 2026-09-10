@@ -8,11 +8,11 @@ describe("current-release ungated navigation", () => {
       "/episodes",
       "/connections",
       "/chat",
-      "/ops",
-      "/ops/production",
-      "/ops/episodes",
-      "/ops/settings",
-      "/ops/chat",
+      "/beta/ops",
+      "/beta/ops/production",
+      "/beta/ops/episodes",
+      "/beta/ops/settings",
+      "/beta/ops/chat",
     ]);
   });
 
@@ -24,19 +24,19 @@ describe("current-release ungated navigation", () => {
       ["/episodes", "workspace"],
       ["/connections", "workspace"],
       ["/chat", "workspace"],
-      ["/ops", "workspace"],
-      ["/ops/production", "workspace"],
-      ["/ops/episodes", "workspace"],
-      ["/ops/settings", "administration"],
-      ["/ops/chat", "administration"],
+      ["/beta/ops", "workspace"],
+      ["/beta/ops/production", "workspace"],
+      ["/beta/ops/episodes", "workspace"],
+      ["/beta/ops/settings", "administration"],
+      ["/beta/ops/chat", "administration"],
     ]);
   });
 
   it("keeps held surfaces in the roadmap instead of the primary dock", () => {
     expect(releaseRoadmapNavigation.map((item) => item.href)).toEqual([
-      "/ops/ingest",
-      "/ops/operators",
-      "/ops/audit",
+      "/beta/ops/ingest",
+      "/beta/ops/operators",
+      "/beta/ops/audit",
     ]);
   });
 });

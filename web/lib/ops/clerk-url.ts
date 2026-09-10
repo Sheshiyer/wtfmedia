@@ -2,9 +2,10 @@
  * Clerk owns the browser session. The redirect target is a fixed internal
  * path so release controls cannot turn the sign-in link into an open redirect.
  */
-export const BETA_RELEASE_RETURN_TO = "/ops/settings?releaseTrack=beta";
+export const BETA_OPS_RETURN_TO = "/beta/ops";
+export const BETA_RELEASE_RETURN_TO = "/beta/ops/settings?releaseTrack=beta";
 export const MEMBER_BETA_RETURN_TO = "/beta";
-export const OPERATOR_RETURN_TO = "/ops";
+export const OPERATOR_RETURN_TO = BETA_OPS_RETURN_TO;
 
 const MEMBER_INVITATION_PATH = "/sign-up";
 const invitationTicketPattern = /^[A-Za-z0-9._~-]{16,8192}$/;
@@ -40,7 +41,8 @@ export function clerkRedirectTarget(
     const callback = new URL(value);
     if (callback.origin !== requestOrigin) return OPERATOR_RETURN_TO;
     if (callback.pathname === MEMBER_BETA_RETURN_TO) return MEMBER_BETA_RETURN_TO;
-    return callback.pathname === BETA_RELEASE_RETURN_TO ? BETA_RELEASE_RETURN_TO : OPERATOR_RETURN_TO;
+    if (callback.pathname === BETA_OPS_RETURN_TO && callback.search === "?releaseTrack=beta") return BETA_RELEASE_RETURN_TO;
+    return OPERATOR_RETURN_TO;
   } catch {
     return OPERATOR_RETURN_TO;
   }

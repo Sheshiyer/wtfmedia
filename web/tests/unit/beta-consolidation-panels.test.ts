@@ -58,7 +58,7 @@ describe("Beta consolidation admin panels", () => {
     for (const value of ["Clerk session JWT", "server / D1 operator record", "720 hours", "MFA precedence", "archive-only", "admin export", "verification pending"]) {
       expect(panel).toContain(value);
     }
-    for (const href of ["/ops/chat", "/ops/operators", "/ops/audit"]) expect(panel).toContain(href);
+    for (const href of ["/beta/ops/chat", "/beta/ops/operators", "/beta/ops/audit"]) expect(panel).toContain(href);
     for (const value of ["operator access", "roster read", "seat mutations", "super-admin transfer", "server-authorized"]) {
       expect(administration).toContain(value);
     }
@@ -86,7 +86,7 @@ describe("Beta consolidation admin panels", () => {
       expect(sessionNavigator).toContain(value);
     }
     expect(publicChat).toContain("sign in for account sessions");
-    for (const href of ["/ops/settings/readiness", "/ops/settings/release", "/ops/settings/ai", "/ops/settings/analytics", "/ops/settings/sessions", "/ops/settings/memory", "/ops/settings/sources", "/ops/settings/access"]) {
+    for (const href of ["/beta/ops/settings/readiness", "/beta/ops/settings/release", "/beta/ops/settings/ai", "/beta/ops/settings/analytics", "/beta/ops/settings/sessions", "/beta/ops/settings/memory", "/beta/ops/settings/sources", "/beta/ops/settings/access"]) {
       expect(settingsContract + settingsLayout + settingsNavigation + settings).toContain(href);
     }
     expect(settings).not.toContain("AIProviderSettingsPanel");
@@ -105,7 +105,7 @@ describe("Beta consolidation admin panels", () => {
     expect(appRail).toContain("ThemeToggle");
     expect(appRail).toContain("data-navigation-utilities");
     expect(appRail).toContain("data-bottom-navigation");
-    expect(appRail).toContain('href="/ops/profile"');
+    expect(appRail).toContain('href="/beta/ops/profile"');
     expect(profileRoute).toContain("OperatorProfilePage");
     for (const value of ["identity & role", "verified scope", "settings access map", "Clerk", "normalized email", "edge readback", "verification required", "/ops/api/profile"]) {
       expect(profile).toContain(value);
