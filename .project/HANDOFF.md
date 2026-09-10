@@ -37,18 +37,30 @@ changed by this deployment.
   one active `super_admin`; its older unbound invited member row cannot override
   that operator mapping. The member release remains `staging/preview`.
 
-### Remaining external gate
+### Clerk provider gate
 
-- The correct Clerk development instance still presents provider-side
-  restricted sign-up. Disable that setting in `mighty-hedgehog-2913` and keep
-  Google enabled before ordinary users can create Clerk accounts.
-- The available local Clerk CLI is linked to a different application, so it
-  was intentionally not used. The in-app browser bridge failed before exposing
-  any tab with `Unable to load browser request-header policy`; no Clerk setting
-  was mutated in this run.
-- After the exact-instance toggle, verify one active super-admin routes to
-  `/beta/ops` without creating a member row, then verify two ordinary accounts
-  receive distinct owner-scoped member workspaces.
+- The Clerk CLI was authenticated and explicitly linked to the `WtfOS`
+  application (`app_3J5UCAhqn41tl3oO9tAV1D9totj`) and its
+  `mighty-hedgehog-2913` development instance
+  (`ins_3J5UCE1dosqLPdOcdxZ5ZXnkBVm`).
+- A dry run and immediate exact-instance patch changed only
+  `auth_access_control.sign_up_mode` from `restricted` to `public`. Google
+  remains enabled and authenticatable, the seven-day maximum session lifetime
+  and single-session policy are unchanged, and the sole redirect remains the
+  staging `/beta` URL.
+- Immediate readback found the same three Clerk users and no additional page.
+  No user, invitation, D1 row, Worker, secret, route, DNS record, production
+  instance, or Public Alpha resource was created or changed by this provider
+  update.
+
+### Remaining live acceptance
+
+- Sign out and complete one fresh Google sign-in with the active D1
+  super-admin. It must route from `/beta` to `/beta/ops` without creating a
+  member row.
+- Complete fresh sign-ins with two ordinary accounts. Each must receive a
+  distinct owner-scoped member workspace, then pass private chat, history,
+  saved-memory, logout/reauthentication, and cross-member isolation checks.
 
 ## 2026-09-10 Worker topology and deploy-target containment
 
