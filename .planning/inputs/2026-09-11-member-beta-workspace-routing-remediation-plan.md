@@ -14,6 +14,23 @@ but its current single-page dashboard is an interim presentation rather than
 the intended member product. Preserve its working identity, routing, privacy,
 and persistence seams while replacing the information architecture around them.
 
+### 2026-09-11 execution review
+
+- PR #60 still resolves to reviewed head `2a83372`, is mergeable, and its
+  current required checks pass. Its GitHub title/body still describe the
+  withdrawn preview fixture and must be refreshed before merge.
+- Fresh source inspection reconfirmed G1–G11. G12 remains a live acceptance
+  gate; it cannot be converted into a local source claim.
+- Migration `0010_member_beta.sql` already provides conversation/message
+  idempotency and sequence fields. This implementation must reuse them and must
+  not add a migration unless a failing deterministic test proves one necessary.
+- A continued conversation includes bounded prior user/assistant turns as
+  conversational context. Those turns are not transcript evidence and cannot
+  satisfy grounding or citation requirements.
+- Repository implementation and deterministic verification are authorized in
+  this worktree. Staging deployment, provider mutation, remote D1 mutation, and
+  the three-persona acceptance matrix remain separately held.
+
 ## Goal
 
 Turn the existing authenticated member Beta into a coherent, account-scoped Ask
@@ -84,7 +101,7 @@ ordinary members pass the existing live authorization and isolation gates.
 
 | ID | Gap | Evidence in current source | Required outcome |
 |---|---|---|---|
-| G1 | No member conversation continuation | Member router accepts POST only at `/beta/api/chat`; it has GET-only handling for `/beta/api/chat/:id` | Add owner-scoped, idempotent continuation and return the updated conversation |
+| G1 | No member conversation continuation | Member router accepts POST only at `/beta/api/chat`; it has GET-only handling for `/beta/api/chat/:id` | Add owner-scoped, idempotent continuation, supply bounded prior turns as non-evidence context, and return the updated conversation |
 | G2 | No history pagination | `listMemberConversations` hard-limits 25 and always returns `nextCursor: null` | Add opaque cursor pagination and preserve owner filtering on every page |
 | G3 | No durable route selection | Current selected conversation exists only in component state | Canonical `/beta/chat/:conversationId`; reload, back/forward, and shared internal links restore selection |
 | G4 | Single global busy state | Ask, open, archive, and memory actions share `isSubmitting` | Isolate request state so one chat cannot receive another chat's response or block unrelated navigation |
@@ -370,6 +387,10 @@ operator control appears.
 page, while truthful recovery boundaries remain intact.
 
 ### Wave 6 — staging acceptance
+
+This wave is not authorized by the current repository-only execution request.
+Complete its deterministic local checks now; keep deployment, remote metadata
+readback, live personas, and human visual approval as explicit follow-up gates.
 
 1. Run deterministic Edge, web unit, contract, typecheck, lint, build, privacy,
    architecture, and diff checks.

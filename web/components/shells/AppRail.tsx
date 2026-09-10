@@ -13,18 +13,25 @@ export type AppNavItem = {
   href: string;
   label: string;
   section?: "workspace" | "administration";
+  match?: readonly string[];
 };
+
+export type AppNavGroup = { label: string; items: readonly AppNavItem[] };
 
 export type AppRailProps = {
   mode: "public" | "member" | "operator";
   navigation: readonly AppNavItem[];
   utility?: React.ReactNode;
+  bottomNavigation?: readonly AppNavItem[];
+  disclosureGroups?: readonly AppNavGroup[];
 };
 
 export function AppRail({
   mode,
   navigation,
   utility,
+  bottomNavigation,
+  disclosureGroups,
 }: AppRailProps) {
   const pathname = usePathname() ?? "/";
   const utilityHrefs = new Set(["/beta/ops", "/beta/ops/production", "/beta/ops/episodes", "/beta/ops/settings"]);
@@ -45,6 +52,7 @@ export function AppRail({
       return (aIndex === -1 ? primaryOrder.length : aIndex) - (bIndex === -1 ? primaryOrder.length : bIndex);
     });
   const disclosureNavigation = mode === "operator" ? utilityNavigation : primaryNavigation;
+  const resolvedBottomNavigation = bottomNavigation ?? primaryNavigation;
   const disclosureId = mode === "operator"
     ? "wtf-operations-navigation"
     : mode === "member"
@@ -82,9 +90,13 @@ export function AppRail({
     };
   }, [utilityOpen]);
 
+  const isActive = (item: AppNavItem) => item.match
+    ? item.match.some((pattern) => pattern.endsWith("*") ? pathname.startsWith(pattern.slice(0, -1)) : pathname === pattern)
+    : routeIsActive(pathname, item.href);
+
   const renderNavLinks = (items: readonly AppNavItem[]) =>
     items.map((item) => {
-      const active = routeIsActive(pathname, item.href);
+      const active = isActive(item);
 
       return (
         <Link
@@ -219,7 +231,12 @@ export function AppRail({
                 ) : null}
               </div>
               <div data-navigation-links className="flex flex-col gap-1.5">
-                {renderNavLinks(disclosureNavigation)}
+                {disclosureGroups ? disclosureGroups.map((group) => (
+                  <section key={group.label} aria-label={group.label} className="grid gap-1.5 border-b border-foreground/15 pb-2 last:border-0 last:pb-0">
+                    <p className="px-2 pt-1 font-label text-[9px] font-bold uppercase tracking-[0.12em] text-muted">{group.label}</p>
+                    {renderNavLinks(group.items)}
+                  </section>
+                )) : renderNavLinks(disclosureNavigation)}
               </div>
             </nav>
           </div>
@@ -233,7 +250,7 @@ export function AppRail({
             data-bottom-navigation
             className="flex min-w-max items-center gap-0.5 sm:gap-1"
           >
-            {renderNavLinks(primaryNavigation)}
+            {renderNavLinks(resolvedBottomNavigation)}
           </nav>
         </div>
       </div>

@@ -1,11 +1,8 @@
 import { ClerkLogoutButton } from "@/components/domain/ops/ClerkLogoutButton";
 import { AppShell, type AppNavItem } from "@/components/shells/AppShell";
+import { memberBottomNavigation, memberDisclosureGroups } from "@/lib/member/navigation";
 
-const memberNavigation: readonly AppNavItem[] = [
-  { href: "/beta", label: "ask wtf", section: "workspace" },
-  { href: "/beta#history", label: "sessions", section: "workspace" },
-  { href: "/beta#memory", label: "memory", section: "workspace" },
-];
+const memberNavigation: readonly AppNavItem[] = memberBottomNavigation;
 
 export function MemberBetaShell({ children }: { children: React.ReactNode }) {
   return (
@@ -13,6 +10,8 @@ export function MemberBetaShell({ children }: { children: React.ReactNode }) {
       <AppShell
         mode="member"
         navigation={memberNavigation}
+        bottomNavigation={memberBottomNavigation}
+        disclosureGroups={memberDisclosureGroups}
         utility={<ClerkLogoutButton />}
       >
         {children}
