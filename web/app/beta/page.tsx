@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { OperatorAuthFrame } from "@/components/domain/ops/OperatorAuthFrame";
 import { SourcePanel } from "@/components/domain/public/SourcePanel";
 import { parsePublicSourceHeader } from "@/lib/provenance/public-source-header";
-import { memberBetaEntryTarget } from "@/lib/ops/clerk-url";
+import { memberBetaEntryTarget, memberInvitationTicket } from "@/lib/ops/clerk-url";
 
 type Conversation = {
   id: string;
@@ -109,6 +109,13 @@ export default function MemberBetaPage() {
 
   useEffect(() => {
     if (!isLoaded) return;
+    // Clerk may report a prior or partially-created session while an invitation
+    // callback is still carrying its one-time ticket. The ticket must win so
+    // the SignUp component can consume the invitation before we read Beta data.
+    if (memberInvitationTicket(invitationTicket)) {
+      router.replace(memberBetaEntryTarget(invitationTicket));
+      return;
+    }
     if (!isSignedIn) {
       router.replace(memberBetaEntryTarget(invitationTicket));
       return;

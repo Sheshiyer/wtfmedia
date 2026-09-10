@@ -2290,3 +2290,19 @@ session enters `/beta/ops` rather than being shown the member-invitation state.
   from the retired `/ops/production` URL to `/beta/ops/production`. Production
   is out of scope. The remaining human receipt is one signed-in session
   reaching `/beta/ops` through the Clerk-to-Edge token handoff.
+
+## 2026-09-10 invitation callback session-precedence repair
+
+The `/beta` callback now gives a well-formed `__clerk_ticket` precedence over
+an existing or partial Clerk session. It redirects that ticket immediately to
+the branded `/sign-up` component, which is the only page allowed to consume
+the invitation. This prevents a callback with `__clerk_status=sign_in` from
+trying to fetch the private workspace before Clerk finishes invitation
+acceptance.
+
+### Verification
+
+- Focused callback/proxy unit tests: 10/10; TypeScript, ESLint, and OpenNext
+  Cloudflare build pass. The Clerk CLI was read-only healthy but linked to a
+  different development instance, so it was not used to inspect, create, or
+  revoke the target invitation.
