@@ -1,9 +1,74 @@
 # Project handoff
 
-## 2026-09-12 Beta rich-citation source-sheet repair
+## 2026-09-12 Beta Alpha-overlay staging acceptance checkpoint
 
-**Status:** SOURCE/BUILD VERIFIED; DEPLOYED TO BETA STAGING; SUPER-ADMIN IAB
-PARTIAL; GROUNDED ACCEPTANCE BLOCKED. The
+**Status:** SOURCE/BUILD VERIFIED; DEPLOYED TO BETA STAGING; GROUNDED
+SUPER-ADMIN IAB ACCEPTED; FULL PERSONA/VIEWPORT/ROLLBACK ACCEPTANCE OPEN.
+
+- Exact runtime candidate
+  `748c0e4e8d732b5ecdbd3cda572c8bd67f2a32d6` makes Alpha the sole corpus,
+  ingest, retrieval, inference, grounding, citation, timestamp, and enriched-
+  moment authority. Beta adds only Clerk identity, D1 admission/RBAC/admin, and
+  owner-scoped conversations, messages, sessions, history, and lifecycle.
+- The Beta Edge sends a bounded conversation to Alpha's existing public
+  `/api/chat` contract through `WTFMEDIA_ALPHA_WEB -> wtfmedia-web`, validates
+  its public answer/source/moment metadata, and persists that sanitized
+  projection in staging D1. It never sends Clerk credentials, D1 owner IDs,
+  saved memory, secrets, or internal transcript text to Alpha.
+- Source verification passes: Edge 387/387, web unit 220/220, web contracts
+  96/96, TypeScript, ESLint, OpenNext production build (89 pages), privacy
+  0/400, architecture freshness across 630 inputs, and `git diff --check`.
+- Before the only current D1 schema change, Time Travel returned bookmark
+  `0000006b-00000000-000050e3-0bb7072294902e18dbbd945231ef35dc`.
+  Wrangler applied only `0016_rich_chat_source_metadata.sql` to
+  `wtfmedia-ops-staging`; no corpus or ingest data was created or copied.
+- Only the changed staging Edge was deployed: version
+  `67e93676-8519-4e33-8b7b-83b45fa975a8`. Staging Web remains
+  `cbc25bba-c2a1-436f-8612-11813dbd3946` because the accepted UI was already
+  deployed and unchanged. Health reports `inferenceService=wtfmedia-web` and
+  `corpusAuthority=alpha_public_api`.
+- Wrangler resource readback names only `DB=wtfmedia-ops-staging` and
+  `WTFMEDIA_ALPHA_WEB -> wtfmedia-web`, alongside bounded staging auth/
+  environment variables. The staging Edge has no AI, Vectorize, R2, KV, queue,
+  or ingest resource and does not expose `/v1/chat` or `/v1/admin/enqueue`.
+  Version readback still lists a legacy inert `INGEST_TOKEN` secret; removing
+  it requires a separate owner-approved credential task.
+- Independent QA found the preceding `5229f99` / Edge
+  `91b2fc7a-f657-4dd1-a66d-4f3c50ad7b21` receipt misclassified grouped Alpha
+  citation markers as ungrounded. It remains historical in the deployment
+  chain and is not final grounded acceptance. The final fix reuses Alpha's
+  canonical grouped-citation parser.
+- Live authenticated Codex IAB as the existing super-admin created and reloaded
+  a new owner-scoped `cnv_*` conversation. The grounded answer and rich source
+  sheet render with no abstention/fallback label and remain correct after
+  reload. Per-episode `N cited` badges count Alpha-cited excerpts, not the
+  separate editor moment rows below them. Desktop 1382x887 and mobile 320x710
+  had no horizontal overflow. `/beta/admin/users` rendered the live D1 roster
+  and `super_admin` role.
+- Production Edge `ccd1d952-5be7-41c9-9275-f9d6b3b470a7` and Web
+  `3d5a5965-14f3-486a-a608-330d539dec81` remain unchanged. No production
+  deployment, DNS, Clerk, tag, corpus, queue, or data mutation occurred.
+- PR #48 and PR #77 remain untouched. The owner-approved review delivery is a
+  clean new `codex/*` remote branch at the exact final documentation head, not
+  `rag/alpha-answer-accuracy` or `beta_0.1`. Do not advance PR #77 until all
+  remaining gates pass; never force-push.
+
+**Owner decision superseding earlier entries:** Beta must not have a separate
+corpus or ingest/bootstrap path. Any later-in-file instruction to populate
+staging R2/KV/Vectorize, load `STAGING_INGEST_TOKEN`, or run the deleted
+bootstrap script is historical and must not be executed.
+
+**Next action:** complete signed-out, Member A/B, suspended, editor, admin, and
+super-admin IAB acceptance; verify 1382x1180 on this exact candidate; rehearse
+rollback; reconcile `v0.3.3-beta.2`; then decide whether the accepted SHA may
+advance `beta_0.1`/PR #77. Operator permanent Delete remains a separately
+reviewed lifecycle decision. Separately authorize removal of the inert staging
+`INGEST_TOKEN` secret.
+
+## 2026-09-12 Beta rich-citation source-sheet repair (superseded)
+
+**Status:** HISTORICAL CHECKPOINT; SUPERSEDED BY THE ALPHA-OVERLAY OWNER
+DECISION ABOVE. The
 authenticated Beta answer path now preserves the existing Alpha editor-sheet
 moment projection instead of reducing every answer to the compact citation
 fallback.
@@ -37,23 +102,19 @@ fallback.
   at 1382x887, 1382x1180, and 320x710 with zero document-width overflow. The
   browser recorded no errors; only Clerk's expected staging development-key
   warning appeared.
-- Read-only staging receipts still show 0 episodes, 0 source assets, 0 KV keys,
-  and 0 Vectorize records. `scripts/bootstrap-staging-public-corpus.mjs` now
-  provides a two-episode maximum, public-repository-only, staging-hard-locked
-  provenance path; its five focused tests and a real dry-run for
-  `FPV5fAkqyBs` pass. No apply occurred because `STAGING_INGEST_TOKEN` is not
-  loaded locally, and no secret was read, replaced, or rotated.
+- This checkpoint observed no separate staging corpus and proposed a bounded
+  bootstrap. That proposal is rejected by the later owner decision: Alpha is
+  the sole evidence/inference authority, the bootstrap script was removed, and
+  no staging ingest credential is required, permitted for use, or sufficient
+  for Beta acceptance. A legacy inert secret remains attached pending a
+  separate owner-approved credential cleanup.
 - Existing persisted answers without moment metadata remain on the truthful
   compact source fallback; no synthetic topics, ranges, ratings, or rationale
   are reconstructed in the browser.
 
-**Next action:** load the existing staging ingest credential into the local
-`STAGING_INGEST_TOKEN` environment variable without pasting it into chat, run
-the bounded bootstrap for `FPV5fAkqyBs`, reconcile non-zero R2/KV/Vectorize
-receipts, then generate a real grounded authenticated answer and verify the
-expanded panel, Excel export, play links, console, reload, and required
-viewports. Do not count the Storybook fixture or truthful empty-corpus fallback
-as the rich-sheet acceptance receipt.
+**Superseded next action:** do not load `STAGING_INGEST_TOKEN`, populate a Beta
+corpus, or run a staging bootstrap. Use the current Alpha-overlay checkpoint
+above.
 
 ## 2026-09-11 Continuity checkpoint (fleet alignment)
 
@@ -73,7 +134,8 @@ as the rich-sheet acceptance receipt.
 
 - Signed-out, member A/B, suspended, editor, admin, and super-admin matrices
   across desktop and mobile.
-- Grounded staging acceptance (approved staging corpus + grounding evidence).
+- Grounded staging acceptance (later closed through the Alpha overlay; no Beta
+  corpus was populated).
 - Rollback rehearsal and `v0.3.3-beta.2` tag/lineage reconciliation.
 - Operator Archive-versus-Delete policy closure.
 
@@ -121,11 +183,10 @@ or production authorization.
   `beta_0.1` with `HEAD:beta_0.1`; this updates PR #77 without repurposing PR
   #48. Force-push is forbidden.
 
-**Next action:** finish the real member/editor/admin/suspended and viewport
-matrix, approve a safe staging corpus, rehearse rollback, then advance PR #77
-from the exact staging-accepted final SHA (or receipted runtime-equivalent
-artifact). Operator permanent Delete remains a separately reviewed lifecycle
-decision.
+**Historical next action, superseded:** finish the real persona/viewport matrix
+and rehearse rollback. The proposed staging-corpus step is dropped; use the
+Alpha-overlay checkpoint above. Do not advance PR #77 before all remaining
+gates pass. Operator permanent Delete remains separately reviewed.
 
 ## 2026-09-11 Beta staging signed-in workspace repair
 
@@ -161,9 +222,9 @@ production-Beta deployment.
   reduced Settings, and the real operator roster. Operator conversation and
   roster endpoints returned 200 with no HTTP 4xx/5xx observed. Only the existing
   super-admin was observed; the full persona and viewport matrices remain open.
-- The visible no-evidence answer is truthful: staging R2/KV/Vectorize remain
-  empty. Grounded-chat acceptance needs a separately authorized,
-  provenance-safe staging corpus. Never copy production data down implicitly.
+- The visible no-evidence answer was truthful for this historical runtime.
+  The later owner decision closes its former corpus blocker by routing Beta to
+  Alpha's canonical public chat authority; no Beta corpus is permitted.
 - Permanent Delete remains implemented for member conversations only. Operator
   conversations expose Archive because the operator server store has no
   reviewed delete/tombstone capability; this is an explicit release gap.
@@ -172,11 +233,9 @@ production-Beta deployment.
   this local branch is the head of PR #48 and remote topology remains
   owner-gated.
 
-**Next action:** complete the signed-out/member/editor/admin/super-admin/
-suspended matrix and required viewports on this exact staging candidate; decide
-the operator Delete contract and safe staging-corpus plan; rehearse rollback;
-then choose the clean remote candidate branch/PR before any production-Beta
-promotion.
+**Historical next action, superseded:** complete the persona/viewport matrix,
+decide the operator Delete contract, rehearse rollback, and use a clean remote
+candidate branch. The separate staging-corpus plan is dropped.
 
 ## 2026-09-11 Beta 0.3 lineage correction; UI repair paused
 
@@ -200,21 +259,20 @@ this audit.
   It proves operator landing and persistence/reopening of two owner-scoped
   `cnv_*` conversations. It does not close the remaining member/editor/admin/
   suspended persona matrix or viewport acceptance.
-- The ungrounded response is not evidence that persistence or the inference
-  route is disconnected. Staging currently has zero catalogue R2 objects, zero
-  KV catalogue keys, and zero Vectorize records. The conversation is persisted
-  before the truthful no-evidence fallback. A grounded staging test needs a
-  separately approved staging corpus operation; never copy production down.
+- The ungrounded response was not evidence that persistence was disconnected.
+  This historical audit predated the owner-approved Alpha overlay; its proposed
+  separate staging-corpus operation is superseded and must not be performed.
 - The authoritative audit is
   `.planning/inputs/2026-09-11-beta-0.3-lineage-and-surface-authority-audit.md`.
   A future implementation must reuse the existing Member/Alpha presentation
   through typed member/operator adapters, keep owner stores and RBAC intact,
   and retain Pavun57 backend inference symbols. Do not start a third chat UI.
 
-**Open release blockers:** exact UI/data adapter reconciliation, approved
-staging corpus, complete persona and viewport acceptance, operator roster data
-path, release-history/tag decision, remote PR topology, rollback, and all
-production gates.
+**Historical blockers, since updated above:** complete persona and viewport
+acceptance, release-history/tag decision, remote delivery, rollback, and all
+production gates. The Alpha-overlay checkpoint closes the former UI/adapter,
+operator-roster, and separate staging-corpus items for the observed
+super-admin path only.
 
 ## 2026-09-11 Beta 0.1 integration evidence and promotion checkpoint
 
@@ -318,13 +376,11 @@ AND ROLLBACK REMAIN OPEN. Production was not changed.
 
 ### Next action
 
-Use the Beta 0.3 lineage audit before another code change. On separate owner
-authorization, reconcile the existing Member/Alpha presentation with typed
-member/operator data adapters, then provision a provenance-safe staging corpus
-and restart the real Clerk/D1 persona, viewport, and rollback matrix. Separately
-choose the remote PR/base topology and resolve the historical
-`v0.3.3-beta.2` tag. Do not change Clerk, production infrastructure,
-production data, or production traffic under this handoff.
+**Superseded by the 2026-09-12 checkpoint above.** Continue the real Clerk/D1
+persona, remaining viewport, and rollback matrix against the Alpha overlay;
+do not provision a Beta staging corpus. Resolve the historical
+`v0.3.3-beta.2` tag and keep Clerk, production infrastructure, production data,
+and production traffic unchanged without fresh owner authorization.
 
 ## 2026-09-11 Beta single-shell RBAC convergence checkpoint
 

@@ -2,30 +2,49 @@
 
 This repository is `wtfmedia`.
 
-## Continuity checkpoint (2026-09-11)
+## Continuity checkpoint (2026-09-12)
 
 - Done:
-  - Current deployed staging candidate mapping is source `f6bbf58`
-    (edge `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c`, web
-    `3668390f-1dc8-438e-9dab-19c331b732ce`).
-  - Preserved source lineage retains PR #48’s intended chat/retrieval/citation/
-    persistence behavior, while PR #48 remains untouched. Passing source suites
-    remain on the current lineage.
-  - PR #48 is still isolated/protected; PR #77 may advance only from the exact
-    staging-accepted final SHA or a separately receipted runtime-equivalent
-    artifact.
+  - Current deployed staging candidate is
+    `748c0e4e8d732b5ecdbd3cda572c8bd67f2a32d6`: Edge version
+    `67e93676-8519-4e33-8b7b-83b45fa975a8`; unchanged Web version
+    `cbc25bba-c2a1-436f-8612-11813dbd3946` retains the accepted UI.
+  - Alpha remains the sole corpus, ingest, retrieval, inference, grounding,
+    citation, timestamp, and enriched-moment authority. Beta owns Clerk
+    identity, D1 admission/RBAC/admin, and owner-scoped sessions/messages/
+    history/lifecycle only.
+  - Staging health reports `inferenceService=wtfmedia-web` and
+    `corpusAuthority=alpha_public_api`; Edge resource bindings are only staging
+    D1 plus `WTFMEDIA_ALPHA_WEB -> wtfmedia-web`, with no Beta evidence/ingest
+    plane. Version readback still lists a legacy `INGEST_TOKEN` secret, but no
+    queue/resource binding or enqueue route can use it; secret removal requires
+    a separate owner-approved credential task.
+  - Independent QA found prior candidate `5229f99` / Edge `91b2fc7a-f657-4dd1-a66d-4f3c50ad7b21`
+    misclassified grouped Alpha markers as ungrounded. The final fix reuses
+    Alpha's canonical grouped-citation parser.
+  - Live super-admin IAB created and reloaded a new owner-scoped `cnv_*`
+    conversation with a grounded answer, rich source sheet, and no abstention/
+    fallback label. Desktop 1382x887 and mobile 320x710 have no horizontal
+    overflow; admin/users shows the D1 `super_admin` projection. Per-episode
+    `N cited` badges count cited excerpts, not editor moment rows.
+  - Source checks pass at 387/387 Edge, 220/220 web unit, 96/96 contracts,
+    typecheck, lint, 89-page build, privacy 0/400, and 630-input architecture.
+  - PR #48 and PR #77 remain untouched. Production Edge
+    `ccd1d952-5be7-41c9-9275-f9d6b3b470a7` and Web
+    `3d5a5965-14f3-486a-a608-330d539dec81` are unchanged.
 - Remaining:
   - Full signed-out/member A/B/suspended/editor/admin/super-admin matrix on desktop
     and mobile in real IAB.
-  - Live grounded Alpha-bridge proof through authenticated Beta persistence.
+  - Verify 1382x1180 against this exact candidate.
   - Rollback rehearsal and live branch/tag reconciliation (`v0.3.3-beta.2`
     lineage).
   - Operator Archive-versus-Delete asymmetry and exact operator-delete contract.
 - State:
-  - Local docs head prior to this fleet is `078f582` and is not itself staging-
-    accepted.
   - `/beta/preview` and fixture/fake-browser data are not acceptance evidence.
   - Preserve Alpha actual Ask WTF interaction as the non-regressable bedrock.
+  - Remote delivery uses a clean new `codex/*` branch at the exact final docs
+    head. Do not update `beta_0.1`/PR #77 until the remaining gates pass; never
+    push or force-push PR #48's branch.
 
 1. Read `README.md`, `PROJECT.md`, `.project/HANDOFF.md`, and
    `docs/AGENT-ONBOARDING.md` before starting work.
@@ -81,8 +100,11 @@ This repository is `wtfmedia`.
   the bounded conversation needed for chat continuity, never Clerk credentials,
   D1 owner identifiers, saved memory, secrets, or internal transcript text.
 - Staging has no chat Vectorize, catalogue R2/KV, ingest producer, or ingest
-  consumer binding. Its D1 remains staging-private because authentication,
-  user scoping, sessions/history, and administration are Beta responsibilities.
+  consumer resource binding. A legacy `INGEST_TOKEN` secret remains attached
+  but inert: `/v1/admin/enqueue` is disabled and no queue or ingest resource is
+  bound. Do not use, rotate, or delete it without a separate owner-approved
+  credential task. Staging D1 remains private because authentication, user
+  scoping, sessions/history, and administration are Beta responsibilities.
 
 ## Beta single-shell contract
 
@@ -141,7 +163,7 @@ This repository is `wtfmedia`.
   D1 statements as `REPORTED`. Neither can be upgraded into staging or
   production acceptance by narration, reachability, a branch name, or a moving
   worktree.
-- Before requesting staging, commit the post-merge runtime and
+- Before any replacement staging deployment, commit the runtime and
   release/migration source fixes, select one exact candidate SHA, rerun its
   source checks, and follow
   `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md` for
@@ -178,11 +200,13 @@ This repository is `wtfmedia`.
   activation, certificate, exact web/edge versions, service binding, Clerk
   authorized-party/redirect presence, real IAB personas, smoke, and rollback
   receipts before calling the environment ready for client handoff.
-- Current deployed staging candidate runtime mapping: source `f6bbf58`, edge version
-  `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c`, web version
-  `3668390f-1dc8-438e-9dab-19c331b732ce`. This closes deployment mapping only;
-  authenticated IAB personas, host-only cookies, viewports, and rollback remain
-  release gates. Production Beta remains untouched.
+- Current deployed staging candidate runtime mapping: source
+  `748c0e4e8d732b5ecdbd3cda572c8bd67f2a32d6`, Edge version
+  `67e93676-8519-4e33-8b7b-83b45fa975a8`, and unchanged Web version
+  `cbc25bba-c2a1-436f-8612-11813dbd3946`. The Alpha-overlay and one
+  super-admin grounded IAB path are proven; remaining personas, 1382x1180,
+  host-only cookie acceptance, rollback, and tag reconciliation remain gates.
+  Production Beta remains untouched.
 
 ## Pavun/Beta integration precedence
 
@@ -219,12 +243,12 @@ This repository is `wtfmedia`.
   duplicate workspace memory/session routes only redirect. Memory is immutable
   create/archive preferences, and Sessions may read active plus archived rows.
   Member Delete is tombstone-backed; operator history remains archive-only.
-- Git delivery must leave PR #48 head untouched. After exact staging
-  acceptance, advance PR #77 only from the staging-accepted final SHA or a
-  separately receipted runtime-equivalent artifact via fast-forward (for example
-  `HEAD:beta_0.1`). Never push the checked-out
-  `rag/alpha-answer-accuracy` branch, force-push, or promote a moving branch
-  name instead of an accepted hash/artifact.
+- Git delivery must leave PR #48 and PR #77 untouched while acceptance remains
+  incomplete. Publish reviewable work only as a clean new `codex/*` branch at
+  the exact final documentation head. After all gates pass, advance PR #77 only
+  from the accepted SHA or a separately receipted runtime-equivalent artifact.
+  Never force-push or promote a moving branch name instead of an accepted
+  hash/artifact.
 - Beta has no isolated evidence plane to populate. A persisted `cnv_*` or
   `mcnv_*` turn is grounded only when the validated Alpha response says so;
   Alpha failure or malformed evidence must persist as truthful unavailable or

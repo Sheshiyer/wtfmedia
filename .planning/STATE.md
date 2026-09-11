@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Rich-citation runtime candidate `25019a3` is deployed to isolated
-  Beta staging and one super-admin IAB viewport/persistence pass is complete;
-  the empty staging corpus, remaining personas, rollback, and production remain gated
-last_updated: "2026-09-12T04:03:00+05:30"
+stopped_at: Alpha-overlay runtime candidate `748c0e4` is deployed to isolated
+  Beta staging and grounded super-admin IAB persistence/viewport proof is complete;
+  the remaining personas, 1382x1180 viewport, rollback, tag, and production remain gated
+last_updated: "2026-09-12T06:00:00+05:30"
 last_activity: 2026-09-12
 progress:
   total_phases: 10
@@ -22,29 +22,52 @@ progress:
 ## Continuity checkpoint (2026-09-12)
 
 Done
-- Current deployed staging runtime candidate is `25019a3`, mapped to edge
-  `a68b4793-ed57-4c1c-8436-2e574ccdb192` and web
-  `cbc25bba-c2a1-436f-8612-11813dbd3946`.
-- Preserved lineage keeps PR #48's intended Ask WTF chat/retrieval/citation/persistence
-  behavior and passes source suites.
-- Existing super-admin IAB creates and reloads a truthful empty-corpus turn at
-  1382x887, 1382x1180, and 320x710 without horizontal overflow.
+- Current deployed staging runtime candidate is
+  `748c0e4e8d732b5ecdbd3cda572c8bd67f2a32d6`, mapped to Edge
+  `67e93676-8519-4e33-8b7b-83b45fa975a8`; the unchanged accepted UI remains on
+  Web `cbc25bba-c2a1-436f-8612-11813dbd3946`.
+- Alpha is the sole corpus, ingest, retrieval, inference, grounding, citation,
+  timestamp, and enriched-moment authority. Beta owns Clerk identity, D1
+  admission/RBAC/admin, and owner-scoped sessions, messages, history, and
+  lifecycle only.
+- Staging health reports `inferenceService=wtfmedia-web` and
+  `corpusAuthority=alpha_public_api`; resource bindings are only
+  `DB=wtfmedia-ops-staging` plus `WTFMEDIA_ALPHA_WEB -> wtfmedia-web`, with no
+  AI, Vectorize, R2, KV, queue, or ingest resource. Version readback still lists
+  a legacy inert `INGEST_TOKEN` secret; `/v1/admin/enqueue` is disabled, and
+  removing the secret requires a separate owner-approved credential task.
+- Independent QA found candidate `5229f99` / Edge `91b2fc7a-f657-4dd1-a66d-4f3c50ad7b21`
+  misclassified grouped Alpha citation markers as ungrounded. It remains
+  historical evidence, not final grounded acceptance.
+- The final fix reuses Alpha's canonical grouped-citation parser. Existing
+  super-admin IAB creates and reloads a new owner-scoped grounded `cnv_*`
+  conversation with a rich source sheet and no abstention/fallback label. The
+  result remains correct after reload and has no horizontal overflow at
+  1382x887 and 320x710; admin/users shows the live D1 roster and `super_admin`
+  role. Per-episode `N cited` badges count cited excerpts, not editor moment
+  rows.
+- Source checks pass at 387/387 Edge, 220/220 web unit, 96/96 contracts,
+  typecheck, lint, 89-page build, privacy 0/400, and 630-input architecture.
+- D1 Time Travel recovery bookmark
+  `0000006b-00000000-000050e3-0bb7072294902e18dbbd945231ef35dc` precedes the
+  only applied migration, `0016_rich_chat_source_metadata.sql`.
 
 Remaining
 - Signed-out/member A/B/suspended/editor/admin/super-admin acceptance across
   desktop and mobile with real IAB.
-- Load the existing staging ingest credential without disclosure, apply the
-  bounded public-corpus bootstrap, then prove the rich grounded sheet and
-  Excel export; rollback rehearsal remains open.
+- Verify 1382x1180 against this exact candidate; rehearse rollback.
 - `v0.3.3-beta.2` lineage/tag reconciliation.
 - Operator Archive-versus-Delete asymmetry.
+- Separately authorize removal of the inert staging `INGEST_TOKEN` secret.
 
 State
-- Local docs head before this fleet is `078f582`; it is not staging-accepted by
-  itself.
-- PR #48 stays isolated; PR #77 may advance only from the final staging-accepted
-  SHA or a separately receipted runtime-equivalent artifact.
-- No branch-name push or force-push; use exact hash promotions only.
+- Production Edge `ccd1d952-5be7-41c9-9275-f9d6b3b470a7` and Web
+  `3d5a5965-14f3-486a-a608-330d539dec81` remain unchanged. No production,
+  DNS, Clerk, tag, or corpus mutation occurred.
+- PR #48 and PR #77 stay untouched. Publish the final documentation head only
+  as a clean new `codex/*` remote branch; do not advance `beta_0.1` until all
+  remaining acceptance gates pass.
+- No force-push or moving-branch promotion; use exact hash receipts.
 
 # Project State
 
@@ -58,11 +81,14 @@ without losing provenance.
 
 **Current focus:** Beta 0.1 is a separately tracked authenticated release lane,
 not completion of the broader v1.0 roadmap. Exact current deployed staging
-runtime candidate is `25019a373dbb4829f759de8b1bea00f01635eb6d`; prior
-candidate `f6bbf58` and docs head `078f582` are historical evidence, not the
-current runtime proof. Current
-work remains authoritative for UI/routes/Clerk/RBAC/admin/Settings, while PR #48's intended
-chat/inference/retrieval/accuracy/backend behavior remains.
+runtime candidate is `748c0e4e8d732b5ecdbd3cda572c8bd67f2a32d6`; prior
+candidates `5229f99`, `25019a3`, `f6bbf58`, and docs head `078f582` are historical
+evidence, not current runtime proof. Beta remains authoritative for UI/routes,
+Clerk identity, D1 admission/RBAC/admin, Settings, and owner-scoped session,
+message, history, and lifecycle state. Alpha's canonical `/api/chat` is the
+sole corpus, ingest, retrieval, inference, grounding, citation, timestamp, and
+enriched-moment authority; PR #48 remains protected lineage, not a separate
+Beta inference plane.
 The user-reported `3eebf57` object is unavailable here. Alpha's actual Ask WTF
 UI, interaction, inference, retrieval, and navigation remain the product
 bedrock; authentication, private conversations, history, explicit memory,
@@ -70,10 +96,11 @@ scoped Settings, and role routing are modular Beta additions. The release
 authority is `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md`.
 The assigned client-facing environment names are `beta-staging.wtfhq.in` for
 real staging acceptance and `beta.wtfhq.in` for the production-Beta handoff;
-the staging hostname is now live with candidate `25019a3` on the paired web and
-edge Workers. Production Beta remains planning-only. One super-admin IAB pass
-proves persistence and required viewport containment, but grounded rich-sheet,
-remaining personas, and rollback are still required before staging acceptance. The
+the staging hostname is live with candidate `748c0e4` on Edge and the unchanged
+accepted Web version. Production Beta remains planning-only. One super-admin
+IAB pass proves Alpha-grounded rich-sheet persistence at 1382x887 and 320x710;
+the remaining personas, 1382x1180, and rollback are still required before full
+staging acceptance. The
 source-lineage correction is
 `.planning/inputs/2026-09-11-beta-0.3-lineage-and-surface-authority-audit.md`:
 the semantic tags, `release/beta`, `beta_0.1`, Pavun57 RAG branch, local merge,
@@ -83,9 +110,17 @@ and deployed staging candidate are distinct objects and must not be called one
 ## Beta 0.1 local integration and release-readiness checkpoint
 
 - Current exact staging runtime candidate
-  `25019a373dbb4829f759de8b1bea00f01635eb6d` is deployed as edge version
-  `a68b4793-ed57-4c1c-8436-2e574ccdb192` and web version
-  `cbc25bba-c2a1-436f-8612-11813dbd3946`. Production is unchanged.
+  `748c0e4e8d732b5ecdbd3cda572c8bd67f2a32d6` is deployed as Edge version
+  `67e93676-8519-4e33-8b7b-83b45fa975a8`; Web remains
+  `cbc25bba-c2a1-436f-8612-11813dbd3946` because the accepted UI did not
+  change. Production is unchanged.
+- Alpha remains the only inference/evidence plane. Staging Beta binds only its
+  private D1 plus `WTFMEDIA_ALPHA_WEB -> wtfmedia-web`; it persists Alpha's
+  validated public answer/source/moment projection into owner-scoped history.
+- Live super-admin IAB created and reloaded a new owner-scoped `cnv_*`
+  conversation with a grounded answer, rich source sheet, and no abstention or
+  fallback label; it verified admin/users as `super_admin`. Per-episode
+  `N cited` badges count cited excerpts, not editor moment rows.
 - Canonical Account now exposes logout; canonical Memory maps to the real
   immutable preference/custom-instruction create/archive lifecycle; canonical
   Sessions reads active plus archived owner history. Duplicate operator
@@ -98,10 +133,10 @@ and deployed staging candidate are distinct objects and must not be called one
 - Member Delete remains backed by the existing deletion tombstone contract.
   Operator Delete is not implemented because the operator schema is
   audit-retained and has no reviewed deletion/tombstone lifecycle.
-- Remote delivery is selected but not executed: preserve PR #48 and, after the
-  remaining acceptance gates pass, fast-forward `beta_0.1` with an explicit
-  `HEAD:beta_0.1` refspec so only PR #77 is updated. No force push and no push
-  of the checked-out `rag/alpha-answer-accuracy` branch is allowed.
+- Remote delivery is selected but not executed in this checkpoint: preserve PR
+  #48 and PR #77, publish only a clean new `codex/*` branch at the final docs
+  head, and do not advance `beta_0.1` until all remaining acceptance gates
+  pass. No force-push is allowed.
 
 - UI/runtime candidate `32ec582d9ab953413710832c62e773eb212c00e1` is
   deployed to `wtfmedia-web-staging` as version
@@ -491,13 +526,12 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
 
 ## Session Continuity
 
-Last session: 2026-09-11
-Stopped at: Beta 0.3 lineage and role-to-presentation mapping audited; UI repair intentionally paused.
-The host verifies the merge parents but not the reported `3eebf57` object; test
-counts are source evidence and reported runtime/D1 activity is unaccepted.
+Last session: 2026-09-12
+Stopped at: Alpha-overlay candidate `748c0e4` deployed to staging Edge and
+grounded super-admin IAB proof recorded; full persona/viewport and rollback
+acceptance remains open.
 Resume file: `.project/HANDOFF.md`
-Resume: Start with the Beta 0.3 lineage audit. If the owner authorizes code,
-adapt the existing Member/Alpha-derived chat presentation to typed member and
-operator stores instead of repairing the legacy operator UI in isolation.
-Separately authorize a provenance-safe staging corpus before grounded-chat
-acceptance. Keep production Beta untouched until a fresh owner authorization.
+Resume: Complete signed-out, Member A/B, suspended, editor, admin, and
+super-admin IAB acceptance; verify 1382x1180 on the exact candidate; rehearse
+rollback; reconcile `v0.3.3-beta.2`; keep production Beta and `beta_0.1`
+untouched until the remaining gates pass.
