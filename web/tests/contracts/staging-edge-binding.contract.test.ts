@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 type Service = { binding?: string; service?: string };
 type WorkerConfig = {
   name?: string;
+  routes?: Array<{ pattern?: string; custom_domain?: boolean }>;
   services?: Service[];
   env?: Record<string, WorkerConfig>;
   vars?: Record<string, string>;
@@ -44,11 +45,14 @@ describe("staging web-to-edge binding contract", () => {
     expect(serviceFor(staging ?? {}, "WTFMEDIA_EDGE")).toBe("wtfmedia-edge-staging");
     expect(serviceFor(staging ?? {}, "WTFMEDIA_EDGE")).not.toBe(serviceFor(web, "WTFMEDIA_EDGE"));
     expect(serviceFor(staging ?? {}, "WORKER_SELF_REFERENCE")).toBe("wtfmedia-web-staging");
+    expect(staging?.routes).toEqual([
+      { pattern: "beta-staging.wtfhq.in", custom_domain: true },
+    ]);
   });
 
   it("uses staging-only retrieval, storage, queue, origin, and Clerk-party bindings", () => {
     const staging = edge.env?.staging;
-    const stagingOrigin = "https://wtfmedia-web-staging.connect2nikhai.workers.dev";
+    const stagingOrigin = "https://beta-staging.wtfhq.in";
 
     expect(edge.name).toBe("wtfmedia-edge");
     expect(staging?.name).toBe("wtfmedia-edge-staging");
@@ -62,12 +66,13 @@ describe("staging web-to-edge binding contract", () => {
     expect(staging?.queues?.consumers?.[0]).toMatchObject({ queue: "wtfmedia-ingest-staging", dead_letter_queue: "wtfmedia-ingest-staging-dlq" });
     expect(staging?.vars).toMatchObject({
       ALLOWED_ORIGIN: stagingOrigin,
-      OPS_HOSTNAME: "wtfmedia-web-staging.connect2nikhai.workers.dev",
+      OPS_HOSTNAME: "beta-staging.wtfhq.in",
       OPS_ORIGIN: stagingOrigin,
       OPS_ENVIRONMENT: "staging",
       CLERK_AUTHORIZED_PARTIES: stagingOrigin,
     });
-    expect(JSON.stringify(staging)).not.toContain("wtfhq.in");
+    expect(JSON.stringify(staging)).not.toContain("wtfmedia-web-staging.connect2nikhai.workers.dev");
+    expect(JSON.stringify(staging)).not.toContain("beta.wtfhq.in");
     expect(JSON.stringify(staging)).not.toContain("wtfmedia-catalogue-v1");
     expect(JSON.stringify(staging)).not.toContain("wtfmedia-catalogue\"");
     expect(JSON.stringify(staging)).not.toContain("wtfmedia-ops\"");

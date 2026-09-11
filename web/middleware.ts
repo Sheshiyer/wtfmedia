@@ -1,5 +1,6 @@
 import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 import { clerkMiddleware } from "@clerk/nextjs/server";
+import { betaRootRedirectForHost } from "@/lib/beta/hosts";
 import { legacyAuthenticatedChatConversationId } from "@/lib/ops/chat-route";
 import { maybeLocalDevOpsHeaders } from "@/lib/ops/local-dev-headers";
 
@@ -7,6 +8,12 @@ const recoveryPaths = new Set(["/ops/recover", "/sign-in", "/request-access", "/
 
 async function routeMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const betaRoot = betaRootRedirectForHost(request.nextUrl.hostname, pathname);
+  if (betaRoot) {
+    const target = request.nextUrl.clone();
+    target.pathname = betaRoot;
+    return NextResponse.redirect(target);
+  }
   const legacyConversationId = legacyAuthenticatedChatConversationId(pathname);
   if (legacyConversationId) {
     const target = request.nextUrl.clone();
@@ -67,12 +74,12 @@ export const config = {
 
 const clerkHandler = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim()
   ? clerkMiddleware(async (auth, request) => {
-      // Signed-in operators land on the authenticated workspace; logged-out
-      // visitors keep the public chat on / and /chat.
+      // Signed-in principals enter the canonical resolver. It selects the
+      // member or operator landing after the edge has resolved authority.
       const { pathname } = request.nextUrl;
       if (pathname === "/" || pathname === "/chat") {
         const { userId } = await auth();
-        if (userId) return NextResponse.redirect(new URL("/ops/chat", request.url));
+        if (userId) return NextResponse.redirect(new URL("/beta", request.url));
       }
       return routeMiddleware(request);
     })

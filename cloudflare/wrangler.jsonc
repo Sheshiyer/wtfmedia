@@ -44,14 +44,14 @@
     "staging": {
       "name": "wtfmedia-edge-staging",
       "vars": {
-        "ALLOWED_ORIGIN": "https://wtfmedia-web-staging.connect2nikhai.workers.dev",
+        "ALLOWED_ORIGIN": "https://beta-staging.wtfhq.in",
         "RATE_LIMIT_PER_MINUTE": "20",
-        "OPS_HOSTNAME": "wtfmedia-web-staging.connect2nikhai.workers.dev",
-        "OPS_ORIGIN": "https://wtfmedia-web-staging.connect2nikhai.workers.dev",
+        "OPS_HOSTNAME": "beta-staging.wtfhq.in",
+        "OPS_ORIGIN": "https://beta-staging.wtfhq.in",
         "OPS_ENVIRONMENT": "staging",
         "CLERK_ISSUER": "https://mighty-hedgehog-2913.clerk.accounts.dev",
         "CLERK_JWKS_URL": "https://mighty-hedgehog-2913.clerk.accounts.dev/.well-known/jwks.json",
-        "CLERK_AUTHORIZED_PARTIES": "https://wtfmedia-web-staging.connect2nikhai.workers.dev"
+        "CLERK_AUTHORIZED_PARTIES": "https://beta-staging.wtfhq.in"
       },
       "ai": { "binding": "AI" },
       "vectorize": [
