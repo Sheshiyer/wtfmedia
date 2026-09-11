@@ -5,6 +5,7 @@
  */
 import { parseSourceMode, type DualSourceCitation, type MappingStatus, type SourceMode } from "./source-mode.ts";
 import type { ChatAnswer, ChatAnswerInput } from "./answer.ts";
+import { parseCitationMarkers } from "./skills/wtf-os-conversation.ts";
 
 export type AlphaChatService = { fetch(request: Request): Promise<Response> };
 
@@ -177,9 +178,10 @@ export async function runAlphaChat(input: ChatAnswerInput, env: AlphaGatewayEnvi
     })
     : [];
   const rawCitedIndices = jsonHeader(response.headers.get("x-cited-indices"));
-  const answerMarkers = new Set([...answer.matchAll(/\[(\d+)\]/gu)].map((match) => Number(match[1])));
+  const parsedMarkers = parseCitationMarkers(answer, sources.length);
+  const answerMarkers = new Set(parsedMarkers.indices);
   const declaredCitations = Array.isArray(rawCitedIndices) ? [...new Set(rawCitedIndices)] : [];
-  const citationsMatch = declaredCitations.length > 0
+  const citationsMatch = parsedMarkers.valid && declaredCitations.length > 0
     && declaredCitations.every((item) => Number.isSafeInteger(item) && sourceNumbers.has(item) && answerMarkers.has(item))
     && [...answerMarkers].every((item) => sourceNumbers.has(item) && declaredCitations.includes(item));
   const citedIndices = citationsMatch

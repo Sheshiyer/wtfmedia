@@ -131,3 +131,25 @@ test("Alpha gateway fails closed on undeclared answer markers and invalid episod
     /invalid_episode_id/,
   );
 });
+
+test("Alpha gateway accepts Alpha's grouped numeric citation markers", async () => {
+  const result = await runAlphaChat({ question: "question" }, {
+    WTFMEDIA_ALPHA_WEB: {
+      async fetch() {
+        return new Response("The evidence supports both parts [1, 2].", {
+          headers: {
+            "X-Sources": encodeURIComponent(JSON.stringify([
+              { n: 1, video_id: "abcdefghijk", title: "Episode", source_mode: "published", timestamp_status: "verified", t: 1 },
+              { n: 2, video_id: "abcdefghijk", title: "Episode", source_mode: "published", timestamp_status: "verified", t: 2 },
+            ])),
+            "X-Cited-Indices": "[1,2]",
+            "X-Fallback": "false",
+          },
+        });
+      },
+    },
+  });
+
+  assert.equal(result.grounded, true);
+  assert.deepEqual(result.citedIndices, [1, 2]);
+});
