@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: beta_0.1 source PR preparation with Cloudflare topology and migration gates; no deploy or merge
+stopped_at: PR #77 open from beta_0.1 into release/beta; Cloudflare topology mapped; no deploy or merge
 last_updated: "2026-09-11T15:49:00+05:30"
 last_activity: 2026-09-11
 progress:
@@ -25,7 +25,7 @@ its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
 **Current focus:** The source-only single authenticated Beta shell is locally
-verified through `4220eda` and is being prepared on `beta_0.1` for a PR into
+verified through `4220eda` and is open as PR #77 from `beta_0.1` into
 `release/beta`. Alpha's actual Ask WTF UI, interaction, inference,
 retrieval, and navigation remain the product bedrock; authentication, private
 conversations, history, explicit memory, scoped Settings, and role routing are
@@ -37,7 +37,8 @@ acceptance remain open. The Cloudflare placement and promotion authority is
 ## Beta 0.1 PR and Cloudflare promotion checkpoint
 
 - `beta_0.1` is a source-integration branch label, not a package version, tag,
-  staging receipt, or production claim. Its base is `release/beta@498c0e0`.
+  staging receipt, or production claim. PR #77 targets
+  `release/beta@498c0e0`.
 - Read-only named-profile inventory confirms separate staging/production web,
   edge, D1, R2, Vectorize, KV, and ingest queue/DLQ resources. The most recent
   deployments predate this candidate and do not prove its revision is live.

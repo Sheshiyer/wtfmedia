@@ -3,7 +3,8 @@
 Status: **source-only integration plan**  
 Branch: `beta_0.1`  
 Base: `release/beta` at `498c0e0`  
-Audited candidate baseline: `4220eda`
+Pull request: [#77](https://github.com/Sheshiyer/wtfmedia/pull/77)  
+Audited implementation baseline: `4220eda`
 
 `beta_0.1` is the integration-branch and pull-request label. It is not a Git
 tag, package version, staging receipt, production receipt, or traffic claim.

@@ -2856,7 +2856,7 @@ when the verified Clerk subject and normalized email match.
 
 ## 2026-09-11 Beta 0.1 PR and Cloudflare placement checkpoint
 
-**Status:** SOURCE-ONLY PR PREPARATION — branch `beta_0.1`, base
+**Status:** SOURCE-ONLY PR OPEN — PR #77 from branch `beta_0.1`, base
 `release/beta@498c0e0`. No merge, tag, migration, deployment, traffic, secret,
 DNS, Clerk, queue, ingest, corpus, or production mutation occurred.
 
