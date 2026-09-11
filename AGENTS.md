@@ -17,7 +17,7 @@ This repository is `wtfmedia`.
 - Remaining:
   - Full signed-out/member A/B/suspended/editor/admin/super-admin matrix on desktop
     and mobile in real IAB.
-  - Approved staging corpus and grounded inference on staging.
+  - Live grounded Alpha-bridge proof through authenticated Beta persistence.
   - Rollback rehearsal and live branch/tag reconciliation (`v0.3.3-beta.2`
     lineage).
   - Operator Archive-versus-Delete asymmetry and exact operator-delete contract.
@@ -66,6 +66,23 @@ This repository is `wtfmedia`.
 - The latest ingest hardening requires a declared available D1 source asset and
   backing R2 object before vector staging. If that receipt is missing, fail
   closed as `source_asset_unavailable`.
+
+### Alpha inference / Beta identity boundary
+
+- Alpha is the sole corpus, ingest, retrieval, inference, grounding, citation,
+  timestamp, and enriched-moment authority. Beta must not create, seed, copy,
+  or operate a second R2/KV/Vectorize/queue evidence plane.
+- Beta adds Clerk identity, edge/D1 admission and RBAC, owner-scoped member and
+  operator conversations, persisted messages/history, lifecycle controls, and
+  capability-scoped administration. It may persist only the validated public
+  answer/source/moment projection returned by Alpha.
+- The staging Beta edge calls Alpha's existing public `/api/chat` contract
+  through the explicitly named `WTFMEDIA_ALPHA_WEB` service binding. It sends
+  the bounded conversation needed for chat continuity, never Clerk credentials,
+  D1 owner identifiers, saved memory, secrets, or internal transcript text.
+- Staging has no chat Vectorize, catalogue R2/KV, ingest producer, or ingest
+  consumer binding. Its D1 remains staging-private because authentication,
+  user scoping, sessions/history, and administration are Beta responsibilities.
 
 ## Beta single-shell contract
 
@@ -144,11 +161,13 @@ This repository is `wtfmedia`.
   `wtfmedia-web` → `wtfmedia-edge` until a separately authorized promotion.
 - `https://beta-staging.wtfhq.in` is the assigned staging acceptance hostname.
   Attach it as a Custom Domain only to `wtfmedia-web-staging`, which must bind
-  only to `wtfmedia-edge-staging` and the staging Clerk/data plane.
+  only to `wtfmedia-edge-staging`. The staging edge owns the staging Clerk/D1
+  identity plane and has one read-only Alpha web service binding for chat; it
+  has no separate corpus or ingest binding.
 - `https://beta.wtfhq.in` is the assigned production-Beta/client-handoff
   hostname. It requires a dedicated `wtfmedia-web-beta` →
-  `wtfmedia-edge-beta` compute pair, explicit production bindings, and no
-  duplicate production ingest consumer.
+  `wtfmedia-edge-beta` compute pair, explicit identity/persistence bindings, a
+  reviewed Alpha chat bridge, and no duplicate corpus or ingest consumer.
 - The web Worker is the public ingress; do not expose the edge Worker as the
   client URL. Environment-specific `workers.dev` URLs are diagnostics only and
   never prove Custom Domain, certificate, binding, revision, or auth identity.
@@ -182,13 +201,15 @@ This repository is `wtfmedia`.
   canonical `/beta`/`/ops` routes, Clerk entry/return routing, principal
   admission, RBAC, admin, and scoped Settings. Never revert those surfaces to
   an older UI while integrating Pavun work.
-- The preserved source lineage keeps PR #48’s intended chat orchestration,
-  inference, retrieval, reranking, grounding/citations, answer-accuracy, and
-  request-budget behavior for chat/data paths outside identity and RBAC.
+- The canonical Alpha Ask WTF implementation governs chat orchestration,
+  inference, retrieval, reranking, grounding/citations, answer accuracy,
+  moments, and request budgets. PR #48 remains source-lineage input, not a
+  separate Beta inference authority.
 - Resolve shared files symbol-by-symbol. Current UI/auth/RBAC symbols win;
-  PR #48-backed chat/inference/accuracy symbols win. Existing security,
-  provenance, privacy, and data-integrity gates remain mandatory and may require a
-  minimal, documented adaptation rather than a blind patch application.
+  the canonical Alpha chat contract wins for inference and evidence. Existing
+  security, provenance, privacy, and data-integrity gates remain mandatory and
+  may require a minimal, documented adaptation rather than a blind patch
+  application.
 - The accepted signed-in chat presentation is shared by member and operator
   principals through typed adapters for their distinct server stores. Preserve
   that presentation and owner/RBAC boundary; do not reintroduce a role-based
@@ -204,10 +225,10 @@ This repository is `wtfmedia`.
   `HEAD:beta_0.1`). Never push the checked-out
   `rag/alpha-answer-accuracy` branch, force-push, or promote a moving branch
   name instead of an accepted hash/artifact.
-- A persisted `cnv_*` conversation with an ungrounded answer can mean the
-  isolated staging evidence plane is empty. Verify R2/KV/Vectorize readiness
-  separately from chat routing before changing inference code. Never copy
-  production corpus data to staging without its own approved task.
+- Beta has no isolated evidence plane to populate. A persisted `cnv_*` or
+  `mcnv_*` turn is grounded only when the validated Alpha response says so;
+  Alpha failure or malformed evidence must persist as truthful unavailable or
+  ungrounded state. Never copy production corpus data into Beta.
 - The canonical decision map is
   `.planning/inputs/2026-09-11-pavun-beta-integration-precedence.md`.
 

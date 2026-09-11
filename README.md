@@ -35,9 +35,10 @@
 
 `v0.3.3-beta.1` is the latest pre-release. It restores the AppRail contract
 from alpha, wires the login flow through protected settings, and adds an
-authenticated Ask WTF staging lane with server-side RAG, persisted chat
-history, and consolidation policy panels for memory governance, RAG source
-health, and session history.
+authenticated Ask WTF staging lane that reuses Alpha's server-side RAG and
+public citation contract while adding user-scoped persisted chat history,
+Clerk/D1 admission, RBAC, and administration. Beta does not own a second
+corpus or ingest pipeline.
 
 The `release/beta` branch now also contains the reviewed Clerk-backed operator
 session/history/memory slice and the separate invite-only member Beta from PRs

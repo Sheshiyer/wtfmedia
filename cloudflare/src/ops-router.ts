@@ -36,7 +36,8 @@ import {
   listMemoriesForActor,
   type MemoryActor,
 } from "./chat/memory.ts";
-import { runChat, type ChatAnswer, type ChatAnswerInput } from "./chat/answer.ts";
+import { boundedPriorTurns, runChat, type ChatAnswer, type ChatAnswerInput } from "./chat/answer.ts";
+import { runAlphaChat, type AlphaChatService } from "./chat/alpha-gateway.ts";
 import { parseSourceMode } from "./chat/source-mode.ts";
 import {
   canMutateAuthenticatedChatRelease,
@@ -62,6 +63,8 @@ export type OpsEnv = {
   VECTORIZE?: any;
   EDGE_SHARED_SECRET?: string;
   CHAT_HISTORY_ENABLED?: string | boolean;
+  /** Staging-only, read-only route to Alpha's public `/api/chat` contract. */
+  WTFMEDIA_ALPHA_WEB?: AlphaChatService;
 };
 
 type OpsDependencies = {
@@ -239,17 +242,24 @@ async function chatApi(request: Request, env: OpsEnv, context: OperatorContext, 
 
   const assistantKey = typeof idempotencyKey === "string" ? `${idempotencyKey}:assistant` : null;
   if (!assistantKey || !view.messages.some((message) => message.idempotency_key === assistantKey)) {
+    const latestUserMessage = view.messages.filter((message) => message.role === "user").at(-1);
+    const priorTurns = boundedPriorTurns(view.messages
+      .filter((message) => message.sequence < (latestUserMessage?.sequence ?? Number.POSITIVE_INFINITY))
+      .map(({ role, content }) => ({ role, content })));
     const answerInput: ChatAnswerInput = {
-      question: view.messages.filter((message) => message.role === "user").at(-1)?.content ?? question,
+      question: latestUserMessage?.content ?? question,
       sourceMode: requestedSourceMode ?? view.conversation.source_mode,
       episodeId: view.conversation.episode_id ?? undefined,
       requestId,
-      memory: await activeMemoryContext(env.DB, context.operatorId).catch(() => []),
+      priorTurns,
+      ...(env.WTFMEDIA_ALPHA_WEB ? {} : { memory: await activeMemoryContext(env.DB, context.operatorId).catch(() => []) }),
     };
     let answer: ChatAnswer;
     let unavailable = false;
     try {
-      answer = await (dependencies.runChat ?? ((input, targetEnv) => runChat(input, targetEnv as { AI: any; VECTORIZE: any })))(answerInput, env);
+      answer = await (dependencies.runChat ?? ((input, targetEnv) => targetEnv.WTFMEDIA_ALPHA_WEB
+        ? runAlphaChat(input, targetEnv)
+        : runChat(input, targetEnv as { AI: any; VECTORIZE: any })))(answerInput, env);
     } catch {
       answer = unavailableAnswer(view.conversation.source_mode, requestId);
       unavailable = true;

@@ -51,7 +51,6 @@
         "RATE_LIMIT_PER_MINUTE": "20",
         "DEPLOYMENT_ENVIRONMENT": "staging",
         "SERVICE_NAME": "wtfmedia-edge-staging",
-        "CATALOGUE_INDEX_NAME": "wtfmedia-catalogue-staging-v1",
         "OPS_HOSTNAME": "beta-staging.wtfhq.in",
         "OPS_ORIGIN": "https://beta-staging.wtfhq.in",
         "OPS_ENVIRONMENT": "staging",
@@ -59,31 +58,12 @@
         "CLERK_JWKS_URL": "https://mighty-hedgehog-2913.clerk.accounts.dev/.well-known/jwks.json",
         "CLERK_AUTHORIZED_PARTIES": "https://beta-staging.wtfhq.in"
       },
-      "ai": { "binding": "AI" },
-      "vectorize": [
-        { "binding": "VECTORIZE", "index_name": "wtfmedia-catalogue-staging-v1" }
+      "services": [
+        {
+          "binding": "WTFMEDIA_ALPHA_WEB",
+          "service": "wtfmedia-web"
+        }
       ],
-      "kv_namespaces": [
-        { "binding": "WTFMEDIA_STATE", "id": "b873c1114f524982bc05378a6b6b4217" }
-      ],
-      "r2_buckets": [
-        { "binding": "CATALOGUE", "bucket_name": "wtfmedia-catalogue-staging" }
-      ],
-      "queues": {
-        "producers": [
-          { "binding": "INGEST_QUEUE", "queue": "wtfmedia-ingest-staging" }
-        ],
-        "consumers": [
-          {
-            "queue": "wtfmedia-ingest-staging",
-            "max_batch_size": 1,
-            "max_concurrency": 1,
-            "max_batch_timeout": 30,
-            "max_retries": 5,
-            "dead_letter_queue": "wtfmedia-ingest-staging-dlq"
-          }
-        ]
-      },
       "d1_databases": [
         { "binding": "DB", "database_name": "wtfmedia-ops-staging", "database_id": "441f29af-9ac9-4a37-88bf-481a17d2f343" }
       ]

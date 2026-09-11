@@ -5,6 +5,7 @@ import { archiveMemberConversation, completeMemberTurn, deleteMemberConversation
 import { memberChatConversationDto, memberChatPageDto, memberChatViewDto } from "./chat/browser-dto.ts";
 import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "./chat/member-memory.ts";
 import { boundedPriorTurns, runChat, type ChatAnswerInput, type ChatAnswer } from "./chat/answer.ts";
+import { runAlphaChat } from "./chat/alpha-gateway.ts";
 import { isMemberBetaEnabled, resolveMemberBetaRelease } from "./member-release.ts";
 import type { OpsEnv } from "./ops-router.ts";
 
@@ -59,9 +60,17 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
       return view ? Response.json(memberChatViewDto(view), { headers }) : denied();
     }
     try {
-      const memories = await listMemberMemories(env.DB, context.memberId);
       const priorTurns = boundedPriorTurns(turn.view.messages.filter((message) => message.sequence < turn.userMessage.sequence).map(({ role, content }) => ({ role, content })));
-      const answer = await (dependencies.runChat ?? runChat)({ question: turn.userMessage.content, sourceMode: turn.sourceMode, ...(turn.episodeId ? { episodeId: turn.episodeId } : {}), requestId, priorTurns, memory: (memories ?? []).map((memory: any) => String(memory.content)).slice(0, 8) }, env);
+      // Beta owns the authenticated turn and its D1 lifecycle. Alpha owns
+      // inference/retrieval/citations; no member memory leaves this boundary.
+      const answer = await (dependencies.runChat
+        ?? (env.WTFMEDIA_ALPHA_WEB ? runAlphaChat : runChat))({
+        question: turn.userMessage.content,
+        sourceMode: turn.sourceMode,
+        ...(turn.episodeId ? { episodeId: turn.episodeId } : {}),
+        requestId,
+        priorTurns,
+      }, env);
       const stored = await completeMemberTurn(env.DB, context.memberId, turn, {
         content: answer.answer,
         metadata: {

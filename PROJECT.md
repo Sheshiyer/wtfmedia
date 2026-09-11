@@ -35,6 +35,12 @@ The public product is the WTF OS web app plus Ask WTF. Ask WTF is the live
 evidence-backed chat path over the approved published YouTube corpus and the
 approved uncut transcript corpus.
 
+The authenticated Beta is an identity and persistence overlay on that Alpha
+Ask WTF authority. Alpha continues to own corpus ingestion, retrieval,
+inference, grounding, citations, timestamps, and enriched moments. Beta owns
+Clerk/D1 admission, RBAC/admin, owner-scoped sessions, and history; it has no
+separate corpus, Vectorize index, transcript bucket, state KV, or ingest queue.
+
 - Public URL: `https://wtfhq.in`
 - Chat API path: `https://wtfhq.in/api/chat`
 - Web worker: `wtfmedia-web`

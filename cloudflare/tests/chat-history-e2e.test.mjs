@@ -280,10 +280,34 @@ test("Clerk/D1 context is rechecked on every protected request and cannot cross 
   assert.equal(JSON.parse(continuedBody.messages.at(-2).source_metadata_json).sourceMode, "uncut");
   assert.equal(JSON.parse(continuedBody.messages.at(-1).source_metadata_json).sourceMode, "uncut");
 
+  let alphaPayload;
+  const alphaFollowUp = await request("sai@allthingswtf.com", `/ops/api/chat/conversations/${generatedId}`, {
+    method: "POST",
+    headers: { "content-type": "application/json", "idempotency-key": "server-answer-alpha" },
+    body: JSON.stringify({ question: "What was the next point?", sourceMode: "published" }),
+  }, {
+    runChat: async (input) => {
+      alphaPayload = input;
+      return {
+        answer: "The next point was evidence [1].",
+        sources: [{ n: 1, title: "Published episode", videoId: "yt-1", start: 42 }],
+        grounded: true, sourceMode: "published", uncutUnavailable: false,
+        model: "test-model", modelFallback: false, requestId: "rag-request-alpha",
+      };
+    },
+  });
+  assert.equal(alphaFollowUp.status, 201);
+  assert.deepEqual(alphaPayload.priorTurns.map(({ role, content }) => [role, content]), [
+    ["user", "What did the guest say about evidence?"],
+    ["assistant", "The guest described evidence [1]."],
+    ["user", "What was in the approved uncut recording?"],
+    ["assistant", "The approved uncut recording adds context [1]."],
+  ]);
+
   const listed = await request("sai@allthingswtf.com", "/ops/api/chat/conversations");
   const listedBody = await listed.json();
   const generatedSummary = listedBody.conversations.find((item) => item.id === generatedBody.conversation.id);
-  assert.equal(generatedSummary.message_count, 4);
+  assert.equal(generatedSummary.message_count, 6);
   for (const payload of [generatedBody, listedBody]) {
     assert.doesNotMatch(JSON.stringify(payload), /\b(?:operator_id|member_id|create_idempotency_key|idempotency_key|request_id)\b/);
   }

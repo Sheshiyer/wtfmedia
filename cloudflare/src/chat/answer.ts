@@ -49,7 +49,12 @@ export type ChatAnswer = {
   model: string | null;
   modelFallback: boolean;
   requestId: string;
-  moments?: Array<Omit<EnrichedMoment, "excerpt">>;
+  /**
+   * Direct Alpha retrieval has chunk bounds; the public Alpha transport
+   * intentionally does not expose those internal identifiers. Both retain
+   * the same user-facing moment projection.
+   */
+  moments?: Array<Omit<EnrichedMoment, "excerpt" | "chunkStart" | "chunkEnd"> & Partial<Pick<EnrichedMoment, "chunkStart" | "chunkEnd">>>;
   totalMomentDurationSec?: number;
   durationBudgetSec?: number | null;
   citedIndices?: number[];

@@ -848,7 +848,9 @@ export default {
         status: "ok",
         environment: env.DEPLOYMENT_ENVIRONMENT,
         service: env.SERVICE_NAME,
-        index: env.CATALOGUE_INDEX_NAME,
+        ...(env.DEPLOYMENT_ENVIRONMENT === "staging"
+          ? { inferenceService: "wtfmedia-web", corpusAuthority: "alpha_public_api" }
+          : { index: env.CATALOGUE_INDEX_NAME }),
       });
     }
     if (url.pathname === "/ops" || url.pathname.startsWith("/ops/") || url.pathname === "/api/ops" || url.pathname.startsWith("/api/ops/")) {
@@ -869,10 +871,16 @@ export default {
       return handleCalendarRequest(request, env);
     }
     if (request.method === "POST" && url.pathname === "/v1/chat") {
+      // Beta chat is authenticated-only. Its member/operator routers call the
+      // Alpha service binding, so the staging public adapter stays disabled.
+      if (env.DEPLOYMENT_ENVIRONMENT === "staging") return reply(request, env, { error: "not_found" }, 404);
       if (!env.EDGE_SHARED_SECRET || request.headers.get("X-Edge-Secret") !== env.EDGE_SHARED_SECRET) return reply(request, env, { error: "unauthorized" }, 401);
       return chat(request, env);
     }
     if (request.method === "POST" && url.pathname === "/v1/admin/enqueue") {
+      // No staging ingest binding exists: never turn the Beta worker into a
+      // producer for either its former isolated corpus or Alpha's corpus.
+      if (env.DEPLOYMENT_ENVIRONMENT === "staging") return reply(request, env, { error: "not_found" }, 404);
       if (request.headers.get("X-Ingest-Token") !== env.INGEST_TOKEN) return reply(request, env, { error: "unauthorized" }, 401);
       let payload: { jobs?: TranscriptJob[] };
       try { payload = await request.json(); } catch { return reply(request, env, { error: "invalid_json" }, 400); }
