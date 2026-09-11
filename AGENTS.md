@@ -45,8 +45,11 @@ This repository is `wtfmedia`.
 ## Beta single-shell contract
 
 - `/beta` is the authenticated principal landing: members use `/beta/chat` and
-  operators use `/beta/workspace`. Canonical Beta Settings are nested below
-  `/beta/settings/*`; administrator routes are `/beta/admin/*`.
+  operators use `/beta/workspace` for the control room. Both admitted
+  principal kinds may use `/beta/chat`; it renders their role-safe,
+  owner-scoped history within the same Beta gate/AppShell, not a second chat
+  shell. Canonical Beta Settings are nested below `/beta/settings/*`;
+  administrator routes are `/beta/admin/*`.
 - The edge principal and capability policy are the only authorization
   authority. Clerk establishes identity; D1 resolves member/operator lifecycle
   and authority. Any operator record takes precedence, an inactive operator
@@ -74,6 +77,29 @@ This repository is `wtfmedia`.
   `docs/releases/beta-0.1-cloudflare-promotion-map.md` to distinguish web
   `ASSETS`, catalogue R2 objects, D1 authority, derived Vectorize/KV state,
   queues, outstanding migrations, deployed versions, and traffic evidence.
+
+## Beta 0.1 release-evidence boundary
+
+- The host-visible Beta integration is local merge `d3b4590` with parents
+  `d4e45b4` and `7ec8298`. The user-reported `3eebf57` object is unavailable in
+  this checkout. Neither identity is a deployment claim.
+- Treat local test/build results as `VERIFIED-SOURCE` and unreceipted runtime or
+  D1 statements as `REPORTED`. Neither can be upgraded into staging or
+  production acceptance by narration, reachability, a branch name, or a moving
+  worktree.
+- Before requesting staging, commit the post-merge runtime and
+  release/migration source fixes, select one exact candidate SHA, rerun its
+  source checks, and follow
+  `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md` for
+  backup/migration, paired bindings, real Clerk/D1 IAB personas, and viewports.
+- Production is a distinct owner-authorized operation: it needs production
+  Clerk configuration, D1 backup/migration, exact edge/web/domain/traffic,
+  smoke, and rollback receipts for that same candidate. Do not reuse staging
+  receipts or reported D1 activity.
+- Provider/YouTube persistence, scheduled jobs, long-context compaction, and
+  full Alpha alignment remain intentionally deferred from the Beta 0.1 exit
+  decision. Keep their status honest and do not add implied persistence or
+  automation while closing a release gate.
 
 ## Boundaries
 

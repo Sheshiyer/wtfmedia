@@ -5,9 +5,12 @@ versioning; the web application version is held in `web/package.json`.
 
 ## [Unreleased]
 
-- Added the source-only `beta_0.1` integration and Cloudflare promotion map,
-  separating web assets, catalogue objects, D1 authority, derived retrieval
-  state, environment bindings, pending migrations, and production gates.
+- Recorded the local source-only `beta_0.1` integration as merge `d3b4590`
+  (parents `d4e45b4` and `7ec8298`) and added a production-readiness checklist
+  separating exact source candidates, web assets, catalogue objects, D1
+  authority, derived retrieval state, environment bindings, staging evidence,
+  production gates, and explicit deferrals. The reported `3eebf57` object and
+  later runtime/D1 results remain unaccepted without environment receipts.
 
 - Replaced the operator Cloudflare Access boundary with Clerk verification
   while preserving the D1 email-to-role mapping and deny-by-default RBAC.

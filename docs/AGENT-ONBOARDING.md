@@ -120,6 +120,33 @@ The beta track adds authenticated features (server-side RAG, persisted chat,
 consolidation panels) that do not regress the public production path. The
 alpha track adds retrieval and UI improvements to the public surface.
 
+### Beta 0.1 source and live-evidence discipline
+
+Beta 0.1 is not a version bump or deployed release. This checkout verifies a
+local integration merge `d3b4590` (parents `d4e45b4` and `7ec8298`) on
+`rag/alpha-answer-accuracy`; the user-reported `3eebf57` object is unavailable
+here. The integration handoff's Edge 376/376, web unit 188/188, web contracts
+96/96, typecheck, lint, and architecture results are local source/build
+evidence only.
+
+Treat later reported full-stack behavior, D1 migrations, and release-row seeds
+as `REPORTED` until the environment-specific receipts are present. They never
+replace the exact-candidate staging migration, paired edge/web deployment,
+binding, real Clerk/D1 IAB persona/viewport, production Clerk configuration,
+backup/migration, domain/traffic, smoke, or rollback gates. The authoritative
+checklist is
+`.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md`.
+
+The Beta single-shell boundary remains: `/beta` resolves a safe edge principal;
+members use `/beta/chat`, operators use `/beta/workspace` for the control room,
+and both admitted principal kinds may use `/beta/chat` for their role-safe,
+owner-scoped history view inside the same Beta gate/AppShell. Settings is
+nested under `/beta/settings/*`, and `/beta/ops/*` is redirect compatibility
+only. Clerk establishes identity, while edge policy and D1 lifecycle/RBAC decide
+authority. Public Alpha `/chat` stays separate. Provider/YouTube persistence,
+scheduled jobs, long-context compaction, and full Alpha alignment are deferred
+from the Beta 0.1 exit decision.
+
 ### Worker topology and deployment targeting
 
 The two-worker design is duplicated by environment: `wtfmedia-web` serves

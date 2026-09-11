@@ -4,10 +4,10 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: verify
-progress: 95/240
+progress: 117/282
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-11T04:02:00+05:30
+updated: 2026-09-11T19:17:05+05:30
 ---
 
 ## Problem
@@ -304,7 +304,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-190: Anti: this slice performs no production, DNS, Clerk, D1, or migration mutation; any staging deployment uses the named profile, reviewed commit, and recorded version receipt (probe: Git diff and command ledger review).
 - [DEFERRED-VERIFY] ISC-191: One active super-admin and two ordinary members pass staging routing, persistence, reauthentication, and cross-member isolation (probe: authenticated staging matrix and metadata-only D1 readback; follow-up `WTF-BETA-LIVE-01`).
 - [x] ISC-192: Anti: the temporary browser-only `/beta/preview` fixture is absent, returns `404`, and cannot be used as a member experience or acceptance fallback (probe: source guard, clean build route table, and HTTP checks).
-- [ ] ISC-193: Authenticated Member Beta extends Public Alpha's actual WTF OS implementation without replacing its wordmark, presentation primitives, interaction model, or navigation grammar (probe: branch/symbol ledger plus side-by-side authenticated IAB review).
+- [DEFERRED-VERIFY] ISC-193: Authenticated Member Beta extends Public Alpha's actual WTF OS implementation without replacing its wordmark, presentation primitives, interaction model, or navigation grammar (probe: branch/symbol ledger plus side-by-side authenticated IAB review; excluded from the Beta 0.1 exit decision; follow-up `WTF-BETA-FULL-ALIGNMENT-01`).
 - [x] ISC-194: The ordinary-member empty Ask surface directly reuses Public Alpha's `ConversationEmptyState` rather than a welcome dashboard or feature-summary grid (probe: component source contract).
 - [ ] ISC-195: The ordinary-member Ask input reuses the accepted Alpha `AskComposer` behavior, including unpositioned capsule composition and overflow-aware parent placement (probe: historical source map, component contract, and browser test).
 - [x] ISC-196: Member Settings adds no second global header, Ask link, private-workspace strip, utility rail, or bottom pill beneath the shared shell (probe: layout source contract).
@@ -338,7 +338,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 
 - [x] ISC-219: A committed branch-and-symbol ledger maps `origin/release/alpha`, `origin/rag/alpha-answer-accuracy`, `origin/release/beta`, and checkpoint `3e4c887` without treating any branch name or deployment receipt as automatic adoption authority (probe: Git ancestry and path ledger).
 - [x] ISC-220: Every later Alpha Ask WTF capability is classified bedrock, adapt, defer, or reject before code integration (probe: capability ledger completeness check).
-- [ ] ISC-221: Public Alpha and Member Beta render one shared conversation/composer/source presentation primitive; member persistence is supplied through a typed adapter rather than a forked thread implementation (probe: import graph and component contract).
+- [DEFERRED-VERIFY] ISC-221: Public Alpha and Member Beta render one shared conversation/composer/source presentation primitive; member persistence is supplied through a typed adapter rather than a forked thread implementation (probe: import graph and component contract; excluded from the Beta 0.1 exit decision; follow-up `WTF-BETA-FULL-ALIGNMENT-01`).
 - [ ] ISC-222: Member Ask routes preserve the live Alpha `/chat` frame: no bottom navigation dock, the top-right hamburger retains Ask WTF/Episodes/Connections/theme, and one member Settings gear is added inside that disclosure; the rejected two-button Ask WTF/Settings pill is absent (probe: navigation source and authenticated IAB comparison).
 - [ ] ISC-223: Loading, unavailable, retry, empty, answer, and long-history states occupy one bounded selected-conversation viewport without a large dead canvas (probe: component and 1382x1180 browser tests).
 - [ ] ISC-224: Session-card titles clamp and wrap inside the bounded rail while the active conversation heading remains readable without truncation (probe: component and browser layout tests).
@@ -348,21 +348,21 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [ ] ISC-228: Deleting a member conversation never deletes or mutates transcript corpus objects, vectors, ingest receipts, queues, or unrelated saved preferences (probe: binding spies, D1 fixtures, and command ledger).
 - [ ] ISC-229: Any explicit saved preference linked through the current immutable `ON DELETE RESTRICT` source-conversation reference is disclosed separately and uses a reviewed detach/tombstone design; deleting that memory remains a separate explicit choice (probe: schema/API/UI tests).
 - [ ] ISC-230: Selected-conversation messages use stable keyset pagination and bounded response size while preserving chronological display and reader scroll position (probe: D1 and browser long-history tests).
-- [ ] ISC-231: Versioned owner-scoped context checkpoints preserve evaluated older-turn continuity beyond the recent eight-turn/8,000-character window (probe: long-session context evaluation).
-- [ ] ISC-232: Context checkpoints are labelled untrusted conversational context, never cited as transcript evidence, and never become explicit saved memory without a member save action (probe: prompt inspection and negative evidence tests).
-- [ ] ISC-233: Compaction failure falls back to recent bounded turns without blocking the conversation or reporting false full-session continuity (probe: failure-injection tests).
+- [DEFERRED-VERIFY] ISC-231: Versioned owner-scoped context checkpoints preserve evaluated older-turn continuity beyond the recent eight-turn/8,000-character window (probe: long-session context evaluation; excluded from the Beta 0.1 exit decision; follow-up `WTF-BETA-LONG-CONTEXT-01`).
+- [DEFERRED-VERIFY] ISC-232: Context checkpoints are labelled untrusted conversational context, never cited as transcript evidence, and never become explicit saved memory without a member save action (probe: prompt inspection and negative evidence tests; follow-up `WTF-BETA-LONG-CONTEXT-01`).
+- [DEFERRED-VERIFY] ISC-233: Compaction failure falls back to recent bounded turns without blocking the conversation or reporting false full-session continuity (probe: failure-injection tests; follow-up `WTF-BETA-LONG-CONTEXT-01`).
 - [ ] ISC-234: Member answer transport remains explicitly buffered JSON until a separately reviewed streaming contract proves partial persistence, cancellation, idempotency, and retry (probe: transport contract).
 - [ ] ISC-235: An editor's live navigation, screens, actions, and server capabilities contain no admin or super-admin authority (probe: deterministic policy and authenticated staging UI/API matrix).
 - [ ] ISC-236: An admin's live navigation, screens, actions, and server capabilities match the admin policy and exclude super-admin-only transfer/release authority (probe: authenticated staging UI/API matrix).
-- [ ] ISC-237: A super-admin entering `/beta` routes to `/beta/workspace` without member-row creation and receives the complete super-admin-only screen/action set while preserving the one-seat invariant (probe: authenticated staging UI/API plus metadata-only D1 readback).
-- [DEFERRED-VERIFY] ISC-238: Signed-out, Member A, Member B, editor, admin, super-admin, and suspended/revoked personas pass the complete staging route/screen/action/isolation matrix (probe: owner-authorized authenticated IAB matrix; follow-up `WTF-BETA-CONVERGENCE-LIVE-01`).
-- [DEFERRED-VERIFY] ISC-239: The converged member chat passes authenticated 1382x887, 1382x1180, and 320x710 layout, focus, drawer, composer, source-sheet, and long-thread acceptance (probe: owner-authorized authenticated IAB; follow-up `WTF-BETA-CONVERGENCE-UX-01`).
+- [ ] ISC-237: A super-admin entering `/beta` routes to `/beta/workspace` without member-row creation, can open the shared `/beta/chat` role-safe history view, and receives the complete super-admin-only screen/action set while preserving the one-seat invariant (probe: authenticated staging UI/API plus metadata-only D1 readback).
+- [DEFERRED-VERIFY] ISC-238: Signed-out, Member A, Member B, editor, admin, super-admin, and suspended/revoked personas pass the complete staging route/screen/action/isolation matrix for the exact committed Beta candidate (probe: owner-authorized authenticated IAB matrix plus metadata-only D1 readback; follow-up `WTF-BETA-CONVERGENCE-LIVE-01`).
+- [DEFERRED-VERIFY] ISC-239: The converged member chat passes authenticated 1382x887, 1382x1180, and 320x710 layout, focus, drawer, composer, source-sheet, and long-thread acceptance for the exact committed Beta candidate (probe: owner-authorized authenticated IAB; follow-up `WTF-BETA-CONVERGENCE-UX-01`).
 - [x] ISC-240: Anti: this planning and source-checkpoint pass performs no deployment, remote data mutation, corpus copy, queue work, secret or Clerk change, DNS change, or production cutover (probe: Git diff and command ledger).
 
 ### Beta single-shell RBAC convergence
 
 - [x] ISC-241: `/beta` resolves one edge-authoritative principal projection, with any operator record preceding member admission and an inactive operator denied without member binding (probe: edge principal-context and lifecycle tests).
-- [x] ISC-242: The canonical member, workspace, Settings, and administration routes are all classified by the edge policy; unknown Beta routes and `public_link` fallbacks deny (probe: edge policy matrix).
+- [x] ISC-242: The shared authenticated `/beta/chat`, operator control-room, Settings, and administration routes are all classified by the edge policy; unknown Beta routes and `public_link` fallbacks deny (probe: edge policy matrix).
 - [x] ISC-243: Every protected browser navigation destination imports or resolves against the edge policy, and no role-visible navigation target is denied by that authority (probe: browser-navigation policy contract).
 - [x] ISC-244: `/beta/ops/*` is redirect compatibility only while `/ops/*` and public `/chat` remain distinct Alpha surfaces (probe: middleware, route, and public-route contracts).
 - [x] ISC-245: Nested Settings navigation is capability-projected for member, operator, admin, and super-admin personas and each destination independently rechecks its edge authorization (probe: route and policy contracts).
@@ -370,21 +370,43 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-247: Session cards expose Archive and separately confirmed permanent Delete; local lifecycle contracts preserve saved preferences and prevent idempotency-key resurrection (probe: Edge lifecycle and browser unit tests).
 - [x] ISC-248: AI Route and YouTube Analytics are labelled non-persisted local previews and cannot configure provider, inference, or analytics state (probe: Settings source and contract tests).
 - [x] ISC-249: The single-shell source checkpoint passes Cloudflare 267/267, web unit 162/162, web contracts 92/92, typecheck, lint, production build, architecture check, and privacy scan with zero violations (probe: recorded local command receipts).
-- [DEFERRED-VERIFY] ISC-250: An owner-authorized staging deployment/migration and real Clerk/D1 Codex IAB persona matrix prove principal landing, route/screen/action isolation, and desktop/mobile acceptance before Beta is accepted (probe: staging receipt plus authenticated IAB matrix).
+- [DEFERRED-VERIFY] ISC-250: An owner-authorized staging deployment/migration of one exact committed Beta candidate and a real Clerk/D1 Codex IAB persona matrix prove principal landing, route/screen/action isolation, and desktop/mobile acceptance before Beta is accepted (probe: staging receipt plus authenticated IAB matrix and Beta 0.1 checklist).
 - [x] ISC-251: Anti: the single-shell source checkpoint makes no production deployment, provider configuration, Clerk mutation, D1 migration, corpus mutation, or DNS change (probe: Git diff and command ledger).
 
 ### Beta 0.1 Cloudflare placement and PR gate
 
-- [x] ISC-252: `beta_0.1` is explicitly a source-integration branch into `release/beta`, not a package version, tag, deployment, or traffic claim (probe: Git ancestry and release map).
+- [ ] ISC-252: [DROPPED — pre-merge branch-target claim superseded by the locally verifiable `d3b4590` integration; see Decision 2026-09-11 and ISC-262.]
 - [x] ISC-253: Production and staging web, edge, D1, R2, Vectorize, KV, ingest queue, and DLQ names are mapped without recording account, database, namespace, queue, deployment, or secret identifiers (probe: sanitized source/live inventory).
 - [x] ISC-254: Web `ASSETS`, Cloudflare Images, catalogue R2 objects, D1 authority, derived Vectorize/KV state, and queue transport have distinct documented ownership (probe: source binding and consumer map).
 - [x] ISC-255: Published, uncut, manifest, and structured `episodes/...` R2 key families are mapped without claiming timeline alignment or renaming live objects (probe: asset-key source contracts).
 - [x] ISC-256: Current deployed Worker existence, binding metadata, live reachability, candidate deployment, and custom-domain traffic attribution are reported as separate evidence layers (probe: named-profile read-only inventory plus source comparison).
-- [x] ISC-257: Staging D1 migrations 0012-0015 and production D1 migrations 0011-0015 are recorded as unapplied without executing them (probe: remote read-only migration lists).
-- [x] ISC-258: The staging order is recovery receipt, migrations, edge deploy/health/bindings, web deploy/service binding, then real Clerk/D1 IAB acceptance (probe: promotion map review).
+- [ ] ISC-257: [DROPPED — time-bound unapplied-migration snapshot superseded by a later user report that lacks host-visible environment receipts; see Decision 2026-09-11 and ISC-265.]
+- [x] ISC-258: The staging order is backup/recovery inventory, migrations and post-apply readback, edge deploy/health/bindings, web deploy/service binding, then real Clerk/D1 IAB acceptance (probe: promotion map and Beta 0.1 checklist review).
 - [x] ISC-259: A production promotion requires a fresh owner authorization, current version/traffic/domain/rollback receipts, production migration review, edge-first deployment, and post-deploy smokes (probe: promotion map review).
 - [x] ISC-260: Open conflicting PRs #57 and #59 are treated as superseded inputs rather than stacked or automatically closed (probe: GitHub PR metadata and PR body).
-- [x] ISC-261: Anti: this PR preparation performs no merge, tag, staging/production deploy, migration apply, traffic change, secret read/write, DNS mutation, Clerk mutation, queue enqueue, ingest, or corpus mutation (probe: Git and command ledger).
+- [ ] ISC-261: [DROPPED — pre-merge no-mutation criterion ended when the local source merge occurred; staging and production mutation holds are now governed by ISC-266 through ISC-278.]
+- [x] ISC-262: This host verifies the local Beta integration as `d3b4590` with parents `d4e45b4` and `7ec8298`, while the user-reported `3eebf57` object is unavailable here; neither SHA is called deployed (probe: `git show --pretty=raw d3b4590` and `git cat-file -t 3eebf57`).
+- [ ] ISC-263: The reviewed post-merge runtime/UI and release/migration source fixes are committed in bounded reviewable commits, and one exact candidate SHA contains those commits plus `d3b4590` (probe: Git ancestry, commit diffs, migration/workflow tests, and status check).
+- [x] ISC-264: Edge 376/376, web unit 188/188, web contracts 96/96, TypeScript, lint, and architecture results are recorded only as local source/build evidence and require a rerun at the exact candidate after ISC-263 (probe: release checklist evidence table).
+- [x] ISC-265: User-reported later local runtime behavior and remote D1 migrations/releases are recorded as `REPORTED` without satisfying any staging or production acceptance row (probe: release checklist evidence classification).
+- [DEFERRED-VERIFY] ISC-266: Staging has a pre-migration backup/recovery and migration-inventory receipt plus a post-apply migration/readiness receipt for the exact candidate (probe: owner-authorized staging command receipts; follow-up `WTF-BETA-STAGING-01`).
+- [DEFERRED-VERIFY] ISC-267: Staging Edge and web deployments identify the exact candidate versions, non-secret Clerk/D1 binding presence, `ASSETS`, and only the paired staging service binding (probe: staging deployment/config receipts; follow-up `WTF-BETA-STAGING-01`).
+- [DEFERRED-VERIFY] ISC-268: Real Clerk/D1 staging IAB acceptance proves signed-out, Member A, Member B, editor, admin, super-admin, and suspended/revoked route, screen, action, direct-URL, and isolation behavior (probe: authenticated IAB matrix and metadata-only D1 readback; follow-up `WTF-BETA-STAGING-02`).
+- [DEFERRED-VERIFY] ISC-269: Real Clerk/D1 staging IAB acceptance at 1382x887, 1382x1180, and 320x710 proves no protected-content flash and usable drawer, focus, composer, source, title, and session-action behavior (probe: authenticated IAB captures; follow-up `WTF-BETA-STAGING-03`).
+- [DEFERRED-VERIFY] ISC-270: A fresh owner authorization names the accepted staging evidence, exact candidate SHA, production target/window, and rollback owner before production action (probe: owner authorization receipt; follow-up `WTF-BETA-PRODUCTION-01`).
+- [DEFERRED-VERIFY] ISC-271: Production Clerk configuration is receipted for the intended project, issuer/JWKS/authorized-party, and redirect/domain policy without recording secrets or session material (probe: production configuration receipt; follow-up `WTF-BETA-PRODUCTION-02`).
+- [DEFERRED-VERIFY] ISC-272: Production D1 has a pre-migration backup/recovery and migration-inventory receipt for the exact candidate (probe: owner-authorized production receipt; follow-up `WTF-BETA-PRODUCTION-03`).
+- [DEFERRED-VERIFY] ISC-273: Production D1 migrations for the exact candidate have a reviewed apply and post-apply readiness receipt distinct from staging (probe: production migration receipts; follow-up `WTF-BETA-PRODUCTION-04`).
+- [DEFERRED-VERIFY] ISC-274: Production Edge identifies the exact candidate version, health, and non-secret binding presence before web traffic changes (probe: production deployment/health receipt; follow-up `WTF-BETA-PRODUCTION-05`).
+- [DEFERRED-VERIFY] ISC-275: Production web identifies the exact candidate version, `ASSETS`, and only the paired production Edge service binding (probe: production deployment/config receipt; follow-up `WTF-BETA-PRODUCTION-06`).
+- [DEFERRED-VERIFY] ISC-276: Custom-domain and traffic evidence attributes the production smoke to the exact web revision rather than reachability alone (probe: production traffic/domain receipt; follow-up `WTF-BETA-PRODUCTION-07`).
+- [DEFERRED-VERIFY] ISC-277: The approved production rollback identifies prior web/edge versions, D1 recovery decision, domain/traffic recovery, and post-rollback read-only smoke (probe: rollback receipt; follow-up `WTF-BETA-PRODUCTION-08`).
+- [DEFERRED-VERIFY] ISC-278: AI Route and YouTube Analytics remain non-persisted local previews until separately approved provider persistence, source access, data contracts, and lifecycle receipts exist (probe: source scan and Beta 0.1 checklist; follow-up `WTF-BETA-PROVIDER-01`).
+- [DEFERRED-VERIFY] ISC-279: Scheduled provider/YouTube refresh, reporting, and other jobs remain outside Beta 0.1 until their approved schedule, failure handling, source access, and operational receipts exist (probe: release checklist and job inventory; follow-up `WTF-BETA-SCHEDULED-JOBS-01`).
+- [DEFERRED-VERIFY] ISC-280: Automatic long-context compaction, durable full-session continuity, and context-checkpoint recovery remain unclaimed until ISC-231 through ISC-233 pass (probe: cross-reference scan; follow-up `WTF-BETA-LONG-CONTEXT-01`).
+- [DEFERRED-VERIFY] ISC-281: Beta 0.1 does not certify a wholesale Alpha merge, complete visual/interaction parity, or adoption of every later Alpha capability beyond its explicit accepted route and viewport matrix (probe: release checklist and branch ledger; follow-up `WTF-BETA-FULL-ALIGNMENT-01`).
+- [DEFERRED-VERIFY] ISC-282: A Beta acceptance claim may not upgrade `VERIFIED-SOURCE` or `REPORTED` evidence to staging or production acceptance without the matching exact-revision receipt (probe: checklist/handoff terminology scan; follow-up `WTF-BETA-EVIDENCE-01`).
+- [ ] ISC-283: The owner reconciles the existing remote `v0.3.3-beta.2` tag at `66f434a` with its source-only release note before any `v0.3.3-beta.3` publication; the historical tag is not deleted, moved, reused, or silently reinterpreted (probe: remote tag inventory plus recorded release decision).
 
 ## Test Strategy
 
@@ -410,7 +432,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-202..218 | Alpha-aligned chat refinement | shared inference, multi-turn retrieval, evidence validation, stable citations, truthful member states, resilient thread interaction, and environment isolation | all deterministic probes pass; deployed staging UI remains separately receipted | Edge unit/integration + web unit/contracts + authenticated IAB |
 | ISC-219..240 | Alpha-bedrock / Beta modular convergence | branch/symbol admission, shared Alpha presentation, true navigation continuity, selected-session archive/delete, long-session pagination/compaction, role-specific screens, and no remote mutation | all local contracts pass; live personas and viewports separately deferred | Git ledger + Edge/D1 tests + web contracts + authenticated IAB matrix |
 | ISC-241..251 | Beta single-shell RBAC convergence | edge principal precedence, canonical routes, policy-derived navigation, scoped Settings, private DTOs, lifecycle, preview holds, and source-only release boundary | all local policy/navigation/privacy contracts pass; staging IAB remains required | Edge tests + web unit/contracts + build/privacy + authenticated IAB matrix |
-| ISC-252..261 | Beta 0.1 Cloudflare placement and PR gate | branch/base identity, environment-isolated assets and bindings, live/source/deployed evidence separation, pending migrations, and ordered promotion boundaries | sanitized inventory and deterministic source checks pass; staging and production mutations remain separately gated | Git/GitHub metadata + Wrangler read-only inventory + config/source review |
+| ISC-252..282 | Beta 0.1 release evidence and promotion gate | immutable local merge identity, exact-candidate source closure, evidence-classification boundaries, staging/production receipts, and explicit non-goals | source evidence stays source-only; every staging/production row needs its matching exact-revision receipt | Git + checklist review + owner-authorized Cloudflare/Clerk/D1/IAB receipts |
 
 ## Features
 
@@ -518,8 +540,8 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
   parallelizable: false
 
 - name: Beta01CloudflarePromotionGate
-  description: Source-only integration PR with explicit Cloudflare asset placement, environment boundaries, migration delta, and staged production gates
-  satisfies: [ISC-252, ISC-253, ISC-254, ISC-255, ISC-256, ISC-257, ISC-258, ISC-259, ISC-260, ISC-261]
+  description: Exact-source integration, evidence classification, environment boundaries, staged promotion gates, and explicit Beta 0.1 deferrals
+  satisfies: [ISC-252, ISC-253, ISC-254, ISC-255, ISC-256, ISC-257, ISC-258, ISC-259, ISC-260, ISC-261, ISC-262, ISC-263, ISC-264, ISC-265, ISC-266, ISC-267, ISC-268, ISC-269, ISC-270, ISC-271, ISC-272, ISC-273, ISC-274, ISC-275, ISC-276, ISC-277, ISC-278, ISC-279, ISC-280, ISC-281, ISC-282]
   depends_on: [AlphaBedrockBetaModularConvergence, CloudflareEstateMigrationBoundary, QualityAndSafetyGates]
   parallelizable: false
 ```
@@ -544,6 +566,9 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 
 ## Decisions
 
+- 2026-09-11 19:17 IST: refined: PR #77/Beta 0.1 is tracked as a separately gated release lane. This host verifies local merge `d3b4590` with parents `d4e45b4` and `7ec8298`; reported `3eebf57` is unavailable locally. The pre-merge branch, no-mutation, and pending-migration snapshots are tombstoned rather than silently rewritten. Later runtime and D1 statements are `REPORTED` until exact staging or production receipts exist.
+- 2026-09-11 19:17 IST: refined: Beta promotion now requires an exact post-merge-fix candidate, source rerun, backup/migration/binding/deployment receipts, real Clerk/D1 IAB persona/viewports, and distinct production Clerk, D1, domain/traffic, smoke, and rollback gates. Provider/YouTube persistence, scheduled jobs, long-context compaction, and full Alpha alignment remain explicit deferred work.
+- 2026-09-11 19:42 IST: the unused source candidate version is `0.3.3-beta.3`. Remote `v0.3.3-beta.2` already exists at `66f434a` although its release note calls it source-only and not a tag; ISC-283 blocks publication until that history is explicitly reconciled without moving or deleting the tag.
 - 2026-09-11 15:49 IST: owner authorized a clean `beta_0.1` source branch and PR into `release/beta`, plus a read-only Cloudflare asset/topology audit before any production work. The branch label is not a semantic version or tag. Staging reports migrations 0012-0015 pending and production reports 0011-0015 pending; no migration, deploy, traffic, secret, DNS, Clerk, queue, ingest, corpus, merge, or production mutation is part of this checkpoint.
 
 - 2026-09-11 03:49 IST: refined: execution resumes from the committed Alpha-bedrock handoff. The current live IAB reproduction shows a selected member route with an unavailable banner, a separate header archive control, and the incorrect member navigation disclosure. Display-down correction starts with shared Alpha shell/composer behavior; private mutation contracts remain owner-scoped behind the existing Beta API.
@@ -674,6 +699,10 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
   refuted by: migration `0010_member_beta.sql` makes the saved-memory source-conversation link immutable and `ON DELETE RESTRICT`, while conversation-create idempotency identity currently lives on the conversation row itself
   learned: deletion needs explicit detach/tombstone semantics and replayed-create anti-resurrection coverage before any additive migration can be accepted
   criterion now: ISC-227 and ISC-229 require both safeguards rather than a blanket cascade or archive rename
+- 2026-09-11 | conjectured: a source-integration PR state, local test result, or reported runtime result could stand in for a Beta promotion receipt
+  refuted by: this host verifies a different local merge identity (`d3b4590`) than the reported `3eebf57`, while the reported D1/runtime activity has no host-visible environment receipt
+  learned: source, reported, staging, and production evidence are distinct layers and must be bound to one exact candidate revision
+  criterion now: ISC-252, ISC-257, and ISC-261 are tombstoned; ISC-262 through ISC-282 define the exact-source, staging, production, and deferred-work gates
 
 ## Verification
 
@@ -777,3 +806,6 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 - ISC-219 and ISC-220 evidence: `.planning/inputs/2026-09-11-alpha-beta-inference-retrieval-capability-ledger.md` records the exact Alpha, later-Alpha, Beta, and checkpoint references plus an explicit bedrock/adapt/defer/reject admission for every examined later Ask WTF capability; it rejects branch-name and deployment-receipt adoption by default.
 - Convergence execution evidence (local only): `53ef445`, `6811564`, `66d79b6`, and `0df461f` pass the full 253-test Cloudflare suite, 144 web unit tests, 90 web contract tests, web typecheck/lint/build, a 360-file zero-violation privacy scan, architecture freshness, and `git diff --check`. This proves source and deterministic contracts, not a staging deployment or the authenticated persona/viewport matrix.
 - Final convergence audit evidence: the independent Codex cross-audit reported no critical/high finding; architecture freshness passed for 551 inputs, privacy passed with 0 violations across 359 bounded files, and `git diff --check` passed after all ancestry, ownership, future-assertion, and Delete-safety corrections.
+- ISC-262 verification: `git show --no-patch --pretty=raw d3b4590` identifies parents `d4e45b4` and `7ec8298`; `git cat-file -t 3eebf57` returns `fatal: Not a valid object name 3eebf57` in this checkout.
+- ISC-264 verification: the Beta 0.1 checklist records Edge 376/376, web unit 188/188, web contracts 96/96, TypeScript, lint, and architecture as local source/build evidence, with a mandatory exact-candidate rerun after the post-merge source-closure commits.
+- ISC-265 verification: the Beta 0.1 checklist labels the later local runtime/D1-migration statement `REPORTED` and explicitly bars it from satisfying staging or production rows.

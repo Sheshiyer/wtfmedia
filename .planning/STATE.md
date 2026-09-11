@@ -3,15 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: PR #77 open from beta_0.1 into release/beta; Cloudflare topology mapped; no deploy or merge
-last_updated: "2026-09-11T15:49:00+05:30"
+stopped_at: Beta 0.1 locally integrated at d3b4590; post-merge runtime and release/migration source closure plus all live gates remain open
+last_updated: "2026-09-11T19:29:00+05:30"
 last_activity: 2026-09-11
 progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 35
   completed_plans: 35
-  percent: 100
+  authorized_plan_cohort_percent: 100
+  roadmap_items_total: 43
+  roadmap_items_complete: 36
+  roadmap_percent: 84
 ---
 
 # Project State
@@ -24,51 +27,68 @@ See: `.planning/PROJECT.md` (updated 2026-08-20)
 its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
-**Current focus:** The source-only single authenticated Beta shell is locally
-verified through `4220eda` and is open as PR #77 from `beta_0.1` into
-`release/beta`. Alpha's actual Ask WTF UI, interaction, inference,
-retrieval, and navigation remain the product bedrock; authentication, private
-conversations, history, explicit memory, scoped Settings, and role routing are
-modular Beta additions. Staging deployment/migrations and real Clerk/D1 IAB
-acceptance remain open. The Cloudflare placement and promotion authority is
-`docs/releases/beta-0.1-cloudflare-promotion-map.md`; the implementation authority is
-`.planning/inputs/2026-09-11-beta-single-shell-rbac-convergence-plan.md`.
+**Current focus:** Beta 0.1 is a separately tracked authenticated release lane,
+not completion of the broader v1.0 roadmap. This host verifies the local merge
+`d3b4590` on `rag/alpha-answer-accuracy` with parents `d4e45b4` and `7ec8298`.
+The user-reported `3eebf57` object is unavailable here. Alpha's actual Ask WTF
+UI, interaction, inference, retrieval, and navigation remain the product
+bedrock; authentication, private conversations, history, explicit memory,
+scoped Settings, and role routing are modular Beta additions. The release
+authority is `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md`.
 
-## Beta 0.1 PR and Cloudflare promotion checkpoint
+## Beta 0.1 local integration and release-readiness checkpoint
 
-- `beta_0.1` is a source-integration branch label, not a package version, tag,
-  staging receipt, or production claim. PR #77 targets
-  `release/beta@498c0e0`.
-- Read-only named-profile inventory confirms separate staging/production web,
-  edge, D1, R2, Vectorize, KV, and ingest queue/DLQ resources. The most recent
-  deployments predate this candidate and do not prove its revision is live.
+- `beta_0.1` remains a source-integration branch label, not a package version,
+  tag, staging receipt, production claim, or moving deployment target. The
+  host-visible reconstruction is merge `d3b4590`; it does not prove GitHub PR
+  state, staging, or production.
+- The integration handoff records Edge 376/376, web unit 188/188, web contracts
+  96/96, TypeScript, lint, and architecture checks green. These are local
+  source/build receipts and must be rerun after the post-merge runtime and
+  release/migration fixes are committed into one exact candidate SHA.
+- The user reports later local runtime behavior and remote D1 migrations
+  0011-0015 plus a release-row seed. This checkout has no environment-specific
+  backup, migration, binding, deployment, traffic, or authenticated-IAB receipt
+  for that report, so it is `REPORTED`, not staging or production acceptance.
+- Root, web, and edge source manifests now use the unused `0.3.3-beta.3`
+  candidate version. Remote `v0.3.3-beta.2` already exists at `66f434a` even
+  though its release note says it was source-only and not a tag. The owner must
+  reconcile that historical contradiction before publishing `beta.3`; no tag
+  may be reused, moved, deleted, or silently reinterpreted by this work.
 - The web Worker owns OpenNext routes plus `ASSETS` and reaches only its paired
   edge Worker. The edge Worker owns Clerk-token verification, D1 RBAC/chat and
   provenance, R2 source objects, Vectorize retrieval, Workers AI, KV state,
   and ingest queue consumption.
-- Staging D1 has migrations 0012-0015 pending; production D1 has 0011-0015
-  pending. This source branch therefore cannot be accepted from current live
-  behavior without a new staging migration/deployment receipt.
-- Staging order is migration inventory and recovery receipt, staging D1
-  migration, edge deploy/health/binding receipt, web deploy/service-binding
-  receipt, then the real Clerk/D1 persona matrix. Production remains separately
-  owner-authorized after staging acceptance and rollback planning.
-- Open PRs #57 and #59 are conflicting historical inputs superseded by the
-  integrated candidate. They must not be stacked or closed automatically.
+- Required staging order is backup/recovery inventory, reviewed migrations and
+  post-apply readback, exact edge deploy/health/bindings, exact web deploy and
+  paired service binding, then the real Clerk/D1 IAB persona and viewport
+  matrix. Production remains separately owner-authorized with its own Clerk,
+  backup, migration, domain/traffic, smoke, and rollback receipts.
+- Provider/YouTube persistence, scheduled jobs, long-context compaction, and
+  full Alpha alignment are explicit Beta 0.1 deferrals, not implied delivery.
 
 ## Current Beta single-shell authority — local source checkpoint `00e8267`
 
+**Historical source checkpoint only:** this local contract remains useful for
+route/RBAC review, but its test counts and pre-merge release posture are
+superseded for Beta 0.1 promotion by the local integration evidence and
+checklist above.
+
 - `/beta` is the authenticated principal landing. Members resolve to
-  `/beta/chat`; operators resolve to `/beta/workspace`. The public `/chat` and
-  legacy `/ops` trees remain Alpha surfaces; `/beta/ops/*` is middleware
-  redirect compatibility only and renders no independent Beta shell.
+  `/beta/chat`; operators resolve to `/beta/workspace` for the control room.
+  Both admitted principal kinds may open `/beta/chat`, which selects the
+  appropriate owner-scoped history view inside the same Beta gate/AppShell.
+  The public `/chat` and legacy `/ops` trees remain Alpha surfaces;
+  `/beta/ops/*` is middleware redirect compatibility only and renders no
+  independent Beta shell.
 - The edge is the authorization authority: principal resolution gives any
   operator record precedence over a member record, inactive operators deny,
   and profile mirrors do not grant authority. Browser navigation is projected
   from edge capabilities and its contract imports the edge policy; unknown
   routes fail closed and no Beta `public_link` fallback exists.
-- Canonical Beta pages are `/beta/chat[/conversationId]`, nested
-  `/beta/settings/*`, `/beta/workspace/*`, `/beta/admin/users`, and
+- Canonical Beta pages include the shared authenticated
+  `/beta/chat[/conversationId]`, nested `/beta/settings/*`, the operator
+  control-room `/beta/workspace/*`, `/beta/admin/users`, and
   `/beta/admin/audit`. Settings are capability-scoped for members, operators,
   admins, and super-admins; each page/API still rechecks the edge policy.
 - Member and operator persistence remains separate and owner-scoped. Public
@@ -155,21 +175,25 @@ acceptance remain open. The Cloudflare placement and promotion authority is
 ## Current Position
 
 Phase: 02 (Platform Foundation + Authenticated Policy Boundary) — COMPLETE ✓
-Plan: 12 of 12
-Status: Complete — Staging authorized, preflight executed, owner approval bound, read-only production smoke verified
-Last activity: 2026-09-01 — bounded episode-scoped production receipt reconciled; no Phase 3 plan activated
+Plan cohort: 35 of 35 authorized Phase 1/2 plans
+Status: Beta 0.1 source integration is locally present; the 10-phase v1.0
+milestone remains active and its release/lifecycle gates are not completed.
+Last activity: 2026-09-11 — local Beta 0.1 integration and production-readiness
+criteria reconciled; no staging or production action is accepted here.
 
-Authorized-plan cohort: [██████████] 100% — 35 of 35 currently
-authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
-10 phases complete; this 100% is not milestone completion.
+**Accounting:** the authorized-plan cohort is 35/35 (100%). The broader
+roadmap inventory is 36/43 (84%) and the ten-phase milestone is 2/10 phases
+complete. Beta 0.1 is a separate source/release lane; neither its local merge
+nor the 35/35 cohort marks the broader roadmap complete.
 
 ## Phase 1: COMPLETE ✓
 ## Phase 2: COMPLETE ✓
 
 ## Execution Authorization
 
-- **Authorized first:** Phase 1 and Phase 2 only. Work begins with Phase 1;
-  Phase 2 depends on Phase 1 acceptance.
+- **Completed foundation:** Phase 1 and Phase 2 are complete bounded phases.
+  Their 35/35 authorized-plan cohort does not authorize the remaining roadmap
+  or any Beta staging/production action.
 
 - **Planned / inactive:** Phases 3–10. Implementation requires Phases 1–2
   acceptance plus explicit owner authorization.
@@ -212,7 +236,7 @@ authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
 
 - Phase 1 progress: Plan 01-21 (Wave 8) completes the pre-migration freeze — dependency graph (20 nodes) and 12 visual captures at 320/768/1440 hash-bound + owner-approved, binding Plans 01-08 and 01-10 to preserve or restore this exact presentation
 - Client Phase 1/2 build scope reconciled: commercial delivery labels now map across repository Phases 2–4 and 5–9; repository Phase 1 remains the unchanged 23-plan prerequisite and migration closure moves to Phase 10
-- Phase 2 complete: All 12 plans executed, all 35 threat mitigations verified, staging preflight passed, owner approval bound, read-only production smoke passed, and requirements updated to 100% complete.
+- Phase 2 complete: All 12 plans executed, all 35 threat mitigations verified, staging preflight passed, owner approval bound, read-only production smoke passed, and the bounded Phase 2 requirement cohort reached 100%; this did not complete the broader v1.0 roadmap.
 
 ### Decisions
 
@@ -281,13 +305,18 @@ authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
 
 Phase 1 and Phase 2 are complete. Future roadmap execution:
 
-1. **Client inputs for Phase 3–4** — IP taxonomy, 20-query editorial set, Frame.io/Drive/Zset share rotation. These block Phases 3–4.
-2. **Close the remaining Phase 3/4 gates** — The bounded episode-scoped
+1. **Beta 0.1 source closure and live gates** — Commit the post-merge runtime
+   and release/migration fixes, select and retest one exact SHA, then follow
+   the checklist for staging backup/migrations/bindings, real Clerk/D1
+   persona/viewports, and separately
+   authorized production receipts. The local merge is not a v1.0 phase close.
+2. **Client inputs for Phase 3–4** — IP taxonomy, 20-query editorial set, Frame.io/Drive/Zset share rotation. These block Phases 3–4.
+3. **Close the remaining Phase 3/4 gates** — The bounded episode-scoped
    production slice is complete. Plan the canonical internal provenance
    workspace, source/version inspection, ten-episode trusted alignment
    evaluation, twenty-query editorial search evaluation, hybrid filters, and
    synchronized playback as separate owner-authorized work.
-3. **Broader platform and analytics work** — Access/RBAC, daily YouTube
+4. **Broader platform and analytics work** — daily YouTube
    analytics, research, production operations, source adapters, reporting,
    clip intelligence, and migration closure remain planned/inactive. Do not
    infer their completion from the episode release.
@@ -314,22 +343,26 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
 - Trusted timeline alignment and synchronized uncut playback remain blocked on
   authoritative alignment data and the ten-episode evaluation set. Hybrid
   search quality remains blocked on the twenty-query editorial evaluation set.
-- Cloudflare Access/RBAC is deliberately deferred and is not a blocker for the
-  short-lived public-link release.
+- Historical Cloudflare Access/RBAC wording is not authority for Beta. The
+  current Beta contract is Clerk identity plus edge/D1 principal/RBAC; its
+  environment receipts remain release gates.
 
 ## Deferred Items
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
 | v2+ | External writes, high-risk workflows, and real-time collaboration | Out of v1.0 scope | Milestone definition |
+| Beta 0.1 | Provider/YouTube persistence and scheduled jobs | Explicit Beta 0.1 deferral | 2026-09-11 |
+| Beta 0.1 | Long-context compaction and full Alpha alignment | Explicit Beta 0.1 deferral | 2026-09-11 |
 
 ## Session Continuity
 
-Last session: 2026-09-01
-Stopped at: Episode-scoped Ask WTF production completion. Published, approved
-uncut, and combined mapped-episode chat passed live; final web/edge versions,
-rollback, corpus, queue, and deferred-boundary receipts are recorded.
+Last session: 2026-09-11
+Stopped at: Beta 0.1 local integration `d3b4590` and release-readiness planning.
+The host verifies the merge parents but not the reported `3eebf57` object; test
+counts are source evidence and reported runtime/D1 activity is unaccepted.
 Resume file: `.project/HANDOFF.md`
-Resume: Plan the remaining Phase 3/4 provenance, alignment, search-evaluation,
-and dual-playback work as a separate owner-authorized slice. Do not rerun the
-completed activation or deployment from this state.
+Resume: Commit and review post-merge runtime and release/migration fixes,
+select one exact candidate, rerun source checks, then wait for explicit owner authorization before any staging
+or production action. Preserve the single-shell route/RBAC and Alpha/staging/
+production separation; do not rerun a completed deployment from this state.

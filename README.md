@@ -47,12 +47,27 @@ session/history/memory slice and the separate invite-only member Beta from PRs
 source receipts only: staging migration, keys, activation, and real-account
 acceptance remain open.
 
+Beta 0.1 is a separate local source-integration lane, verified in this checkout
+as merge `d3b4590` (parents `d4e45b4` and `7ec8298`); the user-reported
+`3eebf57` object is unavailable here. Its Edge 376/376, web unit 188/188, web
+contracts 96/96, typecheck, lint, and architecture results are local
+source/build evidence only. Reported runtime/D1 activity is not staging or
+production acceptance. See
+`.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md` for
+the exact-candidate, migration, binding, IAB, production, rollback, and
+explicit-deferral gates.
+
 `v0.3.2-alpha.1` is the latest alpha. It adds named-person retrieval anchors,
 truthful abstention for missing guests, and public source-panel filtering by
 `published`, `uncut`, and `both` modes.
 
 See the [release notes](docs/releases/v0.3.3-beta.1.md) and
 [changelog](CHANGELOG.md).
+
+The next integrated source candidate uses aligned `0.3.3-beta.3` manifests.
+It is not yet a tag or deployment. The existing remote `v0.3.3-beta.2` tag
+points at an older commit whose release note called it source-only; that
+history must be explicitly reconciled before publishing another prerelease.
 
 Cross-timeline alignment and synchronized uncut playback remain explicitly
 held; an approved Frame.io episode URL is not itself a timestamp mapping.

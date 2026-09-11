@@ -1,5 +1,67 @@
 # Project handoff
 
+## 2026-09-11 Beta 0.1 integration evidence and promotion checkpoint
+
+**Status:** LOCAL SOURCE INTEGRATION VERIFIED; LIVE ACCEPTANCE UNPROVEN. This
+entry records planning and source facts only. It neither deploys nor accepts a
+staging or production environment.
+
+### Verified source facts
+
+- The host-visible integration is local merge
+  `d3b4590fb86966b2a3b4c69ab2c8fea9aa0a8b7a` on
+  `rag/alpha-answer-accuracy`, with parents
+  `d4e45b44f3527b768408069f191951c2c3f492cb` and
+  `7ec8298664a40b7b138f2b8d042d89858645cb67`.
+- The user-reported `3eebf57` object is unavailable in this checkout. Do not
+  substitute it for `d3b4590`, and do not call either SHA deployed without an
+  environment receipt.
+- The integration handoff records Edge 376/376, web unit 188/188, web
+  contracts 96/96, TypeScript, lint, and architecture checks green. They are
+  local source/build evidence only and must be rerun at the final exact
+  candidate after the post-merge runtime and release/migration fixes are
+  committed.
+
+### Reported, not accepted
+
+- The user reports later local full-stack behavior plus remote D1 migrations
+  0011–0015 and a release-row seed. No host-visible backup, migration,
+  deployment, binding, traffic, or authenticated-IAB receipt accompanies that
+  report. Record it as `REPORTED`; it satisfies no staging or production gate.
+- Root, web, and edge source manifests use the next unused candidate version,
+  `0.3.3-beta.3`. Remote `v0.3.3-beta.2` already exists and peels to `66f434a`,
+  while its release note says it was neither a tag nor a deployment receipt.
+  Treat that as an unresolved release-history gate; do not move, delete, reuse,
+  or silently reinterpret the historical tag.
+
+### Governing release boundary
+
+- The release checklist is
+  `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md`.
+  It requires committed post-merge runtime and release/migration source fixes,
+  an exact candidate SHA, an exact source-test rerun,
+  staging backup/migrations/bindings/paired deploys, and the real Clerk/D1 IAB
+  persona matrix at 1382x887, 1382x1180, and 320x710.
+- Beta preserves one authenticated shell: `/beta` resolves the edge principal;
+  members use `/beta/chat`; operators use `/beta/workspace` for the control
+  room; both admitted principal kinds may use `/beta/chat` for their role-safe,
+  owner-scoped history view inside the same Beta gate/AppShell. Settings stays
+  under `/beta/settings/*`; `/beta/ops/*` is redirect-only compatibility;
+  public Alpha `/chat` remains separate. Clerk establishes identity, while edge
+  policy and D1 lifecycle/RBAC decide authority.
+- Production remains a new owner-authorized action with distinct production
+  Clerk, D1 backup/migration, exact edge/web/domain/traffic, smoke, and
+  rollback receipts. Provider/YouTube persistence, scheduled jobs, long-context
+  compaction, and full Alpha alignment are explicit deferrals, not omissions to
+  be filled by a release claim.
+
+### Next action
+
+Review and commit the post-merge runtime and release/migration source fixes,
+then select one exact candidate and rerun its source checks. Do not deploy,
+migrate, seed, change Clerk, mutate
+DNS, enqueue work, or promote traffic under this handoff.
+
 ## 2026-09-11 Beta single-shell RBAC convergence checkpoint
 
 **Status:** LOCAL SOURCE AND BUILD VERIFIED through `00e8267` — no remote
@@ -9,8 +71,10 @@ configuration, corpus mutation, DNS change, or production Alpha state changed.
 ### Delivered source contract
 
 - `/beta` resolves one authenticated edge principal: members land in
-  `/beta/chat`; operators land in `/beta/workspace`. The canonical nested
-  Settings and administration routes are capability-scoped.
+  `/beta/chat`; operators land in `/beta/workspace` for the control room. Both
+  admitted principal kinds may open `/beta/chat` for their role-safe,
+  owner-scoped history view inside the same Beta gate/AppShell. The canonical
+  nested Settings and administration routes are capability-scoped.
 - Edge policy is the route authority. Operator records take precedence over
   historical member rows, inactive operators deny, profile mirrors do not
   grant authority, unknown paths fail closed, and the browser-navigation
