@@ -54,7 +54,7 @@ export function principalCanAccess(context: PrincipalContext, pathname: string):
       "/beta/settings/appearance",
     ].includes(pathname);
   }
-  return pathname.startsWith("/beta/workspace") || pathname.startsWith("/beta/settings") || pathname.startsWith("/beta/admin") || pathname.startsWith("/beta/api/");
+  return pathname === "/beta/chat" || /^\/beta\/chat\/(?:mcnv|cnv)_[A-Za-z0-9-]{8,88}$/u.test(pathname) || pathname.startsWith("/beta/workspace") || pathname.startsWith("/beta/settings") || pathname.startsWith("/beta/admin") || pathname.startsWith("/beta/api/");
 }
 
 export function capabilityForPath(pathname: string): string | null {

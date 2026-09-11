@@ -152,7 +152,8 @@ function MessageMetadata({ message }: { message: ChatMessage }) {
 
 function ChatComposer({ conversationId, sourceMode = "both", onSent }: { conversationId?: string; sourceMode?: ChatConversation["sourceMode"]; onSent: () => void }) {
   const [question, setQuestion] = useState("");
-  const [mode, setMode] = useState<ChatConversation["sourceMode"]>(sourceMode);
+  // No evidence picker: operators always ask across both timelines.
+  const mode = sourceMode;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
 
@@ -189,7 +190,7 @@ function ChatComposer({ conversationId, sourceMode = "both", onSent }: { convers
     }
   }
 
-  return <div id="new-chat" data-chat-composer className="grid gap-2"><label className="font-label text-[11px] font-bold uppercase tracking-[0.1em] text-muted">evidence <select value={mode} onChange={(event) => setMode(event.target.value as ChatConversation["sourceMode"])} className="ml-2 border border-foreground bg-surface-raised px-2 py-1 text-xs text-foreground" disabled={busy}><option value="published">published YouTube</option><option value="uncut">approved uncut</option><option value="both">both</option></select></label><AskComposer value={question} onChange={setQuestion} onSubmit={() => void submit()} disabled={busy} loading={busy} sourceMode={mode} variant="compact" placement="inline" />{error ? <span role="alert" className="text-xs text-attention">the answer could not be saved. retry this turn.</span> : null}</div>;
+  return <div id="new-chat" data-chat-composer className="grid gap-2"><AskComposer value={question} onChange={setQuestion} onSubmit={() => void submit()} disabled={busy} loading={busy} sourceMode={mode} variant="compact" placement="inline" />{error ? <span role="alert" className="text-xs text-attention">the answer could not be saved. retry this turn.</span> : null}</div>;
 }
 
 export function ChatWorkspace({ view, conversationId }: { view: ChatView; conversationId?: string }) {
@@ -276,11 +277,13 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
 
   if (view === "history") {
     return (
-      <div data-chat-history className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-foreground pb-3">
-          <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
-            account conversation ledger
-          </p>
+      <div data-chat-history className="mx-auto grid max-w-3xl gap-6">
+        <div className="flex min-w-0 flex-wrap items-start justify-between gap-4 border-b-2 border-foreground pb-4">
+          <div className="min-w-0 flex-1">
+            <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-knowledge">company beta · private workspace</p>
+            <h1 className="mt-1 font-display text-lg font-extrabold lowercase">ask wtf</h1>
+            <p className="mt-1 text-xs text-secondary">Your conversations stay with this signed-in workspace.</p>
+          </div>
           <Link
             href="/beta/chat#new-chat"
             data-new-chat
