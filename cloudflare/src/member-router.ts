@@ -1,5 +1,5 @@
 import { createRemoteClerkVerifier, type ClerkVerification } from "./auth/clerk.ts";
-import { resolveMemberContext } from "./auth/member-context.ts";
+import { principalContextDto, resolvePrincipalContext } from "./auth/principal-context.ts";
 import { archiveMemberConversation, completeMemberTurn, deleteMemberConversation, getMemberConversation, listMemberConversations, prepareMemberTurn } from "./chat/member-history.ts";
 import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "./chat/member-memory.ts";
 import { boundedPriorTurns, runChat, type ChatAnswerInput, type ChatAnswer } from "./chat/answer.ts";
@@ -9,6 +9,8 @@ import type { OpsEnv } from "./ops-router.ts";
 type Dependencies = { verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer> };
 const headers = { "cache-control": "private, no-store", "x-content-type-options": "nosniff" };
 const denied = () => Response.json({ error: "ops_unavailable" }, { status: 404, headers });
+const unauthorized = () => Response.json({ error: "unauthorized" }, { status: 401, headers });
+const forbidden = () => Response.json({ error: "forbidden" }, { status: 403, headers });
 const body = (request: Request) => request.json().then((value) => value && typeof value === "object" ? value as Record<string, unknown> : null).catch(() => null);
 
 export async function handleMemberRequest(request: Request, env: OpsEnv, dependencies: Dependencies = {}) {
@@ -19,9 +21,13 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
   const parties = env.CLERK_AUTHORIZED_PARTIES?.split(",").map((value) => value.trim()).filter(Boolean);
   if (!env.CLERK_ISSUER || !env.CLERK_JWKS_URL || !parties?.length) return denied();
   const verify = dependencies.verifyClerk ?? createRemoteClerkVerifier({ issuer: env.CLERK_ISSUER, jwksUrl: env.CLERK_JWKS_URL, authorizedParties: parties, ...(env.CLERK_AUDIENCE ? { audience: env.CLERK_AUDIENCE } : {}) });
-  const context = await resolveMemberContext(env.DB, await verify(request), env.OPS_ENVIRONMENT, request.headers.get("x-request-id") ?? crypto.randomUUID());
-  if (!context) return denied();
-  if (url.pathname === "/beta/api/context" && request.method === "GET") return Response.json({ member: context }, { headers });
+  const identity = await verify(request);
+  if (!identity.ok) return unauthorized();
+  const context = await resolvePrincipalContext(env.DB, identity, env.OPS_ENVIRONMENT, request.headers.get("x-request-id") ?? crypto.randomUUID());
+  if (!context) return forbidden();
+  if (url.pathname === "/beta/api/principal-context" && request.method === "GET") return Response.json(principalContextDto(context), { headers });
+  if (context.kind !== "member") return forbidden();
+  if (url.pathname === "/beta/api/context" && request.method === "GET") return Response.json({ member: { role: context.role, workspace: context.workspace, pilotCohort: context.pilotCohort, environment: context.environment } }, { headers });
   if (url.pathname === "/beta/api/memory" && request.method === "GET") {
     const memories = await listMemberMemories(env.DB, context.memberId);
     return memories ? Response.json({ memories }, { headers }) : denied();
