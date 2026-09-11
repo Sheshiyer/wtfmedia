@@ -1,9 +1,13 @@
 # Beta 0.1 Cloudflare asset and promotion map
 
-Status: **source-only integration plan**  
-Branch: `beta_0.1`  
-Base: `release/beta` at `498c0e0`  
-Pull request: [#77](https://github.com/Sheshiyer/wtfmedia/pull/77)  
+Status: **source-only integration plan**
+
+Branch: `beta_0.1`
+
+Base: `release/beta` at `498c0e0`
+
+Pull request: [#77](https://github.com/Sheshiyer/wtfmedia/pull/77)
+
 Audited implementation baseline: `4220eda`
 
 `beta_0.1` is the integration-branch and pull-request label. It is not a Git
