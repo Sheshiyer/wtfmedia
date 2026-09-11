@@ -16,7 +16,7 @@ describe("Clerk member Beta return target", () => {
   });
 
   it("continues to reject unrecognised post-sign-in destinations", () => {
-    expect(clerkRedirectTarget("https://untrusted.example/beta", "https://wtfmedia-web-staging.connect2nikhai.workers.dev")).toBe("/beta/ops");
+    expect(clerkRedirectTarget("https://untrusted.example/beta", "https://wtfmedia-web-staging.connect2nikhai.workers.dev")).toBe("/beta/workspace");
   });
 
   it("preserves an invitation ticket instead of sending an invited member into generic restricted sign-in", () => {

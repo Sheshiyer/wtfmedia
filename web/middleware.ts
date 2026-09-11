@@ -17,7 +17,7 @@ async function routeMiddleware(request: NextRequest) {
     else if (suffix === "/operators") target.pathname = "/beta/admin/users";
     else if (suffix === "/audit") target.pathname = "/beta/admin/audit";
     else if (suffix === "/profile") target.pathname = "/beta/settings";
-    else if (suffix === "/chat") target.pathname = "/beta/workspace";
+    else if (suffix === "/chat") target.pathname = "/beta/chat";
     else if (suffix === "/settings") target.pathname = "/beta/settings";
     else if (suffix.startsWith("/settings/access") || suffix.startsWith("/settings/users")) target.pathname = "/beta/admin/users";
     else if (suffix.startsWith("/settings/")) target.pathname = `/beta/settings/workspace${suffix.slice("/settings".length)}`;

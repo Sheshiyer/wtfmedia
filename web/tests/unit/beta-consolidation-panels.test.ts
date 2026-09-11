@@ -107,7 +107,7 @@ describe("Beta consolidation admin panels", () => {
     expect(appRail).toContain("ThemeToggle");
     expect(appRail).toContain("data-navigation-utilities");
     expect(appRail).toContain("data-bottom-navigation");
-    expect(appRail).toContain('href="/beta/ops/profile"');
+    expect(appRail).toContain('href="/beta/settings/account"');
     expect(profileRoute).toContain("OperatorProfilePage");
     for (const value of ["identity & role", "verified scope", "settings access map", "Clerk", "normalized email", "edge readback", "verification required", "/ops/api/profile"]) {
       expect(profile).toContain(value);

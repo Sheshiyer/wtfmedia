@@ -9,9 +9,9 @@ import { createHmac } from "node:crypto";
 
 describe("operator lifecycle", () => {
   it("redirect corpus accepts only canonical Beta operator destinations", () => {
-    expect(validatedReturnTo("/beta/ops/operators")).toBe("/beta/ops/operators");
-    expect(validatedReturnTo("/ops/operators")).toBe("/beta/ops/operators");
-    for (const unsafe of ["https://evil.test", "//evil.test", "/%2f%2fevil.test", "/chat", "/ops?next=/chat", "/ops/%2e%2e/chat"]) expect(validatedReturnTo(unsafe)).toBe("/beta/ops");
+    expect(validatedReturnTo("/beta/admin/users")).toBe("/beta/admin/users");
+    expect(validatedReturnTo("/ops/operators")).toBe("/beta/admin/users");
+    for (const unsafe of ["https://evil.test", "//evil.test", "/%2f%2fevil.test", "/chat", "/ops?next=/chat", "/ops/%2e%2e/chat"]) expect(validatedReturnTo(unsafe)).toBe("/beta/workspace");
   });
 
   it("requires a signed unexpired edge context instead of headers or decoded JWT", () => {

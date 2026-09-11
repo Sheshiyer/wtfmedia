@@ -67,6 +67,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
   const [sending, setSending] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
   const [loadingEarlier, setLoadingEarlier] = useState(false);
@@ -98,6 +99,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     setArchiving(false);
     setDeleting(false);
     setDeleteDialogOpen(false);
+    setDeleteTargetId(null);
     setDeleteError(false);
     setLoadingEarlier(false);
   }, [conversationId, pathname]);
@@ -215,7 +217,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
       const response = await memberFetch(`/beta/api/chat/${encodeURIComponent(conversationId)}/archive`, { method: "POST" });
       if (!response.ok) throw new Error("member_archive_unavailable");
       if (!shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) || currentConversation.current !== conversationId) return;
-      router.push("/beta");
+      router.push("/beta/chat");
     } catch {
       if (shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) && currentConversation.current === conversationId) setState("error");
     } finally {
@@ -224,28 +226,36 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
   }, [archiving, conversationId, memberFetch, pathname, router]);
 
   const deleteConversation = useCallback(async (confirmation: string): Promise<boolean> => {
-    if (!conversationId || deleting || !canConfirmMemberConversationDeletion(confirmation)) return false;
+    const targetId = deleteTargetId ?? conversationId;
+    if (!targetId || deleting || !canConfirmMemberConversationDeletion(confirmation)) return false;
     const epoch = ++archiveEpoch.current;
     const requestPath = pathname;
     setDeleting(true);
     setDeleteError(false);
     try {
-      const response = await memberFetch(`/beta/api/chat/${encodeURIComponent(conversationId)}`, { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ confirmation: "DELETE" }) });
+      const response = await memberFetch(`/beta/api/chat/${encodeURIComponent(targetId)}`, { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ confirmation: "DELETE" }) });
       if (!response.ok) throw new Error("member_delete_unavailable");
-      if (!shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) || currentConversation.current !== conversationId) return false;
+      if (!shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) || (deleteTargetId === null && currentConversation.current !== targetId)) return false;
       setDeleteDialogOpen(false);
-      router.push("/beta");
+      router.push("/beta/chat");
       return true;
     } catch {
-      if (shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) && currentConversation.current === conversationId) setDeleteError(true);
+      if (shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) && (deleteTargetId === null || currentConversation.current === targetId)) setDeleteError(true);
       return false;
     } finally {
       if (epoch === archiveEpoch.current) setDeleting(false);
     }
-  }, [conversationId, deleting, memberFetch, pathname, router]);
+  }, [conversationId, deleteTargetId, deleting, memberFetch, pathname, router]);
+
+  const requestDeleteFromNavigator = useCallback(async (selectedConversation: MemberConversationResponse) => {
+    setView(selectedConversation);
+    setDeleteTargetId(selectedConversation.conversation.id);
+    setDeleteError(false);
+    setDeleteDialogOpen(true);
+  }, []);
 
   const greeting = memberGreeting(user?.firstName, user?.fullName);
-  const navigator = <MemberSessionNavigator activeConversationId={conversationId} refreshKey={sessionRevision} onNavigate={() => setDrawerOpen(false)} />;
+  const navigator = <MemberSessionNavigator activeConversationId={conversationId} refreshKey={sessionRevision} onNavigate={() => setDrawerOpen(false)} onRequestDelete={(selectedConversation) => void requestDeleteFromNavigator(selectedConversation)} />;
   const canRetry = state === "error" && (retryIntent !== null || committedRequest !== null) && question.trim().length > 0;
   const onDrawerChange = useCallback((open: boolean) => {
     setDrawerOpen(open);
@@ -276,7 +286,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
       <section className="min-w-0 pb-60" aria-live="polite" data-selected-conversation-viewport>
         {!conversationId ? <ConversationEmptyState /> : null}
         {state === "loading" ? <p role="status" className="mt-6 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary">loading conversation…</p> : null}
-        {state === "unavailable" ? <div role="status" className="mx-auto mt-6 grid max-w-3xl gap-4 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary" data-conversation-unavailable><p>This conversation is unavailable. It may have been archived, deleted, or opened from an expired link.</p><div className="flex flex-wrap gap-3"><Button type="button" variant="secondary" onClick={() => void load()} className="min-h-9 px-3 py-1 text-xs">retry loading conversation</Button><Button type="button" variant="ghost" onClick={() => router.push("/beta")} className="min-h-9 px-3 py-1 text-xs">start a new question</Button></div></div> : null}
+        {state === "unavailable" ? <div role="status" className="mx-auto mt-6 grid max-w-3xl gap-4 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary" data-conversation-unavailable><p>This conversation is unavailable. It may have been archived, deleted, or opened from an expired link.</p><div className="flex flex-wrap gap-3"><Button type="button" variant="secondary" onClick={() => void load()} className="min-h-9 px-3 py-1 text-xs">retry loading conversation</Button><Button type="button" variant="ghost" onClick={() => router.push("/beta/chat#new-chat")} className="min-h-9 px-3 py-1 text-xs">start a new question</Button></div></div> : null}
         {view ? <div className="flex min-h-[calc(100dvh-17rem)] flex-col"><Thread view={view} sending={sending} canRetry={canRetry} onRetry={() => void submit()} loadingEarlier={loadingEarlier} onLoadEarlier={() => void loadEarlier()} renderFooter={() => renderComposer()} /></div> : null}
         {state === "error" ? <p role="status" className="mx-auto mt-4 max-w-3xl border-l-4 border-attention px-4 text-sm text-secondary">We could not finish that answer. {canRetry ? "Retry with the same question." : "Try again."}</p> : null}
       </section>
@@ -289,6 +299,6 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
       loading={sending}
       variant="compact"
     /> : null}
-    {deleteDialogOpen && conversationId && view ? <DeleteConversationDialog conversationTitle={view.conversation.title} linkedSavedPreferenceCount={view.conversation.linkedSavedPreferenceCount} pending={deleting} error={deleteError} onClose={() => { if (!deleting) setDeleteDialogOpen(false); }} onConfirm={deleteConversation} /> : null}
+    {deleteDialogOpen && (deleteTargetId || conversationId) && view ? <DeleteConversationDialog conversationTitle={view.conversation.title} linkedSavedPreferenceCount={view.conversation.linkedSavedPreferenceCount} pending={deleting} error={deleteError} onClose={() => { if (!deleting) { setDeleteDialogOpen(false); setDeleteTargetId(null); } }} onConfirm={deleteConversation} /> : null}
   </div>;
 }

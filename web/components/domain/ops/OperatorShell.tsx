@@ -14,9 +14,9 @@ export function OperatorShell({
     "/episodes",
     "/connections",
     "/chat",
-    "/beta/ops",
-    "/beta/ops/production",
-    "/beta/ops/episodes",
+    "/beta/workspace",
+    "/beta/workspace/production",
+    "/beta/workspace/episodes",
   ]);
   const navigation: AppShellProps["navigation"] = nav.map((item) => ({
     ...item,

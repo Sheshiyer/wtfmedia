@@ -6,8 +6,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { OperatorContextProvider } from "@/components/domain/ops/OperatorContextProvider";
 import { ClerkLogoutButton } from "@/components/domain/ops/ClerkLogoutButton";
 import { AppShell, type AppNavItem } from "@/components/shells/AppShell";
+import { audienceForRole, betaDestinationForPath, capabilityForBetaPath } from "@/lib/beta/navigation";
 import { parsePrincipalContext, principalCanAccess, type PrincipalContext } from "@/lib/beta/principal";
-import { policyForPath } from "@/lib/beta/policy";
 import { memberBottomNavigation, memberDisclosureGroups } from "@/lib/member/navigation";
 import { memberInvitationTicket } from "@/lib/ops/clerk-url";
 
@@ -38,18 +38,16 @@ const operatorNavigation: readonly AppNavItem[] = [
   { href: "/beta/admin/audit", label: "audit", section: "administration" },
 ];
 
-const operatorCapabilityForHref: Record<string, string> = {
-  "/beta/workspace": "control_room:read",
-  "/beta/workspace/production": "control_room:read",
-  "/beta/workspace/episodes": "episodes:read",
-  "/beta/workspace/ingest": "ingest:read",
-  "/beta/settings": "control_room:read",
-  "/beta/admin/users": "members:read",
-  "/beta/admin/audit": "audit:read",
-};
+type OperatorRole = "editor" | "admin" | "super_admin";
+function isOperatorRole(role: PrincipalContext["role"]): role is OperatorRole {
+  return role === "editor" || role === "admin" || role === "super_admin";
+}
 
 function Shell({ context, children }: { context: PrincipalContext; children: React.ReactNode }) {
-  const navigation = context.kind === "member" ? memberNavigation : operatorNavigation.filter((item) => context.capabilities.includes(operatorCapabilityForHref[item.href] ?? ""));
+  const navigation = context.kind === "member" ? memberNavigation : operatorNavigation.filter((item) => {
+    const capability = capabilityForBetaPath(item.href);
+    return capability ? context.capabilities.includes(capability) : false;
+  });
   return <AppShell
     mode={context.kind === "member" ? "member" : "operator"}
     navigation={navigation}
@@ -67,9 +65,12 @@ export function BetaPrincipalGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname() ?? "/beta";
   const invitationTicket = useSearchParams().get("__clerk_ticket");
-  const { isLoaded, isSignedIn, getToken } = useAuth();
-  const [state, setState] = useState<"loading" | "denied" | "unavailable">("loading");
+  const { isLoaded, isSignedIn, userId, sessionId, getToken } = useAuth();
+  const [state, setState] = useState<"loading" | "ready" | "denied" | "unavailable">("loading");
   const [principal, setPrincipal] = useState<PrincipalContext | null>(null);
+  const identityKey = isSignedIn && userId && sessionId ? `${userId}:${sessionId}` : "signed-out";
+  const admissionKey = `${identityKey}:${pathname}`;
+  const [admittedKey, setAdmittedKey] = useState<string | null>(null);
 
   const fetchWithSession = useCallback<MemberFetch>(async (input, init) => {
     const headers = new Headers(init?.headers);
@@ -79,6 +80,11 @@ export function BetaPrincipalGate({ children }: { children: React.ReactNode }) {
   }, [getToken]);
 
   const admit = useCallback(async () => {
+    // Clear the previous admission before every pathname/session check. This
+    // prevents protected content from flashing while a new principal is verified.
+    setPrincipal(null);
+    setAdmittedKey(null);
+    setState("loading");
     if (!isSignedIn) {
       const ticket = memberInvitationTicket(invitationTicket);
       router.replace(ticket ? `/sign-up?redirect_url=${encodeURIComponent(pathname)}&__clerk_ticket=${encodeURIComponent(ticket)}` : `/sign-in?redirect_url=${encodeURIComponent(pathname)}`);
@@ -95,23 +101,26 @@ export function BetaPrincipalGate({ children }: { children: React.ReactNode }) {
       const parsed = response.ok ? parsePrincipalContext(await response.json()) : null;
       if (!parsed) { setState("unavailable"); return; }
       if (!principalCanAccess(parsed, pathname)) { setState("denied"); return; }
-      const requirement = policyForPath(pathname);
-      if (requirement && !parsed.capabilities.includes(`${requirement[0]}:${requirement[1]}`) && parsed.kind === "operator") { setState("denied"); return; }
+      const destination = betaDestinationForPath(pathname);
+      if (pathname.startsWith("/beta") && pathname !== "/beta/api/principal-context" && !destination) { setState("denied"); return; }
+      if (destination && (!destination.audiences.includes(audienceForRole(parsed.role)) || !parsed.capabilities.includes(destination.capability))) { setState("denied"); return; }
       setPrincipal(parsed);
+      setAdmittedKey(admissionKey);
+      setState("ready");
     } catch { setState("unavailable"); }
-  }, [fetchWithSession, invitationTicket, isSignedIn, pathname, router]);
+  }, [admissionKey, fetchWithSession, invitationTicket, isSignedIn, pathname, router]);
 
   useEffect(() => { if (isLoaded) void admit(); }, [admit, isLoaded]);
   const memberFetch = useMemo(() => fetchWithSession, [fetchWithSession]);
 
-  if (!isLoaded || state === "loading" || !principal) {
+  if (!isLoaded || state === "loading" || !principal || admittedKey !== admissionKey) {
     if (state === "denied") return <GateState heading="access is not granted" body="Your verified account is not allowed to open this Beta route. Nothing private was shown." />;
     if (state === "unavailable") return <GateState heading="workspace unavailable" body="The verified principal context could not be loaded. Nothing private was shown." retry={() => void admit()} />;
     return <GateState heading="opening your workspace" body="Your private workspace appears after server verification." />;
   }
 
   const value = <PrincipalContextValue.Provider value={principal}><MemberFetchContext.Provider value={memberFetch}><Shell context={principal}>{children}</Shell></MemberFetchContext.Provider></PrincipalContextValue.Provider>;
-  return principal.kind === "operator"
-    ? <OperatorContextProvider value={{ role: principal.role === "member" ? "editor" : principal.role, environment: principal.environment, workspace: "operations", organizationScope: "unknown", lastVerifiedAt: new Date().toISOString(), capabilities: principal.capabilities }}>{value}</OperatorContextProvider>
+  return principal.kind === "operator" && isOperatorRole(principal.role)
+    ? <OperatorContextProvider value={{ role: principal.role, environment: principal.environment, workspace: "operations", organizationScope: "unknown", lastVerifiedAt: new Date().toISOString(), capabilities: principal.capabilities }}>{value}</OperatorContextProvider>
     : value;
 }

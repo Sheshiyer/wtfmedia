@@ -22,6 +22,7 @@ export function parsePrincipalContext(value: unknown): PrincipalContext | null {
     ? raw.role as PrincipalRole
     : null;
   if (!role || typeof raw.email !== "string" || !raw.email.includes("@")) return null;
+  if ((kind === "member" && role !== "member") || (kind === "operator" && role === "member")) return null;
   const landingValue = raw.canonicalLanding ?? raw.landingRoute;
   const landing = landingValue === "/beta/chat"
     ? "/beta/chat"
@@ -44,7 +45,15 @@ export function parsePrincipalContext(value: unknown): PrincipalContext | null {
 
 export function principalCanAccess(context: PrincipalContext, pathname: string): boolean {
   if (pathname === "/beta" || pathname === "/beta/api/principal-context") return true;
-  if (context.kind === "member") return pathname === "/beta/chat" || pathname.startsWith("/beta/chat/") || pathname.startsWith("/beta/settings/") || pathname === "/beta/settings";
+  if (context.kind === "member") {
+    return pathname === "/beta/chat" || /^\/beta\/chat\/(?:mcnv|cnv)_[A-Za-z0-9-]{8,88}$/u.test(pathname) || [
+      "/beta/settings",
+      "/beta/settings/account",
+      "/beta/settings/memory",
+      "/beta/settings/sessions",
+      "/beta/settings/appearance",
+    ].includes(pathname);
+  }
   return pathname.startsWith("/beta/workspace") || pathname.startsWith("/beta/settings") || pathname.startsWith("/beta/admin") || pathname.startsWith("/beta/api/");
 }
 

@@ -1,6 +1,6 @@
-import { MemberChatWorkspace } from "@/components/domain/member/MemberChatWorkspace";
+import { BetaConversationRoute } from "@/components/domain/beta/BetaConversationRoute";
 
-export default async function MemberConversationPage({ params }: { params: Promise<{ conversationId: string }> }) {
+export default async function BetaConversationPage({ params }: { params: Promise<{ conversationId: string }> }) {
   const { conversationId } = await params;
-  return <MemberChatWorkspace conversationId={conversationId} />;
+  return <BetaConversationRoute conversationId={conversationId} />;
 }
