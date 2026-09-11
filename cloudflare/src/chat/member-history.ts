@@ -1,7 +1,7 @@
 import { parseEpisodeId, parseSourceMode, type SourceMode } from "./source-mode.ts";
 import type { DB } from "../db.ts";
 
-export type MemberConversation = { id: string; member_id: number; title: string; source_mode: SourceMode; episode_id: string | null; lifecycle_state: "active" | "archived"; created_at: string; updated_at: string; archived_at: string | null };
+export type MemberConversation = { id: string; member_id: number; title: string; source_mode: SourceMode; episode_id: string | null; lifecycle_state: "active" | "archived"; created_at: string; updated_at: string; archived_at: string | null; linked_saved_preference_count?: number };
 export type MemberMessage = { id: string; conversation_id: string; sequence: number; role: "user" | "assistant"; content: string; source_metadata_json: string; grounding_state: "grounded" | "ungrounded" | "unavailable"; model: string | null; model_fallback: number; request_id: string | null; idempotency_key: string | null; created_at: string };
 export type MemberConversationView = { conversation: MemberConversation; messages: MemberMessage[]; previousMessageCursor: string | null; retryable?: true; retrySourceMode?: SourceMode; resumeMessageId?: string };
 export type MemberConversationDeletionReceipt = { deleted: true; linkedSavedPreferenceCount: number };
@@ -9,7 +9,7 @@ export type MemberConversationDeletionReceipt = { deleted: true; linkedSavedPref
 const id = (value: unknown) => typeof value === "string" && /^mcnv_[A-Za-z0-9-]{8,88}$/u.test(value);
 const member = (value: unknown) => Number.isSafeInteger(value) && Number(value) > 0;
 const text = (value: unknown, maximum = 20_000) => typeof value === "string" && value.trim().length > 0 && value.trim().length <= maximum ? value.trim() : null;
-const columns = "id, member_id, title, source_mode, episode_id, lifecycle_state, created_at, updated_at, archived_at";
+const columns = "id, member_id, title, source_mode, episode_id, lifecycle_state, created_at, updated_at, archived_at, (SELECT COUNT(*) FROM member_saved_memories WHERE member_id = member_chat_conversations.member_id AND source_conversation_id = member_chat_conversations.id) AS linked_saved_preference_count";
 const messageColumns = "id, conversation_id, sequence, role, content, source_metadata_json, grounding_state, model, model_fallback, request_id, idempotency_key, created_at";
 const MESSAGE_PAGE_SIZE = 50;
 

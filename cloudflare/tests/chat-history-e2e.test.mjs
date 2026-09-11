@@ -432,6 +432,7 @@ test("member permanent delete is confirmed, owner-scoped, preserves preferences,
   const created = await (await memberRequest(one, "/beta/api/chat", payload, "delete-create-key-117", generate, db)).json();
   const conversationId = created.conversation.id;
   await db.prepare("INSERT INTO member_saved_memories (id, member_id, content, source_conversation_id, lifecycle_state, created_at, updated_at, archived_at) VALUES (?, ?, ?, ?, 'active', ?, ?, NULL)").bind("mmem_delete_117", 117, "retain this explicit preference", conversationId, "2026-09-11T00:01:00.000Z", "2026-09-11T00:01:00.000Z").run();
+  assert.equal((await getMemberConversation(db, 117, conversationId))?.conversation.linked_saved_preference_count, 1);
 
   const missingConfirmation = await memberDeleteRequest(one, conversationId, {}, db);
   const crossOwner = await memberDeleteRequest(two, conversationId, { confirmation: "DELETE" }, db);

@@ -29,6 +29,7 @@ export type MemberConversation = {
 export type MemberConversationResponse = {
   conversation: MemberConversation;
   messages: MemberMessage[];
+  previousMessageCursor: string | null;
   retryable: boolean;
   retrySourceMode: MemberSourceMode | null;
   resumeMessageId: string | null;
@@ -60,6 +61,10 @@ function retrySourceMode(value: unknown): MemberSourceMode | null {
 
 function safeCount(value: unknown): number | undefined {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : undefined;
+}
+
+function previousMessageCursor(value: unknown): string | null {
+  return typeof value === "string" && /^[A-Za-z0-9_-]{1,512}$/u.test(value) ? value : null;
 }
 
 function parseMetadata(value: unknown): Record<string, unknown> {
@@ -134,10 +139,32 @@ export function parseMemberConversationResponse(value: unknown): MemberConversat
   return {
     conversation: { ...conversation, messages },
     messages,
+    previousMessageCursor: previousMessageCursor(record.previousMessageCursor),
     retryable: record.retryable === true,
     retrySourceMode: retrySourceMode(record.retrySourceMode),
     resumeMessageId: typeof record.resumeMessageId === "string" && messageIdPattern.test(record.resumeMessageId) ? record.resumeMessageId : null,
   };
+}
+
+/** Prepends the chronologically ordered older page without duplicating a boundary message. */
+export function prependMemberConversationMessages(current: MemberConversationResponse, older: MemberConversationResponse): MemberConversationResponse {
+  if (current.conversation.id !== older.conversation.id) return current;
+  const currentIds = new Set(current.messages.map((message) => message.id));
+  const messages = [...older.messages.filter((message) => !currentIds.has(message.id)), ...current.messages];
+  return {
+    ...current,
+    conversation: { ...current.conversation, messages },
+    messages,
+    previousMessageCursor: older.previousMessageCursor,
+  };
+}
+
+/** Retains already loaded older pages when a newest-page POST response arrives. */
+export function appendNewestMemberConversationMessages(current: MemberConversationResponse | null, newest: MemberConversationResponse): MemberConversationResponse {
+  if (!current || current.conversation.id !== newest.conversation.id) return newest;
+  const seen = new Set(current.messages.map((message) => message.id));
+  const messages = [...current.messages, ...newest.messages.filter((message) => !seen.has(message.id))];
+  return { ...newest, conversation: { ...newest.conversation, messages }, messages };
 }
 
 export function parseMemberHistoryResponse(value: unknown): MemberHistoryResponse | null {

@@ -5,32 +5,26 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AskComposer } from "@/components/domain/public/AskComposer";
-import { ConversationEmptyState } from "@/components/domain/public/ConversationThread";
+import { ConversationEmptyState, ConversationThreadFrame } from "@/components/domain/public/ConversationThread";
 import { SourcePanel } from "@/components/domain/public/SourcePanel";
 import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/Button";
-import { canConfirmMemberConversationDeletion, linkedSavedPreferenceDeletionNotice, memberAnswerPresentation, memberCommittedRequestForRetry, memberConversationHref, memberGreeting, newMemberRequestKey, parseMemberConversationResponse, retryIntentForMemberResponse, shouldApplyMemberResponse, shouldKeepMemberScrollPinned, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversationResponse, type MemberRetryIntent } from "@/lib/member/chat";
+import { appendNewestMemberConversationMessages, canConfirmMemberConversationDeletion, linkedSavedPreferenceDeletionNotice, memberAnswerPresentation, memberCommittedRequestForRetry, memberConversationHref, memberGreeting, newMemberRequestKey, parseMemberConversationResponse, prependMemberConversationMessages, retryIntentForMemberResponse, shouldApplyMemberResponse, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversationResponse, type MemberRetryIntent } from "@/lib/member/chat";
 import { useMemberFetch } from "./MemberBetaGate";
 import { MemberSessionNavigator } from "./MemberSessionNavigator";
 
 type WorkspaceState = "idle" | "loading" | "error" | "unavailable";
 
-function Thread({ view, sending, canRetry, onRetry }: { view: MemberConversationResponse; sending: boolean; canRetry: boolean; onRetry: () => void }) {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const readerScrolledUp = useRef(false);
-
-  useEffect(() => {
-    if (!readerScrolledUp.current) messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, [sending, view.messages]);
-
-  return <div ref={scrollContainerRef} onScroll={() => {
-    const container = scrollContainerRef.current;
-    if (container) readerScrolledUp.current = !shouldKeepMemberScrollPinned(container);
-  }} className="mx-auto max-h-[calc(100dvh-17rem)] max-w-3xl overflow-y-auto overscroll-contain scroll-pb-60 space-y-6 pr-1" role="log" aria-label="Conversation" aria-live="polite">{view.messages.map((message) => {
-    const presentation = memberAnswerPresentation(message);
-    return <article key={message.id} className={message.role === "user" ? "flex justify-end" : "space-y-3"}>{message.role === "user" ? <p className="max-w-[85%] rounded-control border-2 border-foreground bg-attention px-4 py-3 text-sm text-on-attention">{message.content}</p> : <><div className="border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary whitespace-pre-wrap">{message.content}</div>{presentation.sources.length ? <SourcePanel sources={presentation.sources} /> : null}{presentation.abstained ? <p className="text-xs font-medium italic text-secondary" data-testid="abstention-label">the catalogue doesn&apos;t support that claim</p> : null}{presentation.uncutUnavailable ? <p className="text-xs text-secondary">uncut evidence was unavailable; any published evidence remains labelled.</p> : null}</>}</article>;
-  })}{sending ? <p role="status" className="border-l-4 border-knowledge pl-4 text-sm font-semibold text-secondary" data-testid="loading-indicator">looking through the catalogue</p> : null}{canRetry ? <div className="flex justify-center border-t-2 border-foreground/15 px-4 py-3"><Button type="button" variant="ghost" className="text-xs" onClick={onRetry} data-testid="retry-button">retry answer</Button></div> : null}<div ref={messagesEndRef} /></div>;
+function Thread({ view, sending, canRetry, onRetry, loadingEarlier, onLoadEarlier, renderFooter }: { view: MemberConversationResponse; sending: boolean; canRetry: boolean; onRetry: () => void; loadingEarlier: boolean; onLoadEarlier: () => void; renderFooter: () => React.ReactNode }) {
+  return <ConversationThreadFrame
+    contentVersion={view.messages}
+    layoutVersion={sending}
+    renderFooter={renderFooter}
+    renderContent={({ scrollAnchor }) => <div className="mx-auto max-w-3xl space-y-6 pr-1">{view.previousMessageCursor ? <div className="flex justify-center"><Button type="button" variant="ghost" className="text-xs" onClick={onLoadEarlier} loading={loadingEarlier} disabled={loadingEarlier} data-testid="load-earlier-messages">load earlier messages</Button></div> : null}{view.messages.map((message) => {
+      const presentation = memberAnswerPresentation(message);
+      return <article key={message.id} className={message.role === "user" ? "flex justify-end" : "space-y-3"}>{message.role === "user" ? <p className="max-w-[85%] rounded-control border-2 border-foreground bg-attention px-4 py-3 text-sm text-on-attention">{message.content}</p> : <><div className="border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary whitespace-pre-wrap">{message.content}</div>{presentation.sources.length ? <SourcePanel sources={presentation.sources} /> : null}{presentation.abstained ? <p className="text-xs font-medium italic text-secondary" data-testid="abstention-label">the catalogue doesn&apos;t support that claim</p> : null}{presentation.uncutUnavailable ? <p className="text-xs text-secondary">uncut evidence was unavailable; any published evidence remains labelled.</p> : null}</>}</article>;
+    })}{sending ? <p role="status" className="border-l-4 border-knowledge pl-4 text-sm font-semibold text-secondary" data-testid="loading-indicator">looking through the catalogue</p> : null}{canRetry ? <div className="flex justify-center border-t-2 border-foreground/15 px-4 py-3"><Button type="button" variant="ghost" className="text-xs" onClick={onRetry} data-testid="retry-button">retry answer</Button></div> : null}{scrollAnchor}</div>}
+  />;
 }
 
 function DeleteConversationDialog({ conversationTitle, linkedSavedPreferenceCount, pending, error, onClose, onConfirm }: { conversationTitle: string; linkedSavedPreferenceCount?: number; pending: boolean; error: boolean; onClose: () => void; onConfirm: (confirmation: string) => Promise<boolean> }) {
@@ -75,11 +69,13 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
+  const [loadingEarlier, setLoadingEarlier] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sessionRevision, setSessionRevision] = useState(0);
   const loadEpoch = useRef(0);
   const submitEpoch = useRef(0);
   const archiveEpoch = useRef(0);
+  const messagePageEpoch = useRef(0);
   const currentConversation = useRef(conversationId);
   const currentPath = useRef(pathname);
   const drawerTriggerRef = useRef<HTMLButtonElement>(null);
@@ -96,12 +92,14 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     currentPath.current = pathname;
     submitEpoch.current += 1;
     archiveEpoch.current += 1;
+    messagePageEpoch.current += 1;
     sendingRef.current = false;
     setSending(false);
     setArchiving(false);
     setDeleting(false);
     setDeleteDialogOpen(false);
     setDeleteError(false);
+    setLoadingEarlier(false);
   }, [conversationId, pathname]);
   const load = useCallback(async () => {
     if (!conversationId) {
@@ -131,6 +129,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     loadEpoch.current += 1;
     submitEpoch.current += 1;
     archiveEpoch.current += 1;
+    messagePageEpoch.current += 1;
   }, []);
 
   const submit = useCallback(async () => {
@@ -174,7 +173,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
         return;
       }
       if (currentConversation.current === selectedRoute) {
-        setView(parsed);
+        setView((current) => appendNewestMemberConversationMessages(current, parsed));
         setQuestion("");
         setRetryIntent(null);
         rememberCommittedRequest(null);
@@ -190,6 +189,22 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
       }
     }
   }, [conversationId, memberFetch, pathname, question, rememberCommittedRequest, retryIntent, router, view?.conversation]);
+
+  const loadEarlier = useCallback(async () => {
+    const cursor = view?.previousMessageCursor;
+    if (!conversationId || !cursor || loadingEarlier) return;
+    const epoch = ++messagePageEpoch.current;
+    const requestPath = pathname;
+    setLoadingEarlier(true);
+    try {
+      const response = await memberFetch(`/beta/api/chat/${encodeURIComponent(conversationId)}?before=${encodeURIComponent(cursor)}`, { cache: "no-store" });
+      const parsed = response.ok ? parseMemberConversationResponse(await response.json()) : null;
+      if (!parsed || parsed.conversation.id !== conversationId || !shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: messagePageEpoch.current, requestPath, currentPath: currentPath.current }) || currentConversation.current !== conversationId) return;
+      setView((current) => current ? prependMemberConversationMessages(current, parsed) : current);
+    } finally {
+      if (epoch === messagePageEpoch.current) setLoadingEarlier(false);
+    }
+  }, [conversationId, loadingEarlier, memberFetch, pathname, view?.previousMessageCursor]);
 
   const archive = useCallback(async () => {
     if (!conversationId || archiving) return;
@@ -235,6 +250,15 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
   const onDrawerChange = useCallback((open: boolean) => {
     setDrawerOpen(open);
   }, []);
+  const renderComposer = () => <AskComposer
+    value={question}
+    onChange={(value) => { setQuestion(value); if (retryIntent) setRetryIntent(null); if (committedRequest) rememberCommittedRequest(null); }}
+    onSubmit={() => void submit()}
+    disabled={sending}
+    loading={sending}
+    variant="compact"
+    placement="inline"
+  />;
 
   return <div className="min-h-[calc(100vh-5.5rem)] bg-canvas" data-member-chat-workspace>
     <div className="mx-auto max-w-[var(--wtf-content-max)] px-4 pt-5 sm:px-8 xl:px-12">
@@ -253,18 +277,18 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
         {!conversationId ? <ConversationEmptyState /> : null}
         {state === "loading" ? <p role="status" className="mt-6 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary">loading conversation…</p> : null}
         {state === "unavailable" ? <div role="status" className="mx-auto mt-6 grid max-w-3xl gap-4 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary" data-conversation-unavailable><p>This conversation is unavailable. It may have been archived, deleted, or opened from an expired link.</p><div className="flex flex-wrap gap-3"><Button type="button" variant="secondary" onClick={() => void load()} className="min-h-9 px-3 py-1 text-xs">retry loading conversation</Button><Button type="button" variant="ghost" onClick={() => router.push("/beta")} className="min-h-9 px-3 py-1 text-xs">start a new question</Button></div></div> : null}
-        {view ? <div className="pt-6"><Thread view={view} sending={sending} canRetry={canRetry} onRetry={() => void submit()} /></div> : null}
+        {view ? <div className="flex min-h-[calc(100dvh-17rem)] flex-col"><Thread view={view} sending={sending} canRetry={canRetry} onRetry={() => void submit()} loadingEarlier={loadingEarlier} onLoadEarlier={() => void loadEarlier()} renderFooter={() => renderComposer()} /></div> : null}
         {state === "error" ? <p role="status" className="mx-auto mt-4 max-w-3xl border-l-4 border-attention px-4 text-sm text-secondary">We could not finish that answer. {canRetry ? "Retry with the same question." : "Try again."}</p> : null}
       </section>
     </div>
-    <AskComposer
+    {!view ? <AskComposer
       value={question}
       onChange={(value) => { setQuestion(value); if (retryIntent) setRetryIntent(null); if (committedRequest) rememberCommittedRequest(null); }}
       onSubmit={() => void submit()}
       disabled={sending}
       loading={sending}
       variant="compact"
-    />
+    /> : null}
     {deleteDialogOpen && conversationId && view ? <DeleteConversationDialog conversationTitle={view.conversation.title} linkedSavedPreferenceCount={view.conversation.linkedSavedPreferenceCount} pending={deleting} error={deleteError} onClose={() => { if (!deleting) setDeleteDialogOpen(false); }} onConfirm={deleteConversation} /> : null}
   </div>;
 }
