@@ -18,7 +18,7 @@ export type PrincipalContextDto = {
   firstName?: string;
   lastName?: string;
   displayName: string | null;
-  landingRoute: "/beta/chat" | "/beta/workspace/production";
+  landingRoute: "/beta/chat" | "/beta/workspace";
   capabilities: string[];
   environment: Environment;
 };
