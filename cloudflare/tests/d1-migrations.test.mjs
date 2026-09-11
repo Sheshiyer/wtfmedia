@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, before, test } from "node:test";
@@ -8,7 +8,17 @@ import { after, before, test } from "node:test";
 const root = new URL("..", import.meta.url).pathname;
 const persistTo = mkdtempSync(join(tmpdir(), "wtfmedia-phase2-d1-"));
 const database = join(persistTo, "ops.sqlite");
-const migrations = ["0001_ops_foundation.sql", "0002_bootstrap_roster.sql", "0003_super_admin_transfer_guard.sql", "0004_operator_invitation_approvals.sql", "0005_provenance_spine.sql", "0006_chat_history.sql", "0007_release_manifest.sql", "0008_release_track.sql", "0009_saved_memory.sql", "0010_member_beta.sql", "0011_clerk_invitation_id_prefix.sql", "0012_member_chat_deletion.sql", "0013_member_chat_context.sql", "0014_principal_profiles.sql", "0015_principal_profiles_email_guard.sql"];
+const migrationsRoot = join(root, "migrations");
+const migrationManifest = JSON.parse(readFileSync(join(migrationsRoot, "manifest.json"), "utf8"));
+const migrations = migrationManifest.wrangler_order;
+
+function migrationOrdinal(filename) {
+  return Number.parseInt(filename.split("_", 1)[0], 10);
+}
+
+function wranglerOrder(filenames) {
+  return filenames.toSorted().toSorted((left, right) => migrationOrdinal(left) - migrationOrdinal(right));
+}
 
 function sql(input) {
   return spawnSync("sqlite3", [database], {
@@ -33,7 +43,7 @@ function applyMigrations() {
   for (const migration of migrations) {
     const applied = succeeds(`SELECT COUNT(*) FROM d1_migrations WHERE name = '${migration}';`).trim();
     if (applied === "0") {
-      succeeds(readFileSync(join(root, "migrations", migration), "utf8"));
+      succeeds(readFileSync(join(migrationsRoot, migration), "utf8"));
       succeeds(`INSERT INTO d1_migrations (name) VALUES ('${migration}');`);
     }
   }
@@ -50,12 +60,14 @@ after(() => {
 
 test("fresh local migrations are repeatable", () => {
   const listing = succeeds("SELECT name FROM d1_migrations ORDER BY name;");
+  assert.deepEqual(listing.trim().split("\n"), migrations);
   assert.match(listing, /0001_ops_foundation/);
   assert.match(listing, /0002_bootstrap_roster/);
   assert.match(listing, /0003_super_admin_transfer_guard/);
   assert.match(listing, /0004_operator_invitation_approvals/);
   assert.match(listing, /0005_provenance_spine/);
   assert.match(listing, /0006_chat_history/);
+  assert.match(listing, /0006_public_calendar/);
   assert.match(listing, /0007_release_manifest/);
   assert.match(listing, /0008_release_track/);
   assert.match(listing, /0009_saved_memory/);
@@ -66,6 +78,7 @@ test("fresh local migrations are repeatable", () => {
   assert.match(listing, /0014_principal_profiles/);
   assert.match(listing, /0015_principal_profiles_email_guard/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'release_manifests';"), /release_manifests/);
+  assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'calendar_events';"), /calendar_events/);
   assert.match(succeeds("PRAGMA table_info(release_manifests);"), /release_track/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'member_users';"), /member_users/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'member_chat_conversations';"), /member_chat_conversations/);
@@ -81,6 +94,27 @@ test("fresh local migrations are repeatable", () => {
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'principal_profiles';"), /principal_profiles/);
   assert.equal(succeeds("SELECT COUNT(*) FROM principal_profiles WHERE operator_id IS NOT NULL AND member_id IS NULL;").trim(), "7");
   assert.equal(succeeds("SELECT COUNT(*) FROM principal_profiles WHERE first_name IS NOT NULL OR last_name IS NOT NULL;").trim(), "0");
+});
+
+test("migration manifest mirrors Wrangler ordering and makes the legacy duplicate owner-gated", () => {
+  const discovered = readdirSync(migrationsRoot).filter((filename) => filename.endsWith(".sql"));
+  assert.equal(migrationManifest.format, "wtfmedia.d1-migration-manifest.v1");
+  assert.deepEqual(migrations, wranglerOrder(discovered));
+
+  const ordinals = new Map();
+  for (const migration of migrations) {
+    const ordinal = migration.split("_", 1)[0];
+    ordinals.set(ordinal, [...(ordinals.get(ordinal) ?? []), migration]);
+  }
+  const duplicateOrdinals = Object.fromEntries([...ordinals]
+    .filter(([, filenames]) => filenames.length > 1)
+    .map(([ordinal, filenames]) => [ordinal, filenames]));
+
+  assert.deepEqual(duplicateOrdinals, {
+    "0006": ["0006_chat_history.sql", "0006_public_calendar.sql"],
+  });
+  assert.deepEqual(migrationManifest.duplicate_ordinals["0006"].files, duplicateOrdinals["0006"]);
+  assert.equal(migrationManifest.duplicate_ordinals["0006"].remote_apply_policy, "owner_reconciliation_required");
 });
 
 test("principal profiles require exactly one immutable roster owner", () => {
