@@ -75,6 +75,7 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/beta/workspace": ["control_room", "read"],
   "/beta/workspace/episodes": ["episodes", "read"],
   "/beta/workspace/ingest": ["ingest", "read"],
+  "/beta/settings/workspace": ["control_room", "read"],
   "/beta/settings/workspace/readiness": ["control_room", "read"],
   "/beta/settings/workspace/release": ["control_room", "read"],
   "/beta/settings/workspace/ai": ["control_room", "read"],
