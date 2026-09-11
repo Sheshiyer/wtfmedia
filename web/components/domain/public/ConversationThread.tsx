@@ -74,6 +74,120 @@ export interface ConversationThreadProps {
 
 const FIXED_COMPOSER_CLEARANCE_PX = 160;
 
+export type ConversationComposerPlacement = "fixed" | "inline";
+
+export interface ConversationThreadFrameRenderProps {
+  /** Place this at the point new content should scroll into view. */
+  scrollAnchor: ReactNode;
+}
+
+/**
+ * Presentation-only Alpha conversation frame.
+ *
+ * Private surfaces supply their own message presentation and composer while
+ * retaining the public route's bounded scrolling, reader-scroll protection,
+ * and fixed-to-inline composer transition.
+ */
+export interface ConversationThreadFrameProps {
+  contentVersion: unknown;
+  layoutVersion?: unknown;
+  renderContent: (props: ConversationThreadFrameRenderProps) => ReactNode;
+  renderFooter?: (placement: ConversationComposerPlacement) => ReactNode;
+  ariaLabel?: string;
+}
+
+export function ConversationThreadFrame({
+  contentVersion,
+  layoutVersion,
+  renderContent,
+  renderFooter,
+  ariaLabel = "Conversation",
+}: ConversationThreadFrameProps) {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const userScrolledUp = useRef(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  const checkOverflow = useCallback(() => {
+    const container = scrollContainerRef.current;
+    const content = contentRef.current;
+    if (!container || !content) return;
+    setIsOverflowing(content.offsetHeight > container.clientHeight - FIXED_COMPOSER_CLEARANCE_PX);
+  }, []);
+
+  useEffect(() => {
+    if (!userScrolledUp.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [contentVersion]);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    function handleScroll() {
+      const { scrollTop, scrollHeight, clientHeight } = container!;
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+      userScrolledUp.current = !isAtBottom;
+    }
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    const content = contentRef.current;
+    if (!container || !content) return;
+
+    checkOverflow();
+    const observer = new ResizeObserver(checkOverflow);
+    observer.observe(container);
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, [checkOverflow]);
+
+  useEffect(() => {
+    checkOverflow();
+  }, [contentVersion, layoutVersion, checkOverflow]);
+
+  const placement: ConversationComposerPlacement = isOverflowing ? "inline" : "fixed";
+
+  return (
+    <>
+      <div
+        ref={scrollContainerRef}
+        className="min-h-0 flex-1 overflow-y-auto px-4 pt-4 sm:pt-6"
+        data-testid="conversation-thread"
+        data-composer-placement={isOverflowing ? "inline" : "fixed"}
+        tabIndex={0}
+        role="log"
+        aria-label={ariaLabel}
+        aria-live="polite"
+      >
+        <div ref={contentRef}>
+          {renderContent({ scrollAnchor: <div ref={messagesEndRef} /> })}
+          {placement === "inline" ? renderFooter?.(placement) : null}
+        </div>
+
+        <div className="h-[calc(1rem+env(safe-area-inset-bottom))]" aria-hidden="true" />
+        {placement === "fixed" && renderFooter ? <div className="h-20" aria-hidden="true" /> : null}
+      </div>
+
+      {placement === "fixed" && renderFooter ? (
+        <div
+          className="fixed inset-x-0 z-40"
+          data-fixed-composer
+          style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+        >
+          {renderFooter(placement)}
+        </div>
+      ) : null}
+    </>
+  );
+}
+
 export function ConversationEmptyState() {
   return (
     <div
@@ -140,70 +254,13 @@ export function ConversationThread({
   onRetry,
   footer,
 }: ConversationThreadProps) {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const userScrolledUp = useRef(false);
-  const [isOverflowing, setIsOverflowing] = useState(false);
-
-  const checkOverflow = useCallback(() => {
-    const container = scrollContainerRef.current;
-    const content = contentRef.current;
-    if (!container || !content) return;
-    setIsOverflowing(content.offsetHeight > container.clientHeight - FIXED_COMPOSER_CLEARANCE_PX);
-  }, []);
-
-  /* Auto-scroll on new messages, unless user scrolled up */
-  useEffect(() => {
-    if (!userScrolledUp.current) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
-  }, [messages]);
-
-  /* Track user scroll position */
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    function handleScroll() {
-      const { scrollTop, scrollHeight, clientHeight } = container!;
-      const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
-      userScrolledUp.current = !isAtBottom;
-    }
-
-    container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    const content = contentRef.current;
-    if (!container || !content) return;
-
-    checkOverflow();
-    const observer = new ResizeObserver(checkOverflow);
-    observer.observe(container);
-    observer.observe(content);
-    return () => observer.disconnect();
-  }, [checkOverflow]);
-
-  useEffect(() => {
-    checkOverflow();
-  }, [messages, loading, checkOverflow]);
-
   return (
-    <>
-      <div
-        ref={scrollContainerRef}
-        className="min-h-0 flex-1 overflow-y-auto px-4 pt-4 sm:pt-6"
-        data-testid="conversation-thread"
-        data-composer-placement={isOverflowing ? "inline" : "fixed"}
-        tabIndex={0}
-        role="log"
-        aria-label="Conversation"
-        aria-live="polite"
-      >
-        <div ref={contentRef}>
+    <ConversationThreadFrame
+      contentVersion={messages}
+      layoutVersion={loading}
+      renderFooter={footer ? () => footer : undefined}
+      renderContent={({ scrollAnchor }) => (
+        <>
           <h1 className="sr-only">ask wtf</h1>
           {messages.length === 0 ? (
             <ConversationEmptyState />
@@ -245,7 +302,7 @@ export function ConversationThread({
                 </div>
               )}
 
-              <div ref={messagesEndRef} />
+              {scrollAnchor}
             </div>
           )}
 
@@ -256,23 +313,8 @@ export function ConversationThread({
               </Button>
             </div>
           )}
-
-          {isOverflowing ? footer : null}
-        </div>
-
-        <div className="h-[calc(1rem+env(safe-area-inset-bottom))]" aria-hidden="true" />
-        {!isOverflowing && footer ? <div className="h-20" aria-hidden="true" /> : null}
-      </div>
-
-      {!isOverflowing && footer ? (
-        <div
-          className="fixed inset-x-0 z-40"
-          data-fixed-composer
-          style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
-        >
-          {footer}
-        </div>
-      ) : null}
-    </>
+        </>
+      )}
+    />
   );
 }
