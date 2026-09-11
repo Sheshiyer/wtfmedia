@@ -2,18 +2,20 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { appendMemberHistoryPage, memberConversationHref, parseMemberHistoryResponse, shouldFinishMemberPaginationRequest, type MemberConversation, type MemberHistoryResponse } from "@/lib/member/chat";
+import { appendMemberHistoryPage, shouldFinishMemberPaginationRequest, type MemberConversation } from "@/lib/member/chat";
+import { createMemberChatAdapter, type BetaChatAdapter, type BetaHistoryResponse } from "@/components/domain/beta/BetaChatAdapter";
 import { useMemberFetch } from "./MemberBetaGate";
 
 type NavigatorState = "loading" | "ready" | "empty" | "error";
 
-export function MemberSessionNavigator({ activeConversationId, onNavigate, refreshKey = 0, onRequestDelete }: { activeConversationId?: string; onNavigate?: () => void; refreshKey?: number; onRequestDelete?: (conversation: MemberConversation) => void }) {
+export function MemberSessionNavigator({ activeConversationId, onNavigate, refreshKey = 0, onRequestDelete, adapter }: { activeConversationId?: string; onNavigate?: () => void; refreshKey?: number; onRequestDelete?: (conversation: MemberConversation) => void; adapter?: BetaChatAdapter }) {
   const memberFetch = useMemberFetch();
+  const resolvedAdapter = useMemo(() => adapter ?? createMemberChatAdapter(memberFetch), [adapter, memberFetch]);
   const router = useRouter();
   const [state, setState] = useState<NavigatorState>("loading");
-  const [history, setHistory] = useState<MemberHistoryResponse | null>(null);
+  const [history, setHistory] = useState<BetaHistoryResponse | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [paginationError, setPaginationError] = useState(false);
   const [action, setAction] = useState<string | null>(null);
@@ -30,8 +32,7 @@ export function MemberSessionNavigator({ activeConversationId, onNavigate, refre
     setLoadingMore(false);
     setPaginationError(false);
     try {
-      const response = await memberFetch("/beta/api/chat", { cache: "no-store" });
-      const parsed = response.ok ? parseMemberHistoryResponse(await response.json()) : null;
+      const parsed = await resolvedAdapter.list();
       if (!parsed) throw new Error("member_history_unavailable");
       if (epoch !== historyEpoch.current) return;
       setHistory(parsed);
@@ -39,15 +40,14 @@ export function MemberSessionNavigator({ activeConversationId, onNavigate, refre
     } catch {
       if (epoch === historyEpoch.current) setState("error");
     }
-  }, [memberFetch]);
+  }, [resolvedAdapter]);
 
   const archive = useCallback(async (conversationId: string) => {
     if (action) return;
     setAction(`archive:${conversationId}`);
     setActionMessage(null);
     try {
-      const response = await memberFetch(`/beta/api/chat/${encodeURIComponent(conversationId)}/archive`, { method: "POST" });
-      if (!response.ok) throw new Error("archive_failed");
+      if (!await resolvedAdapter.archive(conversationId)) throw new Error("archive_failed");
       setActionMessage("Conversation archived.");
       if (conversationId === activeConversationId) router.push("/beta/chat");
       await load();
@@ -56,7 +56,7 @@ export function MemberSessionNavigator({ activeConversationId, onNavigate, refre
     } finally {
       setAction(null);
     }
-  }, [action, activeConversationId, load, memberFetch, router]);
+  }, [action, activeConversationId, load, resolvedAdapter, router]);
 
   const requestDelete = useCallback((conversation: MemberConversation) => {
     if (!onRequestDelete || action) return;
@@ -77,8 +77,7 @@ export function MemberSessionNavigator({ activeConversationId, onNavigate, refre
     setLoadingMore(true);
     setPaginationError(false);
     try {
-      const response = await memberFetch(`/beta/api/chat?cursor=${encodeURIComponent(cursor)}`, { cache: "no-store" });
-      const parsed = response.ok ? parseMemberHistoryResponse(await response.json()) : null;
+      const parsed = await resolvedAdapter.list(cursor);
       if (!parsed) throw new Error("member_history_page_unavailable");
       if (epoch !== historyEpoch.current || !shouldFinishMemberPaginationRequest({ requestGeneration: generation, currentGeneration: paginationGeneration.current })) return;
       setHistory((current) => current && current.nextCursor === cursor ? appendMemberHistoryPage(current, parsed) : current);
@@ -90,7 +89,7 @@ export function MemberSessionNavigator({ activeConversationId, onNavigate, refre
         setLoadingMore(false);
       }
     }
-  }, [history?.nextCursor, loadingMore, memberFetch]);
+  }, [history?.nextCursor, loadingMore, resolvedAdapter]);
 
   return (
     <nav aria-label="Your conversations" className="grid min-w-0 grid-cols-1 gap-3" data-member-session-navigator>
@@ -100,7 +99,7 @@ export function MemberSessionNavigator({ activeConversationId, onNavigate, refre
       {state === "error" ? <div role="status" className="border-2 border-foreground/20 bg-surface-subtle p-3 text-xs text-secondary">Conversations are unavailable right now.<Button type="button" variant="secondary" onClick={() => void load()} className="mt-3 min-h-9 px-3 py-1 text-xs">retry</Button></div> : null}
       {actionMessage ? <p role="status" className="border-2 border-foreground/20 bg-surface-subtle p-2 text-xs text-secondary">{actionMessage}</p> : null}
       {state === "ready" && history ? <div className="grid min-w-0 grid-cols-1 gap-2">{history.conversations.map((conversation) => {
-        const href = memberConversationHref(conversation.id);
+        const href = resolvedAdapter.href(conversation.id);
         return href ? <div key={conversation.id} className={`min-w-0 overflow-hidden border-2 p-3 ${conversation.id === activeConversationId ? "border-information bg-information/15" : "border-foreground/20 bg-canvas"}`} data-member-session-card><Link href={href} onClick={onNavigate} aria-current={conversation.id === activeConversationId ? "page" : undefined} className="block min-w-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-information"><p className="line-clamp-2 font-body text-sm font-semibold text-foreground [overflow-wrap:anywhere]">{conversation.title}</p><p className="mt-1 truncate font-label text-[10px] uppercase tracking-wide text-muted">{conversation.sourceMode} evidence · updated <time dateTime={conversation.updatedAt}>{conversation.updatedAt ? new Date(conversation.updatedAt).toLocaleDateString() : "not recorded"}</time></p></Link><div className="mt-3 flex flex-wrap gap-2" aria-label={`${conversation.title} actions`}><Button type="button" variant="ghost" onClick={() => void archive(conversation.id)} disabled={action !== null} loading={action === `archive:${conversation.id}`} className="min-h-9 px-2 py-1 text-[11px]">archive</Button>{onRequestDelete ? <Button type="button" variant="ghost" onClick={() => requestDelete(conversation)} disabled={action !== null} loading={action === `delete:${conversation.id}`} className="min-h-9 px-2 py-1 text-[11px]">delete</Button> : null}</div></div> : null;
       })}{history.nextCursor ? <><Button type="button" variant="secondary" onClick={() => void loadMore()} loading={loadingMore} disabled={loadingMore} className="min-h-10 px-3 py-2 text-xs">load more</Button>{paginationError ? <div role="status" className="border-2 border-foreground/20 bg-surface-subtle p-3 text-xs text-secondary">We could not load older conversations.<Button type="button" variant="secondary" onClick={() => void loadMore()} className="mt-3 min-h-9 px-3 py-1 text-xs">retry loading more</Button></div> : null}</> : null}</div> : null}
     </nav>

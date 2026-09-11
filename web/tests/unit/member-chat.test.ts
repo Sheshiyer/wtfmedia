@@ -17,6 +17,7 @@ import {
 } from "@/lib/member/chat";
 
 const memberWorkspace = readFileSync(new URL("../../components/domain/member/MemberChatWorkspace.tsx", import.meta.url), "utf8");
+const betaChatAdapter = readFileSync(new URL("../../components/domain/beta/BetaChatAdapter.ts", import.meta.url), "utf8");
 
 describe("member chat client contract", () => {
   it("projects an owned retryable conversation without exposing infrastructure fields", () => {
@@ -182,9 +183,14 @@ describe("member chat client contract", () => {
   it("keeps archive and permanent deletion as distinct selected-session actions", () => {
     expect(memberWorkspace).toContain("archive conversation");
     expect(memberWorkspace).toContain("delete permanently");
-    expect(memberWorkspace).toContain('method: "DELETE"');
-    expect(memberWorkspace).toContain('confirmation: "DELETE"');
+    expect(betaChatAdapter).toContain('method: "DELETE"');
+    expect(betaChatAdapter).toContain('confirmation: "DELETE"');
     expect(memberWorkspace).toContain("Saved preferences are separate and will not be deleted.");
     expect(memberWorkspace).toContain("data-selected-conversation-viewport");
+  });
+
+  it("keeps operator conversation requests on the existing edge route contract", () => {
+    expect(betaChatAdapter).toContain("/ops/api/chat/conversations/${encodeURIComponent(conversationId)}");
+    expect(betaChatAdapter).toContain("/ops/api/chat/conversations/${encodeURIComponent(conversationId)}/archive");
   });
 });

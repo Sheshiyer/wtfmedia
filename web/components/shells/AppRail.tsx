@@ -36,7 +36,8 @@ export function shouldHideBottomDock(
   mode: AppRailProps["mode"],
   pathname: string,
 ): boolean {
-  return mode === "member" || (mode === "public" && (pathname === "/" || pathname === "/chat"));
+  const betaChatOrSettings = pathname.startsWith("/beta/chat") || pathname.startsWith("/beta/settings");
+  return mode === "member" || betaChatOrSettings || (mode === "public" && (pathname === "/" || pathname === "/chat"));
 }
 
 export function AppRail({
@@ -64,7 +65,7 @@ export function AppRail({
       const bIndex = primaryOrder.indexOf(b.href);
       return (aIndex === -1 ? primaryOrder.length : aIndex) - (bIndex === -1 ? primaryOrder.length : bIndex);
     });
-  const disclosureNavigation = mode === "operator" ? utilityNavigation : primaryNavigation;
+  const disclosureNavigation = mode === "operator" ? [...primaryNavigation, ...utilityNavigation] : primaryNavigation;
   const resolvedBottomNavigation = bottomNavigation ?? primaryNavigation;
   const hideBottomDock = shouldHideBottomDock(mode, pathname);
   const disclosureId = mode === "operator"
