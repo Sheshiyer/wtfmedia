@@ -3,10 +3,8 @@ import { canAccessPath, decide, policyForPath } from "../../../cloudflare/src/au
 import { audienceForRole, BETA_PROTECTED_DESTINATIONS } from "../../lib/beta/navigation";
 
 const EDGE_ROLES = ["member", "editor", "admin", "super_admin"] as const;
-const canonicalEdgeReady = policyForPath("/beta") !== null;
-
 describe("Beta navigation and edge policy contract", () => {
-  it.skipIf(!canonicalEdgeReady)("maps every protected destination to an edge-allowed requirement", () => {
+  it("maps every protected destination to an edge-allowed requirement", () => {
     for (const destination of BETA_PROTECTED_DESTINATIONS) {
       const requirement = policyForPath(destination.edgePath);
       expect(requirement, destination.href).not.toBeNull();
