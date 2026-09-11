@@ -42,8 +42,8 @@ function StatusBadge({ state }: { state: IntegrationConnectionState }) {
   );
 }
 
-export function AIProviderSettingsPanel({ role }: { role: OperatorSettingsRole }) {
-  const canManage = role === "admin" || role === "super_admin";
+export function AIProviderSettingsPanel({ role, previewOnly = false }: { role: OperatorSettingsRole; previewOnly?: boolean }) {
+  const canManage = !previewOnly && (role === "admin" || role === "super_admin");
   const [primaryModel, setPrimaryModel] = useState(OPENROUTER_LOCAL_POLICY.primaryModel);
   const [fallbacks, setFallbacks] = useState<string[]>([
     ...OPENROUTER_LOCAL_POLICY.fallbacks,
@@ -123,7 +123,7 @@ export function AIProviderSettingsPanel({ role }: { role: OperatorSettingsRole }
             AI route settings
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-secondary">
-            One global answer route with an explicit fallback order. The browser never receives the credential or decides runtime authority.
+            One global answer route with an explicit fallback order. This screen is a local, non-persisted preview and never changes provider or inference state.
           </p>
         </div>
         <StatusBadge state={connection} />
@@ -160,14 +160,14 @@ export function AIProviderSettingsPanel({ role }: { role: OperatorSettingsRole }
                   The first available route wins. Duplicates are prevented.
                 </p>
               </div>
-              <button
+              {!previewOnly ? <button
                 type="button"
                 className={button}
                 onClick={addFallback}
                 disabled={!canManage || !availableFallbacks.length}
               >
                 add fallback
-              </button>
+              </button> : null}
             </div>
             <ol className="mt-3 grid gap-2" aria-label="OpenRouter fallback order">
               {fallbacks.map((id, index) => {
@@ -226,7 +226,7 @@ export function AIProviderSettingsPanel({ role }: { role: OperatorSettingsRole }
             <p className="font-label text-[11px] font-bold uppercase tracking-[0.1em] text-muted">
               credential handoff
             </p>
-            <label className="mt-3 grid gap-1">
+            {!previewOnly ? <label className="mt-3 grid gap-1">
               <span className="font-label text-xs font-bold uppercase tracking-[0.08em] text-secondary">
                 OpenRouter API key · write-only
               </span>
@@ -239,7 +239,7 @@ export function AIProviderSettingsPanel({ role }: { role: OperatorSettingsRole }
                 disabled={!canManage}
                 className={control}
               />
-            </label>
+            </label> : null}
             <p className="mt-2 text-xs leading-relaxed text-secondary">
               Stored credentials are never rendered back. This local pass clears the field after staging and does not call OpenRouter.
             </p>
@@ -262,15 +262,16 @@ export function AIProviderSettingsPanel({ role }: { role: OperatorSettingsRole }
         </div>
       </div>
 
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        <button type="button" className={command} onClick={savePolicy} disabled={!canManage || saving}>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+        {!previewOnly ? <button type="button" className={command} onClick={savePolicy} disabled={!canManage || saving}>
           {saving ? "saving…" : "save local policy"}
-        </button>
-        <button type="button" className={button} onClick={testConnection} disabled={!canManage || connection === "verifying"}>
+        </button> : null}
+        {!previewOnly ? <button type="button" className={button} onClick={testConnection} disabled={!canManage || connection === "verifying"}>
           test local connection
-        </button>
+        </button> : null}
         <span className="text-xs text-secondary" aria-live="polite">{notice}</span>
       </div>
+      {previewOnly ? <p className="mt-4 border-l-4 border-information bg-canvas px-4 py-3 text-xs leading-relaxed text-secondary">local preview only · no save or provider request is available.</p> : null}
       {!canManage ? (
         <p className="mt-4 border-l-4 border-information bg-canvas px-4 py-3 text-xs leading-relaxed text-secondary">
           Editor view is read-only. An admin or super-admin must own provider policy changes.

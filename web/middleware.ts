@@ -7,9 +7,21 @@ const authenticatedChatDeepLink = /^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0
 
 async function routeMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (pathname === "/ops" || (pathname.startsWith("/ops/") && pathname !== "/ops/api" && !pathname.startsWith("/ops/api/"))) {
+  // `/ops/*` is the preserved anonymous/legacy Alpha operator tree. Only the
+  // old beta operator aliases redirect into the canonical single shell.
+  if (pathname === "/beta/ops" || pathname.startsWith("/beta/ops/")) {
     const target = request.nextUrl.clone();
-    target.pathname = pathname === "/ops" ? "/beta/ops" : `/beta${pathname}`;
+    const suffix = pathname.slice("/beta/ops".length);
+    if (!suffix) target.pathname = "/beta/workspace";
+    else if (suffix === "/production" || suffix === "/episodes" || suffix === "/ingest") target.pathname = `/beta/workspace${suffix}`;
+    else if (suffix === "/operators") target.pathname = "/beta/admin/users";
+    else if (suffix === "/audit") target.pathname = "/beta/admin/audit";
+    else if (suffix === "/profile") target.pathname = "/beta/settings";
+    else if (suffix === "/chat") target.pathname = "/beta/workspace";
+    else if (suffix === "/settings") target.pathname = "/beta/settings";
+    else if (suffix.startsWith("/settings/access") || suffix.startsWith("/settings/users")) target.pathname = "/beta/admin/users";
+    else if (suffix.startsWith("/settings/")) target.pathname = `/beta/settings/workspace${suffix.slice("/settings".length)}`;
+    else target.pathname = "/beta/workspace";
     return NextResponse.redirect(target);
   }
   if (recoveryPaths.has(pathname)) {
