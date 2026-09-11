@@ -37,6 +37,10 @@ staging or production environment.
   while its release note says it was neither a tag nor a deployment receipt.
   Treat that as an unresolved release-history gate; do not move, delete, reuse,
   or silently reinterpret the historical tag.
+- GitHub reports PR #77 still open from `beta_0.1` into `release/beta`; PR #48
+  remains open from `rag/alpha-answer-accuracy` into `main`. The local branch
+  is 42 commits ahead of its remote. A push would materially repurpose PR #48,
+  so no remote branch or PR was changed without an explicit topology decision.
 
 ### Governing release boundary
 
@@ -61,7 +65,8 @@ staging or production environment.
 
 ### Next action
 
-Resolve the historical `v0.3.3-beta.2` tag decision, then obtain explicit
+Choose the remote PR/base topology and resolve the historical
+`v0.3.3-beta.2` tag decision, then obtain explicit
 authority for the staged backup/migration/deployment and real Clerk/D1 IAB
 persona matrix against exact candidate `2c4007d`. Do not deploy, migrate, seed,
 change Clerk, mutate

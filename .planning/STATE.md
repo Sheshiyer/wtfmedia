@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Beta 0.1 exact source candidate 2c4007d verified; tag reconciliation and all staging/production gates remain open
-last_updated: "2026-09-11T19:48:00+05:30"
+stopped_at: Beta 0.1 source candidate verified; remote PR topology, tag reconciliation, and live gates remain open
+last_updated: "2026-09-11T19:52:00+05:30"
 last_activity: 2026-09-11
 progress:
   total_phases: 10
@@ -56,6 +56,10 @@ authority is `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklis
   though its release note says it was source-only and not a tag. The owner must
   reconcile that historical contradiction before publishing `beta.3`; no tag
   may be reused, moved, deleted, or silently reinterpreted by this work.
+- GitHub still reports PR #77 open from `beta_0.1` into `release/beta`, while
+  PR #48 uses `rag/alpha-answer-accuracy` as its head into `main`. The local
+  branch is 42 commits ahead of its remote; pushing would materially expand
+  PR #48 and therefore remains held for an explicit owner topology decision.
 - The web Worker owns OpenNext routes plus `ASSETS` and reaches only its paired
   edge Worker. The edge Worker owns Clerk-token verification, D1 RBAC/chat and
   provenance, R2 source objects, Vectorize retrieval, Workers AI, KV state,
@@ -359,7 +363,7 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
 ## Session Continuity
 
 Last session: 2026-09-11
-Stopped at: Beta 0.1 exact source candidate `2c4007d` verified; live promotion gates held.
+Stopped at: Beta 0.1 exact source candidate `2c4007d` verified; remote delivery and live promotion gates held.
 The host verifies the merge parents but not the reported `3eebf57` object; test
 counts are source evidence and reported runtime/D1 activity is unaccepted.
 Resume file: `.project/HANDOFF.md`
