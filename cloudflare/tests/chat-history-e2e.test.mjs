@@ -41,6 +41,7 @@ const migrations = [
   "0010_member_beta.sql",
   "0011_clerk_invitation_id_prefix.sql",
   "0012_member_chat_deletion.sql",
+  "0013_member_chat_context.sql",
 ];
 
 function sqlite(input, json = false) {
@@ -441,7 +442,7 @@ test("member permanent delete is confirmed, owner-scoped, preserves preferences,
 
   const deleted = await memberDeleteRequest(one, conversationId, { confirmation: "DELETE" }, db);
   assert.equal(deleted.status, 200);
-  assert.deepEqual(await deleted.json(), { deleted: true });
+  assert.deepEqual(await deleted.json(), { deleted: true, linkedSavedPreferenceCount: 1 });
   assert.equal(await getMemberConversation(db, 117, conversationId), null);
   assert.equal((await listMemberConversations(db, 117))?.conversations.length, 0);
   assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM member_chat_conversations WHERE id = ?").bind(conversationId).first()).count, 0);
@@ -450,6 +451,9 @@ test("member permanent delete is confirmed, owner-scoped, preserves preferences,
   assert.deepEqual(memory, { content: "retain this explicit preference", source_conversation_id: null });
   assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM member_saved_memory_conversation_tombstones WHERE memory_id = ? AND member_id = ? AND source_conversation_id = ?").bind("mmem_delete_117", 117, conversationId).first()).count, 1);
   assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM member_chat_deletion_tombstones WHERE conversation_id = ? AND member_id = ?").bind(conversationId, 117).first()).count, 1);
+  const auditReceipt = await db.prepare("SELECT member_id, conversation_id, event, occurred_at FROM member_conversation_deletion_audit_events WHERE conversation_id = ? AND member_id = ?").bind(conversationId, 117).first();
+  assert.deepEqual(auditReceipt, { member_id: 117, conversation_id: conversationId, event: "member_conversation_deleted", occurred_at: auditReceipt.occurred_at });
+  assert.match(auditReceipt.occurred_at, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
 
   const replay = await memberRequest(one, "/beta/api/chat", payload, "delete-create-key-117", async () => { assert.fail("deleted create key must not invoke generation"); }, db);
   assert.equal(replay.status, 404);
@@ -471,6 +475,32 @@ test("member route accepts pagination cursors and rejects impossible cursor time
   assert.equal(second.nextCursor, null);
   const invalid = btoa(JSON.stringify({ updatedAt: "2026-02-31T00:00:00.000Z", id: first.conversations[0].id })).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
   assert.equal((await memberRequest(identity, `/beta/api/chat?cursor=${invalid}`)).status, 404);
+});
+
+test("member message history reverse-keyset paginates while generation retains only bounded prior turns", async () => {
+  const identity = seedMember(119), other = seedMember(120);
+  const db = d1();
+  const inputs = [];
+  const generate = async (input) => { inputs.push(input); return memberAnswer(input); };
+  const created = await (await memberRequest(identity, "/beta/api/chat", { question: "message 1", sourceMode: "published" }, "message-page-create-119", generate, db)).json();
+  const path = `/beta/api/chat/${created.conversation.id}`;
+  for (let index = 2; index <= 26; index++) {
+    const response = await memberRequest(identity, path, { question: `message ${index}`, sourceMode: "published" }, `message-page-${index}-119`, generate, db);
+    assert.equal(response.status, 200);
+  }
+
+  const latest = await (await memberRequest(identity, path, undefined, undefined, undefined, db)).json();
+  assert.equal(latest.messages.length, 50);
+  assert.deepEqual(latest.messages.map(({ sequence }) => sequence), Array.from({ length: 50 }, (_, index) => index + 3));
+  assert.equal(typeof latest.previousMessageCursor, "string");
+
+  const previous = await (await memberRequest(identity, `${path}?before=${latest.previousMessageCursor}`, undefined, undefined, undefined, db)).json();
+  assert.deepEqual(previous.messages.map(({ sequence }) => sequence), [1, 2]);
+  assert.equal(previous.previousMessageCursor, null);
+  assert.equal((await memberRequest(other, `${path}?before=${latest.previousMessageCursor}`, undefined, undefined, undefined, db)).status, 404);
+  assert.equal((await memberRequest(identity, `${path}?before=not-a-message-cursor`, undefined, undefined, undefined, db)).status, 404);
+  assert.equal(inputs.at(-1).priorTurns.length, 8);
+  assert.deepEqual(inputs.at(-1).priorTurns.map(({ content }) => content), ["message 22", "A sourced answer [1].", "message 23", "A sourced answer [1].", "message 24", "A sourced answer [1].", "message 25", "A sourced answer [1]."]);
 });
 
 test("failed member generation retries the pending turn and concurrent requests cannot interleave", async () => {

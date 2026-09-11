@@ -42,7 +42,10 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
     const turn = await prepareMemberTurn(env.DB, context.memberId, match?.[1], { question: input.question, sourceMode: input.sourceMode, episodeId: input.episodeId, resumeMessageId: input.resumeMessageId, idempotencyKey: request.headers.get("idempotency-key"), requestId });
     if (!turn) return denied();
-    if (turn.completed) return Response.json(turn.view, { headers });
+    if (turn.completed) {
+      const view = await getMemberConversation(env.DB, context.memberId, turn.view.conversation.id);
+      return view ? Response.json(view, { headers }) : denied();
+    }
     try {
       const memories = await listMemberMemories(env.DB, context.memberId);
       const priorTurns = boundedPriorTurns(turn.view.messages.filter((message) => message.sequence < turn.userMessage.sequence).map(({ role, content }) => ({ role, content })));
@@ -56,7 +59,7 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     }
   }
   if (match && request.method === "GET") {
-    const view = await getMemberConversation(env.DB, context.memberId, match[1]);
+    const view = await getMemberConversation(env.DB, context.memberId, match[1], url.searchParams.get("before") ?? undefined);
     return view ? Response.json(view, { headers }) : denied();
   }
   const archiveChat = url.pathname.match(/^\/beta\/api\/chat\/(mcnv_[A-Za-z0-9-]{8,88})\/archive$/u);
@@ -70,7 +73,7 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     // a bare route request cannot erase a private conversation.
     if (input?.confirmation !== "DELETE") return denied();
     const deleted = await deleteMemberConversation(env.DB, context.memberId, match[1]);
-    return deleted ? Response.json({ deleted: true }, { headers }) : denied();
+    return deleted ? Response.json(deleted, { headers }) : denied();
   }
   const archiveMemory = url.pathname.match(/^\/beta\/api\/memory\/(mmem_[A-Za-z0-9-]{8,88})\/archive$/u);
   if (archiveMemory && request.method === "POST") {

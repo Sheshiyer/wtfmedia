@@ -8,7 +8,7 @@ import { after, before, test } from "node:test";
 const root = new URL("..", import.meta.url).pathname;
 const persistTo = mkdtempSync(join(tmpdir(), "wtfmedia-phase2-d1-"));
 const database = join(persistTo, "ops.sqlite");
-const migrations = ["0001_ops_foundation.sql", "0002_bootstrap_roster.sql", "0003_super_admin_transfer_guard.sql", "0004_operator_invitation_approvals.sql", "0005_provenance_spine.sql", "0006_chat_history.sql", "0007_release_manifest.sql", "0008_release_track.sql", "0009_saved_memory.sql", "0010_member_beta.sql", "0011_clerk_invitation_id_prefix.sql", "0012_member_chat_deletion.sql"];
+const migrations = ["0001_ops_foundation.sql", "0002_bootstrap_roster.sql", "0003_super_admin_transfer_guard.sql", "0004_operator_invitation_approvals.sql", "0005_provenance_spine.sql", "0006_chat_history.sql", "0007_release_manifest.sql", "0008_release_track.sql", "0009_saved_memory.sql", "0010_member_beta.sql", "0011_clerk_invitation_id_prefix.sql", "0012_member_chat_deletion.sql", "0013_member_chat_context.sql"];
 
 function sql(input) {
   return spawnSync("sqlite3", [database], {
@@ -62,11 +62,19 @@ test("fresh local migrations are repeatable", () => {
   assert.match(listing, /0010_member_beta/);
   assert.match(listing, /0011_clerk_invitation_id_prefix/);
   assert.match(listing, /0012_member_chat_deletion/);
+  assert.match(listing, /0013_member_chat_context/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'release_manifests';"), /release_manifests/);
   assert.match(succeeds("PRAGMA table_info(release_manifests);"), /release_track/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'member_users';"), /member_users/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'member_chat_conversations';"), /member_chat_conversations/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'member_chat_deletion_tombstones';"), /member_chat_deletion_tombstones/);
+  assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'member_conversation_deletion_audit_events';"), /member_conversation_deletion_audit_events/);
+  const deletionAuditColumns = succeeds("PRAGMA table_info(member_conversation_deletion_audit_events);");
+  assert.match(deletionAuditColumns, /member_id/);
+  assert.match(deletionAuditColumns, /conversation_id/);
+  assert.match(deletionAuditColumns, /event/);
+  assert.match(deletionAuditColumns, /occurred_at/);
+  assert.doesNotMatch(deletionAuditColumns, /content|prompt|response|preference/i);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'member_beta_releases';"), /member_beta_releases/);
 });
 
