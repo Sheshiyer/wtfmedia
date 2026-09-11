@@ -1,5 +1,56 @@
 # Project handoff
 
+## 2026-09-11 Beta staging signed-in workspace repair
+
+**Status:** SOURCE-VERIFIED AND DEPLOYED TO BETA STAGING. Two independent
+authenticated super-admin IAB passes confirm the reported presentation/navigation/roster
+regressions are repaired. This is not full staging acceptance and is not a
+production-Beta deployment.
+
+- Exact code candidate `32ec582d9ab953413710832c62e773eb212c00e1` replaces
+  the member/operator presentation fork with one accepted Alpha-derived chat
+  frame and typed adapters for the separate `mcnv_*` and `cnv_*` stores.
+- Same-session Beta navigation retains the verified principal, rechecks route
+  capabilities locally, and no longer shows the full-screen workspace-opening
+  card on every page load. Protected content remains withheld until admission.
+- Chat and Settings omit the obsolete bottom dock; operator navigation contains
+  no ingest destination. Settings hides Readiness, AI Route, YouTube Analytics,
+  RAG & Sources, and duplicate Release Mutation while preserving direct
+  server-policy enforcement.
+- `/beta/admin/users` proxies the authenticated Clerk request through the web
+  service binding to the D1-backed edge roster. No prefabricated roster or
+  private row content was added to source.
+- Source checks pass: Edge 380/380, web unit 205/205, web contracts 96/96,
+  typecheck, lint, OpenNext build (89 pages), privacy 0 violations across 399
+  files, architecture freshness across 623 inputs after this checkpoint, and
+  `git diff --check`.
+- `wtfmedia-web-staging` version
+  `b67a0833-3eda-4c53-b6ed-056969200350` serves `32ec582` on
+  `beta-staging.wtfhq.in` with `ASSETS`, self-reference, and only the
+  `wtfmedia-edge-staging` service binding. Edge version
+  `3b4aa27f-6c62-4077-a432-897f10002039` was not redeployed.
+- Two independent live IAB passes confirm the shared chat frame, persisted operator conversations,
+  clamped cards with zero document-width overflow, no ingest or bottom dock,
+  reduced Settings, and the real operator roster. Operator conversation and
+  roster endpoints returned 200 with no HTTP 4xx/5xx observed. Only the existing
+  super-admin was observed; the full persona and viewport matrices remain open.
+- The visible no-evidence answer is truthful: staging R2/KV/Vectorize remain
+  empty. Grounded-chat acceptance needs a separately authorized,
+  provenance-safe staging corpus. Never copy production data down implicitly.
+- Permanent Delete remains implemented for member conversations only. Operator
+  conversations expose Archive because the operator server store has no
+  reviewed delete/tombstone capability; this is an explicit release gap.
+- No production Worker, Beta production hostname, D1, corpus, queue, Clerk,
+  DNS, secret, or public Alpha state was changed. No branch was pushed because
+  this local branch is the head of PR #48 and remote topology remains
+  owner-gated.
+
+**Next action:** complete the signed-out/member/editor/admin/super-admin/
+suspended matrix and required viewports on this exact staging candidate; decide
+the operator Delete contract and safe staging-corpus plan; rehearse rollback;
+then choose the clean remote candidate branch/PR before any production-Beta
+promotion.
+
 ## 2026-09-11 Beta 0.3 lineage correction; UI repair paused
 
 **Status:** READ-ONLY LINEAGE AND LIVE-STATE AUDIT COMPLETE. The user's latest

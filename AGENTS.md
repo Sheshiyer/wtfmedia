@@ -46,9 +46,10 @@ This repository is `wtfmedia`.
 
 - `/beta` is the authenticated principal landing: members use `/beta/chat` and
   operators use `/beta/workspace` for the control room. Both admitted
-  principal kinds may use `/beta/chat`; it renders their role-safe,
-  owner-scoped history within the same Beta gate/AppShell, not a second chat
-  shell. Canonical Beta Settings are nested below `/beta/settings/*`;
+  principal kinds use the same accepted Alpha-derived `/beta/chat`
+  presentation through typed adapters for their separate owner-scoped stores;
+  never restore the older operator `ChatWorkspace` fork or create a third chat
+  UI. Canonical Beta Settings are nested below `/beta/settings/*`;
   administrator routes are `/beta/admin/*`.
 - The edge principal and capability policy are the only authorization
   authority. Clerk establishes identity; D1 resolves member/operator lifecycle
@@ -58,6 +59,10 @@ This repository is `wtfmedia`.
 - `/beta/ops/*` is redirect compatibility only. Keep `/ops/*` and public
   `/chat` as legacy Alpha routes. Do not add a Beta `public_link` fallback or
   render protected content before edge principal admission.
+- Retain one verified principal per Clerk identity/session across Beta route
+  navigation and recheck each destination against that projection. Do not
+  refetch admission merely because the pathname changes or reintroduce the
+  full-screen workspace-opening card on every page.
 - Member and operator stores remain separate and owner-scoped. Conversation
   routes may expose only the established prefixed UUID; never put Clerk
   subjects, user hashes, D1 owner identifiers, prompts, answers, or session
@@ -65,10 +70,17 @@ This repository is `wtfmedia`.
 - Archive retains a private conversation. Permanent Delete is separately
   confirmed, owner-scoped, privacy-audited, and must not erase separately saved
   preferences or corpus data. Replayed idempotency keys must not resurrect it.
+  Member Delete exists; do not claim or render operator Delete until its
+  server-side tombstone/lifecycle contract is reviewed and implemented.
 - Capability-projected nested Settings must be matched by server page/API
-  enforcement. AI Route and YouTube Analytics are non-persisted local previews
-  until separately approved provider integrations exist; do not imply writes,
-  provider configuration, or inference effects.
+  enforcement. Beta navigation must not expose Readiness, AI Route, YouTube
+  Analytics, RAG & Sources, or duplicate Release Mutation. Their direct
+  policy-protected routes may remain for later work. Never add ingest to the
+  signed-in Beta navigation. AI Route and YouTube Analytics remain deferred
+  until separately approved provider integrations exist.
+- The admin roster must come from the authenticated D1-backed edge API through
+  the paired web service binding. Never ship prefabricated team rows; last-used
+  and chat-session metrics remain future work until server contracts exist.
 - Local tests do not replace the real staging matrix. Before claiming Beta
   acceptance, use the Codex in-app browser against an owner-authorized staging
   build for signed-out, two-member, suspended/revoked, editor, admin, and

@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Beta 0.3 lineage mapped; UI repair intentionally paused while surface authority and staging corpus remain release blockers
-last_updated: "2026-09-11T20:37:48+05:30"
+stopped_at: Candidate 32ec582 deployed to Beta staging; shared signed-in UI regression closed, full personas corpus operator delete rollback and production promotion remain gated
+last_updated: "2026-09-11T21:18:00+05:30"
 last_activity: 2026-09-11
 progress:
   total_phases: 10
@@ -28,10 +28,10 @@ its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
 **Current focus:** Beta 0.1 is a separately tracked authenticated release lane,
-not completion of the broader v1.0 roadmap. Exact staging candidate `abb5413`
-adds the owner-directed Pavun57 surface precedence to the prior closure: current
-work remains authoritative for UI/routes/Clerk/RBAC/admin/Settings, while
-Pavun57 leads chat/inference/retrieval/accuracy/backend behavior.
+not completion of the broader v1.0 roadmap. Exact web-staging candidate
+`32ec582` builds on `abb5413`: current work remains authoritative for
+UI/routes/Clerk/RBAC/admin/Settings, while Pavun57 leads
+chat/inference/retrieval/accuracy/backend behavior.
 The user-reported `3eebf57` object is unavailable here. Alpha's actual Ask WTF
 UI, interaction, inference, retrieval, and navigation remain the product
 bedrock; authentication, private conversations, history, explicit memory,
@@ -39,8 +39,8 @@ scoped Settings, and role routing are modular Beta additions. The release
 authority is `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md`.
 The assigned client-facing environment names are `beta-staging.wtfhq.in` for
 real staging acceptance and `beta.wtfhq.in` for the production-Beta handoff;
-the staging hostname is now live on the paired staging Workers at candidate
-`abb5413`. Production Beta remains planning-only. Real authenticated IAB
+the staging hostname is now live with web candidate `32ec582` bound to the
+unchanged staging edge version. Production Beta remains planning-only. Real authenticated IAB
 personas and rollback are still required before staging acceptance. The
 source-lineage correction is
 `.planning/inputs/2026-09-11-beta-0.3-lineage-and-surface-authority-audit.md`:
@@ -49,6 +49,27 @@ and deployed staging candidate are distinct objects and must not be called one
 "latest Beta" branch.
 
 ## Beta 0.1 local integration and release-readiness checkpoint
+
+- UI/runtime candidate `32ec582d9ab953413710832c62e773eb212c00e1` is
+  deployed to `wtfmedia-web-staging` as version
+  `b67a0833-3eda-4c53-b6ed-056969200350`, still bound only to
+  `wtfmedia-edge-staging` version
+  `3b4aa27f-6c62-4077-a432-897f10002039`. Production was not changed.
+- The shared Alpha-derived chat presentation now serves both member and
+  operator principals through typed owner-store adapters. Live super-admin IAB
+  confirms persisted operator history, bounded/clamped cards, no chat/settings
+  bottom dock, no ingest destination, the reduced Settings map, and a real
+  D1-backed operator roster.
+- Principal context is retained across same-session Beta navigation and each
+  route is checked locally against the verified capability projection; the
+  full-screen workspace-opening card no longer repeats on every page load.
+- Source verification at `32ec582`: Edge 380/380, web unit 205/205, contracts
+  96/96, typecheck, lint, OpenNext build, privacy 0/399, architecture 623
+  inputs, and `git diff --check` all pass.
+- Remaining release blockers are the empty staging evidence plane, permanent
+  operator Delete (no reviewed server contract), complete persona/viewport
+  acceptance, host-only cookie proof, rollback, remote PR/tag topology, and all
+  production-Beta gates.
 
 - A fresh remote/tag audit shows `v0.3.3-beta.2` peels to older `main`
   `66f434a` and is not an ancestor of `origin/release/beta` `498c0e0`.
