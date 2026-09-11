@@ -172,14 +172,14 @@ describe("dual-source chat contract", () => {
     assert.equal(resolved.citations.some((citation) => citation.segmentId === "answer"), true);
   });
 
-  test("extracts entities from lowercase input via case-insensitive fallback", () => {
-    assert.deepEqual(extractNamedEntityPhrases("where does nikhil kamat stay?"), ["Nikhil Kamat"]);
+  test("extracts lower-case entities only from direct speech questions", () => {
+    assert.deepEqual(extractNamedEntityPhrases("what did nikhil kamat say?"), ["Nikhil Kamat"]);
     assert.deepEqual(extractNamedEntityPhrases("what did ranbir kapoor say"), ["Ranbir Kapoor"]);
+    assert.deepEqual(extractNamedEntityPhrases("where does nikhil kamat stay?"), []);
   });
 
-  test("case-insensitive extraction strips stopwords from phrase edges", () => {
-    const entities = extractNamedEntityPhrases("where does nikhil kamath stay in bangalore");
-    assert.deepEqual(entities, ["Nikhil Kamath"]);
+  test("non-speech lower-case questions stay unanchored", () => {
+    assert.deepEqual(extractNamedEntityPhrases("where does nikhil kamath stay in bangalore"), []);
   });
 
   test("episode scope accepts only a public YouTube video id", () => {

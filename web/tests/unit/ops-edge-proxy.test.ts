@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
   hasBinding: true,
   edgeFetch: vi.fn(),
+  getToken: vi.fn(),
 }));
 
 vi.mock("@opennextjs/cloudflare", () => ({
@@ -11,12 +12,18 @@ vi.mock("@opennextjs/cloudflare", () => ({
   }),
 }));
 
+vi.mock("@clerk/nextjs/server", () => ({
+  auth: async () => ({ getToken: state.getToken }),
+}));
+
 import { GET, POST } from "@/app/ops/api/[...path]/route";
 
 describe("same-origin operator API edge proxy", () => {
   beforeEach(() => {
     state.hasBinding = true;
     state.edgeFetch.mockReset();
+    state.getToken.mockReset();
+    state.getToken.mockResolvedValue(null);
     state.edgeFetch.mockResolvedValue(new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: { "cache-control": "private, no-store" },
@@ -41,6 +48,17 @@ describe("same-origin operator API edge proxy", () => {
     expect(forwarded.method).toBe("POST");
     expect(forwarded.headers.get("authorization")).toBe("Bearer verified-by-clerk");
     expect(await forwarded.json()).toEqual({ question: "hello" });
+    expect(state.getToken).not.toHaveBeenCalled();
+  });
+
+  it("mints and forwards a server-side Clerk token when the browser did not send one", async () => {
+    state.getToken.mockResolvedValue("operator-session-token");
+    const response = await GET(new Request("https://wtfmedia-web-staging.connect2nikhai.workers.dev/ops/api/operator-context"));
+    const forwarded = state.edgeFetch.mock.calls[0]?.[0] as Request;
+
+    expect(response.status).toBe(200);
+    expect(state.getToken).toHaveBeenCalledOnce();
+    expect(forwarded.headers.get("authorization")).toBe("Bearer operator-session-token");
   });
 
   it("fails closed when the edge binding is unavailable", async () => {

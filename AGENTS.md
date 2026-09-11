@@ -42,6 +42,39 @@ This repository is `wtfmedia`.
   backing R2 object before vector staging. If that receipt is missing, fail
   closed as `source_asset_unavailable`.
 
+## Beta single-shell contract
+
+- `/beta` is the authenticated principal landing: members use `/beta/chat` and
+  operators use `/beta/workspace`. Canonical Beta Settings are nested below
+  `/beta/settings/*`; administrator routes are `/beta/admin/*`.
+- The edge principal and capability policy are the only authorization
+  authority. Clerk establishes identity; D1 resolves member/operator lifecycle
+  and authority. Any operator record takes precedence, an inactive operator
+  denies, and profile mirrors, browser role arrays, or navigation visibility
+  never grant access.
+- `/beta/ops/*` is redirect compatibility only. Keep `/ops/*` and public
+  `/chat` as legacy Alpha routes. Do not add a Beta `public_link` fallback or
+  render protected content before edge principal admission.
+- Member and operator stores remain separate and owner-scoped. Conversation
+  routes may expose only the established prefixed UUID; never put Clerk
+  subjects, user hashes, D1 owner identifiers, prompts, answers, or session
+  identifiers into URLs, browser DTOs, logs, handoffs, or planning artifacts.
+- Archive retains a private conversation. Permanent Delete is separately
+  confirmed, owner-scoped, privacy-audited, and must not erase separately saved
+  preferences or corpus data. Replayed idempotency keys must not resurrect it.
+- Capability-projected nested Settings must be matched by server page/API
+  enforcement. AI Route and YouTube Analytics are non-persisted local previews
+  until separately approved provider integrations exist; do not imply writes,
+  provider configuration, or inference effects.
+- Local tests do not replace the real staging matrix. Before claiming Beta
+  acceptance, use the Codex in-app browser against an owner-authorized staging
+  build for signed-out, two-member, suspended/revoked, editor, admin, and
+  super-admin personas at desktop and mobile viewports.
+- Before staging or production work, use
+  `docs/releases/beta-0.1-cloudflare-promotion-map.md` to distinguish web
+  `ASSETS`, catalogue R2 objects, D1 authority, derived Vectorize/KV state,
+  queues, outstanding migrations, deployed versions, and traffic evidence.
+
 ## Boundaries
 
 Merging to `main` does not by itself prove Cloudflare production is running the

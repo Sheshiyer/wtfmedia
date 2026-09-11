@@ -120,21 +120,28 @@ The beta track adds authenticated features (server-side RAG, persisted chat,
 consolidation panels) that do not regress the public production path. The
 alpha track adds retrieval and UI improvements to the public surface.
 
-The invite-only company member Beta is a separate, staging-only `/beta` lane:
-it requires both Clerk verification and an active D1 member invitation record.
-Bangalore is the first cohort in one shared company workspace. Members own
-their private archive-only chat and explicit saved memory; the operator roster
-may manage membership lifecycle but never exposes member content. Its dedicated
-member-Beta manifest begins paused, cannot enable production, and does not
-change anonymous `/chat` or `/api/chat`.
+### Worker topology and deployment targeting
 
-For the operator Beta, the Clerk session-token flow is: Clerk signs the session
-JWT; the browser presents it through the session cookie; the same-origin web
-route forwards the request to the edge; the edge verifies issuer, JWKS,
-expiry, authorized party, and `sub`, then reads the configured custom
-`email` claim (`{{user.primary_email_address}}`). The normalized email resolves
-to one active D1 operator, and D1—not browser state or token role claims—owns
-RBAC. No custom JWT template is required for this session flow.
+The two-worker design is duplicated by environment: `wtfmedia-web` serves
+`wtfhq.in` and binds privately to `wtfmedia-edge`; `wtfmedia-web-staging`
+serves the staging Workers hostname and binds privately to
+`wtfmedia-edge-staging`. Public Alpha is a set of routes on the production web
+worker, not a third Worker. Do not delete either Edge Worker as a cleanup step.
+
+Deploy scripts fail closed when no environment is named. Use
+`npm --prefix web run cf:deploy:staging` for the reviewed staging lane, and
+reserve `cf:deploy:production` for an explicitly authorized production action.
+The Edge package follows the same `deploy:staging` / `deploy:production`
+pattern.
+
+The company member Beta is a separate staging-only `/beta` lane. Any verified
+Clerk user who is not an active D1 operator receives an owner-scoped member
+account on first access. Admin, editor, and super-admin authority remains an
+explicit `operators` allowlist and is never derived from Clerk metadata or
+ordinary membership. Members own private archive-only chat and explicit saved
+memory; the operator roster may manage lifecycle but never exposes member
+content. Its dedicated release manifest rejects production and cannot change
+`/chat` or `/api/chat`.
 
 ## Ingest safety rule
 

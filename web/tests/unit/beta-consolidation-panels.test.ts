@@ -45,6 +45,7 @@ describe("Beta consolidation admin panels", () => {
     const youtube = source("components/domain/ops/YouTubeAnalyticsSettingsPanel.tsx");
     const chat = source("app/(operator)/ops/chat/ChatWorkspace.tsx");
     const sessionNavigator = source("app/(operator)/ops/chat/ChatSessionNavigator.tsx");
+    const publicChat = source("components/domain/public/MigratedChatPage.tsx");
     const settings = source("app/(operator)/ops/settings/page.tsx");
     const settingsLayout = source("app/(operator)/ops/settings/layout.tsx");
     const settingsNavigation = source("components/domain/ops/SettingsNavigation.tsx");
@@ -57,7 +58,7 @@ describe("Beta consolidation admin panels", () => {
     for (const value of ["Clerk session JWT", "server / D1 operator record", "720 hours", "MFA precedence", "archive-only", "admin export", "verification pending"]) {
       expect(panel).toContain(value);
     }
-    for (const href of ["/ops/chat", "/ops/operators", "/ops/audit"]) expect(panel).toContain(href);
+    for (const href of ["/beta/chat", "/beta/admin/users", "/beta/admin/audit"]) expect(panel).toContain(href);
     for (const value of ["operator access", "roster read", "seat mutations", "super-admin transfer", "server-authorized"]) {
       expect(administration).toContain(value);
     }
@@ -84,11 +85,10 @@ describe("Beta consolidation admin panels", () => {
     for (const value of ["data-chat-session-navigator", "data-chat-session-link", "data-chat-new-session", "load more", "Session navigation is unavailable right now."]) {
       expect(sessionNavigator).toContain(value);
     }
-    const publicShell = source("components/patterns/PublicShell.tsx");
-    // Sign-in stays hidden until the operator auth flow ships.
-    expect(publicShell).not.toContain("data-public-sign-in");
-    expect(appRail).toContain("data-header-utility");
-    for (const href of ["/ops/settings/readiness", "/ops/settings/release", "/ops/settings/ai", "/ops/settings/analytics", "/ops/settings/sessions", "/ops/settings/memory", "/ops/settings/sources", "/ops/settings/access"]) {
+    expect(publicChat).toContain('data-chat-frame="alpha"');
+    expect(publicChat).toContain('placement="inline"');
+    expect(publicChat).not.toContain("WorkspaceHeader");
+    for (const href of ["/beta/settings/workspace/readiness", "/beta/settings/workspace/release", "/beta/settings/workspace/ai", "/beta/settings/workspace/analytics", "/beta/settings/workspace/sessions", "/beta/settings/workspace/memory", "/beta/settings/workspace/sources", "/beta/admin/users"]) {
       expect(settingsContract + settingsLayout + settingsNavigation + settings).toContain(href);
     }
     expect(settings).not.toContain("AIProviderSettingsPanel");
@@ -107,7 +107,7 @@ describe("Beta consolidation admin panels", () => {
     expect(appRail).toContain("ThemeToggle");
     expect(appRail).toContain("data-navigation-utilities");
     expect(appRail).toContain("data-bottom-navigation");
-    expect(appRail).toContain('href="/ops/profile"');
+    expect(appRail).toContain('href="/beta/settings/account"');
     expect(profileRoute).toContain("OperatorProfilePage");
     for (const value of ["identity & role", "verified scope", "settings access map", "Clerk", "normalized email", "edge readback", "verification required", "/ops/api/profile"]) {
       expect(profile).toContain(value);

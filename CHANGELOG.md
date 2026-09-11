@@ -5,19 +5,10 @@ versioning; the web application version is held in `web/package.json`.
 
 ## [Unreleased]
 
-### Added
+- Added the source-only `beta_0.1` integration and Cloudflare promotion map,
+  separating web assets, catalogue objects, D1 authority, derived retrieval
+  state, environment bindings, pending migrations, and production gates.
 
-- Added validated native published timing for the thirteen previously absent
-  or structurally incompatible episodes, completing 56/56 published sidecars.
-- Added grouped evidence presentation that separates answer citations from
-  secondary retrieval candidates without changing their original identities.
-- Reconciled the beta release documentation with the Clerk session-token flow:
-  the custom email claim is read from the session token, `sub` remains the
-  default Clerk subject, D1 remains the role authority, and no JWT template or
-  live environment activation is implied.
-- Recorded the merged `release/beta` receipts for operator history/memory and
-  the paused invite-only member lane while keeping #50–#52 open for their
-  remaining acceptance gates.
 - Replaced the operator Cloudflare Access boundary with Clerk verification
   while preserving the D1 email-to-role mapping and deny-by-default RBAC.
 - Added per-user authenticated Ask WTF conversations, durable message/source
@@ -29,36 +20,7 @@ versioning; the web application version is held in `web/package.json`.
   nested Settings routes, with utility actions in the hamburger disclosure
   and logout only on the Settings overview.
 
-### Changed
-
-- Canonical episode resolution now happens before source-specific Vectorize
-  top-K queries, and requested, evidence, and effective source modes remain
-  independently visible through the public response contract.
-- Published timing repair uses exact source assets, an 80-percent same-video
-  coverage floor, ordered vector replacement, and structured v2 receipts.
-
-### Fixed
-
-- Restored native published timestamps without borrowing offsets from uncut
-  edits, and preserved truthful unavailable states for genuinely untimed
-  evidence.
-- Prevented generic connector phrases and topic confusables from hard-scoping
-  retrieval; exact Bangalore/Bengaluru police aliases now select the canonical
-  Policing episode and fail closed on cross-episode conflicts.
 - Fixed ingest queue URL to use the connect2nikhai subdomain.
-
-### Production
-
-- Completed the exact thirteen-episode production repair with 13/13 matching
-  v2 receipts and 1,976 timed chunks, then promoted the reviewed Alpha web.
-- The follow-up Policing selector correction is tested and reviewed in the
-  pull request but remains undeployed pending its own edge-only release gate.
-
-### Deferred
-
-- Queue and embedding throughput optimization is explicitly deferred to a
-  separate session. Completed production jobs must not be replayed merely to
-  benchmark an optimization.
 
 ## [0.3.3-beta.1] - 2026-09-04
 

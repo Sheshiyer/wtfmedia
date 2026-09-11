@@ -13,7 +13,7 @@ export type SettingsSectionId =
 
 export type SettingsSection = {
   id: SettingsSectionId;
-  href: `/ops/settings/${SettingsSectionId}`;
+  href: string;
   label: string;
   eyebrow: string;
   description: string;
@@ -28,7 +28,7 @@ const adminRoles = ["super_admin", "admin"] as const;
 export const SETTINGS_SECTIONS: readonly SettingsSection[] = [
   {
     id: "readiness",
-    href: "/ops/settings/readiness",
+    href: "/beta/settings/workspace/readiness",
     label: "beta readiness",
     eyebrow: "release evidence",
     description: "Read the activation gates and the evidence still required.",
@@ -38,7 +38,7 @@ export const SETTINGS_SECTIONS: readonly SettingsSection[] = [
   },
   {
     id: "release",
-    href: "/ops/settings/release",
+    href: "/beta/settings/workspace/release",
     label: "release control",
     eyebrow: "server governed",
     description: "Inspect the authenticated Ask WTF release track and state.",
@@ -48,7 +48,7 @@ export const SETTINGS_SECTIONS: readonly SettingsSection[] = [
   },
   {
     id: "ai",
-    href: "/ops/settings/ai",
+    href: "/beta/settings/workspace/ai",
     label: "AI route",
     eyebrow: "provider policy",
     description: "Set the global model and explicit fallback order.",
@@ -58,7 +58,7 @@ export const SETTINGS_SECTIONS: readonly SettingsSection[] = [
   },
   {
     id: "analytics",
-    href: "/ops/settings/analytics",
+    href: "/beta/settings/workspace/analytics",
     label: "YouTube analytics",
     eyebrow: "source adapter",
     description: "Review the read-only connection contract and preview states.",
@@ -68,7 +68,7 @@ export const SETTINGS_SECTIONS: readonly SettingsSection[] = [
   },
   {
     id: "sessions",
-    href: "/ops/settings/sessions",
+    href: "/beta/settings/workspace/sessions",
     label: "sessions & history",
     eyebrow: "beta access",
     description: "Review Clerk session, owner scope, and archive policy.",
@@ -78,7 +78,7 @@ export const SETTINGS_SECTIONS: readonly SettingsSection[] = [
   },
   {
     id: "memory",
-    href: "/ops/settings/memory",
+    href: "/beta/settings/workspace/memory",
     label: "memory governance",
     eyebrow: "data boundary",
     description: "Keep durable history separate from explicitly saved memory.",
@@ -88,7 +88,7 @@ export const SETTINGS_SECTIONS: readonly SettingsSection[] = [
   },
   {
     id: "sources",
-    href: "/ops/settings/sources",
+    href: "/beta/settings/workspace/sources",
     label: "RAG & sources",
     eyebrow: "corpus receipt",
     description: "Inspect approved source counts and known alignment limits.",
@@ -98,7 +98,7 @@ export const SETTINGS_SECTIONS: readonly SettingsSection[] = [
   },
   {
     id: "access",
-    href: "/ops/settings/access",
+    href: "/beta/admin/users",
     label: "operator access",
     eyebrow: "protected administration",
     description: "Review the roster and governed seat-management boundary.",
@@ -108,7 +108,7 @@ export const SETTINGS_SECTIONS: readonly SettingsSection[] = [
   },
   {
     id: "users",
-    href: "/ops/settings/users",
+    href: "/beta/admin/users",
     label: "company users",
     eyebrow: "invite-only beta",
     description: "Invite Bangalore pilot members and review company membership lifecycle.",

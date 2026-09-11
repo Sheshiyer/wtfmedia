@@ -65,27 +65,31 @@ const ENTITY_STOP_WORDS = new Set([
   "been", "before", "between", "both", "but", "call", "called", "came",
   "can", "come", "could", "did", "does", "each", "end", "even", "ever",
   "every", "far", "feel", "few", "find", "for", "from", "get", "give",
-  "goes", "gone", "got", "grew", "grow", "had", "has", "have", "hear",
+  "goes", "gone", "got", "grew", "grow", "guest", "had", "has", "have", "hear",
   "heard", "help", "her", "here", "him", "his", "home", "house", "how",
   "into", "its", "just", "keep", "kept", "kind", "know", "knew", "last",
   "leave", "left", "let", "like", "live", "lived", "lives", "long", "look",
   "made", "make", "many", "may", "mean", "more", "most", "much", "must",
   "near", "need", "new", "next", "not", "now", "off", "old", "once", "only",
   "open", "other", "our", "out", "over", "own", "part", "per", "play",
-  "put", "ran", "real", "really", "rent", "rents", "rented", "run", "said",
+  "put", "ran", "real", "really", "recent", "rent", "rents", "rented", "run", "said",
   "same", "saw", "say", "says", "see", "seen", "seem", "set", "she",
   "should", "show", "some", "start", "stay", "stayed", "stays", "still",
   "such", "take", "talk", "tell", "tend", "told", "than", "that", "the",
   "their", "them", "then", "there", "these", "they", "thing", "think",
-  "this", "through", "too", "turn", "two", "use", "very", "want", "was",
+  "this", "through", "too", "topic", "turn", "two", "use", "very", "want", "was",
   "way", "well", "went", "were", "what", "when", "where", "which", "while",
   "who", "why", "will", "with", "work", "would", "yet", "you", "your",
 ]);
 
-/** Extract likely multi-token person names, case-insensitive. */
+/** Extract likely multi-token person names, including lower-case speech questions. */
 export function extractNamedEntityPhrases(question: string): string[] {
   const explicit = question.match(/\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,})+\b/g) ?? [];
   if (explicit.length > 0) return explicit;
+
+  // Lower-case text has no reliable proper-noun signal. Limit recovery to
+  // direct speech questions, so generic lower-case questions remain unanchored.
+  if (!/\b(?:say|said|tell|told|speak|spoke)\b/iu.test(question)) return [];
 
   const titled = question.replace(/\b([a-zA-Z])([a-zA-Z]*)/g, (_, c: string, r: string) =>
     c.toUpperCase() + r.toLowerCase(),
@@ -93,11 +97,18 @@ export function extractNamedEntityPhrases(question: string): string[] {
   const raw = titled.match(/\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,})+\b/g) ?? [];
   return raw.flatMap((phrase) => {
     const words = phrase.split(/\s+/);
-    let start = 0;
-    while (start < words.length && ENTITY_STOP_WORDS.has(words[start].toLowerCase())) start += 1;
-    let end = words.length;
-    while (end > start && ENTITY_STOP_WORDS.has(words[end - 1].toLowerCase())) end -= 1;
-    return end - start >= 2 ? [words.slice(start, end).join(" ")] : [];
+    const phrases: string[] = [];
+    let run: string[] = [];
+    for (const word of words) {
+      if (ENTITY_STOP_WORDS.has(word.toLowerCase())) {
+        if (run.length >= 2) phrases.push(run.join(" "));
+        run = [];
+      } else {
+        run.push(word);
+      }
+    }
+    if (run.length >= 2) phrases.push(run.join(" "));
+    return phrases;
   });
 }
 

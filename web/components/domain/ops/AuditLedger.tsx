@@ -38,7 +38,7 @@ export function AuditLedger({
         </h2>
         <p className="mt-3 font-body text-body">no audit details were loaded.</p>
         <a
-          href="/ops/audit"
+          href="/beta/admin/audit"
           className="mt-5 inline-flex min-h-11 items-center border-2 border-foreground px-4 py-3 font-label text-sm font-bold"
         >
           retry
@@ -87,7 +87,7 @@ export function AuditLedger({
                 <td className="p-3">{row.action}</td>
                 <td className="p-3">
                   {row.action === "protected_search" && row.entityId.startsWith("cnv_") ? (
-                    <Link href={`/chat/${encodeURIComponent(row.entityId)}-operator`} className="underline underline-offset-2">{row.entityType}:{row.entityId}</Link>
+                    <Link href={`/beta/chat/${encodeURIComponent(row.entityId)}`} className="underline underline-offset-2">{row.entityType}:{row.entityId}</Link>
                   ) : `${row.entityType}:${row.entityId}`}
                 </td>
                 <td className="p-3">{row.outcome}</td>

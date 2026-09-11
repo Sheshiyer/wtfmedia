@@ -85,7 +85,7 @@ export function EpisodeProvenanceInspector({
       <div className="flex flex-col gap-4 border-b-2 border-foreground pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Link
-            href="/ops/episodes"
+            href="/beta/workspace/episodes"
             className="rounded-control border-2 border-foreground bg-canvas px-3 py-1.5 font-label text-xs font-bold uppercase tracking-wider text-foreground hover:bg-surface-subtle"
           >
             ← Back to Catalog

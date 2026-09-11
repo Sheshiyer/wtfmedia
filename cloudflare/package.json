@@ -4,7 +4,9 @@
   "version": "0.3.2-alpha.1",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "deploy": "node -e \"console.error('Refusing ambiguous deploy. Use deploy:staging or deploy:production.'); process.exit(1)\"",
+    "deploy:staging": "node ../scripts/wrangler-profile.mjs wtfmedia deploy --config wrangler.jsonc --env staging",
+    "deploy:production": "node ../scripts/wrangler-profile.mjs wtfmedia deploy --config wrangler.jsonc",
     "types": "wrangler types",
     "test": "node scripts/test.mjs"
   },

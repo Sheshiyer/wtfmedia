@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Episode-scoped Ask WTF production slice complete; broader Phase 3/4 acceptance remains planned
-last_updated: "2026-09-09T00:00:00.000Z"
-last_activity: 2026-09-09
+stopped_at: PR #77 open from beta_0.1 into release/beta; Cloudflare topology mapped; no deploy or merge
+last_updated: "2026-09-11T15:49:00+05:30"
+last_activity: 2026-09-11
 progress:
   total_phases: 10
   completed_phases: 2
@@ -24,12 +24,133 @@ See: `.planning/PROJECT.md` (updated 2026-08-20)
 its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
-**Current focus:** The bounded episode-scoped Ask WTF production slice remains
-live and verified on `wtfhq.in`. `release/beta` now contains the reviewed
-Clerk-backed operator session/history/memory slice and the separate paused
-invite-only member Beta. Staging migration, activation, real-account checks,
-trusted uncut timeline alignment, synchronized playback, and broader Phase 3/4
-evaluation gates remain planned or explicitly open.
+**Current focus:** The source-only single authenticated Beta shell is locally
+verified through `4220eda` and is open as PR #77 from `beta_0.1` into
+`release/beta`. Alpha's actual Ask WTF UI, interaction, inference,
+retrieval, and navigation remain the product bedrock; authentication, private
+conversations, history, explicit memory, scoped Settings, and role routing are
+modular Beta additions. Staging deployment/migrations and real Clerk/D1 IAB
+acceptance remain open. The Cloudflare placement and promotion authority is
+`docs/releases/beta-0.1-cloudflare-promotion-map.md`; the implementation authority is
+`.planning/inputs/2026-09-11-beta-single-shell-rbac-convergence-plan.md`.
+
+## Beta 0.1 PR and Cloudflare promotion checkpoint
+
+- `beta_0.1` is a source-integration branch label, not a package version, tag,
+  staging receipt, or production claim. PR #77 targets
+  `release/beta@498c0e0`.
+- Read-only named-profile inventory confirms separate staging/production web,
+  edge, D1, R2, Vectorize, KV, and ingest queue/DLQ resources. The most recent
+  deployments predate this candidate and do not prove its revision is live.
+- The web Worker owns OpenNext routes plus `ASSETS` and reaches only its paired
+  edge Worker. The edge Worker owns Clerk-token verification, D1 RBAC/chat and
+  provenance, R2 source objects, Vectorize retrieval, Workers AI, KV state,
+  and ingest queue consumption.
+- Staging D1 has migrations 0012-0015 pending; production D1 has 0011-0015
+  pending. This source branch therefore cannot be accepted from current live
+  behavior without a new staging migration/deployment receipt.
+- Staging order is migration inventory and recovery receipt, staging D1
+  migration, edge deploy/health/binding receipt, web deploy/service-binding
+  receipt, then the real Clerk/D1 persona matrix. Production remains separately
+  owner-authorized after staging acceptance and rollback planning.
+- Open PRs #57 and #59 are conflicting historical inputs superseded by the
+  integrated candidate. They must not be stacked or closed automatically.
+
+## Current Beta single-shell authority — local source checkpoint `00e8267`
+
+- `/beta` is the authenticated principal landing. Members resolve to
+  `/beta/chat`; operators resolve to `/beta/workspace`. The public `/chat` and
+  legacy `/ops` trees remain Alpha surfaces; `/beta/ops/*` is middleware
+  redirect compatibility only and renders no independent Beta shell.
+- The edge is the authorization authority: principal resolution gives any
+  operator record precedence over a member record, inactive operators deny,
+  and profile mirrors do not grant authority. Browser navigation is projected
+  from edge capabilities and its contract imports the edge policy; unknown
+  routes fail closed and no Beta `public_link` fallback exists.
+- Canonical Beta pages are `/beta/chat[/conversationId]`, nested
+  `/beta/settings/*`, `/beta/workspace/*`, `/beta/admin/users`, and
+  `/beta/admin/audit`. Settings are capability-scoped for members, operators,
+  admins, and super-admins; each page/API still rechecks the edge policy.
+- Member and operator persistence remains separate and owner-scoped. Public
+  URLs expose only conversation UUIDs with their established prefixes; Clerk
+  subjects, hashes, and D1 owner identifiers remain server-side. Session cards
+  provide Archive and separately confirmed permanent Delete.
+- Legacy operator `cnv_` deep links redirect from public `/chat/*` into the
+  protected canonical `/beta/chat/*` route. Browser chat DTOs are projected at
+  the server boundary, and admin/super-admin roster authority never grants
+  cross-operator private-chat read, archive, or export access.
+- AI Route and YouTube Analytics panels are labelled non-persisted local
+  previews. They neither configure inference/providers nor claim server writes
+  until a separately approved integration exists.
+- Local receipts: Cloudflare 267/267; web unit 162/162; web contracts 92/92;
+  typecheck, lint, production build, architecture check, and privacy scan with
+  zero violations passed. These are source/build receipts only, not staging or
+  production runtime evidence.
+- Remaining release gate: a named staging deployment/migration receipt and
+  real Clerk/D1 Codex IAB matrix for signed-out, two members,
+  suspended/revoked, editor, admin, and super-admin personas at desktop and
+  mobile. Production is not deployed or changed by this checkpoint.
+
+## Active Member Beta lane — anti-drift authority
+
+- Source branch: isolated `codex/beta-chat-refinement`; source-only checkpoint
+  `3e4c887` is local, unpushed, and undeployed. PR #60 is already merged at the
+  `origin/release/beta` baseline `498c0e0`.
+- Acceptance authorities: `.project/HANDOFF.md`, this state file,
+  `02-MEMBER-BETA-UI-ADDENDUM.md`, and Member Beta ISC criteria must agree.
+- Visual authority: live Public Alpha at `https://wtfhq.in`, the named Alpha
+  release head `origin/release/alpha` at `e86923b`, and the later Alpha
+  answer-accuracy line with `887699e` as the accepted composer-placement
+  reference. Beta is not descended from that later line, so source ancestry is
+  an explicit acceptance gate.
+- Direct component lock: ordinary-member empty Ask uses
+  `ConversationEmptyState`; its composer uses the live-production compact
+  `AskComposer` capsule rather than the expanded source-mode panel.
+- Navigation lock: the floating wordmark and hamburger remain global;
+  member Ask routes hide the bottom dock like live Alpha `/chat`; Alpha's Ask
+  WTF, Episodes, Connections, and theme disclosure remains intact, with member
+  account/logout and one Settings gear added as utilities. The rejected
+  two-button icon-labelled Ask WTF/Settings bottom substitute is not the
+  baseline. Sessions remain in the rail/drawer and nested Settings adds no
+  second global header.
+- Layout lock: desktop session grids/links are zero-min-width, titles clamp to
+  two wrapped lines, and long history scrolls inside a bounded rail without
+  crossing the evidence card or compact composer at 1382x887.
+- Data lock: Clerk verifies identity, D1 remains authority, private records stay
+  owner-scoped, explicit saved memory remains distinct from chat context, and
+  operators route separately. Archive retains storage. Permanent Delete is a
+  new owner-approved contract requiring an additive migration, confirmation,
+  privacy-safe audit semantics, a reviewed detach/tombstone design for the
+  current `ON DELETE RESTRICT` saved-memory link, and non-resurrection probes
+  that replay both continuation and original create idempotency keys.
+- Forbidden fallback: `/beta/preview`, fake member data, browser-only fixtures,
+  demo acceptance, or a generic dashboard may not substitute for the real flow.
+- Long-session lock: there is no auto-compaction today. The selected API returns
+  the full message history while inference receives only the latest eight turns
+  within 8,000 characters. Message pagination and versioned, non-evidence
+  context checkpoints must be implemented and evaluated before full-session
+  memory is claimed.
+- Remaining live gate: one editor, one admin, one active super-admin, two
+  ordinary members, signed-out, and suspended/revoked states must prove their
+  route, screen, action, and server-policy matrices before full Beta acceptance.
+- Staging receipt: source commit `5bdbd3e`, web version
+  `51cce902-fdde-4327-80f3-758f79d38d30`; authenticated IAB verified real
+  create, continue, reload, browser history, and all four member Settings
+  destinations. The tested answer abstained truthfully, so sourced-answer
+  rendering remains covered by deterministic contracts rather than this probe.
+- Owner annotations supersede that version's visual acceptance because its
+  session item overlapped the Alpha evidence card and its composer used the
+  rejected expanded panel. The underlying authenticated flow evidence remains
+  valid; visual acceptance requires the corrected redeploy.
+- Corrected staging receipt: source commit `56aad90`, web version
+  `e298b69c-d0a0-49a4-b528-5f3914703e0e`. Authenticated 1382x887 IAB now shows
+  two clamped session cards wholly inside the rail, the unobscured Alpha
+  evidence card, compact one-line composer, and icon-labelled Ask/Settings pill;
+  the compact bar also continued a real persisted conversation.
+- The 1382x1180 owner review now supersedes the corrected receipt's pill and
+  selected-session acceptance. Its auth/continuation evidence remains useful;
+  its two-button navigation, dead unavailable canvas, ambiguous archive link,
+  and lack of long-session compaction do not pass the new convergence contract.
 
 ## Current Position
 
@@ -95,6 +216,20 @@ authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
 
 ### Decisions
 
+- [Alpha-bedrock convergence 2026-09-11]: Alpha's exact Ask WTF UI,
+  interaction, inference, retrieval, source, and navigation implementation is
+  the bedrock; Beta adds private/authenticated capabilities modularly. Because
+  the branches diverged, convergence starts with an exact capability ledger and
+  bounded forward-ports rather than palette matching or wholesale merge.
+- [Member lifecycle and long context 2026-09-11]: Archive retains private D1
+  records; confirmed permanent Delete is a distinct new migration/API/UI
+  contract. There is no auto-compaction today; message pagination and
+  non-evidence context checkpoints are required before full-session memory is
+  claimed.
+- [Member Beta anti-drift 2026-09-11]: Public Alpha is the ordinary-member
+  composition and component baseline. Beta must extend the shared Ask WTF empty
+  state and composer directly; token-only similarity, welcome dashboards, dark
+  member gateways, duplicated settings chrome, and preview fixtures fail.
 - ISA remains acceptance authority; GSD remains execution-planning authority.
 - Public and operator projections stay separate over shared evidence.
 - Phase 1 ships the proof harness, starts with the Episodes proof slice, and visibly migrates every protected public route without changing its contract.
@@ -121,11 +256,9 @@ authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
 - [Current inventory 2026-08-29]: Repository Phase 1 is a public compatibility/proof release and is explicitly independent of Cloudflare Zero Trust, Access Applications, Access policies, and D1 operator provisioning. Its acceptance remains local, credential-free, and network-independent; the operator boundary is a later workstream.
 - [Current inventory 2026-08-29]: The operator UI, role/seat model, JWT verifier, D1 authorization design, and loopback-only local development context exist in source, but this checkout does not prove a live Access Application, policy, protected hostname, Access issuer/audience/JWKS, environment binding, or real seat assignment. Historical Phase 2 closure language is retained as record, not current runtime proof. See `docs/architecture/architecture.html`.
 - [Current release 2026-08-30]: The owner temporarily authorizes an ungated public URL. Anonymous visitors may view WTF OS and list/create/update production-calendar records; anonymous delete, ingestion control, transcript activation, provider configuration, secrets, and release approval remain outside the exception. Cloudflare Access and fine-grained RBAC move to the next release.
-- [Beta release branch 2026-09-09]: `origin/release/beta` is at `a0bf034`, carrying PR #53 (operator Clerk/session/history/memory), PR #54 (invite-only member Beta), and PR #55 (merge receipt). These are merged repository receipts, not staging or production activation evidence.
-- [Clerk session-token receipt 2026-09-09]: Read-only Clerk CLI verification confirmed the linked development instance session claim `{ "email": "{{user.primary_email_address}}" }`; no custom JWT templates are configured. The edge still verifies issuer, JWKS, expiry, authorized party, and default `sub`, then maps normalized email to active D1 operator RBAC. Staging and production keys/configuration remain separate gates.
-- [Issue state 2026-09-09]: Issues #50, #51, and #52 remain open. The merged beta slices do not satisfy their remaining public-authentication, destructive-history, or automatic-memory acceptance wording, and their current release-safe alternatives still require staging evidence.
 - [Cloudflare migration 2026-08-30]: Live evidence resolves three accounts: `9d9d` is the retained read/copy source, repository-bound `wtfmedia` is the target that owns `wtfhq.in`, and `default` is unrelated and untouched. The initial target foundation wave is complete: R2 reconciles at 99 objects / 13,204,194 bytes with all-object hash equality; KV reconciles at 55 keys with value equality and no logged values; Vectorize reconciles at 5,742 unique matching IDs, 1,024 dimensions, and cosine; both queue shells exist; and D1 has migrations `0001`–`0005` applied. Target Workers, queue bindings, the calendar migration, secrets, domain/DNS, final delta, and cutover remain gated. See `.planning/inputs/2026-08-30-9d9d-cloudflare-migration-inventory.md`.
 - [Episode-scoped Ask WTF release 2026-08-31]: Owner-approved production receipt confirms 55/55 published and 49/49 mapped uncut KV memberships, 11,948 Vectorize vectors with `source_mode` and `video_id` indexes, queue backlog 0, DLQ baseline 18, and grounded live `published`, `uncut`, and `both` chat for mapped episodes. Web version `90099f42-13b6-4a4e-8d97-bd93b9f953fa` and edge version `75b96e1f-6fa6-4182-bbdd-99047399de64` are the final deployed versions. This is a bounded production slice, not proof of trusted timeline alignment or synchronized uncut playback.
+- [Member Beta staging preview 2026-09-09]: `release/beta` source is deployed to the separate staging web/edge Workers, D1 migrations `0009_saved_memory` and `0010_member_beta` are applied, and the dedicated staging member-release manifest is `preview`. The linked Clerk development instance is restricted-sign-up (invitation required). This is not a production release and does not complete #50–#52: a staging super-admin plus two Bangalore members must still prove invitation, Clerk-to-D1 activation, private history/archive, explicit memory/archive, and cross-member isolation with live receipts.
 
 ### Completed bounded release slice
 
@@ -154,10 +287,10 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
    workspace, source/version inspection, ten-episode trusted alignment
    evaluation, twenty-query editorial search evaluation, hybrid filters, and
    synchronized playback as separate owner-authorized work.
-3. **Broader platform and analytics work** — Live Clerk/RBAC cutover, daily
-   YouTube analytics, research, production operations, source adapters,
-   reporting, clip intelligence, and migration closure remain planned/inactive.
-   Do not infer their completion from the episode release.
+3. **Broader platform and analytics work** — Access/RBAC, daily YouTube
+   analytics, research, production operations, source adapters, reporting,
+   clip intelligence, and migration closure remain planned/inactive. Do not
+   infer their completion from the episode release.
 
 ### Blockers/Concerns
 
@@ -173,15 +306,15 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
   Unrelated Phase 3–10 scope remains inactive.
 - The episode-scoped web and edge deployments are now complete and verified;
   the final versions and rollback targets are recorded in `.project/HANDOFF.md`.
-  DNS, live Clerk/RBAC cutover, secrets, ingest credentials, and unrelated
-  Workers remain outside this release and require separate authority.
+  DNS, Access/RBAC, secrets, ingest credentials, and unrelated Workers remain
+  outside this release and require separate authority.
 - The approved corpus receipt is reconciled for 55 published and 49 mapped
   uncut assets. Do not broaden the claim to deferred sheet rows or treat
   episode membership as timeline alignment.
 - Trusted timeline alignment and synchronized uncut playback remain blocked on
   authoritative alignment data and the ten-episode evaluation set. Hybrid
   search quality remains blocked on the twenty-query editorial evaluation set.
-- Live Clerk/RBAC cutover is deliberately deferred and is not a blocker for the
+- Cloudflare Access/RBAC is deliberately deferred and is not a blocker for the
   short-lived public-link release.
 
 ## Deferred Items
@@ -192,12 +325,11 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
 
 ## Session Continuity
 
-Last session: 2026-09-09
-Stopped at: Beta branch reconciliation after PRs #53–#55 merged. Clerk
-session-token claim configuration is read back in the linked development
-instance; staging migration, activation, and real-account acceptance remain
-open.
+Last session: 2026-09-01
+Stopped at: Episode-scoped Ask WTF production completion. Published, approved
+uncut, and combined mapped-episode chat passed live; final web/edge versions,
+rollback, corpus, queue, and deferred-boundary receipts are recorded.
 Resume file: `.project/HANDOFF.md`
-Resume: Review the focused beta documentation PR, then plan the separately
-authorized staging migration and real-account acceptance. Do not infer live
-Clerk/D1 state or rerun deployment from this repository receipt.
+Resume: Plan the remaining Phase 3/4 provenance, alignment, search-evaluation,
+and dual-playback work as a separate owner-authorized slice. Do not rerun the
+completed activation or deployment from this state.

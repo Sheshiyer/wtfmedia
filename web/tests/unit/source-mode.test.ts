@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parsePublicSourceHeader } from "@/lib/provenance/public-source-header";
+import { parsePublicSourceHeader, parsePublicSourceRecords } from "@/lib/provenance/public-source-header";
 import { resolveCitation } from "@/lib/provenance/catalog-mapping";
 import * as sourceMode from "@/lib/provenance/source-mode";
 import { parseSourceMode, publicTimestampForMode } from "@/lib/provenance/source-mode";
@@ -97,6 +97,30 @@ describe("dual-source public DTO", () => {
     ]));
 
     expect(sources).toEqual([{ videoId: "UKag4LVAEdU", title: "Persisted Beta answer", timeSec: 240, sourceMode: "published" }]);
+  });
+
+  it("normalizes persisted citations while retaining their original public number, time, and mode", () => {
+    const sources = parsePublicSourceRecords([
+      {
+        n: 7,
+        video_id: "UKag4LVAEdU",
+        title: "Persisted Beta answer",
+        start: 240,
+        source_mode: "uncut",
+        mapping_status: "mapped",
+        model: "private-model",
+        request_id: "private-request",
+      },
+    ]);
+
+    expect(sources).toEqual([{
+      n: 7,
+      videoId: "UKag4LVAEdU",
+      title: "Persisted Beta answer",
+      timeSec: 240,
+      sourceMode: "uncut",
+      mappingStatus: "mapped",
+    }]);
   });
 
   it("filters cited sources by published, uncut, or both mode", () => {

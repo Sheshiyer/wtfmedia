@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { parseMemoryResponse, type MemoryPolicy, type MemoryRecord } from "@/lib/ops/memory";
 
@@ -100,7 +101,7 @@ export function MemoryGovernancePanel() {
           <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">durable account history</p>
           <h3 className="mt-2 font-heading text-xl font-bold lowercase">owner-scoped archive</h3>
           <p className="mt-2 text-sm leading-relaxed text-secondary">Authenticated Ask WTF conversations remain attached to the verified account, archive-only, and separate from saved memory or training data.</p>
-          <a href="/ops/chat" className="mt-4 inline-flex min-h-10 items-center border-2 border-foreground bg-surface-subtle px-3 py-2 font-label text-xs font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">open sessions history</a>
+          <Link href="/beta/chat" className="mt-4 inline-flex min-h-10 items-center border-2 border-foreground bg-surface-subtle px-3 py-2 font-label text-xs font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">open sessions history</Link>
         </article>
         <article className="border-2 border-foreground bg-canvas p-4">
           <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">saved memory</p>

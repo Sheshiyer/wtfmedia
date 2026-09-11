@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { AskComposer } from "@/components/domain/public/AskComposer";
+import { ConversationThreadFrame } from "@/components/domain/public/ConversationThread";
 import { Button } from "@/components/ui/Button";
 import { ChatSessionNavigator } from "./ChatSessionNavigator";
 import {
@@ -154,8 +156,7 @@ function ChatComposer({ conversationId, sourceMode = "both", onSent }: { convers
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function submit() {
     const value = question.trim();
     if (!value || busy) return;
     setBusy(true);
@@ -177,7 +178,7 @@ function ChatComposer({ conversationId, sourceMode = "both", onSent }: { convers
       setQuestion("");
       bumpChatActivityEpoch();
       if (!conversationId) {
-        window.location.assign(`/chat/${encodeURIComponent(parsed.conversation.id)}-operator`);
+        window.location.assign(`/beta/chat/${encodeURIComponent(parsed.conversation.id)}`);
       } else {
         onSent();
       }
@@ -188,24 +189,7 @@ function ChatComposer({ conversationId, sourceMode = "both", onSent }: { convers
     }
   }
 
-  return (
-    <form id="new-chat" data-chat-composer onSubmit={submit} className="border-2 border-foreground bg-surface-subtle p-4">
-      <label htmlFor="authenticated-chat-question" className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">ask WTF with account history</label>
-      <textarea id="authenticated-chat-question" value={question} onChange={(event) => setQuestion(event.target.value)} maxLength={2000} rows={3} placeholder="Ask about the published YouTube or approved uncut evidence…" className="mt-2 block w-full border-2 border-foreground bg-surface-raised p-3 text-sm text-foreground outline-none focus-visible:ring-4 focus-visible:ring-attention" disabled={busy} />
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-        <label className="font-label text-[11px] font-bold uppercase tracking-[0.1em] text-muted">
-          evidence
-          <select value={mode} onChange={(event) => setMode(event.target.value as ChatConversation["sourceMode"])} className="ml-2 border border-foreground bg-surface-raised px-2 py-1 text-xs text-foreground" disabled={busy}>
-            <option value="published">published YouTube</option>
-            <option value="uncut">approved uncut</option>
-            <option value="both">both</option>
-          </select>
-        </label>
-        <Button type="submit" disabled={!question.trim() || busy} loading={busy}>send</Button>
-        {error ? <span role="alert" className="text-xs text-attention">the answer could not be saved. retry this turn.</span> : null}
-      </div>
-    </form>
-  );
+  return <div id="new-chat" data-chat-composer className="grid gap-2"><label className="font-label text-[11px] font-bold uppercase tracking-[0.1em] text-muted">evidence <select value={mode} onChange={(event) => setMode(event.target.value as ChatConversation["sourceMode"])} className="ml-2 border border-foreground bg-surface-raised px-2 py-1 text-xs text-foreground" disabled={busy}><option value="published">published YouTube</option><option value="uncut">approved uncut</option><option value="both">both</option></select></label><AskComposer value={question} onChange={setQuestion} onSubmit={() => void submit()} disabled={busy} loading={busy} sourceMode={mode} variant="compact" placement="inline" />{error ? <span role="alert" className="text-xs text-attention">the answer could not be saved. retry this turn.</span> : null}</div>;
 }
 
 export function ChatWorkspace({ view, conversationId }: { view: ChatView; conversationId?: string }) {
@@ -298,7 +282,7 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
             account conversation ledger
           </p>
           <Link
-            href="/ops/chat#new-chat"
+            href="/beta/chat#new-chat"
             data-new-chat
             className="inline-flex min-h-11 items-center border-2 border-foreground bg-attention px-4 py-2 font-label text-sm font-bold lowercase text-on-attention shadow-[4px_4px_0_var(--wtf-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information"
           >
@@ -310,7 +294,7 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
         {state === "ready" && history ? (
           <div className="grid gap-3" aria-label="conversation history">
             {history.conversations.map((item) => (
-              <a key={item.id} data-conversation-row href={`/chat/${encodeURIComponent(item.id)}-operator`} className="block border-2 border-foreground bg-surface-raised p-5 transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-attention">
+              <a key={item.id} data-conversation-row href={`/beta/chat/${encodeURIComponent(item.id)}`} className="block border-2 border-foreground bg-surface-raised p-5 transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-attention">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <h2 className="font-heading text-xl font-bold lowercase text-foreground">{item.title}</h2>
@@ -349,7 +333,7 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
             </div>
             <div className="flex flex-wrap items-center justify-end gap-3">
               <Link
-                href="/ops/chat"
+                href="/beta/chat"
                 data-history-back
                 className="inline-flex min-h-11 items-center border-2 border-foreground bg-canvas px-3 py-2 font-label text-xs font-bold lowercase text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information"
               >
@@ -358,16 +342,12 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
               <PolicyActions policy={policy} conversationId={conversation.id} onChanged={load} />
             </div>
           </div>
-          <ChatComposer conversationId={conversation.id} sourceMode={conversation.sourceMode} onSent={load} />
-          <div className="space-y-4" aria-label="conversation messages">
-            {(conversation.messages ?? []).map((message) => (
-              <article key={message.id} className="border-2 border-foreground/20 bg-surface-raised p-5" data-message-role={message.role}>
-                <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{message.role}</p>
-                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{message.content}</p>
-                <MessageMetadata message={message} />
-              </article>
-            ))}
-          </div>
+          <ConversationThreadFrame
+            contentVersion={conversation.messages ?? []}
+            layoutVersion={conversation.id}
+            renderFooter={() => <ChatComposer conversationId={conversation.id} sourceMode={conversation.sourceMode} onSent={load} />}
+            renderContent={({ scrollAnchor }) => <div className="mx-auto max-w-3xl space-y-4" aria-label="conversation messages">{(conversation.messages ?? []).map((message) => <article key={message.id} className="border-2 border-foreground/20 bg-surface-raised p-5" data-message-role={message.role}><p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{message.role}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{message.content}</p><MessageMetadata message={message} /></article>)}{scrollAnchor}</div>}
+          />
           </>
         ) : null}
       </div>

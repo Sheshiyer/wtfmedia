@@ -40,15 +40,17 @@ function invitationDb() {
 test("admin records member invitation dispatch before sending Clerk email", async () => {
   const db = invitationDb();
   let sawDispatch = false;
+  let redirectUrl;
   const result = await inviteCompanyMember(
     db,
     { operatorId: 7, role: "admin" },
-    { email: "pilot@example.test", pilotCohort: "bangalore", office: "Bangalore", redirectUrl: "https://staging.example.test/beta" },
+    { email: "pilot@example.test", pilotCohort: "bangalore", office: "Bangalore", redirectUrl: "https://staging.example.test/sign-up" },
     "staging",
     "corr-member-invite-1",
     {
-      async create() {
+      async create(input) {
         sawDispatch = db.calls.some((call) => call.phase === "run" && call.sql.includes("'dispatching'"));
+        redirectUrl = input.redirectUrl;
         return { id: "invitation_12345678", status: "pending" };
       },
     },
@@ -56,6 +58,7 @@ test("admin records member invitation dispatch before sending Clerk email", asyn
   );
 
   assert.equal(sawDispatch, true);
+  assert.equal(redirectUrl, "https://staging.example.test/sign-up");
   assert.deepEqual(result, {
     memberId: 19,
     email: "pilot@example.test",

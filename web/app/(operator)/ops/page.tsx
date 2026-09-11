@@ -18,7 +18,7 @@ export default function ControlRoomPage() {
         accent="attention"
         primaryAction={
           <LinkButton
-            href="/ops/production"
+            href="/beta/workspace/production"
             variant="attention"
             className="border-foreground shadow-[6px_6px_0_var(--wtf-foreground)] hover:shadow-[6px_6px_0_var(--wtf-foreground)]"
           >
