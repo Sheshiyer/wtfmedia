@@ -8,7 +8,7 @@ import { clerkLoginUrl } from "@/lib/ops/clerk-url";
 describe("authenticated chat release projection", () => {
   it("returns a fixed same-origin Clerk login target for Beta", () => {
     expect(clerkLoginUrl()).toBe(
-      "/sign-in?redirect_url=%2Fbeta%2Fops%2Fsettings%3FreleaseTrack%3Dbeta",
+      "/sign-in?redirect_url=%2Fbeta%2Fsettings%2Fworkspace%2Frelease%3FreleaseTrack%3Dbeta",
     );
   });
 

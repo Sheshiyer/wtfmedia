@@ -63,7 +63,7 @@ describe("Beta open-enrollment copy", () => {
     expect(appRail).toContain('mode === "member"');
     expect(appRail).toContain("shouldHideBottomDock");
     expect(appRail).toContain("hideBottomDock ? null");
-    expect(appRail).toContain('href={mode === "operator" ? "/beta/ops/settings" : "/beta/settings"}');
+    expect(appRail).toContain('href="/beta/settings"');
     expect(askComposer).toContain('placement?: "fixed" | "inline"');
     expect(askComposer).toContain('bottom-[calc(1rem+env(safe-area-inset-bottom))]');
     expect(conversationThread).toContain("ResizeObserver");
