@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Single authenticated Beta shell is locally verified through 329d44e; staging Clerk/D1 deployment and real IAB persona acceptance remain
+stopped_at: Single authenticated Beta shell is locally verified through 00e8267; staging Clerk/D1 deployment and real IAB persona acceptance remain
 last_updated: "2026-09-11T05:20:00+05:30"
 last_activity: 2026-09-11
 progress:
@@ -25,14 +25,14 @@ its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
 **Current focus:** The source-only single authenticated Beta shell is locally
-verified through `329d44e`. Alpha's actual Ask WTF UI, interaction, inference,
+verified through `00e8267`. Alpha's actual Ask WTF UI, interaction, inference,
 retrieval, and navigation remain the product bedrock; authentication, private
 conversations, history, explicit memory, scoped Settings, and role routing are
 modular Beta additions. Staging deployment/migrations and real Clerk/D1 IAB
 acceptance remain open. The current implementation authority is
 `.planning/inputs/2026-09-11-beta-single-shell-rbac-convergence-plan.md`.
 
-## Current Beta single-shell authority — local source checkpoint `329d44e`
+## Current Beta single-shell authority — local source checkpoint `00e8267`
 
 - `/beta` is the authenticated principal landing. Members resolve to
   `/beta/chat`; operators resolve to `/beta/workspace`. The public `/chat` and
@@ -51,10 +51,14 @@ acceptance remain open. The current implementation authority is
   URLs expose only conversation UUIDs with their established prefixes; Clerk
   subjects, hashes, and D1 owner identifiers remain server-side. Session cards
   provide Archive and separately confirmed permanent Delete.
+- Legacy operator `cnv_` deep links redirect from public `/chat/*` into the
+  protected canonical `/beta/chat/*` route. Browser chat DTOs are projected at
+  the server boundary, and admin/super-admin roster authority never grants
+  cross-operator private-chat read, archive, or export access.
 - AI Route and YouTube Analytics panels are labelled non-persisted local
   previews. They neither configure inference/providers nor claim server writes
   until a separately approved integration exists.
-- Local receipts: Cloudflare 266/266; web unit 158/158; web contracts 92/92;
+- Local receipts: Cloudflare 267/267; web unit 162/162; web contracts 92/92;
   typecheck, lint, production build, architecture check, and privacy scan with
   zero violations passed. These are source/build receipts only, not staging or
   production runtime evidence.

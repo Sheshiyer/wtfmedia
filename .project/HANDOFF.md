@@ -2,7 +2,7 @@
 
 ## 2026-09-11 Beta single-shell RBAC convergence checkpoint
 
-**Status:** LOCAL SOURCE AND BUILD VERIFIED through `329d44e` — no remote
+**Status:** LOCAL SOURCE AND BUILD VERIFIED through `00e8267` — no remote
 branch, PR, merge, deployment, Clerk configuration, D1 migration, provider
 configuration, corpus mutation, DNS change, or production Alpha state changed.
 
@@ -20,13 +20,17 @@ configuration, corpus mutation, DNS change, or production Alpha state changed.
 - Member and operator conversation stores remain independently owner-scoped;
   client URLs retain only prefixed conversation UUIDs. Session cards expose
   Archive and separately confirmed permanent Delete.
+- Legacy operator `cnv_` links redirect from public `/chat/*` into protected
+  `/beta/chat/*`. Server projections strip owner, request, and idempotency
+  identifiers from browser chat DTOs, and privileged roster roles receive no
+  cross-operator private-chat access.
 - AI Route and YouTube Analytics are explicit non-persisted local previews;
   they do not configure providers, analytics, or inference.
 
 ### Local receipts
 
-- Cloudflare tests: 266/266 passing.
-- Web unit tests: 158/158 passing; web contracts: 92/92 passing.
+- Cloudflare tests: 267/267 passing.
+- Web unit tests: 162/162 passing; web contracts: 92/92 passing.
 - Web typecheck, lint, production build, architecture check, and privacy scan
   passed; the privacy scan reported zero violations.
 
