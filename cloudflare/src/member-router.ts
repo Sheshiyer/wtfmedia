@@ -4,11 +4,58 @@ import { decide, policyForPath } from "./auth/policy.ts";
 import { archiveMemberConversation, completeMemberTurn, deleteMemberConversation, getMemberConversation, listMemberConversations, prepareMemberTurn } from "./chat/member-history.ts";
 import { memberChatConversationDto, memberChatPageDto, memberChatViewDto } from "./chat/browser-dto.ts";
 import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "./chat/member-memory.ts";
-import { boundedPriorTurns, runChat, type ChatAnswerInput, type ChatAnswer } from "./chat/answer.ts";
+import { boundedPriorTurns, type ChatAnswerInput, type ChatAnswer } from "./chat/answer.ts";
+import { runPublicChat, parseHistory } from "./chat/public-chat.ts";
 import { isMemberBetaEnabled, resolveMemberBetaRelease } from "./member-release.ts";
 import type { OpsEnv } from "./ops-router.ts";
 
+// The public-pipeline answer fields beyond the base ChatAnswer shape. Stored
+// raw in the turn metadata so the web renders member chat through the exact
+// same projection as the public chat.
+export type MemberChatAnswer = ChatAnswer & {
+  requestedSourceMode?: unknown;
+  evidenceSourceMode?: unknown;
+  fallbackReason?: unknown;
+  responseState?: unknown;
+  citedIndices?: unknown;
+  followUps?: unknown;
+  moments?: unknown;
+  totalMomentDurationSec?: unknown;
+  durationBudgetSec?: unknown;
+};
+
 type Dependencies = { verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer> };
+
+/** Member chat answers through the same pipeline as the public /v1/chat. */
+async function runMemberChat(input: ChatAnswerInput, env: OpsEnv, requestId: string): Promise<MemberChatAnswer> {
+  const { status, body } = await runPublicChat(env, {
+    question: input.question,
+    sourceMode: (input.sourceMode === "published" || input.sourceMode === "uncut" ? input.sourceMode : "both"),
+    episodeId: typeof input.episodeId === "string" ? input.episodeId : null,
+    history: parseHistory(input.priorTurns),
+    memory: input.memory,
+  });
+  if (status >= 500) throw new Error(typeof body.error === "string" ? body.error : "retrieval_unavailable");
+  return {
+    answer: String(body.answer ?? ""),
+    sources: Array.isArray(body.sources) ? body.sources as ChatAnswer["sources"] : [],
+    grounded: body.grounded === true,
+    sourceMode: (body.sourceMode === "published" || body.sourceMode === "uncut" ? body.sourceMode : "both"),
+    uncutUnavailable: body.uncutUnavailable === true,
+    model: typeof body.model === "string" ? body.model : null,
+    modelFallback: body.modelFallback === true,
+    requestId,
+    requestedSourceMode: body.requestedSourceMode,
+    evidenceSourceMode: body.evidenceSourceMode,
+    fallbackReason: body.fallbackReason,
+    responseState: body.responseState,
+    citedIndices: body.citedIndices,
+    followUps: body.followUps,
+    moments: body.moments,
+    totalMomentDurationSec: body.totalMomentDurationSec,
+    durationBudgetSec: body.durationBudgetSec,
+  };
+}
 const headers = { "cache-control": "private, no-store", "x-content-type-options": "nosniff" };
 const denied = () => Response.json({ error: "ops_unavailable" }, { status: 404, headers });
 const unauthorized = () => Response.json({ error: "unauthorized" }, { status: 401, headers });
@@ -61,8 +108,15 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     try {
       const memories = await listMemberMemories(env.DB, context.memberId);
       const priorTurns = boundedPriorTurns(turn.view.messages.filter((message) => message.sequence < turn.userMessage.sequence).map(({ role, content }) => ({ role, content })));
-      const answer = await (dependencies.runChat ?? runChat)({ question: turn.userMessage.content, sourceMode: turn.sourceMode, ...(turn.episodeId ? { episodeId: turn.episodeId } : {}), requestId, priorTurns, memory: (memories ?? []).map((memory: any) => String(memory.content)).slice(0, 8) }, env);
-      const stored = await completeMemberTurn(env.DB, context.memberId, turn, { content: answer.answer, metadata: { sources: answer.sources, sourceMode: answer.sourceMode, uncutUnavailable: answer.uncutUnavailable }, grounded: answer.grounded, model: answer.model, fallback: answer.modelFallback, requestId: answer.requestId });
+      const answer = await (dependencies.runChat ?? ((input, environment) => runMemberChat(input, environment, requestId)))({ question: turn.userMessage.content, sourceMode: turn.sourceMode, ...(turn.episodeId ? { episodeId: turn.episodeId } : {}), requestId, priorTurns, memory: (memories ?? []).map((memory: any) => String(memory.content)).slice(0, 8) }, env);
+      // Raw public-pipeline fields travel in the metadata verbatim; the web
+      // projects them through the same provenance module as the public chat.
+      const extended = answer as MemberChatAnswer;
+      const metadata: Record<string, unknown> = { sources: answer.sources, sourceMode: answer.sourceMode, uncutUnavailable: answer.uncutUnavailable };
+      for (const key of ["requestedSourceMode", "evidenceSourceMode", "fallbackReason", "responseState", "citedIndices", "followUps", "moments", "totalMomentDurationSec", "durationBudgetSec"] as const) {
+        if (extended[key] !== undefined && extended[key] !== null) metadata[key] = extended[key];
+      }
+      const stored = await completeMemberTurn(env.DB, context.memberId, turn, { content: answer.answer, metadata, grounded: answer.grounded, model: answer.model, fallback: answer.modelFallback, requestId: answer.requestId });
       return stored ? Response.json(memberChatViewDto(stored), { status: turn.created ? 201 : 200, headers }) : denied();
     } catch {
       const pending = await getMemberConversation(env.DB, context.memberId, turn.view.conversation.id);

@@ -1,6 +1,9 @@
 import { parsePublicSourceRecords, type PublicSourceCitation } from "@/lib/provenance/public-source-header";
+import { parsePublicMomentsHeader, type PublicMomentsPayload } from "@/lib/provenance/public-moment-header";
+import { projectPublicMoments, projectPublicSources } from "@/lib/provenance/public-answer-projection";
 
 export type MemberSourceMode = "published" | "uncut" | "both";
+export type MemberResponseState = "answered_grounded" | "retrieval_weak" | "synthesis_invalid" | "abstained";
 export type MemberMessageRole = "user" | "assistant";
 
 export type MemberMessage = {
@@ -12,6 +15,13 @@ export type MemberMessage = {
   sourceMode?: MemberSourceMode;
   groundingState?: "grounded" | "ungrounded" | "unavailable";
   uncutUnavailable?: boolean;
+  /** Public-pipeline answer state, stored raw in turn metadata. */
+  responseState?: MemberResponseState;
+  citedIndices?: number[];
+  followUps?: string[];
+  moments?: PublicMomentsPayload;
+  requestedSourceMode?: MemberSourceMode | null;
+  evidenceSourceMode?: MemberSourceMode | null;
 };
 
 export type MemberConversation = {
@@ -63,6 +73,44 @@ function safeCount(value: unknown): number | undefined {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : undefined;
 }
 
+const MEMBER_RESPONSE_STATES = new Set<MemberResponseState>([
+  "answered_grounded",
+  "retrieval_weak",
+  "synthesis_invalid",
+  "abstained",
+]);
+
+function responseState(value: unknown): MemberResponseState | undefined {
+  return typeof value === "string" && MEMBER_RESPONSE_STATES.has(value as MemberResponseState)
+    ? value as MemberResponseState
+    : undefined;
+}
+
+function citedIndices(value: unknown): number[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const indices = value.filter((item): item is number => Number.isSafeInteger(item) && (item as number) > 0);
+  return indices.length ? indices : undefined;
+}
+
+function followUps(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const items = value.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+    .slice(0, 6)
+    .map((item) => item.trim().slice(0, 200));
+  return items.length ? items : undefined;
+}
+
+/** Member moments render through the exact public projection + header parser. */
+function momentsPayload(metadata: Record<string, unknown>): PublicMomentsPayload | undefined {
+  if (!Array.isArray(metadata.moments)) return undefined;
+  const payload = parsePublicMomentsHeader(JSON.stringify(projectPublicMoments({
+    moments: metadata.moments,
+    totalMomentDurationSec: metadata.totalMomentDurationSec,
+    durationBudgetSec: metadata.durationBudgetSec,
+  })));
+  return payload && payload.moments.length > 0 ? payload : undefined;
+}
+
 function previousMessageCursor(value: unknown): string | null {
   return typeof value === "string" && /^[A-Za-z0-9_-]{1,512}$/u.test(value) ? value : null;
 }
@@ -85,9 +133,18 @@ function parseMessage(value: unknown): MemberMessage | null {
   const content = asString(record?.content).trim();
   if (!record || (role !== "user" && role !== "assistant") || !content) return null;
   const metadata = parseMetadata(record);
-  const sources = parsePublicSourceRecords(Array.isArray(record.sources) ? record.sources : metadata.sources);
   const source = sourceMode(record.sourceMode ?? record.source_mode ?? metadata.sourceMode ?? metadata.source_mode);
+  // Stored metadata keeps the raw pipeline answer; project it through the
+  // same provenance module the public headers use, then parse fail-closed.
+  const rawSources = Array.isArray(record.sources) ? record.sources : metadata.sources;
+  const sources = parsePublicSourceRecords(projectPublicSources(rawSources, source));
   const grounding = record.groundingState ?? record.grounding_state;
+  const state = responseState(metadata.responseState);
+  const cited = citedIndices(metadata.citedIndices);
+  const ups = followUps(metadata.followUps);
+  const moments = momentsPayload(metadata);
+  const requestedMode = retrySourceMode(metadata.requestedSourceMode);
+  const evidenceMode = retrySourceMode(metadata.evidenceSourceMode);
   return {
     id: asString(record.id, `${role}-${content.slice(0, 16)}`),
     role,
@@ -97,6 +154,12 @@ function parseMessage(value: unknown): MemberMessage | null {
     ...(role === "assistant" ? { sourceMode: source } : {}),
     ...(grounding === "grounded" || grounding === "ungrounded" || grounding === "unavailable" ? { groundingState: grounding } : {}),
     ...(record.uncutUnavailable === true || metadata.uncutUnavailable === true ? { uncutUnavailable: true } : {}),
+    ...(state ? { responseState: state } : {}),
+    ...(cited ? { citedIndices: cited } : {}),
+    ...(ups ? { followUps: ups } : {}),
+    ...(moments ? { moments } : {}),
+    ...(requestedMode ? { requestedSourceMode: requestedMode } : {}),
+    ...(evidenceMode ? { evidenceSourceMode: evidenceMode } : {}),
   };
 }
 
@@ -209,11 +272,29 @@ export function shouldApplyMemberResponse({ requestEpoch, currentEpoch, requestP
   return requestEpoch === currentEpoch && requestPath === currentPath;
 }
 
-export function memberAnswerPresentation(message: MemberMessage): { abstained: boolean; uncutUnavailable: boolean; sources: PublicSourceCitation[] } {
+export type MemberAnswerPresentation = {
+  abstained: boolean;
+  uncutUnavailable: boolean;
+  sources: PublicSourceCitation[];
+  responseState?: MemberResponseState;
+  citedIndices?: number[];
+  followUps?: string[];
+  moments?: PublicMomentsPayload;
+  requestedSourceMode?: MemberSourceMode | null;
+  evidenceSourceMode?: MemberSourceMode | null;
+};
+
+export function memberAnswerPresentation(message: MemberMessage): MemberAnswerPresentation {
   return {
-    abstained: message.role === "assistant" && message.groundingState === "ungrounded",
+    abstained: message.role === "assistant" && (message.groundingState === "ungrounded" || message.responseState === "abstained"),
     uncutUnavailable: message.uncutUnavailable === true,
     sources: message.sources ?? [],
+    ...(message.responseState ? { responseState: message.responseState } : {}),
+    ...(message.citedIndices ? { citedIndices: message.citedIndices } : {}),
+    ...(message.followUps ? { followUps: message.followUps } : {}),
+    ...(message.moments ? { moments: message.moments } : {}),
+    ...(message.requestedSourceMode ? { requestedSourceMode: message.requestedSourceMode } : {}),
+    ...(message.evidenceSourceMode ? { evidenceSourceMode: message.evidenceSourceMode } : {}),
   };
 }
 

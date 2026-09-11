@@ -160,7 +160,7 @@ describe("member chat client contract", () => {
     expect(memberAnswerPresentation(parsed!.messages[0]!)).toEqual({
       abstained: true,
       uncutUnavailable: true,
-      sources: [{ n: 4, title: "Cited episode", timeSec: 42, sourceMode: "published" }],
+      sources: [{ n: 4, title: "Cited episode", timeSec: 42, sourceMode: "published", mappingStatus: "mapped", timestampStatus: "verified" }],
     });
     expect(parsed!.messages[0]).not.toHaveProperty("model");
     expect(parsed!.messages[0]).not.toHaveProperty("requestId");

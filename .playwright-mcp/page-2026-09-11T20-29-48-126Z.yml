@@ -1,0 +1,7 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - paragraph [ref=e4]: beta access
+      - heading "checking access" [level=1] [ref=e5]
+      - paragraph [ref=e6]: Your private workspace appears after server verification.
+  - alert [ref=e7]

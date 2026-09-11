@@ -2,12 +2,15 @@ import { NextRequest } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { chatStream, embedQuery, type ChatMessage } from "@/lib/nvidia";
 import {
-  isTimestampStatus,
   parseSourceMode,
   type SourceMode,
-  type TimestampStatus,
 } from "@/lib/provenance/source-mode";
-import { calibrateRetrievalScore } from "@/lib/provenance/confidence";
+import {
+  projectPublicMoments,
+  projectPublicSources,
+  type EdgeMoment,
+  type EdgeSource,
+} from "@/lib/provenance/public-answer-projection";
 import { isReady, search } from "@/lib/vectors";
 
 export const runtime = "nodejs";
@@ -24,42 +27,6 @@ async function callAnswerService(request: Request): Promise<Response> {
   if (!env.WTFMEDIA_EDGE) throw new Error("wtfmedia_edge_binding_missing");
   return env.WTFMEDIA_EDGE.fetch(request);
 }
-
-type EdgeSource = {
-  n: number;
-  score: number;
-  videoId: string;
-  title: string;
-  url: string;
-  start: number | null;
-  timestamped: boolean;
-  sourceMode?: SourceMode;
-  mappingStatus?: "mapped" | "unmapped" | "unavailable" | "conflicted";
-  timestampStatus?: TimestampStatus;
-  timestampReason?: string | null;
-  timestampConfidence?: number;
-  segmentId?: string;
-};
-
-type EdgeMoment = {
-  videoId: string;
-  title: string;
-  url: string;
-  startSec: number;
-  endSec: number | null;
-  durationSec: number | null;
-  durationEstimated?: boolean;
-  score: number;
-  timestampConfidence: number | null;
-  citationNumbers: number[];
-  withinBudget: boolean;
-  guest?: string;
-  theme?: string;
-  topic?: string;
-  summary?: string;
-  whyRelevant?: string;
-  strength?: number;
-};
 
 type ResponseState = "answered_grounded" | "retrieval_weak" | "synthesis_invalid" | "abstained";
 type SourceFallbackReason = "requested_mode_insufficient" | "requested_mode_not_competitive";
@@ -95,12 +62,6 @@ const RESPONSE_STATES = new Set<ResponseState>([
   "synthesis_invalid",
   "abstained",
 ]);
-const MAPPING_STATUSES = new Set<NonNullable<EdgeSource["mappingStatus"]>>([
-  "mapped",
-  "unmapped",
-  "unavailable",
-  "conflicted",
-]);
 
 function optionalSourceMode(value: unknown): SourceMode | null {
   return value === "published" || value === "uncut" || value === "both" ? value : null;
@@ -118,153 +79,12 @@ function publicResponseState(value: unknown): ResponseState {
     : "answered_grounded";
 }
 
-function publicMappingStatus(
-  value: unknown,
-  fallback: NonNullable<EdgeSource["mappingStatus"]>,
-): NonNullable<EdgeSource["mappingStatus"]> {
-  return typeof value === "string"
-    && MAPPING_STATUSES.has(value as NonNullable<EdgeSource["mappingStatus"]>)
-    ? value as NonNullable<EdgeSource["mappingStatus"]>
-    : fallback;
-}
-
-const PUBLIC_TIMESTAMP_REASONS = new Set([
-  "This published transcript was ingested without timestamp data; the link opens the full episode.",
-  "This approved uncut transcript has no verified uncut timestamp; no published time was inferred.",
-  "A published timestamp is not an uncut timestamp; no cross-timeline time was inferred.",
-  "An uncut timestamp is not a published timestamp; no cross-timeline time was inferred.",
-]);
-
-function publicTimestampReason(
-  source: EdgeSource,
-  mode: SourceMode,
-  status: TimestampStatus,
-): string | null {
-  if (status === "verified") return null;
-  if (typeof source.timestampReason === "string" && PUBLIC_TIMESTAMP_REASONS.has(source.timestampReason)) {
-    return source.timestampReason;
-  }
-  if (status === "requested_timeline_unavailable") {
-    return mode === "uncut"
-      ? "An uncut timestamp is not a published timestamp; no cross-timeline time was inferred."
-      : "A published timestamp is not an uncut timestamp; no cross-timeline time was inferred.";
-  }
-  return mode === "uncut"
-    ? "This approved uncut transcript has no verified uncut timestamp; no published time was inferred."
-    : "This published transcript was ingested without timestamp data; the link opens the full episode.";
-}
-
 function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
-  return JSON.stringify(sources.map((source) => {
-    const mode: Exclude<SourceMode, "both"> = source.sourceMode === "uncut"
-      || (source.sourceMode == null && sourceMode === "uncut")
-      ? "uncut"
-      : "published";
-    const candidateStart = sourceMode === "both" || mode === sourceMode ? source.start : null;
-    const declaredTimestampStatus = isTimestampStatus(source.timestampStatus)
-      ? source.timestampStatus
-      : undefined;
-    const timestampStatus: TimestampStatus = candidateStart == null
-      ? declaredTimestampStatus === "requested_timeline_unavailable"
-        ? "requested_timeline_unavailable"
-        : "source_timing_unavailable"
-      : declaredTimestampStatus === "source_timing_unavailable"
-        || declaredTimestampStatus === "requested_timeline_unavailable"
-        ? declaredTimestampStatus
-        : "verified";
-    const start = timestampStatus === "verified" ? candidateStart : null;
-    const direct = mode === "uncut"
-      ? (isApprovedFrameIoUrl(source.url)
-        ? source.url
-        : typeof source.url === "string" && source.url.startsWith("uncut:")
-          ? source.url
-          : `uncut:${source.videoId}`)
-      : source.url;
-    return {
-      n: source.n,
-      video_id: source.videoId,
-      title: source.title,
-      score: calibrateRetrievalScore(source.score),
-      score_raw: source.score,
-      t: start,
-      time: start == null ? "" : new Date(start * 1_000).toISOString().slice(11, 19).replace(/^00:/, ""),
-      url: mode === "uncut"
-        ? (isApprovedFrameIoUrl(direct) ? direct : undefined)
-        : direct,
-      source_mode: mode,
-      mapping_status: publicMappingStatus(
-        source.mappingStatus,
-        start == null ? "unmapped" : "mapped",
-      ),
-      timestamp_status: timestampStatus,
-      timestamp_reason: publicTimestampReason(source, mode, timestampStatus),
-      timestamp_confidence: typeof source.timestampConfidence === "number"
-          && Number.isFinite(source.timestampConfidence)
-        ? Math.round(Math.min(1, Math.max(0, source.timestampConfidence)) * 1000) / 1000
-        : null,
-      segment_id: source.segmentId ?? (mode === "uncut" ? `uncut:${source.videoId}` : null),
-    };
-  }));
+  return JSON.stringify(projectPublicSources(sources, sourceMode));
 }
 
-function isApprovedFrameIoUrl(value: string): boolean {
-  try {
-    const parsed = new URL(value);
-    const hostname = parsed.hostname.toLowerCase();
-    const allowedHost = hostname === "f.io" || hostname === "frame.io" || hostname.endsWith(".frame.io");
-    return parsed.protocol === "https:" && allowedHost;
-  } catch {
-    return false;
-  }
-}
-
-function textField(value: unknown, max = 300): string | undefined {
-  return typeof value === "string" && value.trim() ? value.trim().slice(0, max) : undefined;
-}
-
-function secondsField(value: unknown): number | null {
-  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
-}
-
-/**
- * Moments arrive from the edge already structured; this projection re-checks
- * every field anyway — the header crosses a process boundary and must fail
- * closed to "no moments" rather than trust the shape.
- */
 function momentHeader(answer: EdgeAnswer): string {
-  const raw = Array.isArray(answer.moments) ? answer.moments : [];
-  const moments = raw.flatMap((moment) => {
-    const videoId = textField(moment?.videoId, 32);
-    const startSec = secondsField(moment?.startSec);
-    if (!videoId || startSec == null) return [];
-    const strength = Number(moment.strength);
-    return [{
-      video_id: videoId,
-      title: textField(moment.title, 200) ?? videoId,
-      url: textField(moment.url, 500) ?? `https://www.youtube.com/watch?v=${videoId}`,
-      start_sec: startSec,
-      end_sec: secondsField(moment.endSec),
-      duration_sec: secondsField(moment.durationSec),
-      duration_estimated: moment.durationEstimated === true ? true : null,
-      score: secondsField(moment.score) ?? 0,
-      timestamp_confidence: secondsField(moment.timestampConfidence),
-      citation_numbers: Array.isArray(moment.citationNumbers)
-        ? moment.citationNumbers.filter((n) => Number.isSafeInteger(n) && n > 0)
-        : [],
-      within_budget: moment.withinBudget !== false,
-      guest: textField(moment.guest),
-      theme: textField(moment.theme),
-      topic: textField(moment.topic),
-      summary: textField(moment.summary, 400),
-      why_relevant: textField(moment.whyRelevant, 300),
-      strength: Number.isInteger(strength) && strength >= 1 && strength <= 5 ? strength : null,
-    }];
-  });
-  return JSON.stringify({
-    moments,
-    total_duration_sec: secondsField(answer.totalMomentDurationSec) ?? 0,
-    budget_sec: secondsField(answer.durationBudgetSec),
-  });
+  return JSON.stringify(projectPublicMoments(answer));
 }
 
 /** Local-only RAG path for `next dev`; production remains Cloudflare-only. */
