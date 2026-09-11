@@ -1,5 +1,537 @@
 # Project handoff
 
+## 2026-09-11 Beta single-shell RBAC convergence checkpoint
+
+**Status:** LOCAL SOURCE AND BUILD VERIFIED through `00e8267` — no remote
+branch, PR, merge, deployment, Clerk configuration, D1 migration, provider
+configuration, corpus mutation, DNS change, or production Alpha state changed.
+
+### Delivered source contract
+
+- `/beta` resolves one authenticated edge principal: members land in
+  `/beta/chat`; operators land in `/beta/workspace`. The canonical nested
+  Settings and administration routes are capability-scoped.
+- Edge policy is the route authority. Operator records take precedence over
+  historical member rows, inactive operators deny, profile mirrors do not
+  grant authority, unknown paths fail closed, and the browser-navigation
+  contract checks its destinations against that policy.
+- `/beta/ops/*` is redirect-only compatibility. `/ops/*` and public `/chat`
+  remain legacy Alpha surfaces. No Beta `public_link` fallback remains.
+- Member and operator conversation stores remain independently owner-scoped;
+  client URLs retain only prefixed conversation UUIDs. Session cards expose
+  Archive and separately confirmed permanent Delete.
+- Legacy operator `cnv_` links redirect from public `/chat/*` into protected
+  `/beta/chat/*`. Server projections strip owner, request, and idempotency
+  identifiers from browser chat DTOs, and privileged roster roles receive no
+  cross-operator private-chat access.
+- AI Route and YouTube Analytics are explicit non-persisted local previews;
+  they do not configure providers, analytics, or inference.
+
+### Local receipts
+
+- Cloudflare tests: 267/267 passing.
+- Web unit tests: 162/162 passing; web contracts: 92/92 passing.
+- Web typecheck, lint, production build, architecture check, and privacy scan
+  passed; the privacy scan reported zero violations.
+
+### Still unaccepted
+
+- No reviewed source has been deployed to staging and no new D1 migration has
+  been applied remotely. The deployed staging surface cannot validate this
+  checkpoint.
+- Real Clerk/D1 IAB acceptance remains required for signed-out, Member A,
+  Member B, suspended/revoked, editor, admin, and super-admin personas at
+  desktop and mobile. That matrix must separately record deployment versions,
+  metadata-only D1 readiness, observable UI/API behavior, and owner approval.
+- Production Alpha remains untouched. A green local suite is not a staging or
+  production release claim.
+
+### Next owner-authorized action
+
+Review the local source diff, then authorize a named staging deployment and
+migration only if the reviewed commit is selected. Run the real IAB matrix
+against that exact staging receipt before requesting Beta acceptance. Do not
+deploy production or mutate production data under this checkpoint.
+
+## 2026-09-11 v0.3.3-beta.2 Alpha-bedrock release-candidate checkpoint
+
+**Status:** LOCAL RELEASE CANDIDATE VERIFIED — no remote branch, PR, merge,
+deployment, Clerk, D1, Cloudflare resource, corpus, or Public Alpha state was
+changed. `codex/beta-chat-refinement` is descended from `origin/release/beta`
+and contains the source-only candidate.
+
+### Delivered in this candidate
+
+- `7bea241` exports `ConversationThreadFrame`, preserving public Alpha's
+  overflow-aware fixed-to-inline composer behavior while leaving its caller
+  contract intact.
+- `47e1464` adds reverse keyset member-message pages (newest 50 in chronological
+  order), owner-bound cursors, an immutable content-free delete receipt, and a
+  safe linked-preference count.
+- `bb1eaa1` requires literal `DELETE` in the member deletion dialog, keeps
+  active titles wrapping, and retains two-line clamp only in the session rail.
+- `6082c6d` makes Member Beta consume the Alpha frame, loads older message pages
+  into that frame, retains loaded history on new answers, and shows the safe
+  preference count before confirmed deletion.
+- `2293b47` prepares the source-only `0.3.3-beta.2` release-candidate note;
+  `docs/architecture/*` was regenerated to the final source graph.
+
+### Verified locally
+
+- Cloudflare: 254 passing tests, including owner isolation, reverse message
+  paging, cursor rejection, bounded prior turns, deletion audit receipts,
+  safe preference retention, and no resurrection.
+- Web: 150 unit and 90 contract tests passing; typecheck, lint, production
+  build, and privacy scan (0 violations across 360 bounded files) pass.
+- Architecture ledger and `git diff --check` pass. This proves source/build
+  behavior only, not a deployed staging or production runtime.
+
+### Intentionally not claimed or changed
+
+- The existing authenticated staging IAB page still serves an earlier deployed
+  build and showed the unavailable-session defect at review time. No destructive
+  control was clicked. It cannot validate this candidate until an owner
+  separately authorizes deployment and the real Clerk/D1 persona matrix.
+- No automatic context compaction/summarization was added. Server inference
+  remains bounded to the latest eight prior turns / 8,000 characters; durable
+  checkpoint policy and failure handling remain a separately designed release
+  gate.
+- Signed-out, Member A, Member B, suspended/revoked, editor, admin, and
+  super-admin staging acceptance remains open. Existing source RBAC tests are
+  deterministic but not a substitute for that live matrix.
+
+### Next owner-authorized actions
+
+1. Review the local candidate diff and create a clean PR to `release/beta`.
+2. Merge only after review; do not merge `rag/alpha-answer-accuracy` wholesale.
+3. Authorize a named staging deployment, then run the real authenticated IAB
+   persona and 1382px layout matrix.
+4. Keep production Alpha's worker/resource pair untouched unless a distinct
+   production release is authorized.
+
+## 2026-09-11 Alpha-bedrock / Beta modular convergence execution checkpoint
+
+**Status:** LOCAL SOURCE AND BUILD VERIFIED — no deployment or remote state was
+changed. The isolated `codex/beta-chat-refinement` branch now contains the
+bounded convergence slice. It is ready for an owner-authorized staging
+acceptance wave, not a release claim.
+
+### Commits in this checkpoint
+
+- `53ef445`: adds the confirmed owner-scoped permanent-delete contract and
+  migration `0012_member_chat_deletion.sql`. It erases the selected
+  conversation and messages, retains immutable minimal deletion/provenance
+  tombstones, detaches but does not delete separately saved preferences, and
+  blocks replay of the original create idempotency key.
+- `6811564`: replaces the ambiguous session control with direct `archive
+  conversation` and separately labelled `delete` actions. Delete is a
+  focus-managed confirmation dialog whose copy makes the irreversible storage
+  effect and saved-preference boundary explicit.
+- `66d79b6`: adds the committed Alpha/Beta inference-retrieval capability
+  ledger and a fail-closed lower-case named-guest retrieval adaptation.
+- `0df461f`: restores Alpha chat-frame rules in shared UI: Ask routes have no
+  bottom dock, the Alpha hamburger remains the disclosure, and member Settings
+  is one additive gear inside it. The member selected-route states now share a
+  bounded conversation viewport with retry/new-question recovery.
+
+### Local receipts
+
+- `npm --prefix cloudflare test`: 253 passing tests, including confirmed
+  permanent deletion, owner isolation, anti-resurrection, archive-generation
+  race handling, role policy, release policy, and retrieval source contracts.
+- `npm --prefix web run test:unit`: 144 passing tests.
+- `npm --prefix web run test:contracts`: 90 passing tests.
+- `npm --prefix web run typecheck`, `lint`, and `build`: pass; the build
+  enumerates the existing public, member, and operator routes.
+- `npm --prefix web run test:privacy -- --check`: zero violations across 360
+  bounded files. `npm run docs:architecture:update`,
+  `npm run docs:architecture:check`, and `git diff --check` pass.
+
+### Still deliberately open
+
+- The selected conversation endpoint still returns full message history. The
+  existing history rail has keyset pagination, but reverse message pagination,
+  versioned owner-scoped untrusted context checkpoints, compaction failure
+  behavior, and long-thread UI acceptance remain open work.
+- The source role-policy suite is deterministic, but the signed-out, Member A,
+  Member B, editor, admin, super-admin, and suspended/revoked authenticated
+  staging UI/API matrix is not yet proven.
+- No current source change is deployed. The stale staging page is evidence of
+  the prior defect only; it cannot validate this local checkpoint until an
+  owner authorizes a staging deployment and authenticated IAB acceptance.
+
+### Next session
+
+Start from `.planning/inputs/2026-09-11-alpha-bedrock-beta-modular-convergence-handoff.md`
+and this checkpoint. Keep Public Alpha as the shared presentation bedrock;
+extend it only through modular member storage, lifecycle, preferences, and
+policy adapters. Before any release request, complete message paging/context
+evaluation and the owner-authorized persona/viewport matrix. Do not restore
+`/beta/preview`, add a member bottom dock, merge divergent Alpha branches
+wholesale, or mutate Cloudflare/Clerk/D1/corpus state without separate owner
+approval.
+
+## 2026-09-11 Alpha-bedrock / Beta modular convergence correction
+
+**Status:** PLANNING-READY WITH A LOCAL SOURCE CHECKPOINT — Alpha's actual Ask
+WTF product is now the explicit bedrock; Beta is an authenticated, persistent,
+role-aware extension around it. The fresh-session authority is
+`.planning/inputs/2026-09-11-alpha-bedrock-beta-modular-convergence-handoff.md`.
+
+### Why the UI kept drifting
+
+- `origin/release/alpha` is at `e86923b`, while the later Alpha chat and
+  answer-accuracy work lives on `origin/rag/alpha-answer-accuracy` at
+  `d4e45b4`; accepted composer geometry is directly represented by `887699e`.
+- `origin/release/beta` at `498c0e0` is not descended from that later Alpha
+  line. It inherited an older shared base and then implemented a separate
+  member composition. Reusing colors and a few components did not preserve the
+  real Alpha interaction model.
+- The next implementation must forward-port capabilities from exact Alpha
+  commits into shared primitives. It must not merge the divergent Alpha
+  accuracy branch wholesale because that line also contains earlier Beta
+  merges, provider experiments, and other independently gated work.
+
+### Owner annotations incorporated
+
+- The session rail remains 240px, bounded, independently scrolling, and clamps
+  only session-card titles. The active conversation heading may wrap.
+- Like live Alpha `/chat`, member Ask routes have no bottom dock. Preserve the
+  floating wordmark and top-right Alpha hamburger; its Ask WTF, Episodes,
+  Connections, and theme grammar remains, with one additive member Settings
+  gear plus account/logout utilities. The current two icon-labelled Ask
+  WTF/Settings buttons are not the intended menu.
+- Loading, unavailable, retry, empty, answer, and long-history states remain
+  inside one bounded conversation viewport; an error banner above a large dead
+  canvas is not accepted.
+- A selected session needs its own action. The current header `archive` control
+  behaves like navigation and does not satisfy that requirement.
+- Archive and permanent delete are different. Archive retains D1 storage.
+  Permanent delete requires a confirmation dialog plus a new owner-scoped
+  schema/API contract that removes the conversation, messages, and internal
+  context checkpoints without touching transcript corpus data or silently
+  deleting explicit saved preferences. The existing immutable
+  `member_saved_memories.source_conversation_id` `ON DELETE RESTRICT` link must
+  receive a reviewed detach/tombstone design, and anti-resurrection tests must
+  replay the original create idempotency key after deletion.
+- There is no automatic long-session compaction today. The browser receives the
+  full selected message history, while inference sees at most the latest eight
+  turns within 8,000 characters. Message pagination and versioned,
+  non-evidence context checkpoints are now required before full-session memory
+  can be claimed.
+
+### Preserved local implementation
+
+Local commit `3e4c887` on the isolated `codex/beta-chat-refinement` worktree
+contains a source-only chat hardening slice:
+
+- public and member answer paths share `runChat`;
+- episode-scoped retrieval keeps multiple chunks from one episode;
+- malformed scores and blank excerpts fail closed before inference;
+- prior named-user context anchors follow-ups without becoming evidence;
+- factual prose requires bounded citations or falls back to excerpts;
+- persisted member citations retain safe numbers/times/modes;
+- selected-load and failed-turn retry states, truthful loading, abstention copy,
+  and reader-respecting bounded scrolling are covered;
+- production/staging web-to-edge and data-binding separation has direct tests.
+
+Fresh local verification at that checkpoint passed 251/251 Cloudflare tests,
+142/142 web unit tests, 90/90 web contract tests, TypeScript, ESLint, and
+`git diff --check`. This is not Alpha-parity proof, semantic-entailment proof,
+a commit on a remote branch, a staging deployment, or live acceptance.
+
+### Remaining role and release gates
+
+The existing authenticated IAB receipt proves only one ordinary staging member
+at desktop size. It does not prove:
+
+- Member A versus Member B isolation and logout/login recovery;
+- editor screen/action restrictions;
+- admin screen/action restrictions;
+- super-admin `/beta` to `/beta/ops` routing without member creation;
+- the single-seat transfer/release controls;
+- suspended/revoked behavior;
+- 320x710 drawer/focus/overlap behavior;
+- permanent deletion or long-session compaction.
+
+Production Alpha and staging Beta remain separate Cloudflare pairs:
+`wtfmedia-web` → `wtfmedia-edge`, and `wtfmedia-web-staging` →
+`wtfmedia-edge-staging`, each with its own data plane. Shared code does not
+authorize asset or data convergence.
+
+### Next session
+
+Open the isolated worktree and use the exact fresh-session prompt at the end of
+`.planning/inputs/2026-09-11-alpha-bedrock-beta-modular-convergence-handoff.md`.
+Start with Wave 0's branch/symbol ledger, then fan out the shared Alpha UI,
+inference/retrieval, and private lifecycle/long-session lanes to bounded Codex
+workers. Integrate member composition and role screens only after those lanes
+stabilize. Do not deploy or mutate remote data until the full local matrix,
+independent review, and a new owner-authorized staging wave pass.
+
+## 2026-09-11 Member Beta anti-drift correction (superseded in part)
+
+**Superseded visual acceptance:** the later owner annotations and convergence
+entry above replace this entry's bottom-pill and selected-session UI claims.
+Its authenticated create/continue/reload evidence remains valid.
+
+**Status:** ANNOTATED LAYOUT + AUTHENTICATED IAB VERIFIED — the owner's 1382x887
+overlap and composer annotations are resolved on the real signed-in staging
+route. Session cards remain inside their rail, titles clamp to two lines, the
+chat bar is the live-production Alpha capsule, and the icon-labelled Ask WTF /
+Settings pill remains below it.
+
+### Recovered owner contract
+
+- Preserve the floating top-left WTF OS wordmark and minimal navigation pill.
+- Keep Account, Theme, and Appearance utilities in the hamburger; the bottom
+  pill is workspace navigation only and may carry the primary Settings route.
+- Begin with the existing Alpha Ask WTF experience. Authentication, persistent
+  conversations, history, memory, and member Settings are additions to that
+  experience, not permission to replace it with a dashboard.
+- Do not render private destinations or data before verified sign-in.
+- Keep ordinary members and D1-authorized operators on separate routes and
+  authority paths.
+- Permanently reject `/beta/preview`, fake member data, browser fixtures, and
+  demo pages as product or acceptance surfaces.
+
+### Anti-drift implementation lock
+
+- The member empty Ask surface directly reuses Public Alpha's
+  `ConversationEmptyState` and `AskComposer`.
+- Member Beta selects the live-production compact `AskComposer` variant: a
+  single-line input and compact Ask WTF button without the expanded source-mode
+  rail or full-width panel background.
+- Desktop session grids and links remain zero-min-width; titles clamp to two
+  lines with long-word wrapping; long history scrolls inside its bounded rail.
+- The rejected welcome/dashboard feature grid is absent.
+- The member auth frame uses Alpha's cream/ink evidence-card composition;
+  the dark operator gateway remains operator-only.
+- Member Settings nests only its route navigation and content beneath the shared
+  shell; it does not add another global header.
+- The bottom pill retains only Ask WTF and Settings as icon-labelled primary
+  destinations. Sessions remain in the rail/drawer and Settings owns memory,
+  sessions/privacy, and appearance.
+- The Phase 2 member UI addendum, `.planning/STATE.md`, ISA criteria, and durable
+  memory record this same contract and must be updated together after any future
+  owner-approved change.
+
+### Release boundary
+
+- Commit `adf8494` was deployed to staging before this visual correction as Edge
+  `f19c1ad8-80b3-4841-b86a-95efd67ec640` and web
+  `510da7f5-0218-42d1-a01f-d9ac9a581df7`.
+- The corrected web source at commit `5bdbd3e` was deployed through the named
+  `wtfmedia` staging profile as web version
+  `51cce902-fdde-4327-80f3-758f79d38d30`. Edge remained on the reviewed
+  `f19c1ad8-80b3-4841-b86a-95efd67ec640` release because this correction did
+  not change Edge source.
+- Authenticated IAB proved the shared Alpha evidence card and composer on
+  `/beta`, persisted a real private conversation at a route-backed URL,
+  continued it, restored both turns after reload, and preserved selection
+  through browser back/forward. Account, memory, sessions, and appearance
+  Settings routes opened under one shared shell without duplicate chrome.
+- The answer truthfully abstained when the current catalogue did not support
+  the question; that is a valid evidence boundary, not sourced-answer proof.
+- `/beta/preview` remains `404` on staging and production.
+- The owner's annotations supersede the visual acceptance of web version
+  `51cce902-fdde-4327-80f3-758f79d38d30`: its real flow passed, but the rail
+  overlap and expanded composer did not. Do not reuse that version as visual
+  approval.
+- Commit `56aad90` was deployed through the named `wtfmedia` staging profile as
+  web version `e298b69c-d0a0-49a4-b528-5f3914703e0e`. At the annotated 1382x887
+  IAB viewport, two real session cards stayed within the 240px rail, their
+  titles clamped to two lines, the evidence card remained unobscured, the
+  compact single-line composer had no background band or mode rail, and the
+  Ask WTF / Settings pill displayed chat and settings icons.
+- The corrected compact composer successfully continued the existing private
+  conversation, and the truthful evidence fallback remained attached to that
+  canonical route.
+- The independent QA subagent could not see the parent task's authenticated IAB
+  surface and exposed only unauthenticated Chrome sessions. It correctly left
+  that check blocked rather than substituting a signed-out page; the visual
+  receipt above is the primary task's direct authenticated IAB evidence.
+- Production, `wtfhq.in`, DNS, Clerk configuration, and production data remain
+  untouched.
+
+## 2026-09-11 Member Beta workspace remediation map
+
+**Status:** PLANNING-READY — the authenticated `/beta` shell remains the live
+staging integration baseline, but the 2026-09-10 visual review rejected its
+single-page information architecture as the final member product. No product
+code, deployment, provider configuration, D1 data, Worker, DNS, production, or
+Public Alpha state changed in this planning checkpoint.
+
+- The comprehensive implementation handoff is
+  `.planning/inputs/2026-09-11-member-beta-workspace-routing-remediation-plan.md`.
+- The mapping confirms that Clerk identity, D1 operator/member authority,
+  owner-scoped conversation persistence, explicit saved memory, source panels,
+  WTF OS shell tokens, responsive disclosure, and Alpha/Beta isolation already
+  exist and must be preserved.
+- The actual gaps are member conversation continuation, history pagination,
+  deep-linked/current-session routing, per-conversation request isolation,
+  normal-member Settings, explicit preference-import review, member navigation,
+  and non-internal copy.
+- The target experience uses a persistent ChatGPT/Claude-style conversation rail
+  and route-backed chat workspace. Memory moves to member Settings and remains
+  distinct from conversation history; operator Settings remain admin-only.
+- The existing open-enrollment acceptance plan is incorporated unchanged. The
+  feature is not accepted until one active super-admin and two ordinary members
+  pass routing, persistence, logout/login, and cross-member isolation on staging.
+
+### Next session
+
+Start at Wave 0 of the mapped plan in an isolated worktree rooted at the current
+reviewed Beta source. Re-verify the preserve/adapt/build ledger, write the member
+UI addendum, and add red tests for gaps G1–G12 before implementation. Do not
+delete or rebuild working auth/data seams, do not use a browser fixture, and do
+not deploy until the implementation slice passes review and deterministic checks.
+
+## 2026-09-10 Authenticated member dashboard shell
+
+**Status:** STAGING DEPLOYED AND VISUALLY VERIFIED — the authenticated member
+route now renders the reviewed WTF OS workspace instead of the unframed
+implementation page. Authentication, operator routing, member ownership, and
+the existing Edge/D1 API boundary are unchanged.
+
+- Web staging version: `3e7789c2-08c9-4999-93b9-dde4c73da447` from source
+  commit `aa0c745`. No Edge or production deployment was performed.
+- `/beta` now enters an explicit member-mode `AppShell` with the WTF OS top
+  rail, member navigation, theme control, logout, and bottom workspace pill.
+- The ready state presents the account-scoped Ask WTF composer, active sourced
+  conversation, private session history, and explicit-save memory as one
+  responsive member dashboard. The earlier raw cream page is no longer the
+  authenticated presentation.
+- Member navigation is intentionally limited to Ask WTF, sessions, and memory.
+  Operator Profile, Settings, release controls, and cross-account data remain
+  absent; a verified D1 operator still redirects to `/beta/ops` before the
+  member endpoint is consulted.
+
+### Verification
+
+- Web unit tests pass 106/106 and contract tests pass 86/86; strict typecheck,
+  lint, production build, and `git diff --check` pass.
+- The authenticated in-app-browser session resolved the real staging context,
+  chat history, and memory APIs, then rendered the member shell and all three
+  private sections. The disclosure opened with logout, theme, and the three
+  member destinations.
+- Runtime logs contain no application error. The only browser warning is
+  Clerk's expected development-key notice for this staging development
+  instance.
+- Remaining multi-account acceptance is unchanged: verify the active D1
+  super-admin redirects to `/beta/ops`, then use a second ordinary account to
+  prove owner isolation across chat, history, memory, logout, and sign-in.
+
+## 2026-09-10 Beta open enrollment and fixture withdrawal
+
+**Status:** STAGING DEPLOYED — verified non-operator Clerk users now receive a
+private member account on first access. Administrator authority remains an
+explicit active D1 `operators` mapping. Production and Public Alpha were not
+changed by this deployment.
+
+- Edge staging version: `44e03259-df3b-4e55-a6e0-89a354c5c597`.
+- Web staging version: `1493c650-fd4a-488e-9492-9cfce43cb10c`.
+- `/beta` returns 200, the rejected `/beta/preview` fixture now returns 404,
+  and unsigned `/beta/api/context` retains the non-enumerating `404
+  ops_unavailable` boundary.
+- `https://wtfhq.in/beta/preview` remains 404.
+
+### Authorization contract
+
+- Clerk verifies identity only. A verified user without an active operator row
+  self-provisions one active `member_users` row bound to the exact Clerk
+  subject and receives only member authority.
+- An active operator email is excluded from member self-provisioning and routes
+  through `/beta/ops`; only D1 may confer editor, admin, or super-admin rights.
+- Suspended and revoked member rows remain denied. Existing member chat,
+  history, and saved-memory queries remain owner-bound at the SQL boundary.
+- The fake browser-only member fixture and its route, data module, component,
+  and unit test were deleted rather than retained as an authentication bypass.
+
+### Verification
+
+- Phase 2 deterministic verification passed, including 210/210 Edge tests,
+  10/10 Phase 2 browser tests, TypeScript, unit coverage, and the privacy scan.
+- Live probes confirmed the staging and production boundaries listed above.
+- The correct staging Edge still verifies the `mighty-hedgehog-2913` Clerk
+  issuer/JWKS and binds only staging resources.
+- Read-only staging D1 verification confirms the requested account remains the
+  one active `super_admin`; its older unbound invited member row cannot override
+  that operator mapping. The member release remains `staging/preview`.
+
+### Clerk provider gate
+
+- The Clerk CLI was authenticated and explicitly linked to the `WtfOS`
+  application (`app_3J5UCAhqn41tl3oO9tAV1D9totj`) and its
+  `mighty-hedgehog-2913` development instance
+  (`ins_3J5UCE1dosqLPdOcdxZ5ZXnkBVm`).
+- A dry run and immediate exact-instance patch changed only
+  `auth_access_control.sign_up_mode` from `restricted` to `public`. Google
+  remains enabled and authenticatable, the seven-day maximum session lifetime
+  and single-session policy are unchanged, and the sole redirect remains the
+  staging `/beta` URL.
+- Live tracing then proved the browser bearer reached the staging Edge but both
+  role lookups returned 404 before D1 admission. The instance had no custom
+  session claims while the Edge identity verifier requires a normalized
+  `email`. A second dry run and exact-instance patch added only
+  `session.claims.email = {{user.primary_email_address}}`; Clerk retained its
+  default 60-second token lifetime and five-second clock skew.
+- Immediate readback found the same three Clerk users and no additional page.
+  No user, invitation, operator row, Worker, secret, route, DNS record,
+  production instance, or Public Alpha resource was created or changed by
+  either provider update.
+
+### First live acceptance
+
+- After Clerk's one-minute token refresh, the existing
+  `thoughtseedlabs@gmail.com` session passed `/beta/api/context`, chat, and
+  memory loading and rendered the real private member workspace. D1 readback
+  shows one active, Clerk-bound company member created by open enrollment.
+- Read-only D1 verification confirms `sheshnarayan.iyer@gmail.com` remains the
+  one active `super_admin`; its historical invited member row remains unbound
+  and did not override operator authority.
+
+### Remaining live acceptance
+
+- Sign out and complete one fresh Google sign-in with the active D1
+  super-admin. It must route from `/beta` to `/beta/ops` without creating a
+  member row.
+- Complete a fresh sign-in with a second ordinary account, then verify the two
+  member workspaces remain owner-isolated across private chat, history,
+  saved-memory, logout, and reauthentication.
+
+## 2026-09-10 Worker topology and deploy-target containment
+
+**Status:** DEPLOY TARGETS CONTAINED — no Worker was deleted. The required
+topology is a pair per environment, not duplicate application assets:
+
+- Production: `wtfmedia-web` owns `https://wtfhq.in`; its private service
+  binding targets `wtfmedia-edge`. Public Alpha remains routes on this web
+  worker, not a separate Worker.
+- Staging: `wtfmedia-web-staging` owns the Workers staging hostname and binds
+  only to `wtfmedia-edge-staging`.
+- The temporary staging-only `/beta/preview` fixture was withdrawn in the
+  subsequent open-enrollment deployment above.
+
+### Containment receipt
+
+- An ambiguous web deploy command briefly targeted the top-level production
+  worker. It was immediately rolled back to prior Worker version
+  `3d5a5965-14f3-486a-a608-330d539dec81`; no migration, secret, D1, queue, or
+  production-route change occurred.
+- Staging preview was then deployed explicitly with `--env staging` as Worker
+  version `6d5b9997-d728-4c74-ab44-0c34c12dc5ed`. A live staging probe returned
+  the fixture at that historical point; the fixture is now removed from
+  staging, and `https://wtfhq.in/beta/preview` remains 404.
+- Ambiguous `cf:deploy` / `deploy` package scripts now fail closed. Staging
+  and production each require an explicit script, and the named `wtfmedia`
+  web alias now means staging.
+
+### Topology rule
+
+- Do not delete either Edge Worker: each is its corresponding web worker's
+  service-binding API authority.
+
 ## 2026-09-10 Staging Clerk issuer alignment
 
 **Status:** STAGING DEPLOYED — staging web served Clerk from
@@ -2551,3 +3083,155 @@ the public Alpha chip resolves to `https://wtfhq.in`.
   duplicate invitation was created or sent.
 - Remaining human gate: accept that invitation, sign in, and verify the
   authenticated `/beta` member-context readback.
+
+## 2026-09-10 member Beta admission gate and token-forwarding repair
+
+The staging `/beta` route no longer streams the raw member-chat scaffold before
+the member context has been admitted. An unsigned visitor is redirected into
+the refined member sign-in frame at `/sign-in?redirect_url=/beta`; a signed
+session whose member record cannot be resolved receives a polished invitation
+state instead. Chat, history, and saved memory render only after the context,
+chat, and memory reads all succeed.
+
+The same-origin Beta proxy now obtains the Clerk server-session token when the
+browser has not supplied a bearer credential and forwards that token to the
+staging edge. A caller-supplied bearer token is preserved unchanged. Edge D1
+membership remains the authorization decision point.
+
+### Verification
+
+- Added proxy tests prove server-session token forwarding and preservation of
+  explicit bearer credentials; focused unit suite passed 5/5. Web lint and
+  TypeScript passed, and the Cloudflare production build completed cleanly.
+- Deployed only `wtfmedia-web-staging`, version
+  `711e807f-f1de-4e14-a00a-b994c1cffe7e`; production was not touched.
+- Live unsigned `/beta` response contains the member-access-check frame and
+  no `data-member-beta` or `private member chat` scaffold. Its context probe
+  remains the intentional non-enumerating `404 ops_unavailable`.
+- In-app browser navigation from `/beta` settled at
+  `/sign-in?redirect_url=/beta` and visibly rendered the refined member sign-in
+  UI. The remaining human gate is one invited-account session to prove the
+  D1 activation, private chat, history, and memory reads end to end.
+
+## 2026-09-10 staging invitation-ticket preservation repair
+
+Clerk application invitations return a one-time `__clerk_ticket` to their
+configured callback. The member Beta route now preserves a well-formed ticket
+and routes it into the existing branded `/sign-up` Clerk component; ordinary
+ticketless `/beta` visits continue to use the refined `/sign-in` member frame.
+Future member invitations are issued with `/sign-up` as their bounded HTTPS
+callback, while the member invitation validator continues to accept the legacy
+`/beta` callback for invitations already sent.
+
+The staging D1 invitation receipt was reconciled before this change: the
+revoked provider invitation is terminally recorded as revoked, and the sole
+pending Clerk invitation is the only `sent` receipt. Both reconciliation
+steps have append-only member audit entries. No production resource was
+changed.
+
+### Verification
+
+- Web: 102/102 unit tests, TypeScript, ESLint, and OpenNext Cloudflare build
+  pass; the focused callback tests cover ticket preservation, malformed-ticket
+  fallback, and the normal sign-in path.
+- Edge: 208/208 tests pass, including member activation, private history,
+  explicit memory, RBAC, and invitation lifecycle coverage.
+- Staging deployments: `wtfmedia-edge-staging`
+  `dd8e42ca-df07-4040-9abb-e30458036921`; `wtfmedia-web-staging`
+  `e2df5d81-4633-4b49-a597-8251d8057a96`.
+- Live unsigned `/beta/api/context` remains the intentional non-enumerating
+  `404 ops_unavailable`; the authenticated member acceptance is the remaining
+  human gate. The in-app browser cannot load Clerk's account host, so account
+  completion must occur in a normal browser session.
+
+## 2026-09-10 Beta canonical operator routing and verified session transport
+
+All browser-facing operator work now has `/beta/ops` as its canonical route.
+Legacy `/ops` UI routes redirect to their `/beta/ops` equivalents, while the
+existing `/ops/api/*` Edge namespace remains unchanged as the protected
+authority boundary. A Next rewrite serves the audited operator page tree at
+the canonical Beta URLs, so the migration does not duplicate page logic or
+weaken its existing server-side policy checks.
+
+The browser and server-rendered operator paths now mint a Clerk server-session
+token when the browser has not supplied a bearer credential, and forward that
+token to the Edge for issuer/JWKS verification and D1 role resolution. The
+Beta entry page checks verified operator context first, so an active operator
+session enters `/beta/ops` rather than being shown the member-invitation state.
+
+### Verification
+
+- Web unit suite: 104/104 pass. New contracts prove `/ops/api` preserves an
+  explicit bearer, forwards a minted Clerk token, and canonicalizes legacy
+  protected return paths to `/beta/ops`.
+- Web TypeScript, ESLint, and OpenNext Cloudflare build pass. Staging web
+  deployment `432fe47e-e9be-41a3-956e-bfd5207e6279` is live; `/ops` returns a
+  `307` to `/beta/ops`, `/beta/ops` and `/beta/ops/settings` return `200`, and
+  unsigned `/beta/api/context` remains the intentional `404 ops_unavailable`.
+  The full local Phase 2 gate passes after its browser assertion was updated
+  from the retired `/ops/production` URL to `/beta/ops/production`. Production
+  is out of scope. The remaining human receipt is one signed-in session
+  reaching `/beta/ops` through the Clerk-to-Edge token handoff.
+
+## 2026-09-10 invitation callback session-precedence repair
+
+The `/beta` callback now gives a well-formed `__clerk_ticket` precedence over
+an existing or partial Clerk session. It redirects that ticket immediately to
+the branded `/sign-up` component, which is the only page allowed to consume
+the invitation. This prevents a callback with `__clerk_status=sign_in` from
+trying to fetch the private workspace before Clerk finishes invitation
+acceptance.
+
+### Verification
+
+- Focused callback/proxy unit tests: 10/10; TypeScript, ESLint, and OpenNext
+  Cloudflare build pass. The Clerk CLI was read-only healthy but linked to a
+  different development instance, so it was not used to inspect, create, or
+  revoke the target invitation.
+
+## 2026-09-10 explicit browser-token forwarding repair
+
+The staging D1 release row is `preview`; the intended address still has an
+`invited` member row without a Clerk user ID, while its independent operator
+row is active `super_admin`. The Beta client now obtains Clerk's browser token
+and supplies it explicitly on every operator-context, member-context, chat,
+and memory request. The web proxy preserves that bearer for Edge issuer/JWKS
+verification, allowing the existing invitation to activate membership only
+when the verified Clerk subject and normalized email match.
+
+### Verification
+
+- Web unit suite: 104/104; TypeScript, ESLint, and OpenNext Cloudflare build
+  pass. This is an authorization transport repair, not a staging data bypass.
+
+## 2026-09-11 Beta 0.1 PR and Cloudflare placement checkpoint
+
+**Status:** SOURCE-ONLY PR OPEN — PR #77 from branch `beta_0.1`, base
+`release/beta@498c0e0`. No merge, tag, migration, deployment, traffic, secret,
+DNS, Clerk, queue, ingest, corpus, or production mutation occurred.
+
+- The complete resource and data-flow authority is
+  `docs/releases/beta-0.1-cloudflare-promotion-map.md`. It separates web
+  OpenNext/`ASSETS` delivery from catalogue R2, D1 authority, derived
+  Vectorize/KV state, Workers AI, and queue transport.
+- Named-profile read-only inventory confirms separate production and staging
+  web/edge Workers, D1, R2, Vectorize, KV, and ingest queue/DLQ resources.
+  Current 100%-traffic deployments exist for all four Workers, but they predate
+  this candidate and are not evidence that its source or bindings are live.
+- Staging D1 reports migrations 0012-0015 unapplied; production D1 reports
+  0011-0015 unapplied. The principal-profile and deletion/session schema is
+  therefore source-only until a reviewed environment-specific migration and
+  deployment receipt exists.
+- The latest deployed staging edge binding receipt predates the source-declared
+  Clerk issuer/JWKS/authorized-party configuration. A fresh edge binding
+  receipt is mandatory after any authorized staging deploy.
+- `wtfhq.in` is reachable, but its custom-domain/route attachment is not
+  declared in either Wrangler file. Traffic attribution remains an external
+  Cloudflare receipt rather than a source claim.
+- PRs #57 and #59 are open and conflicting against the same base. Their older
+  auth/session work is superseded by this integrated candidate; do not stack,
+  cherry-pick, close, or merge them automatically.
+- Safe staging order: inventory and recovery receipt → apply reviewed staging
+  migrations → deploy edge and verify bindings/health → deploy web and verify
+  its staging-only service binding → execute the real Clerk/D1 IAB persona and
+  responsive matrix. Production needs a new owner-authorized task after that.

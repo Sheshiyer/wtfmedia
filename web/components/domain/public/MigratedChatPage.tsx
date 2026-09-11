@@ -192,7 +192,7 @@ function ChatInner() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-4.5rem-env(safe-area-inset-top))] min-h-0 flex-col bg-canvas">
+    <div className="flex h-[calc(100vh-4.5rem-env(safe-area-inset-top))] min-h-0 flex-col bg-canvas" data-chat-frame="alpha">
       <ConversationThread
         messages={messages}
         loading={loading}

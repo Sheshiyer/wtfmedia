@@ -129,7 +129,7 @@ export function OperatorProfilePage() {
                   <p className="font-label text-[10px] font-bold uppercase tracking-[0.14em] text-muted">role-governed settings</p>
                   <h2 id="profile-settings-map-title" className="mt-1 font-heading text-2xl font-bold lowercase">settings access map</h2>
                 </div>
-                <Link href="/ops/settings" className="inline-flex min-h-10 items-center border-2 border-foreground bg-surface-raised px-3 py-2 font-label text-xs font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">open settings directory</Link>
+                <Link href="/beta/settings" className="inline-flex min-h-10 items-center border-2 border-foreground bg-surface-raised px-3 py-2 font-label text-xs font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">open settings directory</Link>
               </div>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-secondary">These links mirror the verified role’s read boundary. The edge policy remains authoritative for every route and mutation.</p>
               <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

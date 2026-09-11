@@ -81,6 +81,18 @@ describe("dual-source chat contract", () => {
     );
   });
 
+  test("anchors a lower-case named-person question instead of admitting a higher-scoring unrelated guest", () => {
+    const question = "what did sunil shetty say?";
+    const matches = prioritizeMatchesForQuestion([
+      { id: "wrong", score: 0.99, metadata: { video_id: "QdWHGjReLUo", title: "Nikhil Kamath x Neal Mohan" } },
+      { id: "target-1", score: 0.58, metadata: { video_id: "6HE6d0lKh4o", title: "Ep #6 | WTF is Health? ft. Nikhil Kamath, Suniel Shetty, Nithin Kamath and Mukesh Bansal" } },
+      { id: "target-2", score: 0.55, metadata: { video_id: "6HE6d0lKh4o", title: "Ep #6 | WTF is Health? ft. Nikhil Kamath, Suniel Shetty, Nithin Kamath and Mukesh Bansal" } },
+    ], question);
+
+    assert.deepEqual(extractNamedEntityPhrases(question), ["Sunil Shetty"]);
+    assert.deepEqual(matches.map((match) => match.id), ["target-1", "target-2"]);
+  });
+
   test("reports false pseudo-entities as unanchored so broad results stay episode-deduplicated", () => {
     for (const question of [
       "Tell me what supplements does Nikhil have?",
@@ -173,12 +185,15 @@ describe("dual-source chat contract", () => {
   });
 
   test("extracts entities from lowercase input via case-insensitive fallback", () => {
-    assert.deepEqual(extractNamedEntityPhrases("where does nikhil kamat stay?"), ["Nikhil Kamat"]);
+    // Lower-case recovery is gated on direct-speech questions; other phrasings
+    // have no reliable proper-noun signal and stay unanchored.
+    assert.deepEqual(extractNamedEntityPhrases("what did nikhil kamat say?"), ["Nikhil Kamat"]);
     assert.deepEqual(extractNamedEntityPhrases("what did ranbir kapoor say"), ["Ranbir Kapoor"]);
+    assert.deepEqual(extractNamedEntityPhrases("where does nikhil kamat stay?"), []);
   });
 
   test("case-insensitive extraction strips stopwords from phrase edges", () => {
-    const entities = extractNamedEntityPhrases("where does nikhil kamath stay in bangalore");
+    const entities = extractNamedEntityPhrases("what did nikhil kamath say in bangalore");
     assert.deepEqual(entities, ["Nikhil Kamath"]);
   });
 

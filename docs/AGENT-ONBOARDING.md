@@ -136,6 +136,29 @@ expiry, authorized party, and `sub`, then reads the configured custom
 to one active D1 operator, and D1—not browser state or token role claims—owns
 RBAC. No custom JWT template is required for this session flow.
 
+### Worker topology and deployment targeting
+
+The two-worker design is duplicated by environment: `wtfmedia-web` serves
+`wtfhq.in` and binds privately to `wtfmedia-edge`; `wtfmedia-web-staging`
+serves the staging Workers hostname and binds privately to
+`wtfmedia-edge-staging`. Public Alpha is a set of routes on the production web
+worker, not a third Worker. Do not delete either Edge Worker as a cleanup step.
+
+Deploy scripts fail closed when no environment is named. Use
+`npm --prefix web run cf:deploy:staging` for the reviewed staging lane, and
+reserve `cf:deploy:production` for an explicitly authorized production action.
+The Edge package follows the same `deploy:staging` / `deploy:production`
+pattern.
+
+The company member Beta is a separate staging-only `/beta` lane. Any verified
+Clerk user who is not an active D1 operator receives an owner-scoped member
+account on first access. Admin, editor, and super-admin authority remains an
+explicit `operators` allowlist and is never derived from Clerk metadata or
+ordinary membership. Members own private archive-only chat and explicit saved
+memory; the operator roster may manage lifecycle but never exposes member
+content. Its dedicated release manifest rejects production and cannot change
+`/chat` or `/api/chat`.
+
 ## Ingest safety rule
 
 Transcript queue ingestion is fail-closed. Before staging vectors, the consumer

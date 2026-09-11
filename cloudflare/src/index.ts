@@ -53,6 +53,7 @@ import {
   parseFollowUpCandidates,
   selectAnswerableFollowUps,
 } from "./chat/skills/wtf-os-conversation.ts";
+import { hasCitationCoverage } from "./chat/answer.ts";
 import {
   admitTranscriptJobs,
   type TranscriptJob,
@@ -768,7 +769,7 @@ async function chat(request: Request, env: Env) {
       });
     }
     const citationValidation = parseCitationMarkers(answered.answer, sources.length);
-    if (!citationValidation.valid) {
+    if (!citationValidation.valid || !hasCitationCoverage(answered.answer, sources.length)) {
       // One repair pass: the model answered but dropped/mangled citations. Ask
       // it to rewrite the same answer with valid [n] citations before giving up.
       console.warn("wtfmedia answer missing valid citations; attempting repair", { sourceCount: sources.length, citations: citationValidation.indices });
@@ -797,7 +798,7 @@ async function chat(request: Request, env: Env) {
         });
       }
       const repairedValidation = parseCitationMarkers(repaired.answer, sources.length);
-      if (repairedValidation.valid) {
+      if (repairedValidation.valid && hasCitationCoverage(repaired.answer, sources.length)) {
         return reply(request, env, {
           answer: repaired.answer,
           sources: projectSources(),

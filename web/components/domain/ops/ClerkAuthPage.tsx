@@ -4,7 +4,7 @@ import { OperatorAuthFrame } from "./OperatorAuthFrame";
 import { MEMBER_BETA_RETURN_TO, OPERATOR_RETURN_TO } from "@/lib/ops/clerk-url";
 
 function AuthUnavailable() {
-  return <AccessRecovery mode="unavailable" returnTo="/ops" />;
+  return <AccessRecovery mode="unavailable" returnTo={OPERATOR_RETURN_TO} />;
 }
 
 export function ClerkSignInPage({ redirectTo = OPERATOR_RETURN_TO }: { redirectTo?: string }) {

@@ -25,7 +25,7 @@ const readinessItems: readonly ReadinessItem[] = [
     status: "source contract ready",
     detail: "The edge verifies issuer, JWKS, and authorized party, then resolves normalized email to an active D1 operator role. A live roster readback is still required.",
     tone: "information",
-    href: "/ops/operators",
+    href: "/beta/admin/users",
     action: "open roster boundary",
   },
   {
@@ -33,7 +33,7 @@ const readinessItems: readonly ReadinessItem[] = [
     status: "live receipt required",
     detail: "720 hours and MFA precedence are policy targets. Expiry, sign-out, revocation, and reauthentication remain interactive staging checks.",
     tone: "attention",
-    href: "/ops/recover",
+    href: "/beta/settings",
     action: "open recovery state",
   },
   {
@@ -41,7 +41,7 @@ const readinessItems: readonly ReadinessItem[] = [
     status: "local contract ready",
     detail: "Owner-scoped D1 conversations, source metadata, archive-only lifecycle, and protected deep links exist locally. Staging D1 migration and persistence remain unreceipted.",
     tone: "information",
-    href: "/ops/chat",
+    href: "/beta/chat",
     action: "open history workspace",
   },
   {
@@ -49,7 +49,7 @@ const readinessItems: readonly ReadinessItem[] = [
     status: "explicit save active",
     detail: "Owner-scoped saved memory now has a bounded D1 store, optional conversation provenance, server-side context injection, and reversible archive. Automatic extraction remains disabled.",
     tone: "information",
-    href: "/ops/settings/memory",
+    href: "/beta/settings/workspace/memory",
     action: "review memory boundary",
   },
   {
@@ -57,7 +57,7 @@ const readinessItems: readonly ReadinessItem[] = [
     status: "local contract ready",
     detail: "Global model and fallback editing is present locally. Provider verification and credential custody remain server-gated.",
     tone: "information",
-    href: "/ops/settings/ai",
+    href: "/beta/settings/workspace/ai",
     action: "open AI route settings",
   },
   {
@@ -65,7 +65,7 @@ const readinessItems: readonly ReadinessItem[] = [
     status: "mock preview",
     detail: "The read-only dashboard composition is available as fixture data. OAuth, observation freshness, and account scope are not connected.",
     tone: "held",
-    href: "/ops/settings/analytics",
+    href: "/beta/settings/workspace/analytics",
     action: "open analytics settings",
   },
 ] as const;

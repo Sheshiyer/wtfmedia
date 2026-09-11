@@ -1,7 +1,7 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import { forwardRef, type ReactNode } from "react";
+import { forwardRef, type ReactNode, type RefObject } from "react";
 
 export interface DrawerProps {
   /** Whether the drawer is open */
@@ -16,6 +16,8 @@ export interface DrawerProps {
   description?: string;
   /** Side the drawer slides from (default: right) */
   side?: "left" | "right";
+  /** Optional external trigger used when no Dialog.Trigger wraps the opener. */
+  triggerRef?: RefObject<HTMLElement | null>;
 }
 
 /**
@@ -36,6 +38,7 @@ export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(
       children,
       description,
       side = "right",
+      triggerRef,
       ...props
     },
     ref,
@@ -50,6 +53,11 @@ export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(
           />
           <Dialog.Content
             ref={ref}
+            onCloseAutoFocus={(event) => {
+              if (!triggerRef?.current) return;
+              event.preventDefault();
+              triggerRef.current.focus();
+            }}
             aria-describedby={description ? "drawer-description" : undefined}
             className={[
               "fixed z-50 gap-4 bg-surface-raised border-l-2 border-foreground",

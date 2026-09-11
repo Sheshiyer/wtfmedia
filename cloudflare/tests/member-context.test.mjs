@@ -54,7 +54,73 @@ test("an activation race is denied unless the committed Clerk subject matches", 
   assert.equal(await resolveMemberContext(db, { ok: true, email: "pilot@example.test", userId: "user_pilot_1" }, "staging", "corr-member-race"), null);
 });
 
-test("uninvited Clerk identities receive no member context", async () => {
-  const db = { prepare() { return { bind() { return this; }, async first() { return null; } }; } };
-  assert.equal(await resolveMemberContext(db, { ok: true, email: "unknown@example.test", userId: "user_unknown_1" }, "staging", "corr-member-2"), null);
+test("a verified non-operator Clerk identity self-provisions an owner-scoped member account", async () => {
+  let provisioned = false;
+  const calls = [];
+  const db = {
+    prepare(sql) {
+      return {
+        bind(...args) { calls.push({ sql, args }); return this; },
+        async first() {
+          if (sql.includes("sqlite_master")) return { ready: 1 };
+          if (sql.includes("FROM operators")) return null;
+          if (sql.includes("FROM member_users")) return provisioned ? {
+            id: 31,
+            email: "new-member@example.test",
+            clerk_user_id: "user_new_member_1",
+            lifecycle_state: "active",
+            pilot_cohort: "company",
+          } : null;
+          return null;
+        },
+      };
+    },
+    async batch() { provisioned = true; return []; },
+  };
+  assert.deepEqual(
+    await resolveMemberContext(db, { ok: true, email: "new-member@example.test", userId: "user_new_member_1" }, "staging", "corr-member-2", "2026-09-10T16:10:00.000Z"),
+    { memberId: 31, role: "member", workspace: "wtfmedia", pilotCohort: "company", environment: "staging", correlationId: "corr-member-2" },
+  );
+  assert.ok(calls.some((call) => call.sql.includes("INSERT OR IGNORE INTO member_users")));
+});
+
+test("an active operator is never silently self-provisioned as a member", async () => {
+  let wrote = false;
+  const db = {
+    prepare(sql) {
+      return {
+        bind() { return this; },
+        async first() {
+          if (sql.includes("sqlite_master")) return { ready: 1 };
+          if (sql.includes("FROM operators")) return { id: 7 };
+          return null;
+        },
+      };
+    },
+    async batch() { wrote = true; return []; },
+  };
+  assert.equal(await resolveMemberContext(db, { ok: true, email: "admin@example.test", userId: "user_admin_1" }, "staging", "corr-member-admin"), null);
+  assert.equal(wrote, false);
+});
+
+test("suspended and revoked member rows remain denied under open enrollment", async () => {
+  for (const lifecycle_state of ["suspended", "revoked"]) {
+    let wrote = false;
+    const db = {
+      prepare(sql) {
+        return {
+          bind() { return this; },
+          async first() {
+            if (sql.includes("sqlite_master")) return { ready: 1 };
+            if (sql.includes("FROM operators")) return null;
+            if (sql.includes("FROM member_users")) return { id: 42, email: "held@example.test", clerk_user_id: "user_held_1", lifecycle_state, pilot_cohort: "company" };
+            return null;
+          },
+        };
+      },
+      async batch() { wrote = true; return []; },
+    };
+    assert.equal(await resolveMemberContext(db, { ok: true, email: "held@example.test", userId: "user_held_1" }, "staging", `corr-member-${lifecycle_state}`), null);
+    assert.equal(wrote, false);
+  }
 });

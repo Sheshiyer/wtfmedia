@@ -1,15 +1,18 @@
 "use client";
 
-import { AppRail, type AppNavItem } from "./AppRail";
+import { AppRail, shouldHideBottomDock, type AppNavGroup, type AppNavItem } from "./AppRail";
+import { usePathname } from "next/navigation";
 import { SkipLink } from "@/components/ui/SkipLink";
 
-export type { AppNavItem };
+export type { AppNavGroup, AppNavItem };
 
 export type AppShellProps = {
   children: React.ReactNode;
   navigation: readonly AppNavItem[];
-  mode: "public" | "operator";
+  mode: "public" | "member" | "operator";
   utility?: React.ReactNode;
+  bottomNavigation?: readonly AppNavItem[];
+  disclosureGroups?: readonly AppNavGroup[];
 };
 
 export function AppShell({
@@ -17,7 +20,12 @@ export function AppShell({
   navigation,
   mode,
   utility,
+  bottomNavigation,
+  disclosureGroups,
 }: AppShellProps) {
+  const pathname = usePathname() ?? "/";
+  const hideBottomDock = shouldHideBottomDock(mode, pathname);
+
   return (
     <div
       data-wtf-shell="wtfos"
@@ -27,8 +35,13 @@ export function AppShell({
       <SkipLink targetId="wtf-main">skip to workspace</SkipLink>
 
       <div data-wtf-shell="migrated" className="min-h-screen">
-        <AppRail mode={mode} navigation={navigation} utility={utility} />
-        <div className="relative min-h-screen overflow-hidden pt-[calc(4.5rem+env(safe-area-inset-top))]">
+        <AppRail mode={mode} navigation={navigation} utility={utility} bottomNavigation={bottomNavigation} disclosureGroups={disclosureGroups} />
+        <div
+          className={[
+            "relative min-h-screen overflow-hidden pt-[calc(4.5rem+env(safe-area-inset-top))]",
+            hideBottomDock ? "" : "pb-28 sm:pb-24",
+          ].join(" ")}
+        >
           <div
             aria-hidden="true"
             className="pointer-events-none fixed inset-0 z-0"

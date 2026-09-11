@@ -1,7 +1,7 @@
 import { createRemoteJWKSet, jwtVerify, type JWTVerifyGetKey } from "jose";
 
 export type ClerkVerification =
-  | { ok: true; email: string; userId: string; sessionId?: string }
+  | { ok: true; email: string; userId: string; firstName?: string; lastName?: string; sessionId?: string }
   | { ok: false };
 
 export type ClerkVerifierConfig = {
@@ -15,6 +15,12 @@ function normalizedEmail(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const email = value.trim().toLowerCase();
   return email.length <= 320 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null;
+}
+
+function safeProfileName(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const name = value.trim().replace(/\s+/gu, " ");
+  return name.length >= 1 && name.length <= 80 ? name : undefined;
 }
 
 function tokenFromRequest(request: Request): string | null {
@@ -55,7 +61,9 @@ export function createClerkVerifier(config: ClerkVerifierConfig) {
       const userId = verified.payload.sub;
       if (!email || !validUserId(userId)) return { ok: false };
       const sid = sessionId(verified.payload);
-      return { ok: true, email, userId, ...(sid ? { sessionId: sid } : {}) };
+      const firstName = safeProfileName(verified.payload.given_name);
+      const lastName = safeProfileName(verified.payload.family_name);
+      return { ok: true, email, userId, ...(firstName ? { firstName } : {}), ...(lastName ? { lastName } : {}), ...(sid ? { sessionId: sid } : {}) };
     } catch {
       return { ok: false };
     }

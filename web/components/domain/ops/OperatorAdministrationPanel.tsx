@@ -103,7 +103,7 @@ export function OperatorAdministrationPanel() {
           : "Sign in through the approved Clerk path to reveal roster details. Public-link mode intentionally shows no operator records or mutation controls."}
       </p>
 
-      <Link href="/ops/operators" className="mt-5 inline-flex min-h-11 items-center border-2 border-foreground bg-canvas px-4 py-3 font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">
+      <Link href="/beta/admin/users" className="mt-5 inline-flex min-h-11 items-center border-2 border-foreground bg-canvas px-4 py-3 font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">
         open protected operator workspace
       </Link>
     </section>

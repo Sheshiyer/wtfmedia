@@ -18,7 +18,8 @@ test("episode-scoped retrieval keeps source identity and excludes unrelated matc
   const fixture = await loadFixture();
   const { episodeId, matches, expected } = fixture;
 
-  assert.deepEqual(buildVectorQueryOptions(episodeId).filter, {
+  assert.deepEqual(buildVectorQueryOptions(episodeId, "published").filter, {
+    source_mode: { $eq: "published" },
     video_id: { $eq: episodeId },
   });
 
