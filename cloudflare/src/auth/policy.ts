@@ -65,13 +65,14 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/api/ops/assets/upload-stream": ["assets", "upload"],
   "/api/ops/assets/confirm-upload": ["assets", "confirm"],
   "/beta": ["beta", "read"],
-  "/beta/api/principal-context": ["beta", "read"],
   "/beta/chat": ["chat", "read"],
+  "/beta/settings": ["beta", "read"],
   "/beta/settings/account": ["beta", "read"],
   "/beta/settings/memory": ["memory", "read"],
   "/beta/settings/sessions": ["chat", "read"],
   "/beta/settings/appearance": ["beta", "read"],
   "/beta/workspace/production": ["control_room", "read"],
+  "/beta/workspace": ["control_room", "read"],
   "/beta/workspace/episodes": ["episodes", "read"],
   "/beta/workspace/ingest": ["ingest", "read"],
   "/beta/settings/workspace/readiness": ["control_room", "read"],
@@ -98,7 +99,8 @@ export function decide(role: unknown, resource: unknown, action: unknown, option
   return grants[role].has(`${resource}:${action}`);
 }
 
-export function policyForPath(pathname: string): readonly [Resource, Action] | null {
+export function policyForPath(pathname: string, method = "GET"): readonly [Resource, Action] | null {
+  if (pathname.startsWith("/beta/api/")) return betaApiRequirement(pathname, method);
   if (routeRequirements[pathname]) return routeRequirements[pathname];
   if (pathname === "/ops/settings/access") return ["operators", "read"];
   if (pathname === "/ops/settings/users") return ["members", "read"];
@@ -114,6 +116,25 @@ export function policyForPath(pathname: string): readonly [Resource, Action] | n
     if (pathname.endsWith("/stage")) return ["transcripts", "write"];
     return ["episodes", "read"];
   }
+  return null;
+}
+
+function betaApiRequirement(pathname: string, method: string): readonly [Resource, Action] | null {
+  const requestMethod = method.toUpperCase();
+  if (pathname === "/beta/api/principal-context" || pathname === "/beta/api/context") return requestMethod === "GET" ? ["beta", "read"] : null;
+  if (pathname === "/beta/api/chat") {
+    if (requestMethod === "GET") return ["chat", "read"];
+    return requestMethod === "POST" ? ["chat", "write"] : null;
+  }
+  if (/^\/beta\/api\/chat\/mcnv_[A-Za-z0-9-]{8,88}$/u.test(pathname)) {
+    return ["GET", "POST", "DELETE"].includes(requestMethod) ? ["chat", requestMethod === "GET" ? "read" : "write"] : null;
+  }
+  if (/^\/beta\/api\/chat\/mcnv_[A-Za-z0-9-]{8,88}\/archive$/u.test(pathname)) return requestMethod === "POST" ? ["chat", "write"] : null;
+  if (pathname === "/beta/api/memory") {
+    if (requestMethod === "GET") return ["memory", "read"];
+    return requestMethod === "POST" ? ["memory", "write"] : null;
+  }
+  if (/^\/beta\/api\/memory\/mmem_[A-Za-z0-9-]{8,88}\/archive$/u.test(pathname)) return requestMethod === "POST" ? ["memory", "write"] : null;
   return null;
 }
 

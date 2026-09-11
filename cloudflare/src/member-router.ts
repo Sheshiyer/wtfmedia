@@ -1,5 +1,6 @@
 import { createRemoteClerkVerifier, type ClerkVerification } from "./auth/clerk.ts";
 import { principalContextDto, resolvePrincipalContext } from "./auth/principal-context.ts";
+import { decide, policyForPath } from "./auth/policy.ts";
 import { archiveMemberConversation, completeMemberTurn, deleteMemberConversation, getMemberConversation, listMemberConversations, prepareMemberTurn } from "./chat/member-history.ts";
 import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "./chat/member-memory.ts";
 import { boundedPriorTurns, runChat, type ChatAnswerInput, type ChatAnswer } from "./chat/answer.ts";
@@ -25,6 +26,9 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
   if (!identity.ok) return unauthorized();
   const context = await resolvePrincipalContext(env.DB, identity, env.OPS_ENVIRONMENT, request.headers.get("x-request-id") ?? crypto.randomUUID());
   if (!context) return forbidden();
+  const requirement = policyForPath(url.pathname, request.method);
+  if (!requirement) return denied();
+  if (!decide(context.role, requirement[0], requirement[1], { environment: context.environment })) return forbidden();
   if (url.pathname === "/beta/api/principal-context" && request.method === "GET") return Response.json(principalContextDto(context), { headers });
   if (context.kind !== "member") return forbidden();
   if (url.pathname === "/beta/api/context" && request.method === "GET") return Response.json({ member: { role: context.role, workspace: context.workspace, pilotCohort: context.pilotCohort, environment: context.environment } }, { headers });
