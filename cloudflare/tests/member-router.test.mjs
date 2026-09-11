@@ -52,3 +52,24 @@ test("an activated invited member receives only their beta context and history",
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), { conversations: [], nextCursor: null });
 });
+
+test("principal-context returns a safe browser DTO and separates authentication from lifecycle denial", async () => {
+  const request = new Request("https://ops.staging.test/beta/api/principal-context", { headers: { authorization: "Bearer verified", "x-request-id": "corr-principal-router" } });
+  const response = await handleMemberRequest(request, { ...env, DB: db() }, { verifyClerk: async () => ({ ok: true, email: "member@example.test", userId: "user_member_1", firstName: "Member", lastName: "Example" }) });
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {
+    kind: "member", role: "member", email: "member@example.test", firstName: "Member", lastName: "Example", displayName: "Member Example",
+    landingRoute: "/beta/chat", capabilities: ["beta:read", "chat:read", "chat:write", "memory:read", "memory:write"], environment: "staging",
+  });
+  const signedOut = await handleMemberRequest(request, { ...env, DB: db() }, { verifyClerk: async () => ({ ok: false }) });
+  assert.equal(signedOut.status, 401);
+  const inactiveOperatorDb = db();
+  const originalPrepare = inactiveOperatorDb.prepare;
+  inactiveOperatorDb.prepare = (sql) => {
+    const statement = originalPrepare(sql);
+    if (sql.includes("FROM operators")) statement.first = async () => ({ id: 7, email: "member@example.test", display_name: "Inactive", role: "editor", active: 0 });
+    return statement;
+  };
+  const denied = await handleMemberRequest(request, { ...env, DB: inactiveOperatorDb }, { verifyClerk: async () => ({ ok: true, email: "member@example.test", userId: "user_member_1" }) });
+  assert.equal(denied.status, 403);
+});

@@ -42,6 +42,7 @@ const migrations = [
   "0011_clerk_invitation_id_prefix.sql",
   "0012_member_chat_deletion.sql",
   "0013_member_chat_context.sql",
+  "0014_principal_profiles.sql",
 ];
 
 function sqlite(input, json = false) {
