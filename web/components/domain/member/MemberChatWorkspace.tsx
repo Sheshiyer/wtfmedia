@@ -14,6 +14,7 @@ import { useMemberFetch } from "./MemberBetaGate";
 import { MemberSessionNavigator } from "./MemberSessionNavigator";
 
 type WorkspaceState = "idle" | "loading" | "error" | "unavailable";
+type DeleteTarget = { id: string; title: string; linkedSavedPreferenceCount?: number };
 
 function Thread({ view, sending, canRetry, onRetry, loadingEarlier, onLoadEarlier, renderFooter }: { view: MemberConversationResponse; sending: boolean; canRetry: boolean; onRetry: () => void; loadingEarlier: boolean; onLoadEarlier: () => void; renderFooter: () => React.ReactNode }) {
   return <ConversationThreadFrame
@@ -67,7 +68,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
   const [sending, setSending] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
   const [loadingEarlier, setLoadingEarlier] = useState(false);
@@ -99,7 +100,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     setArchiving(false);
     setDeleting(false);
     setDeleteDialogOpen(false);
-    setDeleteTargetId(null);
+    setDeleteTarget(null);
     setDeleteError(false);
     setLoadingEarlier(false);
   }, [conversationId, pathname]);
@@ -226,7 +227,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
   }, [archiving, conversationId, memberFetch, pathname, router]);
 
   const deleteConversation = useCallback(async (confirmation: string): Promise<boolean> => {
-    const targetId = deleteTargetId ?? conversationId;
+    const targetId = deleteTarget?.id ?? conversationId;
     if (!targetId || deleting || !canConfirmMemberConversationDeletion(confirmation)) return false;
     const epoch = ++archiveEpoch.current;
     const requestPath = pathname;
@@ -235,21 +236,20 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     try {
       const response = await memberFetch(`/beta/api/chat/${encodeURIComponent(targetId)}`, { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ confirmation: "DELETE" }) });
       if (!response.ok) throw new Error("member_delete_unavailable");
-      if (!shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) || (deleteTargetId === null && currentConversation.current !== targetId)) return false;
+      if (!shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) || (deleteTarget === null && currentConversation.current !== targetId)) return false;
       setDeleteDialogOpen(false);
       router.push("/beta/chat");
       return true;
     } catch {
-      if (shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) && (deleteTargetId === null || currentConversation.current === targetId)) setDeleteError(true);
+      if (shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) && (deleteTarget !== null || currentConversation.current === targetId)) setDeleteError(true);
       return false;
     } finally {
       if (epoch === archiveEpoch.current) setDeleting(false);
     }
-  }, [conversationId, deleteTargetId, deleting, memberFetch, pathname, router]);
+  }, [conversationId, deleteTarget, deleting, memberFetch, pathname, router]);
 
   const requestDeleteFromNavigator = useCallback(async (selectedConversation: MemberConversationResponse) => {
-    setView(selectedConversation);
-    setDeleteTargetId(selectedConversation.conversation.id);
+    setDeleteTarget({ id: selectedConversation.conversation.id, title: selectedConversation.conversation.title, linkedSavedPreferenceCount: selectedConversation.conversation.linkedSavedPreferenceCount });
     setDeleteError(false);
     setDeleteDialogOpen(true);
   }, []);
@@ -277,7 +277,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
           <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-knowledge">company beta · private workspace</p>
           {conversationId && view ? <h1 className="mt-1 font-display text-3xl font-extrabold lowercase [overflow-wrap:anywhere]">{view.conversation.title}</h1> : <><h1 className="mt-1 font-display text-lg font-extrabold lowercase">ask wtf</h1><p className="mt-1 text-xs text-secondary">{greeting}. Your history stays with this signed-in workspace.</p></>}
         </div>
-        <div className="flex flex-wrap gap-2"><Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="xl:hidden">conversations</Button>{conversationId ? <><Button type="button" variant="secondary" onClick={() => void archive()} loading={archiving} disabled={archiving || deleting}>archive conversation</Button><Button type="button" variant="ghost" onClick={() => { setDeleteError(false); setDeleteDialogOpen(true); }} disabled={archiving || deleting}>delete</Button></> : null}</div>
+        <div className="flex flex-wrap gap-2"><Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="xl:hidden">conversations</Button>{conversationId ? <><Button type="button" variant="secondary" onClick={() => void archive()} loading={archiving} disabled={archiving || deleting}>archive conversation</Button><Button type="button" variant="ghost" onClick={() => { setDeleteError(false); setDeleteTarget(view ? { id: conversationId, title: view.conversation.title, linkedSavedPreferenceCount: view.conversation.linkedSavedPreferenceCount } : null); setDeleteDialogOpen(true); }} disabled={archiving || deleting}>delete</Button></> : null}</div>
       </div>
     </div>
     <div className="mx-auto grid min-w-0 max-w-[var(--wtf-content-max)] gap-6 px-4 sm:px-8 xl:grid-cols-[15rem_minmax(0,1fr)] xl:px-12">
@@ -299,6 +299,6 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
       loading={sending}
       variant="compact"
     /> : null}
-    {deleteDialogOpen && (deleteTargetId || conversationId) && view ? <DeleteConversationDialog conversationTitle={view.conversation.title} linkedSavedPreferenceCount={view.conversation.linkedSavedPreferenceCount} pending={deleting} error={deleteError} onClose={() => { if (!deleting) { setDeleteDialogOpen(false); setDeleteTargetId(null); } }} onConfirm={deleteConversation} /> : null}
+    {deleteDialogOpen && (deleteTarget || (conversationId && view)) ? <DeleteConversationDialog conversationTitle={deleteTarget?.title ?? view?.conversation.title ?? "this conversation"} linkedSavedPreferenceCount={deleteTarget?.linkedSavedPreferenceCount ?? view?.conversation.linkedSavedPreferenceCount} pending={deleting} error={deleteError} onClose={() => { if (!deleting) { setDeleteDialogOpen(false); setDeleteTarget(null); } }} onConfirm={deleteConversation} /> : null}
   </div>;
 }

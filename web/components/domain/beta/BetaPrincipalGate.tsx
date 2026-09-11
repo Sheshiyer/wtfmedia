@@ -29,6 +29,7 @@ export function useBetaPrincipal(): PrincipalContext {
 
 const memberNavigation: readonly AppNavItem[] = memberBottomNavigation;
 const operatorNavigation: readonly AppNavItem[] = [
+  { href: "/beta/chat", label: "ask wtf", section: "workspace" },
   { href: "/beta/workspace", label: "control room", section: "workspace" },
   { href: "/beta/workspace/production", label: "production", section: "workspace" },
   { href: "/beta/workspace/episodes", label: "episodes", section: "workspace" },

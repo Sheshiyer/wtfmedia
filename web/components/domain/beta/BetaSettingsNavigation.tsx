@@ -24,7 +24,7 @@ export function BetaSettingsNavigation() {
   const pathname = usePathname() ?? "/beta/settings";
   const principal = useBetaPrincipal();
   const admin = principal.kind === "operator" && (principal.capabilities.includes("members:read") || principal.capabilities.includes("audit:read"));
-  const items = principal.kind === "member" ? MEMBER_ITEMS : WORKSPACE_ITEMS.filter(([href]) => {
+  const items = principal.kind === "member" ? MEMBER_ITEMS : [...MEMBER_ITEMS, ...WORKSPACE_ITEMS].filter(([href]) => {
     const required = href.endsWith("/episodes") ? "episodes:read" : href.endsWith("/sessions") ? "chat:read" : href.endsWith("/memory") ? "memory:read" : href.endsWith("/sources") ? "transcripts:read" : "control_room:read";
     return principal.capabilities.includes(required);
   });
