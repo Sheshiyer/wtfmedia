@@ -2,7 +2,7 @@
 
 ## 2026-09-11 Beta 0.1 integration evidence and promotion checkpoint
 
-**Status:** LOCAL SOURCE INTEGRATION VERIFIED; LIVE ACCEPTANCE UNPROVEN. This
+**Status:** EXACT SOURCE CANDIDATE VERIFIED; LIVE ACCEPTANCE UNPROVEN. This
 entry records planning and source facts only. It neither deploys nor accepts a
 staging or production environment.
 
@@ -13,14 +13,18 @@ staging or production environment.
   `rag/alpha-answer-accuracy`, with parents
   `d4e45b44f3527b768408069f191951c2c3f492cb` and
   `7ec8298664a40b7b138f2b8d042d89858645cb67`.
+- Bounded source closure is committed as `79a0285` (operator chat/RBAC runtime
+  fixes), `b7f5bec` (release workflow, version, and deterministic migration
+  guards), and `2c4007d` (planning plus generated architecture). The selected
+  exact source candidate is
+  `2c4007d378148da19f09004e97cfc2aff273267e`.
 - The user-reported `3eebf57` object is unavailable in this checkout. Do not
   substitute it for `d3b4590`, and do not call either SHA deployed without an
   environment receipt.
-- The integration handoff records Edge 376/376, web unit 188/188, web
-  contracts 96/96, TypeScript, lint, and architecture checks green. They are
-  local source/build evidence only and must be rerun at the final exact
-  candidate after the post-merge runtime and release/migration fixes are
-  committed.
+- At exact candidate `2c4007d`, Edge 379/379, web unit 190/190, web contracts
+  96/96, TypeScript, lint, production build, privacy with zero violations
+  across 394 files, architecture freshness across 616 inputs, and
+  `git diff --check` pass. These are source/build evidence only.
 
 ### Reported, not accepted
 
@@ -57,9 +61,10 @@ staging or production environment.
 
 ### Next action
 
-Review and commit the post-merge runtime and release/migration source fixes,
-then select one exact candidate and rerun its source checks. Do not deploy,
-migrate, seed, change Clerk, mutate
+Resolve the historical `v0.3.3-beta.2` tag decision, then obtain explicit
+authority for the staged backup/migration/deployment and real Clerk/D1 IAB
+persona matrix against exact candidate `2c4007d`. Do not deploy, migrate, seed,
+change Clerk, mutate
 DNS, enqueue work, or promote traffic under this handoff.
 
 ## 2026-09-11 Beta single-shell RBAC convergence checkpoint

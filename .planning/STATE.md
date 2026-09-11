@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Beta 0.1 locally integrated at d3b4590; post-merge runtime and release/migration source closure plus all live gates remain open
-last_updated: "2026-09-11T19:29:00+05:30"
+stopped_at: Beta 0.1 exact source candidate 2c4007d verified; tag reconciliation and all staging/production gates remain open
+last_updated: "2026-09-11T19:48:00+05:30"
 last_activity: 2026-09-11
 progress:
   total_phases: 10
@@ -28,8 +28,9 @@ its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
 **Current focus:** Beta 0.1 is a separately tracked authenticated release lane,
-not completion of the broader v1.0 roadmap. This host verifies the local merge
-`d3b4590` on `rag/alpha-answer-accuracy` with parents `d4e45b4` and `7ec8298`.
+not completion of the broader v1.0 roadmap. Exact source candidate `2c4007d`
+contains local merge `d3b4590`, runtime/UI closure `79a0285`, and
+release/migration guards `b7f5bec` on `rag/alpha-answer-accuracy`.
 The user-reported `3eebf57` object is unavailable here. Alpha's actual Ask WTF
 UI, interaction, inference, retrieval, and navigation remain the product
 bedrock; authentication, private conversations, history, explicit memory,
@@ -42,10 +43,10 @@ authority is `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklis
   tag, staging receipt, production claim, or moving deployment target. The
   host-visible reconstruction is merge `d3b4590`; it does not prove GitHub PR
   state, staging, or production.
-- The integration handoff records Edge 376/376, web unit 188/188, web contracts
-  96/96, TypeScript, lint, and architecture checks green. These are local
-  source/build receipts and must be rerun after the post-merge runtime and
-  release/migration fixes are committed into one exact candidate SHA.
+- Exact source candidate `2c4007d` passes Edge 379/379, web unit 190/190, web
+  contracts 96/96, TypeScript, lint, production build, privacy with zero
+  violations across 394 files, architecture freshness across 616 inputs, and
+  `git diff --check`. These remain source/build receipts only.
 - The user reports later local runtime behavior and remote D1 migrations
   0011-0015 plus a release-row seed. This checkout has no environment-specific
   backup, migration, binding, deployment, traffic, or authenticated-IAB receipt
@@ -358,7 +359,7 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
 ## Session Continuity
 
 Last session: 2026-09-11
-Stopped at: Beta 0.1 local integration `d3b4590` and release-readiness planning.
+Stopped at: Beta 0.1 exact source candidate `2c4007d` verified; live promotion gates held.
 The host verifies the merge parents but not the reported `3eebf57` object; test
 counts are source evidence and reported runtime/D1 activity is unaccepted.
 Resume file: `.project/HANDOFF.md`

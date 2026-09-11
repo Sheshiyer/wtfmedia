@@ -4,7 +4,7 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: verify
-progress: 117/282
+progress: 119/284
 mode: interactive
 started: 2026-08-18T11:39:10Z
 updated: 2026-09-11T19:17:05+05:30
@@ -386,7 +386,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-260: Open conflicting PRs #57 and #59 are treated as superseded inputs rather than stacked or automatically closed (probe: GitHub PR metadata and PR body).
 - [ ] ISC-261: [DROPPED — pre-merge no-mutation criterion ended when the local source merge occurred; staging and production mutation holds are now governed by ISC-266 through ISC-278.]
 - [x] ISC-262: This host verifies the local Beta integration as `d3b4590` with parents `d4e45b4` and `7ec8298`, while the user-reported `3eebf57` object is unavailable here; neither SHA is called deployed (probe: `git show --pretty=raw d3b4590` and `git cat-file -t 3eebf57`).
-- [ ] ISC-263: The reviewed post-merge runtime/UI and release/migration source fixes are committed in bounded reviewable commits, and one exact candidate SHA contains those commits plus `d3b4590` (probe: Git ancestry, commit diffs, migration/workflow tests, and status check).
+- [x] ISC-263: Runtime/UI closure `79a0285` and release/migration guardrails `b7f5bec` are bounded commits contained with `d3b4590` by exact source candidate `2c4007d378148da19f09004e97cfc2aff273267e` (probe: Git ancestry, commit diffs, migration/workflow tests, and clean status).
 - [x] ISC-264: Edge 376/376, web unit 188/188, web contracts 96/96, TypeScript, lint, and architecture results are recorded only as local source/build evidence and require a rerun at the exact candidate after ISC-263 (probe: release checklist evidence table).
 - [x] ISC-265: User-reported later local runtime behavior and remote D1 migrations/releases are recorded as `REPORTED` without satisfying any staging or production acceptance row (probe: release checklist evidence classification).
 - [DEFERRED-VERIFY] ISC-266: Staging has a pre-migration backup/recovery and migration-inventory receipt plus a post-apply migration/readiness receipt for the exact candidate (probe: owner-authorized staging command receipts; follow-up `WTF-BETA-STAGING-01`).
@@ -407,6 +407,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [DEFERRED-VERIFY] ISC-281: Beta 0.1 does not certify a wholesale Alpha merge, complete visual/interaction parity, or adoption of every later Alpha capability beyond its explicit accepted route and viewport matrix (probe: release checklist and branch ledger; follow-up `WTF-BETA-FULL-ALIGNMENT-01`).
 - [DEFERRED-VERIFY] ISC-282: A Beta acceptance claim may not upgrade `VERIFIED-SOURCE` or `REPORTED` evidence to staging or production acceptance without the matching exact-revision receipt (probe: checklist/handoff terminology scan; follow-up `WTF-BETA-EVIDENCE-01`).
 - [ ] ISC-283: The owner reconciles the existing remote `v0.3.3-beta.2` tag at `66f434a` with its source-only release note before any `v0.3.3-beta.3` publication; the historical tag is not deleted, moved, reused, or silently reinterpreted (probe: remote tag inventory plus recorded release decision).
+- [x] ISC-284: Exact source candidate `2c4007d` passes Edge 379/379, web unit 190/190, web contracts 96/96, TypeScript, lint, production build, privacy with zero violations across 394 files, architecture freshness across 616 inputs, and `git diff --check` (probe: local command receipt at the exact candidate).
 
 ## Test Strategy
 
@@ -432,7 +433,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-202..218 | Alpha-aligned chat refinement | shared inference, multi-turn retrieval, evidence validation, stable citations, truthful member states, resilient thread interaction, and environment isolation | all deterministic probes pass; deployed staging UI remains separately receipted | Edge unit/integration + web unit/contracts + authenticated IAB |
 | ISC-219..240 | Alpha-bedrock / Beta modular convergence | branch/symbol admission, shared Alpha presentation, true navigation continuity, selected-session archive/delete, long-session pagination/compaction, role-specific screens, and no remote mutation | all local contracts pass; live personas and viewports separately deferred | Git ledger + Edge/D1 tests + web contracts + authenticated IAB matrix |
 | ISC-241..251 | Beta single-shell RBAC convergence | edge principal precedence, canonical routes, policy-derived navigation, scoped Settings, private DTOs, lifecycle, preview holds, and source-only release boundary | all local policy/navigation/privacy contracts pass; staging IAB remains required | Edge tests + web unit/contracts + build/privacy + authenticated IAB matrix |
-| ISC-252..282 | Beta 0.1 release evidence and promotion gate | immutable local merge identity, exact-candidate source closure, evidence-classification boundaries, staging/production receipts, and explicit non-goals | source evidence stays source-only; every staging/production row needs its matching exact-revision receipt | Git + checklist review + owner-authorized Cloudflare/Clerk/D1/IAB receipts |
+| ISC-252..284 | Beta 0.1 release evidence and promotion gate | immutable local merge identity, exact-candidate source closure, evidence-classification boundaries, staging/production receipts, and explicit non-goals | source evidence stays source-only; every staging/production row needs its matching exact-revision receipt | Git + checklist review + owner-authorized Cloudflare/Clerk/D1/IAB receipts |
 
 ## Features
 
@@ -541,7 +542,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 
 - name: Beta01CloudflarePromotionGate
   description: Exact-source integration, evidence classification, environment boundaries, staged promotion gates, and explicit Beta 0.1 deferrals
-  satisfies: [ISC-252, ISC-253, ISC-254, ISC-255, ISC-256, ISC-257, ISC-258, ISC-259, ISC-260, ISC-261, ISC-262, ISC-263, ISC-264, ISC-265, ISC-266, ISC-267, ISC-268, ISC-269, ISC-270, ISC-271, ISC-272, ISC-273, ISC-274, ISC-275, ISC-276, ISC-277, ISC-278, ISC-279, ISC-280, ISC-281, ISC-282]
+  satisfies: [ISC-252, ISC-253, ISC-254, ISC-255, ISC-256, ISC-257, ISC-258, ISC-259, ISC-260, ISC-261, ISC-262, ISC-263, ISC-264, ISC-265, ISC-266, ISC-267, ISC-268, ISC-269, ISC-270, ISC-271, ISC-272, ISC-273, ISC-274, ISC-275, ISC-276, ISC-277, ISC-278, ISC-279, ISC-280, ISC-281, ISC-282, ISC-283, ISC-284]
   depends_on: [AlphaBedrockBetaModularConvergence, CloudflareEstateMigrationBoundary, QualityAndSafetyGates]
   parallelizable: false
 ```
@@ -569,6 +570,7 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 - 2026-09-11 19:17 IST: refined: PR #77/Beta 0.1 is tracked as a separately gated release lane. This host verifies local merge `d3b4590` with parents `d4e45b4` and `7ec8298`; reported `3eebf57` is unavailable locally. The pre-merge branch, no-mutation, and pending-migration snapshots are tombstoned rather than silently rewritten. Later runtime and D1 statements are `REPORTED` until exact staging or production receipts exist.
 - 2026-09-11 19:17 IST: refined: Beta promotion now requires an exact post-merge-fix candidate, source rerun, backup/migration/binding/deployment receipts, real Clerk/D1 IAB persona/viewports, and distinct production Clerk, D1, domain/traffic, smoke, and rollback gates. Provider/YouTube persistence, scheduled jobs, long-context compaction, and full Alpha alignment remain explicit deferred work.
 - 2026-09-11 19:42 IST: the unused source candidate version is `0.3.3-beta.3`. Remote `v0.3.3-beta.2` already exists at `66f434a` although its release note calls it source-only and not a tag; ISC-283 blocks publication until that history is explicitly reconciled without moving or deleting the tag.
+- 2026-09-11 19:48 IST: exact source candidate `2c4007d` contains merge `d3b4590`, runtime/UI closure `79a0285`, release/migration guards `b7f5bec`, and the planning/architecture ledger. Source gates BETA-REL-01 through BETA-REL-04 are complete; tag reconciliation and all live staging/production gates remain open.
 - 2026-09-11 15:49 IST: owner authorized a clean `beta_0.1` source branch and PR into `release/beta`, plus a read-only Cloudflare asset/topology audit before any production work. The branch label is not a semantic version or tag. Staging reports migrations 0012-0015 pending and production reports 0011-0015 pending; no migration, deploy, traffic, secret, DNS, Clerk, queue, ingest, corpus, merge, or production mutation is part of this checkpoint.
 
 - 2026-09-11 03:49 IST: refined: execution resumes from the committed Alpha-bedrock handoff. The current live IAB reproduction shows a selected member route with an unavailable banner, a separate header archive control, and the incorrect member navigation disclosure. Display-down correction starts with shared Alpha shell/composer behavior; private mutation contracts remain owner-scoped behind the existing Beta API.
@@ -809,3 +811,5 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 - ISC-262 verification: `git show --no-patch --pretty=raw d3b4590` identifies parents `d4e45b4` and `7ec8298`; `git cat-file -t 3eebf57` returns `fatal: Not a valid object name 3eebf57` in this checkout.
 - ISC-264 verification: the Beta 0.1 checklist records Edge 376/376, web unit 188/188, web contracts 96/96, TypeScript, lint, and architecture as local source/build evidence, with a mandatory exact-candidate rerun after the post-merge source-closure commits.
 - ISC-265 verification: the Beta 0.1 checklist labels the later local runtime/D1-migration statement `REPORTED` and explicitly bars it from satisfying staging or production rows.
+- ISC-263 verification: `git merge-base --is-ancestor` confirms `d3b4590`, `79a0285`, and `b7f5bec` are ancestors of exact source candidate `2c4007d378148da19f09004e97cfc2aff273267e`; the source closure remains split into bounded runtime, release, and documentation commits.
+- ISC-284 verification: at `2c4007d`, Cloudflare `npm test` passed 379/379; web unit passed 190/190; web contracts passed 96/96; typecheck, lint, `next build`, privacy `--check`, architecture check, and `git diff --check` all exited zero.
