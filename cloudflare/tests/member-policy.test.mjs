@@ -17,7 +17,8 @@ test("only administrators can read or manage member beta users", () => {
 
 test("member policy is not inferred from unknown roles or public routes", () => {
   assert.equal(decide("member", "members", "read"), false);
-  assert.equal(canAccessPath("admin", "/beta/api/chat"), false);
+  assert.equal(canAccessPath("member", "/beta/api/chat"), true);
+  assert.equal(canAccessPath("owner", "/beta/api/chat"), false);
   assert.equal(canAccessPath("admin", "/chat"), false);
 });
 
@@ -32,4 +33,18 @@ test("canonical beta routes use explicit capabilities and unknown paths fail clo
   assert.equal(canAccessPath("admin", "/beta/admin/release"), false);
   assert.equal(canAccessPath("super_admin", "/beta/admin/release"), true);
   assert.equal(policyForPath("/beta/unknown"), null);
+});
+
+test("member beta APIs are explicitly method-gated before route dispatch", () => {
+  assert.deepEqual(policyForPath("/beta/api/principal-context", "GET"), ["beta", "read"]);
+  assert.equal(policyForPath("/beta/api/principal-context", "POST"), null);
+  assert.deepEqual(policyForPath("/beta/api/chat", "GET"), ["chat", "read"]);
+  assert.deepEqual(policyForPath("/beta/api/chat", "POST"), ["chat", "write"]);
+  assert.deepEqual(policyForPath("/beta/api/chat/mcnv_12345678", "DELETE"), ["chat", "write"]);
+  assert.deepEqual(policyForPath("/beta/api/chat/mcnv_12345678/archive", "POST"), ["chat", "write"]);
+  assert.deepEqual(policyForPath("/beta/api/memory", "POST"), ["memory", "write"]);
+  assert.deepEqual(policyForPath("/beta/api/memory/mmem_12345678/archive", "POST"), ["memory", "write"]);
+  assert.equal(policyForPath("/beta/api/chat/mcnv_12345678", "PATCH"), null);
+  assert.deepEqual(policyForPath("/beta/workspace"), ["control_room", "read"]);
+  assert.deepEqual(policyForPath("/beta/settings"), ["beta", "read"]);
 });

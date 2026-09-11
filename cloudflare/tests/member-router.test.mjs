@@ -73,3 +73,11 @@ test("principal-context returns a safe browser DTO and separates authentication 
   const denied = await handleMemberRequest(request, { ...env, DB: inactiveOperatorDb }, { verifyClerk: async () => ({ ok: true, email: "member@example.test", userId: "user_member_1" }) });
   assert.equal(denied.status, 403);
 });
+
+test("member routes reject unsupported methods and unknown API paths before persistence", async () => {
+  const dependencies = { verifyClerk: async () => ({ ok: true, email: "member@example.test", userId: "user_member_1" }) };
+  const unsupported = await handleMemberRequest(new Request("https://ops.staging.test/beta/api/chat", { method: "PATCH", headers: { authorization: "Bearer verified" } }), { ...env, DB: db() }, dependencies);
+  assert.equal(unsupported.status, 404);
+  const unknown = await handleMemberRequest(new Request("https://ops.staging.test/beta/api/not-a-route", { headers: { authorization: "Bearer verified" } }), { ...env, DB: db() }, dependencies);
+  assert.equal(unknown.status, 404);
+});
