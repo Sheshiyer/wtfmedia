@@ -21,6 +21,8 @@ export type MemberConversation = {
   state: "active" | "archived";
   createdAt: string;
   updatedAt: string;
+  /** Safe optional server count; preferences remain independently retained. */
+  linkedSavedPreferenceCount?: number;
   messages?: MemberMessage[];
 };
 
@@ -54,6 +56,10 @@ function sourceMode(value: unknown): MemberSourceMode {
 
 function retrySourceMode(value: unknown): MemberSourceMode | null {
   return value === "uncut" || value === "both" || value === "published" ? value : null;
+}
+
+function safeCount(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : undefined;
 }
 
 function parseMetadata(value: unknown): Record<string, unknown> {
@@ -93,6 +99,7 @@ function parseConversation(value: unknown): MemberConversation | null {
   const record = asRecord(value);
   const id = asString(record?.id, asString(record?.conversationId));
   if (!record || !conversationIdPattern.test(id)) return null;
+  const linkedSavedPreferenceCount = safeCount(record.linkedSavedPreferenceCount ?? record.linked_saved_preference_count);
   return {
     id,
     title: asString(record.title, "New conversation"),
@@ -100,8 +107,19 @@ function parseConversation(value: unknown): MemberConversation | null {
     state: record.lifecycle_state === "archived" || record.state === "archived" ? "archived" : "active",
     createdAt: asString(record.created_at, asString(record.createdAt)),
     updatedAt: asString(record.updated_at, asString(record.updatedAt)),
+    ...(linkedSavedPreferenceCount === undefined ? {} : { linkedSavedPreferenceCount }),
     messages: Array.isArray(record.messages) ? record.messages.map(parseMessage).filter((item): item is MemberMessage => item !== null) : undefined,
   };
+}
+
+export function canConfirmMemberConversationDeletion(value: string): boolean {
+  return value === "DELETE";
+}
+
+export function linkedSavedPreferenceDeletionNotice(linkedSavedPreferenceCount?: number): string {
+  if (linkedSavedPreferenceCount === undefined) return "Saved preferences are separate and will not be deleted.";
+  if (linkedSavedPreferenceCount === 0) return "No saved preferences are linked to this conversation; any saved preferences remain separate.";
+  return `${linkedSavedPreferenceCount} saved preference${linkedSavedPreferenceCount === 1 ? "" : "s"} stay separate and will not be deleted.`;
 }
 
 export function memberConversationHref(conversationId: string): string | null {
