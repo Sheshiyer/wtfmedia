@@ -34,32 +34,115 @@ export type BetaHistoryResponse = Omit<MemberHistoryResponse, "conversations"> &
 
 export type BetaChatFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
+export type BetaHistoryOptions = {
+  includeArchived?: boolean;
+};
+
+export type BetaReadFailure = {
+  kind: "verification" | "temporary";
+  status: number | null;
+};
+
 export type BetaChatAdapter = {
   kind: "member" | "operator";
   defaultSourceMode: MemberSourceMode;
   canDelete: boolean;
-  list: (cursor?: string | null) => Promise<BetaHistoryResponse | null>;
+  list: (cursor?: string | null, options?: BetaHistoryOptions) => Promise<BetaHistoryResponse | null>;
   get: (conversationId: string, before?: string | null) => Promise<BetaConversationResponse | null>;
+  readFailure?: () => BetaReadFailure | null;
   send: (conversationId: string | null, question: string, sourceMode: MemberSourceMode, idempotencyKey: string, resumeMessageId?: string | null) => Promise<{ ok: boolean; value: BetaConversationResponse | null }>;
   archive: (conversationId: string) => Promise<boolean>;
   delete?: (conversationId: string) => Promise<boolean>;
   href: (conversationId: string) => string | null;
 };
 
+const RETRYABLE_READ_STATUSES = new Set([401, 502, 503, 504]);
+
+function failureForStatus(status: number): BetaReadFailure {
+  return { kind: status === 401 || status === 403 ? "verification" : "temporary", status };
+}
+
+function queryString(values: Array<[string, string | null | undefined]>): string {
+  const encoded = values
+    .filter(([, value]) => Boolean(value))
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value!)}`)
+    .join("&");
+  return encoded ? `?${encoded}` : "";
+}
+
+function historyQuery(cursor?: string | null, options?: BetaHistoryOptions): string {
+  return queryString([
+    ["cursor", cursor],
+    ["includeArchived", options?.includeArchived ? "1" : null],
+  ]);
+}
+
+async function readJsonWithRetry<T>(
+  fetcher: BetaChatFetch,
+  input: RequestInfo | URL,
+  init: RequestInit,
+  parse: (value: unknown) => T | null,
+  setFailure: (failure: BetaReadFailure | null) => void,
+): Promise<T | null> {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    let response: Response;
+    try {
+      response = await fetcher(input, init);
+    } catch {
+      if (attempt === 0) continue;
+      setFailure({ kind: "temporary", status: null });
+      return null;
+    }
+
+    if (response.ok) {
+      try {
+        const parsed = parse(await response.json());
+        if (parsed) {
+          setFailure(null);
+          return parsed;
+        }
+      } catch {
+        // Treat a malformed successful response as an unavailable service.
+      }
+      setFailure({ kind: "temporary", status: response.status });
+      return null;
+    }
+
+    if (attempt === 0 && RETRYABLE_READ_STATUSES.has(response.status)) continue;
+    setFailure(failureForStatus(response.status));
+    return null;
+  }
+
+  setFailure({ kind: "temporary", status: null });
+  return null;
+}
+
 function memberAdapter(fetcher: BetaChatFetch): BetaChatAdapter {
+  let lastReadFailure: BetaReadFailure | null = null;
   return {
     kind: "member",
     defaultSourceMode: "published",
     canDelete: true,
-    list: async (cursor) => {
-      const suffix = cursor ? `?cursor=${encodeURIComponent(cursor)}` : "";
-      const response = await fetcher(`/beta/api/chat${suffix}`, { cache: "no-store" });
-      return response.ok ? parseMemberHistoryResponse(await response.json()) : null;
+    readFailure: () => lastReadFailure,
+    list: async (cursor, options) => {
+      const parsed = await readJsonWithRetry(
+        fetcher,
+        `/beta/api/chat${historyQuery(cursor, options)}`,
+        { cache: "no-store" },
+        parseMemberHistoryResponse,
+        (failure) => { lastReadFailure = failure; },
+      );
+      return parsed;
     },
     get: async (conversationId, before) => {
-      const suffix = before ? `?before=${encodeURIComponent(before)}` : "";
-      const response = await fetcher(`/beta/api/chat/${encodeURIComponent(conversationId)}${suffix}`, { cache: "no-store" });
-      return response.ok ? parseMemberConversationResponse(await response.json()) : null;
+      const parsed = await readJsonWithRetry(
+        fetcher,
+        `/beta/api/chat/${encodeURIComponent(conversationId)}${queryString([["before", before]])}`,
+        { cache: "no-store" },
+        parseMemberConversationResponse,
+        (failure) => { lastReadFailure = failure; },
+      );
+      return parsed;
     },
     send: async (conversationId, question, sourceMode, idempotencyKey, resumeMessageId) => {
       const endpoint = conversationId ? `/beta/api/chat/${encodeURIComponent(conversationId)}` : "/beta/api/chat";
@@ -131,6 +214,7 @@ function operatorResponse(value: unknown): BetaConversationResponse | null {
 }
 
 function operatorAdapter(fetcher: BetaChatFetch): BetaChatAdapter {
+  let lastReadFailure: BetaReadFailure | null = null;
   const href = (conversationId: string): string | null => /^cnv_[A-Za-z0-9-]{8,88}$/u.test(conversationId)
     ? `/beta/chat/${encodeURIComponent(conversationId)}`
     : null;
@@ -138,16 +222,27 @@ function operatorAdapter(fetcher: BetaChatFetch): BetaChatAdapter {
     kind: "operator",
     defaultSourceMode: "both",
     canDelete: false,
-    list: async (cursor) => {
-      const suffix = cursor ? `?cursor=${encodeURIComponent(cursor)}` : "";
-      const response = await fetcher(`/ops/api/chat/conversations${suffix}`, { credentials: "same-origin", cache: "no-store" });
-      const parsed = response.ok ? parseChatHistoryResponse(await response.json()) : null;
+    readFailure: () => lastReadFailure,
+    list: async (cursor, options) => {
+      const parsed = await readJsonWithRetry(
+        fetcher,
+        `/ops/api/chat/conversations${historyQuery(cursor, options)}`,
+        { credentials: "same-origin", cache: "no-store" },
+        parseChatHistoryResponse,
+        (failure) => { lastReadFailure = failure; },
+      );
       if (!parsed) return null;
       return { conversations: parsed.conversations.map(mapConversation), nextCursor: parsed.nextCursor ?? null };
     },
     get: async (conversationId) => {
-      const response = await fetcher(`/ops/api/chat/conversations/${encodeURIComponent(conversationId)}`, { credentials: "same-origin", cache: "no-store" });
-      return response.ok ? operatorResponse(await response.json()) : null;
+      const parsed = await readJsonWithRetry(
+        fetcher,
+        `/ops/api/chat/conversations/${encodeURIComponent(conversationId)}`,
+        { credentials: "same-origin", cache: "no-store" },
+        operatorResponse,
+        (failure) => { lastReadFailure = failure; },
+      );
+      return parsed;
     },
     send: async (conversationId, question, sourceMode, idempotencyKey) => {
       const endpoint = conversationId

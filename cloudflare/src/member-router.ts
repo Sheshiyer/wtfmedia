@@ -43,7 +43,8 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     return memory ? Response.json({ memory }, { status: 201, headers }) : denied();
   }
   if (url.pathname === "/beta/api/chat" && request.method === "GET") {
-    const page = await listMemberConversations(env.DB, context.memberId, url.searchParams.get("cursor") ?? undefined);
+    const includeArchived = url.searchParams.get("includeArchived") === "1";
+    const page = await listMemberConversations(env.DB, context.memberId, url.searchParams.get("cursor") ?? undefined, includeArchived);
     return page ? Response.json(memberChatPageDto(page), { headers }) : denied();
   }
   const match = url.pathname.match(/^\/beta\/api\/chat\/(mcnv_[A-Za-z0-9-]{8,88})$/u);

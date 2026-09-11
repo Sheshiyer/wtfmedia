@@ -5,16 +5,17 @@ import { describe, expect, it } from "vitest";
 const source = (file: string) => readFileSync(resolve(process.cwd(), file), "utf8");
 
 describe("Beta consolidation admin panels", () => {
-  it("projects explicit memory as separate from durable history", () => {
+  it("projects immutable preferences and custom instructions through the existing lifecycle", () => {
     const panel = source("components/domain/ops/MemoryGovernancePanel.tsx");
 
     expect(panel).toMatch(/automatic extraction/i);
-    expect(panel).toContain("explicit only");
-    expect(panel).toContain("data-memory-workspace");
+    expect(panel).toContain("custom instructions");
+    expect(panel).toContain("immutable");
+    expect(panel).toContain("replacement");
+    expect(panel).toContain("data-preferences-workspace");
     expect(panel).toContain("/ops/api/memory");
-    expect(panel).toContain("durable account history");
-    expect(panel).toContain("saved memory");
-    for (const control of ["explicit save", "source provenance", "owner scope", "retention", "archive", "export", "audit"]) {
+    expect(panel).toContain("there is no in-place editor");
+    for (const control of ["explicit save", "custom instructions", "owner scope", "immutable entries", "replacement", "archive", "audit"]) {
       expect(panel).toContain(control);
     }
     for (const sensitiveField of ["prompt", "answer", "token", "secret", "private payload"]) {

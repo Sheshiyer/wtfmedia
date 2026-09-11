@@ -15,8 +15,6 @@ const MEMBER_ITEMS: readonly SettingsItem[] = [
 
 const OPERATOR_SETTINGS_ITEMS: readonly SettingsItem[] = [
   ["/beta/settings/workspace/release", "release", "server-governed controls", "control_room:read"],
-  ["/beta/settings/workspace/sessions", "sessions & history", "owner scope", "chat:read"],
-  ["/beta/settings/workspace/memory", "memory governance", "explicit saves only", "memory:read"],
 ];
 
 export function BetaSettingsNavigation() {

@@ -54,13 +54,14 @@ async function allMemberMessages(db: DB, conversationId: string): Promise<Member
   return messages.results;
 }
 
-export async function listMemberConversations(db: DB, memberId: number, cursor?: unknown) {
+export async function listMemberConversations(db: DB, memberId: number, cursor?: unknown, includeArchived = false) {
   if (!member(memberId)) return null;
   const decoded = cursor === undefined ? null : decodeCursor(cursor);
   if (cursor !== undefined && !decoded) return null;
+  const lifecycle = includeArchived ? "" : " AND lifecycle_state = 'active'";
   const rows = decoded
-    ? await db.prepare(`SELECT ${columns} FROM member_chat_conversations WHERE member_id = ? AND lifecycle_state = 'active' AND (updated_at < ? OR (updated_at = ? AND id < ?)) ORDER BY updated_at DESC, id DESC LIMIT 26`).bind(memberId, decoded.updatedAt, decoded.updatedAt, decoded.id).all<MemberConversation>()
-    : await db.prepare(`SELECT ${columns} FROM member_chat_conversations WHERE member_id = ? AND lifecycle_state = 'active' ORDER BY updated_at DESC, id DESC LIMIT 26`).bind(memberId).all<MemberConversation>();
+    ? await db.prepare(`SELECT ${columns} FROM member_chat_conversations WHERE member_id = ?${lifecycle} AND (updated_at < ? OR (updated_at = ? AND id < ?)) ORDER BY updated_at DESC, id DESC LIMIT 26`).bind(memberId, decoded.updatedAt, decoded.updatedAt, decoded.id).all<MemberConversation>()
+    : await db.prepare(`SELECT ${columns} FROM member_chat_conversations WHERE member_id = ?${lifecycle} ORDER BY updated_at DESC, id DESC LIMIT 26`).bind(memberId).all<MemberConversation>();
   const conversations = rows.results.slice(0, 25);
   const last = rows.results.length > 25 ? conversations.at(-1) : undefined;
   const nextCursor = last ? btoa(JSON.stringify({ updatedAt: last.updated_at, id: last.id })).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/u, "") : null;

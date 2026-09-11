@@ -1,2 +1,5 @@
-import { BetaWorkspaceSettingPage } from "@/components/domain/beta/BetaWorkspaceSettingPage";
-export default function Page() { return <BetaWorkspaceSettingPage section="sessions" />; }
+import { redirect } from "next/navigation";
+
+export default function LegacyWorkspaceSessionsSettingsPage() {
+  redirect("/beta/settings/sessions");
+}
