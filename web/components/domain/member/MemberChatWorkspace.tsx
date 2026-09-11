@@ -9,7 +9,7 @@ import { ConversationEmptyState, ConversationThreadFrame } from "@/components/do
 import { SourcePanel } from "@/components/domain/public/SourcePanel";
 import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/Button";
-import { appendNewestMemberConversationMessages, canConfirmMemberConversationDeletion, linkedSavedPreferenceDeletionNotice, memberAnswerPresentation, memberCommittedRequestForRetry, memberConversationHref, memberGreeting, newMemberRequestKey, parseMemberConversationResponse, prependMemberConversationMessages, retryIntentForMemberResponse, shouldApplyMemberResponse, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversationResponse, type MemberRetryIntent } from "@/lib/member/chat";
+import { appendNewestMemberConversationMessages, canConfirmMemberConversationDeletion, linkedSavedPreferenceDeletionNotice, memberAnswerPresentation, memberCommittedRequestForRetry, memberConversationHref, memberGreeting, newMemberRequestKey, parseMemberConversationResponse, prependMemberConversationMessages, retryIntentForMemberResponse, shouldApplyMemberResponse, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversation, type MemberConversationResponse, type MemberRetryIntent } from "@/lib/member/chat";
 import { useMemberFetch } from "./MemberBetaGate";
 import { MemberSessionNavigator } from "./MemberSessionNavigator";
 
@@ -248,14 +248,14 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     }
   }, [conversationId, deleteTarget, deleting, memberFetch, pathname, router]);
 
-  const requestDeleteFromNavigator = useCallback(async (selectedConversation: MemberConversationResponse) => {
-    setDeleteTarget({ id: selectedConversation.conversation.id, title: selectedConversation.conversation.title, linkedSavedPreferenceCount: selectedConversation.conversation.linkedSavedPreferenceCount });
+  const requestDeleteFromNavigator = useCallback((selectedConversation: MemberConversation) => {
+    setDeleteTarget({ id: selectedConversation.id, title: selectedConversation.title, linkedSavedPreferenceCount: selectedConversation.linkedSavedPreferenceCount });
     setDeleteError(false);
     setDeleteDialogOpen(true);
   }, []);
 
   const greeting = memberGreeting(user?.firstName, user?.fullName);
-  const navigator = <MemberSessionNavigator activeConversationId={conversationId} refreshKey={sessionRevision} onNavigate={() => setDrawerOpen(false)} onRequestDelete={(selectedConversation) => void requestDeleteFromNavigator(selectedConversation)} />;
+  const navigator = <MemberSessionNavigator activeConversationId={conversationId} refreshKey={sessionRevision} onNavigate={() => setDrawerOpen(false)} onRequestDelete={requestDeleteFromNavigator} />;
   const canRetry = state === "error" && (retryIntent !== null || committedRequest !== null) && question.trim().length > 0;
   const onDrawerChange = useCallback((open: boolean) => {
     setDrawerOpen(open);

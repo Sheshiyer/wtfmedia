@@ -73,7 +73,9 @@ describe("Beta single-shell convergence", () => {
     const workspace = read("components/domain/member/MemberChatWorkspace.tsx");
     expect(navigator).toContain('/beta/chat#new-chat');
     expect(navigator).toContain('archive:${conversationId}');
-    expect(navigator).toContain('delete:${conversationId}');
+    expect(navigator).toContain('delete:${conversation.id}');
+    expect(navigator).not.toContain('parseMemberConversationResponse');
+    expect(navigator).not.toMatch(/memberFetch\(`[^`]*conversationId[^`]*`, \{ cache: "no-store" \}\)/);
     expect(workspace).toContain('router.push("/beta/chat")');
   });
 });
