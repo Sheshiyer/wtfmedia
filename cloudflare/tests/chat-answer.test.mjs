@@ -14,9 +14,66 @@ function environment(matches, prompts = [], response = "The evidence supports th
         return { response };
       },
     },
-    VECTORIZE: { async query() { return { matches }; } },
+    VECTORIZE: { async query() { return { matches }; }, async getByIds() { return []; } },
   };
 }
+
+test("shared authenticated runner returns the Alpha editor-sheet moment payload", async () => {
+  const videoId = "abcdefghijk";
+  const env = {
+    AI: {
+      async run(model, input) {
+        if (model === "@cf/baai/bge-large-en-v1.5") return { data: [vector] };
+        if (input?.messages?.[0]?.content?.includes("You label podcast moments")) {
+          return { response: JSON.stringify({ m: 1, guest: "Nikhil Kamath", theme: "career path", topic: "building conviction", summary: "Nikhil describes building conviction through repeated work.", whyRelevant: "It directly answers how conviction develops.", strength: 5 }) };
+        }
+        return { response: "Nikhil describes the first step [1] and the next step [2]." };
+      },
+    },
+    VECTORIZE: {
+      async query() {
+        return { matches: [
+          { id: `${videoId}:4`, score: 0.94, metadata: { video_id: videoId, source_mode: "published", title: "Nikhil Kamath on building", text: "Nikhil describes the first step.", timestamped: true, start: 120 } },
+          { id: `${videoId}:5`, score: 0.92, metadata: { video_id: videoId, source_mode: "published", title: "Nikhil Kamath on building", text: "Nikhil explains the next step.", timestamped: true, start: 150 } },
+        ] };
+      },
+      async getByIds(ids) {
+        return ids.flatMap((id) => id === `${videoId}:6`
+          ? [{ id, metadata: { start: 180, text: "The following passage." } }]
+          : id === `${videoId}:5`
+            ? [{ id, metadata: { start: 150, text: "Nikhil explains the next step." } }]
+            : []);
+      },
+    },
+  };
+
+  const answer = await runChat({ question: "What did Nikhil Kamath say about building conviction?", sourceMode: "published" }, env);
+
+  assert.equal(answer.moments?.length, 1);
+  assert.deepEqual(answer.citedIndices, [1, 2]);
+  assert.deepEqual(answer.moments?.[0], {
+    videoId,
+    title: "Nikhil Kamath on building",
+    url: `https://www.youtube.com/watch?v=${videoId}&t=120s`,
+    chunkStart: 4,
+    chunkEnd: 5,
+    startSec: 120,
+    endSec: 180,
+    durationSec: 60,
+    score: 0.94,
+    timestampConfidence: null,
+    citationNumbers: [1, 2],
+    withinBudget: true,
+    guest: "Nikhil Kamath",
+    theme: "career path",
+    topic: "building conviction",
+    summary: "Nikhil describes building conviction through repeated work.",
+    whyRelevant: "It directly answers how conviction develops.",
+    strength: 5,
+  });
+  assert.equal(answer.totalMomentDurationSec, 60);
+  assert.equal(answer.durationBudgetSec, null);
+});
 
 test("shared authenticated runner preserves published YouTube and uncut provenance", async () => {
   const answer = await runChat({ question: "What did the guest say?", sourceMode: "both", requestId: "rag-test-1" }, environment([

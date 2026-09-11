@@ -35,18 +35,7 @@ import {
   UNCUT_OFFSET_KEY_PREFIX,
 } from "./chat/source-mode.ts";
 import { queryEvidenceSourcesForQuestion } from "./chat/evidence-coordinator.ts";
-import {
-  applyDurationBudget,
-  buildMomentEnrichmentInput,
-  buildMoments,
-  MOMENT_ENRICHMENT_PROMPT,
-  parseDurationBudget,
-  parseMomentEnrichment,
-  resolveMomentEnds,
-  type EnrichedMoment,
-  type Moment,
-  type MomentEnrichment,
-} from "./chat/moments.ts";
+import { momentsForAnswer } from "./chat/moment-pipeline.ts";
 import {
   WTF_OS_CONVERSATION_SKILL,
   buildFollowUpGenerationInput,
@@ -104,9 +93,6 @@ const MIN_SCORE = 0.45;
 // Wide retrieval slice for moments: distinct from the answer's 6-source
 // citation cap — the sheet view keeps multiple passages per episode.
 const MOMENT_CHUNK_LIMIT = 48;
-// Bound on moments shipped in the response header after merging/budgeting,
-// so the enrichment call and the X-Moments header stay sized sanely.
-const MAX_MOMENTS = 25;
 type HistoryTurn = { role: "user" | "assistant"; content: string };
 
 function cors(request: Request, env: Env) {
@@ -512,108 +498,6 @@ async function generateFollowUps(
 function requiresVerifiedMetadata(question: string) {
   return /\b(?:own|owner|owns|ownership|co-?founder|founder|host|producer|created|runs)\b[\s\S]{0,100}\b(?:wtf|podcast|show|channel)\b/i.test(question)
     || /\b(?:recur(?:ring|s)?|repeat(?:s|ed|ing)?|appear(?:s|ances?|ing)?|mentioned|occur(?:s|rence)?|most)\b[\s\S]{0,100}\b(?:\d+\s*\+?\s*(?:episodes?|conversations?)|across|throughout)\b/i.test(question);
-}
-
-/**
- * Editor-sheet moments: merge adjacent chunks into start–end ranges, fill
- * durations from the next chunk's start, apply any duration budget in the
- * question, then label each moment (theme/topic/summary/why/strength) with
- * one fast-model call. Every step degrades independently — a failure anywhere
- * still returns moments with timestamps, never blocks the answer.
- */
-async function momentsForAnswer(
-  env: Env,
-  question: string,
-  sources: Array<{ n: number; videoId: string; title: string; url: string; score: number; start: number | null; segmentId?: string; text?: string; timestampConfidence?: number | null }>,
-): Promise<{ moments: EnrichedMoment[]; totalDurationSec: number; budgetSec: number | null }> {
-  let moments: Moment[] = buildMoments(sources);
-  if (moments.length === 0) return { moments: [], totalDurationSec: 0, budgetSec: null };
-  // Score-ordered cap before end resolution keeps the getByIds lookups, the
-  // enrichment call, and the response header bounded on broad queries.
-  moments = moments.slice(0, MAX_MOMENTS);
-  moments = await resolveMomentEnds(env.VECTORIZE, moments);
-  const budgetSec = parseDurationBudget(question);
-  const budgeted = applyDurationBudget(moments, budgetSec);
-  const visible = budgeted.moments.filter((moment) => moment.withinBudget);
-  if (visible.length === 0) {
-    return { moments: budgeted.moments, totalDurationSec: budgeted.totalDurationSec, budgetSec };
-  }
-  // Enrich in parallel batches: one 25-moment call truncates near the token
-  // cap and silently leaves the tail unlabeled. A failed batch only leaves
-  // its own moments unlabeled. Strict mode (single-moment retries) forbids
-  // empty text fields — the excerpt always supports a conservative label,
-  // and the sheet must not ship blank columns.
-  const enrichBatch = async (batch: Moment[], strict = false): Promise<MomentEnrichment[]> => {
-    const suffix = strict
-      ? `There is 1 MOMENT. Output exactly 1 JSON object labeling it. Every text field (guest, theme, topic, summary, whyRelevant) is REQUIRED — never output empty strings; infer conservatively from the excerpt and episode title.`
-      : `There are ${batch.length} MOMENTs. Output exactly ${batch.length} JSON objects, one per MOMENT, in order — use empty strings when a text field cannot be honest, but never skip a MOMENT and never default strength.`;
-    try {
-      const result = await env.AI.run(FAST_MODEL, {
-        messages: [
-          { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
-          // The model silently skips moments it can't label unless the exact
-          // object count is demanded — a short count costs the tail slots.
-          { role: "user", content: `${buildMomentEnrichmentInput(question, batch)}\n\n${suffix}` },
-        ],
-        max_tokens: 2000,
-        temperature: 0.2,
-      });
-      const text = extractAnswerText(result);
-      if (!text.trim()) throw new Error("empty moment enrichment");
-      return parseMomentEnrichment(text, batch.length);
-    } catch (error) {
-      console.warn("wtfmedia moment enrichment failed", {
-        error: error instanceof Error ? error.message : "unknown",
-      });
-      return batch.map(() => ({}));
-    }
-  };
-  const ENRICH_BATCH = 10;
-  const batches = Array.from({ length: Math.ceil(visible.length / ENRICH_BATCH) }, (_, index) =>
-    visible.slice(index * ENRICH_BATCH, (index + 1) * ENRICH_BATCH));
-  const settled = await Promise.all(batches.map((batch) => enrichBatch(batch)));
-  const enrichments = visible.map((_, index) =>
-    settled[Math.floor(index / ENRICH_BATCH)]?.[index % ENRICH_BATCH] ?? {});
-  // Retry pass: ANY blank text field shows up as an empty column in the
-  // sheet, so partially-labeled moments retry too — not just fully empty
-  // ones. Single-moment strict calls are tiny and can't truncate; fields the
-  // batch already found survive the merge. Two rounds: the fast model
-  // occasionally ignores the no-empty-fields rule once, almost never twice.
-  const incomplete = () => enrichments
-    .map((enrichment, index) =>
-      (!enrichment.guest || !enrichment.theme || !enrichment.topic || !enrichment.summary || !enrichment.whyRelevant)
-        ? index
-        : -1)
-    .filter((index) => index !== -1);
-  for (let round = 0; round < 2; round += 1) {
-    const missingIndices = incomplete();
-    if (missingIndices.length === 0) break;
-    const retried = await Promise.all(missingIndices.map((index) => enrichBatch([visible[index]], true)));
-    missingIndices.forEach((visibleIndex, retryIndex) => {
-      const retry = retried[retryIndex]?.[0];
-      if (retry && Object.keys(retry).length > 0) {
-        enrichments[visibleIndex] = { ...retry, ...enrichments[visibleIndex] };
-      }
-    });
-  }
-  // Last resort for summary only: the model sometimes refuses to summarize a
-  // thin or off-topic excerpt no matter how often it is asked. Fall back to
-  // the excerpt's own first sentence — a quote, never a fabrication — rather
-  // than ship a blank sheet column.
-  visible.forEach((moment, index) => {
-    if (!enrichments[index].summary) {
-      const firstSentence = moment.excerpt.trim().split(/(?<=[.?!])\s+/)[0] ?? "";
-      if (firstSentence) {
-        enrichments[index] = { ...enrichments[index], summary: firstSentence.slice(0, 200) };
-      }
-    }
-  });
-  const enriched = new Map(visible.map((moment, index) => [moment, enrichments[index]]));
-  return {
-    moments: budgeted.moments.map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) })),
-    totalDurationSec: budgeted.totalDurationSec,
-    budgetSec,
-  };
 }
 
 async function chat(request: Request, env: Env) {

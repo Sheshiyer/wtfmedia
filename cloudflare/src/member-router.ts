@@ -62,7 +62,22 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
       const memories = await listMemberMemories(env.DB, context.memberId);
       const priorTurns = boundedPriorTurns(turn.view.messages.filter((message) => message.sequence < turn.userMessage.sequence).map(({ role, content }) => ({ role, content })));
       const answer = await (dependencies.runChat ?? runChat)({ question: turn.userMessage.content, sourceMode: turn.sourceMode, ...(turn.episodeId ? { episodeId: turn.episodeId } : {}), requestId, priorTurns, memory: (memories ?? []).map((memory: any) => String(memory.content)).slice(0, 8) }, env);
-      const stored = await completeMemberTurn(env.DB, context.memberId, turn, { content: answer.answer, metadata: { sources: answer.sources, sourceMode: answer.sourceMode, uncutUnavailable: answer.uncutUnavailable }, grounded: answer.grounded, model: answer.model, fallback: answer.modelFallback, requestId: answer.requestId });
+      const stored = await completeMemberTurn(env.DB, context.memberId, turn, {
+        content: answer.answer,
+        metadata: {
+          sources: answer.sources,
+          sourceMode: answer.sourceMode,
+          uncutUnavailable: answer.uncutUnavailable,
+          moments: answer.moments,
+          totalMomentDurationSec: answer.totalMomentDurationSec,
+          durationBudgetSec: answer.durationBudgetSec,
+          citedIndices: answer.citedIndices,
+        },
+        grounded: answer.grounded,
+        model: answer.model,
+        fallback: answer.modelFallback,
+        requestId: answer.requestId,
+      });
       return stored ? Response.json(memberChatViewDto(stored), { status: turn.created ? 201 : 200, headers }) : denied();
     } catch {
       const pending = await getMemberConversation(env.DB, context.memberId, turn.view.conversation.id);

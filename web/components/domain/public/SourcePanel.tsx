@@ -367,6 +367,12 @@ export function SourcePanel({
     .filter(([videoId]) => !coveredVideoIds.has(videoId))
     .map(([videoId, episodeMoments]) => ({ videoId, episodeMoments }))
     .sort((a, b) => byStrengthThenScore(a.episodeMoments, b.episodeMoments));
+  const citedEpisodeCount = new Set(
+    model.groups
+      .filter((group) => group.citedEntries.length > 0)
+      .map((group) => group.entries[0]?.source.videoId)
+      .filter((videoId): videoId is string => Boolean(videoId)),
+  ).size;
 
   async function handleExport() {
     if (!moments) return;
@@ -387,9 +393,13 @@ export function SourcePanel({
         <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
           <span className="font-bold text-attention">●</span>
           <span>
-            {model.totalCitedCount > 0
-              ? `${model.totalCitedCount} source${model.totalCitedCount !== 1 ? "s" : ""} cited`
-              : "no sources cited"}
+            {hasMoments
+              ? citedEpisodeCount > 0
+                ? `${citedEpisodeCount} episode${citedEpisodeCount !== 1 ? "s" : ""} cited`
+                : "no episodes cited"
+              : model.totalCitedCount > 0
+                ? `${model.totalCitedCount} source${model.totalCitedCount !== 1 ? "s" : ""} cited`
+                : "no sources cited"}
             {!hasMoments && model.visibleCandidateCount > 0
               ? `, ${model.visibleCandidateCount} candidate excerpt${model.visibleCandidateCount !== 1 ? "s" : ""}`
               : ""}
@@ -421,7 +431,7 @@ export function SourcePanel({
           aria-labelledby={citationPlaybackTitleId}
           className="rounded-control border-2 border-foreground bg-surface-raised p-3"
         >
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-baseline sm:justify-between">
             <div className="min-w-0">
               <p id={citationPlaybackTitleId} className="font-label text-[10px] font-bold uppercase tracking-[0.08em] text-secondary">
                 sources
@@ -437,7 +447,7 @@ export function SourcePanel({
             {hasMoments ? (
               <Button
                 variant="ghost"
-                className="text-xs"
+                className="w-full text-xs sm:w-auto"
                 onClick={handleExport}
                 loading={exporting}
                 data-testid="moment-export-button"

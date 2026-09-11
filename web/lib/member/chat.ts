@@ -1,4 +1,5 @@
 import { parsePublicSourceRecords, type PublicSourceCitation } from "@/lib/provenance/public-source-header";
+import { parsePublicMomentsPayload, type PublicMomentsPayload } from "@/lib/provenance/public-moment-header";
 
 export type MemberSourceMode = "published" | "uncut" | "both";
 export type MemberMessageRole = "user" | "assistant";
@@ -9,6 +10,8 @@ export type MemberMessage = {
   content: string;
   createdAt: string;
   sources?: PublicSourceCitation[];
+  moments?: PublicMomentsPayload;
+  citedIndices?: number[];
   sourceMode?: MemberSourceMode;
   groundingState?: "grounded" | "ungrounded" | "unavailable";
   uncutUnavailable?: boolean;
@@ -67,6 +70,12 @@ function previousMessageCursor(value: unknown): string | null {
   return typeof value === "string" && /^[A-Za-z0-9_-]{1,512}$/u.test(value) ? value : null;
 }
 
+function citedIndices(value: unknown): number[] {
+  return Array.isArray(value)
+    ? [...new Set(value.filter((item): item is number => Number.isSafeInteger(item) && item > 0))]
+    : [];
+}
+
 function parseMetadata(value: unknown): Record<string, unknown> {
   const record = asRecord(value);
   if (!record) return {};
@@ -86,6 +95,8 @@ function parseMessage(value: unknown): MemberMessage | null {
   if (!record || (role !== "user" && role !== "assistant") || !content) return null;
   const metadata = parseMetadata(record);
   const sources = parsePublicSourceRecords(Array.isArray(record.sources) ? record.sources : metadata.sources);
+  const moments = parsePublicMomentsPayload(metadata);
+  const resolvedCitedIndices = citedIndices(record.citedIndices ?? record.cited_indices ?? metadata.citedIndices ?? metadata.cited_indices);
   const source = sourceMode(record.sourceMode ?? record.source_mode ?? metadata.sourceMode ?? metadata.source_mode);
   const grounding = record.groundingState ?? record.grounding_state;
   return {
@@ -94,6 +105,8 @@ function parseMessage(value: unknown): MemberMessage | null {
     content,
     createdAt: asString(record.created_at, asString(record.createdAt)),
     ...(sources.length ? { sources } : {}),
+    ...(moments.moments.length ? { moments } : {}),
+    ...(resolvedCitedIndices.length ? { citedIndices: resolvedCitedIndices } : {}),
     ...(role === "assistant" ? { sourceMode: source } : {}),
     ...(grounding === "grounded" || grounding === "ungrounded" || grounding === "unavailable" ? { groundingState: grounding } : {}),
     ...(record.uncutUnavailable === true || metadata.uncutUnavailable === true ? { uncutUnavailable: true } : {}),
@@ -209,11 +222,13 @@ export function shouldApplyMemberResponse({ requestEpoch, currentEpoch, requestP
   return requestEpoch === currentEpoch && requestPath === currentPath;
 }
 
-export function memberAnswerPresentation(message: MemberMessage): { abstained: boolean; uncutUnavailable: boolean; sources: PublicSourceCitation[] } {
+export function memberAnswerPresentation(message: MemberMessage): { abstained: boolean; uncutUnavailable: boolean; sources: PublicSourceCitation[]; moments?: PublicMomentsPayload; citedIndices?: number[] } {
   return {
     abstained: message.role === "assistant" && message.groundingState === "ungrounded",
     uncutUnavailable: message.uncutUnavailable === true,
     sources: message.sources ?? [],
+    ...(message.moments ? { moments: message.moments } : {}),
+    ...(message.citedIndices?.length ? { citedIndices: message.citedIndices } : {}),
   };
 }
 

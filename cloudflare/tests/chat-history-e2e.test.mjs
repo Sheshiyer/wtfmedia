@@ -215,6 +215,10 @@ test("Clerk/D1 context is rechecked on every protected request and cannot cross 
       return {
         answer: "The guest described evidence [1].",
         sources: [{ n: 1, title: "Published episode", videoId: "yt-1", start: 42 }],
+        moments: [{ videoId: "abcdefghijk", title: "Published episode", url: "https://www.youtube.com/watch?v=abcdefghijk&t=42s", chunkStart: 4, chunkEnd: 4, startSec: 42, endSec: 72, durationSec: 30, score: 0.9, timestampConfidence: 1, citationNumbers: [1], withinBudget: true, topic: "evidence practice", summary: "The guest describes an evidence practice.", whyRelevant: "It directly supports the answer.", strength: 5 }],
+        totalMomentDurationSec: 30,
+        durationBudgetSec: null,
+        citedIndices: [1],
         grounded: true,
         sourceMode: "both",
         uncutUnavailable: false,
@@ -230,6 +234,8 @@ test("Clerk/D1 context is rechecked on every protected request and cannot cross 
   assert.equal(answerInput.question, "What did the guest say about evidence?");
   assert.equal(generatedBody.messages.at(-1).content, "The guest described evidence [1].");
   assert.equal(JSON.parse(generatedBody.messages.at(-1).source_metadata_json).sources[0].title, "Published episode");
+  assert.equal(JSON.parse(generatedBody.messages.at(-1).source_metadata_json).moments[0].topic, "evidence practice");
+  assert.deepEqual(JSON.parse(generatedBody.messages.at(-1).source_metadata_json).citedIndices, [1]);
   assert.equal(generatedBody.messages.at(-1).grounding_state, "grounded");
   assert.equal(generatedBody.messages.at(-1).model, "test-model");
   assert.equal(generatedBody.messages.at(-1).model_fallback, 1);

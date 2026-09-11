@@ -1,3 +1,5 @@
+import { parsePublicMomentsPayload, type PublicMomentsPayload } from "@/lib/provenance/public-moment-header";
+
 export type ChatView = "history" | "conversation";
 export type ChatMessageRole = "user" | "assistant";
 
@@ -13,6 +15,8 @@ export type ChatMessage = {
   sequence?: number;
   createdAt: string;
   sources?: unknown[];
+  moments?: PublicMomentsPayload;
+  citedIndices?: number[];
   sourceMode?: "published" | "uncut" | "both";
   uncutUnavailable?: boolean;
   groundingState?: "grounded" | "ungrounded" | "unavailable";
@@ -80,6 +84,12 @@ function sourceMode(value: unknown): ChatMessage["sourceMode"] {
   return value === "uncut" || value === "both" || value === "published" ? value : undefined;
 }
 
+function citedIndices(value: unknown): number[] {
+  return Array.isArray(value)
+    ? [...new Set(value.filter((item): item is number => Number.isSafeInteger(item) && item > 0))]
+    : [];
+}
+
 function parsePolicy(value: unknown): ChatPolicy {
   if (!value || typeof value !== "object") return { archive: false, export: false };
   const policy = value as Record<string, unknown>;
@@ -97,6 +107,8 @@ function parseMessage(value: unknown): ChatMessage | null {
   if (!role || !content) return null;
   const metadata = parseMetadata(message.sourceMetadata ?? message.source_metadata_json);
   const resolvedSources = Array.isArray(message.sources) ? message.sources : Array.isArray(metadata.sources) ? metadata.sources : undefined;
+  const moments = parsePublicMomentsPayload(metadata);
+  const resolvedCitedIndices = citedIndices(message.citedIndices ?? message.cited_indices ?? metadata.citedIndices ?? metadata.cited_indices);
   const resolvedSourceMode = sourceMode(message.sourceMode ?? metadata.sourceMode ?? metadata.source_mode);
   const resolvedFallback = message.modelFallback === true || message.model_fallback === 1 || metadata.modelFallback === true;
   const grounding = message.groundingState ?? message.grounding_state;
@@ -107,6 +119,8 @@ function parseMessage(value: unknown): ChatMessage | null {
     sequence: typeof message.sequence === "number" ? message.sequence : undefined,
     createdAt: asString(message.createdAt, asString(message.created_at, "")),
     sources: resolvedSources,
+    ...(moments.moments.length ? { moments } : {}),
+    ...(resolvedCitedIndices.length ? { citedIndices: resolvedCitedIndices } : {}),
     sourceMode: resolvedSourceMode,
     uncutUnavailable: message.uncutUnavailable === true || metadata.uncutUnavailable === true,
     groundingState: grounding === "grounded" || grounding === "ungrounded" || grounding === "unavailable" ? grounding : undefined,

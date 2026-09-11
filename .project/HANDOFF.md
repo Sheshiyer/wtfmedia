@@ -1,5 +1,39 @@
 # Project handoff
 
+## 2026-09-12 Beta rich-citation source-sheet repair
+
+**Status:** SOURCE/BUILD VERIFIED; NOT DEPLOYED OR LIVE-ACCEPTED. The
+authenticated Beta answer path now preserves the existing Alpha editor-sheet
+moment projection instead of reducing every answer to the compact citation
+fallback.
+
+- Public Alpha and authenticated Beta use one moment pipeline for adjacent
+  transcript ranges, duration budgeting, enrichment, and truthful fallbacks.
+- Member and operator answers persist the excerpt-free public moment projection
+  plus cited indices; safe browser parsers accept current persisted camelCase
+  and public-header snake_case shapes and fail closed on malformed values.
+- The shared source panel receives the originating question, exact citation
+  indices, effective source mode, and moments. Rich answers show unique cited
+  episode count, grouped moment ranges, play links, topic, confidence/strength,
+  summary, relevance rationale, and Excel export. The export header stacks at
+  narrow widths instead of clipping.
+- Edge `381/381`, web unit `220/220`, web contracts `96/96`, TypeScript, ESLint,
+  production build, focused Grouped Moments Storybook interaction, architecture
+  freshness across 625 inputs, and `git diff --check` pass.
+- IAB confirmed the rich shared component at desktop and 390x844. That fixture
+  is presentation evidence only, not Beta acceptance. Real authenticated IAB
+  reached staging owner history without console errors, but the empty staging
+  corpus cannot produce a grounded moment sheet and this source candidate is
+  not deployed.
+- Existing persisted answers without moment metadata remain on the truthful
+  compact source fallback; no synthetic topics, ranges, ratings, or rationale
+  are reconstructed in the browser.
+
+**Next action:** after an owner-approved isolated staging deployment, generate a
+real grounded authenticated answer from an approved staging corpus and verify
+the expanded panel, Excel export, play links, console, and desktop/mobile
+viewports. Do not count the Storybook fixture as that acceptance receipt.
+
 ## 2026-09-11 Continuity checkpoint (fleet alignment)
 
 ### Done

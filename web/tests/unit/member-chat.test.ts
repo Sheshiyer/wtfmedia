@@ -18,6 +18,7 @@ import {
 
 const memberWorkspace = readFileSync(new URL("../../components/domain/member/MemberChatWorkspace.tsx", import.meta.url), "utf8");
 const betaChatAdapter = readFileSync(new URL("../../components/domain/beta/BetaChatAdapter.ts", import.meta.url), "utf8");
+const sourcePanel = readFileSync(new URL("../../components/domain/public/SourcePanel.tsx", import.meta.url), "utf8");
 
 describe("member chat client contract", () => {
   it("projects an owned retryable conversation without exposing infrastructure fields", () => {
@@ -148,6 +149,10 @@ describe("member chat client contract", () => {
           sourceMode: "both",
           uncutUnavailable: true,
           sources: [{ n: 4, title: "Cited episode", source_mode: "published", t: 42, model: "hidden" }],
+          moments: [{ videoId: "abcdefghijk", title: "Cited episode", url: "https://www.youtube.com/watch?v=abcdefghijk&t=42s", chunkStart: 4, chunkEnd: 4, startSec: 42, endSec: 72, durationSec: 30, score: 0.9, timestampConfidence: 1, citationNumbers: [4], withinBudget: true, topic: "evidence practice", summary: "The guest describes an evidence practice.", whyRelevant: "It supports the answer.", strength: 5 }],
+          totalMomentDurationSec: 30,
+          durationBudgetSec: null,
+          citedIndices: [4],
           model: "hidden",
           requestId: "hidden",
         }),
@@ -161,6 +166,12 @@ describe("member chat client contract", () => {
       abstained: true,
       uncutUnavailable: true,
       sources: [{ n: 4, title: "Cited episode", timeSec: 42, sourceMode: "published" }],
+      moments: {
+        moments: [expect.objectContaining({ videoId: "abcdefghijk", topic: "evidence practice", startSec: 42, endSec: 72 })],
+        totalDurationSec: 30,
+        budgetSec: null,
+      },
+      citedIndices: [4],
     });
     expect(parsed!.messages[0]).not.toHaveProperty("model");
     expect(parsed!.messages[0]).not.toHaveProperty("requestId");
@@ -187,6 +198,16 @@ describe("member chat client contract", () => {
     expect(betaChatAdapter).toContain('confirmation: "DELETE"');
     expect(memberWorkspace).toContain("Saved preferences are separate and will not be deleted.");
     expect(memberWorkspace).toContain("data-selected-conversation-viewport");
+  });
+
+  it("renders persisted Alpha moment provenance through the shared source sheet", () => {
+    expect(memberWorkspace).toContain("<SourcePanel");
+    expect(memberWorkspace).toContain("citedIndices={presentation.citedIndices}");
+    expect(memberWorkspace).toContain("moments={presentation.moments}");
+    expect(memberWorkspace).toContain("question={sourceQuestion}");
+    expect(sourcePanel).toContain("episode${citedEpisodeCount !== 1 ? \"s\" : \"\"} cited");
+    expect(sourcePanel).toContain("download excel");
+    expect(sourcePanel).toContain("w-full text-xs sm:w-auto");
   });
 
   it("keeps operator conversation requests on the existing edge route contract", () => {
