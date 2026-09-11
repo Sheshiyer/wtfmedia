@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Beta/Pavun surface precedence reconciled at a3e5cc0; remote topology, tag, and live gates remain open
-last_updated: "2026-09-11T19:58:00+05:30"
+stopped_at: Beta hostnames assigned in planning; environment source work, remote topology, tag reconciliation, and live gates remain open
+last_updated: "2026-09-11T19:59:00+05:30"
 last_activity: 2026-09-11
 progress:
   total_phases: 10
@@ -37,6 +37,10 @@ UI, interaction, inference, retrieval, and navigation remain the product
 bedrock; authentication, private conversations, history, explicit memory,
 scoped Settings, and role routing are modular Beta additions. The release
 authority is `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md`.
+The assigned client-facing environment names are `beta-staging.wtfhq.in` for
+real staging acceptance and `beta.wtfhq.in` for the production-Beta handoff;
+neither hostname is claimed live until its exact Custom Domain, binding,
+revision, Clerk, smoke, and rollback receipts pass.
 
 ## Beta 0.1 local integration and release-readiness checkpoint
 
@@ -71,6 +75,13 @@ authority is `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklis
   edge Worker. The edge Worker owns Clerk-token verification, D1 RBAC/chat and
   provenance, R2 source objects, Vectorize retrieval, Workers AI, KV state,
   and ingest queue consumption.
+- Public Alpha remains `wtfhq.in` on `wtfmedia-web` → `wtfmedia-edge`.
+  Staging Beta is assigned `beta-staging.wtfhq.in` on
+  `wtfmedia-web-staging` → `wtfmedia-edge-staging`. Production Beta is assigned
+  `beta.wtfhq.in` on a dedicated planned `wtfmedia-web-beta` →
+  `wtfmedia-edge-beta` pair. The production-Beta edge must declare every
+  production binding explicitly and must not register a duplicate ingest
+  consumer. `workers.dev` remains diagnostic only.
 - Required staging order is backup/recovery inventory, reviewed migrations and
   post-apply readback, exact edge deploy/health/bindings, exact web deploy and
   paired service binding, then the real Clerk/D1 IAB persona and viewport
@@ -370,11 +381,12 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
 ## Session Continuity
 
 Last session: 2026-09-11
-Stopped at: Beta 0.1 exact source candidate `a3e5cc0` verified with surface-specific precedence; remote delivery and live promotion gates held.
+Stopped at: Beta hostnames assigned in planning; environment implementation, remote delivery, and live promotion gates held.
 The host verifies the merge parents but not the reported `3eebf57` object; test
 counts are source evidence and reported runtime/D1 activity is unaccepted.
 Resume file: `.project/HANDOFF.md`
-Resume: Commit and review post-merge runtime and release/migration fixes,
-select one exact candidate, rerun source checks, then wait for explicit owner authorization before any staging
-or production action. Preserve the single-shell route/RBAC and Alpha/staging/
-production separation; do not rerun a completed deployment from this state.
+Resume: Implement and review BETA-REL-04D/04E for the assigned Beta hostnames,
+explicit environment bindings, canonical `/beta` routing, and host-only session
+isolation. Then resolve the remote PR topology and historical tag before
+requesting explicit authority for staging or production action. Preserve the
+single-shell route/RBAC and Alpha/staging/production separation.

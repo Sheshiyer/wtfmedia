@@ -101,6 +101,28 @@ This repository is `wtfmedia`.
   decision. Keep their status honest and do not add implied persistence or
   automation while closing a release gate.
 
+## Beta environment hostname contract
+
+- `https://wtfhq.in` remains public Alpha/current production on
+  `wtfmedia-web` → `wtfmedia-edge` until a separately authorized promotion.
+- `https://beta-staging.wtfhq.in` is the assigned staging acceptance hostname.
+  Attach it as a Custom Domain only to `wtfmedia-web-staging`, which must bind
+  only to `wtfmedia-edge-staging` and the staging Clerk/data plane.
+- `https://beta.wtfhq.in` is the assigned production-Beta/client-handoff
+  hostname. It requires a dedicated `wtfmedia-web-beta` →
+  `wtfmedia-edge-beta` compute pair, explicit production bindings, and no
+  duplicate production ingest consumer.
+- The web Worker is the public ingress; do not expose the edge Worker as the
+  client URL. Environment-specific `workers.dev` URLs are diagnostics only and
+  never prove Custom Domain, certificate, binding, revision, or auth identity.
+- The root of each Beta hostname must resolve or redirect canonically to
+  `/beta`. Keep authentication/session cookies host-only so Alpha, staging,
+  and production-Beta sessions cannot mix across `*.wtfhq.in`.
+- A hostname is not live because it is written here. Require DNS/Custom Domain
+  activation, certificate, exact web/edge versions, service binding, Clerk
+  authorized-party/redirect presence, real IAB personas, smoke, and rollback
+  receipts before calling the environment ready for client handoff.
+
 ## Pavun/Beta integration precedence
 
 - The owner's shorthand `pavun` maps to repository submitter `Pavun57`, who
