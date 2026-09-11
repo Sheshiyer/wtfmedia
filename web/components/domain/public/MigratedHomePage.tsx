@@ -29,25 +29,25 @@ const workspaceItems = [
     label: "production",
     state: "active" as const,
     detail: "list, create, and update records. delete is unavailable.",
-    href: "/beta/ops/production",
+    href: "/beta/workspace/production",
   },
   {
     label: "episode map",
     state: "active" as const,
     detail: "title map from the catalogue snapshot. not a live source.",
-    href: "/beta/ops/episodes",
+    href: "/beta/workspace/episodes",
   },
   {
     label: "control room",
     state: "active" as const,
     detail: "production records are live. ingest, seats, and access gates are not.",
-    href: "/beta/ops",
+    href: "/beta/workspace",
   },
   {
     label: "settings",
     state: "active" as const,
     detail: "release context, role, verification state, and roadmap.",
-    href: "/beta/ops/settings",
+    href: "/beta/settings",
   },
 ];
 
@@ -194,21 +194,21 @@ export function MigratedHomePage() {
               tone="active"
               detail="The 2026-08-27 title map is visible in public view. It is a snapshot, not a live catalogue."
               next="Uncut pointers can be candidate or absent. Activation remains held until verified media and alignment exist."
-              href="/beta/ops/episodes"
+              href="/beta/workspace/episodes"
             />
             <ReleaseStatusWidget
               title="production"
               status="live"
               tone="active"
               detail="Production records are open for the current release. Delete remains unavailable."
-              href="/beta/ops/production"
+              href="/beta/workspace/production"
             />
             <ReleaseStatusWidget
               title="settings"
               status="roadmap"
               tone="active"
               detail="Environment, workspace, organization scope, role, verification state, and held-feature roadmap live here."
-              href="/beta/ops/settings"
+              href="/beta/settings"
             />
           </div>
         </div>

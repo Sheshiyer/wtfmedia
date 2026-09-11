@@ -28,7 +28,7 @@ export function ControlRoomStatusLedger(_props: { role: ControlRoomRole }) {
       label: "ask wtf",
       state: "active",
       detail: "ask the catalogue and keep quoted evidence beside the answer.",
-      href: "/chat",
+      href: "/beta/chat",
     },
     {
       label: "settings",

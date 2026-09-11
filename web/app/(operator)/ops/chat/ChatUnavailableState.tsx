@@ -34,7 +34,7 @@ export function ChatUnavailableState({ reason }: { reason: ChatUnavailableReason
       </h2>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-secondary">{state.body}</p>
       <Link
-        href="/chat"
+        href="/beta/chat"
         className="mt-6 inline-flex min-h-11 items-center border-2 border-foreground bg-attention px-4 py-3 font-label text-sm font-bold text-on-attention focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention focus-visible:ring-offset-2"
       >
         open public ask wtf

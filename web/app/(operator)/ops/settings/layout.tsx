@@ -6,7 +6,7 @@ import { useOperatorContext } from "@/components/domain/ops/OperatorContextProvi
 import { canReadSettingsSection, settingsSectionForPath } from "@/lib/ops/settings-navigation";
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname() ?? "/beta/ops/settings";
+  const pathname = usePathname() ?? "/beta/settings";
   const context = useOperatorContext();
   const section = settingsSectionForPath(pathname);
   const denied = section && !canReadSettingsSection(context.role, section.id);

@@ -53,6 +53,10 @@ describe("Beta single-shell convergence", () => {
     expect(page).toContain("ChatWorkspace");
     expect(page).toContain("useBetaPrincipal");
     expect(read("app/beta/chat/[conversationId]/page.tsx")).toContain("BetaConversationRoute");
+    const operatorChat = read("app/(operator)/ops/chat/ChatWorkspace.tsx");
+    expect(operatorChat).toContain("AskComposer");
+    expect(operatorChat).toContain("ConversationThreadFrame");
+    expect(operatorChat).toContain("/beta/chat/");
   });
 
   it("removes rewrite-era operator aliases and keeps settings role-aware", () => {
@@ -62,5 +66,14 @@ describe("Beta single-shell convergence", () => {
     const settings = read("app/beta/settings/layout.tsx");
     expect(settings).toContain("useBetaPrincipal");
     expect(settings).toContain("BetaSettingsNavigation");
+  });
+
+  it("keeps member session lifecycle actions on canonical chat routes", () => {
+    const navigator = read("components/domain/member/MemberSessionNavigator.tsx");
+    const workspace = read("components/domain/member/MemberChatWorkspace.tsx");
+    expect(navigator).toContain('/beta/chat#new-chat');
+    expect(navigator).toContain('archive:${conversationId}');
+    expect(navigator).toContain('delete:${conversationId}');
+    expect(workspace).toContain('router.push("/beta/chat")');
   });
 });
