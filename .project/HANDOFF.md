@@ -1,5 +1,61 @@
 # Project handoff
 
+## 2026-09-11 v0.3.3-beta.2 Alpha-bedrock release-candidate checkpoint
+
+**Status:** LOCAL RELEASE CANDIDATE VERIFIED — no remote branch, PR, merge,
+deployment, Clerk, D1, Cloudflare resource, corpus, or Public Alpha state was
+changed. `codex/beta-chat-refinement` is descended from `origin/release/beta`
+and contains the source-only candidate.
+
+### Delivered in this candidate
+
+- `7bea241` exports `ConversationThreadFrame`, preserving public Alpha's
+  overflow-aware fixed-to-inline composer behavior while leaving its caller
+  contract intact.
+- `47e1464` adds reverse keyset member-message pages (newest 50 in chronological
+  order), owner-bound cursors, an immutable content-free delete receipt, and a
+  safe linked-preference count.
+- `bb1eaa1` requires literal `DELETE` in the member deletion dialog, keeps
+  active titles wrapping, and retains two-line clamp only in the session rail.
+- `6082c6d` makes Member Beta consume the Alpha frame, loads older message pages
+  into that frame, retains loaded history on new answers, and shows the safe
+  preference count before confirmed deletion.
+- `2293b47` prepares the source-only `0.3.3-beta.2` release-candidate note;
+  `docs/architecture/*` was regenerated to the final source graph.
+
+### Verified locally
+
+- Cloudflare: 254 passing tests, including owner isolation, reverse message
+  paging, cursor rejection, bounded prior turns, deletion audit receipts,
+  safe preference retention, and no resurrection.
+- Web: 150 unit and 90 contract tests passing; typecheck, lint, production
+  build, and privacy scan (0 violations across 360 bounded files) pass.
+- Architecture ledger and `git diff --check` pass. This proves source/build
+  behavior only, not a deployed staging or production runtime.
+
+### Intentionally not claimed or changed
+
+- The existing authenticated staging IAB page still serves an earlier deployed
+  build and showed the unavailable-session defect at review time. No destructive
+  control was clicked. It cannot validate this candidate until an owner
+  separately authorizes deployment and the real Clerk/D1 persona matrix.
+- No automatic context compaction/summarization was added. Server inference
+  remains bounded to the latest eight prior turns / 8,000 characters; durable
+  checkpoint policy and failure handling remain a separately designed release
+  gate.
+- Signed-out, Member A, Member B, suspended/revoked, editor, admin, and
+  super-admin staging acceptance remains open. Existing source RBAC tests are
+  deterministic but not a substitute for that live matrix.
+
+### Next owner-authorized actions
+
+1. Review the local candidate diff and create a clean PR to `release/beta`.
+2. Merge only after review; do not merge `rag/alpha-answer-accuracy` wholesale.
+3. Authorize a named staging deployment, then run the real authenticated IAB
+   persona and 1382px layout matrix.
+4. Keep production Alpha's worker/resource pair untouched unless a distinct
+   production release is authorized.
+
 ## 2026-09-11 Alpha-bedrock / Beta modular convergence execution checkpoint
 
 **Status:** LOCAL SOURCE AND BUILD VERIFIED — no deployment or remote state was
