@@ -127,7 +127,7 @@ function MessageMetadata({ message }: { message: ChatMessage }) {
         {message.model ? <span>model: {message.model}{message.modelFallback ? " · fallback" : ""}</span> : null}
         {message.requestId ? <span>request: {message.requestId}</span> : null}
       </div>
-      {message.uncutUnavailable ? <p className="mt-2" data-uncut-unavailable>uncut was requested, but no approved uncut evidence was available; published evidence is labelled as such.</p> : null}
+      {message.uncutUnavailable ? <p className="mt-2" data-uncut-unavailable>the full studio timeline was requested, but no approved evidence was available for it; published evidence is labelled as such.</p> : null}
       {sources.length > 0 ? (
         <ol className="mt-3 space-y-2" aria-label="answer sources">
           {sources.map((source, index) => {

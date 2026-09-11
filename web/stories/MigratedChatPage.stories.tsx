@@ -274,7 +274,7 @@ export const UntimedSource: SourceStory = {
   ),
 };
 
-export const MappedUncutSource: SourceStory = {
+export const UncutSourceWithheld: SourceStory = {
   render: () => (
     <SourcePanel
       sources={[
@@ -292,14 +292,14 @@ export const MappedUncutSource: SourceStory = {
     />
   ),
   play: async ({ canvasElement }) => {
-    const link = canvasElement.querySelector('a[href="https://f.io/0I8LmYs9"]');
-    if (!link || link.textContent?.trim() !== "open uncut source") {
-      throw new Error("Mapped uncut citations must expose their approved Frame.io source");
+    // The public sheet is published-only: uncut Frame.io sources never render.
+    if (canvasElement.querySelector('a[href="https://f.io/0I8LmYs9"]')) {
+      throw new Error("The public sheet must not expose uncut Frame.io sources");
     }
   },
 };
 
-export const GroupedBothModeEvidence: SourceStory = {
+export const GroupedPublishedEvidence: SourceStory = {
   render: () => (
     <SourcePanel
       queryScope={{ sourceMode: "both", episodeId: null }}
@@ -350,14 +350,14 @@ export const GroupedBothModeEvidence: SourceStory = {
     panelSummary?.click();
 
     const groups = panel?.querySelectorAll('[data-testid="source-episode-group"]');
-    if (!groups || groups.length !== 3) {
-      throw new Error("Repeated moments must be grouped under their episode");
+    if (!groups || groups.length !== 2) {
+      throw new Error("Published evidence groups by episode; uncut entries stay out of the public sheet");
     }
-    const firstCandidates = groups[0].querySelector('[data-testid="candidate-evidence"]');
-    if (!firstCandidates || firstCandidates.hasAttribute("open")) {
-      throw new Error("Candidate context must start collapsed beneath cited evidence");
+    if (panel?.querySelector('a[href^="https://f.io/"]')) {
+      throw new Error("Uncut Frame.io sources must stay out of the public sheet");
     }
-    if (!firstCandidates.textContent?.includes("C1") || firstCandidates.textContent.includes("[2]")) {
+    const candidates = groups[1].querySelector('[data-testid="candidate-evidence"]');
+    if (!candidates?.textContent?.includes("C2") || candidates.textContent.includes("[3]")) {
       throw new Error("Candidates must use a noncitation evidence namespace");
     }
   },

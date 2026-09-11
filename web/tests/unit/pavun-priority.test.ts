@@ -16,12 +16,12 @@ describe("Pavun57 PR #49 capability precedence", () => {
     expect(read("../.gitignore")).toContain("cloudflare/.dev.vars");
   });
 
-  it("keeps retrieval confidence visible in the evolved source sheet", () => {
+  it("keeps retrieval confidence out of the source sheet", () => {
     const panel = read("components/domain/public/SourcePanel.tsx");
 
-    expect(panel).toContain("function MatchStrengthBadge");
-    expect(panel).toContain('data-testid="match-strength-badge"');
-    expect(panel).toContain("<MatchStrengthBadge score={moment.score} raw />");
-    expect(panel).toContain("<MatchStrengthBadge score={source.score} />");
+    // Product decision: no match labels or percentage scores on evidence.
+    expect(panel).not.toContain("MatchStrengthBadge");
+    expect(panel).not.toContain('data-testid="match-strength-badge"');
+    expect(panel).toContain("StrengthStars");
   });
 });

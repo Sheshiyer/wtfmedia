@@ -37,5 +37,11 @@ export const Connections: Story = {
 export const AskWtf: Story = {
   render: () => <MigratedChatPage />,
   parameters: { nextjs: { appDirectory: true, navigation: { pathname: "/chat" } } },
-  play: async ({ canvasElement }) => assertWorkspaceHeader(canvasElement, "ask wtf"),
+  play: async ({ canvasElement }) => {
+    // The chat surface is deliberately edge-to-edge: no workspace header,
+    // just the conversation thread.
+    if (!canvasElement.querySelector('[data-testid="conversation-thread"]')) {
+      throw new Error("ask wtf must render the conversation thread");
+    }
+  },
 };

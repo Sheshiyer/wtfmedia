@@ -73,11 +73,19 @@ export const OperatorProjection: Story = {
     nextjs: { appDirectory: true, navigation: { pathname: "/ops/operators" } },
   },
   play: async ({ canvasElement }) => {
-    const links = Array.from(canvasElement.querySelectorAll("nav a")).map(
+    // The accepted shell splits operator navigation: workspace links stay in
+    // the bottom dock, the disclosure carries the full list plus utilities.
+    const bottomLinks = Array.from(canvasElement.querySelectorAll("[data-bottom-navigation] a")).map(
       (link) => link.textContent?.trim(),
     );
-    if (links.join("|") !== "control room|operators|audit") {
-      throw new Error(`Unexpected operator projection: ${links.join("|")}`);
+    if (bottomLinks.join("|") !== "control room") {
+      throw new Error(`Unexpected operator bottom dock: ${bottomLinks.join("|")}`);
+    }
+    const disclosureLinks = Array.from(canvasElement.querySelectorAll("[data-navigation-links] a")).map(
+      (link) => link.textContent?.trim(),
+    );
+    if (disclosureLinks.join("|") !== "control room|operators|audit") {
+      throw new Error(`Unexpected operator disclosure: ${disclosureLinks.join("|")}`);
     }
   },
 };

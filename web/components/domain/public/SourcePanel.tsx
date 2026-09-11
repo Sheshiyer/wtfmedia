@@ -15,7 +15,6 @@ import type { PublicSourceCitation } from "@/lib/provenance/public-source-header
 import type { SourceMode } from "@/lib/provenance/source-mode";
 import type { PublicMoment, PublicMomentsPayload } from "@/lib/provenance/public-moment-header";
 import { formatPlaybackTimestamp } from "@/lib/provenance/useDualPlayback";
-import { calibrateRetrievalScore, matchStrength } from "@/lib/provenance/confidence";
 import { downloadMomentsXlsx, formatClock } from "@/lib/public/moments-export";
 import { Button } from "@/components/ui/Button";
 import {
@@ -59,20 +58,6 @@ function StrengthStars({ value }: { value?: number }) {
   );
 }
 
-function MatchStrengthBadge({ score, raw = false }: { score?: number; raw?: boolean }) {
-  const match = matchStrength(raw ? calibrateRetrievalScore(score) : score);
-  if (match.percent === null) return null;
-  return (
-    <span
-      className="rounded border border-foreground/20 bg-surface-subtle px-1.5 py-0.5 font-mono text-[10px] font-bold text-secondary"
-      data-testid="match-strength-badge"
-      title={`retrieval confidence ${match.percent}%`}
-    >
-      {match.label} · {match.percent}%
-    </span>
-  );
-}
-
 /** One clip range with the editorial labels, deep-linked at its start. */
 function MomentDetailRow({ moment }: { moment: PublicMoment }) {
   return (
@@ -104,7 +89,6 @@ function MomentDetailRow({ moment }: { moment: PublicMoment }) {
       <div className="min-w-0 space-y-0.5 text-xs">
         <div className="flex flex-wrap items-baseline gap-x-2">
           {moment.topic && <span className="font-bold text-foreground">{moment.topic}</span>}
-          <MatchStrengthBadge score={moment.score} raw />
           <StrengthStars value={moment.strength} />
         </div>
         {moment.summary && <p className="text-secondary">{moment.summary}</p>}
@@ -149,7 +133,6 @@ function SourceEvidenceRow({ entry }: { entry: SourcePanelEntry }) {
         {entry.evidenceId}
       </span>
       <span className="flex items-center gap-1.5">
-        <MatchStrengthBadge score={source.score} />
         <span className="rounded border border-attention/40 bg-attention/20 px-1.5 py-0.5 font-mono font-bold text-foreground">
           {verifiedTimeSec === null
             ? "published time unavailable"

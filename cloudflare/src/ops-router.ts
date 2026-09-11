@@ -250,7 +250,8 @@ async function chatApi(request: Request, env: OpsEnv, context: OperatorContext, 
     let unavailable = false;
     try {
       answer = await (dependencies.runChat ?? ((input, targetEnv) => runChat(input, targetEnv as { AI: any; VECTORIZE: any })))(answerInput, env);
-    } catch {
+    } catch (runChatError) {
+      console.error("ops chat runChat failed", runChatError);
       answer = unavailableAnswer(view.conversation.source_mode, requestId);
       unavailable = true;
     }
