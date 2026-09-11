@@ -3,7 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Candidate f6bbf58 deployed to Beta staging; canonical settings and history mapping accepted for super-admin, full personas corpus operator delete rollback and production promotion remain gated
+stopped_at: Current deployed staging candidate is `f6bbf58`; canonical settings and
+  history mapping for super-admin are complete, while full personas, corpus,
+  operator delete, rollback, and production promotion remain gated
 last_updated: "2026-09-11T22:15:00+05:30"
 last_activity: 2026-09-11
 progress:
@@ -17,6 +19,29 @@ progress:
   roadmap_percent: 84
 ---
 
+## Continuity checkpoint (2026-09-11)
+
+Done
+- Current deployed staging candidate is `f6bbf58`, mapped to edge
+  `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c` and web
+  `3668390f-1dc8-438e-9dab-19c331b732ce`.
+- Preserved lineage keeps PR #48's intended Ask WTF chat/retrieval/citation/persistence
+  behavior and passes source suites.
+
+Remaining
+- Signed-out/member A/B/suspended/editor/admin/super-admin acceptance across
+  desktop and mobile with real IAB.
+- Staging corpus/grounded inference evidence and rollback rehearsal.
+- `v0.3.3-beta.2` lineage/tag reconciliation.
+- Operator Archive-versus-Delete asymmetry.
+
+State
+- Local docs head before this fleet is `078f582`; it is not staging-accepted by
+  itself.
+- PR #48 stays isolated; PR #77 may advance only from the final staging-accepted
+  SHA or a separately receipted runtime-equivalent artifact.
+- No branch-name push or force-push; use exact hash promotions only.
+
 # Project State
 
 ## Project Reference
@@ -28,10 +53,10 @@ its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
 **Current focus:** Beta 0.1 is a separately tracked authenticated release lane,
-not completion of the broader v1.0 roadmap. Exact web-staging candidate
-`32ec582` builds on `abb5413`: current work remains authoritative for
-UI/routes/Clerk/RBAC/admin/Settings, while Pavun57 leads
-chat/inference/retrieval/accuracy/backend behavior.
+not completion of the broader v1.0 roadmap. Exact current deployed staging
+candidate is `f6bbf58`; local docs head `078f582` is not itself proof. Current
+work remains authoritative for UI/routes/Clerk/RBAC/admin/Settings, while PR #48's intended
+chat/inference/retrieval/accuracy/backend behavior remains.
 The user-reported `3eebf57` object is unavailable here. Alpha's actual Ask WTF
 UI, interaction, inference, retrieval, and navigation remain the product
 bedrock; authentication, private conversations, history, explicit memory,
@@ -65,10 +90,10 @@ and deployed staging candidate are distinct objects and must not be called one
 - Member Delete remains backed by the existing deletion tombstone contract.
   Operator Delete is not implemented because the operator schema is
   audit-retained and has no reviewed deletion/tombstone lifecycle.
-- Remote delivery is selected but not executed: preserve Pavun57's PR #48 and,
-  after the remaining acceptance gates pass, fast-forward `beta_0.1` with an
-  explicit `HEAD:beta_0.1` refspec so only PR #77 is updated. No force push and
-  no push of the checked-out `rag/alpha-answer-accuracy` branch is allowed.
+- Remote delivery is selected but not executed: preserve PR #48 and, after the
+  remaining acceptance gates pass, fast-forward `beta_0.1` with an explicit
+  `HEAD:beta_0.1` refspec so only PR #77 is updated. No force push and no push
+  of the checked-out `rag/alpha-answer-accuracy` branch is allowed.
 
 - UI/runtime candidate `32ec582d9ab953413710832c62e773eb212c00e1` is
   deployed to `wtfmedia-web-staging` as version

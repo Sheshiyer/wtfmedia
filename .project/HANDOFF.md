@@ -1,10 +1,39 @@
 # Project handoff
 
+## 2026-09-11 Continuity checkpoint (fleet alignment)
+
+### Done
+
+- Staging runtime mapping is pinned to source `f6bbf58`
+  (edge `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c`, web
+  `3668390f-1dc8-438e-9dab-19c331b732ce`).
+- Alpha-derived Ask WTF composition is retained under current Beta route/security
+  rails. PR #48’s intended chat/retrieval/citation/persistence behavior is
+  preserved while PR #48 remains unchanged.
+- PR #77 is the only approved beta promotion lane and may advance only from the
+  exact staging-accepted final SHA or a separately receipted runtime-equivalent
+  artifact.
+
+### Remaining
+
+- Signed-out, member A/B, suspended, editor, admin, and super-admin matrices
+  across desktop and mobile.
+- Grounded staging acceptance (approved staging corpus + grounding evidence).
+- Rollback rehearsal and `v0.3.3-beta.2` tag/lineage reconciliation.
+- Operator Archive-versus-Delete policy closure.
+
+### State
+
+- This work has no new live gate passes claimed beyond bounded deployment and
+  partial IAB observations.
+- Local docs head prior to this fleet is `078f582`; it is not staging-accepted.
+- `/beta/preview` and synthetic/fake browser data are non-authoritative.
+
 ## 2026-09-11 Beta settings and session-service mapping repair
 
-**Status:** SOURCE-VERIFIED, DEPLOYED TO BETA STAGING, AND SUPER-ADMIN IAB
-OBSERVED. This is a bounded staging acceptance receipt, not full persona
-acceptance or production authorization.
+**Status:** SOURCE-VERIFIED AND DEPLOYED TO BETA STAGING; SUPER-ADMIN IAB OBSERVED.
+This is a bounded staging receipt and does not complete full persona acceptance
+or production authorization.
 
 - Exact code candidate `f6bbf584fa5c9a07cc218f0211f3c5020bb4f3f7`
   maps Account to the existing Clerk logout control, maps Memory to the real
@@ -30,16 +59,18 @@ acceptance or production authorization.
   account logout, canonical Preferences form/empty ledger, and Sessions list
   with two active conversations. No lifecycle or preference write was used as
   QA evidence. Production, DNS, Clerk configuration, and data were untouched.
-- GitHub still has Pavun57 PR #48 from `rag/alpha-answer-accuracy` to `main`
-  and PR #77 from `beta_0.1` to `release/beta`. Do not push the checked-out
-  branch by name. After remaining staging acceptance, fast-forward the exact
-  accepted SHA to `beta_0.1` with `HEAD:beta_0.1`; this updates PR #77 without
-  repurposing PR #48. Force-push is forbidden.
+- GitHub still has PR #48 from `rag/alpha-answer-accuracy` to `main` and PR #77
+  from `beta_0.1` to `release/beta`. Do not push the checked-out branch by
+  name. After remaining staging acceptance, fast-forward the exact staging
+  accepted final SHA (or a separately receipted runtime-equivalent artifact) to
+  `beta_0.1` with `HEAD:beta_0.1`; this updates PR #77 without repurposing PR
+  #48. Force-push is forbidden.
 
 **Next action:** finish the real member/editor/admin/suspended and viewport
-matrix, approve a safe staging corpus, rehearse rollback, then update PR #77
-from the exact accepted SHA. Operator permanent Delete remains a separately
-reviewed lifecycle decision.
+matrix, approve a safe staging corpus, rehearse rollback, then advance PR #77
+from the exact staging-accepted final SHA (or receipted runtime-equivalent
+artifact). Operator permanent Delete remains a separately reviewed lifecycle
+decision.
 
 ## 2026-09-11 Beta staging signed-in workspace repair
 

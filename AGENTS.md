@@ -2,6 +2,31 @@
 
 This repository is `wtfmedia`.
 
+## Continuity checkpoint (2026-09-11)
+
+- Done:
+  - Current deployed staging candidate mapping is source `f6bbf58`
+    (edge `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c`, web
+    `3668390f-1dc8-438e-9dab-19c331b732ce`).
+  - Preserved source lineage retains PR #48’s intended chat/retrieval/citation/
+    persistence behavior, while PR #48 remains untouched. Passing source suites
+    remain on the current lineage.
+  - PR #48 is still isolated/protected; PR #77 may advance only from the exact
+    staging-accepted final SHA or a separately receipted runtime-equivalent
+    artifact.
+- Remaining:
+  - Full signed-out/member A/B/suspended/editor/admin/super-admin matrix on desktop
+    and mobile in real IAB.
+  - Approved staging corpus and grounded inference on staging.
+  - Rollback rehearsal and live branch/tag reconciliation (`v0.3.3-beta.2`
+    lineage).
+  - Operator Archive-versus-Delete asymmetry and exact operator-delete contract.
+- State:
+  - Local docs head prior to this fleet is `078f582` and is not itself staging-
+    accepted.
+  - `/beta/preview` and fixture/fake-browser data are not acceptance evidence.
+  - Preserve Alpha actual Ask WTF interaction as the non-regressable bedrock.
+
 1. Read `README.md`, `PROJECT.md`, `.project/HANDOFF.md`, and
    `docs/AGENT-ONBOARDING.md` before starting work.
 2. Treat the Thoughtseed Labs vault as referenced knowledge, never as a
@@ -134,7 +159,7 @@ This repository is `wtfmedia`.
   activation, certificate, exact web/edge versions, service binding, Clerk
   authorized-party/redirect presence, real IAB personas, smoke, and rollback
   receipts before calling the environment ready for client handoff.
-- Current staging runtime receipt: source `f6bbf58`, edge version
+- Current deployed staging candidate runtime mapping: source `f6bbf58`, edge version
   `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c`, web version
   `3668390f-1dc8-438e-9dab-19c331b732ce`. This closes deployment mapping only;
   authenticated IAB personas, host-only cookies, viewports, and rollback remain
@@ -148,8 +173,8 @@ This repository is `wtfmedia`.
   `v0.3.3-beta.2`, `release/beta`, `beta_0.1`, the Pavun57 RAG branch, and the
   staging candidate are distinct objects.
 
-- The owner's shorthand `pavun` maps to repository submitter `Pavun57`, who
-  authored PR #48 (`rag/alpha-answer-accuracy`) and PR #49
+- The owner's shorthand `pavun` maps to repository submitter `Pavun57`, author of
+  PR #48 (`rag/alpha-answer-accuracy`) and PR #49
   (`feat/chat-ui-session-memory`). Treat those as priority inputs only on the
   surfaces named below; do not choose an entire branch wholesale.
 - Current Beta convergence work wins for visual/UI composition, AppShell and
@@ -157,13 +182,13 @@ This repository is `wtfmedia`.
   canonical `/beta`/`/ops` routes, Clerk entry/return routing, principal
   admission, RBAC, admin, and scoped Settings. Never revert those surfaces to
   an older UI while integrating Pavun work.
-- Pavun57's intent wins for chat orchestration, inference, retrieval, reranking,
-  grounding/citations, answer accuracy and repair, request budgets, and backend
-  chat/data behavior outside identity and RBAC.
+- The preserved source lineage keeps PR #48’s intended chat orchestration,
+  inference, retrieval, reranking, grounding/citations, answer-accuracy, and
+  request-budget behavior for chat/data paths outside identity and RBAC.
 - Resolve shared files symbol-by-symbol. Current UI/auth/RBAC symbols win;
-  Pavun chat/inference/accuracy symbols win. Existing security, provenance,
-  privacy, and data-integrity gates remain mandatory and may require a minimal,
-  documented adaptation rather than a blind patch application.
+  PR #48-backed chat/inference/accuracy symbols win. Existing security,
+  provenance, privacy, and data-integrity gates remain mandatory and may require a
+  minimal, documented adaptation rather than a blind patch application.
 - The accepted signed-in chat presentation is shared by member and operator
   principals through typed adapters for their distinct server stores. Preserve
   that presentation and owner/RBAC boundary; do not reintroduce a role-based
@@ -173,11 +198,12 @@ This repository is `wtfmedia`.
   duplicate workspace memory/session routes only redirect. Memory is immutable
   create/archive preferences, and Sessions may read active plus archived rows.
   Member Delete is tombstone-backed; operator history remains archive-only.
-- Git delivery must leave Pavun57's PR #48 head untouched. After exact staging
-  acceptance, update PR #77 only by fast-forwarding the accepted SHA to remote
-  `beta_0.1` with an explicit refspec. Never push the checked-out
+- Git delivery must leave PR #48 head untouched. After exact staging
+  acceptance, advance PR #77 only from the staging-accepted final SHA or a
+  separately receipted runtime-equivalent artifact via fast-forward (for example
+  `HEAD:beta_0.1`). Never push the checked-out
   `rag/alpha-answer-accuracy` branch, force-push, or promote a moving branch
-  name instead of an accepted commit.
+  name instead of an accepted hash/artifact.
 - A persisted `cnv_*` conversation with an ungrounded answer can mean the
   isolated staging evidence plane is empty. Verify R2/KV/Vectorize readiness
   separately from chat routing before changing inference code. Never copy
