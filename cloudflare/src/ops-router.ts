@@ -27,6 +27,7 @@ import {
   type ChatActor,
   type MessageInput,
 } from "./chat/history.ts";
+import { operatorChatConversationDto, operatorChatPageDto, operatorChatViewDto } from "./chat/browser-dto.ts";
 import {
   activeMemoryContext,
   archiveMemory,
@@ -178,17 +179,17 @@ async function chatApi(request: Request, env: OpsEnv, context: OperatorContext, 
   if (request.method === "GET") {
     if (conversationId) {
       const view = await getConversationForActor(env.DB, actor, conversationId);
-      return view ? Response.json({ conversation: view.conversation, messages: view.messages, policy: { archive: true, export: context.role === "admin" || context.role === "super_admin" } }, { headers: protectedResponseHeaders }) : denied();
+      return view ? Response.json({ ...operatorChatViewDto(view), policy: { archive: true, export: context.role === "admin" || context.role === "super_admin" } }, { headers: protectedResponseHeaders }) : denied();
     }
     const url = new URL(request.url);
     const page = await listConversationsForActor(env.DB, actor, url.searchParams.get("cursor") ?? undefined, Number(url.searchParams.get("limit") ?? "25"));
-    return page ? Response.json({ ...page, policy: { archive: true, export: context.role === "admin" || context.role === "super_admin" } }, { headers: protectedResponseHeaders }) : denied();
+    return page ? Response.json({ ...operatorChatPageDto(page), policy: { archive: true, export: context.role === "admin" || context.role === "super_admin" } }, { headers: protectedResponseHeaders }) : denied();
   }
 
   if (archivePath || request.method === "PATCH") {
     const id = conversationId ?? (await jsonBody(request))?.conversationId;
     const archived = await archiveConversation(env.DB, actor, id);
-    return archived ? Response.json({ conversation: archived }, { headers: protectedResponseHeaders }) : denied();
+    return archived ? Response.json({ conversation: operatorChatConversationDto(archived) }, { headers: protectedResponseHeaders }) : denied();
   }
 
   if (request.method !== "POST") return denied();
@@ -197,7 +198,7 @@ async function chatApi(request: Request, env: OpsEnv, context: OperatorContext, 
   if (body.action === "export") return chatExport(request, env, context);
   if (body.action === "archive") {
     const archived = await archiveConversation(env.DB, actor, body.conversationId);
-    return archived ? Response.json({ conversation: archived }, { headers: protectedResponseHeaders }) : denied();
+    return archived ? Response.json({ conversation: operatorChatConversationDto(archived) }, { headers: protectedResponseHeaders }) : denied();
   }
 
   const requestId = requestIdForChat(request);
@@ -271,7 +272,7 @@ async function chatApi(request: Request, env: OpsEnv, context: OperatorContext, 
     view = await getConversation(env.DB, context.operatorId, assistantId);
     if (!view) return denied();
   }
-  return Response.json(view, { status: 201, headers: protectedResponseHeaders });
+  return Response.json(operatorChatViewDto(view), { status: 201, headers: protectedResponseHeaders });
 }
 
 function memoryIdFromPath(pathname: string): string | null {
