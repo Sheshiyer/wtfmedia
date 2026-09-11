@@ -77,6 +77,7 @@ test("fresh local migrations are repeatable", () => {
   assert.match(listing, /0013_member_chat_context/);
   assert.match(listing, /0014_principal_profiles/);
   assert.match(listing, /0015_principal_profiles_email_guard/);
+  assert.match(listing, /0016_rich_chat_source_metadata/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'release_manifests';"), /release_manifests/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'calendar_events';"), /calendar_events/);
   assert.match(succeeds("PRAGMA table_info(release_manifests);"), /release_track/);

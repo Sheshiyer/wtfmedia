@@ -44,6 +44,7 @@ const migrations = [
   "0013_member_chat_context.sql",
   "0014_principal_profiles.sql",
   "0015_principal_profiles_email_guard.sql",
+  "0016_rich_chat_source_metadata.sql",
 ];
 
 function sqlite(input, json = false) {
@@ -163,6 +164,21 @@ test("D1 history is durable, idempotent, owner-scoped, and archive-only", async 
   assert.equal((await appendMessage(db, 3, first.conversation.id, {
     role: "assistant", content: "private answer", sourceMetadata: { sources: [] }, groundingState: "grounded", idempotencyKey: "answer-operator-three",
   }, "assistant", "2026-09-02T00:01:00.000Z"))?.id, appended.id);
+
+  const richCitationMetadata = {
+    sources: [{ title: "Published episode", url: "https://www.youtube.com/watch?v=abcdefghijk" }],
+    moments: [{ summary: "evidence ".repeat(4_500), strength: 5 }],
+    citedIndices: [1],
+  };
+  assert.ok(JSON.stringify(richCitationMetadata).length > 30_000);
+  const richAnswer = await appendMessage(db, 3, first.conversation.id, {
+    role: "assistant",
+    content: "rich cited answer [1]",
+    sourceMetadata: richCitationMetadata,
+    groundingState: "grounded",
+    idempotencyKey: "rich-answer-operator-three",
+  }, "assistant", "2026-09-02T00:01:30.000Z");
+  assert.ok(richAnswer, "rich Alpha citation metadata must survive Beta history persistence");
 
   const second = await createConversation(db, 4, { userMessage: { content: "other operator", sourceMetadata: {} }, now: "2026-09-02T00:02:00.000Z" });
   assert.ok(second);

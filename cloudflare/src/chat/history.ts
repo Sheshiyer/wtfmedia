@@ -65,6 +65,7 @@ const idempotencyPattern = /^[A-Za-z0-9._:-]{8,256}$/u;
 const episodePattern = /^[A-Za-z0-9_-]{1,128}$/u;
 const cursorPattern = /^[A-Za-z0-9_-]{1,512}$/u;
 const MAX_PAGE_SIZE = 100;
+const MAX_SOURCE_METADATA_LENGTH = 96_000;
 
 function text(value: unknown, maximum: number): string | null {
   if (typeof value !== "string") return null;
@@ -104,7 +105,7 @@ function metadataJson(value: unknown): string | null {
   } catch {
     return null;
   }
-  if (serialized === undefined || serialized.length > 30_000) return null;
+  if (serialized === undefined || serialized.length > MAX_SOURCE_METADATA_LENGTH) return null;
   try {
     JSON.parse(serialized);
     return serialized;
