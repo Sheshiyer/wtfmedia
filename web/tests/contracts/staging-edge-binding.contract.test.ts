@@ -66,6 +66,9 @@ describe("staging web-to-edge binding contract", () => {
     expect(staging?.queues?.consumers?.[0]).toMatchObject({ queue: "wtfmedia-ingest-staging", dead_letter_queue: "wtfmedia-ingest-staging-dlq" });
     expect(staging?.vars).toMatchObject({
       ALLOWED_ORIGIN: stagingOrigin,
+      DEPLOYMENT_ENVIRONMENT: "staging",
+      SERVICE_NAME: "wtfmedia-edge-staging",
+      CATALOGUE_INDEX_NAME: "wtfmedia-catalogue-staging-v1",
       OPS_HOSTNAME: "beta-staging.wtfhq.in",
       OPS_ORIGIN: stagingOrigin,
       OPS_ENVIRONMENT: "staging",
