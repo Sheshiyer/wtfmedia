@@ -1,5 +1,4 @@
 import {
-  buildVectorQueryOptions,
   extractNamedEntityPhrases,
   parseEpisodeId,
   parseSourceMode,
@@ -9,9 +8,14 @@ import {
   type SourceMode,
   type VectorMatchLike,
 } from "./source-mode.ts";
+import {
+  queryEvidenceSources,
+  queryEvidenceSourcesForQuestion,
+} from "./evidence-coordinator.ts";
 
 export type ChatAnswerEnvironment = {
   AI: any;
+  DB?: any;
   VECTORIZE: any;
 };
 
@@ -175,11 +179,19 @@ export async function runChat(input: ChatAnswerInput, env: ChatAnswerEnvironment
     const anchorQuestion = currentNames.length ? question : priorNamedQuestion ?? question;
     const priorContext = currentNames.length ? undefined : priorNamedQuestion ?? priorQuestion;
     const retrievalQuestion = priorContext ? `${priorContext.slice(0, 1_000)}\nFollow-up question: ${question}` : question;
-    const matches = await env.VECTORIZE.query(await vectorFor(env, retrievalQuestion), buildVectorQueryOptions(episodeId));
-    const relevantMatches = prioritizeMatchesForQuestion((matches.matches ?? []).filter(hasUsableExcerpt), anchorQuestion);
+    const vector = await vectorFor(env, retrievalQuestion);
+    // Same retrieval flow as the public chat: one filtered query per enabled
+    // timeline, catalogue-anchored when a database is available. A bare
+    // single-mode filter is wrong here — Vectorize rejects an empty/absent
+    // source_mode value (40030), which surfaced as "no transcript evidence".
+    const queried = env.DB
+      ? await queryEvidenceSourcesForQuestion(env.DB, env.VECTORIZE, vector, retrievalQuestion, sourceMode, episodeId)
+      : { matches: await queryEvidenceSources(env.VECTORIZE, vector, sourceMode, episodeId), episodeId };
+    const scopedEpisodeId = queried.episodeId;
+    const relevantMatches = prioritizeMatchesForQuestion((queried.matches ?? []).filter(hasUsableExcerpt), anchorQuestion);
     const namedEntityQuestion = extractNamedEntityPhrases(anchorQuestion).length > 0;
-    const resolved = resolveEpisodeScopedSources(relevantMatches, sourceMode, episodeId, MIN_SCORE, 6, {
-      dedupeByEpisode: episodeId === null && !namedEntityQuestion,
+    const resolved = resolveEpisodeScopedSources(relevantMatches, sourceMode, scopedEpisodeId, MIN_SCORE, sourceMode === "both" ? 40 : 6, {
+      dedupeByEpisode: scopedEpisodeId === null && !namedEntityQuestion,
     });
     const sources = resolved.citations.map((source) => {
       const match = relevantMatches.find((item: { id?: string; metadata?: { video_id?: string } }) => item.id === source.segmentId)
@@ -188,7 +200,7 @@ export async function runChat(input: ChatAnswerInput, env: ChatAnswerEnvironment
     });
     if (sources.length < 2) {
       return {
-        answer: insufficientEvidence(resolved, episodeId),
+        answer: insufficientEvidence(resolved, scopedEpisodeId),
         sources: sources.map(({ text: _text, ...source }) => source),
         grounded: false, sourceMode: resolved.sourceMode, uncutUnavailable: resolved.uncutUnavailable,
         model: null, modelFallback: false, requestId: resolvedRequestId,

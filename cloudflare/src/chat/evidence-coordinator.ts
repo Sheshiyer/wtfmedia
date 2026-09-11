@@ -36,7 +36,15 @@ export async function queryEvidenceSources<T extends VectorMatchLike>(
     const result = await index.query(vector, buildVectorQueryOptions(episodeId, mode));
     return Array.isArray(result?.matches) ? result.matches : [];
   }));
-  return resultSets.flat();
+  // The per-mode filters are disjoint in production, so an id can appear
+  // once; the dedupe only guards callers whose index ignores the filter.
+  const seen = new Set<unknown>();
+  return resultSets.flat().filter((match) => {
+    const id = (match as { id?: unknown }).id;
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
 }
 
 /** Resolve a catalogue episode before issuing any top-K vector query. */
