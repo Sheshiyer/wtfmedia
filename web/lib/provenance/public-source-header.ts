@@ -10,6 +10,7 @@
 import { isMappingStatus, parseSourceMode, type MappingStatus, type SourceMode } from "./source-mode";
 
 export interface PublicSourceCitation {
+  n?: number;
   episodeId?: string;
   videoId?: string;
   title?: string;
@@ -40,6 +41,11 @@ function nonNegativeNumber(value: unknown): number | undefined {
   return undefined;
 }
 
+function citationNumber(value: unknown): number | undefined {
+  const number = nonNegativeNumber(value);
+  return number !== undefined && Number.isInteger(number) && number > 0 ? number : undefined;
+}
+
 function parseHeaderJson(header: string): unknown {
   const candidates = [header];
   try {
@@ -64,6 +70,7 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
 
   const raw = value as SourceRecord;
   const source: PublicSourceCitation = {};
+  const n = citationNumber(raw.n);
   const episodeId = textField(raw.episodeId ?? raw.episode_id);
   const videoId = textField(raw.videoId ?? raw.video_id);
   const title = textField(raw.title);
@@ -83,6 +90,7 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
       : undefined;
   const segmentId = textField(raw.segmentId ?? raw.segment_id);
 
+  if (n !== undefined) source.n = n;
   if (episodeId) source.episodeId = episodeId;
   if (videoId) source.videoId = videoId;
   if (title) source.title = title;
@@ -106,7 +114,17 @@ export function parsePublicSourceHeader(header: string | null): PublicSourceCita
   const parsed = parseHeaderJson(header);
   if (!Array.isArray(parsed)) return [];
 
-  return parsed.flatMap((item) => {
+  return parsePublicSourceRecords(parsed);
+}
+
+/**
+ * Applies the same public projection to persisted answer metadata as the
+ * transport header. Private persistence fields are deliberately discarded.
+ */
+export function parsePublicSourceRecords(value: unknown): PublicSourceCitation[] {
+  if (!Array.isArray(value)) return [];
+
+  return value.flatMap((item) => {
     const source = normalizeSource(item);
     return source ? [source] : [];
   });

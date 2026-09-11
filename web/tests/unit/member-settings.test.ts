@@ -16,9 +16,7 @@ describe("member settings route contract", () => {
 
   it("keeps settings copy member-safe and memory controls explicit", () => {
     const files = [
-      "app/beta/settings/layout.tsx",
       "app/beta/settings/page.tsx",
-      "app/beta/settings/memory/page.tsx",
       "app/beta/settings/sessions/page.tsx",
       "app/beta/settings/appearance/page.tsx",
       "components/domain/member/MemoryPreferencesPanel.tsx",
@@ -27,6 +25,9 @@ describe("member settings route contract", () => {
 
     expect(files).toContain("ThemeToggle");
     expect(files).toContain("save");
+    const adaptiveMemory = fromWeb("app/beta/settings/memory/page.tsx");
+    expect(adaptiveMemory).toContain("MemoryGovernancePanel");
+    expect(adaptiveMemory).toContain("MemoryPreferencesPanel");
     const renderedCopy = files.replace(/^import[\s\S]*?;\n/gm, "");
     expect(renderedCopy).not.toMatch(/\b(?:D1|RBAC|issuer|provider|infrastructure|operator|Clerk)\b/i);
   });

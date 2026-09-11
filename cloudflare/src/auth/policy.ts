@@ -1,5 +1,5 @@
-export const roles = ["super_admin", "admin", "editor"] as const;
-export const resources = ["control_room", "operators", "members", "audit", "chat", "memory", "assets", "episodes", "ingest", "transcripts"] as const;
+export const roles = ["super_admin", "admin", "editor", "member"] as const;
+export const resources = ["beta", "control_room", "operators", "members", "audit", "chat", "memory", "assets", "episodes", "ingest", "transcripts", "release"] as const;
 export const actions = ["read", "write", "export", "manage", "transfer", "approve", "create", "upload", "confirm"] as const;
 export type Role = typeof roles[number];
 export type Resource = typeof resources[number];
@@ -7,7 +7,7 @@ export type Action = typeof actions[number];
 
 const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
   super_admin: new Set([
-    "control_room:read", "operators:read", "operators:manage", "operators:transfer", "operators:approve", "members:read", "members:manage",
+    "beta:read", "control_room:read", "operators:read", "operators:manage", "operators:transfer", "operators:approve", "members:read", "members:manage", "release:manage",
     "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm", "assets:manage",
     "episodes:read", "episodes:write", "episodes:create", "episodes:manage",
@@ -15,18 +15,19 @@ const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
     "transcripts:read", "transcripts:write", "transcripts:create", "transcripts:manage",
   ]),
   admin: new Set([
-    "control_room:read", "operators:read", "operators:manage", "members:read", "members:manage", "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
+    "beta:read", "control_room:read", "operators:read", "operators:manage", "members:read", "members:manage", "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm", "assets:manage",
     "episodes:read", "episodes:write", "episodes:create", "episodes:manage",
     "ingest:read", "ingest:write", "ingest:create", "ingest:manage",
     "transcripts:read", "transcripts:write", "transcripts:create", "transcripts:manage",
   ]),
   editor: new Set([
-    "control_room:read", "chat:read", "chat:write", "memory:read", "memory:write",
+    "beta:read", "control_room:read", "chat:read", "chat:write", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm",
     "episodes:read", "ingest:read",
     "transcripts:read", "transcripts:write",
   ]),
+  member: new Set(["beta:read", "chat:read", "chat:write", "memory:read", "memory:write"]),
 };
 
 const routeRequirements: Record<string, readonly [Resource, Action]> = {
@@ -63,6 +64,28 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/api/ops/assets/upload-intent": ["assets", "create"],
   "/api/ops/assets/upload-stream": ["assets", "upload"],
   "/api/ops/assets/confirm-upload": ["assets", "confirm"],
+  "/beta": ["beta", "read"],
+  "/beta/chat": ["chat", "read"],
+  "/beta/settings": ["beta", "read"],
+  "/beta/settings/account": ["beta", "read"],
+  "/beta/settings/memory": ["memory", "read"],
+  "/beta/settings/sessions": ["chat", "read"],
+  "/beta/settings/appearance": ["beta", "read"],
+  "/beta/workspace/production": ["control_room", "read"],
+  "/beta/workspace": ["control_room", "read"],
+  "/beta/workspace/episodes": ["episodes", "read"],
+  "/beta/workspace/ingest": ["ingest", "read"],
+  "/beta/settings/workspace": ["control_room", "read"],
+  "/beta/settings/workspace/readiness": ["control_room", "read"],
+  "/beta/settings/workspace/release": ["control_room", "read"],
+  "/beta/settings/workspace/ai": ["control_room", "read"],
+  "/beta/settings/workspace/analytics": ["control_room", "read"],
+  "/beta/settings/workspace/sessions": ["control_room", "read"],
+  "/beta/settings/workspace/memory": ["control_room", "read"],
+  "/beta/settings/workspace/sources": ["transcripts", "read"],
+  "/beta/admin/users": ["members", "read"],
+  "/beta/admin/audit": ["audit", "read"],
+  "/beta/admin/release": ["release", "manage"],
 };
 
 function includes<T extends string>(values: readonly T[], value: unknown): value is T {
@@ -77,7 +100,8 @@ export function decide(role: unknown, resource: unknown, action: unknown, option
   return grants[role].has(`${resource}:${action}`);
 }
 
-export function policyForPath(pathname: string): readonly [Resource, Action] | null {
+export function policyForPath(pathname: string, method = "GET"): readonly [Resource, Action] | null {
+  if (pathname.startsWith("/beta/api/")) return betaApiRequirement(pathname, method);
   if (routeRequirements[pathname]) return routeRequirements[pathname];
   if (pathname === "/ops/settings/access") return ["operators", "read"];
   if (pathname === "/ops/settings/users") return ["members", "read"];
@@ -85,6 +109,7 @@ export function policyForPath(pathname: string): readonly [Resource, Action] | n
   if (/^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0-9_-]*$/u.test(pathname)) return ["chat", "read"];
   if (pathname.startsWith("/ops/api/chat/") || pathname.startsWith("/api/ops/chat/") || pathname.startsWith("/ops/chat/")) return ["chat", "read"];
   if (pathname.startsWith("/ops/api/memory/") || pathname.startsWith("/api/ops/memory/")) return ["memory", "read"];
+  if (/^\/beta\/chat\/(?:mcnv|cnv)_[A-Za-z0-9-]{8,88}$/u.test(pathname)) return ["chat", "read"];
   if (pathname.startsWith("/ops/episodes/") || pathname.startsWith("/api/ops/episodes/") || pathname.startsWith("/ops/api/episodes/")) {
     if (pathname.endsWith("/citation")) return ["episodes", "read"];
     if (pathname.endsWith("/provenance")) return ["episodes", "read"];
@@ -93,6 +118,30 @@ export function policyForPath(pathname: string): readonly [Resource, Action] | n
     return ["episodes", "read"];
   }
   return null;
+}
+
+function betaApiRequirement(pathname: string, method: string): readonly [Resource, Action] | null {
+  const requestMethod = method.toUpperCase();
+  if (pathname === "/beta/api/principal-context" || pathname === "/beta/api/context") return requestMethod === "GET" ? ["beta", "read"] : null;
+  if (pathname === "/beta/api/chat") {
+    if (requestMethod === "GET") return ["chat", "read"];
+    return requestMethod === "POST" ? ["chat", "write"] : null;
+  }
+  if (/^\/beta\/api\/chat\/mcnv_[A-Za-z0-9-]{8,88}$/u.test(pathname)) {
+    return ["GET", "POST", "DELETE"].includes(requestMethod) ? ["chat", requestMethod === "GET" ? "read" : "write"] : null;
+  }
+  if (/^\/beta\/api\/chat\/mcnv_[A-Za-z0-9-]{8,88}\/archive$/u.test(pathname)) return requestMethod === "POST" ? ["chat", "write"] : null;
+  if (pathname === "/beta/api/memory") {
+    if (requestMethod === "GET") return ["memory", "read"];
+    return requestMethod === "POST" ? ["memory", "write"] : null;
+  }
+  if (/^\/beta\/api\/memory\/mmem_[A-Za-z0-9-]{8,88}\/archive$/u.test(pathname)) return requestMethod === "POST" ? ["memory", "write"] : null;
+  return null;
+}
+
+export function capabilitiesForRole(role: unknown): string[] {
+  if (!includes(roles, role)) return [];
+  return [...grants[role]].sort();
 }
 
 export function canAccessPath(role: unknown, pathname: string): boolean {

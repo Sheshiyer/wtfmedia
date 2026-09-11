@@ -4,10 +4,10 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: verify
-progress: 82/201
+progress: 95/240
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-11T02:09:00+05:30
+updated: 2026-09-11T04:02:00+05:30
 ---
 
 ## Problem
@@ -304,15 +304,87 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-190: Anti: this slice performs no production, DNS, Clerk, D1, or migration mutation; any staging deployment uses the named profile, reviewed commit, and recorded version receipt (probe: Git diff and command ledger review).
 - [DEFERRED-VERIFY] ISC-191: One active super-admin and two ordinary members pass staging routing, persistence, reauthentication, and cross-member isolation (probe: authenticated staging matrix and metadata-only D1 readback; follow-up `WTF-BETA-LIVE-01`).
 - [x] ISC-192: Anti: the temporary browser-only `/beta/preview` fixture is absent, returns `404`, and cannot be used as a member experience or acceptance fallback (probe: source guard, clean build route table, and HTTP checks).
-- [x] ISC-193: Authenticated Member Beta extends the Public Alpha WTF OS visual system without replacing its wordmark, palette, typography, panel language, or navigation grammar (probe: side-by-side authenticated IAB review of the corrected deployment).
+- [ ] ISC-193: Authenticated Member Beta extends Public Alpha's actual WTF OS implementation without replacing its wordmark, presentation primitives, interaction model, or navigation grammar (probe: branch/symbol ledger plus side-by-side authenticated IAB review).
 - [x] ISC-194: The ordinary-member empty Ask surface directly reuses Public Alpha's `ConversationEmptyState` rather than a welcome dashboard or feature-summary grid (probe: component source contract).
-- [x] ISC-195: The ordinary-member Ask input directly reuses Public Alpha's `AskComposer`, selecting its live-production compact input and keyboard behavior (probe: component source and unit contract).
+- [ ] ISC-195: The ordinary-member Ask input reuses the accepted Alpha `AskComposer` behavior, including unpositioned capsule composition and overflow-aware parent placement (probe: historical source map, component contract, and browser test).
 - [x] ISC-196: Member Settings adds no second global header, Ask link, private-workspace strip, utility rail, or bottom pill beneath the shared shell (probe: layout source contract).
 - [x] ISC-197: The ordinary-member sign-in/recovery frame uses the Alpha cream/ink evidence-card composition while the dark operator gateway remains operator-only (probe: audience branch and render contract).
 - [x] ISC-198: The owner-approved anti-drift contract is identical in the handoff, GSD state, Phase 2 member UI addendum, ISA, and durable memory note (probe: bounded document comparison).
 - [x] ISC-199: Member Beta uses the live production Alpha compact composer capsule with one line and one Ask WTF button, without the expanded source-mode/type rail or full-width panel band (probe: source contract plus authenticated 1382x887 IAB comparison).
 - [x] ISC-200: Desktop session navigation uses zero-min-width tracks, two-line long-word clamping, and bounded scrolling without intruding into the evidence card or composer (probe: source contract plus authenticated 1382x887 IAB comparison).
-- [x] ISC-201: The bottom pill retains only icon-labelled Ask WTF and Settings destinations; individual conversations remain in the rail/drawer and member subfeatures remain inside Settings (probe: navigation contract plus authenticated IAB comparison).
+- [ ] ISC-201: Superseded acceptance language; the two-button icon-labelled Ask WTF/Settings pill is rejected and replaced by ISC-222 (probe: 2026-09-11 owner annotation).
+
+### Alpha-aligned chat inference and retrieval refinement
+
+- [x] ISC-202: Public Alpha and authenticated Beta execute the same reviewed retrieval and answer runner while retaining separate transport and authorization routes (probe: Edge source contract test).
+- [x] ISC-203: Episode-scoped retrieval can retain at least two relevant chunks from the requested episode instead of deduplicating the episode to one source (probe: answer-runner unit test).
+- [x] ISC-204: A pronoun follow-up inherits a named-person anchor from the most recent user question when the current question names nobody (probe: answer-runner unit test).
+- [x] ISC-205: A current question naming a different person supersedes any named-person anchor in prior conversation context (probe: answer-runner unit test).
+- [x] ISC-206: Retrieval candidates without non-empty transcript text are excluded before the evidence-count and synthesis gates (probe: answer-runner unit test).
+- [x] ISC-207: Every accepted synthesized factual sentence contains only in-range citation markers; otherwise the runner returns cited excerpts (probe: citation-validator unit test).
+- [x] ISC-208: Citation numbers remain stable when the source panel filters a mixed response to published or uncut sources (probe: web source-panel unit contract).
+- [x] ISC-209: Persisted member citations are normalized through the same public-safe projection used by Alpha and malformed metadata fails closed (probe: member parser unit test).
+- [x] ISC-210: Persisted member messages retain truthful grounding and uncut-availability state without exposing model, request, idempotency, or infrastructure identifiers (probe: member parser and source scan tests).
+- [x] ISC-211: A member conversation load failure exposes an explicit retry action that can recover the selected route without creating a new turn (probe: component source and browser test).
+- [x] ISC-212: Sending a member question exposes the Alpha loading phrase in the conversation log and prevents a duplicate submit (probe: component unit/browser test).
+- [x] ISC-213: A persisted ungrounded member answer renders the Alpha abstention label from stored grounding state rather than text heuristics (probe: member render contract).
+- [ ] ISC-214: Long member threads own a bounded scroll region and do not force a reader who scrolled upward back to the newest answer (probe: component/browser scroll test).
+- [ ] ISC-215: Expanded source details and the final message remain reachable above the compact composer and member navigation pill (probe: 320x710, 768px, and 1382x887 browser viewports).
+- [x] ISC-216: Wrangler configuration keeps production web bound only to production edge and staging web bound only to staging edge and staging data resources (probe: config contract test).
+- [x] ISC-217: Beta’s buffered JSON answer transport is named and tested; no UI claims token streaming before a separately reviewed persistence-safe streaming contract exists (probe: Edge and web contract assertions).
+- [x] ISC-218: Anti: this refinement performs no production deployment, corpus copy, ingest, binding mutation, secret change, D1 mutation, or Public Alpha cutover (probe: Git diff and command ledger review).
+
+### Alpha-bedrock / Beta modular convergence
+
+- [x] ISC-219: A committed branch-and-symbol ledger maps `origin/release/alpha`, `origin/rag/alpha-answer-accuracy`, `origin/release/beta`, and checkpoint `3e4c887` without treating any branch name or deployment receipt as automatic adoption authority (probe: Git ancestry and path ledger).
+- [x] ISC-220: Every later Alpha Ask WTF capability is classified bedrock, adapt, defer, or reject before code integration (probe: capability ledger completeness check).
+- [ ] ISC-221: Public Alpha and Member Beta render one shared conversation/composer/source presentation primitive; member persistence is supplied through a typed adapter rather than a forked thread implementation (probe: import graph and component contract).
+- [ ] ISC-222: Member Ask routes preserve the live Alpha `/chat` frame: no bottom navigation dock, the top-right hamburger retains Ask WTF/Episodes/Connections/theme, and one member Settings gear is added inside that disclosure; the rejected two-button Ask WTF/Settings pill is absent (probe: navigation source and authenticated IAB comparison).
+- [ ] ISC-223: Loading, unavailable, retry, empty, answer, and long-history states occupy one bounded selected-conversation viewport without a large dead canvas (probe: component and 1382x1180 browser tests).
+- [ ] ISC-224: Session-card titles clamp and wrap inside the bounded rail while the active conversation heading remains readable without truncation (probe: component and browser layout tests).
+- [ ] ISC-225: A selected session exposes a direct Archive action that retains storage and never acts as navigation to the Sessions settings page (probe: member action and API tests).
+- [ ] ISC-226: Permanent Delete is separately labelled and opens a focus-managed confirmation dialog that states the selected conversation and messages cannot be restored (probe: component accessibility/browser tests).
+- [ ] ISC-227: Permanent Delete is owner-scoped, race-safe, audited without private content, and removes the conversation, messages, and internal context checkpoints without resurrection from continuation retries or replayed original create idempotency keys (probe: D1/router concurrency tests).
+- [ ] ISC-228: Deleting a member conversation never deletes or mutates transcript corpus objects, vectors, ingest receipts, queues, or unrelated saved preferences (probe: binding spies, D1 fixtures, and command ledger).
+- [ ] ISC-229: Any explicit saved preference linked through the current immutable `ON DELETE RESTRICT` source-conversation reference is disclosed separately and uses a reviewed detach/tombstone design; deleting that memory remains a separate explicit choice (probe: schema/API/UI tests).
+- [ ] ISC-230: Selected-conversation messages use stable keyset pagination and bounded response size while preserving chronological display and reader scroll position (probe: D1 and browser long-history tests).
+- [ ] ISC-231: Versioned owner-scoped context checkpoints preserve evaluated older-turn continuity beyond the recent eight-turn/8,000-character window (probe: long-session context evaluation).
+- [ ] ISC-232: Context checkpoints are labelled untrusted conversational context, never cited as transcript evidence, and never become explicit saved memory without a member save action (probe: prompt inspection and negative evidence tests).
+- [ ] ISC-233: Compaction failure falls back to recent bounded turns without blocking the conversation or reporting false full-session continuity (probe: failure-injection tests).
+- [ ] ISC-234: Member answer transport remains explicitly buffered JSON until a separately reviewed streaming contract proves partial persistence, cancellation, idempotency, and retry (probe: transport contract).
+- [ ] ISC-235: An editor's live navigation, screens, actions, and server capabilities contain no admin or super-admin authority (probe: deterministic policy and authenticated staging UI/API matrix).
+- [ ] ISC-236: An admin's live navigation, screens, actions, and server capabilities match the admin policy and exclude super-admin-only transfer/release authority (probe: authenticated staging UI/API matrix).
+- [ ] ISC-237: A super-admin entering `/beta` routes to `/beta/workspace` without member-row creation and receives the complete super-admin-only screen/action set while preserving the one-seat invariant (probe: authenticated staging UI/API plus metadata-only D1 readback).
+- [DEFERRED-VERIFY] ISC-238: Signed-out, Member A, Member B, editor, admin, super-admin, and suspended/revoked personas pass the complete staging route/screen/action/isolation matrix (probe: owner-authorized authenticated IAB matrix; follow-up `WTF-BETA-CONVERGENCE-LIVE-01`).
+- [DEFERRED-VERIFY] ISC-239: The converged member chat passes authenticated 1382x887, 1382x1180, and 320x710 layout, focus, drawer, composer, source-sheet, and long-thread acceptance (probe: owner-authorized authenticated IAB; follow-up `WTF-BETA-CONVERGENCE-UX-01`).
+- [x] ISC-240: Anti: this planning and source-checkpoint pass performs no deployment, remote data mutation, corpus copy, queue work, secret or Clerk change, DNS change, or production cutover (probe: Git diff and command ledger).
+
+### Beta single-shell RBAC convergence
+
+- [x] ISC-241: `/beta` resolves one edge-authoritative principal projection, with any operator record preceding member admission and an inactive operator denied without member binding (probe: edge principal-context and lifecycle tests).
+- [x] ISC-242: The canonical member, workspace, Settings, and administration routes are all classified by the edge policy; unknown Beta routes and `public_link` fallbacks deny (probe: edge policy matrix).
+- [x] ISC-243: Every protected browser navigation destination imports or resolves against the edge policy, and no role-visible navigation target is denied by that authority (probe: browser-navigation policy contract).
+- [x] ISC-244: `/beta/ops/*` is redirect compatibility only while `/ops/*` and public `/chat` remain distinct Alpha surfaces (probe: middleware, route, and public-route contracts).
+- [x] ISC-245: Nested Settings navigation is capability-projected for member, operator, admin, and super-admin personas and each destination independently rechecks its edge authorization (probe: route and policy contracts).
+- [x] ISC-246: Member and operator conversation stores remain separately owner-scoped; browser routes expose only prefixed conversation UUIDs and never project Clerk subjects, user hashes, or D1 owner identifiers (probe: DTO, route, and privacy tests).
+- [x] ISC-247: Session cards expose Archive and separately confirmed permanent Delete; local lifecycle contracts preserve saved preferences and prevent idempotency-key resurrection (probe: Edge lifecycle and browser unit tests).
+- [x] ISC-248: AI Route and YouTube Analytics are labelled non-persisted local previews and cannot configure provider, inference, or analytics state (probe: Settings source and contract tests).
+- [x] ISC-249: The single-shell source checkpoint passes Cloudflare 267/267, web unit 162/162, web contracts 92/92, typecheck, lint, production build, architecture check, and privacy scan with zero violations (probe: recorded local command receipts).
+- [DEFERRED-VERIFY] ISC-250: An owner-authorized staging deployment/migration and real Clerk/D1 Codex IAB persona matrix prove principal landing, route/screen/action isolation, and desktop/mobile acceptance before Beta is accepted (probe: staging receipt plus authenticated IAB matrix).
+- [x] ISC-251: Anti: the single-shell source checkpoint makes no production deployment, provider configuration, Clerk mutation, D1 migration, corpus mutation, or DNS change (probe: Git diff and command ledger).
+
+### Beta 0.1 Cloudflare placement and PR gate
+
+- [x] ISC-252: `beta_0.1` is explicitly a source-integration branch into `release/beta`, not a package version, tag, deployment, or traffic claim (probe: Git ancestry and release map).
+- [x] ISC-253: Production and staging web, edge, D1, R2, Vectorize, KV, ingest queue, and DLQ names are mapped without recording account, database, namespace, queue, deployment, or secret identifiers (probe: sanitized source/live inventory).
+- [x] ISC-254: Web `ASSETS`, Cloudflare Images, catalogue R2 objects, D1 authority, derived Vectorize/KV state, and queue transport have distinct documented ownership (probe: source binding and consumer map).
+- [x] ISC-255: Published, uncut, manifest, and structured `episodes/...` R2 key families are mapped without claiming timeline alignment or renaming live objects (probe: asset-key source contracts).
+- [x] ISC-256: Current deployed Worker existence, binding metadata, live reachability, candidate deployment, and custom-domain traffic attribution are reported as separate evidence layers (probe: named-profile read-only inventory plus source comparison).
+- [x] ISC-257: Staging D1 migrations 0012-0015 and production D1 migrations 0011-0015 are recorded as unapplied without executing them (probe: remote read-only migration lists).
+- [x] ISC-258: The staging order is recovery receipt, migrations, edge deploy/health/bindings, web deploy/service binding, then real Clerk/D1 IAB acceptance (probe: promotion map review).
+- [x] ISC-259: A production promotion requires a fresh owner authorization, current version/traffic/domain/rollback receipts, production migration review, edge-first deployment, and post-deploy smokes (probe: promotion map review).
+- [x] ISC-260: Open conflicting PRs #57 and #59 are treated as superseded inputs rather than stacked or automatically closed (probe: GitHub PR metadata and PR body).
+- [x] ISC-261: Anti: this PR preparation performs no merge, tag, staging/production deploy, migration apply, traffic change, secret read/write, DNS mutation, Clerk mutation, queue enqueue, ingest, or corpus mutation (probe: Git and command ledger).
 
 ## Test Strategy
 
@@ -335,6 +407,10 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-156..161 | named-guest relevance | explicit named-person questions stay anchored to matching evidence and abstain when no anchor exists | all source-mode contract assertions pass | Worker unit tests + prompt inspection |
 | ISC-162..166 | source-panel filtering | `published`, `uncut`, and `both` visibly filter response-backed citations without relabeling or leakage | all unit and browser assertions pass | web unit + Playwright journey |
 | ISC-167..201 | member Beta workspace | owned continuation, pagination, route state, Settings, explicit memory review, responsive behavior, fixture retirement, live-Alpha composer continuity, clamped session layout, anti-drift state, and authority boundaries | all deterministic local probes pass; live personas separately deferred | Edge SQLite tests + web unit/contracts + authenticated IAB accessibility |
+| ISC-202..218 | Alpha-aligned chat refinement | shared inference, multi-turn retrieval, evidence validation, stable citations, truthful member states, resilient thread interaction, and environment isolation | all deterministic probes pass; deployed staging UI remains separately receipted | Edge unit/integration + web unit/contracts + authenticated IAB |
+| ISC-219..240 | Alpha-bedrock / Beta modular convergence | branch/symbol admission, shared Alpha presentation, true navigation continuity, selected-session archive/delete, long-session pagination/compaction, role-specific screens, and no remote mutation | all local contracts pass; live personas and viewports separately deferred | Git ledger + Edge/D1 tests + web contracts + authenticated IAB matrix |
+| ISC-241..251 | Beta single-shell RBAC convergence | edge principal precedence, canonical routes, policy-derived navigation, scoped Settings, private DTOs, lifecycle, preview holds, and source-only release boundary | all local policy/navigation/privacy contracts pass; staging IAB remains required | Edge tests + web unit/contracts + build/privacy + authenticated IAB matrix |
+| ISC-252..261 | Beta 0.1 Cloudflare placement and PR gate | branch/base identity, environment-isolated assets and bindings, live/source/deployed evidence separation, pending migrations, and ordered promotion boundaries | sanitized inventory and deterministic source checks pass; staging and production mutations remain separately gated | Git/GitHub metadata + Wrangler read-only inventory + config/source review |
 
 ## Features
 
@@ -428,6 +504,24 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
   satisfies: [ISC-167, ISC-168, ISC-169, ISC-170, ISC-171, ISC-172, ISC-173, ISC-174, ISC-175, ISC-176, ISC-177, ISC-178, ISC-179, ISC-180, ISC-181, ISC-182, ISC-183, ISC-184, ISC-185, ISC-186, ISC-187, ISC-188, ISC-189, ISC-190, ISC-191, ISC-192, ISC-193, ISC-194, ISC-195, ISC-196, ISC-197, ISC-198, ISC-199, ISC-200, ISC-201]
   depends_on: [ProjectGovernanceSpine, BrandTokenFoundation, EvidenceNativeKnowledge, QualityAndSafetyGates]
   parallelizable: true
+
+- name: AlphaAlignedChatRefinement
+  description: One evidence-safe retrieval and answer core shared by Alpha and Beta, with persisted-thread truthfulness and strict environment isolation
+  satisfies: [ISC-202, ISC-203, ISC-204, ISC-205, ISC-206, ISC-207, ISC-208, ISC-209, ISC-210, ISC-211, ISC-212, ISC-213, ISC-214, ISC-215, ISC-216, ISC-217, ISC-218]
+  depends_on: [SourceModeCitationFilter, MemberBetaConversationWorkspace, CloudflareEstateMigrationBoundary]
+  parallelizable: true
+
+- name: AlphaBedrockBetaModularConvergence
+  description: The exact Alpha Ask WTF implementation becomes the shared product bedrock while private lifecycle, long-context, Settings, and RBAC remain modular Beta additions
+  satisfies: [ISC-219, ISC-220, ISC-221, ISC-222, ISC-223, ISC-224, ISC-225, ISC-226, ISC-227, ISC-228, ISC-229, ISC-230, ISC-231, ISC-232, ISC-233, ISC-234, ISC-235, ISC-236, ISC-237, ISC-238, ISC-239, ISC-240, ISC-241, ISC-242, ISC-243, ISC-244, ISC-245, ISC-246, ISC-247, ISC-248, ISC-249, ISC-250, ISC-251]
+  depends_on: [AlphaAlignedChatRefinement, MemberBetaConversationWorkspace, CloudflareEstateMigrationBoundary]
+  parallelizable: false
+
+- name: Beta01CloudflarePromotionGate
+  description: Source-only integration PR with explicit Cloudflare asset placement, environment boundaries, migration delta, and staged production gates
+  satisfies: [ISC-252, ISC-253, ISC-254, ISC-255, ISC-256, ISC-257, ISC-258, ISC-259, ISC-260, ISC-261]
+  depends_on: [AlphaBedrockBetaModularConvergence, CloudflareEstateMigrationBoundary, QualityAndSafetyGates]
+  parallelizable: false
 ```
 
 ## Architecture
@@ -449,6 +543,21 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 <!-- arch-assets:end -->
 
 ## Decisions
+
+- 2026-09-11 15:49 IST: owner authorized a clean `beta_0.1` source branch and PR into `release/beta`, plus a read-only Cloudflare asset/topology audit before any production work. The branch label is not a semantic version or tag. Staging reports migrations 0012-0015 pending and production reports 0011-0015 pending; no migration, deploy, traffic, secret, DNS, Clerk, queue, ingest, corpus, merge, or production mutation is part of this checkpoint.
+
+- 2026-09-11 03:49 IST: refined: execution resumes from the committed Alpha-bedrock handoff. The current live IAB reproduction shows a selected member route with an unavailable banner, a separate header archive control, and the incorrect member navigation disclosure. Display-down correction starts with shared Alpha shell/composer behavior; private mutation contracts remain owner-scoped behind the existing Beta API.
+- 2026-09-11 04:02 IST: verified locally: the convergence slice is committed in four bounded source commits. It restores the shared Alpha frame without a member bottom dock, adds direct Archive plus confirmed owner-scoped Delete, preserves separately saved preferences through minimal provenance tombstones, blocks replay resurrection, and records a retrieval-capability ledger. Long-session paging/checkpoints and live persona acceptance remain open; no remote state changed.
+- 2026-09-11 03:48 IST: The required pre-build Advisor call was attempted and failed because the local OAuth session could not refresh. No credentials, provider configuration, deployment, or remote state changed. Three bounded Codex implementation lanes plus local tests and IAB evidence remain the review path.
+- 2026-09-11 03:30 IST: The final Codex cross-audit found no critical or high issue. It corrected the two distinct Alpha merge bases, removed Fleet B/C ownership overlap, labelled future UI assertions honestly, and surfaced two Delete preconditions: the saved-memory `ON DELETE RESTRICT` link needs reviewed detach/tombstone semantics, and anti-resurrection must replay original create idempotency keys after deletion.
+- 2026-09-11 03:29 IST: The mandatory post-deliverable Advisor audit was attempted against the convergence handoff and failed because the local OAuth session could not refresh. No credential or provider state changed; direct Git evidence, three Codex audits, full local suites, privacy, build, and architecture checks govern this planning checkpoint.
+- 2026-09-11 03:22 IST: refined: The owner's latest annotated review supersedes ISC-201's two-button pill acceptance. Alpha's actual product-menu grammar remains the navigation bedrock; Settings is one additive icon utility, not a second labelled destination replacing the Alpha menu.
+- 2026-09-11 03:22 IST: refined: Alpha and Beta are a shared product composition across separate runtime pairs, not separate UIs. `release/beta` is not descended from the later Alpha answer-accuracy line, so all convergence begins with a branch-and-symbol capability ledger and bounded forward-ports rather than a wholesale merge.
+- 2026-09-11 03:22 IST: The owner added permanent member-session deletion to the product contract. Archive remains retained storage; Delete requires an additive owner-scoped schema/API contract, explicit confirmation, privacy-safe audit semantics, in-flight invalidation, and proof that transcript corpus data and unrelated explicit memories remain untouched.
+- 2026-09-11 03:22 IST: There is no automatic long-session compaction in the current source. Message pagination plus versioned owner-scoped context checkpoints are required; checkpoints remain untrusted conversational context and cannot satisfy evidence or explicit-memory criteria.
+- 2026-09-11 02:36 IST: The mandatory pre-build Advisor call was attempted for the shared chat refinement and failed because the local OAuth session is expired. Credentials and provider state were not changed; three independent Codex audits plus direct failing probes govern the bounded implementation.
+- 2026-09-11 02:32 IST: refined: Public Alpha is a route set on `wtfmedia-web`, while Beta is a staging-only route set on `wtfmedia-web-staging`; each web worker binds to its matching edge and data plane. Chat behavior may share reviewed source code, but runtime assets, authorization, corpus receipts, and deployment actions remain environment-specific.
+- 2026-09-11 02:32 IST: Root-cause-at-ingestion: answer-quality drift enters where public and member paths duplicate retrieval/validation logic and where episode-scoped queries override the source resolver's non-deduping default. The correction belongs in the shared answer runner and safe source projection, not in display-only copy or prompt decoration.
 
 - 2026-08-18 17:09 IST: The project ISA is the acceptance and goal authority; GSD remains the execution-planning spine under `.planning/`.
 - 2026-08-18 17:09 IST: The current public catalogue is preserved as a projection of shared evidence data, not treated as the complete internal operating system.
@@ -557,6 +666,14 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
   refuted by: the owner reiterated the prior annotated review after authenticated staging still opened with a separate welcome/dashboard composition
   learned: Beta must reuse Alpha's actual Ask WTF components and page grammar; private capability is additive context, not a replacement presentation
   criterion now: ISC-193 through ISC-198 bind live visual comparison, direct Alpha component reuse, no nested Settings chrome, the light member-entry frame, and synchronized anti-drift records
+- 2026-09-11 | conjectured: direct reuse of a few current Beta copies of Alpha components was enough to prevent future chat drift
+  refuted by: Git ancestry proves `release/beta` is not descended from the later Alpha answer-accuracy work, and the 1382x1180 owner annotation rejects the resulting navigation, selected-session, and conversation-viewport behavior
+  learned: Alpha is a versioned implementation bedrock, not a styling reference; convergence requires an exact branch/symbol capability ledger followed by bounded forward-ports into shared primitives
+  criterion now: ISC-219 through ISC-240 bind ancestry, shared composition, lifecycle, long context, role screens, live personas, and environment safety to separate probes
+- 2026-09-11 | conjectured: permanent conversation deletion could remove messages then the conversation while leaving saved preferences untouched
+  refuted by: migration `0010_member_beta.sql` makes the saved-memory source-conversation link immutable and `ON DELETE RESTRICT`, while conversation-create idempotency identity currently lives on the conversation row itself
+  learned: deletion needs explicit detach/tombstone semantics and replayed-create anti-resurrection coverage before any additive migration can be accepted
+  criterion now: ISC-227 and ISC-229 require both safeguards rather than a blanket cascade or archive rename
 
 ## Verification
 
@@ -651,4 +768,12 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 - ISC-198 evidence: `.project/HANDOFF.md`, `.planning/STATE.md`, `02-MEMBER-BETA-UI-ADDENDUM.md`, this ISA, and the ad-hoc memory note all state the same literal-component, navigation, fixture, and live-IAB rules.
 - ISC-199 evidence: authenticated staging web version `e298b69c-d0a0-49a4-b528-5f3914703e0e` rendered the compact single-line Alpha capsule with one Ask WTF button and no expanded panel band, mode strip, or type rail; it successfully continued a real conversation.
 - ISC-200 evidence: at the owner's 1382x887 IAB viewport, two long real session titles clamped to two lines wholly inside the bounded 240px rail and did not obscure the Alpha evidence card or compact composer.
-- ISC-201 evidence: the corrected IAB pill contained only Ask WTF and Settings, showed their chat and settings icons, and kept individual conversations in the separate rail.
+- ISC-201 supersession evidence: the 2026-09-11 1382x1180 owner annotation rejected the two-button icon-labelled Ask WTF/Settings pill and requires Alpha's actual menu with Settings as one additive icon utility; ISC-222 owns the replacement acceptance contract.
+- ISC-202 through ISC-207 evidence: checkpoint `3e4c887` routes public and member generation through `runChat`; the full 251-test Cloudflare run proves multi-chunk episode retrieval, prior-name follow-up anchoring, current-name supersession, invalid score/text exclusion, and conservative in-range citation coverage with excerpt fallback.
+- ISC-208 through ISC-213 evidence: the 142-test web unit run proves stable citation numbers, safe persisted-source projection, truthful persisted grounding/uncut state, same-route load retry, Alpha loading copy, and stored abstention presentation without exposing private model/request/idempotency fields.
+- ISC-216 evidence: the 90-test web contract run includes explicit production web to production edge and staging web to staging edge/data-plane pairing assertions plus the production member deny guard.
+- ISC-217 evidence: member proxy tests preserve the buffered JSON response contract and no component claims token streaming; public `/api/chat` remains the streamed transport adapter.
+- ISC-218 and ISC-240 evidence: the command ledger contains only local source, test, Git, documentation, and read-only IAB operations; no deploy, remote D1/data write, corpus/queue operation, binding, secret, Clerk, DNS, or production action occurred.
+- ISC-219 and ISC-220 evidence: `.planning/inputs/2026-09-11-alpha-beta-inference-retrieval-capability-ledger.md` records the exact Alpha, later-Alpha, Beta, and checkpoint references plus an explicit bedrock/adapt/defer/reject admission for every examined later Ask WTF capability; it rejects branch-name and deployment-receipt adoption by default.
+- Convergence execution evidence (local only): `53ef445`, `6811564`, `66d79b6`, and `0df461f` pass the full 253-test Cloudflare suite, 144 web unit tests, 90 web contract tests, web typecheck/lint/build, a 360-file zero-violation privacy scan, architecture freshness, and `git diff --check`. This proves source and deterministic contracts, not a staging deployment or the authenticated persona/viewport matrix.
+- Final convergence audit evidence: the independent Codex cross-audit reported no critical/high finding; architecture freshness passed for 551 inputs, privacy passed with 0 violations across 359 bounded files, and `git diff --check` passed after all ancestry, ownership, future-assertion, and Delete-safety corrections.

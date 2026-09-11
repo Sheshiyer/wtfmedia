@@ -25,8 +25,8 @@ function statusLabel(state: IntegrationConnectionState) {
   }[state];
 }
 
-export function YouTubeAnalyticsSettingsPanel({ role }: { role: OperatorSettingsRole }) {
-  const canManage = role === "admin" || role === "super_admin";
+export function YouTubeAnalyticsSettingsPanel({ role, previewOnly = false }: { role: OperatorSettingsRole; previewOnly?: boolean }) {
+  const canManage = !previewOnly && (role === "admin" || role === "super_admin");
   const [connection, setConnection] = useState<IntegrationConnectionState>("not_configured");
   const [keyDraft, setKeyDraft] = useState("");
   const [notice, setNotice] = useState("no provider observation loaded");
@@ -71,7 +71,7 @@ export function YouTubeAnalyticsSettingsPanel({ role }: { role: OperatorSettings
             YouTube Analytics
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-secondary">
-            Connect a future read-only observation source and keep freshness, scope, and unavailable states visible. The dashboard below is intentionally a local preview.
+            Connect a future read-only observation source and keep freshness, scope, and unavailable states visible. This dashboard is a local, non-persisted preview and cannot save or mutate provider state.
           </p>
         </div>
         <span className={`shrink-0 rounded-control border-2 px-2.5 py-1 font-label text-[10px] font-bold uppercase tracking-[0.1em] ${connection === "connected" ? "border-live bg-canvas text-foreground" : "border-foreground/40 bg-surface-subtle text-secondary"}`}>
@@ -87,15 +87,15 @@ export function YouTubeAnalyticsSettingsPanel({ role }: { role: OperatorSettings
             <div className="flex items-start justify-between gap-3 border-b-2 border-foreground/15 pb-2"><dt className="text-secondary">KV projection</dt><dd className="text-right font-semibold">health + redacted metadata</dd></div>
             <div className="flex items-start justify-between gap-3"><dt className="text-secondary">last refresh</dt><dd className="font-semibold">{showDashboard ? YOUTUBE_ANALYTICS_FIXTURE.refreshed : "not observed"}</dd></div>
           </dl>
-          <label className="mt-4 grid gap-1">
+          {!previewOnly ? <label className="mt-4 grid gap-1">
             <span className="font-label text-xs font-bold uppercase tracking-[0.08em] text-secondary">API key · local preview only</span>
             <input type="password" value={keyDraft} onChange={(event) => setKeyDraft(event.target.value)} placeholder="write-only local test value" autoComplete="new-password" disabled={!canManage || connection === "verifying"} className={control} />
-          </label>
-          <div className="mt-4 flex flex-wrap gap-2">
+          </label> : null}
+          {!previewOnly ? <div className="mt-4 flex flex-wrap gap-2">
             <button type="button" className={command} onClick={() => connectPreview(true)} disabled={!canManage || connection === "verifying"}>connect preview</button>
             <button type="button" className={button} onClick={() => connectPreview(false)} disabled={!canManage || connection === "verifying"}>preview mock dashboard</button>
             {showDashboard ? <button type="button" className={button} onClick={revokePreview}>revoke preview</button> : null}
-          </div>
+          </div> : <p className="mt-4 border-l-4 border-information bg-surface-subtle px-3 py-2 text-xs leading-relaxed text-secondary">local preview only · no save or provider request is available.</p>}
           <p className="mt-3 text-xs leading-relaxed text-secondary" aria-live="polite">{notice}</p>
           {!canManage ? <p className="mt-4 border-l-4 border-information bg-surface-subtle px-3 py-2 text-xs leading-relaxed text-secondary">Editor view is read-only. Provider connection management is admin-only.</p> : null}
         </div>

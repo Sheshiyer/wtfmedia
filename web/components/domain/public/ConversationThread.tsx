@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import type { ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { SourcePanel, type SourceCitation } from "./SourcePanel";
 import { Button } from "@/components/ui/Button";
@@ -15,6 +16,11 @@ import { Button } from "@/components/ui/Button";
  *   - Loading: "looking through the catalogue"
  *   - Retry: "retry answer" (no model exposure)
  *   - Published source moments remain usable while private playback is unavailable
+ *
+ * Alpha geometry:
+ *   - The composer is fixed only while the thread fits the viewport.
+ *   - Once the conversation needs to scroll, the same composer becomes the
+ *     final inline element so it never obscures a prior turn.
  */
 
 export interface Source extends SourceCitation {}
@@ -63,6 +69,123 @@ export interface ConversationThreadProps {
   messages: Message[];
   loading: boolean;
   onRetry: () => void;
+  footer?: ReactNode;
+}
+
+const FIXED_COMPOSER_CLEARANCE_PX = 160;
+
+export type ConversationComposerPlacement = "fixed" | "inline";
+
+export interface ConversationThreadFrameRenderProps {
+  /** Place this at the point new content should scroll into view. */
+  scrollAnchor: ReactNode;
+}
+
+/**
+ * Presentation-only Alpha conversation frame.
+ *
+ * Private surfaces supply their own message presentation and composer while
+ * retaining the public route's bounded scrolling, reader-scroll protection,
+ * and fixed-to-inline composer transition.
+ */
+export interface ConversationThreadFrameProps {
+  contentVersion: unknown;
+  layoutVersion?: unknown;
+  renderContent: (props: ConversationThreadFrameRenderProps) => ReactNode;
+  renderFooter?: (placement: ConversationComposerPlacement) => ReactNode;
+  ariaLabel?: string;
+}
+
+export function ConversationThreadFrame({
+  contentVersion,
+  layoutVersion,
+  renderContent,
+  renderFooter,
+  ariaLabel = "Conversation",
+}: ConversationThreadFrameProps) {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const userScrolledUp = useRef(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  const checkOverflow = useCallback(() => {
+    const container = scrollContainerRef.current;
+    const content = contentRef.current;
+    if (!container || !content) return;
+    setIsOverflowing(content.offsetHeight > container.clientHeight - FIXED_COMPOSER_CLEARANCE_PX);
+  }, []);
+
+  useEffect(() => {
+    if (!userScrolledUp.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [contentVersion]);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    function handleScroll() {
+      const { scrollTop, scrollHeight, clientHeight } = container!;
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+      userScrolledUp.current = !isAtBottom;
+    }
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    const content = contentRef.current;
+    if (!container || !content) return;
+
+    checkOverflow();
+    const observer = new ResizeObserver(checkOverflow);
+    observer.observe(container);
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, [checkOverflow]);
+
+  useEffect(() => {
+    checkOverflow();
+  }, [contentVersion, layoutVersion, checkOverflow]);
+
+  const placement: ConversationComposerPlacement = isOverflowing ? "inline" : "fixed";
+
+  return (
+    <>
+      <div
+        ref={scrollContainerRef}
+        className="min-h-0 flex-1 overflow-y-auto px-4 pt-4 sm:pt-6"
+        data-testid="conversation-thread"
+        data-composer-placement={isOverflowing ? "inline" : "fixed"}
+        tabIndex={0}
+        role="log"
+        aria-label={ariaLabel}
+        aria-live="polite"
+      >
+        <div ref={contentRef}>
+          {renderContent({ scrollAnchor: <div ref={messagesEndRef} /> })}
+          {placement === "inline" ? renderFooter?.(placement) : null}
+        </div>
+
+        <div className="h-[calc(1rem+env(safe-area-inset-bottom))]" aria-hidden="true" />
+        {placement === "fixed" && renderFooter ? <div className="h-20" aria-hidden="true" /> : null}
+      </div>
+
+      {placement === "fixed" && renderFooter ? (
+        <div
+          className="fixed inset-x-0 z-40"
+          data-fixed-composer
+          style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+        >
+          {renderFooter(placement)}
+        </div>
+      ) : null}
+    </>
+  );
 }
 
 export function ConversationEmptyState() {
@@ -129,109 +252,69 @@ export function ConversationThread({
   messages,
   loading,
   onRetry,
+  footer,
 }: ConversationThreadProps) {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const userScrolledUp = useRef(false);
-
-  /* Auto-scroll on new messages, unless user scrolled up */
-  useEffect(() => {
-    if (!userScrolledUp.current) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
-  }, [messages]);
-
-  /* Track user scroll position */
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    function handleScroll() {
-      const { scrollTop, scrollHeight, clientHeight } = container!;
-      const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
-      userScrolledUp.current = !isAtBottom;
-    }
-
-    container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    <div
-      ref={scrollContainerRef}
-      className="min-h-0 flex-1 overflow-y-auto px-4 pb-60 pt-4 sm:pb-52 sm:pt-6"
-      data-testid="conversation-thread"
-      role="log"
-      aria-label="Conversation"
-      aria-live="polite"
-    >
-      {messages.length === 0 ? (
-        <ConversationEmptyState />
-      ) : (
-        <div className="max-w-2xl mx-auto space-y-6">
-          {messages.map((msg, i) => (
-            <div key={i} className="space-y-2" data-testid={`message-${i}`}>
-              {msg.role === "user" ? (
-                <div className="flex justify-end">
-                  <div className="max-w-[80%] rounded-control border-2 border-foreground bg-attention px-4 py-2">
-                    <p className="text-sm text-on-attention">{msg.content}</p>
-                  </div>
+    <ConversationThreadFrame
+      contentVersion={messages}
+      layoutVersion={loading}
+      renderFooter={footer ? () => footer : undefined}
+      renderContent={({ scrollAnchor }) => (
+        <>
+          <h1 className="sr-only">ask wtf</h1>
+          {messages.length === 0 ? (
+            <ConversationEmptyState />
+          ) : (
+            <div className="mx-auto max-w-2xl space-y-6">
+              {messages.map((msg, i) => (
+                <div key={i} className="space-y-2" data-testid={`message-${i}`}>
+                  {msg.role === "user" ? (
+                    <div className="flex justify-end">
+                      <div className="max-w-[80%] rounded-control border-2 border-foreground bg-attention px-4 py-2">
+                        <p className="text-sm text-on-attention">{msg.content}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary">
+                        {linkifyCitations(msg.content)}
+                      </div>
+
+                      {msg.sources && msg.sources.length > 0 && <SourcePanel sources={msg.sources} />}
+
+                      {msg.abstained && (
+                        <p className="text-xs font-medium italic text-secondary" data-testid="abstention-label">
+                          the catalogue doesn&apos;t support that claim
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="space-y-2">
-                  <div className="border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary">
-                    {linkifyCitations(msg.content)}
-                  </div>
+              ))}
 
-                  {/* Public source citations */}
-                  {msg.sources && msg.sources.length > 0 && (
-                    <SourcePanel sources={msg.sources} />
-                  )}
-
-                  {/* Abstention label */}
-                  {msg.abstained && (
-                    <p
-                      className="text-xs font-medium italic text-secondary"
-                      data-testid="abstention-label"
-                    >
-                      the catalogue doesn&apos;t support that claim
-                    </p>
-                  )}
+              {loading && (
+                <div
+                  className="border-l-4 border-knowledge pl-4 text-sm font-semibold text-secondary"
+                  data-testid="loading-indicator"
+                  role="status"
+                >
+                  looking through the catalogue
                 </div>
               )}
-            </div>
-          ))}
 
-          {/* Loading indicator */}
-          {loading && (
-            <div
-              className="border-l-4 border-knowledge pl-4 text-sm font-semibold text-secondary"
-              data-testid="loading-indicator"
-              role="status"
-            >
-              looking through the catalogue
+              {scrollAnchor}
             </div>
           )}
 
-          <div ref={messagesEndRef} />
-        </div>
+          {messages.length > 0 && !loading && messages[messages.length - 1]?.role === "assistant" && (
+            <div className="mt-4 flex justify-center border-t-2 border-foreground/15 px-4 py-3">
+              <Button onClick={onRetry} variant="ghost" className="text-xs" data-testid="retry-button">
+                retry answer
+              </Button>
+            </div>
+          )}
+        </>
       )}
-
-      {/* Retry bar */}
-      {messages.length > 0 &&
-        !loading &&
-        messages[messages.length - 1]?.role === "assistant" && (
-          <div className="mt-4 flex justify-center border-t-2 border-foreground/15 px-4 py-3">
-            <Button
-              onClick={onRetry}
-              variant="ghost"
-              className="text-xs"
-              data-testid="retry-button"
-            >
-              retry answer
-            </Button>
-          </div>
-        )}
-    </div>
+    />
   );
 }

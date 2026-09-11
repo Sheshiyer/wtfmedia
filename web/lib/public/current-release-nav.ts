@@ -9,15 +9,15 @@ export const currentReleaseNavigation: readonly AppNavItem[] = [
   { href: "/episodes", label: "episodes", section: "workspace" },
   { href: "/connections", label: "connections", section: "workspace" },
   { href: "/chat", label: "ask wtf", section: "workspace" },
-  { href: "/beta/ops", label: "control room", section: "workspace" },
-  { href: "/beta/ops/production", label: "production", section: "workspace" },
-  { href: "/beta/ops/episodes", label: "episode map", section: "workspace" },
-  { href: "/beta/ops/settings", label: "settings", section: "administration" },
-  { href: "/beta/ops/chat", label: "chat history", section: "administration" },
+  { href: "/beta/workspace", label: "control room", section: "workspace" },
+  { href: "/beta/workspace/production", label: "production", section: "workspace" },
+  { href: "/beta/workspace/episodes", label: "episode map", section: "workspace" },
+  { href: "/beta/settings", label: "settings", section: "administration" },
+  { href: "/beta/chat", label: "chat history", section: "administration" },
 ];
 
 export const releaseRoadmapNavigation = [
-  { href: "/beta/ops/ingest", label: "ingest" },
-  { href: "/beta/ops/operators", label: "operators" },
-  { href: "/beta/ops/audit", label: "audit" },
+  { href: "/beta/workspace/ingest", label: "ingest" },
+  { href: "/beta/admin/users", label: "operators" },
+  { href: "/beta/admin/audit", label: "audit" },
 ] as const;

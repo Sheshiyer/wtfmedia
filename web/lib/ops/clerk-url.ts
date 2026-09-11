@@ -2,8 +2,8 @@
  * Clerk owns the browser session. The redirect target is a fixed internal
  * path so release controls cannot turn the sign-in link into an open redirect.
  */
-export const BETA_OPS_RETURN_TO = "/beta/ops";
-export const BETA_RELEASE_RETURN_TO = "/beta/ops/settings?releaseTrack=beta";
+export const BETA_OPS_RETURN_TO = "/beta/workspace";
+export const BETA_RELEASE_RETURN_TO = "/beta/settings/workspace/release?releaseTrack=beta";
 export const MEMBER_BETA_RETURN_TO = "/beta";
 export const OPERATOR_RETURN_TO = BETA_OPS_RETURN_TO;
 
