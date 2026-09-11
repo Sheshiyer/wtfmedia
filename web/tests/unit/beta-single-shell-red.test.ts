@@ -49,9 +49,11 @@ describe("Beta single-shell convergence", () => {
 
   it("adapts the canonical chat route to the verified principal", () => {
     const page = read("app/beta/chat/page.tsx");
-    expect(page).toContain("MemberChatWorkspace");
-    expect(page).toContain("ChatWorkspace");
-    expect(page).toContain("useBetaPrincipal");
+    expect(page).toContain("BetaChatWorkspace");
+    const workspace = read("components/domain/beta/BetaChatWorkspace.tsx");
+    expect(workspace).toContain("MemberChatWorkspace");
+    expect(workspace).toContain("createOperatorChatAdapter");
+    expect(workspace).toContain("useBetaPrincipal");
     expect(read("app/beta/chat/[conversationId]/page.tsx")).toContain("BetaConversationRoute");
     const operatorChat = read("app/(operator)/ops/chat/ChatWorkspace.tsx");
     expect(operatorChat).toContain("AskComposer");
@@ -66,6 +68,22 @@ describe("Beta single-shell convergence", () => {
     const settings = read("app/beta/settings/layout.tsx");
     expect(settings).toContain("useBetaPrincipal");
     expect(settings).toContain("BetaSettingsNavigation");
+  });
+
+  it("keeps deferred workspace panels authorized but out of the Settings directory", () => {
+    const settingsNavigation = read("components/domain/beta/BetaSettingsNavigation.tsx");
+    for (const label of ["readiness", "AI route", "YouTube analytics", "RAG & sources", "release mutation"]) {
+      expect(settingsNavigation).not.toContain(label);
+    }
+    for (const href of [
+      "/beta/settings/workspace/readiness",
+      "/beta/settings/workspace/ai",
+      "/beta/settings/workspace/analytics",
+      "/beta/settings/workspace/sources",
+      "/beta/admin/release",
+    ]) {
+      expect(BETA_PROTECTED_DESTINATIONS.some((destination) => destination.href === href)).toBe(true);
+    }
   });
 
   it("keeps member session lifecycle actions on canonical chat routes", () => {

@@ -150,10 +150,8 @@ function MessageMetadata({ message }: { message: ChatMessage }) {
   );
 }
 
-function ChatComposer({ conversationId, sourceMode = "both", onSent }: { conversationId?: string; sourceMode?: ChatConversation["sourceMode"]; onSent: () => void }) {
+function ChatComposer({ conversationId, onSent }: { conversationId?: string; onSent: () => void }) {
   const [question, setQuestion] = useState("");
-  // No evidence picker: operators always ask across both timelines.
-  const mode = sourceMode;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
 
@@ -171,7 +169,7 @@ function ChatComposer({ conversationId, sourceMode = "both", onSent }: { convers
         credentials: "same-origin",
         cache: "no-store",
         headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
-        body: JSON.stringify({ question: value, sourceMode: mode }),
+        body: JSON.stringify({ question: value, sourceMode: "both" }),
       });
       if (!response.ok) throw new Error("chat_send_failed");
       const parsed = parseChatConversationResponse(await response.json());
@@ -190,7 +188,7 @@ function ChatComposer({ conversationId, sourceMode = "both", onSent }: { convers
     }
   }
 
-  return <div id="new-chat" data-chat-composer className="grid gap-2"><AskComposer value={question} onChange={setQuestion} onSubmit={() => void submit()} disabled={busy} loading={busy} sourceMode={mode} variant="compact" placement="inline" />{error ? <span role="alert" className="text-xs text-attention">the answer could not be saved. retry this turn.</span> : null}</div>;
+  return <div id="new-chat" data-chat-composer data-chat-source-mode="both" className="grid gap-2"><p className="font-label text-[11px] font-bold uppercase tracking-[0.1em] text-muted">evidence: both timelines</p><AskComposer value={question} onChange={setQuestion} onSubmit={() => void submit()} disabled={busy} loading={busy} variant="compact" placement="inline" />{error ? <span role="alert" className="text-xs text-attention">the answer could not be saved. retry this turn.</span> : null}</div>;
 }
 
 export function ChatWorkspace({ view, conversationId }: { view: ChatView; conversationId?: string }) {
@@ -277,46 +275,50 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
 
   if (view === "history") {
     return (
-      <div data-chat-history className="mx-auto grid max-w-3xl gap-6">
-        <div className="flex min-w-0 flex-wrap items-start justify-between gap-4 border-b-2 border-foreground pb-4">
-          <div className="min-w-0 flex-1">
+      <div data-chat-history data-chat-frame="alpha" className="min-h-[calc(100vh-5.5rem)] bg-canvas">
+        <div className="mx-auto max-w-[var(--wtf-content-max)] px-4 pt-5 sm:px-8 xl:px-12">
+          <div className="border-b-2 border-foreground pb-4">
             <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-knowledge">company beta · private workspace</p>
             <h1 className="mt-1 font-display text-lg font-extrabold lowercase">ask wtf</h1>
-            <p className="mt-1 text-xs text-secondary">Your conversations stay with this signed-in workspace.</p>
           </div>
-          <Link
-            href="/beta/chat#new-chat"
-            data-new-chat
-            className="inline-flex min-h-11 items-center border-2 border-foreground bg-attention px-4 py-2 font-label text-sm font-bold lowercase text-on-attention shadow-[4px_4px_0_var(--wtf-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information"
-          >
-            new chat
-          </Link>
         </div>
-        <ChatComposer onSent={load} />
-        <StateMessage state={state} onRetry={load} />
-        {state === "ready" && history ? (
-          <div className="grid gap-3" aria-label="conversation history">
-            {history.conversations.map((item) => (
-              <a key={item.id} data-conversation-row href={`/beta/chat/${encodeURIComponent(item.id)}`} className="block border-2 border-foreground bg-surface-raised p-5 transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-attention">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h2 className="font-heading text-xl font-bold lowercase text-foreground">{item.title}</h2>
-                    <p className="mt-1 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{item.sourceMode} · {item.messageCount} messages · {item.state}</p>
-                    {item.operatorDisplayName || item.operatorEmail ? <p data-chat-owner className="mt-2 text-xs text-secondary">owner: {item.operatorDisplayName ?? item.operatorEmail}{item.operatorDisplayName && item.operatorEmail ? ` · ${item.operatorEmail}` : ""}</p> : null}
+        <div className="mx-auto max-w-[var(--wtf-content-max)] space-y-4 px-4 py-6 sm:px-8 xl:px-12">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">account conversation ledger</p>
+            <Link
+              href="/beta/chat#new-chat"
+              data-new-chat
+              className="inline-flex min-h-11 items-center border-2 border-foreground bg-attention px-4 py-2 font-label text-sm font-bold lowercase text-on-attention shadow-[4px_4px_0_var(--wtf-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information"
+            >
+              new chat
+            </Link>
+          </div>
+          <ChatComposer onSent={load} />
+          <StateMessage state={state} onRetry={load} />
+          {state === "ready" && history ? (
+            <div className="grid gap-3" aria-label="conversation history">
+              {history.conversations.map((item) => (
+                <a key={item.id} data-conversation-row href={`/beta/chat/${encodeURIComponent(item.id)}`} className="block border-2 border-foreground bg-surface-raised p-5 transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-attention">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <h2 className="font-heading text-xl font-bold lowercase text-foreground">{item.title}</h2>
+                      <p className="mt-1 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{item.sourceMode} · {item.messageCount} messages · {item.state}</p>
+                      {item.operatorDisplayName || item.operatorEmail ? <p data-chat-owner className="mt-2 text-xs text-secondary">owner: {item.operatorDisplayName ?? item.operatorEmail}{item.operatorDisplayName && item.operatorEmail ? ` · ${item.operatorEmail}` : ""}</p> : null}
+                    </div>
+                    <span className="font-label text-[11px] uppercase tracking-[0.1em] text-secondary">{formatDate(item.updatedAt)}</span>
                   </div>
-                  <span className="font-label text-[11px] uppercase tracking-[0.1em] text-secondary">{formatDate(item.updatedAt)}</span>
-                </div>
-              </a>
-            ))}
-          </div>
-        ) : null}
-        {state === "ready" && history?.nextCursor ? (
-          <div className="flex justify-center pt-2">
-            <Button type="button" variant="secondary" onClick={() => void loadMore()} loading={loadingMore} disabled={loadingMore}>
-              load more conversations
-            </Button>
-          </div>
-        ) : null}
+                </a>
+              ))}
+            </div>
+          ) : null}
+          {state === "ready" && history?.nextCursor ? (
+            <div className="flex justify-center pt-2">
+              <Button type="button" variant="secondary" onClick={() => void loadMore()} loading={loadingMore} disabled={loadingMore}>
+                load more conversations
+              </Button>
+            </div>
+          ) : null}
+        </div>
       </div>
     );
   }
@@ -348,7 +350,7 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
           <ConversationThreadFrame
             contentVersion={conversation.messages ?? []}
             layoutVersion={conversation.id}
-            renderFooter={() => <ChatComposer conversationId={conversation.id} sourceMode={conversation.sourceMode} onSent={load} />}
+            renderFooter={() => <ChatComposer conversationId={conversation.id} onSent={load} />}
             renderContent={({ scrollAnchor }) => <div className="mx-auto max-w-3xl space-y-4" aria-label="conversation messages">{(conversation.messages ?? []).map((message) => <article key={message.id} className="border-2 border-foreground/20 bg-surface-raised p-5" data-message-role={message.role}><p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{message.role}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{message.content}</p><MessageMetadata message={message} /></article>)}{scrollAnchor}</div>}
           />
           </>

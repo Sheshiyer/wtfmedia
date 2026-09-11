@@ -1,8 +1,8 @@
 # Alpha Evidence Coherence Repair Design
 
-**Status:** owner-approved in chat on 2026-09-04  
+**Status:** owner-approved in chat on 2026-09-04
 **Acceptance source:** [`ISA.md`](../../../ISA.md), ISC-199 through ISC-231
-**Release base:** `release/alpha` at `c0340bb`  
+**Release base:** `release/alpha` at `c0340bb`
 **Execution branch:** `codex/alpha-evidence-coherence`
 
 ## Problem

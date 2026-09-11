@@ -71,6 +71,17 @@ describe("Beta open-enrollment copy", () => {
     expect(conversationThread).toContain("data-fixed-composer");
   });
 
+  it("keeps canonical Beta chat and Settings routes out of the bottom dock", () => {
+    expect(appRail).toContain('pathname.startsWith("/beta/chat")');
+    expect(appRail).toContain('pathname.startsWith("/beta/settings")');
+  });
+
+  it("keeps every admitted operator workspace destination in the primary navigation", () => {
+    const gate = readFileSync(new URL("../../components/domain/beta/BetaPrincipalGate.tsx", import.meta.url), "utf8");
+    expect(gate).toContain('navigation.filter((item) => item.section === "workspace")');
+    expect(gate).not.toContain('href: "/beta/workspace/ingest"');
+  });
+
   it("fails closed before mounting Clerk hooks when the publishable key is absent", () => {
     expect(betaLayout).not.toContain('"use client"');
     expect(betaLayout).toContain("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY");
@@ -107,9 +118,8 @@ describe("Beta open-enrollment copy", () => {
     expect(submitSection).toContain("loadEpoch.current += 1");
   });
 
-  it("locks the shared composer textarea while an answer is pending", () => {
-    const inputs = askComposer.split("<input").slice(1).map((part) => part.split("/>")[0] ?? "");
-    expect(inputs.length).toBe(2);
-    for (const input of inputs) expect(input).toContain("disabled={disabled || loading}");
+  it("locks the shared pill composer input while an answer is pending", () => {
+    const input = askComposer.split("<input")[1]?.split("/>")[0] ?? "";
+    expect(input).toContain("disabled={disabled || loading}");
   });
 });

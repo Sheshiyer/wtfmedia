@@ -204,6 +204,7 @@ function ChatInner() {
             onChange={setInput}
             onSubmit={send}
             loading={loading}
+            placement="inline"
           />
         }
       />

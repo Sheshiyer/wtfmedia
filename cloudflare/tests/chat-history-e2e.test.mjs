@@ -177,6 +177,8 @@ test("D1 history is durable, idempotent, owner-scoped, and archive-only", async 
   const archived = await archiveConversation(db, { operatorId: 3, role: "editor" }, first.conversation.id, "2026-09-02T00:03:00.000Z");
   assert.equal(archived?.lifecycle_state, "archived");
   assert.equal((await archiveConversation(db, { operatorId: 3, role: "editor" }, first.conversation.id))?.lifecycle_state, "archived");
+  assert.equal((await listConversationsForActor(db, { operatorId: 3, role: "editor" })).conversations.length, 0);
+  assert.equal((await listConversationsForActor(db, { operatorId: 3, role: "editor" }, undefined, 25, true)).conversations[0]?.lifecycle_state, "archived");
   const deleteAttempt = sqlite(`DELETE FROM chat_conversations WHERE id = '${first.conversation.id}';`);
   assert.notEqual(deleteAttempt.status, 0);
 });
@@ -346,6 +348,9 @@ test("member beta history and explicit memory are durable, private, and archive-
   assert.equal(await archiveMemberConversation(db, 92, first.conversation.id), null);
   assert.equal((await archiveMemberConversation(db, 91, first.conversation.id, "2026-09-09T00:03:00.000Z"))?.lifecycle_state, "archived");
   assert.equal((await listMemberConversations(db, 91))?.conversations.length, 0);
+  const completeHistory = await listMemberConversations(db, 91, undefined, true);
+  assert.equal(completeHistory?.conversations.length, 1);
+  assert.equal(completeHistory?.conversations[0]?.lifecycle_state, "archived");
   const saved = await createMemberMemory(db, 91, "explicit member one preference", "2026-09-09T00:04:00.000Z");
   assert.ok(saved);
   assert.equal((await listMemberMemories(db, 92))?.length, 0);
@@ -744,6 +749,7 @@ test("member history keyset pagination preserves ties, owner scope and archived 
   await archiveMemberConversation(db, 106, first.conversations[0].id);
   const refreshed = await listMemberConversations(db, 106);
   assert.ok(!refreshed.conversations.some(({ id }) => id === first.conversations[0].id));
+  assert.ok((await listMemberConversations(db, 106, undefined, true)).conversations.some(({ id }) => id === first.conversations[0].id));
   const terminal = await listMemberConversations(db, 106, refreshed.nextCursor);
   assert.equal(terminal.conversations.length, 25);
   assert.equal(terminal.nextCursor, null);

@@ -1,0 +1,31 @@
+{
+  "format": "wtfmedia.d1-migration-manifest.v1",
+  "wrangler_order": [
+    "0001_ops_foundation.sql",
+    "0002_bootstrap_roster.sql",
+    "0003_super_admin_transfer_guard.sql",
+    "0004_operator_invitation_approvals.sql",
+    "0005_provenance_spine.sql",
+    "0006_chat_history.sql",
+    "0006_public_calendar.sql",
+    "0007_release_manifest.sql",
+    "0008_release_track.sql",
+    "0009_saved_memory.sql",
+    "0010_member_beta.sql",
+    "0011_clerk_invitation_id_prefix.sql",
+    "0012_member_chat_deletion.sql",
+    "0013_member_chat_context.sql",
+    "0014_principal_profiles.sql",
+    "0015_principal_profiles_email_guard.sql"
+  ],
+  "duplicate_ordinals": {
+    "0006": {
+      "files": [
+        "0006_chat_history.sql",
+        "0006_public_calendar.sql"
+      ],
+      "remote_apply_policy": "owner_reconciliation_required",
+      "reason": "Distinct legacy filenames share this ordinal. Wrangler keys applied state by filename, so remote inventories must record both names before any owner-authorized migration apply."
+    }
+  }
+}

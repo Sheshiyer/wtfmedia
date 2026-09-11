@@ -24,6 +24,12 @@
   "env": {
     "staging": {
       "name": "wtfmedia-web-staging",
+      "routes": [
+        {
+          "pattern": "beta-staging.wtfhq.in",
+          "custom_domain": true
+        }
+      ],
       "services": [
         {
           "binding": "WORKER_SELF_REFERENCE",

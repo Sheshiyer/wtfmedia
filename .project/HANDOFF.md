@@ -1,5 +1,276 @@
 # Project handoff
 
+## 2026-09-11 Continuity checkpoint (fleet alignment)
+
+### Done
+
+- Staging runtime mapping is pinned to source `f6bbf58`
+  (edge `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c`, web
+  `3668390f-1dc8-438e-9dab-19c331b732ce`).
+- Alpha-derived Ask WTF composition is retained under current Beta route/security
+  rails. PR #48’s intended chat/retrieval/citation/persistence behavior is
+  preserved while PR #48 remains unchanged.
+- PR #77 is the only approved beta promotion lane and may advance only from the
+  exact staging-accepted final SHA or a separately receipted runtime-equivalent
+  artifact.
+
+### Remaining
+
+- Signed-out, member A/B, suspended, editor, admin, and super-admin matrices
+  across desktop and mobile.
+- Grounded staging acceptance (approved staging corpus + grounding evidence).
+- Rollback rehearsal and `v0.3.3-beta.2` tag/lineage reconciliation.
+- Operator Archive-versus-Delete policy closure.
+
+### State
+
+- This work has no new live gate passes claimed beyond bounded deployment and
+  partial IAB observations.
+- Local docs head prior to this fleet is `078f582`; it is not staging-accepted.
+- `/beta/preview` and synthetic/fake browser data are non-authoritative.
+
+## 2026-09-11 Beta settings and session-service mapping repair
+
+**Status:** SOURCE-VERIFIED AND DEPLOYED TO BETA STAGING; SUPER-ADMIN IAB OBSERVED.
+This is a bounded staging receipt and does not complete full persona acceptance
+or production authorization.
+
+- Exact code candidate `f6bbf584fa5c9a07cc218f0211f3c5020bb4f3f7`
+  maps Account to the existing Clerk logout control, maps Memory to the real
+  owner-scoped immutable preference/custom-instruction lifecycle, and maps
+  Sessions to active plus archived owner history.
+- Duplicate operator “sessions & history” and “memory governance” navigation
+  entries are removed. Their legacy URLs redirect to the canonical member-tier
+  Settings pages; release/users/audit remain capability-gated additions.
+- Conversation list/get reads retry one transient network/401/502/503/504
+  failure and expose truthful account-verification versus staging-service
+  copy. The same super-admin session loaded history after deployment, so the
+  reported drawer warning was not a missing D1 operator mapping.
+- Edge list endpoints accept `includeArchived=1` while default chat drawers
+  remain active-only. The canonical Sessions page shows lifecycle state and
+  Archive. Member Delete uses the existing confirmation and tombstone-backed
+  API. Operator Delete remains held because no reviewed operator deletion
+  schema or tombstone contract exists.
+- Source verification: Edge 380/380, web unit 219/219, contracts 96/96,
+  typecheck, lint, OpenNext production build (89 pages), privacy 0/400,
+  architecture freshness across 625 inputs, and `git diff --check` pass.
+- Staging versions are edge `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c` and web
+  `3668390f-1dc8-438e-9dab-19c331b732ce`. IAB confirms the history drawer,
+  account logout, canonical Preferences form/empty ledger, and Sessions list
+  with two active conversations. No lifecycle or preference write was used as
+  QA evidence. Production, DNS, Clerk configuration, and data were untouched.
+- GitHub still has PR #48 from `rag/alpha-answer-accuracy` to `main` and PR #77
+  from `beta_0.1` to `release/beta`. Do not push the checked-out branch by
+  name. After remaining staging acceptance, fast-forward the exact staging
+  accepted final SHA (or a separately receipted runtime-equivalent artifact) to
+  `beta_0.1` with `HEAD:beta_0.1`; this updates PR #77 without repurposing PR
+  #48. Force-push is forbidden.
+
+**Next action:** finish the real member/editor/admin/suspended and viewport
+matrix, approve a safe staging corpus, rehearse rollback, then advance PR #77
+from the exact staging-accepted final SHA (or receipted runtime-equivalent
+artifact). Operator permanent Delete remains a separately reviewed lifecycle
+decision.
+
+## 2026-09-11 Beta staging signed-in workspace repair
+
+**Status:** SOURCE-VERIFIED AND DEPLOYED TO BETA STAGING. Two independent
+authenticated super-admin IAB passes confirm the reported presentation/navigation/roster
+regressions are repaired. This is not full staging acceptance and is not a
+production-Beta deployment.
+
+- Exact code candidate `32ec582d9ab953413710832c62e773eb212c00e1` replaces
+  the member/operator presentation fork with one accepted Alpha-derived chat
+  frame and typed adapters for the separate `mcnv_*` and `cnv_*` stores.
+- Same-session Beta navigation retains the verified principal, rechecks route
+  capabilities locally, and no longer shows the full-screen workspace-opening
+  card on every page load. Protected content remains withheld until admission.
+- Chat and Settings omit the obsolete bottom dock; operator navigation contains
+  no ingest destination. Settings hides Readiness, AI Route, YouTube Analytics,
+  RAG & Sources, and duplicate Release Mutation while preserving direct
+  server-policy enforcement.
+- `/beta/admin/users` proxies the authenticated Clerk request through the web
+  service binding to the D1-backed edge roster. No prefabricated roster or
+  private row content was added to source.
+- Source checks pass: Edge 380/380, web unit 205/205, web contracts 96/96,
+  typecheck, lint, OpenNext build (89 pages), privacy 0 violations across 399
+  files, architecture freshness across 623 inputs after this checkpoint, and
+  `git diff --check`.
+- `wtfmedia-web-staging` version
+  `b67a0833-3eda-4c53-b6ed-056969200350` serves `32ec582` on
+  `beta-staging.wtfhq.in` with `ASSETS`, self-reference, and only the
+  `wtfmedia-edge-staging` service binding. Edge version
+  `3b4aa27f-6c62-4077-a432-897f10002039` was not redeployed.
+- Two independent live IAB passes confirm the shared chat frame, persisted operator conversations,
+  clamped cards with zero document-width overflow, no ingest or bottom dock,
+  reduced Settings, and the real operator roster. Operator conversation and
+  roster endpoints returned 200 with no HTTP 4xx/5xx observed. Only the existing
+  super-admin was observed; the full persona and viewport matrices remain open.
+- The visible no-evidence answer is truthful: staging R2/KV/Vectorize remain
+  empty. Grounded-chat acceptance needs a separately authorized,
+  provenance-safe staging corpus. Never copy production data down implicitly.
+- Permanent Delete remains implemented for member conversations only. Operator
+  conversations expose Archive because the operator server store has no
+  reviewed delete/tombstone capability; this is an explicit release gap.
+- No production Worker, Beta production hostname, D1, corpus, queue, Clerk,
+  DNS, secret, or public Alpha state was changed. No branch was pushed because
+  this local branch is the head of PR #48 and remote topology remains
+  owner-gated.
+
+**Next action:** complete the signed-out/member/editor/admin/super-admin/
+suspended matrix and required viewports on this exact staging candidate; decide
+the operator Delete contract and safe staging-corpus plan; rehearse rollback;
+then choose the clean remote candidate branch/PR before any production-Beta
+promotion.
+
+## 2026-09-11 Beta 0.3 lineage correction; UI repair paused
+
+**Status:** READ-ONLY LINEAGE AND LIVE-STATE AUDIT COMPLETE. The user's latest
+direction pauses UI fixes. No code fix, build, commit, push, deploy, tag, data
+copy, ingest, Clerk change, DNS change, or production mutation was performed by
+this audit.
+
+- There is no single latest Beta object. `v0.3.3-beta.2` peels to older `main`
+  `66f434a` and is not an ancestor of `origin/release/beta` `498c0e0`.
+  `origin/beta_0.1` `7ec8298` is PR #77 on top of that release branch.
+  Pavun57's RAG head is `d4e45b4`; local merge `d3b4590` combines it with PR
+  #77; staging source `abb5413` adds later host/runtime closure. Local manifests
+  say `0.3.3-beta.3`, but beta.3 is not a tag.
+- The already-corrected signed-in chat UI is present in `beta_0.1` through the
+  Member/Alpha convergence commits. Later commit `cab6773` maps member
+  principals to `MemberChatWorkspace` but operator principals to the older
+  operator `ChatWorkspace`. The current super-admin screenshot is the latter.
+  This is a role-to-presentation mapping regression, not missing prior work.
+- Live canonical IAB now resolves and authenticates the existing super-admin.
+  It proves operator landing and persistence/reopening of two owner-scoped
+  `cnv_*` conversations. It does not close the remaining member/editor/admin/
+  suspended persona matrix or viewport acceptance.
+- The ungrounded response is not evidence that persistence or the inference
+  route is disconnected. Staging currently has zero catalogue R2 objects, zero
+  KV catalogue keys, and zero Vectorize records. The conversation is persisted
+  before the truthful no-evidence fallback. A grounded staging test needs a
+  separately approved staging corpus operation; never copy production down.
+- The authoritative audit is
+  `.planning/inputs/2026-09-11-beta-0.3-lineage-and-surface-authority-audit.md`.
+  A future implementation must reuse the existing Member/Alpha presentation
+  through typed member/operator adapters, keep owner stores and RBAC intact,
+  and retain Pavun57 backend inference symbols. Do not start a third chat UI.
+
+**Open release blockers:** exact UI/data adapter reconciliation, approved
+staging corpus, complete persona and viewport acceptance, operator roster data
+path, release-history/tag decision, remote PR topology, rollback, and all
+production gates.
+
+## 2026-09-11 Beta 0.1 integration evidence and promotion checkpoint
+
+**Status:** EXACT CANDIDATE DEPLOYED TO STAGING; AUTHENTICATED IAB ACCEPTANCE
+AND ROLLBACK REMAIN OPEN. Production was not changed.
+
+### 2026-09-11 canonical staging deployment receipt
+
+- Exact candidate `abb5413` adds the canonical host contract and truthful edge
+  health identity. It passes Edge 380/380, web unit 197/197, web contracts
+  96/96, typecheck, lint, production/OpenNext build, privacy, architecture
+  freshness across 620 inputs, and `git diff --check`.
+- Before migration, D1 Time Travel returned a recovery bookmark and inventory
+  showed `0012`–`0015` pending. Those four reviewed migrations applied to
+  `wtfmedia-ops-staging`; post-apply inventory is empty and readiness tables,
+  the active super-admin mapping, principal-profile mirrors, and staging
+  `preview` release state read back successfully.
+- `wtfmedia-edge-staging` version
+  `3b4aa27f-6c62-4077-a432-897f10002039` reports its staging environment,
+  service, and index truthfully and has only staging data/queue/auth bindings.
+- `wtfmedia-web-staging` version
+  `00cfe1b4-161e-4c86-addf-dd3894085d3d` owns the
+  `beta-staging.wtfhq.in` Custom Domain, `ASSETS`, self-reference, and only the
+  `wtfmedia-edge-staging` service binding.
+- Cloudflare authoritative DNS, exact-host TLS, `/` to `/beta`, signed-out
+  `401`, and edge health pass. That deployment receipt ended while Codex IAB
+  retained the pre-activation NXDOMAIN; the later lineage audit above
+  supersedes it with a real super-admin observation. The full persona,
+  viewport, and rollback matrices remain unaccepted. Never substitute the
+  `workers.dev` diagnostic URL.
+- Production Workers, bindings, D1, queues, DNS, Clerk, and traffic were not
+  changed; their latest deployment histories remained unchanged.
+
+### Verified source facts
+
+- The host-visible integration is local merge
+  `d3b4590fb86966b2a3b4c69ab2c8fea9aa0a8b7a` on
+  `rag/alpha-answer-accuracy`, with parents
+  `d4e45b44f3527b768408069f191951c2c3f492cb` and
+  `7ec8298664a40b7b138f2b8d042d89858645cb67`.
+- Bounded source closure is committed as `79a0285` (operator chat/RBAC runtime
+  fixes), `b7f5bec` (release workflow, version, and deterministic migration
+  guards), and `2c4007d` (planning plus generated architecture). That SHA is
+  the superseded pre-precedence source checkpoint, not the current candidate.
+- Owner precedence refinement is preserved in staging candidate `abb5413`.
+  Current convergence work remains
+  authoritative for UI, canonical Beta/Ops routes, Clerk/auth landing/return,
+  navigation pill, RBAC, admin, and Settings. Pavun57 PR #48/#49 intent leads
+  chat, inference, retrieval/accuracy, and backend chat behavior.
+- The user-reported `3eebf57` object is unavailable in this checkout. Do not
+  substitute it for `d3b4590`, and do not call either SHA deployed without an
+  environment receipt.
+- At exact candidate `abb5413`, Edge 380/380, web unit 197/197, web contracts
+  96/96, TypeScript, lint, production/OpenNext build, privacy with zero
+  violations across 396 files, architecture freshness across 620 inputs, and
+  `git diff --check` pass. These are source/build evidence only.
+
+### Historical reports and still-open acceptance
+
+- The earlier user report of local full-stack behavior and remote D1 migrations
+  remains historical context. Independent named-profile receipts now establish
+  actual staging migration/deployment state. The earlier report provides no
+  production evidence. Authenticated staging IAB is now partial and failing,
+  not accepted: one super-admin passed identity/landing/history persistence
+  while the presentation fork and empty evidence plane blocked completion.
+- Root, web, and edge source manifests use the next unused candidate version,
+  `0.3.3-beta.3`. Remote `v0.3.3-beta.2` already exists and peels to `66f434a`,
+  while its release note says it was neither a tag nor a deployment receipt.
+  Treat that as an unresolved release-history gate; do not move, delete, reuse,
+  or silently reinterpret the historical tag.
+- GitHub reports PR #77 still open from `beta_0.1` into `release/beta`; PR #48
+  remains open from `rag/alpha-answer-accuracy` into `main`. The local branch
+  is ahead of its remote. A push would materially repurpose PR #48,
+  so no remote branch or PR was changed without an explicit topology decision.
+- The literal GitHub account `pavun` has no repository submissions; repository
+  evidence resolves the owner's shorthand to PR author `Pavun57`. PR #48 head
+  `d4e45b4` is already an ancestor. PR #49's prior-message forwarding,
+  90/75-second budgets, local-secret ignore, and visible match-confidence intent
+  are preserved in the evolved candidate without reverting the current UI.
+
+### Governing release boundary
+
+- The release checklist is
+  `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md`.
+  It requires committed post-merge runtime and release/migration source fixes,
+  an exact candidate SHA, an exact source-test rerun,
+  staging backup/migrations/bindings/paired deploys, and the real Clerk/D1 IAB
+  persona matrix at 1382x887, 1382x1180, and 320x710.
+- Beta preserves one authenticated shell: `/beta` resolves the edge principal;
+  members use `/beta/chat`; operators use `/beta/workspace` for the control
+  room; both admitted principal kinds may use `/beta/chat` for their role-safe,
+  owner-scoped history view inside the same Beta gate/AppShell. Settings stays
+  under `/beta/settings/*`; `/beta/ops/*` is redirect-only compatibility;
+  public Alpha `/chat` remains separate. Clerk establishes identity, while edge
+  policy and D1 lifecycle/RBAC decide authority.
+- Production remains a new owner-authorized action with distinct production
+  Clerk, D1 backup/migration, exact edge/web/domain/traffic, smoke, and
+  rollback receipts. Provider/YouTube persistence, scheduled jobs, long-context
+  compaction, and full Alpha alignment are explicit deferrals, not omissions to
+  be filled by a release claim.
+
+### Next action
+
+Use the Beta 0.3 lineage audit before another code change. On separate owner
+authorization, reconcile the existing Member/Alpha presentation with typed
+member/operator data adapters, then provision a provenance-safe staging corpus
+and restart the real Clerk/D1 persona, viewport, and rollback matrix. Separately
+choose the remote PR/base topology and resolve the historical
+`v0.3.3-beta.2` tag. Do not change Clerk, production infrastructure,
+production data, or production traffic under this handoff.
+
 ## 2026-09-11 Beta single-shell RBAC convergence checkpoint
 
 **Status:** LOCAL SOURCE AND BUILD VERIFIED through `00e8267` — no remote
@@ -9,8 +280,10 @@ configuration, corpus mutation, DNS change, or production Alpha state changed.
 ### Delivered source contract
 
 - `/beta` resolves one authenticated edge principal: members land in
-  `/beta/chat`; operators land in `/beta/workspace`. The canonical nested
-  Settings and administration routes are capability-scoped.
+  `/beta/chat`; operators land in `/beta/workspace` for the control room. Both
+  admitted principal kinds may open `/beta/chat` for their role-safe,
+  owner-scoped history view inside the same Beta gate/AppShell. The canonical
+  nested Settings and administration routes are capability-scoped.
 - Edge policy is the route authority. Operator records take precedence over
   historical member rows, inactive operators deny, profile mirrors do not
   grant authority, unknown paths fail closed, and the browser-navigation
@@ -598,45 +871,6 @@ change, or public Alpha change was made in this slice.
 - Review and merge the source PR, deploy only to the existing staging Workers,
   then accept the pending Clerk invitation. Confirm the first authenticated
   landing is `/beta`, followed by the private-chat and member-isolation checks.
-
-## 2026-09-09 Clerk session-token configuration receipt
-
-**Status:** READ-ONLY CONFIGURATION VERIFIED — the linked Clerk development
-instance contains the required custom session claim. No Clerk mutation,
-credential write, staging migration, deployment, or live-account acceptance
-was performed.
-
-- `clerk --version` returned `3.3.0`; `clerk doctor --json` reported the CLI
-  authenticated and linked to the repository's development instance.
-- `config pull --keys session` returned the exact claims editor projection:
-
-  ```json
-  {
-    "claims": {
-      "email": "{{user.primary_email_address}}"
-    }
-  }
-  ```
-
-- `api /jwt_templates` returned `[]`. A custom JWT template is not needed for
-  this session flow: Clerk's default `sub` identifies the user, while the
-  custom session `email` claim supports the existing normalized-email-to-D1
-  operator mapping.
-- Runtime authority remains unchanged: the edge verifies issuer, JWKS,
-  expiry, authorized party, `sub`, and email; D1 resolves the active operator
-  and owns role RBAC. Role, operator id, and permissions are not token claims.
-
-### Remaining activation gates
-
-- Local web is missing the build-time publishable key, so its provider-unavailable
-  state is truthful; staging needs the matching publishable key and authorized
-  party configuration.
-- Staging still needs its separate Clerk secret/configuration, pending D1
-  migrations, release-manifest readback, and interactive sign-in/sign-out,
-  revocation, and role-isolation checks.
-- Production Clerk instance, secrets, DNS, deployment, and live activation
-  remain out of scope. Issues #50–#52 remain open pending their agreed
-  acceptance receipts.
 
 ## 2026-09-09 Invite-only company member Beta source checkpoint
 
@@ -2564,317 +2798,6 @@ PR #43 is open from `codex/v0.3.1-alpha` at the release candidate head; review
 the pending GitHub checks before merging, and leave production promotion
 separately gated.
 
-## 2026-09-03 Alpha release-channel UI correction
-
-The Alpha-only public shell correction is committed and pushed on
-`release/alpha` at `56c6ce3` (`fix(alpha): restore compact public shell navigation`).
-It restores the compact four-link bottom pill, removes the redundant public
-chat intro strip, keeps the Alpha composer/source actions in the yellow/black
-button system, and keeps public uncut playback/status claims fail-closed.
-
-### Verification
-
-- Web build, strict typecheck, lint, and 74 unit tests passed.
-- Focused public shell/chat/brand/viewport/drawer browser suite passed 90/90.
-- The commit contains no `/ops/chat`, authenticated history, release-control,
-  or persistence changes; authenticated per-email history remains Beta work.
-- Root `main` was not changed; the dirty root documentation files remain
-  untouched, and the canonical `release/beta` remains at `de89363`.
-
-### Held boundary
-
-This Alpha branch change was not deployed to production in this handoff. The
-production deployment receipts previously recorded for the dirty WIP checkout
-are not treated as proof that this clean Alpha commit is deployed.
-
-## 2026-09-03 Alpha production promotion
-
-The clean `release/alpha` channel was promoted independently of Beta from
-commit `8c09815` on the canonical production resources.
-
-### Deployment receipt
-
-- `wtfmedia-edge`: version `c5bea3cb-7154-4712-b6b4-6c562784ba24`.
-- `wtfmedia-web`: version `f731ceb3-b506-4319-ba79-94d10347af97`.
-- The web deployment was built from the Alpha worktree and its
-  `WTFMEDIA_EDGE` service binding points to `wtfmedia-edge`.
-
-### Live verification
-
-- `https://wtfhq.in/` and `/chat` returned HTTP 200.
-- Both public routes render one compact bottom pill with exactly four links:
-  `the room`, `episodes`, `connections`, and `ask wtf`.
-- `/chat` has no operator context strip or redundant workspace header;
-  desktop and 320px probes had no horizontal overflow.
-- The composer button computed as yellow `rgb(241, 179, 51)` with black text
-  `rgb(26, 26, 26)` at desktop and mobile widths.
-- Anonymous published `/api/chat` returned HTTP 200, `X-Fallback: false`, and
-  six published sources.
-- `/ops/settings` remained Cloudflare Access protected with HTTP 302; Beta
-  authentication/history was not activated or changed by this promotion.
-
-## 2026-09-03 Alpha Ask WTF evidence-skill correction
-
-**Scope:** repository-local anonymous Alpha chat retrieval, synthesis,
-follow-up suggestions, citation timing truth, and retry integrity. This
-checkpoint is not a production deployment receipt.
-
-- The Worker now has three executable runtime policy modules: WTF OS
-  conversation, Published YouTube evidence, and Approved Uncut evidence. One
-  coordinator computes a search embedding once and makes independent
-  pre-top-K Vectorize calls for every enabled source mode before existing
-  source balancing runs.
-- Suggested questions are generated from bounded retrieved excerpts and each
-  candidate is sent through the same source-scoped retrieval threshold before
-  it can appear. Weak retrieval, abstention, and invalid model synthesis return
-  no suggestions. Literal placeholders such as `[N]` invalidate synthesis even
-  when another numeric citation is present.
-- Named multi-entity questions retain answer-bearing chunks from the strongest
-  matching episode instead of keeping only the chunk that repeats every name.
-  This addresses the observed duplicate/unanswerable Martin Escobari
-  suggestion path without loosening episode or source filters.
-- Published and uncut timing remain separate. New ingest metadata records a
-  source-native timestamp status and origin; public projection exposes only a
-  fixed safe status/reason. An untimed published result opens the full YouTube
-  episode without a seek parameter, and uncut never borrows that coordinate.
-- The reproduced Bangalore-traffic candidates `LqSEfz4YUFA` and
-  `fEUoJSTYtyc` have published transcript text but no published timestamp JSON
-  sidecars. Their unavailable timestamp is therefore truthful ingestion
-  provenance, not a source-panel rendering loss. Exact times require approved
-  sidecars and a separately authorized re-ingest.
-- Retrying now reuses history through the existing user turn and replaces the
-  assistant answer; it does not duplicate the question in the UI or request.
-- `/api/chat` remains anonymous, stateless, and server-authenticated to the
-  existing edge Worker. No user identity, conversation database, provider,
-  Worker, index, queue, database, bucket, binding, or durable dependency was
-  added.
-
-### Verification
-
-- Cloudflare Worker suite: 169/169 passed.
-- Web unit and contract suites: 75/75 and 85/85 passed.
-- Alpha chat Playwright journey: 22/22 passed, including published timing
-  absence, both-source timelines, and no-duplicate retry.
-- Web strict typecheck, lint, privacy scan, and production build passed; the
-  privacy scan found zero violations across 284 bounded files and the build
-  generated 69/69 static pages.
-- Wrangler deployment dry-run compiled a 168.65 KiB Worker using only the
-  existing KV, queue, D1, Vectorize, R2, Workers AI, and environment bindings.
-- A non-gating whole-repository browser sweep reported 210 passed, 19 failed,
-  and 8 skipped. The failures are existing stale compact-composer selectors,
-  episode fixture expectations, and responsive/operator navigation selectors
-  outside this evidence slice; the focused Alpha chat acceptance remains
-  green and the broad suite is not claimed as passing.
-
-### Held boundaries
-
-- No push, merge, deployment, DNS or secret change, asset upload, live ingest,
-  queue replay, corpus expansion, or other external mutation occurred.
-- Existing untimed published vectors were not guessed or rewritten. Adding
-  exact times remains a separate source-acquisition and re-ingest task.
-- Beta authentication, per-email history, and operator context were not added
-  to anonymous Alpha.
-
-## 2026-09-04 Alpha episode-duration contrast correction
-
-**Scope:** repository-local Alpha episode-card presentation only. This
-checkpoint is not a production deployment receipt.
-
-- The duration chip now forces the semantic `text-on-structure` foreground so
-  the themed global `.chip` rule cannot replace its light inverse text with
-  dark primary text on the dark structural fill.
-- The Episodes Playwright journey now reads the badge's computed foreground
-  and verifies it resolves to the active inverse semantic token.
-
-### Verification
-
-- The new browser regression failed before the fix with computed foreground
-  `rgb(26, 26, 26)` instead of `rgb(255, 246, 234)`, then passed after the
-  scoped class correction.
-- A fresh 480px Chromium render showed `1H 13M` visibly in cream on the black
-  duration badge; computed colors were cream `rgb(255, 246, 234)` on black
-  `rgb(26, 26, 26)`.
-- Strict typecheck, lint, and the five-test WTF OS token contract passed.
-- The complete Episodes journey run passed 9/10. Its existing indexed-uncut
-  fixture expectation still fails independently; it is the previously
-  recorded episode-fixture failure outside this presentation slice.
-
-### Held boundaries
-
-- No push, merge, deployment, DNS, secret, corpus, ingest, or external state
-  change occurred.
-- Root `main` and its unrelated dirty work remain untouched.
-
-## 2026-09-04 Alpha source-panel filter restoration
-
-**Scope:** repository-local anonymous Alpha source-panel interaction only. This
-checkpoint is not a commit, push, or production deployment receipt.
-
-- Mixed published and uncut results now default to `both`; the per-answer
-  `published`, `uncut`, and `both` controls are real buttons with pressed and
-  unavailable states.
-- Filtering changes only visibility. It preserves each result's original
-  citation number, cited-versus-candidate attribution, native timestamp and
-  unavailable reason, public episode route, and approved playback-link policy.
-- The regression came from Alpha commit `56c6ce3`, which replaced the prior
-  stateful filters with source-presence spans; later evidence work retained
-  those spans while adding cited/candidate and timestamp semantics.
-
-### Verification
-
-- A strict Playwright regression failed before the component edit because no
-  `published` button existed, then passed after the focused restoration.
-- Desktop and 320px focused journeys passed 2/2; the full Alpha chat journey
-  passed 22/22; source-mode unit tests passed 5/5.
-- Strict typecheck, ESLint, and `git diff --check` passed.
-- A rendered browser probe confirmed `published` shows original citations
-  `[1]` and `[3]`, `uncut` shows `[2]` and `[4]`, and `both` restores all four,
-  with accurate counts, links, and zero console or page errors.
-- Independent read-only review returned PASS with no P0-P3 findings. The named
-  Cato and cross-vendor fallback paths were unavailable and are not claimed as
-  successful review evidence.
-
-### Held boundaries
-
-- No commit, push, merge, deployment, DNS, secret, corpus, ingest, queue,
-  authentication, persistence, retrieval, or infrastructure change occurred.
-- Root `main` and its unrelated dirty work remain untouched.
-
-## 2026-09-04 Alpha source-panel production promotion receipt
-
-**Scope:** owner-authorized commit, `release/alpha` push, and canonical public
-web-Worker promotion for the reviewed anonymous Alpha source-panel filter.
-
-- Release commit `4b79b39936fd8d91c564e59e91ee5dab6c7c7e57` contains exactly
-  `.project/HANDOFF.md`, `ISA.md`, `web/components/domain/public/SourcePanel.tsx`,
-  and `web/tests/journeys/chat.spec.ts`; a normal non-force push placed it on
-  `origin/release/alpha`. This follow-up production receipt changes only
-  documentation and keeps that deployed web tree as its direct ancestor.
-- Deployment ran from a clean detached worktree at that commit after `npm ci`,
-  using the checked-in `npm run cf:deploy:wtfmedia` command. Cloudflare created
-  `wtfmedia-web` deployment `ef667085-ef55-4134-98e0-de2be9850466` with version
-  `bf077fe8-fcf4-4b20-b3db-2dd30ac0bb9e` assigned at 100 percent.
-- The concrete rollback target is prior web version
-  `69487e11-42e7-45de-a217-37f622d126b8` from deployment
-  `b1fa3078-b25b-4fce-acce-0c76f7d248cc`.
-
-### Production verification
-
-- The emitted Worker URL, canonical `/`, and canonical `/chat` returned HTTP
-  200; canonical `/ops/settings` remained HTTP 302.
-- A real canonical both-mode request returned six mixed citations with two
-  cited and four candidates. The response panel defaulted to the pressed
-  `both` button; `published` showed only original citations `[4]`–`[6]` and
-  `uncut` only `[1]`–`[3]`; returning to `both` restored all six.
-- Published actions remained YouTube-native, uncut actions remained approved
-  `f.io` sources, and the untimed published candidate explained why it opens
-  the full episode. The live run observed zero console, page, or HTTP 5xx
-  errors.
-- `wtfmedia-edge` remained on deployment
-  `c2579024-7dfd-4c99-9c0a-de85dff635d6`, version
-  `b2ff3ed0-f41d-41aa-b7f9-6d5fdc84e560`, before and after promotion.
-
-### Preserved boundaries
-
-- No merge, force push, DNS, secret, corpus, ingest, queue, database, index,
-  bucket, authentication, edge-Worker, or unrelated root-worktree mutation
-  occurred.
-
-## 2026-09-04 Alpha evidence-coherence release candidate
-
-**Scope:** reviewed repository implementation for canonical episode anchoring,
-truthful requested-versus-evidence source metadata, grouped citation display,
-and exact published-timing repair. This checkpoint precedes production
-activation.
-
-- The release candidate resolves a unique catalogue episode before Vectorize
-  top-K selection, preserves caller ranking after entity anchoring, separates
-  requested and effective evidence modes, and does not label weak-but-present
-  uncut evidence unavailable.
-- The public source panel groups passages by canonical episode, reserves
-  numeric citation markers for answer-cited evidence, keeps candidates
-  secondary, and treats per-answer source controls as view-only projections.
-- The active queue consumer now validates every declared published sidecar,
-  requires at least 80 percent same-video transcript coverage, replaces stale
-  vector tails before writing a structured v2 receipt, and permits repair only
-  for the fixed thirteen-video allowlist.
-- Local corpus proof reports 56/56 structurally valid published timestamp
-  sidecars with minimum normalized text coverage `0.997684`. The exact repair
-  dry-run contains thirteen published, timed, replace-existing jobs.
-
-### Verification and independent review
-
-- Worker tests pass 205/205; web unit tests pass 79/79; web contracts pass
-  89/89; TypeScript, ESLint, the 69-page production build, timestamp tests,
-  manifest/queue/profile tests, focused browser journeys, and exact 320px
-  rendered QA pass.
-- A read-only `gpt-5.4` audit first blocked release on contradictory fallback
-  metadata and citation-cap ordering. The corrected delta returned
-  `VERDICT PASS`; an independent in-session re-review also returned
-  `VERDICT PASS` after checking enum allowlists and compatibility hashes.
-- The full Storybook component sweep still has two known unrelated fixture
-  failures outside this slice; the focused `MigratedChatPage` story passes
-  16/16 and is the scoped browser gate.
-
-### Production prestate and authority
-
-- The owner explicitly authorized Alpha edge/web promotion, upload of the
-  thirteen approved timing sidecars, `INGEST_TOKEN` rotation through the
-  named `wtfmedia` profile, exact repair enqueue, and production verification.
-- Prestate Worker rollback targets are edge version
-  `b2ff3ed0-f41d-41aa-b7f9-6d5fdc84e560` in deployment
-  `c2579024-7dfd-4c99-9c0a-de85dff635d6` and web version
-  `bf077fe8-fcf4-4b20-b3db-2dd30ac0bb9e` in deployment
-  `ef667085-ef55-4134-98e0-de2be9850466`.
-- All thirteen remote published transcript objects exactly match their local
-  SHA-256 digests and all thirteen exact D1 R2 source-asset receipts are
-  available. Twelve timing keys are absent; Policing's prior incompatible
-  sidecar is backed up by hash and bytes in a temporary rollback directory.
-- All thirteen affected KV receipts are present in legacy string form. The
-  canonical namespace currently contains 56 published receipt keys, including
-  `WGiAwFmscmc`; this corrects the older 55-item documentation count without
-  broadening the repair replay.
-
-### Held until activation completes
-
-- No production mutation had occurred at this checkpoint. DNS, Beta,
-  authentication, unrelated secrets, unrelated corpus objects, broad replay,
-  database writes, and root-worktree state remain outside the authorized
-  activation.
-
-## 2026-09-04 Alpha evidence-coherence production and PR handoff
-
-**Scope:** completed exact published-timing activation, partial live acceptance,
-and reviewed-but-undeployed Policing selector follow-up. Detailed pickup:
-[`docs/handoffs/2026-09-04-alpha-evidence-ingest.md`](../docs/handoffs/2026-09-04-alpha-evidence-ingest.md).
-
-- Production ingest is complete: all thirteen exact jobs have matching
-  `wtfmedia.ingest.v2` receipts, `published_sidecar` timing origin, and 1,976
-  total timed chunks. No additional replay is needed.
-- Current production is edge version
-  `72d574cd-dd67-4fc2-a4cf-30e63434e8d7` and web version
-  `86a9bade-d039-43e3-8d8b-0063d160ed2f`, both at 100 percent.
-- Canonical home/chat return 200 and protected settings returns 302. Live Sam
-  retrieval is confined to `SfOaZIGJ_gs`; repaired published candidates expose
-  verified native timestamps.
-- Live acceptance found `Bangalore cops` still selecting Modi episode
-  `yTMYtcQLLaw`. A three-file local correction now selects Policing episode
-  `LcWoP6KtZKw`, rejects connector/common-topic false anchors, passes 211/211
-  Worker tests and a Wrangler dry-run, and has an independent `PASS` review.
-- Per owner direction, that selector correction is not deployed in this
-  session. The next production action is an edge-only deploy and three-mode
-  live replay from the reviewed PR head.
-- Ingest throughput optimization is deferred to a separate session and must
-  preserve pre-mutation validation, ordered cleanup, v2 receipt atomicity, and
-  retry convergence. It must not re-enqueue the completed thirteen jobs merely
-  for benchmarking.
-- Two unrelated Storybook fixtures and one Next.js deprecation warning remain
-  advisory. Fresh DLQ depth was not observable through Wrangler, so no new
-  depth claim is made.
-- Draft PR #47 is intentionally conflicting with `main`. Its architecture
-  ledger check is green; Phase 2 currently fails three Control Room browser
-  assertions because the expected visible `Application` navigation is absent.
-  Resolve that Alpha/Beta integration boundary before changing PR readiness.
 ## 2026-09-03 Beta consolidation — staging verification checkpoint
 
 The isolated `codex/beta-consolidation` worktree reconciles the authenticated

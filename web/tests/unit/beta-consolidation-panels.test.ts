@@ -9,12 +9,9 @@ describe("Beta consolidation admin panels", () => {
     const panel = source("components/domain/ops/MemoryGovernancePanel.tsx");
 
     expect(panel).toMatch(/automatic extraction/i);
-    expect(panel).toContain("explicit only");
-    expect(panel).toContain("data-memory-workspace");
+    expect(panel).toContain("not conversation history");
     expect(panel).toContain("/ops/api/memory");
-    expect(panel).toContain("durable account history");
-    expect(panel).toContain("saved memory");
-    for (const control of ["explicit save", "source provenance", "owner scope", "retention", "archive", "export", "audit"]) {
+    for (const control of ["explicit save", "custom instructions", "owner scope", "immutable entries", "replacement", "archive", "audit"]) {
       expect(panel).toContain(control);
     }
     for (const sensitiveField of ["prompt", "answer", "token", "secret", "private payload"]) {
@@ -86,10 +83,10 @@ describe("Beta consolidation admin panels", () => {
     }
     const publicShell = source("components/patterns/PublicShell.tsx");
     const publicChat = source("components/domain/public/MigratedChatPage.tsx");
-    // Sign-in stays hidden until the member auth flow finishes verification;
-    // the shell still bypasses public chrome on protected routes.
-    expect(publicShell).not.toContain("data-public-sign-in");
-    expect(appRail).toContain("data-header-utility");
+    // Public signup is activated: the shell exposes sign-in on public routes
+    // and still bypasses public chrome on protected routes.
+    expect(publicShell).toContain("data-public-sign-in");
+    expect(appRail).toContain("data-navigation-utilities");
     expect(publicChat).toContain('data-chat-frame="alpha"');
     expect(publicChat).not.toContain("WorkspaceHeader");
     for (const href of ["/beta/settings/workspace/readiness", "/beta/settings/workspace/release", "/beta/settings/workspace/ai", "/beta/settings/workspace/analytics", "/beta/settings/workspace/sessions", "/beta/settings/workspace/memory", "/beta/settings/workspace/sources", "/beta/admin/users"]) {

@@ -12,5 +12,5 @@ export default function MemberBetaPage() {
   useEffect(() => {
     router.replace(principal.canonicalLanding);
   }, [principal.canonicalLanding, router]);
-  return <main className="grid min-h-[60vh] place-items-center"><p role="status" className="font-label text-sm text-secondary">opening your workspace…</p></main>;
+  return <div className="mx-auto flex min-h-[12rem] w-full max-w-[var(--wtf-content-max)] items-start px-4 py-10 sm:px-8 xl:px-12"><p role="status" aria-live="polite" className="font-label text-sm text-secondary">routing to your workspace…</p></div>;
 }

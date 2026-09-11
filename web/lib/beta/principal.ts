@@ -12,6 +12,8 @@ export type PrincipalContext = {
   environment: "local" | "staging" | "production";
 };
 
+const betaChatPath = /^\/beta\/chat(?:\/(?:mcnv|cnv)_[A-Za-z0-9-]{8,88})?$/u;
+
 /** Browser DTO boundary. Unknown or operator-only fields are discarded. */
 export function parsePrincipalContext(value: unknown): PrincipalContext | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
@@ -46,7 +48,7 @@ export function parsePrincipalContext(value: unknown): PrincipalContext | null {
 export function principalCanAccess(context: PrincipalContext, pathname: string): boolean {
   if (pathname === "/beta" || pathname === "/beta/api/principal-context") return true;
   if (context.kind === "member") {
-    return pathname === "/beta/chat" || /^\/beta\/chat\/(?:mcnv|cnv)_[A-Za-z0-9-]{8,88}$/u.test(pathname) || [
+    return betaChatPath.test(pathname) || [
       "/beta/settings",
       "/beta/settings/account",
       "/beta/settings/memory",
@@ -54,7 +56,7 @@ export function principalCanAccess(context: PrincipalContext, pathname: string):
       "/beta/settings/appearance",
     ].includes(pathname);
   }
-  return pathname === "/beta/chat" || /^\/beta\/chat\/(?:mcnv|cnv)_[A-Za-z0-9-]{8,88}$/u.test(pathname) || pathname.startsWith("/beta/workspace") || pathname.startsWith("/beta/settings") || pathname.startsWith("/beta/admin") || pathname.startsWith("/beta/api/");
+  return betaChatPath.test(pathname) || pathname.startsWith("/beta/workspace") || pathname.startsWith("/beta/settings") || pathname.startsWith("/beta/admin") || pathname.startsWith("/beta/api/");
 }
 
 export function capabilityForPath(pathname: string): string | null {

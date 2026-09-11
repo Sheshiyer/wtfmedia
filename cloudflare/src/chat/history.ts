@@ -246,20 +246,21 @@ export async function getConversationForActor(db: DB, actor: ChatActor, id: unkn
   return getConversation(db, actor.operatorId, id);
 }
 
-export async function listConversations(db: DB, operatorId: number, cursor?: unknown, limit = 25): Promise<ChatPage | null> {
+export async function listConversations(db: DB, operatorId: number, cursor?: unknown, limit = 25, includeArchived = false): Promise<ChatPage | null> {
   if (!validOperatorId(operatorId) || !Number.isInteger(limit) || limit < 1 || limit > MAX_PAGE_SIZE) return null;
   const decoded = cursor == null ? null : decodeCursor(cursor);
   if (cursor !== undefined && !decoded) return null;
+  const lifecycle = includeArchived ? "" : " AND lifecycle_state = 'active'";
   const rows = decoded
-    ? await db.prepare(`SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE operator_id = ? AND (updated_at < ? OR (updated_at = ? AND id < ?)) ORDER BY updated_at DESC, id DESC LIMIT ?`).bind(operatorId, decoded.updatedAt, decoded.updatedAt, decoded.id, limit + 1).all<ChatConversation>()
-    : await db.prepare(`SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE operator_id = ? ORDER BY updated_at DESC, id DESC LIMIT ?`).bind(operatorId, limit + 1).all<ChatConversation>();
+    ? await db.prepare(`SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE operator_id = ?${lifecycle} AND (updated_at < ? OR (updated_at = ? AND id < ?)) ORDER BY updated_at DESC, id DESC LIMIT ?`).bind(operatorId, decoded.updatedAt, decoded.updatedAt, decoded.id, limit + 1).all<ChatConversation>()
+    : await db.prepare(`SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE operator_id = ?${lifecycle} ORDER BY updated_at DESC, id DESC LIMIT ?`).bind(operatorId, limit + 1).all<ChatConversation>();
   const conversations = rows.results.slice(0, limit);
   const last = rows.results.length > limit ? conversations.at(-1) : undefined;
   return { conversations, nextCursor: last ? encodeCursor(last.updated_at, last.id) : null };
 }
 
-export async function listConversationsForActor(db: DB, actor: ChatActor, cursor?: unknown, limit = 25): Promise<ChatPage | null> {
-  return listConversations(db, actor.operatorId, cursor, limit);
+export async function listConversationsForActor(db: DB, actor: ChatActor, cursor?: unknown, limit = 25, includeArchived = false): Promise<ChatPage | null> {
+  return listConversations(db, actor.operatorId, cursor, limit, includeArchived);
 }
 
 export async function archiveConversation(db: DB, actor: ChatActor, id: unknown, now = new Date().toISOString()): Promise<ChatConversation | null> {

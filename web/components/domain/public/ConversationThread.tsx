@@ -48,6 +48,140 @@ export interface ConversationThreadProps {
 
 const FIXED_ZONE_PX = 160;
 
+export type ConversationComposerPlacement = "fixed" | "inline";
+
+export interface ConversationThreadFrameRenderProps {
+  scrollAnchor: ReactNode;
+}
+
+/**
+ * Shared Alpha frame for private conversation surfaces.  The public thread
+ * keeps its richer source and follow-up presentation below; member and
+ * operator views provide their own content inside the same scroll contract.
+ */
+export interface ConversationThreadFrameProps {
+  contentVersion: unknown;
+  layoutVersion?: unknown;
+  renderContent: (props: ConversationThreadFrameRenderProps) => ReactNode;
+  renderFooter?: (placement: ConversationComposerPlacement) => ReactNode;
+  ariaLabel?: string;
+}
+
+export function ConversationThreadFrame({
+  contentVersion,
+  layoutVersion,
+  renderContent,
+  renderFooter,
+  ariaLabel = "Conversation",
+}: ConversationThreadFrameProps) {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const userScrolledUp = useRef(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  const checkOverflow = useCallback(() => {
+    const container = scrollContainerRef.current;
+    const content = contentRef.current;
+    if (!container || !content) return;
+    setIsOverflowing(content.offsetHeight > container.clientHeight - FIXED_ZONE_PX);
+  }, []);
+
+  useEffect(() => {
+    if (!userScrolledUp.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [contentVersion]);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      userScrolledUp.current = scrollHeight - scrollTop - clientHeight >= 50;
+    };
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    const content = contentRef.current;
+    if (!container || !content) return;
+    checkOverflow();
+    const observer = new ResizeObserver(checkOverflow);
+    observer.observe(container);
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, [checkOverflow]);
+
+  useEffect(() => {
+    checkOverflow();
+  }, [contentVersion, layoutVersion, checkOverflow]);
+
+  const placement: ConversationComposerPlacement = isOverflowing ? "inline" : "fixed";
+
+  return (
+    <>
+      <div
+        ref={scrollContainerRef}
+        className="min-h-0 flex-1 overflow-y-auto px-4 pt-4 sm:pt-6"
+        data-testid="conversation-thread"
+        data-composer-placement={isOverflowing ? "inline" : "fixed"}
+        tabIndex={0}
+        role="log"
+        aria-label={ariaLabel}
+        aria-live="polite"
+      >
+        <div ref={contentRef}>
+          {renderContent({ scrollAnchor: <div ref={messagesEndRef} /> })}
+          {placement === "inline" ? renderFooter?.(placement) : null}
+        </div>
+        <div className="h-[calc(1rem+env(safe-area-inset-bottom))]" aria-hidden="true" />
+        {placement === "fixed" && renderFooter ? <div className="h-20" aria-hidden="true" /> : null}
+      </div>
+      {placement === "fixed" && renderFooter ? (
+        <div
+          className="fixed inset-x-0 z-40"
+          data-fixed-composer
+          style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+        >
+          {renderFooter(placement)}
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+/** The exact Alpha empty-state composition shared by the member workspace. */
+export function ConversationEmptyState() {
+  return (
+    <div className="mx-auto flex w-full max-w-5xl items-center py-4 sm:min-h-[28rem] sm:py-6" data-testid="empty-state" data-evidence-empty>
+      <div className="grid w-full overflow-hidden border-2 border-foreground bg-surface-raised md:grid-cols-[minmax(0,1fr)_minmax(18rem,0.72fr)]">
+        <section className="relative min-w-0 overflow-hidden p-4 sm:p-8">
+          <div aria-hidden="true" className="wtf-question-lattice absolute inset-x-0 top-0 h-2" />
+          <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-knowledge">start with the source</p>
+          <h2 className="mt-3 max-w-[13ch] font-display text-3xl font-extrabold lowercase leading-none sm:max-w-[12ch] sm:text-5xl">ask the catalogue. get a cited moment.</h2>
+          <p className="mt-4 max-w-[52ch] font-body text-sm leading-relaxed text-secondary sm:mt-5">ask across published conversations. uncut is used only when a verified mapping exists.</p>
+          <div className="mt-4 hidden max-w-2xl border-l-4 border-knowledge bg-canvas px-4 py-3 sm:mt-7 sm:block">
+            <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">example question</p>
+            <p className="mt-2 font-serif text-base text-foreground wtf-decrypt-line sm:text-lg">what did guests say about building through uncertainty?</p>
+          </div>
+        </section>
+        <aside className="hidden border-t-2 border-foreground bg-canvas p-4 text-foreground sm:block sm:p-5 md:border-l-2 md:border-t-0">
+          <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-secondary">evidence rail</p>
+          <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t-2 border-foreground pt-3 font-label text-xs text-foreground sm:mt-5 sm:block sm:divide-y sm:divide-foreground/20 sm:border-y-2 sm:pt-0 sm:text-sm">
+            <div className="wtf-stagger-in py-3"><dt className="text-secondary">scope</dt><dd className="mt-1 font-bold">current catalogue</dd></div>
+            <div className="wtf-stagger-in py-3 [animation-delay:120ms]"><dt className="text-secondary">quoted evidence</dt><dd className="mt-1 font-bold">separate from synthesis</dd></div>
+            <div className="wtf-stagger-in py-3 [animation-delay:240ms]"><dt className="text-secondary">source</dt><dd className="mt-1 font-bold">published or uncut, named</dd></div>
+            <div className="wtf-stagger-in py-3 [animation-delay:360ms]"><dt className="text-secondary">timing</dt><dd className="mt-1 font-bold">only when mapped</dd></div>
+          </dl>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
 export function ConversationThread({
   messages,
   loading,
@@ -124,7 +258,7 @@ export function ConversationThread({
               data-testid="empty-state"
               data-evidence-empty
             >
-              <div className="grid w-full overflow-hidden border-2 border-foreground bg-surface-raised">
+              <div className="grid w-full overflow-hidden border-2 border-foreground bg-surface-raised md:grid-cols-[minmax(0,1fr)_minmax(18rem,0.72fr)]">
                 <section className="relative min-w-0 overflow-hidden p-4 sm:p-8">
                   <div
                     aria-hidden="true"
@@ -137,8 +271,8 @@ export function ConversationThread({
                     ask the catalogue. get a cited moment.
                   </h2>
                   <p className="mt-4 max-w-[52ch] font-body text-sm leading-relaxed text-secondary sm:mt-5">
-                    ask across published conversations. every answer cites the
-                    episodes it came from.
+                    ask across published conversations. uncut is used only when a
+                    verified mapping exists.
                   </p>
                   <div className="mt-4 hidden max-w-2xl border-l-4 border-knowledge bg-canvas px-4 py-3 sm:mt-7 sm:block">
                     <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
@@ -149,6 +283,29 @@ export function ConversationThread({
                     </p>
                   </div>
                 </section>
+                <aside className="hidden border-t-2 border-foreground bg-canvas p-4 text-foreground sm:block sm:p-5 md:border-l-2 md:border-t-0">
+                  <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-secondary">
+                    evidence rail
+                  </p>
+                  <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t-2 border-foreground pt-3 font-label text-xs text-foreground sm:mt-5 sm:block sm:divide-y sm:divide-foreground/20 sm:border-y-2 sm:pt-0 sm:text-sm">
+                    <div className="wtf-stagger-in py-3">
+                      <dt className="text-secondary">scope</dt>
+                      <dd className="mt-1 font-bold">current catalogue</dd>
+                    </div>
+                    <div className="wtf-stagger-in py-3 [animation-delay:120ms]">
+                      <dt className="text-secondary">quoted evidence</dt>
+                      <dd className="mt-1 font-bold">separate from synthesis</dd>
+                    </div>
+                    <div className="wtf-stagger-in py-3 [animation-delay:240ms]">
+                      <dt className="text-secondary">source</dt>
+                      <dd className="mt-1 font-bold">published or uncut, named</dd>
+                    </div>
+                    <div className="wtf-stagger-in py-3 [animation-delay:360ms]">
+                      <dt className="text-secondary">timing</dt>
+                      <dd className="mt-1 font-bold">only when mapped</dd>
+                    </div>
+                  </dl>
+                </aside>
               </div>
             </div>
             ) : (
@@ -288,182 +445,3 @@ export function ConversationThread({
     </>
   );
 }
-
-// ---- Shared conversation frame (member/operator surfaces) ----
-export type ConversationComposerPlacement = "fixed" | "inline";
-
-export interface ConversationThreadFrameRenderProps {
-  /** Place this at the point new content should scroll into view. */
-  scrollAnchor: ReactNode;
-}
-
-/**
- * Presentation-only Alpha conversation frame.
- *
- * Private surfaces supply their own message presentation and composer while
- * retaining the public route's bounded scrolling, reader-scroll protection,
- * and fixed-to-inline composer transition.
- */
-const FIXED_COMPOSER_CLEARANCE_PX = 160;
-
-export interface ConversationThreadFrameProps {
-  contentVersion: unknown;
-  layoutVersion?: unknown;
-  renderContent: (props: ConversationThreadFrameRenderProps) => ReactNode;
-  renderFooter?: (placement: ConversationComposerPlacement) => ReactNode;
-  ariaLabel?: string;
-}
-
-export function ConversationThreadFrame({
-  contentVersion,
-  layoutVersion,
-  renderContent,
-  renderFooter,
-  ariaLabel = "Conversation",
-}: ConversationThreadFrameProps) {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const userScrolledUp = useRef(false);
-  const [isOverflowing, setIsOverflowing] = useState(false);
-
-  const checkOverflow = useCallback(() => {
-    const container = scrollContainerRef.current;
-    const content = contentRef.current;
-    if (!container || !content) return;
-    setIsOverflowing(content.offsetHeight > container.clientHeight - FIXED_COMPOSER_CLEARANCE_PX);
-  }, []);
-
-  useEffect(() => {
-    if (!userScrolledUp.current) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
-  }, [contentVersion]);
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    function handleScroll() {
-      const { scrollTop, scrollHeight, clientHeight } = container!;
-      const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
-      userScrolledUp.current = !isAtBottom;
-    }
-
-    container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    const content = contentRef.current;
-    if (!container || !content) return;
-
-    checkOverflow();
-    const observer = new ResizeObserver(checkOverflow);
-    observer.observe(container);
-    observer.observe(content);
-    return () => observer.disconnect();
-  }, [checkOverflow]);
-
-  useEffect(() => {
-    checkOverflow();
-  }, [contentVersion, layoutVersion, checkOverflow]);
-
-  const placement: ConversationComposerPlacement = isOverflowing ? "inline" : "fixed";
-
-  return (
-    <>
-      <div
-        ref={scrollContainerRef}
-        className="min-h-0 flex-1 overflow-y-auto px-4 pt-4 sm:pt-6"
-        data-testid="conversation-thread"
-        data-composer-placement={isOverflowing ? "inline" : "fixed"}
-        tabIndex={0}
-        role="log"
-        aria-label={ariaLabel}
-        aria-live="polite"
-      >
-        <div ref={contentRef}>
-          {renderContent({ scrollAnchor: <div ref={messagesEndRef} /> })}
-          {placement === "inline" ? renderFooter?.(placement) : null}
-        </div>
-
-        <div className="h-[calc(1rem+env(safe-area-inset-bottom))]" aria-hidden="true" />
-        {placement === "fixed" && renderFooter ? <div className="h-20" aria-hidden="true" /> : null}
-      </div>
-
-      {placement === "fixed" && renderFooter ? (
-        <div
-          className="fixed inset-x-0 z-40"
-          data-fixed-composer
-          style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
-        >
-          {renderFooter(placement)}
-        </div>
-      ) : null}
-    </>
-  );
-}
-
-
-export function ConversationEmptyState() {
-  return (
-    <div
-      className="mx-auto flex w-full max-w-5xl items-center py-4 sm:min-h-[28rem] sm:py-6"
-      data-testid="empty-state"
-      data-evidence-empty
-    >
-      <div className="grid w-full overflow-hidden border-2 border-foreground bg-surface-raised md:grid-cols-[minmax(0,1fr)_minmax(18rem,0.72fr)]">
-        <section className="relative min-w-0 overflow-hidden p-4 sm:p-8">
-          <div
-            aria-hidden="true"
-            className="wtf-question-lattice absolute inset-x-0 top-0 h-2"
-          />
-          <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-knowledge">
-            start with the source
-          </p>
-          <h2 className="mt-3 max-w-[13ch] font-display text-3xl font-extrabold lowercase leading-none sm:max-w-[12ch] sm:text-5xl">
-            ask the catalogue. get a cited moment.
-          </h2>
-          <p className="mt-4 max-w-[52ch] font-body text-sm leading-relaxed text-secondary sm:mt-5">
-            ask across published conversations. uncut is used only when a
-            verified mapping exists.
-          </p>
-          <div className="mt-4 hidden max-w-2xl border-l-4 border-knowledge bg-canvas px-4 py-3 sm:mt-7 sm:block">
-            <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
-              example question
-            </p>
-            <p className="mt-2 font-serif text-base text-foreground wtf-decrypt-line sm:text-lg">
-              what did guests say about building through uncertainty?
-            </p>
-          </div>
-        </section>
-        <aside className="hidden border-t-2 border-foreground bg-canvas p-4 text-foreground sm:block sm:p-5 md:border-l-2 md:border-t-0">
-          <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-secondary">
-            evidence rail
-          </p>
-          <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t-2 border-foreground pt-3 font-label text-xs text-foreground sm:mt-5 sm:block sm:divide-y sm:divide-foreground/20 sm:border-y-2 sm:pt-0 sm:text-sm">
-            <div className="wtf-stagger-in py-3">
-              <dt className="text-secondary">scope</dt>
-              <dd className="mt-1 font-bold">current catalogue</dd>
-            </div>
-            <div className="wtf-stagger-in py-3 [animation-delay:120ms]">
-              <dt className="text-secondary">quoted evidence</dt>
-              <dd className="mt-1 font-bold">separate from synthesis</dd>
-            </div>
-            <div className="wtf-stagger-in py-3 [animation-delay:240ms]">
-              <dt className="text-secondary">source</dt>
-              <dd className="mt-1 font-bold">published or uncut, named</dd>
-            </div>
-            <div className="wtf-stagger-in py-3 [animation-delay:360ms]">
-              <dt className="text-secondary">timing</dt>
-              <dd className="mt-1 font-bold">only when mapped</dd>
-            </div>
-          </dl>
-        </aside>
-      </div>
-    </div>
-  );
-}
-

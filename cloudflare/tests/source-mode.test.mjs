@@ -197,6 +197,10 @@ describe("dual-source chat contract", () => {
     assert.deepEqual(entities, ["Nikhil Kamath"]);
   });
 
+  test("non-speech lower-case questions stay unanchored", () => {
+    assert.deepEqual(extractNamedEntityPhrases("where does nikhil kamat stay?"), []);
+  });
+
   test("episode scope accepts only a public YouTube video id", () => {
     assert.equal(parseEpisodeId(" RSB58m7Xwhg "), "RSB58m7Xwhg");
     assert.equal(parseEpisodeId("../private"), null);

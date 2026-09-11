@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppShell } from "@/components/shells/AppShell";
 import { currentReleaseNavigation } from "@/lib/public/current-release-nav";
@@ -32,9 +33,21 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
 
   if (isProtectedRoute) return <>{children}</>;
 
-  // Sign-in stays hidden until the member auth flow finishes verification.
+  // Public signup is activated: public routes expose the sign-in utility.
   return (
-    <AppShell mode="public" navigation={currentReleaseNavigation}>
+    <AppShell
+      mode="public"
+      navigation={currentReleaseNavigation}
+      utility={
+        <Link
+          href="/sign-in"
+          data-public-sign-in
+          className="inline-flex min-h-11 shrink-0 items-center rounded-full border-2 border-foreground bg-surface-subtle px-3 py-2 font-label text-xs font-bold lowercase tracking-wide text-foreground transition-colors hover:bg-attention hover:text-on-attention focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:text-sm"
+        >
+          sign in
+        </Link>
+      }
+    >
       {children}
     </AppShell>
   );

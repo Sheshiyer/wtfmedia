@@ -69,6 +69,9 @@ export interface Env extends OpsEnv {
   DB: DB;
   ALLOWED_ORIGIN: string;
   RATE_LIMIT_PER_MINUTE: string;
+  DEPLOYMENT_ENVIRONMENT: "production" | "staging" | "local";
+  SERVICE_NAME: string;
+  CATALOGUE_INDEX_NAME: string;
   INGEST_TOKEN: string;
   EDGE_SHARED_SECRET: string;
   CALENDAR_READ_RATE_LIMIT_PER_MINUTE?: string;
@@ -994,7 +997,12 @@ export default {
       return new Response(null, { status: 204, headers: { ...cors(request, env), "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization, Cookie, X-Request-ID, Idempotency-Key" } });
     }
     if (request.method === "GET" && url.pathname === "/v1/health") {
-      return reply(request, env, { status: "ok", service: "wtfmedia-edge", index: "wtfmedia-catalogue-v1" });
+      return reply(request, env, {
+        status: "ok",
+        environment: env.DEPLOYMENT_ENVIRONMENT,
+        service: env.SERVICE_NAME,
+        index: env.CATALOGUE_INDEX_NAME,
+      });
     }
     if (url.pathname === "/ops" || url.pathname.startsWith("/ops/") || url.pathname === "/api/ops" || url.pathname.startsWith("/api/ops/")) {
       return handleOpsRequest(request, env);

@@ -182,7 +182,8 @@ async function chatApi(request: Request, env: OpsEnv, context: OperatorContext, 
       return view ? Response.json({ ...operatorChatViewDto(view), policy: { archive: true, export: context.role === "admin" || context.role === "super_admin" } }, { headers: protectedResponseHeaders }) : denied();
     }
     const url = new URL(request.url);
-    const page = await listConversationsForActor(env.DB, actor, url.searchParams.get("cursor") ?? undefined, Number(url.searchParams.get("limit") ?? "25"));
+    const includeArchived = url.searchParams.get("includeArchived") === "1";
+    const page = await listConversationsForActor(env.DB, actor, url.searchParams.get("cursor") ?? undefined, Number(url.searchParams.get("limit") ?? "25"), includeArchived);
     return page ? Response.json({ ...operatorChatPageDto(page), policy: { archive: true, export: context.role === "admin" || context.role === "super_admin" } }, { headers: protectedResponseHeaders }) : denied();
   }
 

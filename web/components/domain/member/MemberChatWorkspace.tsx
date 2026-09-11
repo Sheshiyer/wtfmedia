@@ -3,20 +3,21 @@
 import { useUser } from "@clerk/nextjs";
 import * as Dialog from "@radix-ui/react-dialog";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AskComposer } from "@/components/domain/public/AskComposer";
 import { ConversationEmptyState, ConversationThreadFrame } from "@/components/domain/public/ConversationThread";
 import { SourcePanel } from "@/components/domain/public/SourcePanel";
 import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/Button";
-import { appendNewestMemberConversationMessages, canConfirmMemberConversationDeletion, linkedSavedPreferenceDeletionNotice, memberAnswerPresentation, memberCommittedRequestForRetry, memberConversationHref, memberGreeting, newMemberRequestKey, parseMemberConversationResponse, prependMemberConversationMessages, retryIntentForMemberResponse, shouldApplyMemberResponse, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversation, type MemberConversationResponse, type MemberRetryIntent } from "@/lib/member/chat";
+import { createMemberChatAdapter, type BetaChatAdapter, type BetaConversationResponse } from "@/components/domain/beta/BetaChatAdapter";
+import { appendNewestMemberConversationMessages, canConfirmMemberConversationDeletion, linkedSavedPreferenceDeletionNotice, memberAnswerPresentation, memberCommittedRequestForRetry, memberGreeting, newMemberRequestKey, prependMemberConversationMessages, retryIntentForMemberResponse, shouldApplyMemberResponse, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversation, type MemberRetryIntent } from "@/lib/member/chat";
 import { useMemberFetch } from "./MemberBetaGate";
 import { MemberSessionNavigator } from "./MemberSessionNavigator";
 
 type WorkspaceState = "idle" | "loading" | "error" | "unavailable";
 type DeleteTarget = { id: string; title: string; linkedSavedPreferenceCount?: number };
 
-function Thread({ view, sending, canRetry, onRetry, loadingEarlier, onLoadEarlier, renderFooter }: { view: MemberConversationResponse; sending: boolean; canRetry: boolean; onRetry: () => void; loadingEarlier: boolean; onLoadEarlier: () => void; renderFooter: () => React.ReactNode }) {
+function Thread({ view, sending, canRetry, onRetry, loadingEarlier, onLoadEarlier, renderFooter }: { view: BetaConversationResponse; sending: boolean; canRetry: boolean; onRetry: () => void; loadingEarlier: boolean; onLoadEarlier: () => void; renderFooter: () => React.ReactNode }) {
   return <ConversationThreadFrame
     contentVersion={view.messages}
     layoutVersion={sending}
@@ -55,12 +56,13 @@ function DeleteConversationDialog({ conversationTitle, linkedSavedPreferenceCoun
   </Dialog.Root>;
 }
 
-export function MemberChatWorkspace({ conversationId }: { conversationId?: string }) {
+export function MemberChatWorkspace({ conversationId, adapter }: { conversationId?: string; adapter?: BetaChatAdapter }) {
   const { user } = useUser();
   const router = useRouter();
   const pathname = usePathname();
   const memberFetch = useMemberFetch();
-  const [view, setView] = useState<MemberConversationResponse | null>(null);
+  const resolvedAdapter = useMemo(() => adapter ?? createMemberChatAdapter(memberFetch), [adapter, memberFetch]);
+  const [view, setView] = useState<BetaConversationResponse | null>(null);
   const [state, setState] = useState<WorkspaceState>(conversationId ? "loading" : "idle");
   const [question, setQuestion] = useState("");
   const [retryIntent, setRetryIntent] = useState<MemberRetryIntent | null>(null);
@@ -113,8 +115,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     const epoch = ++loadEpoch.current;
     setState("loading");
     try {
-      const response = await memberFetch(`/beta/api/chat/${encodeURIComponent(conversationId)}`, { cache: "no-store" });
-      const parsed = response.ok ? parseMemberConversationResponse(await response.json()) : null;
+      const parsed = await resolvedAdapter.get(conversationId);
       if (!shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: loadEpoch.current, requestPath: `/beta/chat/${conversationId}`, currentPath: currentPath.current }) || currentConversation.current !== conversationId) return;
       if (!parsed) throw new Error("member_conversation_unavailable");
       setView(parsed);
@@ -125,7 +126,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     } catch {
       if (epoch === loadEpoch.current && currentConversation.current === conversationId) setState("unavailable");
     }
-  }, [conversationId, memberFetch]);
+  }, [conversationId, resolvedAdapter]);
 
   useEffect(() => { void load(); }, [load]);
   useEffect(() => () => {
@@ -141,7 +142,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     const selectedRoute = conversationId;
     const requestPath = pathname;
     const resumeMessageId = retryIntent?.question === trimmed ? retryIntent.resumeMessageId : null;
-    const sourceMode = sourceModeForMemberQuestion(view?.conversation ?? null, retryIntent, trimmed);
+    const sourceMode = sourceModeForMemberQuestion(view?.conversation ?? null, retryIntent, trimmed, resolvedAdapter.defaultSourceMode);
     const turn = { conversationId: selectedRoute ?? null, question: trimmed, sourceMode, resumeMessageId };
     const request = memberCommittedRequestForRetry(committedRequestRef.current, turn) ?? { ...turn, idempotencyKey: newMemberRequestKey() };
     loadEpoch.current += 1;
@@ -150,12 +151,11 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     sendingRef.current = true;
     setSending(true);
     try {
-      const endpoint = selectedRoute ? `/beta/api/chat/${encodeURIComponent(selectedRoute)}` : "/beta/api/chat";
-      const response = await memberFetch(endpoint, { method: "POST", headers: { "content-type": "application/json", "idempotency-key": request.idempotencyKey }, body: JSON.stringify({ question: trimmed, sourceMode, ...(resumeMessageId ? { resumeMessageId } : {}) }) });
-      const parsed = parseMemberConversationResponse(await response.json());
+      const result = await resolvedAdapter.send(selectedRoute ?? null, trimmed, sourceMode, request.idempotencyKey, resumeMessageId);
+      const parsed = result.value;
       if (!parsed) throw new Error("member_chat_unavailable");
       if (!shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: submitEpoch.current, requestPath, currentPath: currentPath.current })) return;
-      const href = memberConversationHref(parsed.conversation.id);
+      const href = resolvedAdapter.href(parsed.conversation.id);
       if (!href) throw new Error("member_chat_route_invalid");
       if (!selectedRoute) {
         setQuestion("");
@@ -164,7 +164,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
         router.push(href);
         return;
       }
-      if (!response.ok) {
+      if (!result.ok) {
         if (currentConversation.current === selectedRoute) {
           setView(parsed);
           const pendingRetry = retryIntentForMemberResponse(parsed);
@@ -191,7 +191,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
         setSending(false);
       }
     }
-  }, [conversationId, memberFetch, pathname, question, rememberCommittedRequest, retryIntent, router, view?.conversation]);
+  }, [conversationId, pathname, question, rememberCommittedRequest, resolvedAdapter, retryIntent, router, view?.conversation]);
 
   const loadEarlier = useCallback(async () => {
     const cursor = view?.previousMessageCursor;
@@ -200,14 +200,13 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     const requestPath = pathname;
     setLoadingEarlier(true);
     try {
-      const response = await memberFetch(`/beta/api/chat/${encodeURIComponent(conversationId)}?before=${encodeURIComponent(cursor)}`, { cache: "no-store" });
-      const parsed = response.ok ? parseMemberConversationResponse(await response.json()) : null;
+      const parsed = await resolvedAdapter.get(conversationId, cursor);
       if (!parsed || parsed.conversation.id !== conversationId || !shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: messagePageEpoch.current, requestPath, currentPath: currentPath.current }) || currentConversation.current !== conversationId) return;
       setView((current) => current ? prependMemberConversationMessages(current, parsed) : current);
     } finally {
       if (epoch === messagePageEpoch.current) setLoadingEarlier(false);
     }
-  }, [conversationId, loadingEarlier, memberFetch, pathname, view?.previousMessageCursor]);
+  }, [conversationId, loadingEarlier, pathname, resolvedAdapter, view?.previousMessageCursor]);
 
   const archive = useCallback(async () => {
     if (!conversationId || archiving) return;
@@ -215,8 +214,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     const requestPath = pathname;
     setArchiving(true);
     try {
-      const response = await memberFetch(`/beta/api/chat/${encodeURIComponent(conversationId)}/archive`, { method: "POST" });
-      if (!response.ok) throw new Error("member_archive_unavailable");
+      if (!await resolvedAdapter.archive(conversationId)) throw new Error("member_archive_unavailable");
       if (!shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) || currentConversation.current !== conversationId) return;
       router.push("/beta/chat");
     } catch {
@@ -224,18 +222,17 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     } finally {
       if (epoch === archiveEpoch.current) setArchiving(false);
     }
-  }, [archiving, conversationId, memberFetch, pathname, router]);
+  }, [archiving, conversationId, pathname, resolvedAdapter, router]);
 
   const deleteConversation = useCallback(async (confirmation: string): Promise<boolean> => {
     const targetId = deleteTarget?.id ?? conversationId;
-    if (!targetId || deleting || !canConfirmMemberConversationDeletion(confirmation)) return false;
+    if (!targetId || deleting || !resolvedAdapter.delete || !canConfirmMemberConversationDeletion(confirmation)) return false;
     const epoch = ++archiveEpoch.current;
     const requestPath = pathname;
     setDeleting(true);
     setDeleteError(false);
     try {
-      const response = await memberFetch(`/beta/api/chat/${encodeURIComponent(targetId)}`, { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ confirmation: "DELETE" }) });
-      if (!response.ok) throw new Error("member_delete_unavailable");
+      if (!await resolvedAdapter.delete(targetId)) throw new Error("member_delete_unavailable");
       if (!shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) || (deleteTarget === null && currentConversation.current !== targetId)) return false;
       setDeleteDialogOpen(false);
       router.push("/beta/chat");
@@ -246,7 +243,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
     } finally {
       if (epoch === archiveEpoch.current) setDeleting(false);
     }
-  }, [conversationId, deleteTarget, deleting, memberFetch, pathname, router]);
+  }, [conversationId, deleteTarget, deleting, pathname, resolvedAdapter, router]);
 
   const requestDeleteFromNavigator = useCallback((selectedConversation: MemberConversation) => {
     setDeleteTarget({ id: selectedConversation.id, title: selectedConversation.title, linkedSavedPreferenceCount: selectedConversation.linkedSavedPreferenceCount });
@@ -255,7 +252,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
   }, []);
 
   const greeting = memberGreeting(user?.firstName, user?.fullName);
-  const navigator = <MemberSessionNavigator activeConversationId={conversationId} refreshKey={sessionRevision} onNavigate={() => setDrawerOpen(false)} onRequestDelete={requestDeleteFromNavigator} />;
+  const navigator = <MemberSessionNavigator activeConversationId={conversationId} refreshKey={sessionRevision} onNavigate={() => setDrawerOpen(false)} onRequestDelete={resolvedAdapter.canDelete ? requestDeleteFromNavigator : undefined} adapter={resolvedAdapter} />;
   const canRetry = state === "error" && (retryIntent !== null || committedRequest !== null) && question.trim().length > 0;
   const onDrawerChange = useCallback((open: boolean) => {
     setDrawerOpen(open);
@@ -277,7 +274,7 @@ export function MemberChatWorkspace({ conversationId }: { conversationId?: strin
           <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-knowledge">company beta · private workspace</p>
           {conversationId && view ? <h1 className="mt-1 font-display text-3xl font-extrabold lowercase [overflow-wrap:anywhere]">{view.conversation.title}</h1> : <><h1 className="mt-1 font-display text-lg font-extrabold lowercase">ask wtf</h1><p className="mt-1 text-xs text-secondary">{greeting}. Your history stays with this signed-in workspace.</p></>}
         </div>
-        <div className="flex flex-wrap gap-2"><Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="xl:hidden">conversations</Button>{conversationId ? <><Button type="button" variant="secondary" onClick={() => void archive()} loading={archiving} disabled={archiving || deleting}>archive conversation</Button><Button type="button" variant="ghost" onClick={() => { setDeleteError(false); setDeleteTarget(view ? { id: conversationId, title: view.conversation.title, linkedSavedPreferenceCount: view.conversation.linkedSavedPreferenceCount } : null); setDeleteDialogOpen(true); }} disabled={archiving || deleting}>delete</Button></> : null}</div>
+        <div className="flex flex-wrap gap-2"><Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="xl:hidden">conversations</Button>{conversationId ? <><Button type="button" variant="secondary" onClick={() => void archive()} loading={archiving} disabled={archiving || deleting}>archive conversation</Button>{resolvedAdapter.canDelete ? <Button type="button" variant="ghost" onClick={() => { setDeleteError(false); setDeleteTarget(view ? { id: conversationId, title: view.conversation.title, linkedSavedPreferenceCount: view.conversation.linkedSavedPreferenceCount } : null); setDeleteDialogOpen(true); }} disabled={archiving || deleting}>delete</Button> : null}</> : null}</div>
       </div>
     </div>
     <div className="mx-auto grid min-w-0 max-w-[var(--wtf-content-max)] gap-6 px-4 sm:px-8 xl:grid-cols-[15rem_minmax(0,1fr)] xl:px-12">

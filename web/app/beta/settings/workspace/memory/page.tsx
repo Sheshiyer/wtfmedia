@@ -1,2 +1,5 @@
-import { BetaWorkspaceSettingPage } from "@/components/domain/beta/BetaWorkspaceSettingPage";
-export default function Page() { return <BetaWorkspaceSettingPage section="memory" />; }
+import { redirect } from "next/navigation";
+
+export default function LegacyWorkspaceMemorySettingsPage() {
+  redirect("/beta/settings/memory");
+}
