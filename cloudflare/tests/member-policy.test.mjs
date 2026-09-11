@@ -47,4 +47,5 @@ test("member beta APIs are explicitly method-gated before route dispatch", () =>
   assert.equal(policyForPath("/beta/api/chat/mcnv_12345678", "PATCH"), null);
   assert.deepEqual(policyForPath("/beta/workspace"), ["control_room", "read"]);
   assert.deepEqual(policyForPath("/beta/settings"), ["beta", "read"]);
+  assert.deepEqual(policyForPath("/beta/settings/workspace"), ["control_room", "read"]);
 });
