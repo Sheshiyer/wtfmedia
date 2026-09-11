@@ -70,6 +70,10 @@ This repository is `wtfmedia`.
   acceptance, use the Codex in-app browser against an owner-authorized staging
   build for signed-out, two-member, suspended/revoked, editor, admin, and
   super-admin personas at desktop and mobile viewports.
+- Before staging or production work, use
+  `docs/releases/beta-0.1-cloudflare-promotion-map.md` to distinguish web
+  `ASSETS`, catalogue R2 objects, D1 authority, derived Vectorize/KV state,
+  queues, outstanding migrations, deployed versions, and traffic evidence.
 
 ## Boundaries
 

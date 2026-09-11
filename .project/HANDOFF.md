@@ -2853,3 +2853,35 @@ when the verified Clerk subject and normalized email match.
 
 - Web unit suite: 104/104; TypeScript, ESLint, and OpenNext Cloudflare build
   pass. This is an authorization transport repair, not a staging data bypass.
+
+## 2026-09-11 Beta 0.1 PR and Cloudflare placement checkpoint
+
+**Status:** SOURCE-ONLY PR PREPARATION — branch `beta_0.1`, base
+`release/beta@498c0e0`. No merge, tag, migration, deployment, traffic, secret,
+DNS, Clerk, queue, ingest, corpus, or production mutation occurred.
+
+- The complete resource and data-flow authority is
+  `docs/releases/beta-0.1-cloudflare-promotion-map.md`. It separates web
+  OpenNext/`ASSETS` delivery from catalogue R2, D1 authority, derived
+  Vectorize/KV state, Workers AI, and queue transport.
+- Named-profile read-only inventory confirms separate production and staging
+  web/edge Workers, D1, R2, Vectorize, KV, and ingest queue/DLQ resources.
+  Current 100%-traffic deployments exist for all four Workers, but they predate
+  this candidate and are not evidence that its source or bindings are live.
+- Staging D1 reports migrations 0012-0015 unapplied; production D1 reports
+  0011-0015 unapplied. The principal-profile and deletion/session schema is
+  therefore source-only until a reviewed environment-specific migration and
+  deployment receipt exists.
+- The latest deployed staging edge binding receipt predates the source-declared
+  Clerk issuer/JWKS/authorized-party configuration. A fresh edge binding
+  receipt is mandatory after any authorized staging deploy.
+- `wtfhq.in` is reachable, but its custom-domain/route attachment is not
+  declared in either Wrangler file. Traffic attribution remains an external
+  Cloudflare receipt rather than a source claim.
+- PRs #57 and #59 are open and conflicting against the same base. Their older
+  auth/session work is superseded by this integrated candidate; do not stack,
+  cherry-pick, close, or merge them automatically.
+- Safe staging order: inventory and recovery receipt → apply reviewed staging
+  migrations → deploy edge and verify bindings/health → deploy web and verify
+  its staging-only service binding → execute the real Clerk/D1 IAB persona and
+  responsive matrix. Production needs a new owner-authorized task after that.

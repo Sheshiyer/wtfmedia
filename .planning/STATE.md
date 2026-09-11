@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Single authenticated Beta shell is locally verified through 00e8267; staging Clerk/D1 deployment and real IAB persona acceptance remain
-last_updated: "2026-09-11T05:20:00+05:30"
+stopped_at: beta_0.1 source PR preparation with Cloudflare topology and migration gates; no deploy or merge
+last_updated: "2026-09-11T15:49:00+05:30"
 last_activity: 2026-09-11
 progress:
   total_phases: 10
@@ -25,12 +25,35 @@ its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
 **Current focus:** The source-only single authenticated Beta shell is locally
-verified through `00e8267`. Alpha's actual Ask WTF UI, interaction, inference,
+verified through `4220eda` and is being prepared on `beta_0.1` for a PR into
+`release/beta`. Alpha's actual Ask WTF UI, interaction, inference,
 retrieval, and navigation remain the product bedrock; authentication, private
 conversations, history, explicit memory, scoped Settings, and role routing are
 modular Beta additions. Staging deployment/migrations and real Clerk/D1 IAB
-acceptance remain open. The current implementation authority is
+acceptance remain open. The Cloudflare placement and promotion authority is
+`docs/releases/beta-0.1-cloudflare-promotion-map.md`; the implementation authority is
 `.planning/inputs/2026-09-11-beta-single-shell-rbac-convergence-plan.md`.
+
+## Beta 0.1 PR and Cloudflare promotion checkpoint
+
+- `beta_0.1` is a source-integration branch label, not a package version, tag,
+  staging receipt, or production claim. Its base is `release/beta@498c0e0`.
+- Read-only named-profile inventory confirms separate staging/production web,
+  edge, D1, R2, Vectorize, KV, and ingest queue/DLQ resources. The most recent
+  deployments predate this candidate and do not prove its revision is live.
+- The web Worker owns OpenNext routes plus `ASSETS` and reaches only its paired
+  edge Worker. The edge Worker owns Clerk-token verification, D1 RBAC/chat and
+  provenance, R2 source objects, Vectorize retrieval, Workers AI, KV state,
+  and ingest queue consumption.
+- Staging D1 has migrations 0012-0015 pending; production D1 has 0011-0015
+  pending. This source branch therefore cannot be accepted from current live
+  behavior without a new staging migration/deployment receipt.
+- Staging order is migration inventory and recovery receipt, staging D1
+  migration, edge deploy/health/binding receipt, web deploy/service-binding
+  receipt, then the real Clerk/D1 persona matrix. Production remains separately
+  owner-authorized after staging acceptance and rollback planning.
+- Open PRs #57 and #59 are conflicting historical inputs superseded by the
+  integrated candidate. They must not be stacked or closed automatically.
 
 ## Current Beta single-shell authority — local source checkpoint `00e8267`
 

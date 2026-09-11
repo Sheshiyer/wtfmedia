@@ -100,4 +100,3 @@ ephemeral; protected operator conversation deep links redirect into Beta.
 4. Staging remains unaccepted until signed-out, two members, suspended/revoked,
    editor, admin, and `sheshnarayan.iyer@gmail.com` as active super admin pass
    real Clerk/D1 IAB acceptance. Super-admin transfer remains post-acceptance.
-
