@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Candidate 32ec582 deployed to Beta staging; shared signed-in UI regression closed, full personas corpus operator delete rollback and production promotion remain gated
-last_updated: "2026-09-11T21:18:00+05:30"
+stopped_at: Candidate f6bbf58 deployed to Beta staging; canonical settings and history mapping accepted for super-admin, full personas corpus operator delete rollback and production promotion remain gated
+last_updated: "2026-09-11T22:15:00+05:30"
 last_activity: 2026-09-11
 progress:
   total_phases: 10
@@ -39,8 +39,8 @@ scoped Settings, and role routing are modular Beta additions. The release
 authority is `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md`.
 The assigned client-facing environment names are `beta-staging.wtfhq.in` for
 real staging acceptance and `beta.wtfhq.in` for the production-Beta handoff;
-the staging hostname is now live with web candidate `32ec582` bound to the
-unchanged staging edge version. Production Beta remains planning-only. Real authenticated IAB
+the staging hostname is now live with candidate `f6bbf58` on the paired web and
+edge Workers. Production Beta remains planning-only. Real authenticated IAB
 personas and rollback are still required before staging acceptance. The
 source-lineage correction is
 `.planning/inputs/2026-09-11-beta-0.3-lineage-and-surface-authority-audit.md`:
@@ -49,6 +49,26 @@ and deployed staging candidate are distinct objects and must not be called one
 "latest Beta" branch.
 
 ## Beta 0.1 local integration and release-readiness checkpoint
+
+- Current exact staging candidate `f6bbf584fa5c9a07cc218f0211f3c5020bb4f3f7`
+  is deployed as edge version `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c` and web
+  version `3668390f-1dc8-438e-9dab-19c331b732ce`. Production is unchanged.
+- Canonical Account now exposes logout; canonical Memory maps to the real
+  immutable preference/custom-instruction create/archive lifecycle; canonical
+  Sessions reads active plus archived owner history. Duplicate operator
+  memory/session destinations redirect to these canonical pages.
+- A transient conversation-list failure is retried once and classified as
+  account verification versus staging service failure. The same authenticated
+  super-admin now loads both conversations in Chat and Sessions, so the
+  reported warning was a staging request failure rather than a role mapping
+  failure.
+- Member Delete remains backed by the existing deletion tombstone contract.
+  Operator Delete is not implemented because the operator schema is
+  audit-retained and has no reviewed deletion/tombstone lifecycle.
+- Remote delivery is selected but not executed: preserve Pavun57's PR #48 and,
+  after the remaining acceptance gates pass, fast-forward `beta_0.1` with an
+  explicit `HEAD:beta_0.1` refspec so only PR #77 is updated. No force push and
+  no push of the checked-out `rag/alpha-answer-accuracy` branch is allowed.
 
 - UI/runtime candidate `32ec582d9ab953413710832c62e773eb212c00e1` is
   deployed to `wtfmedia-web-staging` as version

@@ -1,5 +1,46 @@
 # Project handoff
 
+## 2026-09-11 Beta settings and session-service mapping repair
+
+**Status:** SOURCE-VERIFIED, DEPLOYED TO BETA STAGING, AND SUPER-ADMIN IAB
+OBSERVED. This is a bounded staging acceptance receipt, not full persona
+acceptance or production authorization.
+
+- Exact code candidate `f6bbf584fa5c9a07cc218f0211f3c5020bb4f3f7`
+  maps Account to the existing Clerk logout control, maps Memory to the real
+  owner-scoped immutable preference/custom-instruction lifecycle, and maps
+  Sessions to active plus archived owner history.
+- Duplicate operator “sessions & history” and “memory governance” navigation
+  entries are removed. Their legacy URLs redirect to the canonical member-tier
+  Settings pages; release/users/audit remain capability-gated additions.
+- Conversation list/get reads retry one transient network/401/502/503/504
+  failure and expose truthful account-verification versus staging-service
+  copy. The same super-admin session loaded history after deployment, so the
+  reported drawer warning was not a missing D1 operator mapping.
+- Edge list endpoints accept `includeArchived=1` while default chat drawers
+  remain active-only. The canonical Sessions page shows lifecycle state and
+  Archive. Member Delete uses the existing confirmation and tombstone-backed
+  API. Operator Delete remains held because no reviewed operator deletion
+  schema or tombstone contract exists.
+- Source verification: Edge 380/380, web unit 219/219, contracts 96/96,
+  typecheck, lint, OpenNext production build (89 pages), privacy 0/400,
+  architecture freshness across 625 inputs, and `git diff --check` pass.
+- Staging versions are edge `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c` and web
+  `3668390f-1dc8-438e-9dab-19c331b732ce`. IAB confirms the history drawer,
+  account logout, canonical Preferences form/empty ledger, and Sessions list
+  with two active conversations. No lifecycle or preference write was used as
+  QA evidence. Production, DNS, Clerk configuration, and data were untouched.
+- GitHub still has Pavun57 PR #48 from `rag/alpha-answer-accuracy` to `main`
+  and PR #77 from `beta_0.1` to `release/beta`. Do not push the checked-out
+  branch by name. After remaining staging acceptance, fast-forward the exact
+  accepted SHA to `beta_0.1` with `HEAD:beta_0.1`; this updates PR #77 without
+  repurposing PR #48. Force-push is forbidden.
+
+**Next action:** finish the real member/editor/admin/suspended and viewport
+matrix, approve a safe staging corpus, rehearse rollback, then update PR #77
+from the exact accepted SHA. Operator permanent Delete remains a separately
+reviewed lifecycle decision.
+
 ## 2026-09-11 Beta staging signed-in workspace repair
 
 **Status:** SOURCE-VERIFIED AND DEPLOYED TO BETA STAGING. Two independent

@@ -134,9 +134,9 @@ This repository is `wtfmedia`.
   activation, certificate, exact web/edge versions, service binding, Clerk
   authorized-party/redirect presence, real IAB personas, smoke, and rollback
   receipts before calling the environment ready for client handoff.
-- Current staging runtime receipt: source `abb5413`, edge version
-  `3b4aa27f-6c62-4077-a432-897f10002039`, web version
-  `00cfe1b4-161e-4c86-addf-dd3894085d3d`. This closes deployment mapping only;
+- Current staging runtime receipt: source `f6bbf58`, edge version
+  `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c`, web version
+  `3668390f-1dc8-438e-9dab-19c331b732ce`. This closes deployment mapping only;
   authenticated IAB personas, host-only cookies, viewports, and rollback remain
   release gates. Production Beta remains untouched.
 
@@ -164,13 +164,20 @@ This repository is `wtfmedia`.
   Pavun chat/inference/accuracy symbols win. Existing security, provenance,
   privacy, and data-integrity gates remain mandatory and may require a minimal,
   documented adaptation rather than a blind patch application.
-- The accepted signed-in chat presentation already exists in the
-  Member/Alpha-derived components contained by `beta_0.1`. Current
-  `web/app/beta/chat/page.tsx` and `BetaConversationRoute` send operator
-  principals to an older operator `ChatWorkspace`; treat that as an audited
-  mapping gap, not permission to rebuild the UI. A future authorized fix must
-  adapt the existing presentation to the distinct member/operator server
-  contracts while preserving owner scoping and RBAC.
+- The accepted signed-in chat presentation is shared by member and operator
+  principals through typed adapters for their distinct server stores. Preserve
+  that presentation and owner/RBAC boundary; do not reintroduce a role-based
+  UI fork or start a third chat UI.
+- Canonical `/beta/settings` owns Account, Memory, Sessions, and Appearance for
+  every principal. Operator release/users/audit are capability-gated additions;
+  duplicate workspace memory/session routes only redirect. Memory is immutable
+  create/archive preferences, and Sessions may read active plus archived rows.
+  Member Delete is tombstone-backed; operator history remains archive-only.
+- Git delivery must leave Pavun57's PR #48 head untouched. After exact staging
+  acceptance, update PR #77 only by fast-forwarding the accepted SHA to remote
+  `beta_0.1` with an explicit refspec. Never push the checked-out
+  `rag/alpha-answer-accuracy` branch, force-push, or promote a moving branch
+  name instead of an accepted commit.
 - A persisted `cnv_*` conversation with an ungrounded answer can mean the
   isolated staging evidence plane is empty. Verify R2/KV/Vectorize readiness
   separately from chat routing before changing inference code. Never copy
