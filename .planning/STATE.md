@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Beta 0.1 source candidate verified; remote PR topology, tag reconciliation, and live gates remain open
-last_updated: "2026-09-11T19:52:00+05:30"
+stopped_at: Beta/Pavun surface precedence reconciled at a3e5cc0; remote topology, tag, and live gates remain open
+last_updated: "2026-09-11T19:58:00+05:30"
 last_activity: 2026-09-11
 progress:
   total_phases: 10
@@ -28,9 +28,10 @@ its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
 **Current focus:** Beta 0.1 is a separately tracked authenticated release lane,
-not completion of the broader v1.0 roadmap. Exact source candidate `2c4007d`
-contains local merge `d3b4590`, runtime/UI closure `79a0285`, and
-release/migration guards `b7f5bec` on `rag/alpha-answer-accuracy`.
+not completion of the broader v1.0 roadmap. Exact source candidate `a3e5cc0`
+adds the owner-directed Pavun57 surface precedence to the prior closure: current
+work remains authoritative for UI/routes/Clerk/RBAC/admin/Settings, while
+Pavun57 leads chat/inference/retrieval/accuracy/backend behavior.
 The user-reported `3eebf57` object is unavailable here. Alpha's actual Ask WTF
 UI, interaction, inference, retrieval, and navigation remain the product
 bedrock; authentication, private conversations, history, explicit memory,
@@ -43,10 +44,16 @@ authority is `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklis
   tag, staging receipt, production claim, or moving deployment target. The
   host-visible reconstruction is merge `d3b4590`; it does not prove GitHub PR
   state, staging, or production.
-- Exact source candidate `2c4007d` passes Edge 379/379, web unit 190/190, web
+- Exact source candidate `a3e5cc0` passes Edge 379/379, web unit 193/193, web
   contracts 96/96, TypeScript, lint, production build, privacy with zero
-  violations across 394 files, architecture freshness across 616 inputs, and
+  violations across 394 files, architecture freshness across 617 inputs, and
   `git diff --check`. These remain source/build receipts only.
+- The integration precedence map is
+  `.planning/inputs/2026-09-11-pavun-beta-integration-precedence.md`. Current
+  Beta UI, canonical routes, Clerk/auth flow, navigation pill, RBAC, admin, and
+  Settings cannot be reverted by a Pavun branch. Pavun57's PR #48/#49 intent
+  takes precedence for chat, inference, retrieval/accuracy, and backend chat
+  behavior; shared files require symbol-level resolution.
 - The user reports later local runtime behavior and remote D1 migrations
   0011-0015 plus a release-row seed. This checkout has no environment-specific
   backup, migration, binding, deployment, traffic, or authenticated-IAB receipt
@@ -58,7 +65,7 @@ authority is `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklis
   may be reused, moved, deleted, or silently reinterpreted by this work.
 - GitHub still reports PR #77 open from `beta_0.1` into `release/beta`, while
   PR #48 uses `rag/alpha-answer-accuracy` as its head into `main`. The local
-  branch is 42 commits ahead of its remote; pushing would materially expand
+  branch is ahead of its remote; pushing would materially expand
   PR #48 and therefore remains held for an explicit owner topology decision.
 - The web Worker owns OpenNext routes plus `ASSETS` and reaches only its paired
   edge Worker. The edge Worker owns Clerk-token verification, D1 RBAC/chat and
@@ -363,7 +370,7 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
 ## Session Continuity
 
 Last session: 2026-09-11
-Stopped at: Beta 0.1 exact source candidate `2c4007d` verified; remote delivery and live promotion gates held.
+Stopped at: Beta 0.1 exact source candidate `a3e5cc0` verified with surface-specific precedence; remote delivery and live promotion gates held.
 The host verifies the merge parents but not the reported `3eebf57` object; test
 counts are source evidence and reported runtime/D1 activity is unaccepted.
 Resume file: `.project/HANDOFF.md`

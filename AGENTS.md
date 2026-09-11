@@ -101,6 +101,27 @@ This repository is `wtfmedia`.
   decision. Keep their status honest and do not add implied persistence or
   automation while closing a release gate.
 
+## Pavun/Beta integration precedence
+
+- The owner's shorthand `pavun` maps to repository submitter `Pavun57`, who
+  authored PR #48 (`rag/alpha-answer-accuracy`) and PR #49
+  (`feat/chat-ui-session-memory`). Treat those as priority inputs only on the
+  surfaces named below; do not choose an entire branch wholesale.
+- Current Beta convergence work wins for visual/UI composition, AppShell and
+  AppRail, the hamburger/navigation pill, root and authenticated landing flow,
+  canonical `/beta`/`/ops` routes, Clerk entry/return routing, principal
+  admission, RBAC, admin, and scoped Settings. Never revert those surfaces to
+  an older UI while integrating Pavun work.
+- Pavun57's intent wins for chat orchestration, inference, retrieval, reranking,
+  grounding/citations, answer accuracy and repair, request budgets, and backend
+  chat/data behavior outside identity and RBAC.
+- Resolve shared files symbol-by-symbol. Current UI/auth/RBAC symbols win;
+  Pavun chat/inference/accuracy symbols win. Existing security, provenance,
+  privacy, and data-integrity gates remain mandatory and may require a minimal,
+  documented adaptation rather than a blind patch application.
+- The canonical decision map is
+  `.planning/inputs/2026-09-11-pavun-beta-integration-precedence.md`.
+
 ## Boundaries
 
 Merging to `main` does not by itself prove Cloudflare production is running the

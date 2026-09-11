@@ -4,7 +4,7 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: verify
-progress: 119/285
+progress: 120/286
 mode: interactive
 started: 2026-08-18T11:39:10Z
 updated: 2026-09-11T19:17:05+05:30
@@ -409,6 +409,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [ ] ISC-283: The owner reconciles the existing remote `v0.3.3-beta.2` tag at `66f434a` with its source-only release note before any `v0.3.3-beta.3` publication; the historical tag is not deleted, moved, reused, or silently reinterpreted (probe: remote tag inventory plus recorded release decision).
 - [x] ISC-284: Exact source candidate `2c4007d` passes Edge 379/379, web unit 190/190, web contracts 96/96, TypeScript, lint, production build, privacy with zero violations across 394 files, architecture freshness across 616 inputs, and `git diff --check` (probe: local command receipt at the exact candidate).
 - [ ] ISC-285: The owner selects a remote delivery topology before any push because PR #77 remains open from `beta_0.1` into `release/beta`, PR #48 already uses `rag/alpha-answer-accuracy` into `main`, and pushing the local branch would materially repurpose PR #48 (probe: current GitHub PR inventory plus explicit owner decision).
+- [x] ISC-286: Surface-specific integration precedence is explicit and tested: current convergence work governs UI, Beta/Ops routing, Clerk/auth landing/return, navigation pill, RBAC, admin, and Settings without old-UI reversion; Pavun57 PR #48/#49 intent governs chat, inference, retrieval/accuracy, and backend chat behavior (probe: precedence map, Git ancestry, focused source contract, and exact-candidate suite).
 
 ## Test Strategy
 
@@ -434,7 +435,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-202..218 | Alpha-aligned chat refinement | shared inference, multi-turn retrieval, evidence validation, stable citations, truthful member states, resilient thread interaction, and environment isolation | all deterministic probes pass; deployed staging UI remains separately receipted | Edge unit/integration + web unit/contracts + authenticated IAB |
 | ISC-219..240 | Alpha-bedrock / Beta modular convergence | branch/symbol admission, shared Alpha presentation, true navigation continuity, selected-session archive/delete, long-session pagination/compaction, role-specific screens, and no remote mutation | all local contracts pass; live personas and viewports separately deferred | Git ledger + Edge/D1 tests + web contracts + authenticated IAB matrix |
 | ISC-241..251 | Beta single-shell RBAC convergence | edge principal precedence, canonical routes, policy-derived navigation, scoped Settings, private DTOs, lifecycle, preview holds, and source-only release boundary | all local policy/navigation/privacy contracts pass; staging IAB remains required | Edge tests + web unit/contracts + build/privacy + authenticated IAB matrix |
-| ISC-252..285 | Beta 0.1 release evidence and promotion gate | immutable local merge identity, exact-candidate source closure, evidence-classification boundaries, remote delivery topology, staging/production receipts, and explicit non-goals | source evidence stays source-only; every remote/staging/production action needs its matching authority and receipt | Git + checklist review + owner-authorized GitHub/Cloudflare/Clerk/D1/IAB receipts |
+| ISC-252..286 | Beta 0.1 release evidence and promotion gate | immutable local merge identity, exact-candidate source closure, surface-specific author precedence, remote delivery topology, staging/production receipts, and explicit non-goals | source evidence stays source-only; every remote/staging/production action needs its matching authority and receipt | Git + precedence/checklist review + owner-authorized GitHub/Cloudflare/Clerk/D1/IAB receipts |
 
 ## Features
 
@@ -543,7 +544,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 
 - name: Beta01CloudflarePromotionGate
   description: Exact-source integration, evidence classification, environment boundaries, staged promotion gates, and explicit Beta 0.1 deferrals
-  satisfies: [ISC-252, ISC-253, ISC-254, ISC-255, ISC-256, ISC-257, ISC-258, ISC-259, ISC-260, ISC-261, ISC-262, ISC-263, ISC-264, ISC-265, ISC-266, ISC-267, ISC-268, ISC-269, ISC-270, ISC-271, ISC-272, ISC-273, ISC-274, ISC-275, ISC-276, ISC-277, ISC-278, ISC-279, ISC-280, ISC-281, ISC-282, ISC-283, ISC-284, ISC-285]
+  satisfies: [ISC-252, ISC-253, ISC-254, ISC-255, ISC-256, ISC-257, ISC-258, ISC-259, ISC-260, ISC-261, ISC-262, ISC-263, ISC-264, ISC-265, ISC-266, ISC-267, ISC-268, ISC-269, ISC-270, ISC-271, ISC-272, ISC-273, ISC-274, ISC-275, ISC-276, ISC-277, ISC-278, ISC-279, ISC-280, ISC-281, ISC-282, ISC-283, ISC-284, ISC-285, ISC-286]
   depends_on: [AlphaBedrockBetaModularConvergence, CloudflareEstateMigrationBoundary, QualityAndSafetyGates]
   parallelizable: false
 ```
@@ -573,6 +574,7 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 - 2026-09-11 19:42 IST: the unused source candidate version is `0.3.3-beta.3`. Remote `v0.3.3-beta.2` already exists at `66f434a` although its release note calls it source-only and not a tag; ISC-283 blocks publication until that history is explicitly reconciled without moving or deleting the tag.
 - 2026-09-11 19:48 IST: exact source candidate `2c4007d` contains merge `d3b4590`, runtime/UI closure `79a0285`, release/migration guards `b7f5bec`, and the planning/architecture ledger. Source gates BETA-REL-01 through BETA-REL-04 are complete; tag reconciliation and all live staging/production gates remain open.
 - 2026-09-11 19:52 IST: GitHub reports PR #77 still open into `release/beta`, while `rag/alpha-answer-accuracy` remains the head of PR #48 into `main`. The 42-commit local advance is not pushed because doing so would materially change PR #48; ISC-285 and BETA-REL-04B require an explicit owner topology decision.
+- 2026-09-11 19:58 IST: refined: precedence is surface-specific. Current convergence work wins for UI, canonical Beta/Ops routes, Clerk/auth landing and return, nav pill, RBAC, admin, and Settings. Pavun57 PR #48/#49 intent wins for chat, inference, retrieval/accuracy, and backend chat behavior. Shared files are resolved by symbol; no wholesale old-UI restoration is allowed.
 - 2026-09-11 15:49 IST: owner authorized a clean `beta_0.1` source branch and PR into `release/beta`, plus a read-only Cloudflare asset/topology audit before any production work. The branch label is not a semantic version or tag. Staging reports migrations 0012-0015 pending and production reports 0011-0015 pending; no migration, deploy, traffic, secret, DNS, Clerk, queue, ingest, corpus, merge, or production mutation is part of this checkpoint.
 
 - 2026-09-11 03:49 IST: refined: execution resumes from the committed Alpha-bedrock handoff. The current live IAB reproduction shows a selected member route with an unavailable banner, a separate header archive control, and the incorrect member navigation disclosure. Display-down correction starts with shared Alpha shell/composer behavior; private mutation contracts remain owner-scoped behind the existing Beta API.
@@ -816,3 +818,4 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 - ISC-263 verification: `git merge-base --is-ancestor` confirms `d3b4590`, `79a0285`, and `b7f5bec` are ancestors of exact source candidate `2c4007d378148da19f09004e97cfc2aff273267e`; the source closure remains split into bounded runtime, release, and documentation commits.
 - ISC-284 verification: at `2c4007d`, Cloudflare `npm test` passed 379/379; web unit passed 190/190; web contracts passed 96/96; typecheck, lint, `next build`, privacy `--check`, architecture check, and `git diff --check` all exited zero.
 - ISC-285 evidence: `gh pr list` reports PR #77 head/base `beta_0.1`/`release/beta` and PR #48 head/base `rag/alpha-answer-accuracy`/`main`; `git rev-list --left-right --count origin/rag/alpha-answer-accuracy...HEAD` reports `0 42` before any push.
+- ISC-286 verification: GitHub identifies `Pavun57` as author of PR #48 at `d4e45b4` and PR #49 at `1e40ef2`; `d4e45b4` is an ancestor of candidate `a3e5cc0`. The candidate preserves PR #49's prior-message forwarding, 90/75-second budgets, secret ignore, and visible match confidence while existing route/navigation/RBAC suites and the 193-test web unit suite remain green.

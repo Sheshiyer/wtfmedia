@@ -2,7 +2,7 @@
 
 ## 2026-09-11 Beta 0.1 integration evidence and promotion checkpoint
 
-**Status:** EXACT SOURCE CANDIDATE VERIFIED; LIVE ACCEPTANCE UNPROVEN. This
+**Status:** EXACT SOURCE CANDIDATE AND SURFACE PRECEDENCE VERIFIED; LIVE ACCEPTANCE UNPROVEN. This
 entry records planning and source facts only. It neither deploys nor accepts a
 staging or production environment.
 
@@ -15,15 +15,19 @@ staging or production environment.
   `7ec8298664a40b7b138f2b8d042d89858645cb67`.
 - Bounded source closure is committed as `79a0285` (operator chat/RBAC runtime
   fixes), `b7f5bec` (release workflow, version, and deterministic migration
-  guards), and `2c4007d` (planning plus generated architecture). The selected
-  exact source candidate is
-  `2c4007d378148da19f09004e97cfc2aff273267e`.
+  guards), and `2c4007d` (planning plus generated architecture). That SHA is
+  the superseded pre-precedence source checkpoint, not the current candidate.
+- Owner precedence refinement produces exact candidate
+  `a3e5cc0fe80a7963526b8031a711a447ef0d8aa3`. Current convergence work remains
+  authoritative for UI, canonical Beta/Ops routes, Clerk/auth landing/return,
+  navigation pill, RBAC, admin, and Settings. Pavun57 PR #48/#49 intent leads
+  chat, inference, retrieval/accuracy, and backend chat behavior.
 - The user-reported `3eebf57` object is unavailable in this checkout. Do not
   substitute it for `d3b4590`, and do not call either SHA deployed without an
   environment receipt.
-- At exact candidate `2c4007d`, Edge 379/379, web unit 190/190, web contracts
+- At exact candidate `a3e5cc0`, Edge 379/379, web unit 193/193, web contracts
   96/96, TypeScript, lint, production build, privacy with zero violations
-  across 394 files, architecture freshness across 616 inputs, and
+  across 394 files, architecture freshness across 617 inputs, and
   `git diff --check` pass. These are source/build evidence only.
 
 ### Reported, not accepted
@@ -39,8 +43,13 @@ staging or production environment.
   or silently reinterpret the historical tag.
 - GitHub reports PR #77 still open from `beta_0.1` into `release/beta`; PR #48
   remains open from `rag/alpha-answer-accuracy` into `main`. The local branch
-  is 42 commits ahead of its remote. A push would materially repurpose PR #48,
+  is ahead of its remote. A push would materially repurpose PR #48,
   so no remote branch or PR was changed without an explicit topology decision.
+- The literal GitHub account `pavun` has no repository submissions; repository
+  evidence resolves the owner's shorthand to PR author `Pavun57`. PR #48 head
+  `d4e45b4` is already an ancestor. PR #49's prior-message forwarding,
+  90/75-second budgets, local-secret ignore, and visible match-confidence intent
+  are preserved in the evolved candidate without reverting the current UI.
 
 ### Governing release boundary
 
@@ -68,7 +77,7 @@ staging or production environment.
 Choose the remote PR/base topology and resolve the historical
 `v0.3.3-beta.2` tag decision, then obtain explicit
 authority for the staged backup/migration/deployment and real Clerk/D1 IAB
-persona matrix against exact candidate `2c4007d`. Do not deploy, migrate, seed,
+persona matrix against exact candidate `a3e5cc0`. Do not deploy, migrate, seed,
 change Clerk, mutate
 DNS, enqueue work, or promote traffic under this handoff.
 
