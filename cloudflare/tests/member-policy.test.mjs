@@ -35,6 +35,14 @@ test("canonical beta routes use explicit capabilities and unknown paths fail clo
   assert.equal(policyForPath("/beta/unknown"), null);
 });
 
+test("workspace settings session and memory views require control room authority", () => {
+  for (const pathname of ["/beta/settings/workspace/sessions", "/beta/settings/workspace/memory"]) {
+    assert.deepEqual(policyForPath(pathname), ["control_room", "read"]);
+    assert.equal(canAccessPath("member", pathname), false);
+    for (const role of ["editor", "admin", "super_admin"]) assert.equal(canAccessPath(role, pathname), true);
+  }
+});
+
 test("member beta APIs are explicitly method-gated before route dispatch", () => {
   assert.deepEqual(policyForPath("/beta/api/principal-context", "GET"), ["beta", "read"]);
   assert.equal(policyForPath("/beta/api/principal-context", "POST"), null);
