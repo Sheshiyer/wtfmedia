@@ -1,5 +1,54 @@
 # Project handoff
 
+## 2026-09-11 Beta single-shell RBAC convergence checkpoint
+
+**Status:** LOCAL SOURCE AND BUILD VERIFIED through `329d44e` — no remote
+branch, PR, merge, deployment, Clerk configuration, D1 migration, provider
+configuration, corpus mutation, DNS change, or production Alpha state changed.
+
+### Delivered source contract
+
+- `/beta` resolves one authenticated edge principal: members land in
+  `/beta/chat`; operators land in `/beta/workspace`. The canonical nested
+  Settings and administration routes are capability-scoped.
+- Edge policy is the route authority. Operator records take precedence over
+  historical member rows, inactive operators deny, profile mirrors do not
+  grant authority, unknown paths fail closed, and the browser-navigation
+  contract checks its destinations against that policy.
+- `/beta/ops/*` is redirect-only compatibility. `/ops/*` and public `/chat`
+  remain legacy Alpha surfaces. No Beta `public_link` fallback remains.
+- Member and operator conversation stores remain independently owner-scoped;
+  client URLs retain only prefixed conversation UUIDs. Session cards expose
+  Archive and separately confirmed permanent Delete.
+- AI Route and YouTube Analytics are explicit non-persisted local previews;
+  they do not configure providers, analytics, or inference.
+
+### Local receipts
+
+- Cloudflare tests: 266/266 passing.
+- Web unit tests: 158/158 passing; web contracts: 92/92 passing.
+- Web typecheck, lint, production build, architecture check, and privacy scan
+  passed; the privacy scan reported zero violations.
+
+### Still unaccepted
+
+- No reviewed source has been deployed to staging and no new D1 migration has
+  been applied remotely. The deployed staging surface cannot validate this
+  checkpoint.
+- Real Clerk/D1 IAB acceptance remains required for signed-out, Member A,
+  Member B, suspended/revoked, editor, admin, and super-admin personas at
+  desktop and mobile. That matrix must separately record deployment versions,
+  metadata-only D1 readiness, observable UI/API behavior, and owner approval.
+- Production Alpha remains untouched. A green local suite is not a staging or
+  production release claim.
+
+### Next owner-authorized action
+
+Review the local source diff, then authorize a named staging deployment and
+migration only if the reviewed commit is selected. Run the real IAB matrix
+against that exact staging receipt before requesting Beta acceptance. Do not
+deploy production or mutate production data under this checkpoint.
+
 ## 2026-09-11 v0.3.3-beta.2 Alpha-bedrock release-candidate checkpoint
 
 **Status:** LOCAL RELEASE CANDIDATE VERIFIED — no remote branch, PR, merge,
