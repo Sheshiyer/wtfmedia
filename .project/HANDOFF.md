@@ -2,7 +2,8 @@
 
 ## 2026-09-12 Beta rich-citation source-sheet repair
 
-**Status:** SOURCE/BUILD VERIFIED; NOT DEPLOYED OR LIVE-ACCEPTED. The
+**Status:** SOURCE/BUILD VERIFIED; DEPLOYED TO BETA STAGING; SUPER-ADMIN IAB
+PARTIAL; GROUNDED ACCEPTANCE BLOCKED. The
 authenticated Beta answer path now preserves the existing Alpha editor-sheet
 moment projection instead of reducing every answer to the compact citation
 fallback.
@@ -20,19 +21,39 @@ fallback.
 - Edge `381/381`, web unit `220/220`, web contracts `96/96`, TypeScript, ESLint,
   production build, focused Grouped Moments Storybook interaction, architecture
   freshness across 625 inputs, and `git diff --check` pass.
+- Exact runtime candidate `25019a373dbb4829f759de8b1bea00f01635eb6d`
+  is deployed only to the isolated Beta staging pair: Edge version
+  `a68b4793-ed57-4c1c-8436-2e574ccdb192` and web version
+  `cbc25bba-c2a1-436f-8612-11813dbd3946`. Wrangler readback names only the
+  staging D1/R2/KV/Vectorize/queues and the staging Edge service binding.
+- Pre/post deployment readback leaves production Edge version
+  `ccd1d952-5be7-41c9-9275-f9d6b3b470a7` and production web version
+  `3d5a5965-14f3-486a-a608-330d539dec81` unchanged. `/beta/preview` remains
+  `404` on both staging and production.
 - IAB confirmed the rich shared component at desktop and 390x844. That fixture
   is presentation evidence only, not Beta acceptance. Real authenticated IAB
-  reached staging owner history without console errors, but the empty staging
-  corpus cannot produce a grounded moment sheet and this source candidate is
-  not deployed.
+  then created a new owner-scoped conversation as the existing super-admin,
+  observed the truthful no-evidence fallback, and reloaded the persisted turn
+  at 1382x887, 1382x1180, and 320x710 with zero document-width overflow. The
+  browser recorded no errors; only Clerk's expected staging development-key
+  warning appeared.
+- Read-only staging receipts still show 0 episodes, 0 source assets, 0 KV keys,
+  and 0 Vectorize records. `scripts/bootstrap-staging-public-corpus.mjs` now
+  provides a two-episode maximum, public-repository-only, staging-hard-locked
+  provenance path; its five focused tests and a real dry-run for
+  `FPV5fAkqyBs` pass. No apply occurred because `STAGING_INGEST_TOKEN` is not
+  loaded locally, and no secret was read, replaced, or rotated.
 - Existing persisted answers without moment metadata remain on the truthful
   compact source fallback; no synthetic topics, ranges, ratings, or rationale
   are reconstructed in the browser.
 
-**Next action:** after an owner-approved isolated staging deployment, generate a
-real grounded authenticated answer from an approved staging corpus and verify
-the expanded panel, Excel export, play links, console, and desktop/mobile
-viewports. Do not count the Storybook fixture as that acceptance receipt.
+**Next action:** load the existing staging ingest credential into the local
+`STAGING_INGEST_TOKEN` environment variable without pasting it into chat, run
+the bounded bootstrap for `FPV5fAkqyBs`, reconcile non-zero R2/KV/Vectorize
+receipts, then generate a real grounded authenticated answer and verify the
+expanded panel, Excel export, play links, console, reload, and required
+viewports. Do not count the Storybook fixture or truthful empty-corpus fallback
+as the rich-sheet acceptance receipt.
 
 ## 2026-09-11 Continuity checkpoint (fleet alignment)
 

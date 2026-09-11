@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Current deployed staging candidate is `f6bbf58`; canonical settings and
-  history mapping for super-admin are complete, while full personas, corpus,
-  operator delete, rollback, and production promotion remain gated
-last_updated: "2026-09-11T22:15:00+05:30"
-last_activity: 2026-09-11
+stopped_at: Rich-citation runtime candidate `25019a3` is deployed to isolated
+  Beta staging and one super-admin IAB viewport/persistence pass is complete;
+  the empty staging corpus, remaining personas, rollback, and production remain gated
+last_updated: "2026-09-12T04:03:00+05:30"
+last_activity: 2026-09-12
 progress:
   total_phases: 10
   completed_phases: 2
@@ -19,19 +19,23 @@ progress:
   roadmap_percent: 84
 ---
 
-## Continuity checkpoint (2026-09-11)
+## Continuity checkpoint (2026-09-12)
 
 Done
-- Current deployed staging candidate is `f6bbf58`, mapped to edge
-  `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c` and web
-  `3668390f-1dc8-438e-9dab-19c331b732ce`.
+- Current deployed staging runtime candidate is `25019a3`, mapped to edge
+  `a68b4793-ed57-4c1c-8436-2e574ccdb192` and web
+  `cbc25bba-c2a1-436f-8612-11813dbd3946`.
 - Preserved lineage keeps PR #48's intended Ask WTF chat/retrieval/citation/persistence
   behavior and passes source suites.
+- Existing super-admin IAB creates and reloads a truthful empty-corpus turn at
+  1382x887, 1382x1180, and 320x710 without horizontal overflow.
 
 Remaining
 - Signed-out/member A/B/suspended/editor/admin/super-admin acceptance across
   desktop and mobile with real IAB.
-- Staging corpus/grounded inference evidence and rollback rehearsal.
+- Load the existing staging ingest credential without disclosure, apply the
+  bounded public-corpus bootstrap, then prove the rich grounded sheet and
+  Excel export; rollback rehearsal remains open.
 - `v0.3.3-beta.2` lineage/tag reconciliation.
 - Operator Archive-versus-Delete asymmetry.
 
@@ -54,7 +58,9 @@ without losing provenance.
 
 **Current focus:** Beta 0.1 is a separately tracked authenticated release lane,
 not completion of the broader v1.0 roadmap. Exact current deployed staging
-candidate is `f6bbf58`; local docs head `078f582` is not itself proof. Current
+runtime candidate is `25019a373dbb4829f759de8b1bea00f01635eb6d`; prior
+candidate `f6bbf58` and docs head `078f582` are historical evidence, not the
+current runtime proof. Current
 work remains authoritative for UI/routes/Clerk/RBAC/admin/Settings, while PR #48's intended
 chat/inference/retrieval/accuracy/backend behavior remains.
 The user-reported `3eebf57` object is unavailable here. Alpha's actual Ask WTF
@@ -64,9 +70,10 @@ scoped Settings, and role routing are modular Beta additions. The release
 authority is `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md`.
 The assigned client-facing environment names are `beta-staging.wtfhq.in` for
 real staging acceptance and `beta.wtfhq.in` for the production-Beta handoff;
-the staging hostname is now live with candidate `f6bbf58` on the paired web and
-edge Workers. Production Beta remains planning-only. Real authenticated IAB
-personas and rollback are still required before staging acceptance. The
+the staging hostname is now live with candidate `25019a3` on the paired web and
+edge Workers. Production Beta remains planning-only. One super-admin IAB pass
+proves persistence and required viewport containment, but grounded rich-sheet,
+remaining personas, and rollback are still required before staging acceptance. The
 source-lineage correction is
 `.planning/inputs/2026-09-11-beta-0.3-lineage-and-surface-authority-audit.md`:
 the semantic tags, `release/beta`, `beta_0.1`, Pavun57 RAG branch, local merge,
@@ -75,9 +82,10 @@ and deployed staging candidate are distinct objects and must not be called one
 
 ## Beta 0.1 local integration and release-readiness checkpoint
 
-- Current exact staging candidate `f6bbf584fa5c9a07cc218f0211f3c5020bb4f3f7`
-  is deployed as edge version `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c` and web
-  version `3668390f-1dc8-438e-9dab-19c331b732ce`. Production is unchanged.
+- Current exact staging runtime candidate
+  `25019a373dbb4829f759de8b1bea00f01635eb6d` is deployed as edge version
+  `a68b4793-ed57-4c1c-8436-2e574ccdb192` and web version
+  `cbc25bba-c2a1-436f-8612-11813dbd3946`. Production is unchanged.
 - Canonical Account now exposes logout; canonical Memory maps to the real
   immutable preference/custom-instruction create/archive lifecycle; canonical
   Sessions reads active plus archived owner history. Duplicate operator

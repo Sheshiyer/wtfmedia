@@ -4,10 +4,10 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: verify
-progress: 141/305
+progress: 143/308
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-11T22:17:01+05:30
+updated: 2026-09-12T04:03:00+05:30
 ---
 
 ## Problem
@@ -422,13 +422,16 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-296: `wtfmedia-web-staging` version `b67a0833-3eda-4c53-b6ed-056969200350` serves candidate `32ec582` on `beta-staging.wtfhq.in` with `ASSETS`, self-reference, and only the `wtfmedia-edge-staging` service binding; the edge version remains unchanged (probe: named-profile deploy and version/binding readback).
 - [x] ISC-297: The existing super-admin can reopen persisted operator conversations in the repaired shared frame with clamped rail cards, zero document-width overflow, reduced Settings, and the D1 roster (probe: authenticated canonical-host IAB; one-persona evidence only).
 - [DEFERRED-VERIFY] ISC-298: Operator permanent Delete is not rendered or claimed until a reviewed server-side owner-scoped deletion/tombstone and anti-resurrection contract exists; Archive remains available (probe: adapter capability and server-route inventory; follow-up `WTF-BETA-OPERATOR-DELETE-01`).
-- [ ] ISC-299: Signed-out, Member A, Member B, suspended/revoked, editor, admin, and super-admin personas plus required viewports accept the exact `f6bbf584fa5c9a07cc218f0211f3c5020bb4f3f7` staging deployment before Beta staging is called accepted (probe: authenticated IAB matrix; follow-up `WTF-BETA-CONVERGENCE-LIVE-01`).
+- [ ] ISC-299: Signed-out, Member A, Member B, suspended/revoked, editor, admin, and super-admin personas plus required viewports accept exact runtime candidate `25019a373dbb4829f759de8b1bea00f01635eb6d` on the paired staging deployment before Beta staging is called accepted (probe: authenticated IAB matrix; follow-up `WTF-BETA-CONVERGENCE-LIVE-01`).
 - [x] ISC-300: Anti: this repair deploys only the staging web Worker and makes no edge, D1, corpus, queue, Clerk, DNS, secret, production-Beta, or public-Alpha mutation (probe: command ledger and deployment-history boundary).
 - [x] ISC-301: Canonical Beta Settings exposes Account, Memory, Sessions, and Appearance to every admitted principal, adds only capability-authorized operator/admin pages, redirects duplicate workspace memory/session routes, and exposes Clerk logout from Account (probe: navigation contracts, route source, and authenticated staging IAB).
 - [x] ISC-302: Memory maps to owner-scoped immutable preferences/custom instructions with create/archive replacement semantics, while Sessions lists active plus archived owner history and exposes only lifecycle actions supported by the member or operator backend contract (probe: adapter tests, edge route tests, and authenticated staging IAB).
 - [x] ISC-303: Conversation-history reads retry one transient network, 401, 502, 503, or 504 failure and distinguish account-verification failures from temporary staging-service failures without concealing a persistent error (probe: Beta chat adapter unit tests and authenticated staging IAB).
 - [x] ISC-304: Exact code candidate `f6bbf584fa5c9a07cc218f0211f3c5020bb4f3f7` passes Edge 380/380, web unit 219/219, web contracts 96/96, TypeScript, lint, OpenNext build, privacy with zero violations across 400 files, architecture freshness across 625 inputs, and `git diff --check` (probe: exact-candidate local command receipt).
 - [x] ISC-305: Staging Edge version `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c` and staging web version `3668390f-1dc8-438e-9dab-19c331b732ce` serve the exact `f6bbf58` candidate through the isolated staging pair; no Git push, tag, production, DNS, Clerk configuration, D1 data, corpus, queue, secret, production-Beta, or public-Alpha mutation occurred (probe: Wrangler deployment/binding receipts, Git remote readback, and command ledger).
+- [x] ISC-306: Exact rich-citation runtime candidate `25019a373dbb4829f759de8b1bea00f01635eb6d` passes Edge 381/381, web unit 220/220, web contracts 96/96, TypeScript, lint, OpenNext build with 89 pages, architecture freshness across 625 inputs, and `git diff --check`; authenticated answers preserve the shared Alpha moment pipeline, excerpt-free persisted projection, grouped source sheet, and truthful legacy fallback (probe: exact-candidate source/tests/build receipt).
+- [x] ISC-307: Staging Edge version `a68b4793-ed57-4c1c-8436-2e574ccdb192` and web version `cbc25bba-c2a1-436f-8612-11813dbd3946` serve runtime candidate `25019a3` through the isolated pair; authenticated IAB as the existing super-admin creates and reloads an owner-scoped empty-corpus turn at 1382x887, 1382x1180, and 320x710 with zero document-width overflow and no console error, while production versions and `/beta/preview` remain unchanged (probe: named-profile readback, canonical IAB, CDP layout measurement, and HTTP boundary probes).
+- [ ] ISC-308: A bounded approved public staging corpus produces non-zero consistent R2/KV/Vectorize receipts, then the exact `25019a3` runtime renders and reloads the grounded expanded citation sheet with cited episode count, grouped moment ranges, play links, topic, strength, summary, relevance rationale, and Excel export in authenticated IAB; the tested bootstrap may not apply until the existing staging ingest credential is available without rotation or disclosure (probe: staging bootstrap receipt plus authenticated IAB; follow-up `WTF-BETA-RICH-CITATION-LIVE-01`).
 
 ## Test Strategy
 
@@ -563,7 +566,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 
 - name: Beta01CloudflarePromotionGate
   description: Exact-source integration, evidence classification, environment boundaries, staged promotion gates, and explicit Beta 0.1 deferrals
-  satisfies: [ISC-252, ISC-253, ISC-254, ISC-255, ISC-256, ISC-257, ISC-258, ISC-259, ISC-260, ISC-261, ISC-262, ISC-263, ISC-264, ISC-265, ISC-266, ISC-267, ISC-268, ISC-269, ISC-270, ISC-271, ISC-272, ISC-273, ISC-274, ISC-275, ISC-276, ISC-277, ISC-278, ISC-279, ISC-280, ISC-281, ISC-282, ISC-283, ISC-284, ISC-285, ISC-286, ISC-287, ISC-288, ISC-289, ISC-290, ISC-291, ISC-292, ISC-293, ISC-294, ISC-295, ISC-296, ISC-297, ISC-298, ISC-299, ISC-300, ISC-301, ISC-302, ISC-303, ISC-304, ISC-305]
+  satisfies: [ISC-252, ISC-253, ISC-254, ISC-255, ISC-256, ISC-257, ISC-258, ISC-259, ISC-260, ISC-261, ISC-262, ISC-263, ISC-264, ISC-265, ISC-266, ISC-267, ISC-268, ISC-269, ISC-270, ISC-271, ISC-272, ISC-273, ISC-274, ISC-275, ISC-276, ISC-277, ISC-278, ISC-279, ISC-280, ISC-281, ISC-282, ISC-283, ISC-284, ISC-285, ISC-286, ISC-287, ISC-288, ISC-289, ISC-290, ISC-291, ISC-292, ISC-293, ISC-294, ISC-295, ISC-296, ISC-297, ISC-298, ISC-299, ISC-300, ISC-301, ISC-302, ISC-303, ISC-304, ISC-305, ISC-306, ISC-307, ISC-308]
   depends_on: [AlphaBedrockBetaModularConvergence, CloudflareEstateMigrationBoundary, QualityAndSafetyGates]
   parallelizable: false
 ```
@@ -853,3 +856,4 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 - ISC-301 through ISC-303 verification: the canonical Settings registry and redirects remove duplicate workspace entries; Account renders the existing Clerk logout action; Memory and Sessions bind to owner-scoped edge services; Beta chat adapter tests cover include-archived reads, bounded transient retry, and truthful error classification.
 - ISC-304 verification: exact candidate `f6bbf584fa5c9a07cc218f0211f3c5020bb4f3f7` passes Edge 380/380, web unit 219/219, web contracts 96/96, typecheck, lint, OpenNext build with 89 pages, privacy 0/400, architecture freshness across 625 inputs, and `git diff --check`.
 - ISC-305 evidence: Wrangler deployed staging Edge version `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c` and staging web version `3668390f-1dc8-438e-9dab-19c331b732ce`; authenticated canonical-host IAB loaded conversation history, Account logout, Memory, and active-plus-archived Sessions. GitHub readback still identifies PR #48 as `rag/alpha-answer-accuracy` into `main` and PR #77 as `beta_0.1` into `release/beta`; no Git push or production mutation occurred.
+- ISC-306 through ISC-308 verification: exact runtime candidate `25019a3` passes the expanded 381/220/96 source suites and OpenNext build, then deploys only as staging Edge `a68b4793-ed57-4c1c-8436-2e574ccdb192` and web `cbc25bba-c2a1-436f-8612-11813dbd3946`. Authenticated IAB creates and reloads the truthful empty-corpus turn at all required viewport sizes with zero horizontal overflow. The tested staging-only public-corpus bootstrap remains unapplied because the existing staging ingest credential is not loaded locally, so no grounded rich-sheet or Excel claim is made.
