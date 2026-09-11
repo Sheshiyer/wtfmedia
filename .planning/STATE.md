@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Beta hostnames assigned in planning; environment source work, remote topology, tag reconciliation, and live gates remain open
-last_updated: "2026-09-11T19:59:00+05:30"
+stopped_at: Beta 0.3 lineage mapped; UI repair intentionally paused while surface authority and staging corpus remain release blockers
+last_updated: "2026-09-11T20:37:48+05:30"
 last_activity: 2026-09-11
 progress:
   total_phases: 10
@@ -28,7 +28,7 @@ its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
 **Current focus:** Beta 0.1 is a separately tracked authenticated release lane,
-not completion of the broader v1.0 roadmap. Exact source candidate `a3e5cc0`
+not completion of the broader v1.0 roadmap. Exact staging candidate `abb5413`
 adds the owner-directed Pavun57 surface precedence to the prior closure: current
 work remains authoritative for UI/routes/Clerk/RBAC/admin/Settings, while
 Pavun57 leads chat/inference/retrieval/accuracy/backend behavior.
@@ -39,29 +39,66 @@ scoped Settings, and role routing are modular Beta additions. The release
 authority is `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md`.
 The assigned client-facing environment names are `beta-staging.wtfhq.in` for
 real staging acceptance and `beta.wtfhq.in` for the production-Beta handoff;
-neither hostname is claimed live until its exact Custom Domain, binding,
-revision, Clerk, smoke, and rollback receipts pass.
+the staging hostname is now live on the paired staging Workers at candidate
+`abb5413`. Production Beta remains planning-only. Real authenticated IAB
+personas and rollback are still required before staging acceptance. The
+source-lineage correction is
+`.planning/inputs/2026-09-11-beta-0.3-lineage-and-surface-authority-audit.md`:
+the semantic tags, `release/beta`, `beta_0.1`, Pavun57 RAG branch, local merge,
+and deployed staging candidate are distinct objects and must not be called one
+"latest Beta" branch.
 
 ## Beta 0.1 local integration and release-readiness checkpoint
+
+- A fresh remote/tag audit shows `v0.3.3-beta.2` peels to older `main`
+  `66f434a` and is not an ancestor of `origin/release/beta` `498c0e0`.
+  `origin/beta_0.1` `7ec8298` descends from that Member Beta branch and PR #77
+  remains open. Local/staging `abb5413` additionally contains Pavun57's
+  `d4e45b4`; local manifests say `0.3.3-beta.3`, but there is no beta.3 tag.
+- The current UI precedence statement was too broad. Within `beta_0.1`, the
+  accepted Member/Alpha-derived chat components exist, but `cab6773` routes
+  operator principals to the older operator `ChatWorkspace`. The super-admin
+  IAB therefore exposes already-solved presentation defects. Future work must
+  preserve the existing shared/Member presentation and add a typed operator
+  data adapter; it must not recreate the chat UI or alter Pavun57 inference.
+- Canonical IAB now resolves and authenticates the existing super-admin. It
+  proves principal resolution, operator landing, and persistence/reopening of
+  owner-scoped `cnv_*` conversations, while also exposing the operator
+  presentation mapping regression. The complete persona and viewport matrices
+  remain open.
+- Grounded inference is not testable on the current isolated staging data
+  plane: its catalogue R2, KV catalogue namespace, and Vectorize index each
+  report zero usable records. The saved ungrounded conversations prove history
+  wiring; the fallback proves truthful no-evidence behavior. Seeding staging
+  requires separate approval and must not copy production data down.
 
 - `beta_0.1` remains a source-integration branch label, not a package version,
   tag, staging receipt, production claim, or moving deployment target. The
   host-visible reconstruction is merge `d3b4590`; it does not prove GitHub PR
   state, staging, or production.
-- Exact source candidate `a3e5cc0` passes Edge 379/379, web unit 193/193, web
-  contracts 96/96, TypeScript, lint, production build, privacy with zero
-  violations across 394 files, architecture freshness across 617 inputs, and
-  `git diff --check`. These remain source/build receipts only.
+- Exact staging candidate `abb5413` passes Edge 380/380, web unit 197/197, web
+  contracts 96/96, TypeScript, lint, production/OpenNext build, privacy with
+  zero violations across 396 files, architecture freshness across 620 inputs,
+  and `git diff --check`.
+- Staging D1 migrations `0012`–`0015` are applied after a Time Travel bookmark;
+  no migrations remain. Edge version `3b4aa27f-6c62-4077-a432-897f10002039`
+  and web version `00cfe1b4-161e-4c86-addf-dd3894085d3d` run the paired staging
+  plane. Authoritative DNS, TLS, root-to-`/beta`, signed-out `401`, and
+  environment-true health pass. Codex IAB now resolves and admits the existing
+  super-admin, but the role-to-chat-presentation fork, empty staging evidence
+  plane, remaining personas, viewport matrix, and rollback evidence keep
+  acceptance open.
 - The integration precedence map is
   `.planning/inputs/2026-09-11-pavun-beta-integration-precedence.md`. Current
   Beta UI, canonical routes, Clerk/auth flow, navigation pill, RBAC, admin, and
   Settings cannot be reverted by a Pavun branch. Pavun57's PR #48/#49 intent
   takes precedence for chat, inference, retrieval/accuracy, and backend chat
   behavior; shared files require symbol-level resolution.
-- The user reports later local runtime behavior and remote D1 migrations
-  0011-0015 plus a release-row seed. This checkout has no environment-specific
-  backup, migration, binding, deployment, traffic, or authenticated-IAB receipt
-  for that report, so it is `REPORTED`, not staging or production acceptance.
+- The earlier user report of local runtime behavior remains historical context,
+  not evidence. Independent named-profile receipts now establish the staging
+  backup, migrations, bindings, deployment, DNS/TLS, signed-out denial, and
+  health state. Authenticated IAB and rollback remain unaccepted; production
+  remains untouched.
 - Root, web, and edge source manifests now use the unused `0.3.3-beta.3`
   candidate version. Remote `v0.3.3-beta.2` already exists at `66f434a` even
   though its release note says it was source-only and not a tag. The owner must
@@ -381,12 +418,12 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
 ## Session Continuity
 
 Last session: 2026-09-11
-Stopped at: Beta hostnames assigned in planning; environment implementation, remote delivery, and live promotion gates held.
+Stopped at: Beta 0.3 lineage and role-to-presentation mapping audited; UI repair intentionally paused.
 The host verifies the merge parents but not the reported `3eebf57` object; test
 counts are source evidence and reported runtime/D1 activity is unaccepted.
 Resume file: `.project/HANDOFF.md`
-Resume: Implement and review BETA-REL-04D/04E for the assigned Beta hostnames,
-explicit environment bindings, canonical `/beta` routing, and host-only session
-isolation. Then resolve the remote PR topology and historical tag before
-requesting explicit authority for staging or production action. Preserve the
-single-shell route/RBAC and Alpha/staging/production separation.
+Resume: Start with the Beta 0.3 lineage audit. If the owner authorizes code,
+adapt the existing Member/Alpha-derived chat presentation to typed member and
+operator stores instead of repairing the legacy operator UI in isolation.
+Separately authorize a provenance-safe staging corpus before grounded-chat
+acceptance. Keep production Beta untouched until a fresh owner authorization.

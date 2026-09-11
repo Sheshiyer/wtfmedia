@@ -122,8 +122,19 @@ This repository is `wtfmedia`.
   activation, certificate, exact web/edge versions, service binding, Clerk
   authorized-party/redirect presence, real IAB personas, smoke, and rollback
   receipts before calling the environment ready for client handoff.
+- Current staging runtime receipt: source `abb5413`, edge version
+  `3b4aa27f-6c62-4077-a432-897f10002039`, web version
+  `00cfe1b4-161e-4c86-addf-dd3894085d3d`. This closes deployment mapping only;
+  authenticated IAB personas, host-only cookies, viewports, and rollback remain
+  release gates. Production Beta remains untouched.
 
 ## Pavun/Beta integration precedence
+
+- "Latest Beta" is a layered source description, never a branch alias. Read
+  `.planning/inputs/2026-09-11-beta-0.3-lineage-and-surface-authority-audit.md`
+  before changing Beta chat, routing, or release metadata. In particular,
+  `v0.3.3-beta.2`, `release/beta`, `beta_0.1`, the Pavun57 RAG branch, and the
+  staging candidate are distinct objects.
 
 - The owner's shorthand `pavun` maps to repository submitter `Pavun57`, who
   authored PR #48 (`rag/alpha-answer-accuracy`) and PR #49
@@ -141,6 +152,17 @@ This repository is `wtfmedia`.
   Pavun chat/inference/accuracy symbols win. Existing security, provenance,
   privacy, and data-integrity gates remain mandatory and may require a minimal,
   documented adaptation rather than a blind patch application.
+- The accepted signed-in chat presentation already exists in the
+  Member/Alpha-derived components contained by `beta_0.1`. Current
+  `web/app/beta/chat/page.tsx` and `BetaConversationRoute` send operator
+  principals to an older operator `ChatWorkspace`; treat that as an audited
+  mapping gap, not permission to rebuild the UI. A future authorized fix must
+  adapt the existing presentation to the distinct member/operator server
+  contracts while preserving owner scoping and RBAC.
+- A persisted `cnv_*` conversation with an ungrounded answer can mean the
+  isolated staging evidence plane is empty. Verify R2/KV/Vectorize readiness
+  separately from chat routing before changing inference code. Never copy
+  production corpus data to staging without its own approved task.
 - The canonical decision map is
   `.planning/inputs/2026-09-11-pavun-beta-integration-precedence.md`.
 

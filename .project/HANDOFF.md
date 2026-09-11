@@ -1,10 +1,74 @@
 # Project handoff
 
+## 2026-09-11 Beta 0.3 lineage correction; UI repair paused
+
+**Status:** READ-ONLY LINEAGE AND LIVE-STATE AUDIT COMPLETE. The user's latest
+direction pauses UI fixes. No code fix, build, commit, push, deploy, tag, data
+copy, ingest, Clerk change, DNS change, or production mutation was performed by
+this audit.
+
+- There is no single latest Beta object. `v0.3.3-beta.2` peels to older `main`
+  `66f434a` and is not an ancestor of `origin/release/beta` `498c0e0`.
+  `origin/beta_0.1` `7ec8298` is PR #77 on top of that release branch.
+  Pavun57's RAG head is `d4e45b4`; local merge `d3b4590` combines it with PR
+  #77; staging source `abb5413` adds later host/runtime closure. Local manifests
+  say `0.3.3-beta.3`, but beta.3 is not a tag.
+- The already-corrected signed-in chat UI is present in `beta_0.1` through the
+  Member/Alpha convergence commits. Later commit `cab6773` maps member
+  principals to `MemberChatWorkspace` but operator principals to the older
+  operator `ChatWorkspace`. The current super-admin screenshot is the latter.
+  This is a role-to-presentation mapping regression, not missing prior work.
+- Live canonical IAB now resolves and authenticates the existing super-admin.
+  It proves operator landing and persistence/reopening of two owner-scoped
+  `cnv_*` conversations. It does not close the remaining member/editor/admin/
+  suspended persona matrix or viewport acceptance.
+- The ungrounded response is not evidence that persistence or the inference
+  route is disconnected. Staging currently has zero catalogue R2 objects, zero
+  KV catalogue keys, and zero Vectorize records. The conversation is persisted
+  before the truthful no-evidence fallback. A grounded staging test needs a
+  separately approved staging corpus operation; never copy production down.
+- The authoritative audit is
+  `.planning/inputs/2026-09-11-beta-0.3-lineage-and-surface-authority-audit.md`.
+  A future implementation must reuse the existing Member/Alpha presentation
+  through typed member/operator adapters, keep owner stores and RBAC intact,
+  and retain Pavun57 backend inference symbols. Do not start a third chat UI.
+
+**Open release blockers:** exact UI/data adapter reconciliation, approved
+staging corpus, complete persona and viewport acceptance, operator roster data
+path, release-history/tag decision, remote PR topology, rollback, and all
+production gates.
+
 ## 2026-09-11 Beta 0.1 integration evidence and promotion checkpoint
 
-**Status:** EXACT SOURCE CANDIDATE AND SURFACE PRECEDENCE VERIFIED; LIVE ACCEPTANCE UNPROVEN. This
-entry records planning and source facts only. It neither deploys nor accepts a
-staging or production environment.
+**Status:** EXACT CANDIDATE DEPLOYED TO STAGING; AUTHENTICATED IAB ACCEPTANCE
+AND ROLLBACK REMAIN OPEN. Production was not changed.
+
+### 2026-09-11 canonical staging deployment receipt
+
+- Exact candidate `abb5413` adds the canonical host contract and truthful edge
+  health identity. It passes Edge 380/380, web unit 197/197, web contracts
+  96/96, typecheck, lint, production/OpenNext build, privacy, architecture
+  freshness across 620 inputs, and `git diff --check`.
+- Before migration, D1 Time Travel returned a recovery bookmark and inventory
+  showed `0012`–`0015` pending. Those four reviewed migrations applied to
+  `wtfmedia-ops-staging`; post-apply inventory is empty and readiness tables,
+  the active super-admin mapping, principal-profile mirrors, and staging
+  `preview` release state read back successfully.
+- `wtfmedia-edge-staging` version
+  `3b4aa27f-6c62-4077-a432-897f10002039` reports its staging environment,
+  service, and index truthfully and has only staging data/queue/auth bindings.
+- `wtfmedia-web-staging` version
+  `00cfe1b4-161e-4c86-addf-dd3894085d3d` owns the
+  `beta-staging.wtfhq.in` Custom Domain, `ASSETS`, self-reference, and only the
+  `wtfmedia-edge-staging` service binding.
+- Cloudflare authoritative DNS, exact-host TLS, `/` to `/beta`, signed-out
+  `401`, and edge health pass. That deployment receipt ended while Codex IAB
+  retained the pre-activation NXDOMAIN; the later lineage audit above
+  supersedes it with a real super-admin observation. The full persona,
+  viewport, and rollback matrices remain unaccepted. Never substitute the
+  `workers.dev` diagnostic URL.
+- Production Workers, bindings, D1, queues, DNS, Clerk, and traffic were not
+  changed; their latest deployment histories remained unchanged.
 
 ### Verified source facts
 
@@ -17,25 +81,27 @@ staging or production environment.
   fixes), `b7f5bec` (release workflow, version, and deterministic migration
   guards), and `2c4007d` (planning plus generated architecture). That SHA is
   the superseded pre-precedence source checkpoint, not the current candidate.
-- Owner precedence refinement produces exact candidate
-  `a3e5cc0fe80a7963526b8031a711a447ef0d8aa3`. Current convergence work remains
+- Owner precedence refinement is preserved in staging candidate `abb5413`.
+  Current convergence work remains
   authoritative for UI, canonical Beta/Ops routes, Clerk/auth landing/return,
   navigation pill, RBAC, admin, and Settings. Pavun57 PR #48/#49 intent leads
   chat, inference, retrieval/accuracy, and backend chat behavior.
 - The user-reported `3eebf57` object is unavailable in this checkout. Do not
   substitute it for `d3b4590`, and do not call either SHA deployed without an
   environment receipt.
-- At exact candidate `a3e5cc0`, Edge 379/379, web unit 193/193, web contracts
-  96/96, TypeScript, lint, production build, privacy with zero violations
-  across 394 files, architecture freshness across 617 inputs, and
+- At exact candidate `abb5413`, Edge 380/380, web unit 197/197, web contracts
+  96/96, TypeScript, lint, production/OpenNext build, privacy with zero
+  violations across 396 files, architecture freshness across 620 inputs, and
   `git diff --check` pass. These are source/build evidence only.
 
-### Reported, not accepted
+### Historical reports and still-open acceptance
 
-- The user reports later local full-stack behavior plus remote D1 migrations
-  0011–0015 and a release-row seed. No host-visible backup, migration,
-  deployment, binding, traffic, or authenticated-IAB receipt accompanies that
-  report. Record it as `REPORTED`; it satisfies no staging or production gate.
+- The earlier user report of local full-stack behavior and remote D1 migrations
+  remains historical context. Independent named-profile receipts now establish
+  actual staging migration/deployment state. The earlier report provides no
+  production evidence. Authenticated staging IAB is now partial and failing,
+  not accepted: one super-admin passed identity/landing/history persistence
+  while the presentation fork and empty evidence plane blocked completion.
 - Root, web, and edge source manifests use the next unused candidate version,
   `0.3.3-beta.3`. Remote `v0.3.3-beta.2` already exists and peels to `66f434a`,
   while its release note says it was neither a tag nor a deployment receipt.
@@ -74,12 +140,13 @@ staging or production environment.
 
 ### Next action
 
-Choose the remote PR/base topology and resolve the historical
-`v0.3.3-beta.2` tag decision, then obtain explicit
-authority for the staged backup/migration/deployment and real Clerk/D1 IAB
-persona matrix against exact candidate `a3e5cc0`. Do not deploy, migrate, seed,
-change Clerk, mutate
-DNS, enqueue work, or promote traffic under this handoff.
+Use the Beta 0.3 lineage audit before another code change. On separate owner
+authorization, reconcile the existing Member/Alpha presentation with typed
+member/operator data adapters, then provision a provenance-safe staging corpus
+and restart the real Clerk/D1 persona, viewport, and rollback matrix. Separately
+choose the remote PR/base topology and resolve the historical
+`v0.3.3-beta.2` tag. Do not change Clerk, production infrastructure,
+production data, or production traffic under this handoff.
 
 ## 2026-09-11 Beta single-shell RBAC convergence checkpoint
 
