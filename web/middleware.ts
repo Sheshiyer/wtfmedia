@@ -1,12 +1,18 @@
 import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 import { clerkMiddleware } from "@clerk/nextjs/server";
+import { legacyAuthenticatedChatConversationId } from "@/lib/ops/chat-route";
 import { maybeLocalDevOpsHeaders } from "@/lib/ops/local-dev-headers";
 
 const recoveryPaths = new Set(["/ops/recover", "/sign-in", "/request-access", "/sign-up"]);
-const authenticatedChatDeepLink = /^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0-9_-]*$/u;
 
 async function routeMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const legacyConversationId = legacyAuthenticatedChatConversationId(pathname);
+  if (legacyConversationId) {
+    const target = request.nextUrl.clone();
+    target.pathname = `/beta/chat/${legacyConversationId}`;
+    return NextResponse.redirect(target);
+  }
   // `/ops/*` is the preserved anonymous/legacy Alpha operator tree. Only the
   // old beta operator aliases redirect into the canonical single shell.
   if (pathname === "/beta/ops" || pathname.startsWith("/beta/ops/")) {
@@ -29,7 +35,7 @@ async function routeMiddleware(request: NextRequest) {
     forwarded.set("x-wtf-route-kind", "ops-recovery");
     return NextResponse.next({ request: { headers: forwarded } });
   }
-  if (!pathname.startsWith("/ops") && !pathname.startsWith("/beta") && !authenticatedChatDeepLink.test(pathname)) return NextResponse.next();
+  if (!pathname.startsWith("/ops") && !pathname.startsWith("/beta")) return NextResponse.next();
 
   let context = request.headers.get("x-wtf-ops-context");
   let proof = request.headers.get("x-wtf-ops-proof");
@@ -51,7 +57,7 @@ async function routeMiddleware(request: NextRequest) {
     forwarded.set("x-wtf-ops-context", context);
     forwarded.set("x-wtf-ops-proof", proof);
   }
-  forwarded.set("x-wtf-route-kind", pathname.startsWith("/beta") ? "beta" : authenticatedChatDeepLink.test(pathname) ? "ops-chat" : "ops");
+  forwarded.set("x-wtf-route-kind", pathname.startsWith("/beta") ? "beta" : "ops");
   return NextResponse.next({ request: { headers: forwarded } });
 }
 
