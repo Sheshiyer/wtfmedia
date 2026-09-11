@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { principalContextDto, resolvePrincipalContext } from "../src/auth/principal-context.ts";
 
@@ -79,4 +80,10 @@ test("operator principals land on the canonical Beta workspace root", () => {
     kind: "operator", operatorId: 7, role: "editor", email: "operator@example.test", displayName: "Operator", environment: "staging", correlationId: "corr-principal-operator",
   });
   assert.equal(dto.landingRoute, "/beta/workspace");
+});
+
+test("principal DTO type permits only canonical Beta landing routes", () => {
+  const source = readFileSync(new URL("../src/auth/principal-context.ts", import.meta.url), "utf8");
+  assert.match(source, /landingRoute: "\/beta\/chat" \| "\/beta\/workspace";/);
+  assert.doesNotMatch(source, /landingRoute: "\/beta\/chat" \| "\/beta\/workspace\/production";/);
 });
