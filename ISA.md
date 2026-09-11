@@ -4,10 +4,10 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: verify
-progress: 120/286
+progress: 140/305
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-11T19:17:05+05:30
+updated: 2026-09-11T22:17:01+05:30
 ---
 
 ## Problem
@@ -408,7 +408,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [DEFERRED-VERIFY] ISC-282: A Beta acceptance claim may not upgrade `VERIFIED-SOURCE` or `REPORTED` evidence to staging or production acceptance without the matching exact-revision receipt (probe: checklist/handoff terminology scan; follow-up `WTF-BETA-EVIDENCE-01`).
 - [ ] ISC-283: The owner reconciles the existing remote `v0.3.3-beta.2` tag at `66f434a` with its source-only release note before any `v0.3.3-beta.3` publication; the historical tag is not deleted, moved, reused, or silently reinterpreted (probe: remote tag inventory plus recorded release decision).
 - [x] ISC-284: Exact source candidate `2c4007d` passes Edge 379/379, web unit 190/190, web contracts 96/96, TypeScript, lint, production build, privacy with zero violations across 394 files, architecture freshness across 616 inputs, and `git diff --check` (probe: local command receipt at the exact candidate).
-- [ ] ISC-285: The owner selects a remote delivery topology before any push because PR #77 remains open from `beta_0.1` into `release/beta`, PR #48 already uses `rag/alpha-answer-accuracy` into `main`, and pushing the local branch would materially repurpose PR #48 (probe: current GitHub PR inventory plus explicit owner decision).
+- [x] ISC-285: The selected remote delivery topology preserves Pavun57's PR #48 (`rag/alpha-answer-accuracy` into `main`) and, only after the remaining staging gates pass, fast-forwards the exact accepted SHA to remote `beta_0.1` so only PR #77 into `release/beta` changes; branch-name and force pushes are forbidden (probe: current GitHub PR inventory, ancestry, owner decision, and exact refspec receipt before push).
 - [x] ISC-286: Surface-specific integration precedence is explicit and tested: current convergence work governs UI, Beta/Ops routing, Clerk/auth landing/return, navigation pill, RBAC, admin, and Settings without old-UI reversion; Pavun57 PR #48/#49 intent governs chat, inference, retrieval/accuracy, and backend chat behavior (probe: precedence map, Git ancestry, focused source contract, and exact-candidate suite).
 - [x] ISC-287: Exact lineage distinguishes `v0.3.3-beta.1`, the non-ancestral historical `v0.3.3-beta.2` tag, `origin/release/beta`, PR #77 `beta_0.1`, Pavun57 RAG, local merge `d3b4590`, and staged `abb5413` without naming any one of them "latest Beta" (probe: fetched refs, merge-base checks, manifests, and GitHub PR readback).
 - [x] ISC-288: The source audit identifies `cab6773` as the role-to-presentation fork that sends operator principals to the older `ChatWorkspace` despite the same candidate containing the accepted Member/Alpha-derived chat components (probe: route blame, ancestry, and component import graph).
@@ -422,8 +422,13 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-296: `wtfmedia-web-staging` version `b67a0833-3eda-4c53-b6ed-056969200350` serves candidate `32ec582` on `beta-staging.wtfhq.in` with `ASSETS`, self-reference, and only the `wtfmedia-edge-staging` service binding; the edge version remains unchanged (probe: named-profile deploy and version/binding readback).
 - [x] ISC-297: The existing super-admin can reopen persisted operator conversations in the repaired shared frame with clamped rail cards, zero document-width overflow, reduced Settings, and the D1 roster (probe: authenticated canonical-host IAB; one-persona evidence only).
 - [DEFERRED-VERIFY] ISC-298: Operator permanent Delete is not rendered or claimed until a reviewed server-side owner-scoped deletion/tombstone and anti-resurrection contract exists; Archive remains available (probe: adapter capability and server-route inventory; follow-up `WTF-BETA-OPERATOR-DELETE-01`).
-- [DEFERRED-VERIFY] ISC-299: Signed-out, Member A, Member B, suspended/revoked, editor, admin, and super-admin personas plus required viewports accept the exact `32ec582` staging deployment before Beta staging is called accepted (probe: authenticated IAB matrix; follow-up `WTF-BETA-CONVERGENCE-LIVE-01`).
+- [DEFERRED-VERIFY] ISC-299: Signed-out, Member A, Member B, suspended/revoked, editor, admin, and super-admin personas plus required viewports accept the exact `f6bbf584fa5c9a07cc218f0211f3c5020bb4f3f7` staging deployment before Beta staging is called accepted (probe: authenticated IAB matrix; follow-up `WTF-BETA-CONVERGENCE-LIVE-01`).
 - [x] ISC-300: Anti: this repair deploys only the staging web Worker and makes no edge, D1, corpus, queue, Clerk, DNS, secret, production-Beta, or public-Alpha mutation (probe: command ledger and deployment-history boundary).
+- [x] ISC-301: Canonical Beta Settings exposes Account, Memory, Sessions, and Appearance to every admitted principal, adds only capability-authorized operator/admin pages, redirects duplicate workspace memory/session routes, and exposes Clerk logout from Account (probe: navigation contracts, route source, and authenticated staging IAB).
+- [x] ISC-302: Memory maps to owner-scoped immutable preferences/custom instructions with create/archive replacement semantics, while Sessions lists active plus archived owner history and exposes only lifecycle actions supported by the member or operator backend contract (probe: adapter tests, edge route tests, and authenticated staging IAB).
+- [x] ISC-303: Conversation-history reads retry one transient network, 401, 502, 503, or 504 failure and distinguish account-verification failures from temporary staging-service failures without concealing a persistent error (probe: Beta chat adapter unit tests and authenticated staging IAB).
+- [x] ISC-304: Exact code candidate `f6bbf584fa5c9a07cc218f0211f3c5020bb4f3f7` passes Edge 380/380, web unit 219/219, web contracts 96/96, TypeScript, lint, OpenNext build, privacy with zero violations across 400 files, architecture freshness across 625 inputs, and `git diff --check` (probe: exact-candidate local command receipt).
+- [x] ISC-305: Staging Edge version `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c` and staging web version `3668390f-1dc8-438e-9dab-19c331b732ce` serve the exact `f6bbf58` candidate through the isolated staging pair; no Git push, tag, production, DNS, Clerk configuration, D1 data, corpus, queue, secret, production-Beta, or public-Alpha mutation occurred (probe: Wrangler deployment/binding receipts, Git remote readback, and command ledger).
 
 ## Test Strategy
 
@@ -449,7 +454,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 | ISC-202..218 | Alpha-aligned chat refinement | shared inference, multi-turn retrieval, evidence validation, stable citations, truthful member states, resilient thread interaction, and environment isolation | all deterministic probes pass; deployed staging UI remains separately receipted | Edge unit/integration + web unit/contracts + authenticated IAB |
 | ISC-219..240 | Alpha-bedrock / Beta modular convergence | branch/symbol admission, shared Alpha presentation, true navigation continuity, selected-session archive/delete, long-session pagination/compaction, role-specific screens, and no remote mutation | all local contracts pass; live personas and viewports separately deferred | Git ledger + Edge/D1 tests + web contracts + authenticated IAB matrix |
 | ISC-241..251 | Beta single-shell RBAC convergence | edge principal precedence, canonical routes, policy-derived navigation, scoped Settings, private DTOs, lifecycle, preview holds, and source-only release boundary | all local policy/navigation/privacy contracts pass; staging IAB remains required | Edge tests + web unit/contracts + build/privacy + authenticated IAB matrix |
-| ISC-252..286 | Beta 0.1 release evidence and promotion gate | immutable local merge identity, exact-candidate source closure, surface-specific author precedence, remote delivery topology, staging/production receipts, and explicit non-goals | source evidence stays source-only; every remote/staging/production action needs its matching authority and receipt | Git + precedence/checklist review + owner-authorized GitHub/Cloudflare/Clerk/D1/IAB receipts |
+| ISC-252..305 | Beta 0.1 release evidence and promotion gate | immutable local merge identity, exact-candidate source closure, surface-specific author precedence, canonical Settings/session mapping, remote delivery topology, staging/production receipts, and explicit non-goals | source evidence stays source-only; every remote/staging/production action needs its matching authority and receipt | Git + precedence/checklist review + owner-authorized GitHub/Cloudflare/Clerk/D1/IAB receipts |
 
 ## Features
 
@@ -558,7 +563,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 
 - name: Beta01CloudflarePromotionGate
   description: Exact-source integration, evidence classification, environment boundaries, staged promotion gates, and explicit Beta 0.1 deferrals
-  satisfies: [ISC-252, ISC-253, ISC-254, ISC-255, ISC-256, ISC-257, ISC-258, ISC-259, ISC-260, ISC-261, ISC-262, ISC-263, ISC-264, ISC-265, ISC-266, ISC-267, ISC-268, ISC-269, ISC-270, ISC-271, ISC-272, ISC-273, ISC-274, ISC-275, ISC-276, ISC-277, ISC-278, ISC-279, ISC-280, ISC-281, ISC-282, ISC-283, ISC-284, ISC-285, ISC-286, ISC-287, ISC-288, ISC-289, ISC-290, ISC-291, ISC-292, ISC-293, ISC-294, ISC-295, ISC-296, ISC-297, ISC-298, ISC-299, ISC-300]
+  satisfies: [ISC-252, ISC-253, ISC-254, ISC-255, ISC-256, ISC-257, ISC-258, ISC-259, ISC-260, ISC-261, ISC-262, ISC-263, ISC-264, ISC-265, ISC-266, ISC-267, ISC-268, ISC-269, ISC-270, ISC-271, ISC-272, ISC-273, ISC-274, ISC-275, ISC-276, ISC-277, ISC-278, ISC-279, ISC-280, ISC-281, ISC-282, ISC-283, ISC-284, ISC-285, ISC-286, ISC-287, ISC-288, ISC-289, ISC-290, ISC-291, ISC-292, ISC-293, ISC-294, ISC-295, ISC-296, ISC-297, ISC-298, ISC-299, ISC-300, ISC-301, ISC-302, ISC-303, ISC-304, ISC-305]
   depends_on: [AlphaBedrockBetaModularConvergence, CloudflareEstateMigrationBoundary, QualityAndSafetyGates]
   parallelizable: false
 ```
@@ -583,6 +588,8 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 
 ## Decisions
 
+- 2026-09-11 22:17 IST: refined: the current accepted delivery plan explicitly separates Cloudflare staging deployment from GitHub delivery. Exact candidate `f6bbf584fa5c9a07cc218f0211f3c5020bb4f3f7` is live only on the isolated staging Worker pair. After the remaining persona, viewport, corpus, and rollback gates pass, the exact final accepted SHA may fast-forward remote `beta_0.1` and update PR #77 into `release/beta`; the checked-out `rag/alpha-answer-accuracy` branch and Pavun57's PR #48 into `main` remain untouched.
+- 2026-09-11 22:17 IST: refined: canonical Beta Settings now owns Account/logout, immutable Memory preference replacement, active-plus-archived Sessions, and Appearance for every admitted principal. Member Delete uses the existing tombstone contract; operator history remains archive-only until a separately reviewed deletion lifecycle exists. Transient history reads receive one bounded retry and truthful account-versus-service error classification.
 - 2026-09-11 21:18 IST: refined: `release/beta` and other Beta branches are source inputs; `beta-staging.wtfhq.in` is the canonical acceptance environment. Candidate `32ec582` reconciles the newest accepted UI/routing/auth/RBAC/settings work with Pavun57's chat/backend authority and is deployed only to the staging web Worker. Production Beta remains absent and separately gated.
 - 2026-09-11 21:18 IST: refined: both principal kinds use one Alpha-derived chat presentation through typed store adapters. Operator permanent Delete remains withheld because the server contract does not exist; the staging evidence plane remains empty; neither gap may be concealed by UI copy or fake data.
 - 2026-09-11 19:17 IST: refined: PR #77/Beta 0.1 is tracked as a separately gated release lane. This host verifies local merge `d3b4590` with parents `d4e45b4` and `7ec8298`; reported `3eebf57` is unavailable locally. The pre-merge branch, no-mutation, and pending-migration snapshots are tombstoned rather than silently rewritten. Later runtime and D1 statements are `REPORTED` until exact staging or production receipts exist.
@@ -661,6 +668,10 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 
 ## Changelog
 
+- 2026-09-11 | conjectured: the earlier PR-owner gate meant the reconciled Beta candidate could not be staged or would eventually need to push the checked-out PR #48 branch
+  refuted by: Cloudflare staging deployment and GitHub ref delivery are independent authorities, and `origin/beta_0.1` is an ancestor of the current candidate while PR #48 remains bound to `rag/alpha-answer-accuracy`
+  learned: stage and accept the exact candidate first, then use an explicit exact-SHA fast-forward to `beta_0.1` so PR #77 advances without repurposing or force-updating PR #48
+  criterion now: ISC-285 and ISC-305 bind the selected topology, no-push receipt, and production hold; ISC-299 keeps final Git delivery behind the complete live acceptance matrix
 - 2026-08-18 | conjectured: The existing catalogue-first product framing could simply expand by adding more navigation cards
   refuted by: repository inspection, committed internal-OS brand comps, the 62-row editorial workbook, and the kickoff’s cross-functional workflow requirements show two distinct permission and narrative surfaces
   learned: the public catalogue must become a projection of a shared provenance spine while the authenticated control room becomes the primary operational product
@@ -839,3 +850,6 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 - ISC-296 evidence: Wrangler deployed only `wtfmedia-web-staging` version `b67a0833-3eda-4c53-b6ed-056969200350`; binding readback names `wtfmedia-edge-staging`, while edge version `3b4aa27f-6c62-4077-a432-897f10002039` was not redeployed.
 - ISC-297 evidence: two independent authenticated canonical-host IAB passes reopened persisted `cnv_*` history in the shared presentation, observed zero document-width overflow, no chat/settings bottom dock or ingest destination, the reduced Settings map, and the D1-backed operator roster. Operator conversation and roster endpoints returned 200 with no HTTP 4xx/5xx observed. The observation covers only the existing super-admin.
 - ISC-298 through ISC-300 boundary: operator Delete stays absent because no operator tombstone contract exists; the full persona/viewport matrix and safe staging corpus remain open; command/deployment scope changed no production, edge, data, auth, DNS, queue, secret, or public-Alpha state.
+- ISC-301 through ISC-303 verification: the canonical Settings registry and redirects remove duplicate workspace entries; Account renders the existing Clerk logout action; Memory and Sessions bind to owner-scoped edge services; Beta chat adapter tests cover include-archived reads, bounded transient retry, and truthful error classification.
+- ISC-304 verification: exact candidate `f6bbf584fa5c9a07cc218f0211f3c5020bb4f3f7` passes Edge 380/380, web unit 219/219, web contracts 96/96, typecheck, lint, OpenNext build with 89 pages, privacy 0/400, architecture freshness across 625 inputs, and `git diff --check`.
+- ISC-305 evidence: Wrangler deployed staging Edge version `427b1ea7-4e2a-4a8e-86c1-1920c0741e6c` and staging web version `3668390f-1dc8-438e-9dab-19c331b732ce`; authenticated canonical-host IAB loaded conversation history, Account logout, Memory, and active-plus-archived Sessions. GitHub readback still identifies PR #48 as `rag/alpha-answer-accuracy` into `main` and PR #77 as `beta_0.1` into `release/beta`; no Git push or production mutation occurred.
