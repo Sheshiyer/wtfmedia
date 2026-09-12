@@ -35,7 +35,8 @@ describe("member conversation lifecycle", () => {
   });
 
   it("allows the active heading to wrap while preserving two-line rail titles", () => {
-    expect(workspace).not.toContain("line-clamp-2 font-display");
+    expect(workspace).toContain('title={view.conversation.title}');
+    expect(workspace).toContain("line-clamp-2 max-h-[4.5rem]");
     expect(navigator).toContain("line-clamp-2");
   });
 
