@@ -45,6 +45,14 @@ describe("member conversation lifecycle", () => {
     expect(workspace).toContain('placement="inline"');
   });
 
+  it("keeps the selected conversation inside the viewport frame", () => {
+    expect(workspace).toContain('flex h-[calc(100vh-4.5rem-env(safe-area-inset-top))] min-h-0 flex-col');
+    expect(workspace).toContain('grid min-h-0 min-w-0 w-full flex-1');
+    expect(workspace).toContain('section className="min-h-0 min-w-0"');
+    expect(workspace).toContain('flex h-full min-h-0 flex-col');
+    expect(workspace).not.toContain('section className="min-w-0 pb-60"');
+  });
+
   it("keeps reverse-keyset pages chronological while retaining the next older cursor", () => {
     const current = parseMemberConversationResponse({
       conversation: { id: "mcnv_abcdefgh", title: "Evidence question", source_mode: "published" },

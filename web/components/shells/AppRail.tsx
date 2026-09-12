@@ -221,7 +221,7 @@ export function AppRail({
               aria-label={mode === "operator" ? "Operations" : mode === "member" ? "Member workspace" : "Application"}
               data-navigation-disclosure
               data-state={utilityOpen ? "open" : "closed"}
-              className={`${utilityOpen ? "flex" : "hidden"} absolute right-0 top-14 w-[min(15rem,calc(100vw-2rem))] flex-col gap-1.5 rounded-[1.75rem] border-2 border-foreground bg-surface-raised/95 p-2 shadow-[5px_5px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md`}
+              className={`${utilityOpen ? "flex" : "hidden"} absolute right-0 top-14 max-h-[calc(100dvh-5.5rem)] w-[min(15rem,calc(100vw-2rem))] flex-col gap-1.5 overflow-y-auto rounded-[1.75rem] border-2 border-foreground bg-surface-raised/95 p-2 shadow-[5px_5px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md`}
             >
               <div
                 role="group"
