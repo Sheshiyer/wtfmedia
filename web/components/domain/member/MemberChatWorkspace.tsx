@@ -268,8 +268,8 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
     placement="inline"
   />;
 
-  return <div className="min-h-[calc(100vh-5.5rem)] bg-canvas" data-member-chat-workspace>
-    <div className="mx-auto max-w-[var(--wtf-content-max)] px-4 pt-5 sm:px-8 xl:px-12">
+  return <div className="flex h-[calc(100vh-4.5rem-env(safe-area-inset-top))] min-h-0 flex-col bg-canvas" data-member-chat-workspace>
+    <div className="mx-auto w-full shrink-0 max-w-[var(--wtf-content-max)] px-4 pt-5 sm:px-8 xl:px-12">
       <div className="flex min-w-0 flex-wrap items-start justify-between gap-4 border-b-2 border-foreground pb-4">
         <div className="min-w-0 flex-1">
           <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-knowledge">company beta · private workspace</p>
@@ -278,14 +278,14 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
         <div className="flex flex-wrap gap-2"><Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="xl:hidden">conversations</Button>{conversationId ? <><Button type="button" variant="secondary" onClick={() => void archive()} loading={archiving} disabled={archiving || deleting}>archive conversation</Button>{resolvedAdapter.canDelete ? <Button type="button" variant="ghost" onClick={() => { setDeleteError(false); setDeleteTarget(view ? { id: conversationId, title: view.conversation.title, linkedSavedPreferenceCount: view.conversation.linkedSavedPreferenceCount } : null); setDeleteDialogOpen(true); }} disabled={archiving || deleting}>delete</Button> : null}</> : null}</div>
       </div>
     </div>
-    <div className="mx-auto grid min-w-0 max-w-[var(--wtf-content-max)] gap-6 px-4 sm:px-8 xl:grid-cols-[15rem_minmax(0,1fr)] xl:px-12">
+    <div className="mx-auto grid min-h-0 min-w-0 w-full flex-1 max-w-[var(--wtf-content-max)] gap-6 px-4 sm:px-8 xl:grid-cols-[15rem_minmax(0,1fr)] xl:px-12">
       <aside className="hidden min-w-0 self-start pt-6 xl:sticky xl:top-28 xl:block"><div className="max-h-[calc(100dvh-27rem)] min-w-0 overflow-y-auto border-2 border-foreground bg-surface-raised p-3 shadow-[4px_4px_0_rgb(var(--wtf-foreground-rgb)/0.12)]">{navigator}</div></aside>
       <Drawer open={drawerOpen} onOpenChange={onDrawerChange} triggerRef={drawerTriggerRef} title="Your conversations" description="Open a saved conversation or start a new question." side="left">{navigator}</Drawer>
-      <section className="min-w-0 pb-60" aria-live="polite" data-selected-conversation-viewport>
+      <section className="min-h-0 min-w-0" aria-live="polite" data-selected-conversation-viewport>
         {!conversationId ? <ConversationEmptyState /> : null}
         {state === "loading" ? <p role="status" className="mt-6 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary">loading conversation…</p> : null}
         {state === "unavailable" ? <div role="status" className="mx-auto mt-6 grid max-w-3xl gap-4 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary" data-conversation-unavailable><p>This conversation is unavailable. It may have been archived, deleted, or opened from an expired link.</p><div className="flex flex-wrap gap-3"><Button type="button" variant="secondary" onClick={() => void load()} className="min-h-9 px-3 py-1 text-xs">retry loading conversation</Button><Button type="button" variant="ghost" onClick={() => router.push("/beta/chat#new-chat")} className="min-h-9 px-3 py-1 text-xs">start a new question</Button></div></div> : null}
-        {view ? <div className="flex min-h-[calc(100dvh-17rem)] flex-col"><Thread view={view} sending={sending} canRetry={canRetry} onRetry={() => void submit()} loadingEarlier={loadingEarlier} onLoadEarlier={() => void loadEarlier()} renderFooter={() => renderComposer()} /></div> : null}
+        {view ? <div className="flex h-full min-h-0 flex-col"><Thread view={view} sending={sending} canRetry={canRetry} onRetry={() => void submit()} loadingEarlier={loadingEarlier} onLoadEarlier={() => void loadEarlier()} renderFooter={() => renderComposer()} /></div> : null}
         {state === "error" ? <p role="status" className="mx-auto mt-4 max-w-3xl border-l-4 border-attention px-4 text-sm text-secondary">We could not finish that answer. {canRetry ? "Retry with the same question." : "Try again."}</p> : null}
       </section>
     </div>
