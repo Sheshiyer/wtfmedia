@@ -121,6 +121,8 @@ function sourceText(source: unknown, key: string): string {
 function markdownSources(message: ChatMessage): PublicSourceCitation[] {
   return (message.sources ?? []).map((source, index) => ({
     n: Number(sourceText(source, "n")) || index + 1,
+    episodeId: sourceText(source, "episodeId") || sourceText(source, "episode_id") || undefined,
+    videoId: sourceText(source, "videoId") || sourceText(source, "video_id") || undefined,
     title: sourceText(source, "title") || undefined,
     url: sourceText(source, "url") || undefined,
     timeSec: Number(sourceText(source, "start")) || undefined,
@@ -361,7 +363,6 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
           <ConversationThreadFrame
             contentVersion={conversation.messages ?? []}
             layoutVersion={conversation.id}
-            composerPlacement="fixed"
             renderFooter={() => <ChatComposer conversationId={conversation.id} onSent={load} />}
             renderContent={({ scrollAnchor }) => <div className="mx-auto max-w-3xl space-y-4" aria-label="conversation messages">{(conversation.messages ?? []).map((message) => <article key={message.id} className="border-2 border-foreground/20 bg-surface-raised p-5" data-message-role={message.role}><p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{message.role}</p>{message.role === "assistant" ? <div className="prose-chat mt-2 text-sm leading-relaxed text-foreground"><ChatAnswerMarkdown content={message.content} sources={markdownSources(message)} /></div> : <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{message.content}</p>}<MessageMetadata message={message} /></article>)}{scrollAnchor}</div>}
           />
