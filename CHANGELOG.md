@@ -5,6 +5,11 @@ versioning; the web application version is held in `web/package.json`.
 
 ## [Unreleased]
 
+- Removed the duplicate Beta ingest destination while preserving Alpha's
+  existing ingest and evidence authority; repaired the real Clerk logout path,
+  recorded exact staging rollback receipts, and reconciled `v0.3.3-beta.2` as
+  immutable historical provenance rather than a current release receipt.
+
 - Recorded the local source-only `beta_0.1` integration as merge `d3b4590`
   (parents `d4e45b4` and `7ec8298`) and added a production-readiness checklist
   separating exact source candidates, web assets, catalogue objects, D1

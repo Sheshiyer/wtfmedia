@@ -1,5 +1,55 @@
 # Project handoff
 
+## 2026-09-12 Final Beta staging gates and signed-out repair
+
+**Status:** FINAL SOURCE/STAGING/VIEWPORT/SIGNED-OUT/ROLLBACK/RELEASE-POLICY
+GATES VERIFIED; MULTI-PERSONA IAB MATRIX STILL OPEN.
+
+- Exact source candidate `409a8ae205c515e453477703bc2342744231006d`
+  passes Edge 388/388, web unit 225/225, web contracts 97/97, TypeScript,
+  ESLint, 89-page OpenNext build, privacy 0/400, architecture freshness across
+  631 inputs, and `git diff --check`.
+- Beta no longer exposes an ingest capability, navigation item, protected
+  policy, or reachable ingest UI. The direct Beta ingest URL fails closed.
+  Alpha `/ops/ingest`, retrieval, inference, citations, timestamps, and rich
+  moment behavior remain unchanged.
+- Final staging is Edge `71f8c529-1040-4248-8e36-351741fc4edb` and Web
+  `b4e4ef19-2990-4f1b-bdf1-c9d8d8556792`. Edge is runtime-equivalent to
+  candidate `409a8ae` from `2c04bc2` because the later source change affects
+  only Web logout and release evidence. Health still names staging and
+  `alpha_public_api`.
+- Authenticated super-admin IAB verifies the Alpha-derived chat, grounded
+  citation header, rich source sheet, moment playback/export, persisted owner
+  history, archive actions, long-title clamping, drawer focus return, composer,
+  and zero horizontal overflow at 1382x887, 1382x1180, and 320x710.
+- Acceptance exposed an inert logout fallback caused by client bundle-time
+  configuration. The final Web repairs it by invoking the browser Clerk
+  session, clearing only protected local caches, and using truthful recovery on
+  provider failure. Live logout redirects to `/sign-in`; direct navigation to
+  the prior protected chat exposes no private conversation or chat composer.
+- Edge rollback moved accepted `67e93676-8519-4e33-8b7b-83b45fa975a8` to
+  predecessor `91b2fc7a-f657-4dd1-a66d-4f3c50ad7b21` and back. Web rollback
+  moved final `b4e4ef19-2990-4f1b-bdf1-c9d8d8556792` to predecessor
+  `d098c2ce-fd70-4540-bad3-cc547a8f276d` and back. Health and public Alpha
+  remained reachable; D1 and corpus state were not rolled back or mutated.
+- The separately authorized versioned Edge deployment removed inert staging
+  `INGEST_TOKEN`; final secret-name readback omits it. `/v1/admin/enqueue` and
+  `/beta/preview` remain absent.
+- Owner reconciliation preserves remote `v0.3.3-beta.2` immutably at
+  `66f434ab152fd2776c961aed21926e76b5df9204`. Its packages declare
+  `0.3.3-beta.1`; it is historically inconsistent provenance, not the current
+  Beta or a deployment receipt. Do not delete, move, reuse, or reinterpret it.
+- Beta 0.1 keeps operator history Archive-only. Permanent Operator Delete is
+  unavailable until detach/tombstone, audit, saved-memory, and anti-resurrection
+  contracts receive a separate review.
+- Production remains Edge `ccd1d952-5be7-41c9-9275-f9d6b3b470a7` and Web
+  `3d5a5965-14f3-486a-a608-330d539dec81`. PR #48, PR #77, `beta_0.1`, DNS,
+  Clerk configuration, production data, corpus, and tags were not changed.
+
+**Next action:** the IAB is intentionally signed out. Sign in as real Member A,
+then complete Member B, editor, admin, and an audited suspended/revoked staging
+identity. Do not update `beta_0.1` or PR #77 until that matrix passes.
+
 ## 2026-09-12 Beta Alpha-overlay staging acceptance checkpoint
 
 **Status:** SOURCE/BUILD VERIFIED; DEPLOYED TO BETA STAGING; GROUNDED

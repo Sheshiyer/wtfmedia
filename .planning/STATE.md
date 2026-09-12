@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Alpha-overlay runtime candidate `748c0e4` is deployed to isolated
-  Beta staging and grounded super-admin IAB persistence/viewport proof is complete;
-  the remaining personas, 1382x1180 viewport, rollback, tag, and production remain gated
-last_updated: "2026-09-12T06:00:00+05:30"
+stopped_at: Final source candidate `409a8ae` is on isolated Beta staging; viewport,
+  signed-out, rollback, tag, operator-delete, and inert-secret gates are closed;
+  real Member A/B, editor, admin, and suspended/revoked IAB evidence remains gated
+last_updated: "2026-09-12T07:35:00+05:30"
 last_activity: 2026-09-12
 progress:
   total_phases: 10
@@ -19,7 +19,47 @@ progress:
   roadmap_percent: 84
 ---
 
-## Continuity checkpoint (2026-09-12)
+## Final-candidate continuity checkpoint (2026-09-12)
+
+Done
+- Exact runtime candidate `409a8ae205c515e453477703bc2342744231006d`
+  removes the duplicate Beta ingest surface, preserves Alpha `/ops/ingest`, and
+  repairs real Clerk logout across the client bundle/runtime configuration seam.
+- Staging is pinned to Edge `71f8c529-1040-4248-8e36-351741fc4edb` and Web
+  `b4e4ef19-2990-4f1b-bdf1-c9d8d8556792`. Health reports
+  `inferenceService=wtfmedia-web` and `corpusAuthority=alpha_public_api`.
+- Source verification passes at 388/388 Edge, 225/225 web unit, 97/97 web
+  contracts, TypeScript, lint, 89-page OpenNext build, privacy 0/400,
+  architecture freshness across 631 inputs, and `git diff --check`.
+- Authenticated super-admin IAB preserves the Alpha-derived answer, citations,
+  rich source sheet, playback/export, history, archive actions, and composer at
+  1382x887, 1382x1180, and 320x710 with zero horizontal overflow. Real Clerk
+  logout redirects to `/sign-in`; revisiting the protected chat exposes no
+  private conversation or chat composer.
+- Exact Edge and Web rollback/restore rehearsals passed while staging health,
+  public Alpha, and the D1/corpus boundary remained intact.
+- The separately authorized versioned deployment removed inert staging
+  `INGEST_TOKEN`; final secret-name readback omits it. No corpus or D1 row was
+  changed.
+- `v0.3.3-beta.2` is preserved immutably as historically inconsistent
+  provenance, not the current Beta or a deployment receipt. Operator history
+  remains Archive-only; permanent Delete is explicitly unavailable for Beta
+  0.1 pending a reviewed lifecycle contract.
+
+Remaining
+- Complete real IAB isolation for Member A, Member B, editor, and admin.
+- Create an audited staging suspended/revoked test condition; the current D1
+  roster contains no such principal, so this cannot be inferred or simulated.
+- Keep `beta_0.1`, PR #77, all production gates, DNS, Clerk configuration,
+  production data, and tag publication held until those persona receipts pass.
+
+State
+- Production Edge `ccd1d952-5be7-41c9-9275-f9d6b3b470a7` and Web
+  `3d5a5965-14f3-486a-a608-330d539dec81` remain unchanged.
+- PR #48 and PR #77 remain untouched. Delivery uses only the clean `codex/*`
+  evidence branch at an exact SHA; no force-push or branch-name promotion.
+
+## Historical continuity checkpoint (pre-final candidate, 2026-09-12)
 
 Done
 - Current deployed staging runtime candidate is
