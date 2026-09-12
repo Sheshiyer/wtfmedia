@@ -25,7 +25,7 @@ function Frame({ long, fixed = false }: { long: boolean; fixed?: boolean }) {
         renderFooter={composer}
         renderContent={({ scrollAnchor }) => (
           <div className="mx-auto max-w-3xl space-y-4 p-4">
-            {paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+            {paragraphs.map((paragraph, index) => <p key={`${paragraph}-${index}`} data-frame-message={index === paragraphs.length - 1 ? "last" : undefined}>{paragraph}</p>)}
             {scrollAnchor}
           </div>
         )}
@@ -40,10 +40,12 @@ export const PrivateShortContentKeepsComposerAtViewportBottom: Story = {
     window.dispatchEvent(new Event("resize"));
     const thread = canvasElement.querySelector("[data-testid='conversation-thread']");
     const fixedComposer = canvasElement.querySelector("[data-fixed-composer]");
-    if (thread?.getAttribute("data-composer-placement") !== "fixed" || !fixedComposer) {
+    if (!thread || thread.getAttribute("data-composer-placement") !== "fixed" || !fixedComposer) {
       throw new Error("Short conversation must keep the composer fixed");
     }
-    await expect(fixedComposer.getBoundingClientRect().bottom).toBeGreaterThan(0);
+    const rect = fixedComposer.getBoundingClientRect();
+    if (Math.abs(window.innerHeight - rect.bottom - 16) > 40) throw new Error("Short composer must remain pinned near the viewport bottom");
+    if (document.documentElement.scrollWidth > document.documentElement.clientWidth) throw new Error("Short frame must not create horizontal overflow");
   },
 };
 
@@ -52,13 +54,18 @@ export const PrivateLongContentKeepsComposerAtViewportBottom: Story = {
   play: async ({ canvasElement }) => {
     const thread = canvasElement.querySelector("[data-testid='conversation-thread']");
     const fixedComposer = canvasElement.querySelector("[data-fixed-composer]");
-    if (thread?.getAttribute("data-composer-placement") !== "fixed" || !fixedComposer) {
+    if (!thread || thread.getAttribute("data-composer-placement") !== "fixed" || !fixedComposer) {
       throw new Error("Private long conversation must keep the composer fixed");
     }
     const rect = fixedComposer.getBoundingClientRect();
-    if (rect.bottom <= 0 || rect.top >= window.innerHeight) {
-      throw new Error("Private composer must remain within the viewport");
-    }
+    if (Math.abs(window.innerHeight - rect.bottom - 16) > 40) throw new Error("Private composer must remain pinned near the viewport bottom");
+    const threadRect = thread.getBoundingClientRect();
+    if (thread.scrollHeight <= thread.clientHeight) throw new Error("Long private conversation must remain scrollable");
+    thread.scrollTop = thread.scrollHeight;
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    const lastMessage = canvasElement.querySelector('[data-frame-message="last"]');
+    if (!lastMessage || lastMessage.getBoundingClientRect().bottom > rect.top) throw new Error("Last message must scroll clear of the fixed composer");
+    if (threadRect.width <= 0 || document.documentElement.scrollWidth > document.documentElement.clientWidth) throw new Error("Long frame must not create horizontal overflow");
   },
 };
 
