@@ -44,6 +44,7 @@ const migrations = [
   "0013_member_chat_context.sql",
   "0014_principal_profiles.sql",
   "0015_principal_profiles_email_guard.sql",
+  "0016_rich_chat_source_metadata.sql",
 ];
 
 function sqlite(input, json = false) {
@@ -164,6 +165,21 @@ test("D1 history is durable, idempotent, owner-scoped, and archive-only", async 
     role: "assistant", content: "private answer", sourceMetadata: { sources: [] }, groundingState: "grounded", idempotencyKey: "answer-operator-three",
   }, "assistant", "2026-09-02T00:01:00.000Z"))?.id, appended.id);
 
+  const richCitationMetadata = {
+    sources: [{ title: "Published episode", url: "https://www.youtube.com/watch?v=abcdefghijk" }],
+    moments: [{ summary: "evidence ".repeat(4_500), strength: 5 }],
+    citedIndices: [1],
+  };
+  assert.ok(JSON.stringify(richCitationMetadata).length > 30_000);
+  const richAnswer = await appendMessage(db, 3, first.conversation.id, {
+    role: "assistant",
+    content: "rich cited answer [1]",
+    sourceMetadata: richCitationMetadata,
+    groundingState: "grounded",
+    idempotencyKey: "rich-answer-operator-three",
+  }, "assistant", "2026-09-02T00:01:30.000Z");
+  assert.ok(richAnswer, "rich Alpha citation metadata must survive Beta history persistence");
+
   const second = await createConversation(db, 4, { userMessage: { content: "other operator", sourceMetadata: {} }, now: "2026-09-02T00:02:00.000Z" });
   assert.ok(second);
   assert.equal((await listConversationsForActor(db, { operatorId: 4, role: "editor" })).conversations.length, 1);
@@ -215,6 +231,10 @@ test("Clerk/D1 context is rechecked on every protected request and cannot cross 
       return {
         answer: "The guest described evidence [1].",
         sources: [{ n: 1, title: "Published episode", videoId: "yt-1", start: 42 }],
+        moments: [{ videoId: "abcdefghijk", title: "Published episode", url: "https://www.youtube.com/watch?v=abcdefghijk&t=42s", chunkStart: 4, chunkEnd: 4, startSec: 42, endSec: 72, durationSec: 30, score: 0.9, timestampConfidence: 1, citationNumbers: [1], withinBudget: true, topic: "evidence practice", summary: "The guest describes an evidence practice.", whyRelevant: "It directly supports the answer.", strength: 5 }],
+        totalMomentDurationSec: 30,
+        durationBudgetSec: null,
+        citedIndices: [1],
         grounded: true,
         sourceMode: "both",
         uncutUnavailable: false,
@@ -230,6 +250,8 @@ test("Clerk/D1 context is rechecked on every protected request and cannot cross 
   assert.equal(answerInput.question, "What did the guest say about evidence?");
   assert.equal(generatedBody.messages.at(-1).content, "The guest described evidence [1].");
   assert.equal(JSON.parse(generatedBody.messages.at(-1).source_metadata_json).sources[0].title, "Published episode");
+  assert.equal(JSON.parse(generatedBody.messages.at(-1).source_metadata_json).moments[0].topic, "evidence practice");
+  assert.deepEqual(JSON.parse(generatedBody.messages.at(-1).source_metadata_json).citedIndices, [1]);
   assert.equal(generatedBody.messages.at(-1).grounding_state, "grounded");
   assert.equal(generatedBody.messages.at(-1).model, "test-model");
   assert.equal(generatedBody.messages.at(-1).model_fallback, 1);
@@ -274,10 +296,34 @@ test("Clerk/D1 context is rechecked on every protected request and cannot cross 
   assert.equal(JSON.parse(continuedBody.messages.at(-2).source_metadata_json).sourceMode, "uncut");
   assert.equal(JSON.parse(continuedBody.messages.at(-1).source_metadata_json).sourceMode, "uncut");
 
+  let alphaPayload;
+  const alphaFollowUp = await request("sai@allthingswtf.com", `/ops/api/chat/conversations/${generatedId}`, {
+    method: "POST",
+    headers: { "content-type": "application/json", "idempotency-key": "server-answer-alpha" },
+    body: JSON.stringify({ question: "What was the next point?", sourceMode: "published" }),
+  }, {
+    runChat: async (input) => {
+      alphaPayload = input;
+      return {
+        answer: "The next point was evidence [1].",
+        sources: [{ n: 1, title: "Published episode", videoId: "yt-1", start: 42 }],
+        grounded: true, sourceMode: "published", uncutUnavailable: false,
+        model: "test-model", modelFallback: false, requestId: "rag-request-alpha",
+      };
+    },
+  });
+  assert.equal(alphaFollowUp.status, 201);
+  assert.deepEqual(alphaPayload.priorTurns.map(({ role, content }) => [role, content]), [
+    ["user", "What did the guest say about evidence?"],
+    ["assistant", "The guest described evidence [1]."],
+    ["user", "What was in the approved uncut recording?"],
+    ["assistant", "The approved uncut recording adds context [1]."],
+  ]);
+
   const listed = await request("sai@allthingswtf.com", "/ops/api/chat/conversations");
   const listedBody = await listed.json();
   const generatedSummary = listedBody.conversations.find((item) => item.id === generatedBody.conversation.id);
-  assert.equal(generatedSummary.message_count, 4);
+  assert.equal(generatedSummary.message_count, 6);
   for (const payload of [generatedBody, listedBody]) {
     assert.doesNotMatch(JSON.stringify(payload), /\b(?:operator_id|member_id|create_idempotency_key|idempotency_key|request_id)\b/);
   }

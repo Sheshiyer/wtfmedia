@@ -50,25 +50,23 @@ describe("staging web-to-edge binding contract", () => {
     ]);
   });
 
-  it("uses staging-only retrieval, storage, queue, origin, and Clerk-party bindings", () => {
+  it("keeps Beta identity in staging D1 and reuses Alpha chat without a second corpus", () => {
     const staging = edge.env?.staging;
     const stagingOrigin = "https://beta-staging.wtfhq.in";
 
     expect(edge.name).toBe("wtfmedia-edge");
     expect(staging?.name).toBe("wtfmedia-edge-staging");
-    expect(staging?.vectorize?.[0]).toMatchObject({ binding: "VECTORIZE", index_name: "wtfmedia-catalogue-staging-v1" });
-    expect(staging?.r2_buckets?.[0]).toMatchObject({ binding: "CATALOGUE", bucket_name: "wtfmedia-catalogue-staging" });
-    expect(staging?.kv_namespaces?.[0]?.binding).toBe("WTFMEDIA_STATE");
-    expect(staging?.kv_namespaces?.[0]?.id).not.toBe(edge.kv_namespaces?.[0]?.id);
+    expect(serviceFor(staging ?? {}, "WTFMEDIA_ALPHA_WEB")).toBe("wtfmedia-web");
     expect(staging?.d1_databases?.[0]).toMatchObject({ binding: "DB", database_name: "wtfmedia-ops-staging" });
     expect(staging?.d1_databases?.[0]?.database_id).not.toBe(edge.d1_databases?.[0]?.database_id);
-    expect(staging?.queues?.producers?.[0]).toMatchObject({ binding: "INGEST_QUEUE", queue: "wtfmedia-ingest-staging" });
-    expect(staging?.queues?.consumers?.[0]).toMatchObject({ queue: "wtfmedia-ingest-staging", dead_letter_queue: "wtfmedia-ingest-staging-dlq" });
+    expect(staging?.vectorize).toBeUndefined();
+    expect(staging?.r2_buckets).toBeUndefined();
+    expect(staging?.kv_namespaces).toBeUndefined();
+    expect(staging?.queues).toBeUndefined();
     expect(staging?.vars).toMatchObject({
       ALLOWED_ORIGIN: stagingOrigin,
       DEPLOYMENT_ENVIRONMENT: "staging",
       SERVICE_NAME: "wtfmedia-edge-staging",
-      CATALOGUE_INDEX_NAME: "wtfmedia-catalogue-staging-v1",
       OPS_HOSTNAME: "beta-staging.wtfhq.in",
       OPS_ORIGIN: stagingOrigin,
       OPS_ENVIRONMENT: "staging",
@@ -80,6 +78,7 @@ describe("staging web-to-edge binding contract", () => {
     expect(JSON.stringify(staging)).not.toContain("wtfmedia-catalogue\"");
     expect(JSON.stringify(staging)).not.toContain("wtfmedia-ops\"");
     expect(JSON.stringify(staging)).not.toContain("wtfmedia-ingest\"");
+    expect(JSON.stringify(staging)).not.toContain("wtfmedia-ingest-staging");
   });
 
   it("fails closed for Beta member routes when the edge environment is production", () => {

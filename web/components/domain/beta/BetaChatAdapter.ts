@@ -177,6 +177,8 @@ function mapMessage(message: ChatMessage): MemberMessage {
     content: message.content,
     createdAt: message.createdAt,
     ...(message.sources?.length ? { sources: parsePublicSourceRecords(message.sources) } : {}),
+    ...(message.moments ? { moments: message.moments } : {}),
+    ...(message.citedIndices?.length ? { citedIndices: message.citedIndices } : {}),
     ...(sourceMode ? { sourceMode } : {}),
     ...(message.groundingState ? { groundingState: message.groundingState } : {}),
     ...(message.uncutUnavailable ? { uncutUnavailable: true } : {}),

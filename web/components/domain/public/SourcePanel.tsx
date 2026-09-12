@@ -348,12 +348,12 @@ export function SourcePanel({
     .filter(([videoId]) => !coveredVideoIds.has(videoId))
     .map(([videoId, episodeMoments]) => ({ videoId, episodeMoments }))
     .sort((a, b) => byStrengthThenScore(a.episodeMoments, b.episodeMoments));
-
-  // Moments mode reads as an episode sheet, so the summary counts distinct
-  // cited episodes rather than individual citation marks.
-  const citedEpisodeCount = hasMoments
-    ? primaryGroups.filter((group) => group.entries.some((entry) => entry.isCited)).length
-    : 0;
+  const citedEpisodeCount = new Set(
+    model.groups
+      .filter((group) => group.citedEntries.length > 0)
+      .map((group) => group.entries[0]?.source.videoId)
+      .filter((videoId): videoId is string => Boolean(videoId)),
+  ).size;
 
   async function handleExport() {
     if (!moments) return;
@@ -396,7 +396,7 @@ export function SourcePanel({
           aria-labelledby={citationPlaybackTitleId}
           className="rounded-control border-2 border-foreground bg-surface-raised p-3"
         >
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-baseline sm:justify-between">
             <div className="min-w-0">
               <p id={citationPlaybackTitleId} className="font-label text-[10px] font-bold uppercase tracking-[0.08em] text-secondary">
                 sources
@@ -412,7 +412,7 @@ export function SourcePanel({
             {hasMoments ? (
               <Button
                 variant="ghost"
-                className="text-xs"
+                className="w-full text-xs sm:w-auto"
                 onClick={handleExport}
                 loading={exporting}
                 data-testid="moment-export-button"

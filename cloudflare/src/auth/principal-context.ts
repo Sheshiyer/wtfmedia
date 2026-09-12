@@ -1,6 +1,6 @@
 import type { ClerkVerification } from "./clerk.ts";
 import type { OperatorRole, DB } from "../db.ts";
-import { capabilitiesForRole, type Role } from "./policy.ts";
+import { betaCapabilitiesForRole, type Role } from "./policy.ts";
 
 type Environment = "local" | "staging" | "production";
 type MemberLifecycle = "invited" | "active" | "suspended" | "revoked";
@@ -112,7 +112,7 @@ export function principalContextDto(context: PrincipalContext): PrincipalContext
     ...(context.lastName ? { lastName: context.lastName } : {}),
     displayName: context.displayName,
     landingRoute: context.kind === "operator" ? "/beta/workspace" : "/beta/chat",
-    capabilities: capabilitiesForRole(context.role),
+    capabilities: betaCapabilitiesForRole(context.role),
     environment: context.environment,
   };
 }

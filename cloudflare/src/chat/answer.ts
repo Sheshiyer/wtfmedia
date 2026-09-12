@@ -12,6 +12,8 @@ import {
   queryEvidenceSources,
   queryEvidenceSourcesForQuestion,
 } from "./evidence-coordinator.ts";
+import { momentsForAnswer } from "./moment-pipeline.ts";
+import type { EnrichedMoment, MomentSource } from "./moments.ts";
 
 export type ChatAnswerEnvironment = {
   AI: any;
@@ -51,6 +53,15 @@ export type ChatAnswer = {
   model: string | null;
   modelFallback: boolean;
   requestId: string;
+  /**
+   * Direct Alpha retrieval has chunk bounds; the public Alpha transport
+   * intentionally does not expose those internal identifiers. Both retain
+   * the same user-facing moment projection.
+   */
+  moments?: Array<Omit<EnrichedMoment, "excerpt" | "chunkStart" | "chunkEnd"> & Partial<Pick<EnrichedMoment, "chunkStart" | "chunkEnd">>>;
+  totalMomentDurationSec?: number;
+  durationBudgetSec?: number | null;
+  citedIndices?: number[];
 };
 
 const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
@@ -140,6 +151,26 @@ function hasUsableExcerpt(match: VectorMatchLike): boolean {
     && typeof match.metadata?.text === "string" && match.metadata.text.trim().length > 0;
 }
 
+function momentSourcesFromMatches(matches: readonly VectorMatchLike[], episodeId: string | null): MomentSource[] {
+  const published = resolveEpisodeScopedSources(matches, "published", episodeId, MIN_SCORE, 48, { dedupeByEpisode: false });
+  return published.citations.map((source) => {
+    const match = matches.find((item) => item.id === source.segmentId)
+      ?? matches.find((item) => item.metadata?.video_id === source.videoId);
+    return { ...source, text: typeof match?.metadata?.text === "string" ? match.metadata.text : undefined };
+  });
+}
+
+async function projectedMoments(
+  promise: ReturnType<typeof momentsForAnswer>,
+): Promise<Pick<ChatAnswer, "moments" | "totalMomentDurationSec" | "durationBudgetSec">> {
+  const payload = await promise;
+  return {
+    moments: payload.moments.map(({ excerpt: _excerpt, ...moment }) => moment),
+    totalMomentDurationSec: payload.totalDurationSec,
+    durationBudgetSec: payload.budgetSec,
+  };
+}
+
 function requiresVerifiedMetadata(question: string) {
   return /\b(?:own|owner|owns|ownership|co-?founder|founder|host|producer|created|runs)\b[\s\S]{0,100}\b(?:wtf|podcast|show|channel)\b/i.test(question)
     || /\b(?:recur(?:ring|s)?|repeat(?:s|ed|ing)?|appear(?:s|ances?|ing)?|mentioned|occur(?:s|rence)?|most)\b[\s\S]{0,100}\b(?:\d+\s*\+?\s*(?:episodes?|conversations?)|across|throughout)\b/i.test(question);
@@ -193,6 +224,8 @@ export async function runChat(input: ChatAnswerInput, env: ChatAnswerEnvironment
     const resolved = resolveEpisodeScopedSources(relevantMatches, sourceMode, scopedEpisodeId, MIN_SCORE, sourceMode === "both" ? 40 : 6, {
       dedupeByEpisode: scopedEpisodeId === null && !namedEntityQuestion,
     });
+    const momentsPromise = momentsForAnswer(env, question, momentSourcesFromMatches(relevantMatches, episodeId))
+      .catch(() => ({ moments: [], totalDurationSec: 0, budgetSec: null }));
     const sources = resolved.citations.map((source) => {
       const match = relevantMatches.find((item: { id?: string; metadata?: { video_id?: string } }) => item.id === source.segmentId)
         ?? relevantMatches.find((item: { metadata?: { video_id?: string } }) => item.metadata?.video_id === source.videoId);
@@ -203,7 +236,7 @@ export async function runChat(input: ChatAnswerInput, env: ChatAnswerEnvironment
         answer: insufficientEvidence(resolved, scopedEpisodeId),
         sources: sources.map(({ text: _text, ...source }) => source),
         grounded: false, sourceMode: resolved.sourceMode, uncutUnavailable: resolved.uncutUnavailable,
-        model: null, modelFallback: false, requestId: resolvedRequestId,
+        model: null, modelFallback: false, requestId: resolvedRequestId, citedIndices: [],
       };
     }
     const context = sources.map((source: any) => `[${source.n}] ${source.title}\n${source.text}`).join("\n\n---\n\n");
@@ -226,12 +259,16 @@ export async function runChat(input: ChatAnswerInput, env: ChatAnswerEnvironment
         answer: citedEvidenceFallback(sources), sources: projectedSources, grounded: true,
         sourceMode: resolved.sourceMode, uncutUnavailable: resolved.uncutUnavailable,
         model: answered.model, modelFallback: true, requestId: resolvedRequestId,
+        citedIndices: sources.slice(0, 3).map((source) => source.n),
+        ...(await projectedMoments(momentsPromise)),
       };
     }
     return {
       answer: answered.answer, sources: projectedSources, grounded: true,
       sourceMode: resolved.sourceMode, uncutUnavailable: resolved.uncutUnavailable,
       model: answered.model, modelFallback: answered.fallback, requestId: resolvedRequestId,
+      citedIndices: [...new Set(citations)],
+      ...(await projectedMoments(momentsPromise)),
     };
   } catch (error) {
     console.error("wtfmedia chat failed", { message: error instanceof Error ? error.message : "unknown", sourceMode });

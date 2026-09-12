@@ -74,7 +74,6 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/beta/workspace/production": ["control_room", "read"],
   "/beta/workspace": ["control_room", "read"],
   "/beta/workspace/episodes": ["episodes", "read"],
-  "/beta/workspace/ingest": ["ingest", "read"],
   "/beta/settings/workspace": ["control_room", "read"],
   "/beta/settings/workspace/readiness": ["control_room", "read"],
   "/beta/settings/workspace/release": ["control_room", "read"],
@@ -142,6 +141,11 @@ function betaApiRequirement(pathname: string, method: string): readonly [Resourc
 export function capabilitiesForRole(role: unknown): string[] {
   if (!includes(roles, role)) return [];
   return [...grants[role]].sort();
+}
+
+/** Beta is an identity/persistence overlay and never projects Alpha ingest authority. */
+export function betaCapabilitiesForRole(role: unknown): string[] {
+  return capabilitiesForRole(role).filter((capability) => !capability.startsWith("ingest:"));
 }
 
 export function canAccessPath(role: unknown, pathname: string): boolean {

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { canAccessPath, decide, policyForPath } from "../src/auth/policy.ts";
+import { betaCapabilitiesForRole, canAccessPath, decide, policyForPath } from "../src/auth/policy.ts";
 
 test("only administrators can read or manage member beta users", () => {
   for (const role of ["super_admin", "admin"]) {
@@ -33,6 +33,16 @@ test("canonical beta routes use explicit capabilities and unknown paths fail clo
   assert.equal(canAccessPath("admin", "/beta/admin/release"), false);
   assert.equal(canAccessPath("super_admin", "/beta/admin/release"), true);
   assert.equal(policyForPath("/beta/unknown"), null);
+});
+
+test("Beta exposes no ingest destination or capability while Alpha operator ingest remains intact", () => {
+  for (const role of ["member", "editor", "admin", "super_admin"]) {
+    assert.equal(policyForPath("/beta/workspace/ingest"), null);
+    assert.equal(canAccessPath(role, "/beta/workspace/ingest"), false);
+    assert.equal(betaCapabilitiesForRole(role).some((capability) => capability.startsWith("ingest:")), false);
+  }
+  assert.deepEqual(policyForPath("/ops/ingest"), ["ingest", "read"]);
+  for (const role of ["editor", "admin", "super_admin"]) assert.equal(canAccessPath(role, "/ops/ingest"), true);
 });
 
 test("workspace settings session and memory views require control room authority", () => {

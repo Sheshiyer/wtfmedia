@@ -22,6 +22,10 @@ describe("authenticated chat metadata projection", () => {
           created_at: "2026-09-02T00:01:00.000Z",
           source_metadata_json: JSON.stringify({
             sources: [{ n: 1, title: "Published episode", videoId: "yt-1", start: 42 }],
+            moments: [{ videoId: "abcdefghijk", title: "Published episode", url: "https://www.youtube.com/watch?v=abcdefghijk&t=42s", chunkStart: 4, chunkEnd: 4, startSec: 42, endSec: 72, durationSec: 30, score: 0.9, timestampConfidence: 1, citationNumbers: [1], withinBudget: true, topic: "evidence practice", summary: "The guest describes an evidence practice.", whyRelevant: "It supports the answer.", strength: 5 }],
+            totalMomentDurationSec: 30,
+            durationBudgetSec: null,
+            citedIndices: [1],
             sourceMode: "both",
             uncutUnavailable: false,
           }),
@@ -42,6 +46,12 @@ describe("authenticated chat metadata projection", () => {
       requestId: "rag-request-1",
       sourceMode: "both",
       sources: [{ n: 1, title: "Published episode", videoId: "yt-1", start: 42 }],
+      moments: {
+        moments: [expect.objectContaining({ videoId: "abcdefghijk", topic: "evidence practice" })],
+        totalDurationSec: 30,
+        budgetSec: null,
+      },
+      citedIndices: [1],
     });
   });
 });

@@ -60,31 +60,32 @@ function parseHeaderJson(header: string): unknown {
 function normalizeMoment(value: unknown): PublicMoment | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const raw = value as Record_;
-  const videoId = textField(raw.video_id);
-  const startSec = secondsField(raw.start_sec);
+  const videoId = textField(raw.video_id ?? raw.videoId);
+  const startSec = secondsField(raw.start_sec ?? raw.startSec);
   if (!videoId || startSec == null) return null;
+  const citationNumbers = raw.citation_numbers ?? raw.citationNumbers;
 
   const moment: PublicMoment = {
     videoId,
     title: textField(raw.title) ?? videoId,
     url: textField(raw.url) ?? `https://www.youtube.com/watch?v=${videoId}`,
     startSec,
-    endSec: secondsField(raw.end_sec),
-    durationSec: secondsField(raw.duration_sec),
-    ...(raw.duration_estimated === true ? { durationEstimated: true } : {}),
+    endSec: secondsField(raw.end_sec ?? raw.endSec),
+    durationSec: secondsField(raw.duration_sec ?? raw.durationSec),
+    ...(raw.duration_estimated === true || raw.durationEstimated === true ? { durationEstimated: true } : {}),
     score: secondsField(raw.score) ?? 0,
-    timestampConfidence: secondsField(raw.timestamp_confidence),
-    citationNumbers: Array.isArray(raw.citation_numbers)
-      ? raw.citation_numbers.filter((n): n is number => Number.isSafeInteger(n) && n > 0)
+    timestampConfidence: secondsField(raw.timestamp_confidence ?? raw.timestampConfidence),
+    citationNumbers: Array.isArray(citationNumbers)
+      ? citationNumbers.filter((n): n is number => Number.isSafeInteger(n) && n > 0)
       : [],
-    withinBudget: raw.within_budget !== false,
+    withinBudget: raw.within_budget !== false && raw.withinBudget !== false,
   };
 
   const guest = textField(raw.guest);
   const theme = textField(raw.theme);
   const topic = textField(raw.topic);
   const summary = textField(raw.summary);
-  const whyRelevant = textField(raw.why_relevant);
+  const whyRelevant = textField(raw.why_relevant ?? raw.whyRelevant);
   const strength = Number(raw.strength);
   if (guest) moment.guest = guest;
   if (theme) moment.theme = theme;
@@ -95,10 +96,8 @@ function normalizeMoment(value: unknown): PublicMoment | null {
   return moment;
 }
 
-/** Decodes the `X-Moments` projection. */
-export function parsePublicMomentsHeader(header: string | null): PublicMomentsPayload {
-  if (!header) return EMPTY;
-  const parsed = parseHeaderJson(header);
+/** Parses a public moment projection from either transport or persisted metadata. */
+export function parsePublicMomentsPayload(parsed: unknown): PublicMomentsPayload {
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return EMPTY;
   const raw = parsed as Record_;
   const moments = Array.isArray(raw.moments)
@@ -109,7 +108,12 @@ export function parsePublicMomentsHeader(header: string | null): PublicMomentsPa
     : [];
   return {
     moments,
-    totalDurationSec: secondsField(raw.total_duration_sec) ?? 0,
-    budgetSec: secondsField(raw.budget_sec),
+    totalDurationSec: secondsField(raw.total_duration_sec ?? raw.totalDurationSec ?? raw.totalMomentDurationSec) ?? 0,
+    budgetSec: secondsField(raw.budget_sec ?? raw.budgetSec ?? raw.durationBudgetSec),
   };
+}
+
+/** Decodes the `X-Moments` projection. */
+export function parsePublicMomentsHeader(header: string | null): PublicMomentsPayload {
+  return header ? parsePublicMomentsPayload(parseHeaderJson(header)) : EMPTY;
 }

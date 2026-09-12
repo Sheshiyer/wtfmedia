@@ -35,9 +35,10 @@
 
 `v0.3.3-beta.1` is the latest pre-release. It restores the AppRail contract
 from alpha, wires the login flow through protected settings, and adds an
-authenticated Ask WTF staging lane with server-side RAG, persisted chat
-history, and consolidation policy panels for memory governance, RAG source
-health, and session history.
+authenticated Ask WTF staging lane that reuses Alpha's server-side RAG and
+public citation contract while adding user-scoped persisted chat history,
+Clerk/D1 admission, RBAC, and administration. Beta does not own a second
+corpus or ingest pipeline.
 
 The `release/beta` branch now also contains the reviewed Clerk-backed operator
 session/history/memory slice and the separate invite-only member Beta from PRs
@@ -65,9 +66,11 @@ See the [release notes](docs/releases/v0.3.3-beta.1.md) and
 [changelog](CHANGELOG.md).
 
 The next integrated source candidate uses aligned `0.3.3-beta.3` manifests.
-It is not yet a tag or deployment. The existing remote `v0.3.3-beta.2` tag
-points at an older commit whose release note called it source-only; that
-history must be explicitly reconciled before publishing another prerelease.
+It is not yet a tag or deployment. The existing remote `v0.3.3-beta.2` tag is
+preserved as immutable, historically inconsistent provenance: it points at an
+older commit whose packages still declare `0.3.3-beta.1`, is not the current
+Beta, and is not a deployment receipt. It must never be deleted, moved, reused,
+or reinterpreted; a later prerelease is published only after final acceptance.
 
 Cross-timeline alignment and synchronized uncut playback remain explicitly
 held; an approved Frame.io episode URL is not itself a timestamp mapping.

@@ -16,7 +16,8 @@
     "0012_member_chat_deletion.sql",
     "0013_member_chat_context.sql",
     "0014_principal_profiles.sql",
-    "0015_principal_profiles_email_guard.sql"
+    "0015_principal_profiles_email_guard.sql",
+    "0016_rich_chat_source_metadata.sql"
   ],
   "duplicate_ordinals": {
     "0006": {

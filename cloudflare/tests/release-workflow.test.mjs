@@ -24,9 +24,10 @@ test("release workflow admits alpha and beta prerelease tags only", () => {
   assert.match(releaseWorkflow, /\[\[ ! "\$RELEASE_TAG" =~ \$release_tag_pattern \]\]/);
 });
 
-test("the next beta candidate has aligned manifests without relabeling beta.2 as a release", () => {
+test("the next beta candidate has aligned manifests and preserves beta.2 as immutable history", () => {
   assert.deepEqual(packageVersions, ["0.3.3-beta.3", "0.3.3-beta.3", "0.3.3-beta.3"]);
   const betaTwoNotes = readFileSync(join(projectRoot, "docs", "releases", "v0.3.3-beta.2.md"), "utf8");
-  assert.match(betaTwoNotes, /Release candidate — source only\./);
-  assert.match(betaTwoNotes, /neither a tag nor a deployment receipt/i);
+  assert.match(betaTwoNotes, /Historical prerelease record — not the current Beta\./);
+  assert.match(betaTwoNotes, /not a Cloudflare deployment receipt/i);
+  assert.match(betaTwoNotes, /Do not delete, move, reuse, or reinterpret/i);
 });

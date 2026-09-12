@@ -116,9 +116,11 @@ resolved and receipted.
 - Root version: `package.json` tracks the latest pre-release.
 - Web version: `web/package.json` tracks the web app version independently.
 
-The beta track adds authenticated features (server-side RAG, persisted chat,
-consolidation panels) that do not regress the public production path. The
-alpha track adds retrieval and UI improvements to the public surface.
+The beta track adds authenticated identity, RBAC/admin, and owner-scoped
+persisted chat/history around the canonical Alpha server-side RAG contract.
+Alpha remains the only corpus, ingest, retrieval, inference, grounding,
+citation, timestamp, and enriched-moment authority; Beta has no second corpus
+or ingest lane.
 
 ### Beta 0.1 source and live-evidence discipline
 
@@ -149,11 +151,14 @@ from the Beta 0.1 exit decision.
 
 ### Worker topology and deployment targeting
 
-The two-worker design is duplicated by environment: `wtfmedia-web` serves
-`wtfhq.in` and binds privately to `wtfmedia-edge`; `wtfmedia-web-staging`
-serves the staging Workers hostname and binds privately to
-`wtfmedia-edge-staging`. Public Alpha is a set of routes on the production web
-worker, not a third Worker. Do not delete either Edge Worker as a cleanup step.
+The web/edge compute pair is duplicated by environment, but the corpus is not:
+`wtfmedia-web` serves `wtfhq.in` and binds privately to `wtfmedia-edge`;
+`wtfmedia-web-staging` serves the staging hostname and binds privately to
+`wtfmedia-edge-staging`. The staging edge keeps only staging Clerk/D1 identity
+and persistence state and calls the production web Worker's public `/api/chat`
+contract through an explicit read-only service binding. Public Alpha is a set
+of routes on the production web worker, not a third Worker. Do not attach
+Vectorize, R2, KV, or ingest queues to the Beta staging edge.
 
 Deploy scripts fail closed when no environment is named. Use
 `npm --prefix web run cf:deploy:staging` for the reviewed staging lane, and
