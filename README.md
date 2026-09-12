@@ -66,9 +66,11 @@ See the [release notes](docs/releases/v0.3.3-beta.1.md) and
 [changelog](CHANGELOG.md).
 
 The next integrated source candidate uses aligned `0.3.3-beta.3` manifests.
-It is not yet a tag or deployment. The existing remote `v0.3.3-beta.2` tag
-points at an older commit whose release note called it source-only; that
-history must be explicitly reconciled before publishing another prerelease.
+It is not yet a tag or deployment. The existing remote `v0.3.3-beta.2` tag is
+preserved as immutable, historically inconsistent provenance: it points at an
+older commit whose packages still declare `0.3.3-beta.1`, is not the current
+Beta, and is not a deployment receipt. It must never be deleted, moved, reused,
+or reinterpreted; a later prerelease is published only after final acceptance.
 
 Cross-timeline alignment and synchronized uncut playback remain explicitly
 held; an approved Frame.io episode URL is not itself a timestamp mapping.
