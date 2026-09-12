@@ -80,6 +80,7 @@ test("operator principals land on the canonical Beta workspace root", () => {
     kind: "operator", operatorId: 7, role: "editor", email: "operator@example.test", displayName: "Operator", environment: "staging", correlationId: "corr-principal-operator",
   });
   assert.equal(dto.landingRoute, "/beta/workspace");
+  assert.equal(dto.capabilities.some((capability) => capability.startsWith("ingest:")), false);
 });
 
 test("principal DTO type permits only canonical Beta landing routes", () => {

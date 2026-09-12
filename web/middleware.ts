@@ -26,7 +26,8 @@ async function routeMiddleware(request: NextRequest) {
     const target = request.nextUrl.clone();
     const suffix = pathname.slice("/beta/ops".length);
     if (!suffix) target.pathname = "/beta/workspace";
-    else if (suffix === "/production" || suffix === "/episodes" || suffix === "/ingest") target.pathname = `/beta/workspace${suffix}`;
+    else if (suffix === "/ingest") target.pathname = "/beta/workspace";
+    else if (suffix === "/production" || suffix === "/episodes") target.pathname = `/beta/workspace${suffix}`;
     else if (suffix === "/operators") target.pathname = "/beta/admin/users";
     else if (suffix === "/audit") target.pathname = "/beta/admin/audit";
     else if (suffix === "/profile") target.pathname = "/beta/settings";
