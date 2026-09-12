@@ -5,6 +5,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AskComposer } from "@/components/domain/public/AskComposer";
+import { ChatAnswerMarkdown } from "@/components/domain/public/ChatAnswerMarkdown";
 import { ConversationEmptyState, ConversationThreadFrame } from "@/components/domain/public/ConversationThread";
 import { SourcePanel } from "@/components/domain/public/SourcePanel";
 import { Drawer } from "@/components/ui/Drawer";
@@ -26,7 +27,7 @@ function Thread({ view, sending, canRetry, onRetry, loadingEarlier, onLoadEarlie
     renderContent={({ scrollAnchor }) => <div className="mx-auto max-w-3xl space-y-6 pr-1">{view.previousMessageCursor ? <div className="flex justify-center"><Button type="button" variant="ghost" className="text-xs" onClick={onLoadEarlier} loading={loadingEarlier} disabled={loadingEarlier} data-testid="load-earlier-messages">load earlier messages</Button></div> : null}{view.messages.map((message, messageIndex) => {
       const presentation = memberAnswerPresentation(message);
       const sourceQuestion = view.messages.slice(0, messageIndex).reverse().find((candidate) => candidate.role === "user")?.content;
-      return <article key={message.id} className={message.role === "user" ? "flex justify-end" : "space-y-3"}>{message.role === "user" ? <p className="max-w-[85%] rounded-control border-2 border-foreground bg-attention px-4 py-3 text-sm text-on-attention">{message.content}</p> : <><div className="border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary whitespace-pre-wrap">{message.content}</div>{presentation.sources.length ? <SourcePanel sources={presentation.sources} citedIndices={presentation.citedIndices} effectiveSourceMode={message.sourceMode} moments={presentation.moments} question={sourceQuestion} /> : null}{presentation.abstained ? <p className="text-xs font-medium italic text-secondary" data-testid="abstention-label">the catalogue doesn&apos;t support that claim</p> : null}{presentation.uncutUnavailable ? <p className="text-xs text-secondary">uncut evidence was unavailable; any published evidence remains labelled.</p> : null}</>}</article>;
+      return <article key={message.id} className={message.role === "user" ? "flex justify-end" : "space-y-3"}>{message.role === "user" ? <p className="max-w-[85%] rounded-control border-2 border-foreground bg-attention px-4 py-3 text-sm text-on-attention">{message.content}</p> : <><div className="prose-chat border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary"><ChatAnswerMarkdown content={message.content} sources={presentation.sources} /></div>{presentation.sources.length ? <SourcePanel sources={presentation.sources} citedIndices={presentation.citedIndices} effectiveSourceMode={message.sourceMode} moments={presentation.moments} question={sourceQuestion} /> : null}{presentation.abstained ? <p className="text-xs font-medium italic text-secondary" data-testid="abstention-label">the catalogue doesn&apos;t support that claim</p> : null}{presentation.uncutUnavailable ? <p className="text-xs text-secondary">uncut evidence was unavailable; any published evidence remains labelled.</p> : null}</>}</article>;
     })}{sending ? <p role="status" className="border-l-4 border-knowledge pl-4 text-sm font-semibold text-secondary" data-testid="loading-indicator">looking through the catalogue</p> : null}{canRetry ? <div className="flex justify-center border-t-2 border-foreground/15 px-4 py-3"><Button type="button" variant="ghost" className="text-xs" onClick={onRetry} data-testid="retry-button">retry answer</Button></div> : null}{scrollAnchor}</div>}
   />;
 }
@@ -269,7 +270,7 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
     placement="inline"
   />;
 
-  return <div className="flex h-[calc(100vh-4.5rem-env(safe-area-inset-top))] min-h-0 flex-col bg-canvas" data-member-chat-workspace>
+  return <div className="flex h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] min-h-0 flex-col bg-canvas" data-member-chat-workspace>
     <div className="mx-auto w-full shrink-0 max-w-[var(--wtf-content-max)] px-4 pt-5 sm:px-8 xl:px-12">
       <div className="flex min-w-0 flex-wrap items-start justify-between gap-4 border-b-2 border-foreground pb-4">
         <div className="min-w-0 flex-1">

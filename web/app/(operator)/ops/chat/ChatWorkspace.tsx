@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { AskComposer } from "@/components/domain/public/AskComposer";
+import { ChatAnswerMarkdown } from "@/components/domain/public/ChatAnswerMarkdown";
+import type { PublicSourceCitation } from "@/lib/provenance/public-source-header";
 import { ConversationThreadFrame } from "@/components/domain/public/ConversationThread";
 import { Button } from "@/components/ui/Button";
 import { ChatSessionNavigator } from "./ChatSessionNavigator";
@@ -114,6 +116,15 @@ function sourceText(source: unknown, key: string): string {
   if (!source || typeof source !== "object" || Array.isArray(source)) return "";
   const value = (source as Record<string, unknown>)[key];
   return typeof value === "string" || typeof value === "number" ? String(value) : "";
+}
+
+function markdownSources(message: ChatMessage): PublicSourceCitation[] {
+  return (message.sources ?? []).map((source, index) => ({
+    n: Number(sourceText(source, "n")) || index + 1,
+    title: sourceText(source, "title") || undefined,
+    url: sourceText(source, "url") || undefined,
+    timeSec: Number(sourceText(source, "start")) || undefined,
+  }));
 }
 
 function MessageMetadata({ message }: { message: ChatMessage }) {
@@ -350,8 +361,9 @@ export function ChatWorkspace({ view, conversationId }: { view: ChatView; conver
           <ConversationThreadFrame
             contentVersion={conversation.messages ?? []}
             layoutVersion={conversation.id}
+            composerPlacement="fixed"
             renderFooter={() => <ChatComposer conversationId={conversation.id} onSent={load} />}
-            renderContent={({ scrollAnchor }) => <div className="mx-auto max-w-3xl space-y-4" aria-label="conversation messages">{(conversation.messages ?? []).map((message) => <article key={message.id} className="border-2 border-foreground/20 bg-surface-raised p-5" data-message-role={message.role}><p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{message.role}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{message.content}</p><MessageMetadata message={message} /></article>)}{scrollAnchor}</div>}
+            renderContent={({ scrollAnchor }) => <div className="mx-auto max-w-3xl space-y-4" aria-label="conversation messages">{(conversation.messages ?? []).map((message) => <article key={message.id} className="border-2 border-foreground/20 bg-surface-raised p-5" data-message-role={message.role}><p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{message.role}</p>{message.role === "assistant" ? <div className="prose-chat mt-2 text-sm leading-relaxed text-foreground"><ChatAnswerMarkdown content={message.content} sources={markdownSources(message)} /></div> : <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{message.content}</p>}<MessageMetadata message={message} /></article>)}{scrollAnchor}</div>}
           />
           </>
         ) : null}
