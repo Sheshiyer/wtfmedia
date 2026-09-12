@@ -31,7 +31,7 @@ export const ContainedAndDismissible: Story = {
     const menuRect = menu.getBoundingClientRect();
     const utilityRect = utility.getBoundingClientRect();
     if (utilityRect.left < menuRect.left || utilityRect.right > menuRect.right) throw new Error("Logout control must stay inside menu");
-    if (document.documentElement.scrollWidth > 320) throw new Error("Member menu must not create horizontal overflow");
+    if (document.documentElement.scrollWidth > document.documentElement.clientWidth) throw new Error("Member menu must not create horizontal overflow");
     await userEvent.keyboard("{Escape}");
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
     await userEvent.click(toggle);
