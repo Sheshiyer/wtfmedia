@@ -42,6 +42,7 @@ describe("member conversation lifecycle", () => {
   it("uses the shared Alpha conversation frame instead of a private thread fork", () => {
     expect(workspace).toContain("ConversationThreadFrame");
     expect(workspace).toContain("renderFooter={() =>");
+    expect(workspace).toContain('composerPlacement="fixed"');
     expect(workspace).toContain('placement="inline"');
   });
 

@@ -21,6 +21,7 @@ function Thread({ view, sending, canRetry, onRetry, loadingEarlier, onLoadEarlie
   return <ConversationThreadFrame
     contentVersion={view.messages}
     layoutVersion={sending}
+    composerPlacement="fixed"
     renderFooter={renderFooter}
     renderContent={({ scrollAnchor }) => <div className="mx-auto max-w-3xl space-y-6 pr-1">{view.previousMessageCursor ? <div className="flex justify-center"><Button type="button" variant="ghost" className="text-xs" onClick={onLoadEarlier} loading={loadingEarlier} disabled={loadingEarlier} data-testid="load-earlier-messages">load earlier messages</Button></div> : null}{view.messages.map((message, messageIndex) => {
       const presentation = memberAnswerPresentation(message);

@@ -227,7 +227,7 @@ export function AppRail({
                 role="group"
                 aria-label="Account and display"
                 data-navigation-utilities
-                className="flex items-center justify-center gap-1 border-b-2 border-foreground/20 pb-2"
+                className="flex min-w-0 flex-wrap items-center justify-center gap-1 border-b-2 border-foreground/20 pb-2"
               >
                 {mode === "operator" ? (
                   <Link
