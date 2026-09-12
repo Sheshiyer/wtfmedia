@@ -26,5 +26,6 @@ describe("member workspace navigation", () => {
   it("bounds the hamburger disclosure below the fixed rail", () => {
     expect(appRail).toContain("max-h-[calc(100dvh-5.5rem)]");
     expect(appRail).toContain("overflow-y-auto");
+    expect(appRail).toContain("flex min-w-0 flex-wrap items-center");
   });
 });

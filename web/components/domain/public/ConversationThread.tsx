@@ -64,6 +64,8 @@ export interface ConversationThreadFrameProps {
   layoutVersion?: unknown;
   renderContent: (props: ConversationThreadFrameRenderProps) => ReactNode;
   renderFooter?: (placement: ConversationComposerPlacement) => ReactNode;
+  /** Private Beta keeps the composer in the viewport while its thread scrolls. */
+  composerPlacement?: "auto" | "fixed";
   ariaLabel?: string;
 }
 
@@ -72,6 +74,7 @@ export function ConversationThreadFrame({
   layoutVersion,
   renderContent,
   renderFooter,
+  composerPlacement = "auto",
   ariaLabel = "Conversation",
 }: ConversationThreadFrameProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -119,7 +122,7 @@ export function ConversationThreadFrame({
     checkOverflow();
   }, [contentVersion, layoutVersion, checkOverflow]);
 
-  const placement: ConversationComposerPlacement = isOverflowing ? "inline" : "fixed";
+  const placement: ConversationComposerPlacement = composerPlacement === "fixed" || !isOverflowing ? "fixed" : "inline";
 
   return (
     <>
