@@ -3,11 +3,9 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { SourcePanel, type SourceCitation } from "./SourcePanel";
 import { Button } from "@/components/ui/Button";
-import { toCitedMarkdown } from "@/lib/public/chat-citations";
+import { ChatAnswerMarkdown } from "./ChatAnswerMarkdown";
 import type { AnswerQueryScope } from "@/lib/public/source-panel-model";
 import type { SourceMode } from "@/lib/provenance/source-mode";
 import type { PublicMomentsPayload } from "@/lib/provenance/public-moment-header";
@@ -130,7 +128,7 @@ export function ConversationThreadFrame({
         ref={scrollContainerRef}
         className="min-h-0 flex-1 overflow-y-auto px-4 pt-4 sm:pt-6"
         data-testid="conversation-thread"
-        data-composer-placement={isOverflowing ? "inline" : "fixed"}
+        data-composer-placement={placement}
         tabIndex={0}
         role="log"
         aria-label={ariaLabel}
@@ -324,18 +322,7 @@ export function ConversationThread({
                   ) : (
                     <div className="space-y-2">
                       <div className="prose-chat border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={{
-                            a: ({ href, children }) => href?.startsWith("/") ? (
-                              <Link href={href} className="cite">{children}</Link>
-                            ) : (
-                              <a href={href} target="_blank" rel="noreferrer">{children}</a>
-                            ),
-                          }}
-                        >
-                          {toCitedMarkdown(msg.content, msg.sources ?? [])}
-                        </ReactMarkdown>
+                        <ChatAnswerMarkdown content={msg.content} sources={msg.sources ?? []} />
                       </div>
 
                       {msg.sources && msg.sources.length > 0 && (
