@@ -1,5 +1,46 @@
 # Project handoff
 
+## 2026-09-12 Issue #78 staging deployment and operator acceptance
+
+**Status:** STAGING DEPLOYED; REAL OPERATOR IAB PASS; MEMBER ACCEPTANCE OPEN.
+
+- The owner authorized IAB verification followed by staging deployment. Source
+  `017e952bdf3ccb58367d489d4c76ab6f19ee320b` is pushed on
+  `codex/issue78-chat-integration`; these receipt updates are documentation only.
+- `wtfmedia-web-staging` serves `https://beta-staging.wtfhq.in` at 100% on
+  version `35e29c22-9464-45f1-8943-d62e1471fb9b`, deployment
+  `cfe5dda2-0344-4530-a64a-bf6cfc5c820b`. Service and secret bindings are
+  preserved. No release branch, PR, tag, DNS, auth, schema, corpus, or queue
+  changes accompanied this deployment.
+- The first upload, `a62d3d31-4e92-46b0-9c0c-b736ce65c324`, returned HTTP 500:
+  symlinked dependencies left a dynamic middleware-manifest require in the
+  OpenNext bundle. Staging was restored to
+  `b4e4ef19-2990-4f1b-bdf1-c9d8d8556792` and `/sign-in` returned 200.
+  Local `npm ci` and a clean `.next`/`.open-next` rebuild fixed the failure
+  without package, lockfile, source, configuration, or middleware changes.
+  Both dependency trees now resolve inside this worktree as real directories.
+- The rebuilt Worker passes local `/episodes` 200 and GET `/api/chat` 405,
+  plus the Cloudflare build and staging dry run. Temporary Wrangler 4.131.1
+  supported the configured compatibility date; the host's 4.124 emulator did
+  not. Final live `/sign-in` and `/episodes` return 200; GET `/api/chat` is 405.
+- Real Clerk/D1 operator IAB reopened an existing saved conversation. Markdown
+  renders six bold spans, one list, and 24 episode citation links. At 1382x887
+  the composer spans y795–871; at 320x710 it spans y622–694 and the final
+  answer clears it by 31.875px. Question and answer share x32–284 on mobile.
+  The title clamps to two lines, and neither viewport overflows horizontally.
+- The live mobile operator menu spans x68.005–308.005; account/theme controls
+  remain contained and Escape returns focus to the toggle. Fresh local member
+  component QA separately verifies logout containment and outside dismissal.
+  The authenticated document returned 200 with no failed requests, HTTP
+  errors, or console errors during the final IAB checks.
+- Inventory confirms unchanged staging Edge
+  `71f8c529-1040-4248-8e36-351741fc4edb`, production Web
+  `3d5a5965-14f3-486a-a608-330d539dec81`, and production Edge
+  `ccd1d952-5be7-41c9-9275-f9d6b3b470a7`.
+- ISC-344 remains open for real member acceptance and the broader persona
+  matrix. The earlier 229 unit / 97 contract passes remain source evidence;
+  those suites were not rerun during this deployment turn.
+
 ## 2026-09-12 Issue #78 private chat presentation repair
 
 **Status:** REVIEWED LOCAL SOURCE AND COMPONENT QA PASS. No push, PR update,

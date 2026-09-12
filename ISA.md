@@ -7,7 +7,7 @@ phase: verify
 progress: 177/344
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-12T17:27:05+00:00
+updated: 2026-09-12T18:16:46+00:00
 ---
 
 ## Problem
@@ -469,8 +469,8 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-340: The private conversation composer remains at the bottom of its bounded viewport while long messages scroll independently (probe: component geometry assertions at desktop and narrow widths).
 - [x] ISC-341: Private user messages remain in the same bounded message column as assistant answers (probe: component geometry and workspace source review).
 - [x] ISC-342: Beta navigation contains its logout/theme controls and prevents open-menu controls from colliding with conversation actions (probe: rendered menu inspection and keyboard dismissal).
-- [x] ISC-343: Anti: this presentation repair changes no inference, corpus, identity, authorization, persistence, external deployment, or existing branch state (probe: scoped Git diff and command receipt).
-- [ ] ISC-344: [DEFERRED-VERIFY: issue #78] The reviewed patch passes real member and operator acceptance on canonical Beta staging after an authorized deployment (probe: authenticated IAB; local component checks do not satisfy this criterion).
+- [x] ISC-343: Anti: this presentation repair changes no inference, corpus, identity, authorization, persistence, release branch, or unapproved external state (probe: scoped Git diff, authorized deployment/push, and unchanged-plane receipts).
+- [ ] ISC-344: [DEFERRED-VERIFY: member acceptance] The reviewed patch passes real member and operator acceptance on canonical Beta staging after an authorized deployment; operator PASS, member PENDING (probe: authenticated IAB; local component checks do not satisfy the member gate).
 
 ## Test Strategy
 
@@ -478,7 +478,7 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 |---|---|---|---|---|
 | ISC-339 | rendering | shared Markdown and citation semantics | all focused checks pass | Vitest and IAB component inspection |
 | ISC-340..342 | presentation | viewport, message column, and navigation geometry | composer visible; no control collisions | isolated component stories and IAB |
-| ISC-343 | anti | source and external state scope | presentation-only diff; no external mutation | Git and command receipt |
+| ISC-343 | anti | source and external state scope | presentation-only source; only authorized staging Web and feature branch change | Git, Wrangler, and command receipts |
 | ISC-344 | acceptance | exact-candidate real member/operator staging | both personas pass | canonical-host authenticated IAB |
 | ISC-1..12 | governance | Git, Manifest, ISA, GSD, and goal authority resolve coherently | all probes pass | Git, Temperance doctor, GSD parser |
 | ISC-13..24 | narrative/IA | route map and page copy express public projection versus internal OS | 100% assertions | browser DOM suite + copy snapshots |
@@ -641,6 +641,9 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 | Integration and acceptance receipt | Verify the scoped patch and record remaining live acceptance | ISC-343..344 | both implementation lanes | no |
 
 ## Decisions
+
+- 2026-09-12: refined: the owner authorized IAB verification followed by staging deployment for issue #78. ISC-343 permits this bounded staging Web deployment and feature-branch push while preserving release branches, production, Edge, auth, persistence, and corpus boundaries. ISC-344 remains open for member acceptance after a real operator IAB pass.
+- 2026-09-12: the first OpenNext upload failed because symlinked dependencies left a dynamic middleware-manifest require. Restoring the previous staging version, installing local dependencies from the unchanged lockfile, and rebuilding repaired the runtime without a source/configuration change or middleware bypass. Future deployment builds require local dependency provenance and a compatible local Worker route probe.
 
 - 2026-09-12: Issue #78 is a presentation repair on clean staged-source candidate `32c1c3f`. Terra high owns the extracted renderer; Luna medium owns existing workspace/frame/menu wiring. The dirty primary checkout and older `beta_0.1`/PR #77 remain preserved. GPT-5.3 Spark was quota-blocked and standard GPT-5.3 was unsupported, so initial GitHub inspection used the local CLI. The real staging IAB is signed out; live acceptance is still required under ISC-344.
 
@@ -816,8 +819,8 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 - ISC-340: IAB component geometry — at 320x710 and 1382x887 the fixed composer bottoms are 694.01px and 871.28px; long messages scroll with final-message clearance and no horizontal overflow.
 - ISC-341: source/component review — the shared member/operator Beta route renders question and answer articles inside one bounded message column; the viewport is height-constrained and the title clamps to two lines with full accessible text. Authenticated route acceptance remains ISC-344.
 - ISC-342: IAB component geometry and keyboard — at 320px the menu spans 68.01–308.01px and logout spans 105.48–270.53px; desktop containment also passes. Escape restores toggle focus, outside click closes, and corrected stories log no errors.
-- ISC-343: Git and command receipt — only presentation, tests, registry, and documentation change from `32c1c3f`; no backend/auth/persistence/corpus/remote mutation occurred. GPT-5.3 confirmed PR #77 remains at `7ec8298664a40b7b138f2b8d042d89858645cb67`. Final web unit 229/229, contracts 97/97, typecheck, lint, 89-page build, privacy 0/401, and architecture 637-input checks pass.
-- ISC-344: deferred — actual canonical-host IAB is signed out. Component QA does not establish Clerk/D1-authenticated staging acceptance, and no deployment was performed.
+- ISC-343: initial source verification changed only presentation, tests, registry, and documentation from `32c1c3f`; web unit 229/229, contracts 97/97, typecheck, lint, build, privacy, and architecture checks passed. The subsequent owner-authorized deployment changed only staging Web and `codex/issue78-chat-integration`. Source `017e952` is pushed; live Web version `35e29c22-9464-45f1-8943-d62e1471fb9b` has preserved bindings. Wrangler confirms staging Edge and both production versions are unchanged. The unit/contract suites were not rerun during the deployment turn.
+- ISC-344: operator PASS, member PENDING — real Clerk/D1 operator IAB reopened the saved conversation on canonical staging after deployment. At 1382x887 and 320x710 the composer is fixed and messages remain in one column; mobile last-answer clearance is 31.875px with no horizontal overflow. Six bold spans, one list, and 24 episode citation links render. Mobile menu utilities remain contained and Escape restores toggle focus. The document returned 200 with no failed requests, HTTP errors, or console errors. Real member acceptance and the broader persona matrix remain open.
 
 - Baseline repository probe: current checkout contains `web`, `cloudflare`, `video`, `agent`, 14 product modules in `PRD.md`, and a deployed 55-episode catalogue surface.
 - Baseline source probe: workbook parsing found five sheets and 62 non-empty episode rows; raw links were inspected in memory and were not written into this artifact.

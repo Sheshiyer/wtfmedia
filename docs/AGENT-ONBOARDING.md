@@ -166,6 +166,16 @@ reserve `cf:deploy:production` for an explicitly authorized production action.
 The Edge package follows the same `deploy:staging` / `deploy:production`
 pattern.
 
+Build OpenNext with dependencies installed inside the current worktree using
+`npm --prefix web ci`. A symlinked `web/node_modules` has repeatedly produced a
+bundle that builds successfully but returns HTTP 500 when loading
+`/.next/server/middleware-manifest.json`. Verify both the local and generated
+server dependency trees resolve inside the worktree before deployment.
+Probe the built Worker locally with an emulator supporting the configured
+compatibility date: `/episodes` should return 200 and GET `/api/chat` should
+return 405. These public probes need no Clerk secret. Verify authenticated
+routes on canonical staging; do not disable middleware to pass a build check.
+
 The company member Beta is a separate staging-only `/beta` lane. Any verified
 Clerk user who is not an active D1 operator receives an owner-scoped member
 account on first access. Admin, editor, and super-admin authority remains an
