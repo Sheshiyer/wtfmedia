@@ -67,7 +67,8 @@ describe("Beta open-enrollment copy", () => {
     expect(askComposer).toContain('placement?: "fixed" | "inline"');
     expect(askComposer).toContain('bottom-[calc(1rem+env(safe-area-inset-bottom))]');
     expect(conversationThread).toContain("ResizeObserver");
-    expect(conversationThread).toContain('data-composer-placement={isOverflowing ? "inline" : "fixed"}');
+    expect(conversationThread).toContain('data-composer-placement={placement}');
+    expect(conversationThread).toContain('composerPlacement?: "auto" | "fixed"');
     expect(conversationThread).toContain("data-fixed-composer");
   });
 
