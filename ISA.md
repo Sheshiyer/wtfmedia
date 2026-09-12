@@ -4,10 +4,10 @@ task: "Re-found WTF Media as an evidence-native podcast operating system"
 effort: deep
 effort_source: classifier
 phase: verify
-progress: 172/338
+progress: 177/344
 mode: interactive
 started: 2026-08-18T11:39:10Z
-updated: 2026-09-12T07:35:00+05:30
+updated: 2026-09-12T17:27:05+00:00
 ---
 
 ## Problem
@@ -463,10 +463,23 @@ Establish WTF Media as a governed, evidence-native podcast operating system: ISA
 - [x] ISC-337: Web rollback moves final `b4e4ef19-2990-4f1b-bdf1-c9d8d8556792` to predecessor `d098c2ce-fd70-4540-bad3-cc547a8f276d` and restores the final version at 100%, while signed-out ingress and public Alpha return HTTP 200 (probe: Wrangler version deployment and exact-host HTTP receipts).
 - [x] ISC-338: Anti: final staging work changes no production Worker version, production data, corpus, D1 row, DNS, Clerk configuration, tag, PR #48, PR #77, or `beta_0.1`; production remains Edge `ccd1d952-5be7-41c9-9275-f9d6b3b470a7` and Web `3d5a5965-14f3-486a-a608-330d539dec81` (probe: production readback, D1 aggregates, GitHub/refs readback, and command ledger).
 
+### Issue #78: private chat presentation
+
+- [x] ISC-339: Public, member, and operator assistant answers use the same Markdown renderer, including Alpha citation links (probe: rendered-markup tests and source wiring review).
+- [x] ISC-340: The private conversation composer remains at the bottom of its bounded viewport while long messages scroll independently (probe: component geometry assertions at desktop and narrow widths).
+- [x] ISC-341: Private user messages remain in the same bounded message column as assistant answers (probe: component geometry and workspace source review).
+- [x] ISC-342: Beta navigation contains its logout/theme controls and prevents open-menu controls from colliding with conversation actions (probe: rendered menu inspection and keyboard dismissal).
+- [x] ISC-343: Anti: this presentation repair changes no inference, corpus, identity, authorization, persistence, external deployment, or existing branch state (probe: scoped Git diff and command receipt).
+- [ ] ISC-344: [DEFERRED-VERIFY: issue #78] The reviewed patch passes real member and operator acceptance on canonical Beta staging after an authorized deployment (probe: authenticated IAB; local component checks do not satisfy this criterion).
+
 ## Test Strategy
 
 | ISC range | Type | Check | Threshold | Tool |
 |---|---|---|---|---|
+| ISC-339 | rendering | shared Markdown and citation semantics | all focused checks pass | Vitest and IAB component inspection |
+| ISC-340..342 | presentation | viewport, message column, and navigation geometry | composer visible; no control collisions | isolated component stories and IAB |
+| ISC-343 | anti | source and external state scope | presentation-only diff; no external mutation | Git and command receipt |
+| ISC-344 | acceptance | exact-candidate real member/operator staging | both personas pass | canonical-host authenticated IAB |
 | ISC-1..12 | governance | Git, Manifest, ISA, GSD, and goal authority resolve coherently | all probes pass | Git, Temperance doctor, GSD parser |
 | ISC-13..24 | narrative/IA | route map and page copy express public projection versus internal OS | 100% assertions | browser DOM suite + copy snapshots |
 | ISC-25..40 | design tokens | semantic tokens reproduce the committed brand with accessible contrast | 100% schema checks; WCAG AA | token tests + contrast audit + visual snapshots |
@@ -619,7 +632,17 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 
 <!-- arch-assets:end -->
 
+### Issue #78 implementation lanes
+
+| Name | Description | Satisfies | Depends on | Parallelizable |
+|---|---|---|---|---|
+| Shared answer renderer | Extract Alpha Markdown behavior for both private audiences | ISC-339 | existing Alpha renderer | yes |
+| Private frame and navigation | Bound scrolling, composer, column, and menu geometry | ISC-340..342 | shared answer renderer for wiring | yes, isolated worktree |
+| Integration and acceptance receipt | Verify the scoped patch and record remaining live acceptance | ISC-343..344 | both implementation lanes | no |
+
 ## Decisions
+
+- 2026-09-12: Issue #78 is a presentation repair on clean staged-source candidate `32c1c3f`. Terra high owns the extracted renderer; Luna medium owns existing workspace/frame/menu wiring. The dirty primary checkout and older `beta_0.1`/PR #77 remain preserved. GPT-5.3 Spark was quota-blocked and standard GPT-5.3 was unsupported, so initial GitHub inspection used the local CLI. The real staging IAB is signed out; live acceptance is still required under ISC-344.
 
 - 2026-09-12 07:35 IST: refined: final candidate `409a8ae` removes the duplicate Beta ingest surface while preserving Alpha `/ops/ingest`, and fixes the live Clerk logout seam exposed during signed-out acceptance. Isolated staging now runs Edge `71f8c529-1040-4248-8e36-351741fc4edb` and Web `b4e4ef19-2990-4f1b-bdf1-c9d8d8556792`; real logout and signed-out denial pass. Exact Edge and Web rollback/restore rehearsals pass, the separately authorized inert `INGEST_TOKEN` is absent, and production remains unchanged. `v0.3.3-beta.2` is immutable historical inconsistency, and operator history remains Archive-only. The real Member A/B, editor, admin, and suspended/revoked matrix remains required.
 - 2026-09-12 05:00 IST: refined: live QA found that Beta's local citation-index parsing did not recognize Alpha's canonical grouped marker form `[1, 2]`, allowing a grounded answer with valid rich sources to display a false abstention label. Beta now reuses Alpha's canonical parser, and acceptance distinguishes answer-cited excerpt count from the separate editor-sheet moment projection. Exact conversation identifiers remain outside repository evidence.
@@ -704,6 +727,12 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
 
 ## Changelog
 
+- 2026-09-12:
+  - Conjectured: reusing the Alpha frame alone preserved private chat presentation.
+  - Refuted by: issue #78 screenshots and source review showed private plain-text answers and an overflow-triggered inline composer.
+  - Learned: shared rendering and an explicitly bounded private viewport are separate contracts; test both at desktop and narrow widths.
+  - Criterion now: ISC-339 through ISC-343 pass local source/component checks; ISC-344 requires real staging acceptance.
+
 - 2026-09-12 | conjectured: preserving Alpha's answer and rich source envelope was sufficient for Beta to classify every grounded response correctly
   refuted by: live QA reproduced a grounded answer whose grouped marker `[1, 2]` was missed by Beta's divergent parser, producing a false abstention label even though rich sources persisted
   learned: citation meaning must have one canonical parser across Alpha and Beta, and UI counts must distinguish cited answer excerpts from the larger editor-sheet moment projection
@@ -782,6 +811,13 @@ _Last refreshed: 2026-09-09T09:09:45.629Z_
   criterion now: ISC-252, ISC-257, and ISC-261 are tombstoned; ISC-262 through ISC-282 define the exact-source, staging, production, and deferred-work gates
 
 ## Verification
+
+- ISC-339: rendered markup and IAB — shared Markdown passes bold/list/grouped-citation and inert-markup checks; all three answer slots use the extracted Alpha renderer at `e48e214`.
+- ISC-340: IAB component geometry — at 320x710 and 1382x887 the fixed composer bottoms are 694.01px and 871.28px; long messages scroll with final-message clearance and no horizontal overflow.
+- ISC-341: source/component review — the shared member/operator Beta route renders question and answer articles inside one bounded message column; the viewport is height-constrained and the title clamps to two lines with full accessible text. Authenticated route acceptance remains ISC-344.
+- ISC-342: IAB component geometry and keyboard — at 320px the menu spans 68.01–308.01px and logout spans 105.48–270.53px; desktop containment also passes. Escape restores toggle focus, outside click closes, and corrected stories log no errors.
+- ISC-343: Git and command receipt — only presentation, tests, registry, and documentation change from `32c1c3f`; no backend/auth/persistence/corpus/remote mutation occurred. GPT-5.3 confirmed PR #77 remains at `7ec8298664a40b7b138f2b8d042d89858645cb67`. Final web unit 229/229, contracts 97/97, typecheck, lint, 89-page build, privacy 0/401, and architecture 637-input checks pass.
+- ISC-344: deferred — actual canonical-host IAB is signed out. Component QA does not establish Clerk/D1-authenticated staging acceptance, and no deployment was performed.
 
 - Baseline repository probe: current checkout contains `web`, `cloudflare`, `video`, `agent`, 14 product modules in `PRD.md`, and a deployed 55-episode catalogue surface.
 - Baseline source probe: workbook parsing found five sheets and 62 non-empty episode rows; raw links were inspected in memory and were not written into this artifact.

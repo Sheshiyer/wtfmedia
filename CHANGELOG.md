@@ -5,6 +5,12 @@ versioning; the web application version is held in `web/package.json`.
 
 ## [Unreleased]
 
+- Repaired private Beta chat presentation for #78: reuse Alpha Markdown and
+  citation rendering, keep the composer at the viewport bottom while messages
+  scroll, constrain the conversation column and long titles, and contain menu
+  utility controls at narrow widths. Locally verified; staging acceptance is
+  pending.
+
 - Removed the duplicate Beta ingest destination while preserving Alpha's
   existing ingest and evidence authority; repaired the real Clerk logout path,
   recorded exact staging rollback receipts, and reconciled `v0.3.3-beta.2` as

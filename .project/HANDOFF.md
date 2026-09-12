@@ -1,5 +1,61 @@
 # Project handoff
 
+## 2026-09-12 Issue #78 private chat presentation repair
+
+**Status:** REVIEWED LOCAL SOURCE AND COMPONENT QA PASS. No push, PR update,
+merge, deployment, or authenticated staging acceptance occurred.
+
+- Issue: [#78](https://github.com/Sheshiyer/wtfmedia/issues/78). Integration
+  branch: `codex/issue78-chat-integration`, based on clean staged-source
+  candidate `32c1c3f`. Reviewed code/test head: `e48e214`; this handoff and
+  generated architecture receipts are documentation successors.
+- Terra high extracted `ChatAnswerMarkdown` from Alpha's existing renderer.
+  Public Alpha, the shared member/operator Beta workspace, and the legacy
+  operator answer view now preserve the same Markdown and episode-citation
+  semantics. User questions remain plain text; rich source sheets remain
+  unchanged. Legacy operator citation mapping retains explicit episode IDs
+  and never infers identity from URLs.
+- Luna medium constrained the shared Beta workspace to the dynamic viewport,
+  kept the private composer fixed while messages scroll, retained user and
+  assistant messages in the reading column, and bounded long titles to two
+  lines while retaining the full accessible text. Public Alpha and legacy
+  operator automatic composer behavior remain intact.
+- Menu utilities now wrap inside the bounded scrollable disclosure. Its
+  logout and theme controls stay inside the panel, including at narrow widths.
+- GPT-5.3 Spark completed read-only GitHub and file-scope processing after its
+  initial quota/context failures. It confirmed issue #78 remains open and
+  PR #77 remains `beta_0.1` into `release/beta`, with head
+  `7ec8298664a40b7b138f2b8d042d89858645cb67`.
+
+### Verification
+
+- Full web unit suite: **229/229**. Contracts: **97/97**.
+- TypeScript, ESLint, Next production build (**89 pages**), architecture
+  freshness (**637 inputs**), and `git diff --check` pass.
+- Privacy scan: **0 violations across 401 files**.
+- Independent Terra high QA used the Codex in-app browser and inspected real
+  component screenshots at **320x710** and **1382x887**. Composer bottoms were
+  **694.01px** and **871.28px**, respectively; final story messages remained
+  clear of the composer with no horizontal overflow. This is bounded
+  component evidence, not proof of an authenticated route.
+- Menu logout controls stayed inside the panel at both widths. Escape restored
+  focus to the toggle; outside click dismissed the menu. Markdown headings,
+  lists, and episode links rendered correctly; final browser checks had no
+  console errors.
+
+### Remaining acceptance and pickup
+
+The canonical staging IAB redirected `/beta/chat` to sign-in. **ISC-344 and
+issue #78 remain open for exact-candidate real member/operator verification
+after a separately authorized staging deployment.** The prior broader persona
+matrix remains open. No fake authenticated route, preview, or production data
+was used to satisfy acceptance.
+
+Review the bounded patch with
+`git diff 32c1c3f..codex/issue78-chat-integration`. Preserve the dirty primary
+checkout and the existing source branches. This repair does not advance
+`beta_0.1`, PR #77, PR #48, a release tag, or any deployment.
+
 ## 2026-09-12 Final Beta staging gates and signed-out repair
 
 **Status:** FINAL SOURCE/STAGING/VIEWPORT/SIGNED-OUT/ROLLBACK/RELEASE-POLICY
