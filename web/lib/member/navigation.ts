@@ -15,15 +15,6 @@ export const memberDisclosureGroups: readonly AppNavGroup[] = [
       memberBottomNavigation[1],
     ],
   },
-  {
-    label: "Public Alpha",
-    items: [
-      { href: "/", label: "room", match: ["/"] },
-      { href: "/episodes", label: "episodes", match: ["/episodes*"] },
-      { href: "/connections", label: "connections", match: ["/connections*"] },
-      { href: "/chat", label: "ask wtf", match: ["/chat*"] },
-    ],
-  },
 ];
 
 export function memberDestinationForPath(pathname: string): MemberDestination {

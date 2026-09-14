@@ -4,7 +4,6 @@ import { useAuth } from "@clerk/nextjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { OperatorContextProvider } from "@/components/domain/ops/OperatorContextProvider";
-import { ClerkLogoutButton } from "@/components/domain/ops/ClerkLogoutButton";
 import { AppShell, type AppNavItem } from "@/components/shells/AppShell";
 import { audienceForRole, betaDestinationForPath, capabilityForBetaPath } from "@/lib/beta/navigation";
 import { parsePrincipalContext, principalCanAccess, type PrincipalContext } from "@/lib/beta/principal";
@@ -56,7 +55,6 @@ function Shell({ context, children }: { context: PrincipalContext; children: Rea
     navigation={navigation}
     bottomNavigation={bottomNavigation}
     disclosureGroups={context.kind === "member" ? memberDisclosureGroups : undefined}
-    utility={<ClerkLogoutButton />}
   >{children}</AppShell>;
 }
 
@@ -87,10 +85,16 @@ export function BetaPrincipalGate({ children }: { children: React.ReactNode }) {
   const [admittedKey, setAdmittedKey] = useState<string | null>(null);
 
   const fetchWithSession = useCallback<MemberFetch>(async (input, init) => {
-    const headers = new Headers(init?.headers);
-    const token = await getToken();
-    if (token) headers.set("authorization", `Bearer ${token}`);
-    return fetch(input, { ...init, headers, cache: "no-store" });
+    const send = async (skipCache: boolean) => {
+      const headers = new Headers(init?.headers);
+      const token = skipCache ? await getToken({ skipCache: true }) : await getToken();
+      if (token) headers.set("authorization", `Bearer ${token}`);
+      return fetch(input, { ...init, headers, cache: "no-store" });
+    };
+    const first = await send(false);
+    // A momentarily absent or just-rotated session token must not surface as a
+    // user-facing failure: force one fresh token and replay the request once.
+    return first.status === 401 ? send(true) : first;
   }, [getToken]);
 
   const admit = useCallback(async () => {

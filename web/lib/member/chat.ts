@@ -181,7 +181,10 @@ function parseConversation(value: unknown): MemberConversation | null {
 }
 
 export function canConfirmMemberConversationDeletion(value: string): boolean {
-  return value === "DELETE";
+  // The dialog label renders lowercase ("type delete to confirm"); accept any
+  // casing and surrounding whitespace. The wire contract stays the literal
+  // "DELETE" — the adapter sends that verbatim regardless of typed casing.
+  return value.trim().toUpperCase() === "DELETE";
 }
 
 export function linkedSavedPreferenceDeletionNotice(linkedSavedPreferenceCount?: number): string {

@@ -44,6 +44,50 @@
     { "binding": "DB", "database_name": "wtfmedia-ops", "database_id": "1becf8fa-37e3-49f0-9d7c-9bc91b588466", "remote": true }
   ],
   "env": {
+    // local: wrangler dev only — mirrors staging (member beta chat, staging D1
+    // over remote binding) while keeping the worker name wtfmedia-edge so the
+    // local web dev service binding resolves. Never deploy with --env local.
+    "local": {
+      "name": "wtfmedia-edge",
+      "vars": {
+        "ALLOWED_ORIGIN": "http://localhost:3000",
+        "RATE_LIMIT_PER_MINUTE": "20",
+        // "local" (not "staging") so the dev worker keeps /v1/chat enabled for the
+        // public Alpha chat; Beta routing keys off OPS_ENVIRONMENT, which stays staging.
+        "DEPLOYMENT_ENVIRONMENT": "local",
+        "SERVICE_NAME": "wtfmedia-edge",
+        "CATALOGUE_INDEX_NAME": "wtfmedia-catalogue-v1",
+        "OPS_HOSTNAME": "localhost",
+        "OPS_ORIGIN": "http://localhost:3000",
+        "OPS_ENVIRONMENT": "staging",
+        "CLERK_ISSUER": "https://mighty-hedgehog-2913.clerk.accounts.dev",
+        "CLERK_JWKS_URL": "https://mighty-hedgehog-2913.clerk.accounts.dev/.well-known/jwks.json",
+        "CLERK_AUTHORIZED_PARTIES": "http://localhost:3000"
+      },
+      "services": [
+        {
+          "binding": "WTFMEDIA_ALPHA_WEB",
+          "service": "wtfmedia-web",
+          // Dev-only: bind to the deployed Alpha web (same target staging uses)
+          // so Beta chat answers come from the real Alpha corpus.
+          "remote": true
+        }
+      ],
+      "d1_databases": [
+        { "binding": "DB", "database_name": "wtfmedia-ops-staging", "database_id": "441f29af-9ac9-4a37-88bf-481a17d2f343", "remote": true }
+      ],
+      // Named envs do not inherit top-level bindings; restate what /v1/chat needs.
+      "ai": { "binding": "AI" },
+      "vectorize": [
+        { "binding": "VECTORIZE", "index_name": "wtfmedia-catalogue-v1", "remote": true }
+      ],
+      "kv_namespaces": [
+        { "binding": "WTFMEDIA_STATE", "id": "bb48d85f7ebf4f8da02ac0030cfdf816" }
+      ],
+      "r2_buckets": [
+        { "binding": "CATALOGUE", "bucket_name": "wtfmedia-catalogue" }
+      ]
+    },
     "staging": {
       "name": "wtfmedia-edge-staging",
       "vars": {

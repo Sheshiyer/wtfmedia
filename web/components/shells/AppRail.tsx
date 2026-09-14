@@ -253,6 +253,17 @@ export function AppRail({
                   >
                     <ProfileIcon />
                   </Link>
+                ) : mode === "member" ? (
+                  <Link
+                    href="/beta/settings"
+                    aria-label="profile"
+                    title="profile"
+                    data-shell-profile
+                    aria-current={routeIsActive(pathname, "/beta/settings") ? "page" : undefined}
+                    className={iconLinkClass(routeIsActive(pathname, "/beta/settings"))}
+                  >
+                    <ProfileIcon />
+                  </Link>
                 ) : utility ? (
                   utility
                 ) : null}

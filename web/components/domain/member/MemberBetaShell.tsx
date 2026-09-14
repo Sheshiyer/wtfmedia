@@ -1,4 +1,3 @@
-import { ClerkLogoutButton } from "@/components/domain/ops/ClerkLogoutButton";
 import { AppShell, type AppNavItem } from "@/components/shells/AppShell";
 import { memberBottomNavigation, memberDisclosureGroups } from "@/lib/member/navigation";
 
@@ -12,7 +11,6 @@ export function MemberBetaShell({ children }: { children: React.ReactNode }) {
         navigation={memberNavigation}
         bottomNavigation={memberBottomNavigation}
         disclosureGroups={memberDisclosureGroups}
-        utility={<ClerkLogoutButton />}
       >
         {children}
       </AppShell>

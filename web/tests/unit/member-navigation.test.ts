@@ -16,10 +16,10 @@ describe("member workspace navigation", () => {
     expect(memberBottomNavigation.map((item) => item.icon)).toEqual(["chat", "settings"]);
   });
 
-  it("exposes only member destinations and explicit public exits", () => {
+  it("exposes only member destinations", () => {
     expect(memberDisclosureGroups[0]).toMatchObject({ label: "Beta workspace" });
     expect(memberDisclosureGroups[0]?.items.map((item) => item.href)).toEqual(["/beta", "/beta/settings"]);
-    expect(memberDisclosureGroups[1]).toMatchObject({ label: "Public Alpha" });
+    expect(memberDisclosureGroups).toHaveLength(1);
     expect(memberDisclosureGroups.flatMap((group) => group.items).map((item) => item.href)).not.toContain("/beta/ops/settings");
   });
 

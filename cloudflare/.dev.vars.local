@@ -1,0 +1,10 @@
+EDGE_SHARED_SECRET=dev-29abe4b9679c32bd69132fc4245d5870
+CLERK_ISSUER=https://mighty-hedgehog-2913.clerk.accounts.dev
+CLERK_JWKS_URL=https://mighty-hedgehog-2913.clerk.accounts.dev/.well-known/jwks.json
+CLERK_AUTHORIZED_PARTIES=http://localhost:3000
+
+OPS_HOSTNAME=localhost
+OPS_ORIGIN=http://localhost:3000
+OPS_ENVIRONMENT=staging
+OPS_ORIGIN_PROOF=btCNcfdpKdaAcc7iokEtaQASkIV+Vfal09KpsIYW2nw=
+CHAT_HISTORY_ENABLED=enabled

@@ -52,7 +52,7 @@ function DeleteConversationDialog({ conversationTitle, linkedSavedPreferenceCoun
           <label className="mt-5 grid gap-2 font-label text-xs font-bold lowercase text-foreground">Type DELETE to confirm<input aria-label="Type DELETE to confirm" value={deleteConfirmation} onChange={(event) => setDeleteConfirmation(event.target.value)} autoComplete="off" disabled={pending} className="min-h-11 border-2 border-foreground bg-canvas px-3 font-body text-sm normal-case focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-information" /></label>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Button ref={cancelRef} type="button" variant="secondary" onClick={onClose} disabled={pending}>keep conversation</Button>
-            <Button type="button" variant="secondary" className="border-editorial bg-editorial text-on-editorial hover:bg-editorial/90" onClick={() => void onConfirm(deleteConfirmation)} loading={pending} disabled={pending || !canDelete}>delete permanently</Button>
+            <button type="button" className="min-h-[44px] rounded-control border-2 border-editorial bg-editorial px-4 py-2 font-label text-sm font-bold lowercase text-on-editorial hover:bg-editorial/90 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-information disabled:cursor-not-allowed disabled:border-foreground disabled:bg-surface-raised disabled:text-foreground" onClick={() => void onConfirm(deleteConfirmation)} disabled={pending || !canDelete}>delete permanently</button>
           </div>
         </section>
       </Dialog.Content>
