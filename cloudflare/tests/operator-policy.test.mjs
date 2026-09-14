@@ -51,3 +51,22 @@ test("transfer is super-admin-only, atomic, audited, and checks the final invari
   assert.ok(statements.some((entry) => entry.batch === 5));
   assert.ok(statements.some((entry) => entry.args?.includes("super_admin_handoff")));
 });
+
+test("ops chat mutations require the chat:write grant, not chat:read", () => {
+  assert.deepEqual(policyForPath("/ops/api/chat", "GET"), ["chat", "read"]);
+  assert.deepEqual(policyForPath("/ops/api/chat", "POST"), ["chat", "write"]);
+  assert.deepEqual(policyForPath("/api/ops/chat", "POST"), ["chat", "write"]);
+  assert.deepEqual(policyForPath("/ops/api/chat/conversations/cnv_12345678", "GET"), ["chat", "read"]);
+  assert.deepEqual(policyForPath("/ops/api/chat/conversations/cnv_12345678", "PATCH"), ["chat", "write"]);
+});
+
+test("list limits clamp negatives, zero, NaN, and oversize values", async () => {
+  const { boundedListLimit } = await import("../src/db/provenance.ts");
+  assert.equal(boundedListLimit(undefined), 50);
+  assert.equal(boundedListLimit(-1), 1);
+  assert.equal(boundedListLimit(-500), 1);
+  assert.equal(boundedListLimit(0), 1);
+  assert.equal(boundedListLimit(Number.NaN), 50);
+  assert.equal(boundedListLimit(25), 25);
+  assert.equal(boundedListLimit(5000), 100);
+});

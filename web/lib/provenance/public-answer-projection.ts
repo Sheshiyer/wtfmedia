@@ -83,6 +83,17 @@ function isApprovedFrameIoUrl(value: string): boolean {
   }
 }
 
+// Citation and moment URLs render as raw hrefs on every chat surface; only
+// http(s) may pass so a poisoned record can never become a javascript: link.
+function isSafeHttpUrl(value: string): boolean {
+  try {
+    const protocol = new URL(value).protocol;
+    return protocol === "https:" || protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
 function publicMappingStatus(value: unknown, fallback: MappingStatus): MappingStatus {
   return typeof value === "string" && MAPPING_STATUSES.has(value)
     ? value as MappingStatus
@@ -167,7 +178,7 @@ export function projectPublicSources(sources: unknown, sourceMode: SourceMode): 
       time: start == null ? "" : new Date(start * 1_000).toISOString().slice(11, 19).replace(/^00:/, ""),
       url: mode === "uncut"
         ? (isApprovedFrameIoUrl(direct) ? direct : undefined)
-        : direct,
+        : (isSafeHttpUrl(direct) ? direct : undefined),
       source_mode: mode,
       mapping_status: publicMappingStatus(
         pick(source, "mappingStatus", "mapping_status"),
@@ -204,10 +215,11 @@ export function projectPublicMoments(answer: {
     const citationNumbers = pick(moment, "citationNumbers", "citation_numbers");
     const durationEstimated = pick(moment, "durationEstimated", "duration_estimated");
     const withinBudget = pick(moment, "withinBudget", "within_budget");
+    const momentUrl = textField(moment.url, 500);
     return [{
       video_id: videoId,
       title: textField(moment.title, 200) ?? videoId,
-      url: textField(moment.url, 500) ?? `https://www.youtube.com/watch?v=${videoId}`,
+      url: momentUrl && isSafeHttpUrl(momentUrl) ? momentUrl : `https://www.youtube.com/watch?v=${videoId}`,
       start_sec: startSec,
       end_sec: secondsField(pick(moment, "endSec", "end_sec")),
       duration_sec: secondsField(pick(moment, "durationSec", "duration_sec")),

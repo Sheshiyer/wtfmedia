@@ -6,6 +6,18 @@ const nextConfig = {
       { protocol: "https", hostname: "i.ytimg.com" },
     ],
   },
+  // Baseline hardening on every page response. (No CSP here yet — Clerk's
+  // script requirements need a nonce-based policy, tracked separately.)
+  headers: async () => [
+    {
+      source: "/:path*",
+      headers: [
+        { key: "X-Content-Type-Options", value: "nosniff" },
+        { key: "X-Frame-Options", value: "DENY" },
+        { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      ],
+    },
+  ],
   // Ensure the prebuilt vector store is traced into the /api/chat serverless function
   outputFileTracingIncludes: {
     "/api/chat": ["./src/data/vectors.json"],

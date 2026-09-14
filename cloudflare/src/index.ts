@@ -72,6 +72,15 @@ function cors(request: Request, env: Env) {
     : {};
 }
 
+// Constant-time compare for static service secrets (length equality leaks at
+// most the secret length, which is not sensitive here).
+function secretMatches(provided: string | null, expected: string | undefined): boolean {
+  if (!provided || !expected || provided.length !== expected.length) return false;
+  let diff = 0;
+  for (let index = 0; index < provided.length; index += 1) diff |= provided.charCodeAt(index) ^ expected.charCodeAt(index);
+  return diff === 0;
+}
+
 function reply(request: Request, env: Env, body: unknown, status = 200) {
   return Response.json(body, {
     status,
@@ -265,7 +274,7 @@ export default {
     }
     if (url.pathname.startsWith("/beta/api/")) return handleMemberRequest(request, env);
     if (url.pathname === "/v1/calendar" || url.pathname.startsWith("/v1/calendar/")) {
-      if (!env.EDGE_SHARED_SECRET || request.headers.get("X-Edge-Secret") !== env.EDGE_SHARED_SECRET) {
+      if (!secretMatches(request.headers.get("X-Edge-Secret"), env.EDGE_SHARED_SECRET)) {
         return reply(request, env, { error: "unauthorized" }, 401);
       }
       try {
@@ -281,14 +290,14 @@ export default {
       // Beta chat is authenticated-only. Its member/operator routers call the
       // Alpha service binding, so the staging public adapter stays disabled.
       if (env.DEPLOYMENT_ENVIRONMENT === "staging") return reply(request, env, { error: "not_found" }, 404);
-      if (!env.EDGE_SHARED_SECRET || request.headers.get("X-Edge-Secret") !== env.EDGE_SHARED_SECRET) return reply(request, env, { error: "unauthorized" }, 401);
+      if (!secretMatches(request.headers.get("X-Edge-Secret"), env.EDGE_SHARED_SECRET)) return reply(request, env, { error: "unauthorized" }, 401);
       return chat(request, env);
     }
     if (request.method === "POST" && url.pathname === "/v1/admin/enqueue") {
       // No staging ingest binding exists: never turn the Beta worker into a
       // producer for either its former isolated corpus or Alpha's corpus.
       if (env.DEPLOYMENT_ENVIRONMENT === "staging") return reply(request, env, { error: "not_found" }, 404);
-      if (request.headers.get("X-Ingest-Token") !== env.INGEST_TOKEN) return reply(request, env, { error: "unauthorized" }, 401);
+      if (!secretMatches(request.headers.get("X-Ingest-Token"), env.INGEST_TOKEN)) return reply(request, env, { error: "unauthorized" }, 401);
       let payload: { jobs?: TranscriptJob[] };
       try { payload = await request.json(); } catch { return reply(request, env, { error: "invalid_json" }, 400); }
       const admission = await admitTranscriptJobs(payload.jobs, env.INGEST_QUEUE, env.DB);

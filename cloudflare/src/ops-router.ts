@@ -47,6 +47,28 @@ import {
 } from "./release-manifest.ts";
 
 export type OpsEnvironment = "local" | "staging" | "production";
+
+/**
+ * CSRF guard for the authenticated routers: sessions ride an ambient cookie
+ * (the web proxy also mints a bearer from it), so a cross-origin page must
+ * never trigger a mutation. Browsers send Origin on every non-GET/HEAD
+ * request, so reject mismatches outright; non-browser clients present no
+ * Origin and must speak JSON. The upload stream is exempt — it authenticates
+ * with a signed ticket header a cross-origin form cannot set.
+ */
+export function mutationRequestAllowed(request: Request, url: URL): boolean {
+  if (request.method === "GET" || request.method === "HEAD") return true;
+  const origin = request.headers.get("Origin");
+  if (origin) {
+    try {
+      return new URL(origin).host === url.host;
+    } catch {
+      return false;
+    }
+  }
+  if (url.pathname.endsWith("/assets/upload-stream")) return true;
+  return request.headers.get("Content-Type")?.split(";", 1)[0].trim() === "application/json";
+}
 export type OpsEnv = {
   DB: DB;
   OPS_HOSTNAME: string;
@@ -452,11 +474,12 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
   const url = new URL(request.url);
   const path = protectedPath(url.pathname);
   if (!path || url.hostname !== env.OPS_HOSTNAME || !validEnvironment(env.OPS_ENVIRONMENT) || !env.OPS_ORIGIN || !env.OPS_ORIGIN_PROOF) return denied();
+  if (!mutationRequestAllowed(request, url)) return denied();
   if (chatRoute(url.pathname)) {
     const release = await resolveAuthenticatedChatRelease(env.DB, env.OPS_ENVIRONMENT, env.CHAT_HISTORY_ENABLED);
     if (!isAuthenticatedChatEnabled(release)) return denied();
   }
-  const requirement = policyForPath(path);
+  const requirement = policyForPath(path, request.method);
   if (!requirement) return denied();
   const authorizedParties = env.CLERK_AUTHORIZED_PARTIES?.split(",").map((value) => value.trim()).filter(Boolean);
   if (!env.CLERK_ISSUER || !env.CLERK_JWKS_URL || !authorizedParties?.length) return denied();

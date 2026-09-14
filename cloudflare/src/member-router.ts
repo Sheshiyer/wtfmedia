@@ -8,6 +8,7 @@ import { boundedPriorTurns, runChat, type ChatAnswerInput, type ChatAnswer } fro
 import { runAlphaChat } from "./chat/alpha-gateway.ts";
 import { isMemberBetaEnabled, resolveMemberBetaRelease } from "./member-release.ts";
 import type { OpsEnv } from "./ops-router.ts";
+import { mutationRequestAllowed } from "./ops-router.ts";
 
 type Dependencies = { verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer> };
 const headers = { "cache-control": "private, no-store", "x-content-type-options": "nosniff" };
@@ -19,6 +20,7 @@ const body = (request: Request) => request.json().then((value) => value && typeo
 export async function handleMemberRequest(request: Request, env: OpsEnv, dependencies: Dependencies = {}) {
   const url = new URL(request.url);
   if (!url.pathname.startsWith("/beta/api/") || url.hostname !== env.OPS_HOSTNAME || env.OPS_ENVIRONMENT === "production") return denied();
+  if (!mutationRequestAllowed(request, url)) return denied();
   const release = await resolveMemberBetaRelease(env.DB, env.OPS_ENVIRONMENT);
   if (!isMemberBetaEnabled(release)) return denied();
   const parties = env.CLERK_AUTHORIZED_PARTIES?.split(",").map((value) => value.trim()).filter(Boolean);
