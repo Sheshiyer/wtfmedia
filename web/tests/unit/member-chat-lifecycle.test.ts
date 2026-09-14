@@ -35,14 +35,24 @@ describe("member conversation lifecycle", () => {
   });
 
   it("allows the active heading to wrap while preserving two-line rail titles", () => {
-    expect(workspace).not.toContain("line-clamp-2 font-display");
+    expect(workspace).toContain('title={view.conversation.title}');
+    expect(workspace).toContain("line-clamp-2 max-h-[4.5rem]");
     expect(navigator).toContain("line-clamp-2");
   });
 
   it("uses the shared Alpha conversation frame instead of a private thread fork", () => {
     expect(workspace).toContain("ConversationThreadFrame");
     expect(workspace).toContain("renderFooter={() =>");
+    expect(workspace).toContain('composerPlacement="fixed"');
     expect(workspace).toContain('placement="inline"');
+  });
+
+  it("keeps the selected conversation inside the viewport frame", () => {
+    expect(workspace).toContain('flex h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] min-h-0 flex-col');
+    expect(workspace).toContain('grid min-h-0 min-w-0 w-full flex-1');
+    expect(workspace).toContain('section className="min-h-0 min-w-0"');
+    expect(workspace).toContain('flex h-full min-h-0 flex-col');
+    expect(workspace).not.toContain('section className="min-w-0 pb-60"');
   });
 
   it("keeps reverse-keyset pages chronological while retaining the next older cursor", () => {

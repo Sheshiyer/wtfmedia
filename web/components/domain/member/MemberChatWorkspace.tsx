@@ -2,19 +2,16 @@
 
 import { useUser } from "@clerk/nextjs";
 import * as Dialog from "@radix-ui/react-dialog";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { AskComposer } from "@/components/domain/public/AskComposer";
+import { ChatAnswerMarkdown } from "@/components/domain/public/ChatAnswerMarkdown";
 import { ConversationEmptyState, ConversationThreadFrame } from "@/components/domain/public/ConversationThread";
 import { SourcePanel } from "@/components/domain/public/SourcePanel";
 import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/Button";
 import { createMemberChatAdapter, type BetaChatAdapter, type BetaConversationResponse } from "@/components/domain/beta/BetaChatAdapter";
 import { appendNewestMemberConversationMessages, canConfirmMemberConversationDeletion, linkedSavedPreferenceDeletionNotice, memberAnswerPresentation, memberCommittedRequestForRetry, memberGreeting, newMemberRequestKey, prependMemberConversationMessages, retryIntentForMemberResponse, shouldApplyMemberResponse, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversation, type MemberRetryIntent } from "@/lib/member/chat";
-import { toCitedMarkdown } from "@/lib/public/chat-citations";
 import { useMemberFetch } from "./MemberBetaGate";
 import { MemberSessionNavigator } from "./MemberSessionNavigator";
 
@@ -26,12 +23,12 @@ function Thread({ view, sending, canRetry, onRetry, loadingEarlier, onLoadEarlie
   return <ConversationThreadFrame
     contentVersion={pendingQuestion ? `${messages.length}+pending` : messages}
     layoutVersion={sending}
+    composerPlacement="fixed"
     renderFooter={renderFooter}
     renderContent={({ scrollAnchor }) => <div className="mx-auto max-w-3xl space-y-6 pr-1">{view?.previousMessageCursor ? <div className="flex justify-center"><Button type="button" variant="ghost" className="text-xs" onClick={onLoadEarlier} loading={loadingEarlier} disabled={loadingEarlier} data-testid="load-earlier-messages">load earlier messages</Button></div> : null}{messages.map((message, index) => {
       const presentation = memberAnswerPresentation(message);
-      if (message.role === "user") return <article key={message.id} className="flex justify-end"><p className="max-w-[85%] rounded-control border-2 border-foreground bg-attention px-4 py-3 text-sm text-on-attention">{message.content}</p></article>;
       const sourceQuestion = messages.slice(0, index).reverse().find((item) => item.role === "user")?.content;
-      return <article key={message.id} className="space-y-3"><div className="prose-chat border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary"><ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: ({ href, children }) => href?.startsWith("/") ? <Link href={href} className="cite">{children}</Link> : <a href={href} target="_blank" rel="noreferrer">{children}</a> }}>{toCitedMarkdown(message.content, presentation.sources)}</ReactMarkdown></div>{presentation.sources.length ? <SourcePanel sources={presentation.sources} citedIndices={presentation.citedIndices} queryScope={{ sourceMode: presentation.requestedSourceMode ?? message.sourceMode ?? "published", episodeId: null }} effectiveSourceMode={presentation.evidenceSourceMode ?? message.sourceMode} moments={presentation.moments} question={sourceQuestion} /> : null}{presentation.abstained ? <p className="text-xs font-medium italic text-secondary" data-testid="abstention-label">the catalogue doesn&apos;t support that claim</p> : null}{presentation.uncutUnavailable ? <p className="text-xs text-secondary">uncut evidence was unavailable; any published evidence remains labelled.</p> : null}{presentation.followUps && presentation.followUps.length > 0 && !sending && index === messages.length - 1 ? <div className="flex flex-wrap gap-2 pt-2" data-testid="follow-up-chips">{presentation.followUps.map((item, chipIndex) => <button key={chipIndex} type="button" onClick={() => onFollowUp?.(item)} className="rounded-full border border-foreground/20 bg-canvas px-3 py-1.5 text-left text-xs text-secondary transition-colors hover:border-knowledge hover:text-foreground">{item}</button>)}</div> : null}</article>;
+      return <article key={message.id} className={message.role === "user" ? "flex justify-end" : "space-y-3"}>{message.role === "user" ? <p className="max-w-[85%] rounded-control border-2 border-foreground bg-attention px-4 py-3 text-sm text-on-attention">{message.content}</p> : <><div className="prose-chat border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary"><ChatAnswerMarkdown content={message.content} sources={presentation.sources} /></div>{presentation.sources.length ? <SourcePanel sources={presentation.sources} citedIndices={presentation.citedIndices} queryScope={{ sourceMode: presentation.requestedSourceMode ?? message.sourceMode ?? "published", episodeId: null }} effectiveSourceMode={presentation.evidenceSourceMode ?? message.sourceMode} moments={presentation.moments} question={sourceQuestion} /> : null}{presentation.abstained ? <p className="text-xs font-medium italic text-secondary" data-testid="abstention-label">the catalogue doesn&apos;t support that claim</p> : null}{presentation.uncutUnavailable ? <p className="text-xs text-secondary">uncut evidence was unavailable; any published evidence remains labelled.</p> : null}{presentation.followUps && presentation.followUps.length > 0 && !sending && index === messages.length - 1 ? <div className="flex flex-wrap gap-2 pt-2" data-testid="follow-up-chips">{presentation.followUps.map((item, chipIndex) => <button key={chipIndex} type="button" onClick={() => onFollowUp?.(item)} className="rounded-full border border-foreground/20 bg-canvas px-3 py-1.5 text-left text-xs text-secondary transition-colors hover:border-knowledge hover:text-foreground">{item}</button>)}</div> : null}</>}</article>;
     })}{pendingQuestion ? <article className="flex justify-end"><p className="max-w-[85%] rounded-control border-2 border-foreground bg-attention px-4 py-3 text-sm text-on-attention">{pendingQuestion}</p></article> : null}{sending ? <p role="status" className="border-l-4 border-knowledge pl-4 text-sm font-semibold text-secondary" data-testid="loading-indicator">looking through the catalogue</p> : null}{canRetry ? <div className="flex justify-center border-t-2 border-foreground/15 px-4 py-3"><Button type="button" variant="ghost" className="text-xs" onClick={onRetry} data-testid="retry-button">retry answer</Button></div> : null}{scrollAnchor}</div>}
   />;
 }
@@ -283,24 +280,24 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
     placement="inline"
   />;
 
-  return <div className="min-h-[calc(100vh-5.5rem)] bg-canvas" data-member-chat-workspace>
-    <div className="mx-auto max-w-[var(--wtf-content-max)] px-4 pt-5 sm:px-8 xl:px-12">
+  return <div className="flex h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] min-h-0 flex-col bg-canvas" data-member-chat-workspace>
+    <div className="mx-auto w-full shrink-0 max-w-[var(--wtf-content-max)] px-4 pt-5 sm:px-8 xl:px-12">
       <div className="flex min-w-0 flex-wrap items-start justify-between gap-4 border-b-2 border-foreground pb-4">
         <div className="min-w-0 flex-1">
           <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-knowledge">company beta · private workspace</p>
-          {conversationId && view ? <h1 className="mt-1 font-display text-3xl font-extrabold lowercase [overflow-wrap:anywhere]">{view.conversation.title}</h1> : <><h1 className="mt-1 font-display text-lg font-extrabold lowercase">ask wtf</h1><p className="mt-1 text-xs text-secondary">{greeting}. Your history stays with this signed-in workspace.</p></>}
+          {conversationId && view ? <h1 title={view.conversation.title} className="mt-1 line-clamp-2 max-h-[4.5rem] font-display text-3xl font-extrabold lowercase [overflow-wrap:anywhere]">{view.conversation.title}</h1> : <><h1 className="mt-1 font-display text-lg font-extrabold lowercase">ask wtf</h1><p className="mt-1 text-xs text-secondary">{greeting}. Your history stays with this signed-in workspace.</p></>}
         </div>
         <div className="flex flex-wrap gap-2"><Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="xl:hidden">conversations</Button>{conversationId ? <><Button type="button" variant="secondary" onClick={() => void archive()} loading={archiving} disabled={archiving || deleting}>archive conversation</Button>{resolvedAdapter.canDelete ? <Button type="button" variant="ghost" onClick={() => { setDeleteError(false); setDeleteTarget(view ? { id: conversationId, title: view.conversation.title, linkedSavedPreferenceCount: view.conversation.linkedSavedPreferenceCount } : null); setDeleteDialogOpen(true); }} disabled={archiving || deleting}>delete</Button> : null}</> : null}</div>
       </div>
     </div>
-    <div className="mx-auto grid min-w-0 max-w-[var(--wtf-content-max)] gap-6 px-4 sm:px-8 xl:grid-cols-[15rem_minmax(0,1fr)] xl:px-12">
+    <div className="mx-auto grid min-h-0 min-w-0 w-full flex-1 max-w-[var(--wtf-content-max)] gap-6 px-4 sm:px-8 xl:grid-cols-[15rem_minmax(0,1fr)] xl:px-12">
       <aside className="hidden min-w-0 self-start pt-6 xl:sticky xl:top-28 xl:block"><div className="max-h-[calc(100dvh-27rem)] min-w-0 overflow-y-auto border-2 border-foreground bg-surface-raised p-3 shadow-[4px_4px_0_rgb(var(--wtf-foreground-rgb)/0.12)]">{navigator}</div></aside>
       <Drawer open={drawerOpen} onOpenChange={onDrawerChange} triggerRef={drawerTriggerRef} title="Your conversations" description="Open a saved conversation or start a new question." side="left">{navigator}</Drawer>
-      <section className="min-w-0 pb-60" aria-live="polite" data-selected-conversation-viewport>
+      <section className="min-h-0 min-w-0" aria-live="polite" data-selected-conversation-viewport>
         {!conversationId && !pendingQuestion ? <ConversationEmptyState /> : null}
         {state === "loading" ? <p role="status" className="mt-6 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary">loading conversation…</p> : null}
         {state === "unavailable" ? <div role="status" className="mx-auto mt-6 grid max-w-3xl gap-4 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary" data-conversation-unavailable><p>This conversation is unavailable. It may have been archived, deleted, or opened from an expired link.</p><div className="flex flex-wrap gap-3"><Button type="button" variant="secondary" onClick={() => void load()} className="min-h-9 px-3 py-1 text-xs">retry loading conversation</Button><Button type="button" variant="ghost" onClick={() => router.push("/beta/chat#new-chat")} className="min-h-9 px-3 py-1 text-xs">start a new question</Button></div></div> : null}
-        {view || pendingQuestion ? <div className="flex min-h-[calc(100dvh-17rem)] flex-col"><Thread view={view} sending={sending} canRetry={canRetry} onRetry={() => void submit()} loadingEarlier={loadingEarlier} onLoadEarlier={() => void loadEarlier()} renderFooter={() => renderComposer()} pendingQuestion={pendingQuestion} onFollowUp={(followUp) => void submit(followUp)} /></div> : null}
+        {view || pendingQuestion ? <div className="flex h-full min-h-0 flex-col"><Thread view={view} sending={sending} canRetry={canRetry} onRetry={() => void submit()} loadingEarlier={loadingEarlier} onLoadEarlier={() => void loadEarlier()} renderFooter={() => renderComposer()} pendingQuestion={pendingQuestion} onFollowUp={(followUp) => void submit(followUp)} /></div> : null}
         {state === "error" ? <p role="status" className="mx-auto mt-4 max-w-3xl border-l-4 border-attention px-4 text-sm text-secondary">We could not finish that answer. {canRetry ? "Retry with the same question." : "Try again."}</p> : null}
       </section>
     </div>

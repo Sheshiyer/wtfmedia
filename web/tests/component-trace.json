@@ -299,6 +299,26 @@
       ]
     },
     {
+      "id": "ChatAnswerMarkdown",
+      "layer": "domain",
+      "file": "components/domain/public/ChatAnswerMarkdown.tsx",
+      "export": "ChatAnswerMarkdown",
+      "tokens": [
+        "typography",
+        "color"
+      ],
+      "story": {
+        "file": "stories/ChatAnswerMarkdown.stories.tsx",
+        "states": [
+          "GroundedAnswer",
+          "SafeMalformedMarkup"
+        ]
+      },
+      "consumers": [
+        "/chat"
+      ]
+    },
+    {
       "id": "ConversationThread",
       "layer": "domain",
       "file": "components/domain/public/ConversationThread.tsx",
