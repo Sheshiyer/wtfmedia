@@ -66,7 +66,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       data-wtf-ui={variant === "wtfos" ? "wtfos" : undefined}
       data-wtf-theme={themeForAppUiVariant(variant)}
     >
-      <body className="min-h-screen flex flex-col overflow-x-hidden">
+      {/* suppressHydrationWarning: browser extensions (e.g. Grammarly) inject
+          data-* attributes onto <body> before React hydrates. */}
+      <body className="min-h-screen flex flex-col overflow-x-hidden" suppressHydrationWarning>
         {clerkPublishableKey ? <ClerkProvider publishableKey={clerkPublishableKey}>{page}</ClerkProvider> : page}
       </body>
     </html>

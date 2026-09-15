@@ -22,6 +22,9 @@ import { GET, POST } from "@/app/beta/api/[...path]/route";
 
 describe("same-origin member API edge proxy", () => {
   beforeEach(() => {
+    // The tests exercise the deployed service-binding path; the local HTTP
+    // forwarder is opted into via WTFMEDIA_EDGE_LOCAL_ORIGIN in .env.local.
+    vi.stubEnv("WTFMEDIA_EDGE_LOCAL_ORIGIN", "");
     state.hasBinding = true;
     state.contextFailure = false;
     state.edgeFetch.mockReset();

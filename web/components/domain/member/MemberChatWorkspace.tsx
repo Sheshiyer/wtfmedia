@@ -2,12 +2,14 @@
 
 import { useUser } from "@clerk/nextjs";
 import * as Dialog from "@radix-ui/react-dialog";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AskComposer } from "@/components/domain/public/AskComposer";
 import { ChatAnswerMarkdown } from "@/components/domain/public/ChatAnswerMarkdown";
 import { ConversationEmptyState, ConversationThreadFrame } from "@/components/domain/public/ConversationThread";
 import { SourcePanel } from "@/components/domain/public/SourcePanel";
+import { MigratedWordmarkMini } from "@/components/patterns/brand/MigratedWordmark";
 import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/Button";
 import { createMemberChatAdapter, type BetaChatAdapter, type BetaConversationResponse } from "@/components/domain/beta/BetaChatAdapter";
@@ -297,8 +299,15 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
   />;
 
   return <div className="flex h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] min-h-0 bg-canvas" data-member-chat-workspace>
-    <aside className="hidden w-72 shrink-0 border-r-2 border-foreground bg-surface-raised lg:block">
-      <div className="h-full min-h-0 overflow-y-auto p-3">{navigator}</div>
+    <aside className="hidden w-72 shrink-0 border-r-2 border-foreground bg-surface-raised lg:-mt-[calc(4.5rem+env(safe-area-inset-top))] lg:block lg:h-[100dvh]">
+      <div className="flex h-full min-h-0 flex-col">
+        <div className="shrink-0 px-3 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <Link href="/beta/chat" aria-label="WTF OS" className="inline-block rounded-xl border-2 border-foreground bg-canvas px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention">
+            <MigratedWordmarkMini plate />
+          </Link>
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto p-3 pt-0">{navigator}</div>
+      </div>
     </aside>
     <Drawer open={drawerOpen} onOpenChange={onDrawerChange} triggerRef={drawerTriggerRef} title="Your conversations" description="Open a saved conversation or start a new question." side="left">{navigator}</Drawer>
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">

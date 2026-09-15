@@ -44,8 +44,8 @@ export function BetaSettingsNavigation() {
           {showUsers ? (
             <>
               <p className="mt-3 px-3 pb-1 font-label text-[10px] font-bold uppercase tracking-[0.12em] text-muted">administration</p>
-              <Link href="/beta/admin/users" className="block min-h-11 border-2 border-transparent px-3 py-2 text-sm font-semibold hover:border-foreground/50">users & access</Link>
-              <Link href="/beta/admin/sessions" className="block min-h-11 border-2 border-transparent px-3 py-2 text-sm font-semibold hover:border-foreground/50">user sessions</Link>
+              <Link href="/beta/settings/users" aria-current={pathname === "/beta/settings/users" ? "page" : undefined} className={`block min-h-11 border-2 px-3 py-2 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information ${pathname === "/beta/settings/users" ? "border-information bg-information/20" : "border-transparent hover:border-foreground/50"}`}>users & access</Link>
+              <Link href="/beta/settings/user-sessions" aria-current={pathname === "/beta/settings/user-sessions" ? "page" : undefined} className={`block min-h-11 border-2 px-3 py-2 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information ${pathname === "/beta/settings/user-sessions" ? "border-information bg-information/20" : "border-transparent hover:border-foreground/50"}`}>user sessions</Link>
             </>
           ) : null}
         </nav>

@@ -82,6 +82,8 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/beta/settings/workspace/sessions": ["control_room", "read"],
   "/beta/settings/workspace/memory": ["control_room", "read"],
   "/beta/settings/workspace/sources": ["transcripts", "read"],
+  "/beta/settings/users": ["members", "read"],
+  "/beta/settings/user-sessions": ["members", "read"],
   "/beta/admin/users": ["members", "read"],
   "/beta/admin/sessions": ["members", "read"],
   "/beta/admin/audit": ["audit", "read"],

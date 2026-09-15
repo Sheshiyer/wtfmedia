@@ -83,25 +83,25 @@ const operatorFrameCopy: Record<OperatorAuthFrameMode, FrameCopy> = {
 
 const memberFrameCopy: Record<OperatorAuthFrameMode, FrameCopy> = {
   "sign-in": {
-    eyebrow: "company beta",
-    title: "enter the beta",
-    body: "Sign in with Google or email to open your private Ask WTF workspace. Your chats and saved notes remain private to your account.",
+    eyebrow: "ask wtf · members",
+    title: "ask the catalogue. get a cited moment.",
+    body: "Sign in to your private Ask WTF workspace. Every answer links to the exact moment it comes from, and your history stays with your account.",
     panelLabel: "member sign in",
     proof: [
-      { label: "verify", detail: "Clerk verifies your identity.", tone: "editorial" },
-      { label: "join", detail: "We create your private member account.", tone: "attention" },
-      { label: "ask", detail: "Open your private Ask WTF workspace.", tone: "live" },
+      { label: "sign in", detail: "Verified access with Google or email.", tone: "editorial" },
+      { label: "ask", detail: "Ask across every published conversation.", tone: "attention" },
+      { label: "cite", detail: "Answers link to the exact moment in the source.", tone: "live" },
     ],
   },
   "sign-up": {
-    eyebrow: "company beta",
+    eyebrow: "ask wtf · members",
     title: "create your account",
-    body: "Create your verified account, then enter your private Ask WTF workspace.",
+    body: "One verified account opens your private Ask WTF workspace — ask the catalogue and keep every conversation.",
     panelLabel: "member account setup",
     proof: [
-      { label: "verify", detail: "Clerk verifies your identity.", tone: "editorial" },
-      { label: "join", detail: "We create your private member account.", tone: "attention" },
-      { label: "ask", detail: "Open your private Ask WTF workspace.", tone: "live" },
+      { label: "sign up", detail: "Verified access with Google or email.", tone: "editorial" },
+      { label: "ask", detail: "Ask across every published conversation.", tone: "attention" },
+      { label: "cite", detail: "Answers link to the exact moment in the source.", tone: "live" },
     ],
   },
   recovery: {

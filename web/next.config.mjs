@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  images: {
+const nextConfig = {  images: {
     remotePatterns: [
       { protocol: "https", hostname: "img.youtube.com" },
       { protocol: "https", hostname: "i.ytimg.com" },
@@ -24,3 +23,10 @@ const nextConfig = {
   },
 };
 export default nextConfig;
+
+// Local dev: expose the wrangler.jsonc bindings (incl. the WTFMEDIA_EDGE
+// service binding to the local edge worker) to `next dev` route handlers.
+if (process.env.NODE_ENV === "development") {
+  const { initOpenNextCloudflareForDev } = await import("@opennextjs/cloudflare");
+  initOpenNextCloudflareForDev();
+}

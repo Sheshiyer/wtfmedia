@@ -76,6 +76,9 @@ export function AppRail({
   const [utilityOpen, setUtilityOpen] = useState(false);
   const utilityToggleRef = useRef<HTMLButtonElement>(null);
   const utilityNavRef = useRef<HTMLElement>(null);
+  // Beta chat renders its own full-height sidebar with the wordmark on
+  // desktop, so the rail wordmark steps aside there (mobile keeps it).
+  const betaChatSurface = pathname === "/beta/chat" || pathname.startsWith("/beta/chat/");
 
   useEffect(() => {
     setUtilityOpen(false);
@@ -203,7 +206,7 @@ export function AppRail({
           <Link
             href={mode === "operator" ? "/beta/workspace" : mode === "member" ? "/beta" : "/"}
             aria-label="WTF OS"
-            className="shrink-0 rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
+            className={`shrink-0 rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention${betaChatSurface ? " lg:hidden" : ""}`}
           >
             <MigratedWordmarkMini plate />
           </Link>
