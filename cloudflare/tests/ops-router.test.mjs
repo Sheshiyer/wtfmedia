@@ -97,18 +97,3 @@ test("verified active policy-approved context is the only origin handoff", async
   assert.equal(forwarded.headers.get("x-wtf-ops-route"), "edge-verified");
 });
 
-test("authenticated conversation deep links use the protected Clerk-to-origin boundary", async () => {
-  let forwarded;
-  const response = await handleOpsRequest(new Request("https://ops.local.test/chat/cnv_12345678-alice", {
-    headers: { authorization: "Bearer verified", "x-request-id": "corr-12345678" },
-  }), { ...env, CHAT_HISTORY_ENABLED: true, DB: db() }, {
-    verifyClerk: async () => ({ ok: true, email: "operator@example.test", userId: "user_test_123" }),
-    fetchOrigin: async (request) => { forwarded = request; return new Response("origin-ok"); },
-    now: () => 0,
-  });
-  assert.equal(response.status, 200);
-  assert.equal(await response.text(), "origin-ok");
-  assert.equal(forwarded.url, "https://origin.local.test/chat/cnv_12345678-alice");
-  assert.equal(forwarded.headers.get("x-wtf-ops-route"), "edge-verified");
-  assert.equal(forwarded.headers.has("authorization"), false);
-});

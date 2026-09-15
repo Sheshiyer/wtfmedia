@@ -34,9 +34,6 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/ops": ["control_room", "read"],
   "/ops/settings": ["control_room", "read"],
   "/ops/profile": ["control_room", "read"],
-  "/ops/chat": ["chat", "read"],
-  "/ops/api/chat": ["chat", "read"],
-  "/api/ops/chat": ["chat", "read"],
   "/ops/api/memory": ["memory", "read"],
   "/api/ops/memory": ["memory", "read"],
   "/ops/api/release/authenticated-chat": ["control_room", "read"],
@@ -104,18 +101,10 @@ export function decide(role: unknown, resource: unknown, action: unknown, option
 
 export function policyForPath(pathname: string, method = "GET"): readonly [Resource, Action] | null {
   if (pathname.startsWith("/beta/api/")) return betaApiRequirement(pathname, method);
-  if (pathname === "/ops/api/chat" || pathname === "/api/ops/chat") {
-    return ["chat", method.toUpperCase() === "GET" ? "read" : "write"];
-  }
   if (routeRequirements[pathname]) return routeRequirements[pathname];
   if (pathname === "/ops/settings/access") return ["operators", "read"];
   if (pathname === "/ops/settings/users") return ["members", "read"];
   if (pathname.startsWith("/ops/settings/")) return ["control_room", "read"];
-  if (/^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0-9_-]*$/u.test(pathname)) return ["chat", "read"];
-  if (pathname.startsWith("/ops/api/chat/") || pathname.startsWith("/api/ops/chat/") || pathname.startsWith("/ops/chat/")) {
-    // Mutating chat calls (append/archive/export forms) must not ride the read grant.
-    return ["chat", method.toUpperCase() === "GET" ? "read" : "write"];
-  }
   if (pathname.startsWith("/ops/api/memory/") || pathname.startsWith("/api/ops/memory/")) return ["memory", "read"];
   if (/^\/beta\/chat\/(?:mcnv|cnv)_[A-Za-z0-9-]{8,88}$/u.test(pathname)) return ["chat", "read"];
   if (pathname.startsWith("/ops/episodes/") || pathname.startsWith("/api/ops/episodes/") || pathname.startsWith("/ops/api/episodes/")) {

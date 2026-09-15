@@ -1,5 +1,5 @@
 import { createRemoteClerkVerifier, type ClerkVerification } from "./auth/clerk.ts";
-import { principalContextDto, resolvePrincipalContext } from "./auth/principal-context.ts";
+import { principalContextDto, resolvePrincipalContext, type PrincipalContext } from "./auth/principal-context.ts";
 import { decide, policyForPath } from "./auth/policy.ts";
 import { archiveMemberConversation, completeMemberTurn, deleteMemberConversation, getMemberConversation, getMemberSessionForAdmin, listAllMemberSessions, listMemberConversations, prepareMemberTurn } from "./chat/member-history.ts";
 import { adminMemberSessionPageDto, memberChatConversationDto, memberChatPageDto, memberChatViewDto } from "./chat/browser-dto.ts";
@@ -16,6 +16,19 @@ const denied = () => Response.json({ error: "ops_unavailable" }, { status: 404, 
 const unauthorized = () => Response.json({ error: "unauthorized" }, { status: 401, headers });
 const forbidden = () => Response.json({ error: "forbidden" }, { status: 403, headers });
 const body = (request: Request) => request.json().then((value) => value && typeof value === "object" ? value as Record<string, unknown> : null).catch(() => null);
+
+/**
+ * Every principal chats through the member lane. Operators get a member_users
+ * row keyed by email (get-or-create) so chat/memory data lives in the same
+ * member tables for everyone. Operator authority is unaffected — principal
+ * resolution still checks the operators table first.
+ */
+async function memberIdForPrincipal(db: OpsEnv["DB"], context: PrincipalContext, now = new Date().toISOString()): Promise<number | null> {
+  if (context.kind === "member") return context.memberId;
+  await db.prepare("INSERT OR IGNORE INTO member_users (email, clerk_user_id, role, lifecycle_state, pilot_cohort, office, created_at, updated_at, activated_at) VALUES (?, NULL, 'member', 'active', 'company', 'remote', ?, ?, ?)").bind(context.email, now, now, now).run();
+  const row = await db.prepare("SELECT id FROM member_users WHERE email = ?").bind(context.email).first<{ id: number }>();
+  return row && Number.isSafeInteger(row.id) && row.id > 0 ? row.id : null;
+}
 
 export async function handleMemberRequest(request: Request, env: OpsEnv, dependencies: Dependencies = {}) {
   const url = new URL(request.url);
@@ -45,20 +58,21 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     const view = await getMemberSessionForAdmin(env.DB, adminSession[1]);
     return view ? Response.json(memberChatViewDto(view), { headers }) : denied();
   }
-  if (context.kind !== "member") return forbidden();
-  if (url.pathname === "/beta/api/context" && request.method === "GET") return Response.json({ member: { role: context.role, workspace: context.workspace, pilotCohort: context.pilotCohort, environment: context.environment } }, { headers });
+  const memberId = await memberIdForPrincipal(env.DB, context);
+  if (!memberId) return denied();
+  if (url.pathname === "/beta/api/context" && request.method === "GET") return Response.json({ member: { role: context.role, workspace: "wtfmedia", pilotCohort: "company", environment: context.environment } }, { headers });
   if (url.pathname === "/beta/api/memory" && request.method === "GET") {
-    const memories = await listMemberMemories(env.DB, context.memberId);
+    const memories = await listMemberMemories(env.DB, memberId);
     return memories ? Response.json({ memories }, { headers }) : denied();
   }
   if (url.pathname === "/beta/api/memory" && request.method === "POST") {
     const input = await body(request);
-    const memory = await createMemberMemory(env.DB, context.memberId, input?.content);
+    const memory = await createMemberMemory(env.DB, memberId, input?.content);
     return memory ? Response.json({ memory }, { status: 201, headers }) : denied();
   }
   if (url.pathname === "/beta/api/chat" && request.method === "GET") {
     const includeArchived = url.searchParams.get("includeArchived") === "1";
-    const page = await listMemberConversations(env.DB, context.memberId, url.searchParams.get("cursor") ?? undefined, includeArchived);
+    const page = await listMemberConversations(env.DB, memberId, url.searchParams.get("cursor") ?? undefined, includeArchived);
     return page ? Response.json(memberChatPageDto(page), { headers }) : denied();
   }
   const match = url.pathname.match(/^\/beta\/api\/chat\/(mcnv_[A-Za-z0-9-]{8,88})$/u);
@@ -66,10 +80,10 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     const input = await body(request);
     if (!input) return denied();
     const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
-    const turn = await prepareMemberTurn(env.DB, context.memberId, match?.[1], { question: input.question, sourceMode: input.sourceMode, episodeId: input.episodeId, resumeMessageId: input.resumeMessageId, idempotencyKey: request.headers.get("idempotency-key"), requestId });
+    const turn = await prepareMemberTurn(env.DB, memberId, match?.[1], { question: input.question, sourceMode: input.sourceMode, episodeId: input.episodeId, resumeMessageId: input.resumeMessageId, idempotencyKey: request.headers.get("idempotency-key"), requestId });
     if (!turn) return denied();
     if (turn.completed) {
-      const view = await getMemberConversation(env.DB, context.memberId, turn.view.conversation.id);
+      const view = await getMemberConversation(env.DB, memberId, turn.view.conversation.id);
       return view ? Response.json(memberChatViewDto(view), { headers }) : denied();
     }
     try {
@@ -84,7 +98,7 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
         requestId,
         priorTurns,
       }, env);
-      const stored = await completeMemberTurn(env.DB, context.memberId, turn, {
+      const stored = await completeMemberTurn(env.DB, memberId, turn, {
         content: answer.answer,
         metadata: {
           sources: answer.sources,
@@ -102,18 +116,18 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
       });
       return stored ? Response.json(memberChatViewDto(stored), { status: turn.created ? 201 : 200, headers }) : denied();
     } catch {
-      const pending = await getMemberConversation(env.DB, context.memberId, turn.view.conversation.id);
+      const pending = await getMemberConversation(env.DB, memberId, turn.view.conversation.id);
       if (!pending || pending.conversation.lifecycle_state !== "active") return denied();
       return Response.json({ ...memberChatViewDto(pending), error: "chat_unavailable", retryable: true }, { status: 503, headers });
     }
   }
   if (match && request.method === "GET") {
-    const view = await getMemberConversation(env.DB, context.memberId, match[1], url.searchParams.get("before") ?? undefined);
+    const view = await getMemberConversation(env.DB, memberId, match[1], url.searchParams.get("before") ?? undefined);
     return view ? Response.json(memberChatViewDto(view), { headers }) : denied();
   }
   const archiveChat = url.pathname.match(/^\/beta\/api\/chat\/(mcnv_[A-Za-z0-9-]{8,88})\/archive$/u);
   if (archiveChat && request.method === "POST") {
-    const conversation = await archiveMemberConversation(env.DB, context.memberId, archiveChat[1]);
+    const conversation = await archiveMemberConversation(env.DB, memberId, archiveChat[1]);
     return conversation ? Response.json({ conversation: memberChatConversationDto(conversation) }, { headers }) : denied();
   }
   if (match && request.method === "DELETE") {
@@ -121,12 +135,12 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     // The client confirmation dialog must send this literal acknowledgement;
     // a bare route request cannot erase a private conversation.
     if (input?.confirmation !== "DELETE") return denied();
-    const deleted = await deleteMemberConversation(env.DB, context.memberId, match[1]);
+    const deleted = await deleteMemberConversation(env.DB, memberId, match[1]);
     return deleted ? Response.json(deleted, { headers }) : denied();
   }
   const archiveMemory = url.pathname.match(/^\/beta\/api\/memory\/(mmem_[A-Za-z0-9-]{8,88})\/archive$/u);
   if (archiveMemory && request.method === "POST") {
-    const memory = await archiveMemberMemory(env.DB, context.memberId, archiveMemory[1]);
+    const memory = await archiveMemberMemory(env.DB, memberId, archiveMemory[1]);
     return memory ? Response.json({ memory }, { headers }) : denied();
   }
   return denied();

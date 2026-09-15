@@ -210,8 +210,9 @@ describe("member chat client contract", () => {
     expect(sourcePanel).toContain("w-full text-xs sm:w-auto");
   });
 
-  it("keeps operator conversation requests on the existing edge route contract", () => {
-    expect(betaChatAdapter).toContain("/ops/api/chat/conversations/${encodeURIComponent(conversationId)}");
-    expect(betaChatAdapter).toContain("/ops/api/chat/conversations/${encodeURIComponent(conversationId)}/archive");
+  it("keeps every conversation request on the beta chat route contract", () => {
+    expect(betaChatAdapter).toContain("/beta/api/chat/${encodeURIComponent(conversationId)}");
+    expect(betaChatAdapter).toContain("/beta/api/chat/${encodeURIComponent(conversationId)}/archive");
+    expect(betaChatAdapter).not.toContain("/ops/api/chat");
   });
 });

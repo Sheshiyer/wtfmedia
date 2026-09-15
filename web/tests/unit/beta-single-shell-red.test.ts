@@ -52,8 +52,8 @@ describe("Beta single-shell convergence", () => {
     expect(page).toContain("BetaChatWorkspace");
     const workspace = read("components/domain/beta/BetaChatWorkspace.tsx");
     expect(workspace).toContain("MemberChatWorkspace");
-    expect(workspace).toContain("createOperatorChatAdapter");
-    expect(workspace).toContain("useBetaPrincipal");
+    expect(workspace).toContain("createMemberChatAdapter");
+    expect(workspace).not.toContain("createOperatorChatAdapter");
     expect(read("app/beta/chat/[conversationId]/page.tsx")).toContain("BetaConversationRoute");
     const operatorChat = read("app/(operator)/ops/chat/ChatWorkspace.tsx");
     expect(operatorChat).toContain("AskComposer");

@@ -19,7 +19,7 @@ test("chat history migration is additive, operator-owned, and archive-only", () 
 test("chat release and deep-link policy fail closed unless explicitly enabled", () => {
   assert.equal(chatHistoryEnabled(undefined), false);
   assert.equal(chatHistoryEnabled("stable"), true);
-  assert.deepEqual(policyForPath("/chat/cnv_12345678-alice"), ["chat", "read"]);
+  assert.equal(policyForPath("/chat/cnv_12345678-alice"), null);
   assert.equal(decide("editor", "chat", "read"), true);
   assert.equal(decide("editor", "chat", "export"), false);
   assert.equal(decide("admin", "chat", "export"), true);

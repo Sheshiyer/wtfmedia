@@ -204,162 +204,26 @@ test("D1 history is durable, idempotent, owner-scoped, and archive-only", async 
   assert.equal(sqlite(`SELECT COUNT(*) FROM chat_messages WHERE conversation_id = '${first.conversation.id}';`).stdout.trim(), "0");
 });
 
-test("Clerk/D1 context is rechecked on every protected request and cannot cross owners", async () => {
+test("the retired ops chat route fails closed on every method", async () => {
   const db = d1();
-  const request = (email, path, init = {}, dependencies = {}) => handleOpsRequest(new Request(`https://ops.staging.test${path}`, {
+  const request = (email, path, init = {}) => handleOpsRequest(new Request(`https://ops.staging.test${path}`, {
     ...init,
     headers: { authorization: "Bearer verified", "x-request-id": "corr-e2e-1234", ...(init.headers ?? {}) },
-  }), { ...env, DB: db }, { verifyClerk: async () => ({ ok: true, email, userId: "user_test_123" }), ...dependencies });
-  const own = await request("sai@allthingswtf.com", "/ops/api/chat", {
-    method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ question: "owner-only", idempotencyKey: "owner-question-1" }),
-  });
-  assert.equal(own.status, 201);
-  const ownBody = await own.json();
-  const id = ownBody.conversation.id;
-
-  let answerInput;
-  let runCalls = 0;
-  const generated = await request("sai@allthingswtf.com", "/ops/api/chat", {
-    method: "POST",
-    headers: { "content-type": "application/json", "idempotency-key": "server-answer-1" },
-    body: JSON.stringify({
-      question: "What did the guest say about evidence?",
-      sourceMode: "both",
-      assistant: { content: "client spoof must never persist", grounded: true },
-      idempotencyKey: "server-answer-1",
-    }),
-  }, {
-    runChat: async (input) => {
-      runCalls += 1;
-      answerInput = input;
-      return {
-        answer: "The guest described evidence [1].",
-        sources: [{ n: 1, title: "Published episode", videoId: "yt-1", start: 42 }],
-        moments: [{ videoId: "abcdefghijk", title: "Published episode", url: "https://www.youtube.com/watch?v=abcdefghijk&t=42s", chunkStart: 4, chunkEnd: 4, startSec: 42, endSec: 72, durationSec: 30, score: 0.9, timestampConfidence: 1, citationNumbers: [1], withinBudget: true, topic: "evidence practice", summary: "The guest describes an evidence practice.", whyRelevant: "It directly supports the answer.", strength: 5 }],
-        totalMomentDurationSec: 30,
-        durationBudgetSec: null,
-        citedIndices: [1],
-        grounded: true,
-        sourceMode: "both",
-        uncutUnavailable: false,
-        model: "test-model",
-        modelFallback: true,
-        requestId: "rag-request-1",
-      };
-    },
-  });
-  assert.equal(generated.status, 201);
-  const generatedBody = await generated.json();
-  const generatedId = generatedBody.conversation.id;
-  assert.equal(answerInput.question, "What did the guest say about evidence?");
-  assert.equal(generatedBody.messages.at(-1).content, "The guest described evidence [1].");
-  assert.equal(JSON.parse(generatedBody.messages.at(-1).source_metadata_json).sources[0].title, "Published episode");
-  assert.equal(JSON.parse(generatedBody.messages.at(-1).source_metadata_json).moments[0].topic, "evidence practice");
-  assert.deepEqual(JSON.parse(generatedBody.messages.at(-1).source_metadata_json).citedIndices, [1]);
-  assert.equal(generatedBody.messages.at(-1).grounding_state, "grounded");
-  assert.equal(generatedBody.messages.at(-1).model, "test-model");
-  assert.equal(generatedBody.messages.at(-1).model_fallback, 1);
-
-  const queryAudit = await request("aditi@allthingswtf.com", "/api/ops/audit?action=protected_search");
-  assert.equal(queryAudit.status, 200);
-  const queryAuditBody = await queryAudit.json();
-  assert.ok(queryAuditBody.records.some((record) => record.action === "protected_search" && record.entityId === generatedId));
-
-  const generatedRetry = await request("sai@allthingswtf.com", "/ops/api/chat", {
-    method: "POST",
-    headers: { "content-type": "application/json", "idempotency-key": "server-answer-1" },
-    body: JSON.stringify({ question: "a different question must not replace an idempotent turn" }),
-  }, { runChat: async () => { runCalls += 1; throw new Error("retry_should_not_run"); } });
-  assert.equal(generatedRetry.status, 201);
-  assert.equal((await generatedRetry.json()).messages.length, 2);
-  assert.equal(runCalls, 1);
-
-  let continuationMode;
-  const continued = await request("sai@allthingswtf.com", `/ops/api/chat/conversations/${generatedId}`, {
-    method: "POST",
-    headers: { "content-type": "application/json", "idempotency-key": "server-answer-2" },
-    body: JSON.stringify({ question: "What was in the approved uncut recording?", sourceMode: "uncut" }),
-  }, {
-    runChat: async (input) => {
-      continuationMode = input.sourceMode;
-      return {
-        answer: "The approved uncut recording adds context [1].",
-        sources: [{ n: 1, title: "Uncut episode", videoId: "uncut-1", start: null, sourceMode: "uncut" }],
-        grounded: true,
-        sourceMode: "uncut",
-        uncutUnavailable: false,
-        model: "test-model",
-        modelFallback: false,
-        requestId: "rag-request-2",
-      };
-    },
-  });
-  assert.equal(continued.status, 201);
-  const continuedBody = await continued.json();
-  assert.equal(continuationMode, "uncut");
-  assert.equal(JSON.parse(continuedBody.messages.at(-2).source_metadata_json).sourceMode, "uncut");
-  assert.equal(JSON.parse(continuedBody.messages.at(-1).source_metadata_json).sourceMode, "uncut");
-
-  let alphaPayload;
-  const alphaFollowUp = await request("sai@allthingswtf.com", `/ops/api/chat/conversations/${generatedId}`, {
-    method: "POST",
-    headers: { "content-type": "application/json", "idempotency-key": "server-answer-alpha" },
-    body: JSON.stringify({ question: "What was the next point?", sourceMode: "published" }),
-  }, {
-    runChat: async (input) => {
-      alphaPayload = input;
-      return {
-        answer: "The next point was evidence [1].",
-        sources: [{ n: 1, title: "Published episode", videoId: "yt-1", start: 42 }],
-        grounded: true, sourceMode: "published", uncutUnavailable: false,
-        model: "test-model", modelFallback: false, requestId: "rag-request-alpha",
-      };
-    },
-  });
-  assert.equal(alphaFollowUp.status, 201);
-  assert.deepEqual(alphaPayload.priorTurns.map(({ role, content }) => [role, content]), [
-    ["user", "What did the guest say about evidence?"],
-    ["assistant", "The guest described evidence [1]."],
-    ["user", "What was in the approved uncut recording?"],
-    ["assistant", "The approved uncut recording adds context [1]."],
-  ]);
-
-  const listed = await request("sai@allthingswtf.com", "/ops/api/chat/conversations");
-  const listedBody = await listed.json();
-  const generatedSummary = listedBody.conversations.find((item) => item.id === generatedBody.conversation.id);
-  assert.equal(generatedSummary.message_count, 6);
-  for (const payload of [generatedBody, listedBody]) {
-    assert.doesNotMatch(JSON.stringify(payload), /\b(?:operator_id|member_id|create_idempotency_key|idempotency_key|request_id)\b/);
+  }), { ...env, DB: db }, { verifyClerk: async () => ({ ok: true, email, userId: "user_test_123" }) });
+  for (const [path, init] of [
+    ["/ops/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ question: "owner-only" }) }],
+    ["/ops/api/chat", { method: "GET" }],
+    ["/ops/api/chat/conversations/cnv_12345678", { method: "GET" }],
+    ["/ops/api/chat/conversations/cnv_12345678", { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ confirmation: "DELETE" }) }],
+    ["/api/ops/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ question: "owner-only" }) }],
+  ]) {
+    const response = await request("sai@allthingswtf.com", path, init);
+    assert.equal(response.status, 404, `${init.method} ${path}`);
   }
-  const ownerRead = await request("sai@allthingswtf.com", `/ops/api/chat/conversations/${generatedId}`);
-  assert.equal(ownerRead.status, 200);
-  assert.doesNotMatch(JSON.stringify(await ownerRead.json()), /\b(?:operator_id|member_id|create_idempotency_key|idempotency_key|request_id)\b/);
-
-  const memoryCreate = await request("aditi@allthingswtf.com", "/ops/api/memory", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ content: "prefers evidence-first answers" }),
-  });
-  assert.equal(memoryCreate.status, 201);
-  const memoryBody = await memoryCreate.json();
-  assert.equal(memoryBody.memory.content, "prefers evidence-first answers");
-  const memoryList = await request("aditi@allthingswtf.com", "/ops/api/memory");
-  assert.equal(memoryList.status, 200);
-  assert.equal((await memoryList.json()).memories.length, 1);
-
-  const crossOwner = await request("naisthika@allthingswtf.com", `/ops/api/chat/conversations/${id}`);
-  assert.equal(crossOwner.status, 404);
-  const adminRead = await request("aditi@allthingswtf.com", `/ops/api/chat/conversations/${id}`);
-  assert.equal(adminRead.status, 404);
-
-  const expired = await handleOpsRequest(new Request(`https://ops.staging.test/ops/api/chat/conversations/${id}`, { headers: { authorization: "Bearer expired" } }), { ...env, DB: db }, { verifyClerk: async () => ({ ok: false }) });
-  assert.equal(expired.status, 404);
+  // Operator context itself is still rechecked: a deactivated operator resolves to nothing.
   const editor = await db.prepare("SELECT id FROM operators WHERE email = ?").bind("sai@allthingswtf.com").first();
   const deactivated = sqlite(`UPDATE operators SET active = 0 WHERE id = ${editor.id};`);
   assert.equal(deactivated.status, 0, deactivated.stderr);
-  const inactive = await request("sai@allthingswtf.com", `/ops/api/chat/conversations/${id}`);
-  assert.equal(inactive.status, 404);
   const context = await resolveOperatorContext(db, { ok: true, email: "sai@allthingswtf.com" }, "staging", "corr-e2e-1234");
   assert.equal(context, null);
 });

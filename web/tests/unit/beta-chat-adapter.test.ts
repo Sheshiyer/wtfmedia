@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   createMemberChatAdapter,
-  createOperatorChatAdapter,
   type BetaChatFetch,
 } from "@/components/domain/beta/BetaChatAdapter";
 
@@ -19,24 +18,6 @@ const memberHistory = {
 const memberConversation = {
   conversation: memberHistory.conversations[0],
   messages: [],
-};
-
-const operatorHistory = {
-  conversations: [{
-    id: "cnv_abcdefgh",
-    title: "Operator question",
-    source_mode: "both",
-    lifecycle_state: "active",
-    message_count: 1,
-  }],
-  nextCursor: null,
-  policy: { archive: true, export: false },
-};
-
-const operatorConversation = {
-  conversation: operatorHistory.conversations[0],
-  messages: [],
-  policy: { archive: true, export: false },
 };
 
 type FetchResult = Response | Error;
@@ -105,33 +86,6 @@ describe("BetaChatAdapter read paths", () => {
     expect(adapter.readFailure?.()).toBeNull();
   });
 
-  it("retries operator history reads and keeps includeArchived after the cursor", async () => {
-    const calls = sequenceFetcher([statusResponse(503), jsonResponse(operatorHistory)]);
-    const adapter = createOperatorChatAdapter(calls.fetcher);
-
-    expect(await adapter.list("operator.cursor", { includeArchived: true })).toMatchObject({
-      conversations: [{ id: "cnv_abcdefgh" }],
-    });
-    expect(calls.inputs).toEqual([
-      "/ops/api/chat/conversations?cursor=operator.cursor&includeArchived=1",
-      "/ops/api/chat/conversations?cursor=operator.cursor&includeArchived=1",
-    ]);
-    expect(calls.init[0]).toMatchObject({ credentials: "same-origin", cache: "no-store" });
-  });
-
-  it("retries operator conversation reads after a gateway response", async () => {
-    const calls = sequenceFetcher([statusResponse(502), jsonResponse(operatorConversation)]);
-    const adapter = createOperatorChatAdapter(calls.fetcher);
-
-    expect(await adapter.get("cnv_abcdefgh")).toMatchObject({
-      conversation: { id: "cnv_abcdefgh" },
-    });
-    expect(calls.inputs).toEqual([
-      "/ops/api/chat/conversations/cnv_abcdefgh",
-      "/ops/api/chat/conversations/cnv_abcdefgh",
-    ]);
-  });
-
   it("reports account verification when the final read is 401 or 403", async () => {
     const unauthorized = sequenceFetcher([statusResponse(401), statusResponse(401)]);
     const unauthorizedAdapter = createMemberChatAdapter(unauthorized.fetcher);
@@ -148,9 +102,9 @@ describe("BetaChatAdapter read paths", () => {
 
   it("reports a temporary staging failure after the single retry is exhausted", async () => {
     const calls = sequenceFetcher([statusResponse(504), statusResponse(504)]);
-    const adapter = createOperatorChatAdapter(calls.fetcher);
+    const adapter = createMemberChatAdapter(calls.fetcher);
 
-    expect(await adapter.get("cnv_abcdefgh")).toBeNull();
+    expect(await adapter.get("mcnv_abcdefgh")).toBeNull();
     expect(adapter.readFailure?.()).toEqual({ kind: "temporary", status: 504 });
   });
 });

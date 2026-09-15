@@ -2,21 +2,12 @@
 
 import { useMemo } from "react";
 import { MemberChatWorkspace } from "@/components/domain/member/MemberChatWorkspace";
-import { createMemberChatAdapter, createOperatorChatAdapter } from "./BetaChatAdapter";
-import { useBetaPrincipal, useMemberFetch } from "./BetaPrincipalGate";
+import { createMemberChatAdapter } from "./BetaChatAdapter";
+import { useMemberFetch } from "./BetaPrincipalGate";
 
-/**
- * One Alpha-shaped authenticated chat surface. The principal gate selects the
- * transport only; persistence IDs and server routes remain role-specific.
- */
+/** One chat surface, one transport: every principal uses the beta chat API. */
 export function BetaChatWorkspace({ conversationId }: { conversationId?: string }) {
-  const principal = useBetaPrincipal();
   const fetcher = useMemberFetch();
-  const adapter = useMemo(
-    () => principal.kind === "operator"
-      ? createOperatorChatAdapter(fetcher)
-      : createMemberChatAdapter(fetcher),
-    [fetcher, principal.kind],
-  );
+  const adapter = useMemo(() => createMemberChatAdapter(fetcher), [fetcher]);
   return <MemberChatWorkspace conversationId={conversationId} adapter={adapter} />;
 }

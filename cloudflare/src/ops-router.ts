@@ -17,28 +17,14 @@ import {
   handleYouTubeSync,
 } from "./ops-episodes.ts";
 import {
-  appendMessage,
-  archiveConversation,
-  createConversation,
-  deleteConversation,
-  exportConversationsCsv,
-  getConversation,
-  getConversationForActor,
-  listConversationsForActor,
-  type ChatActor,
-  type MessageInput,
-} from "./chat/history.ts";
-import { operatorChatConversationDto, operatorChatPageDto, operatorChatViewDto } from "./chat/browser-dto.ts";
-import {
-  activeMemoryContext,
   archiveMemory,
   createMemory,
   getMemoryForActor,
   listMemoriesForActor,
   type MemoryActor,
 } from "./chat/memory.ts";
-import { boundedPriorTurns, runChat, type ChatAnswer, type ChatAnswerInput } from "./chat/answer.ts";
-import { runAlphaChat, type AlphaChatService } from "./chat/alpha-gateway.ts";
+import type { ChatAnswer, ChatAnswerInput } from "./chat/answer.ts";
+import type { AlphaChatService } from "./chat/alpha-gateway.ts";
 import { parseSourceMode } from "./chat/source-mode.ts";
 import {
   canMutateAuthenticatedChatRelease,
@@ -117,23 +103,13 @@ function protectedPath(pathname: string): string | null {
   if (pathname === "/ops/settings") return pathname;
   if (pathname === "/ops/profile") return pathname;
   if (pathname.startsWith("/ops/settings/")) return pathname;
-  if (pathname === "/ops/chat" || pathname.startsWith("/ops/chat/")) return pathname;
-  if (pathname === "/ops/api/chat" || pathname.startsWith("/ops/api/chat/") || pathname === "/api/ops/chat" || pathname.startsWith("/api/ops/chat/")) return pathname;
   if (pathname === "/ops/api/memory" || pathname.startsWith("/ops/api/memory/") || pathname === "/api/ops/memory" || pathname.startsWith("/api/ops/memory/")) return pathname;
   if (pathname === "/ops/api/release/authenticated-chat" || pathname === "/api/ops/release/authenticated-chat") return pathname;
   if (pathname === "/ops/api/operator-context" || pathname === "/api/ops/operator-context") return pathname;
   if (pathname === "/ops/api/profile" || pathname === "/api/ops/profile") return "/ops/api/profile";
   if (pathname === "/ops/api/members") return pathname;
-  if (/^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0-9_-]*$/u.test(pathname)) return pathname;
   if (pathname === "/ops/operators" || pathname === "/ops/audit" || pathname === "/ops/production" || pathname === "/ops/ingest" || pathname === "/ops/episodes" || pathname.startsWith("/ops/episodes/")) return pathname;
   return null;
-}
-
-function chatRoute(pathname: string): boolean {
-  return pathname === "/ops/chat" || pathname.startsWith("/ops/chat/")
-    || pathname === "/ops/api/chat" || pathname.startsWith("/ops/api/chat/")
-    || pathname === "/api/ops/chat" || pathname.startsWith("/api/ops/chat/")
-    || /^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0-9_-]*$/u.test(pathname);
 }
 
 function releaseRoute(pathname: string): boolean {
@@ -155,170 +131,6 @@ function memoryRoute(pathname: string): boolean {
 
 function jsonBody(request: Request): Promise<Record<string, unknown> | null> {
   return request.json().then((body) => body && typeof body === "object" && !Array.isArray(body) ? body as Record<string, unknown> : null).catch(() => null);
-}
-
-function conversationIdFromPath(pathname: string): string | null {
-  const match = pathname.match(/\/chat\/conversations\/(cnv_[A-Za-z0-9-]{8,88})(?:\/(?:archive|export))?$/u);
-  return match?.[1] ?? null;
-}
-
-async function chatExport(request: Request, env: OpsEnv, context: OperatorContext, conversationId?: string): Promise<Response> {
-  if (!decide(context.role, "chat", "export", { environment: context.environment })) return denied();
-  const body = request.method === "POST" ? await jsonBody(request) : null;
-  const operatorScope = body?.operatorId ?? new URL(request.url).searchParams.get("operatorId") ?? undefined;
-  const csv = await exportConversationsCsv(env.DB, { operatorId: context.operatorId, role: context.role }, operatorScope);
-  if (csv === null) return denied();
-  const suffix = conversationId ? `-${conversationId}` : "";
-  return new Response(csv, { headers: { ...protectedResponseHeaders, "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename=wtfmedia-chat-history${suffix}.csv`, "x-content-type-options": "nosniff" } });
-}
-
-function requestIdForChat(request: Request): string {
-  const value = request.headers.get("x-request-id");
-  return value && /^[A-Za-z0-9._:-]{1,160}$/u.test(value) ? value : crypto.randomUUID();
-}
-
-function questionForChat(body: Record<string, unknown>): string | null {
-  const value = body.question ?? body.message ?? body.userMessage;
-  const content = typeof value === "string"
-    ? value
-    : value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>).content : null;
-  if (typeof content !== "string") return null;
-  const question = content.trim();
-  return question.length > 0 && question.length <= 2_000 ? question : null;
-}
-
-function unavailableAnswer(sourceMode: ChatAnswer["sourceMode"], requestId: string): ChatAnswer {
-  return {
-    answer: "I couldn’t retrieve transcript evidence for this turn. The conversation is saved, but no grounded answer was produced.",
-    sources: [], grounded: false, sourceMode, uncutUnavailable: false,
-    model: null, modelFallback: false, requestId,
-  };
-}
-
-async function chatApi(request: Request, env: OpsEnv, context: OperatorContext, dependencies: OpsDependencies): Promise<Response> {
-  const actor: ChatActor = { operatorId: context.operatorId, role: context.role };
-  const path = new URL(request.url).pathname;
-  if (path.endsWith("/export")) return chatExport(request, env, context, conversationIdFromPath(path));
-
-  const archivePath = path.endsWith("/archive");
-  const conversationId = conversationIdFromPath(path) ?? (archivePath ? null : null);
-  if (request.method === "GET") {
-    if (conversationId) {
-      const view = await getConversationForActor(env.DB, actor, conversationId);
-      return view ? Response.json({ ...operatorChatViewDto(view), policy: { archive: true, export: context.role === "admin" || context.role === "super_admin" } }, { headers: protectedResponseHeaders }) : denied();
-    }
-    const url = new URL(request.url);
-    const includeArchived = url.searchParams.get("includeArchived") === "1";
-    const page = await listConversationsForActor(env.DB, actor, url.searchParams.get("cursor") ?? undefined, Number(url.searchParams.get("limit") ?? "25"), includeArchived);
-    return page ? Response.json({ ...operatorChatPageDto(page), policy: { archive: true, export: context.role === "admin" || context.role === "super_admin" } }, { headers: protectedResponseHeaders }) : denied();
-  }
-
-  if (archivePath || request.method === "PATCH") {
-    const id = conversationId ?? (await jsonBody(request))?.conversationId;
-    const archived = await archiveConversation(env.DB, actor, id);
-    return archived ? Response.json({ conversation: operatorChatConversationDto(archived) }, { headers: protectedResponseHeaders }) : denied();
-  }
-
-  if (request.method === "DELETE") {
-    const input = await jsonBody(request);
-    // Same confirmation contract as member chat: a bare DELETE cannot erase history.
-    if (input?.confirmation !== "DELETE") return denied();
-    const deleted = await deleteConversation(env.DB, actor, conversationId);
-    return deleted ? Response.json({ deleted: true }, { headers: protectedResponseHeaders }) : denied();
-  }
-
-  if (request.method !== "POST") return denied();
-  const body = await jsonBody(request);
-  if (!body) return denied();
-  if (body.action === "export") return chatExport(request, env, context);
-  if (body.action === "archive") {
-    const archived = await archiveConversation(env.DB, actor, body.conversationId);
-    return archived ? Response.json({ conversation: operatorChatConversationDto(archived) }, { headers: protectedResponseHeaders }) : denied();
-  }
-
-  const requestId = requestIdForChat(request);
-  const idempotencyKey = request.headers.get("idempotency-key") ?? body.idempotencyKey;
-  const selectedConversationId = conversationId ?? body.conversationId;
-  const question = questionForChat(body);
-  if (!question) return denied();
-  const requestedSourceMode = body.sourceMode === undefined ? undefined : parseSourceMode(body.sourceMode);
-  const userMessage: MessageInput = {
-    role: "user", content: question, sourceMetadata: requestedSourceMode ? { sourceMode: requestedSourceMode } : {}, groundingState: "ungrounded",
-    requestId, idempotencyKey,
-  };
-
-  let view;
-  if (selectedConversationId === undefined) {
-    view = await createConversation(env.DB, context.operatorId, {
-      title: body.title,
-      sourceMode: body.sourceMode,
-      episodeId: body.episodeId,
-      userMessage,
-      idempotencyKey,
-    });
-    if (!view) return denied();
-  } else {
-    const appended = await appendMessage(env.DB, context.operatorId, selectedConversationId, userMessage);
-    if (!appended) return denied();
-    view = await getConversation(env.DB, context.operatorId, selectedConversationId);
-    if (!view) return denied();
-  }
-
-  const queryAudited = await appendAudit(env.DB, {
-    action: "protected_search", entityType: "control_room", entityId: view.conversation.id, outcome: "allowed",
-    environment: context.environment, correlationId: context.correlationId, actorId: context.operatorId, role: context.role,
-    metadata: { count: 1, scope: "authenticated_chat" },
-  }).catch(() => false);
-  if (!queryAudited) return denied();
-
-  const assistantKey = typeof idempotencyKey === "string" ? `${idempotencyKey}:assistant` : null;
-  if (!assistantKey || !view.messages.some((message) => message.idempotency_key === assistantKey)) {
-    const latestUserMessage = view.messages.filter((message) => message.role === "user").at(-1);
-    const priorTurns = boundedPriorTurns(view.messages
-      .filter((message) => message.sequence < (latestUserMessage?.sequence ?? Number.POSITIVE_INFINITY))
-      .map(({ role, content }) => ({ role, content })));
-    const answerInput: ChatAnswerInput = {
-      question: latestUserMessage?.content ?? question,
-      sourceMode: requestedSourceMode ?? view.conversation.source_mode,
-      episodeId: view.conversation.episode_id ?? undefined,
-      requestId,
-      priorTurns,
-      ...(env.WTFMEDIA_ALPHA_WEB ? {} : { memory: await activeMemoryContext(env.DB, context.operatorId).catch(() => []) }),
-    };
-    let answer: ChatAnswer;
-    let unavailable = false;
-    try {
-      answer = await (dependencies.runChat ?? ((input, targetEnv) => targetEnv.WTFMEDIA_ALPHA_WEB
-        ? runAlphaChat(input, targetEnv)
-        : runChat(input, targetEnv as { AI: any; VECTORIZE: any })))(answerInput, env);
-    } catch {
-      answer = unavailableAnswer(view.conversation.source_mode, requestId);
-      unavailable = true;
-    }
-    const assistant: MessageInput = {
-      role: "assistant",
-      content: answer.answer,
-      sourceMetadata: {
-        sources: answer.sources,
-        sourceMode: answer.sourceMode,
-        uncutUnavailable: answer.uncutUnavailable,
-        moments: answer.moments,
-        totalMomentDurationSec: answer.totalMomentDurationSec,
-        durationBudgetSec: answer.durationBudgetSec,
-        citedIndices: answer.citedIndices,
-      },
-      groundingState: unavailable ? "unavailable" : answer.grounded ? "grounded" : "ungrounded",
-      model: answer.model,
-      modelFallback: answer.modelFallback,
-      requestId: answer.requestId,
-      idempotencyKey: assistantKey ?? undefined,
-    };
-    const assistantId = view.conversation.id;
-    if (!await appendMessage(env.DB, context.operatorId, assistantId, assistant, "assistant")) return denied();
-    view = await getConversation(env.DB, context.operatorId, assistantId);
-    if (!view) return denied();
-  }
-  return Response.json(operatorChatViewDto(view), { status: 201, headers: protectedResponseHeaders });
 }
 
 function memoryIdFromPath(pathname: string): string | null {
@@ -484,10 +296,6 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
   const path = protectedPath(url.pathname);
   if (!path || url.hostname !== env.OPS_HOSTNAME || !validEnvironment(env.OPS_ENVIRONMENT) || !env.OPS_ORIGIN || !env.OPS_ORIGIN_PROOF) return denied();
   if (!mutationRequestAllowed(request, url)) return denied();
-  if (chatRoute(url.pathname)) {
-    const release = await resolveAuthenticatedChatRelease(env.DB, env.OPS_ENVIRONMENT, env.CHAT_HISTORY_ENABLED);
-    if (!isAuthenticatedChatEnabled(release)) return denied();
-  }
   const requirement = policyForPath(path, request.method);
   if (!requirement) return denied();
   const authorizedParties = env.CLERK_AUTHORIZED_PARTIES?.split(",").map((value) => value.trim()).filter(Boolean);
@@ -520,7 +328,6 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
     if (memoryRoute(url.pathname)) return memoryApi(request, env, context);
     if (url.pathname === "/api/ops/operators") return operatorApi(request, env, context);
     if (url.pathname === "/api/ops/audit") return auditApi(request, env, context);
-    if (chatRoute(url.pathname) && (url.pathname.includes("/api/chat"))) return chatApi(request, env, context, dependencies);
     if (url.pathname === "/ops/api/assets/upload-intent" || url.pathname === "/api/ops/assets/upload-intent") {
       return handleAssetUploadIntent(request, env, context);
     }

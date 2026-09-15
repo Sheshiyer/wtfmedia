@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { appendMemberHistoryPage, canConfirmMemberConversationDeletion, linkedSavedPreferenceDeletionNotice, type MemberConversation } from "@/lib/member/chat";
-import { createMemberChatAdapter, createOperatorChatAdapter, type BetaChatAdapter, type BetaHistoryResponse } from "./BetaChatAdapter";
-import { useBetaPrincipal, useMemberFetch } from "./BetaPrincipalGate";
+import { createMemberChatAdapter, type BetaChatAdapter, type BetaHistoryResponse } from "./BetaChatAdapter";
+import { useMemberFetch } from "./BetaPrincipalGate";
 
 type LoadState = "loading" | "ready" | "empty" | "error";
 type DeleteTarget = Pick<MemberConversation, "id" | "title" | "linkedSavedPreferenceCount">;
@@ -36,9 +36,8 @@ function DeleteDialog({ target, pending, error, onClose, onConfirm }: { target: 
 }
 
 export function BetaSessionsSettingsPanel() {
-  const principal = useBetaPrincipal();
   const request = useMemberFetch();
-  const adapter = useMemo<BetaChatAdapter>(() => principal.kind === "member" ? createMemberChatAdapter(request) : createOperatorChatAdapter(request), [principal.kind, request]);
+  const adapter = useMemo<BetaChatAdapter>(() => createMemberChatAdapter(request), [request]);
   const [history, setHistory] = useState<BetaHistoryResponse | null>(null);
   const [state, setState] = useState<LoadState>("loading");
   const [loadingMore, setLoadingMore] = useState(false);
