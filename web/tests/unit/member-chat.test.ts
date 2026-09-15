@@ -191,8 +191,8 @@ describe("member chat client contract", () => {
     expect(unavailablePanel).toContain("data-conversation-unavailable");
   });
 
-  it("keeps archive and permanent deletion as distinct selected-session actions", () => {
-    expect(memberWorkspace).toContain(">archive</Button>");
+  it("keeps permanent deletion as the only selected-session lifecycle action", () => {
+    expect(memberWorkspace).not.toContain(">archive</Button>");
     expect(memberWorkspace).toContain("delete permanently");
     expect(betaChatAdapter).toContain('method: "DELETE"');
     expect(betaChatAdapter).toContain('confirmation: "DELETE"');

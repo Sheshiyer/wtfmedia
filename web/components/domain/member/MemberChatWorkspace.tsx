@@ -14,7 +14,7 @@ import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/Button";
 import { createMemberChatAdapter, type BetaChatAdapter, type BetaConversationResponse } from "@/components/domain/beta/BetaChatAdapter";
 import { appendNewestMemberConversationMessages, canConfirmMemberConversationDeletion, linkedSavedPreferenceDeletionNotice, memberAnswerPresentation, memberCommittedRequestForRetry, memberGreeting, newMemberRequestKey, prependMemberConversationMessages, retryIntentForMemberResponse, shouldApplyMemberResponse, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversation, type MemberRetryIntent } from "@/lib/member/chat";
-import { cachedConversation, markConversationArchived, removeConversation, upsertConversation } from "@/lib/member/conversation-store";
+import { cachedConversation, removeConversation, upsertConversation } from "@/lib/member/conversation-store";
 import { useMemberFetch } from "./MemberBetaGate";
 import { MemberSessionNavigator } from "./MemberSessionNavigator";
 
@@ -28,7 +28,7 @@ function Thread({ view, sending, canRetry, onRetry, loadingEarlier, onLoadEarlie
     layoutVersion={sending}
     composerPlacement="fixed"
     renderFooter={renderFooter}
-    renderContent={({ scrollAnchor }) => <div className="mx-auto max-w-3xl space-y-6 pr-1">{view?.previousMessageCursor ? <div className="flex justify-center"><Button type="button" variant="ghost" className="text-xs" onClick={onLoadEarlier} loading={loadingEarlier} disabled={loadingEarlier} data-testid="load-earlier-messages">load earlier messages</Button></div> : null}{messages.map((message, index) => {
+    renderContent={({ scrollAnchor }) => <div className="mx-auto max-w-5xl space-y-6 pr-1">{view?.previousMessageCursor ? <div className="flex justify-center"><Button type="button" variant="ghost" className="text-xs" onClick={onLoadEarlier} loading={loadingEarlier} disabled={loadingEarlier} data-testid="load-earlier-messages">load earlier messages</Button></div> : null}{messages.map((message, index) => {
       const presentation = memberAnswerPresentation(message);
       const sourceQuestion = messages.slice(0, index).reverse().find((item) => item.role === "user")?.content;
       return <article key={message.id} className={message.role === "user" ? "flex justify-end" : "space-y-3"}>{message.role === "user" ? <p className="max-w-[85%] rounded-control border-2 border-foreground bg-attention px-4 py-3 text-sm text-on-attention">{message.content}</p> : <><div className="prose-chat border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary"><ChatAnswerMarkdown content={message.content} sources={presentation.sources} /></div>{presentation.sources.length ? <SourcePanel sources={presentation.sources} citedIndices={presentation.citedIndices} queryScope={{ sourceMode: presentation.requestedSourceMode ?? message.sourceMode ?? "published", episodeId: null }} effectiveSourceMode={presentation.evidenceSourceMode ?? message.sourceMode} moments={presentation.moments} question={sourceQuestion} /> : null}{presentation.abstained ? <p className="text-xs font-medium italic text-secondary" data-testid="abstention-label">the catalogue doesn&apos;t support that claim</p> : null}{presentation.uncutUnavailable ? <p className="text-xs text-secondary">uncut evidence was unavailable; any published evidence remains labelled.</p> : null}{presentation.followUps && presentation.followUps.length > 0 && !sending && index === messages.length - 1 ? <div className="flex flex-wrap gap-2 pt-2" data-testid="follow-up-chips">{presentation.followUps.map((item, chipIndex) => <button key={chipIndex} type="button" onClick={() => onFollowUp?.(item)} className="rounded-full border border-foreground/20 bg-canvas px-3 py-1.5 text-left text-xs text-secondary transition-colors hover:border-knowledge hover:text-foreground">{item}</button>)}</div> : null}</>}</article>;
@@ -76,7 +76,6 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
   const [retryIntent, setRetryIntent] = useState<MemberRetryIntent | null>(null);
   const [committedRequest, setCommittedRequest] = useState<MemberCommittedRequest | null>(null);
   const [sending, setSending] = useState(false);
-  const [archiving, setArchiving] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -107,7 +106,6 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
     sendingRef.current = false;
     setSending(false);
     setPendingQuestion(null);
-    setArchiving(false);
     setDeleting(false);
     setDeleteDialogOpen(false);
     setDeleteTarget(null);
@@ -237,23 +235,6 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
     }
   }, [conversationId, loadingEarlier, pathname, resolvedAdapter, view?.previousMessageCursor]);
 
-  const archive = useCallback(async () => {
-    if (!conversationId || archiving) return;
-    const epoch = ++archiveEpoch.current;
-    const requestPath = pathname;
-    setArchiving(true);
-    try {
-      if (!await resolvedAdapter.archive(conversationId)) throw new Error("member_archive_unavailable");
-      if (!shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) || currentConversation.current !== conversationId) return;
-      markConversationArchived(conversationId);
-      router.push("/beta/chat");
-    } catch {
-      if (shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) && currentConversation.current === conversationId) setState("error");
-    } finally {
-      if (epoch === archiveEpoch.current) setArchiving(false);
-    }
-  }, [archiving, conversationId, pathname, resolvedAdapter, router]);
-
   const deleteConversation = useCallback(async (confirmation: string): Promise<boolean> => {
     const targetId = deleteTarget?.id ?? conversationId;
     if (!targetId || deleting || !resolvedAdapter.delete || !canConfirmMemberConversationDeletion(confirmation)) return false;
@@ -316,7 +297,6 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
           <Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="min-h-9 px-3 py-1 text-xs lg:hidden">conversations</Button>
           {conversationId && view ? <h1 title={view.conversation.title} className="truncate font-display text-lg font-extrabold lowercase [overflow-wrap:anywhere]">{view.conversation.title}</h1> : <h1 className="font-display text-lg font-extrabold lowercase">ask wtf</h1>}
         </div>
-        {conversationId ? <div className="flex shrink-0 gap-2"><Button type="button" variant="ghost" onClick={() => void archive()} loading={archiving} disabled={archiving || deleting} className="min-h-9 px-3 py-1 text-xs">archive</Button>{resolvedAdapter.canDelete ? <Button type="button" variant="ghost" onClick={() => { setDeleteError(false); setDeleteTarget(view ? { id: conversationId, title: view.conversation.title, linkedSavedPreferenceCount: view.conversation.linkedSavedPreferenceCount } : null); setDeleteDialogOpen(true); }} disabled={archiving || deleting} className="min-h-9 px-3 py-1 text-xs">delete</Button> : null}</div> : null}
       </div>
       <section className="min-h-0 min-w-0 flex-1" aria-live="polite" data-selected-conversation-viewport>
         {!conversationId && !pendingQuestion ? <ConversationEmptyState /> : null}

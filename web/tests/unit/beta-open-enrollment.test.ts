@@ -104,7 +104,7 @@ describe("Beta open-enrollment copy", () => {
     expect(sessionNavigator).toContain("retry loading more");
     expect(sessionNavigator).toContain("subscribeConversationStore");
     expect(sessionNavigator).toContain("grid min-w-0 grid-cols-1");
-    expect(sessionNavigator).toContain("line-clamp-2");
+    expect(sessionNavigator).toContain("truncate font-body text-sm");
     expect(memberWorkspace).toContain("min-h-0 flex-1 overflow-y-auto p-3 pt-0");
   });
 

@@ -4,28 +4,30 @@ import { auth } from "@clerk/nextjs/server";
 export const dynamic = "force-dynamic";
 
 async function forward(edge: { fetch: (input: Request) => Promise<Response> } | null, localOrigin: string | undefined, request: Request, headers: Headers): Promise<Response> {
-  const init: RequestInit = { method: request.method, headers, redirect: "manual" };
-  if (request.method !== "GET" && request.method !== "HEAD") init.body = await request.arrayBuffer();
-  const outbound = new Request(request.url, init);
-  // Local dev (WTFMEDIA_EDGE_LOCAL_ORIGIN is set in .env.local only, never in
-  // deployed envs): the wrangler dev-registry service binding cannot consume
-  // these requests, so forward over HTTP to the local edge worker instead.
-  // Hop-by-hop headers from the upstream response are stripped — browsers
-  // reject responses that re-emit them (Firefox reports NS_ERROR_* on an
-  // otherwise-200 reply).
   if (!edge) {
+    const init: RequestInit = { method: request.method, headers, redirect: "manual" };
+    if (request.method !== "GET" && request.method !== "HEAD") init.body = await request.arrayBuffer();
     const url = new URL(request.url);
     const upstream = await fetch(new URL(url.pathname + url.search, localOrigin), init);
+    // Strip hop-by-hop headers from the upstream response — browsers reject
+    // responses that re-emit them (Firefox reports NS_ERROR_*).
     const sanitized = new Headers(upstream.headers);
     for (const hop of ["connection", "transfer-encoding", "keep-alive", "content-length"]) sanitized.delete(hop);
     return new Response(upstream.body, { status: upstream.status, headers: sanitized });
   }
-  return edge.fetch(outbound);
+  // Deployed: forward the ORIGINAL request object with stripped headers.
+  // Rebuilding from a URL string drops the internal routing context and the
+  // subrequest leaves the service binding — Cloudflare answers 1003.
+  return edge.fetch(new Request(request, { headers }));
 }
 
 async function proxy(request: Request): Promise<Response> {
   try {
-    const localOrigin = process.env.WTFMEDIA_EDGE_LOCAL_ORIGIN;
+    // The local HTTP forwarder is for `next dev` only. .env.local is baked
+    // into deployed builds too, so gate on the REQUEST being local — a leaked
+    // WTFMEDIA_EDGE_LOCAL_ORIGIN must never divert deployed traffic.
+    const host = new URL(request.url).hostname;
+    const localOrigin = host === "localhost" || host === "127.0.0.1" ? process.env.WTFMEDIA_EDGE_LOCAL_ORIGIN : undefined;
     const env = localOrigin ? null : (await getCloudflareContext({ async: true })).env;
     const edge = localOrigin ? null : (env?.WTFMEDIA_EDGE ?? null);
     if (!localOrigin && !edge) return Response.json({ error: "beta_unavailable" }, { status: 503, headers: { "cache-control": "private, no-store" } });

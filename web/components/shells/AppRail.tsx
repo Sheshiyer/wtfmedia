@@ -211,7 +211,7 @@ export function AppRail({
             <MigratedWordmarkMini plate />
           </Link>
           )}
-          <div className="relative flex min-w-0 items-start justify-end gap-2">
+          <div className="relative ml-auto flex min-w-0 items-start justify-end gap-2">
             <button
               ref={utilityToggleRef}
               type="button"

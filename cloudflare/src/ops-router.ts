@@ -20,6 +20,7 @@ import {
   appendMessage,
   archiveConversation,
   createConversation,
+  deleteConversation,
   exportConversationsCsv,
   getConversation,
   getConversationForActor,
@@ -216,6 +217,14 @@ async function chatApi(request: Request, env: OpsEnv, context: OperatorContext, 
     const id = conversationId ?? (await jsonBody(request))?.conversationId;
     const archived = await archiveConversation(env.DB, actor, id);
     return archived ? Response.json({ conversation: operatorChatConversationDto(archived) }, { headers: protectedResponseHeaders }) : denied();
+  }
+
+  if (request.method === "DELETE") {
+    const input = await jsonBody(request);
+    // Same confirmation contract as member chat: a bare DELETE cannot erase history.
+    if (input?.confirmation !== "DELETE") return denied();
+    const deleted = await deleteConversation(env.DB, actor, conversationId);
+    return deleted ? Response.json({ deleted: true }, { headers: protectedResponseHeaders }) : denied();
   }
 
   if (request.method !== "POST") return denied();

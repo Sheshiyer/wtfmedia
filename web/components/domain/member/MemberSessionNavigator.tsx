@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/Button";
 import { shouldFinishMemberPaginationRequest, type MemberConversation } from "@/lib/member/chat";
-import { cacheHistory, cachedHistory, markConversationArchived, subscribeConversationStore } from "@/lib/member/conversation-store";
+import { cacheHistory, cachedHistory, subscribeConversationStore } from "@/lib/member/conversation-store";
 import { createMemberChatAdapter, type BetaChatAdapter, type BetaReadFailure } from "@/components/domain/beta/BetaChatAdapter";
 import { useMemberFetch } from "./MemberBetaGate";
 
@@ -15,7 +14,6 @@ type ReadFailureKind = BetaReadFailure["kind"];
 export function MemberSessionNavigator({ activeConversationId, onNavigate, onRequestDelete, adapter }: { activeConversationId?: string; onNavigate?: () => void; onRequestDelete?: (conversation: MemberConversation) => void; adapter?: BetaChatAdapter }) {
   const memberFetch = useMemberFetch();
   const resolvedAdapter = useMemo(() => adapter ?? createMemberChatAdapter(memberFetch), [adapter, memberFetch]);
-  const router = useRouter();
   const [state, setState] = useState<NavigatorState>(() => cachedHistory() ? (cachedHistory()!.conversations.length ? "ready" : "empty") : "loading");
   // The store is the list source of truth; local state only tracks load failures.
   const history = useSyncExternalStore(subscribeConversationStore, cachedHistory, cachedHistory);
@@ -60,22 +58,6 @@ export function MemberSessionNavigator({ activeConversationId, onNavigate, onReq
       }
     }
   }, [resolvedAdapter]);
-
-  const archive = useCallback(async (conversationId: string) => {
-    if (action) return;
-    setAction(`archive:${conversationId}`);
-    setActionMessage(null);
-    try {
-      if (!await resolvedAdapter.archive(conversationId)) throw new Error("archive_failed");
-      setActionMessage("Conversation archived.");
-      markConversationArchived(conversationId);
-      if (conversationId === activeConversationId) router.push("/beta/chat");
-    } catch {
-      setActionMessage("Conversation could not be archived.");
-    } finally {
-      setAction(null);
-    }
-  }, [action, activeConversationId, resolvedAdapter, router]);
 
   const requestDelete = useCallback((conversation: MemberConversation) => {
     if (!onRequestDelete || action) return;
@@ -123,7 +105,7 @@ export function MemberSessionNavigator({ activeConversationId, onNavigate, onReq
       {actionMessage ? <p role="status" className="border-2 border-foreground/20 bg-surface-subtle p-2 text-xs text-secondary">{actionMessage}</p> : null}
       {state === "ready" && history ? <div className="grid min-w-0 grid-cols-1 gap-2">{history.conversations.map((conversation) => {
         const href = resolvedAdapter.href(conversation.id);
-        return href ? <div key={conversation.id} className={`min-w-0 overflow-hidden border-2 p-3 ${conversation.id === activeConversationId ? "border-information bg-information/15" : "border-foreground/20 bg-canvas"}`} data-member-session-card><Link href={href} onClick={onNavigate} aria-current={conversation.id === activeConversationId ? "page" : undefined} className="block min-w-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-information"><p className="line-clamp-2 font-body text-sm font-semibold text-foreground [overflow-wrap:anywhere]">{conversation.title}</p><p className="mt-1 truncate font-label text-[10px] uppercase tracking-wide text-muted">{conversation.sourceMode} evidence · updated <time dateTime={conversation.updatedAt}>{conversation.updatedAt ? new Date(conversation.updatedAt).toLocaleDateString() : "not recorded"}</time></p></Link><div className="mt-3 flex flex-wrap gap-2" aria-label={`${conversation.title} actions`}><Button type="button" variant="ghost" onClick={() => void archive(conversation.id)} disabled={action !== null} loading={action === `archive:${conversation.id}`} className="min-h-9 px-2 py-1 text-[11px]">archive</Button>{onRequestDelete ? <Button type="button" variant="ghost" onClick={() => requestDelete(conversation)} disabled={action !== null} loading={action === `delete:${conversation.id}`} className="min-h-9 px-2 py-1 text-[11px]">delete</Button> : null}</div></div> : null;
+        return href ? <div key={conversation.id} className={`min-w-0 overflow-hidden border-2 p-3 ${conversation.id === activeConversationId ? "border-information bg-information/15" : "border-foreground/20 bg-canvas"}`} data-member-session-card><div className="flex min-w-0 items-center justify-between gap-2"><Link href={href} onClick={onNavigate} aria-current={conversation.id === activeConversationId ? "page" : undefined} className="block min-w-0 flex-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-information"><p className="truncate font-body text-sm font-semibold text-foreground">{conversation.title}</p></Link>{onRequestDelete ? <button type="button" aria-label={`delete ${conversation.title}`} title="delete conversation" onClick={() => requestDelete(conversation)} disabled={action !== null} className="grid h-8 w-8 shrink-0 place-items-center rounded-control border-2 border-transparent text-editorial hover:border-editorial focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information disabled:opacity-50"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg></button> : null}</div></div> : null;
       })}{history.nextCursor ? <><Button type="button" variant="secondary" onClick={() => void loadMore()} loading={loadingMore} disabled={loadingMore} className="min-h-10 px-3 py-2 text-xs">load more</Button>{paginationError ? <div role="status" className="border-2 border-foreground/20 bg-surface-subtle p-3 text-xs text-secondary" data-session-read-error={paginationFailureKind ?? "temporary"}>{paginationFailureKind === "verification" ? "account verification is required to load older conversations." : "the staging service is temporarily unavailable while loading older conversations."}<Button type="button" variant="secondary" onClick={() => void loadMore()} className="mt-3 min-h-9 px-3 py-1 text-xs">retry loading more</Button></div> : null}</> : null}</div> : null}
     </nav>
   );

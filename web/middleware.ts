@@ -20,22 +20,25 @@ async function routeMiddleware(request: NextRequest) {
     target.pathname = `/beta/chat/${legacyConversationId}`;
     return NextResponse.redirect(target);
   }
-  // `/ops/*` is the preserved anonymous/legacy Alpha operator tree. Only the
-  // old beta operator aliases redirect into the canonical single shell.
-  if (pathname === "/beta/ops" || pathname.startsWith("/beta/ops/")) {
+  // `/ops/*` pages are retired: the beta shell is the only surface. The
+  // /ops/api/* endpoints stay (chat transport) and /ops/recover stays for
+  // session recovery.
+  const opsPage = pathname === "/ops" || (pathname.startsWith("/ops/") && !pathname.startsWith("/ops/api") && pathname !== "/ops/recover");
+  if (pathname === "/beta/ops" || pathname.startsWith("/beta/ops/") || opsPage) {
+    const source = opsPage ? pathname : pathname.slice("/beta/ops".length);
+    const suffix = opsPage ? pathname.slice("/ops".length) : source;
     const target = request.nextUrl.clone();
-    const suffix = pathname.slice("/beta/ops".length);
-    if (!suffix) target.pathname = "/beta/workspace";
+    if (!suffix) target.pathname = "/beta/chat";
     else if (suffix === "/ingest") target.pathname = "/beta/workspace";
     else if (suffix === "/production" || suffix === "/episodes") target.pathname = `/beta/workspace${suffix}`;
-    else if (suffix === "/operators") target.pathname = "/beta/admin/users";
+    else if (suffix === "/operators") target.pathname = "/beta/settings/users";
     else if (suffix === "/audit") target.pathname = "/beta/admin/audit";
     else if (suffix === "/profile") target.pathname = "/beta/settings";
-    else if (suffix === "/chat") target.pathname = "/beta/chat";
+    else if (suffix === "/chat" || suffix.startsWith("/chat/")) target.pathname = "/beta/chat";
     else if (suffix === "/settings") target.pathname = "/beta/settings";
-    else if (suffix.startsWith("/settings/access") || suffix.startsWith("/settings/users")) target.pathname = "/beta/admin/users";
+    else if (suffix.startsWith("/settings/access") || suffix.startsWith("/settings/users")) target.pathname = "/beta/settings/users";
     else if (suffix.startsWith("/settings/")) target.pathname = `/beta/settings/workspace${suffix.slice("/settings".length)}`;
-    else target.pathname = "/beta/workspace";
+    else target.pathname = "/beta/chat";
     return NextResponse.redirect(target);
   }
   if (recoveryPaths.has(pathname)) {

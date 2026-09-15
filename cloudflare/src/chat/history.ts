@@ -276,6 +276,22 @@ export async function archiveConversation(db: DB, actor: ChatActor, id: unknown,
   return await db.prepare(`SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE id = ?`).bind(id).first<ChatConversation>() ?? null;
 }
 
+/** Owner-scoped permanent delete: messages go with the conversation row. */
+export async function deleteConversation(db: DB, actor: ChatActor, id: unknown): Promise<boolean> {
+  if (!validOperatorId(actor.operatorId) || !validId(id, conversationIdPattern)) return false;
+  const target = await db.prepare("SELECT id FROM chat_conversations WHERE id = ? AND operator_id = ?").bind(id, actor.operatorId).first<{ id: string }>();
+  if (!target) return false;
+  try {
+    await db.batch([
+      db.prepare("DELETE FROM chat_messages WHERE conversation_id = ?").bind(id),
+      db.prepare("DELETE FROM chat_conversations WHERE id = ? AND operator_id = ?").bind(id, actor.operatorId),
+    ]);
+  } catch {
+    return false;
+  }
+  return true;
+}
+
 function csvCell(value: unknown): string {
   const valueText = String(value ?? "");
   const neutralized = /^[=+\-@]/u.test(valueText) ? `'${valueText}` : valueText;

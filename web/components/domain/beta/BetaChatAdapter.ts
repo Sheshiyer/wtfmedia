@@ -223,7 +223,7 @@ function operatorAdapter(fetcher: BetaChatFetch): BetaChatAdapter {
   return {
     kind: "operator",
     defaultSourceMode: "both",
-    canDelete: false,
+    canDelete: true,
     readFailure: () => lastReadFailure,
     list: async (cursor, options) => {
       const parsed = await readJsonWithRetry(
@@ -261,6 +261,16 @@ function operatorAdapter(fetcher: BetaChatFetch): BetaChatAdapter {
     },
     archive: async (conversationId) => {
       const response = await fetcher(`/ops/api/chat/conversations/${encodeURIComponent(conversationId)}/archive`, { method: "POST", credentials: "same-origin", cache: "no-store" });
+      return response.ok;
+    },
+    delete: async (conversationId) => {
+      const response = await fetcher(`/ops/api/chat/conversations/${encodeURIComponent(conversationId)}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ confirmation: "DELETE" }),
+      });
       return response.ok;
     },
     href,

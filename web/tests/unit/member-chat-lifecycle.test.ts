@@ -39,7 +39,7 @@ describe("member conversation lifecycle", () => {
   it("keeps the active heading bounded while preserving two-line rail titles", () => {
     expect(workspace).toContain('title={view.conversation.title}');
     expect(workspace).toContain("truncate font-display text-lg");
-    expect(navigator).toContain("line-clamp-2");
+    expect(navigator).toContain("truncate font-body text-sm");
   });
 
   it("uses the shared Alpha conversation frame instead of a private thread fork", () => {
