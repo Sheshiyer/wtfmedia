@@ -34,7 +34,7 @@ import {
   parseFollowUpCandidates,
   selectAnswerableFollowUps,
 } from "./skills/wtf-os-conversation.ts";
-import { hasCitationCoverage } from "./answer.ts";
+import { coverageFailure, hasCitationCoverage } from "./answer.ts";
 
 /**
  * The single Ask WTF answering pipeline. The public /v1/chat route and the
@@ -69,11 +69,12 @@ export type PublicChatResult = { status: number; body: Record<string, unknown> }
 
 const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
 const DEFAULT_OPENROUTER_ANSWER_MODEL = "google/gemini-3.5-flash";
-const ANSWER_MODELS = [
-  "@cf/zai-org/glm-5.3-flash",
-  "@cf/meta/llama-3.1-8b-instruct-fast",
-];
-const FAST_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
+// glm-5.3-flash is the single model for every generation call: answers,
+// reformulation, follow-ups, and moment enrichment. It appears twice in the
+// fallback chain so a transient failure retries it after OpenRouter.
+const GLM_MODEL = "@cf/zai-org/glm-5.3-flash";
+const ANSWER_MODELS = [GLM_MODEL, GLM_MODEL];
+const FAST_MODEL = GLM_MODEL;
 export const MAX_QUESTION_CHARS = 2_000;
 export const MAX_HISTORY_TURNS = 6;
 const MIN_SCORE = 0.45;
@@ -107,7 +108,7 @@ function extractAnswerText(result: any): string {
 }
 
 async function answerWithWorkersAi(env: PublicChatEnv, model: string, messages: unknown[]) {
-  const params: Record<string, unknown> = { messages, max_tokens: 900, temperature: 0.1 };
+  const params: Record<string, unknown> = { messages, max_tokens: 2500, temperature: 0.1 };
   // glm-5.3-flash is a reasoning model; low effort keeps hidden reasoning from
   // eating the completion budget and adding latency.
   if (model.includes("glm")) params.reasoning_effort = "low";
@@ -214,11 +215,13 @@ async function answerWithFallback(env: PublicChatEnv, messages: unknown[], force
 
 function citedEvidenceFallback(sources: Array<{ n: number; title: string; text?: string }>) {
   const lines = sources.slice(0, 3).map((source) => {
+    // Full excerpt text — the user asked for the complete passage, not a
+    // 260-char teaser. Bounded only against pathological chunk sizes.
     const excerpt = String(source.text || "")
       .replace(/\s+/g, " ")
       .trim()
-      .slice(0, 260);
-    return `[${source.n}] ${source.title}: ${excerpt}${excerpt.length === 260 ? "..." : ""}`;
+      .slice(0, 2_000);
+    return `[${source.n}] ${source.title}: ${excerpt}${excerpt.length === 2_000 ? "..." : ""}`;
   });
   return [
     "I found relevant evidence, but the synthesis model did not return valid citations. Here are the closest cited excerpts instead:",
@@ -267,19 +270,28 @@ async function reformulateQuery(env: PublicChatEnv, question: string, history: H
       ],
       max_tokens: 80,
       temperature: 0,
+      reasoning_effort: "low",
     });
-    const text = typeof result === "string" ? result : result?.response;
+    const text = extractAnswerText(result);
     return (typeof text === "string" && text.trim().length > 5) ? text.trim() : question;
   } catch {
     return question;
   }
 }
 
+// A "standalone" prior question anchors duration-budgeted follow-ups ("top 5
+// mins of this"). The broad NEEDS_REFORMULATION test can't select it: normal
+// questions contain "that" mid-sentence ("dating advice that everyone gave"),
+// so anchor selection looks for reference-LIKE openings instead.
+const REFERENCE_LEAD = /^\s*(?:this|that|those|these|it|they|them|he|she|and|so|but|also|ok(?:ay)?)\b/i;
+
+function isStandaloneQuestion(turn: HistoryTurn): boolean {
+  return turn.role === "user" && turn.content.trim().length >= 24 && !REFERENCE_LEAD.test(turn.content);
+}
+
 async function resolveSearchQuery(env: PublicChatEnv, question: string, history: HistoryTurn[]): Promise<string> {
   if (parseDurationBudget(question) != null && NEEDS_REFORMULATION.test(question)) {
-    const priorStandalone = [...history].reverse().find(
-      (t) => t.role === "user" && !NEEDS_REFORMULATION.test(t.content),
-    );
+    const priorStandalone = [...history].reverse().find(isStandaloneQuestion);
     if (priorStandalone) return priorStandalone.content;
   }
   return reformulateQuery(env, question, history);
@@ -453,9 +465,10 @@ async function generateFollowUps(
       ],
       max_tokens: 220,
       temperature: 0.2,
+      reasoning_effort: "low",
     });
-    const text = typeof result === "string" ? result : result?.response;
-    if (typeof text !== "string") return [];
+    const text = extractAnswerText(result);
+    if (!text.trim()) return [];
     const normalizedQuestion = question.toLocaleLowerCase("en-US");
     const candidates = parseFollowUpCandidates(text).filter(
       (candidate) => candidate.toLocaleLowerCase("en-US") !== normalizedQuestion,
@@ -516,7 +529,9 @@ async function momentsForAnswer(
       ? `There is 1 MOMENT. Output exactly 1 JSON object labeling it. Every text field (guest, theme, topic, summary, whyRelevant) is REQUIRED — never output empty strings; infer conservatively from the excerpt and episode title.`
       : `There are ${batch.length} MOMENTs. Output exactly ${batch.length} JSON objects, one per MOMENT, in order — use empty strings when a text field cannot be honest, but never skip a MOMENT and never default strength.`;
     try {
-      const result = await env.AI.run(FAST_MODEL, {
+      // Same provider and model as answer generation: moment labels and
+      // strength scores drive what the reel shows, so they get the big model.
+      const result = await env.AI.run(ANSWER_MODELS[0], {
         messages: [
           { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
           // The model silently skips moments it can't label unless the exact
@@ -525,6 +540,9 @@ async function momentsForAnswer(
         ],
         max_tokens: 2000,
         temperature: 0.2,
+        // glm is a reasoning model; low effort keeps hidden reasoning from
+        // eating the JSON budget and adding latency.
+        reasoning_effort: "low",
       });
       const text = extractAnswerText(result);
       if (!text.trim()) throw new Error("empty moment enrichment");
@@ -730,13 +748,15 @@ export async function runPublicChat(env: PublicChatEnv, input: PublicChatInput):
     if (!citationValidation.valid || !hasCitationCoverage(answered.answer, sources.length)) {
       // One repair pass: the model answered but dropped/mangled citations. Ask
       // it to rewrite the same answer with valid [n] citations before giving up.
-      console.warn("wtfmedia answer missing valid citations; attempting repair", { sourceCount: sources.length, citations: citationValidation.indices });
-      const repaired = await answerWithFallback(env, [
+      console.warn("wtfmedia answer missing valid citations; attempting repair", { sourceCount: sources.length, citations: citationValidation.indices, failingSentence: coverageFailure(answered.answer, sources.length) });
+      const repairedRaw = await answerWithFallback(env, [
         { role: "system", content: WTF_OS_CONVERSATION_SKILL.systemPrompt },
         { role: "user", content: userContent },
         { role: "assistant", content: answered.answer },
-        { role: "user", content: `Your answer has no valid citations. Rewrite it: cite every factual sentence with [n], using only numbers 1 to ${sources.length}. If the excerpts do not answer the question, say plainly what is not supported instead.` },
+        { role: "user", content: `Your answer has no valid citations. Rewrite it: cite every factual sentence with [n], using only numbers 1 to ${sources.length}. Output ONLY the rewritten answer — no preamble like "Here's the rewrite". If the excerpts do not answer the question, say plainly what is not supported instead.` },
       ], input.forcedAnswerModel);
+      // The model often prefixes the rewrite with a meta line; strip it.
+      const repaired = { ...repairedRaw, answer: repairedRaw.answer.replace(/^\s*here(?:'|’)s the rewrite[^\n]*\n+/i, "") };
       if (isModelAbstention(repaired.answer)) {
         return {
           status: 200,
@@ -781,7 +801,7 @@ export async function runPublicChat(env: PublicChatEnv, input: PublicChatInput):
           },
         };
       }
-      console.warn("wtfmedia answer rejected: invalid citations after repair", { sourceCount: sources.length, citations: repairedValidation.indices });
+      console.warn("wtfmedia answer rejected: invalid citations after repair", { sourceCount: sources.length, citations: repairedValidation.indices, failingSentence: coverageFailure(repaired.answer, sources.length) });
       const fallbackCited = sources.slice(0, 3).map((s) => s.n);
       return {
         status: 200,

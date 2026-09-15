@@ -26,20 +26,18 @@ function source(overrides) {
 }
 
 describe("buildMoments", () => {
-  test("merges consecutive chunks of one episode into a single moment", () => {
+  test("emits one moment per chunk so an episode yields several distinct timestamps", () => {
     const moments = buildMoments([
       source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
       source({ n: 2, start: 360, segmentId: "abc123def45:6" }),
       source({ n: 3, start: 420, segmentId: "abc123def45:7" }),
     ]);
-    assert.equal(moments.length, 1);
-    assert.equal(moments[0].chunkStart, 5);
-    assert.equal(moments[0].chunkEnd, 7);
-    assert.equal(moments[0].startSec, 300);
-    assert.deepEqual(moments[0].citationNumbers, [1, 2, 3]);
+    assert.equal(moments.length, 3);
+    assert.deepEqual(moments.map((m) => m.chunkStart).sort((a, b) => a - b), [5, 6, 7]);
+    assert.deepEqual(moments.map((m) => m.citationNumbers), [[1], [2], [3]]);
   });
 
-  test("splits a chunk gap into two moments in the same episode", () => {
+  test("keeps chunk-gap moments in the same episode separate", () => {
     const moments = buildMoments([
       source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
       source({ n: 2, start: 900, segmentId: "abc123def45:15" }),
@@ -69,12 +67,13 @@ describe("buildMoments", () => {
     assert.deepEqual(moments[0].citationNumbers, [4]);
   });
 
-  test("takes the weakest timestamp confidence in a merged run", () => {
+  test("carries each chunk's own timestamp confidence", () => {
     const moments = buildMoments([
       source({ n: 1, start: 300, segmentId: "abc123def45:5", timestampConfidence: 0.9 }),
       source({ n: 2, start: 360, segmentId: "abc123def45:6", timestampConfidence: 0.4 }),
     ]);
-    assert.equal(moments[0].timestampConfidence, 0.4);
+    assert.equal(moments.length, 2);
+    assert.deepEqual(moments.map((m) => m.timestampConfidence).sort(), [0.4, 0.9]);
   });
 });
 

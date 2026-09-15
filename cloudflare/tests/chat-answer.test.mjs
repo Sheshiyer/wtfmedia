@@ -1,7 +1,24 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { runChat } from "../src/chat/answer.ts";
+import { hasCitationCoverage, runChat } from "../src/chat/answer.ts";
 import { prepareMemberTurn } from "../src/chat/member-history.ts";
+
+test("hasCitationCoverage accepts glm's labelled-list style and still rejects uncited claims", () => {
+  const glmStyle = [
+    "Across the catalogue, guests offered a few distinct pieces of dating advice:",
+    "",
+    "- **Play the numbers.** Martin Escobari framed approaching someone as a maths problem [1].",
+    "- **Wingman etiquette.** Tanmay said a wingman should cue and leave, not oversell [3].",
+    "The restaurant episode's point about word-of-mouth is about dining referrals, not dating [2].",
+  ].join("\n");
+  assert.equal(hasCitationCoverage(glmStyle, 6), true);
+  const withCoverageNote = glmStyle + "\nThat's what the excerpts support, and no other excerpt here gives dating guidance.";
+  assert.equal(hasCitationCoverage(withCoverageNote, 6), true);
+  const withCatalogueNote = "Honest answer up front: the catalogue doesn't contain much structured dating advice.\n\n- Tanmay said cue and leave [1].";
+  assert.equal(hasCitationCoverage(withCatalogueNote, 6), true);
+  assert.equal(hasCitationCoverage("Guests gave advice.\n\n- Tanmay said cue and leave [1].", 6), false);
+  assert.equal(hasCitationCoverage("No citations anywhere.", 6), false);
+});
 
 const vector = Array.from({ length: 1024 }, () => 0.1);
 
@@ -49,20 +66,41 @@ test("shared authenticated runner returns the Alpha editor-sheet moment payload"
 
   const answer = await runChat({ question: "What did Nikhil Kamath say about building conviction?", sourceMode: "published" }, env);
 
-  assert.equal(answer.moments?.length, 1);
+  // Contiguous chunks stay separate moments: distinct timestamps per episode.
+  assert.equal(answer.moments?.length, 2);
   assert.deepEqual(answer.citedIndices, [1, 2]);
   assert.deepEqual(answer.moments?.[0], {
     videoId,
     title: "Nikhil Kamath on building",
     url: `https://www.youtube.com/watch?v=${videoId}&t=120s`,
     chunkStart: 4,
-    chunkEnd: 5,
+    chunkEnd: 4,
     startSec: 120,
-    endSec: 180,
-    durationSec: 60,
+    endSec: 150,
+    durationSec: 30,
     score: 0.94,
     timestampConfidence: null,
-    citationNumbers: [1, 2],
+    citationNumbers: [1],
+    withinBudget: true,
+    guest: "Nikhil Kamath",
+    theme: "career path",
+    topic: "building conviction",
+    summary: "Nikhil describes building conviction through repeated work.",
+    whyRelevant: "It directly answers how conviction develops.",
+    strength: 5,
+  });
+  assert.deepEqual(answer.moments?.[1], {
+    videoId,
+    title: "Nikhil Kamath on building",
+    url: `https://www.youtube.com/watch?v=${videoId}&t=150s`,
+    chunkStart: 5,
+    chunkEnd: 5,
+    startSec: 150,
+    endSec: 180,
+    durationSec: 30,
+    score: 0.92,
+    timestampConfidence: null,
+    citationNumbers: [2],
     withinBudget: true,
     guest: "Nikhil Kamath",
     theme: "career path",

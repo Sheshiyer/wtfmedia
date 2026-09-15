@@ -97,40 +97,25 @@ export function buildMoments(sources: readonly MomentSource[]): Moment[] {
   const moments: Moment[] = [];
   for (const [videoId, items] of byEpisode) {
     items.sort((a, b) => a.chunk - b.chunk);
-    let run: Array<{ source: MomentSource; chunk: number }> = [];
-    const flush = () => {
-      if (run.length === 0) return;
-      const first = run[0].source;
-      const confidences = run
-        .map((item) => item.source.timestampConfidence)
-        .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+    // One moment per chunk, never merged runs: the editor sheet wants several
+    // distinct timestamps from the same episode, not one long merged block.
+    for (const item of items) {
       moments.push({
         videoId,
-        title: first.title,
-        url: first.url,
-        chunkStart: run[0].chunk,
-        chunkEnd: run[run.length - 1].chunk,
-        startSec: first.start ?? 0,
+        title: item.source.title,
+        url: item.source.url,
+        chunkStart: item.chunk,
+        chunkEnd: item.chunk,
+        startSec: item.source.start ?? 0,
         endSec: null,
         durationSec: null,
-        score: Math.max(...run.map((item) => item.source.score)),
-        timestampConfidence: confidences.length > 0 ? Math.min(...confidences) : null,
-        citationNumbers: run.map((item) => item.source.n),
-        excerpt: run
-          .map((item) => (typeof item.source.text === "string" ? item.source.text : ""))
-          .join(" ")
-          .slice(0, 600),
+        score: item.source.score,
+        timestampConfidence: typeof item.source.timestampConfidence === "number" && Number.isFinite(item.source.timestampConfidence) ? item.source.timestampConfidence : null,
+        citationNumbers: [item.source.n],
+        excerpt: (typeof item.source.text === "string" ? item.source.text : "").slice(0, 600),
         withinBudget: true,
       });
-      run = [];
-    };
-    for (const item of items) {
-      // Gap > 1 chunk means the retrieval window skipped material between the
-      // two hits — those are two moments, not one continuous one.
-      if (run.length > 0 && item.chunk > run[run.length - 1].chunk + 1) flush();
-      run.push(item);
     }
-    flush();
   }
 
   return moments.sort((a, b) => b.score - a.score);

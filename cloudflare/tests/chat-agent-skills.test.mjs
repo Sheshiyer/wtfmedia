@@ -39,6 +39,17 @@ describe("WTF OS conversation skill", () => {
     );
   });
 
+  test("transcript annotations in quoted excerpts do not poison citation validation", () => {
+    assert.deepEqual(
+      parseCitationMarkers("He moved to Brazil [1] and everyone laughed [laughter] before the music [music] and a snort [snorts].", 3),
+      { valid: true, indices: [1] },
+    );
+    assert.deepEqual(
+      parseCitationMarkers("[1] Martin Escobari: he said it [laughter] >> what is about [2] next.", 3),
+      { valid: true, indices: [1, 2] },
+    );
+  });
+
   test("builds follow-up input from bounded evidence text rather than titles alone", () => {
     const input = buildFollowUpGenerationInput(
       "What changed?",

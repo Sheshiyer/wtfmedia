@@ -65,9 +65,11 @@ export type ChatAnswer = {
 };
 
 const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
+// Same single model as the public pipeline: glm-5.3-flash, listed twice so a
+// transient failure retries it through the same fallback loop.
 const ANSWER_MODELS = [
-  "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-  "@cf/meta/llama-3.1-8b-instruct-fast",
+  "@cf/zai-org/glm-5.3-flash",
+  "@cf/zai-org/glm-5.3-flash",
 ];
 const MAX_QUESTION_CHARS = 2_000;
 const MIN_SCORE = 0.45;
@@ -98,8 +100,10 @@ async function answerWithFallback(env: ChatAnswerEnvironment, messages: unknown[
   const failures: string[] = [];
   for (const model of ANSWER_MODELS) {
     try {
-      const result = await env.AI.run(model, { messages, max_tokens: 600, temperature: 0.1 });
-      const answer = typeof result === "string" ? result : result?.response;
+      // glm is a reasoning model; low effort keeps hidden reasoning from
+      // eating the completion budget and adding latency.
+      const result = await env.AI.run(model, { messages, max_tokens: 2000, temperature: 0.1, reasoning_effort: "low" });
+      const answer = typeof result === "string" ? result : (result?.response ?? result?.choices?.[0]?.message?.content);
       if (typeof answer !== "string" || !answer.trim()) throw new Error("empty answer response");
       if (failures.length) console.warn("wtfmedia answer model fallback used", { model, failedAttempts: failures.length });
       return { answer, model, fallback: failures.length > 0 };
@@ -124,26 +128,44 @@ function citedEvidenceFallback(sources: Array<{ n: number; title: string; text?:
 }
 
 /** A conservative attribution check, not a claim of semantic entailment. */
-export function hasCitationCoverage(answer: string, sourceCount: number): boolean {
+export function coverageFailure(answer: string, sourceCount: number): string | null {
   const citations = [...answer.matchAll(/\[(\d+)\]/gu)].map((match) => Number(match[1]));
-  if (!citations.length || citations.some((citation) => citation < 1 || citation > sourceCount)) return false;
+  if (!citations.length) return "no citations";
+  if (citations.some((citation) => citation < 1 || citation > sourceCount)) return "citation out of range";
   let hasProse = false;
   for (const rawLine of answer.split(/\r?\n/u)) {
     // Only neutral section labels are exempt; a factual heading still needs a cite.
     if (/^\s{0,3}#{1,6}\s+(?:answer|summary|findings|evidence|sources|conclusion)\s*$/iu.test(rawLine)) continue;
     const line = rawLine
       .replace(/^\s*(?:[-*+]|\d+[.)])\s+/u, "")
+      // Bold segment labels ("**Play the numbers.**") are presentational.
+      .replace(/^\*\*[^*]+\*\*[.:]?\s*/u, "")
       // Associate "A claim. [1]" with its preceding sentence, not the next one.
       .replace(/([.!?])([ \t]+(?:\[\d+\][ \t]*)+)/gu, "$2$1 ")
       // These common titles/abbreviations are not sentence boundaries.
       .replace(/\b(?:Mr|Mrs|Ms|Dr|Prof|Sr|Jr|vs|etc)\./giu, (abbreviation) => abbreviation.replace(".", "．"));
     for (const sentence of line.split(/[.!?]+(?=[ \t]+|$)/u)) {
       if (!/[\p{L}\p{N}]/u.test(sentence.replace(/\[\d+\]/gu, ""))) continue;
-      hasProse = true;
-      if (!/\[\d+\]/u.test(sentence)) return false;
+      // A cited sentence is always fine.
+      if (/\[\d+\]/u.test(sentence)) { hasProse = true; continue; }
+      // Uncited list lead-ins ("…a few distinct pieces of dating advice:")
+      // frame the cited items below them; they are not claims of their own.
+      if (sentence.trim().endsWith(":")) continue;
+      // Uncited meta-commentary about the evidence itself — coverage notes
+      // ("no other excerpt gives dating guidance", "the catalogue doesn't
+      // contain much"), attribution disclaimers ("I can't attribute these
+      // lines"), and abstention hedges. These cannot carry a citation.
+      if (/\b(?:excerpts?|catalogue|the material|the evidence|attribut\w*|not supported|no one else)\b/i.test(sentence)
+        || /\bi (?:can't|cannot|don't|do not|can't|am not|'m not)\b/i.test(sentence)) continue;
+      return sentence.trim().slice(0, 200);
     }
   }
-  return hasProse;
+  return hasProse ? null : "no prose";
+}
+
+/** A conservative attribution check, not a claim of semantic entailment. */
+export function hasCitationCoverage(answer: string, sourceCount: number): boolean {
+  return coverageFailure(answer, sourceCount) === null;
 }
 
 function hasUsableExcerpt(match: VectorMatchLike): boolean {
