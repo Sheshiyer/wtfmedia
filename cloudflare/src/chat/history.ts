@@ -288,7 +288,8 @@ export async function deleteConversation(db: DB, actor: ChatActor, id: unknown):
       db.prepare("DELETE FROM chat_messages WHERE conversation_id = ?").bind(id),
       db.prepare("DELETE FROM chat_conversations WHERE id = ? AND operator_id = ?").bind(id, actor.operatorId),
     ]);
-  } catch {
+  } catch (error) {
+    console.error("chat delete failed", { conversationId: id, message: error instanceof Error ? error.message : String(error) });
     return false;
   }
   return true;

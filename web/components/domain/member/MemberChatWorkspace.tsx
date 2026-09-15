@@ -1,6 +1,5 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
 import * as Dialog from "@radix-ui/react-dialog";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -13,7 +12,7 @@ import { MigratedWordmarkMini } from "@/components/patterns/brand/MigratedWordma
 import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/Button";
 import { createMemberChatAdapter, type BetaChatAdapter, type BetaConversationResponse } from "@/components/domain/beta/BetaChatAdapter";
-import { appendNewestMemberConversationMessages, canConfirmMemberConversationDeletion, linkedSavedPreferenceDeletionNotice, memberAnswerPresentation, memberCommittedRequestForRetry, memberGreeting, newMemberRequestKey, prependMemberConversationMessages, retryIntentForMemberResponse, shouldApplyMemberResponse, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversation, type MemberRetryIntent } from "@/lib/member/chat";
+import { appendNewestMemberConversationMessages, canConfirmMemberConversationDeletion, linkedSavedPreferenceDeletionNotice, memberAnswerPresentation, memberCommittedRequestForRetry, newMemberRequestKey, prependMemberConversationMessages, retryIntentForMemberResponse, shouldApplyMemberResponse, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversation, type MemberRetryIntent } from "@/lib/member/chat";
 import { cachedConversation, removeConversation, upsertConversation } from "@/lib/member/conversation-store";
 import { useMemberFetch } from "./MemberBetaGate";
 import { MemberSessionNavigator } from "./MemberSessionNavigator";
@@ -21,19 +20,30 @@ import { MemberSessionNavigator } from "./MemberSessionNavigator";
 type WorkspaceState = "idle" | "loading" | "error" | "unavailable";
 type DeleteTarget = { id: string; title: string; linkedSavedPreferenceCount?: number };
 
+const THINKING_WORDS = ["thinking", "reasoning", "reading the catalogue", "connecting moments", "citing the source", "composing the answer"];
+
+function ThinkingIndicator() {
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setIndex((current) => (current + 1) % THINKING_WORDS.length), 1500);
+    return () => clearInterval(timer);
+  }, []);
+  return <p role="status" className="border-l-4 border-knowledge pl-4 text-sm font-semibold text-secondary" data-testid="loading-indicator">{THINKING_WORDS[index]}<span aria-hidden="true" className="animate-pulse">…</span></p>;
+}
+
 function Thread({ view, sending, canRetry, onRetry, loadingEarlier, onLoadEarlier, renderFooter, pendingQuestion, onFollowUp }: { view: BetaConversationResponse | null; sending: boolean; canRetry: boolean; onRetry: () => void; loadingEarlier: boolean; onLoadEarlier: () => void; renderFooter: () => React.ReactNode; pendingQuestion?: string | null; onFollowUp?: (question: string) => void }) {
   const messages = view?.messages ?? [];
   return <ConversationThreadFrame
     contentVersion={pendingQuestion ? `${messages.length}+pending` : messages}
     layoutVersion={sending}
     composerPlacement="fixed"
-    fixedComposerClassName="lg:left-72"
+    fixedComposerClassName="lg:left-72 bg-canvas px-4 pt-3 -mb-4 sm:px-6"
     renderFooter={renderFooter}
     renderContent={({ scrollAnchor }) => <div className="mx-auto max-w-5xl space-y-6 pr-1">{view?.previousMessageCursor ? <div className="flex justify-center"><Button type="button" variant="ghost" className="text-xs" onClick={onLoadEarlier} loading={loadingEarlier} disabled={loadingEarlier} data-testid="load-earlier-messages">load earlier messages</Button></div> : null}{messages.map((message, index) => {
       const presentation = memberAnswerPresentation(message);
       const sourceQuestion = messages.slice(0, index).reverse().find((item) => item.role === "user")?.content;
       return <article key={message.id} className={message.role === "user" ? "flex justify-end" : "space-y-3"}>{message.role === "user" ? <p className="max-w-[85%] rounded-control border-2 border-foreground bg-attention px-4 py-3 text-sm text-on-attention">{message.content}</p> : <><div className="prose-chat border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary"><ChatAnswerMarkdown content={message.content} sources={presentation.sources} /></div>{presentation.sources.length ? <SourcePanel sources={presentation.sources} citedIndices={presentation.citedIndices} queryScope={{ sourceMode: presentation.requestedSourceMode ?? message.sourceMode ?? "published", episodeId: null }} effectiveSourceMode={presentation.evidenceSourceMode ?? message.sourceMode} moments={presentation.moments} question={sourceQuestion} /> : null}{presentation.abstained ? <p className="text-xs font-medium italic text-secondary" data-testid="abstention-label">the catalogue doesn&apos;t support that claim</p> : null}{presentation.uncutUnavailable ? <p className="text-xs text-secondary">uncut evidence was unavailable; any published evidence remains labelled.</p> : null}{presentation.followUps && presentation.followUps.length > 0 && !sending && index === messages.length - 1 ? <div className="flex flex-wrap gap-2 pt-2" data-testid="follow-up-chips">{presentation.followUps.map((item, chipIndex) => <button key={chipIndex} type="button" onClick={() => onFollowUp?.(item)} className="rounded-full border border-foreground/20 bg-canvas px-3 py-1.5 text-left text-xs text-secondary transition-colors hover:border-knowledge hover:text-foreground">{item}</button>)}</div> : null}</>}</article>;
-    })}{pendingQuestion ? <article className="flex justify-end"><p className="max-w-[85%] rounded-control border-2 border-foreground bg-attention px-4 py-3 text-sm text-on-attention">{pendingQuestion}</p></article> : null}{sending ? <p role="status" className="border-l-4 border-knowledge pl-4 text-sm font-semibold text-secondary" data-testid="loading-indicator">looking through the catalogue</p> : null}{canRetry ? <div className="flex justify-center border-t-2 border-foreground/15 px-4 py-3"><Button type="button" variant="ghost" className="text-xs" onClick={onRetry} data-testid="retry-button">retry answer</Button></div> : null}{scrollAnchor}</div>}
+    })}{pendingQuestion ? <article className="flex justify-end"><p className="max-w-[85%] rounded-control border-2 border-foreground bg-attention px-4 py-3 text-sm text-on-attention">{pendingQuestion}</p></article> : null}{sending ? <ThinkingIndicator /> : null}{canRetry ? <div className="flex justify-center border-t-2 border-foreground/15 px-4 py-3"><Button type="button" variant="ghost" className="text-xs" onClick={onRetry} data-testid="retry-button">retry answer</Button></div> : null}{scrollAnchor}</div>}
   />;
 }
 
@@ -65,7 +75,6 @@ function DeleteConversationDialog({ conversationTitle, linkedSavedPreferenceCoun
 }
 
 export function MemberChatWorkspace({ conversationId, adapter }: { conversationId?: string; adapter?: BetaChatAdapter }) {
-  const { user } = useUser();
   const router = useRouter();
   const pathname = usePathname();
   const memberFetch = useMemberFetch();
@@ -264,7 +273,6 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
     setDeleteDialogOpen(true);
   }, []);
 
-  const greeting = memberGreeting(user?.firstName, user?.fullName);
   const navigator = <MemberSessionNavigator activeConversationId={conversationId} onNavigate={() => setDrawerOpen(false)} onRequestDelete={resolvedAdapter.canDelete ? requestDeleteFromNavigator : undefined} adapter={resolvedAdapter} />;
   const canRetry = state === "error" && (retryIntent !== null || committedRequest !== null) && question.trim().length > 0;
   const onDrawerChange = useCallback((open: boolean) => {
@@ -306,13 +314,14 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
         {view || pendingQuestion ? <div className="flex h-full min-h-0 flex-col"><Thread view={view} sending={sending} canRetry={canRetry} onRetry={() => void submit()} loadingEarlier={loadingEarlier} onLoadEarlier={() => void loadEarlier()} renderFooter={() => renderComposer()} pendingQuestion={pendingQuestion} onFollowUp={(followUp) => void submit(followUp)} /></div> : null}
         {state === "error" ? <p role="status" className="mx-auto mt-4 max-w-3xl border-l-4 border-attention px-4 text-sm text-secondary">We could not finish that answer. {canRetry ? "Retry with the same question." : "Try again."}</p> : null}
       </section>
-      {!view && !pendingQuestion ? <div className="shrink-0 px-4 pb-4 sm:px-6"><div className="mx-auto max-w-5xl"><p className="mb-2 text-center text-xs text-secondary">{greeting}. Your history stays with this signed-in workspace.</p><AskComposer
+      {!view && !pendingQuestion ? <div className="fixed inset-x-0 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 -mb-4 bg-canvas px-4 pt-3 sm:px-6 lg:left-72"><div className="mx-auto max-w-5xl"><AskComposer
         value={question}
         onChange={(value) => { setQuestion(value); if (retryIntent) setRetryIntent(null); if (committedRequest) rememberCommittedRequest(null); }}
         onSubmit={() => void submit()}
         disabled={sending}
         loading={sending}
         variant="compact"
+        placement="inline"
       /></div></div> : null}
     </div>
     {deleteDialogOpen && (deleteTarget || (conversationId && view)) ? <DeleteConversationDialog conversationTitle={deleteTarget?.title ?? view?.conversation.title ?? "this conversation"} linkedSavedPreferenceCount={deleteTarget?.linkedSavedPreferenceCount ?? view?.conversation.linkedSavedPreferenceCount} pending={deleting} error={deleteError} onClose={() => { if (!deleting) { setDeleteDialogOpen(false); setDeleteTarget(null); } }} onConfirm={deleteConversation} /> : null}
