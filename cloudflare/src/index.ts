@@ -24,8 +24,8 @@ import {
 import {
   runPublicChat,
   parseHistory,
-  answerWithOpenRouter,
 } from "./chat/public-chat.ts";
+import { answerWithOpenRouter } from "./chat/openrouter.ts";
 export { answerWithOpenRouter };
 import {
   admitTranscriptJobs,

@@ -45,8 +45,13 @@ describe("WTF OS conversation skill", () => {
       { valid: true, indices: [1] },
     );
     assert.deepEqual(
-      parseCitationMarkers("[1] Martin Escobari: he said it [laughter] >> what is about [2] next.", 3),
+      parseCitationMarkers("[1] Martin Escobari: he said it [Laughter] >> what is about [2] next [Music].", 3),
       { valid: true, indices: [1, 2] },
+    );
+    // Capitalized placeholders that are not annotation words still invalidate.
+    assert.deepEqual(
+      parseCitationMarkers("The excerpts do not explicitly solve it [N], but suggest pressure [1].", 3),
+      { valid: false, indices: [1] },
     );
   });
 

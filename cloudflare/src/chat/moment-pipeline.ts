@@ -5,18 +5,19 @@ import {
   MOMENT_ENRICHMENT_PROMPT,
   parseDurationBudget,
   parseMomentEnrichment,
+  reelRelevant,
   resolveMomentEnds,
   type EnrichedMoment,
   type Moment,
   type MomentEnrichment,
   type MomentSource,
 } from "./moments.ts";
+import { openRouterChat, type OpenRouterEnv } from "./openrouter.ts";
 
-const FAST_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
 const MAX_MOMENTS = 25;
 const ENRICH_BATCH_SIZE = 10;
 
-export type MomentPipelineEnvironment = {
+export type MomentPipelineEnvironment = OpenRouterEnv & {
   AI: { run(model: string, input: unknown): Promise<unknown> };
   VECTORIZE: Parameters<typeof resolveMomentEnds>[0];
 };
@@ -26,15 +27,6 @@ export type MomentPayload = {
   totalDurationSec: number;
   budgetSec: number | null;
 };
-
-function answerText(result: unknown): string {
-  if (typeof result === "string") return result;
-  if (!result || typeof result !== "object") return "";
-  const record = result as { response?: unknown; choices?: Array<{ message?: { content?: unknown } }> };
-  if (typeof record.response === "string") return record.response;
-  const content = record.choices?.[0]?.message?.content;
-  return typeof content === "string" ? content : "";
-}
 
 async function enrichBatch(
   env: MomentPipelineEnvironment,
@@ -46,17 +38,12 @@ async function enrichBatch(
     ? "There is 1 MOMENT. Output exactly 1 JSON object labeling it. Every text field (guest, theme, topic, summary, whyRelevant) is REQUIRED — never output empty strings; infer conservatively from the excerpt and episode title."
     : `There are ${batch.length} MOMENTs. Output exactly ${batch.length} JSON objects, one per MOMENT, in order — use empty strings when a text field cannot be honest, but never skip a MOMENT and never default strength.`;
   try {
-    const result = await env.AI.run(FAST_MODEL, {
-      messages: [
-        { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
-        { role: "user", content: `${buildMomentEnrichmentInput(question, batch)}\n\n${suffix}` },
-      ],
-      max_tokens: 2000,
-      temperature: 0.2,
-    });
-    const text = answerText(result);
-    if (!text.trim()) throw new Error("empty moment enrichment");
-    return parseMomentEnrichment(text, batch.length);
+    const { answer } = await openRouterChat(env, [
+      { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
+      { role: "user", content: `${buildMomentEnrichmentInput(question, batch)}\n\n${suffix}` },
+    ], { maxTokens: 2000, temperature: 0.2 });
+    if (!answer.trim()) throw new Error("empty moment enrichment");
+    return parseMomentEnrichment(answer, batch.length);
   } catch (error) {
     console.warn("wtfmedia moment enrichment failed", {
       error: error instanceof Error ? error.message : "unknown",
@@ -116,9 +103,14 @@ export async function momentsForAnswer(
   });
 
   const enriched = new Map(visible.map((moment, index) => [moment, enrichments[index]]));
+  const reel = budgeted.moments
+    .map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) }))
+    // Off-topic candidates (strength 1-2 by the model's own judgment) are
+    // noise in the editor sheet, not a wider net.
+    .filter(reelRelevant);
   return {
-    moments: budgeted.moments.map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) })),
-    totalDurationSec: budgeted.totalDurationSec,
+    moments: reel,
+    totalDurationSec: reel.reduce((sum, moment) => sum + (moment.durationSec ?? 0), 0),
     budgetSec,
   };
 }

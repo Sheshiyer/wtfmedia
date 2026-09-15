@@ -54,10 +54,11 @@ export function parseCitationMarkers(answer: string, sourceCount: number): Citat
   for (const marker of markers) {
     const body = marker[1].trim();
     if (!/^\d+(?:\s*,\s*\d+)*$/.test(body)) {
-      // Transcript annotations ([laughter], [music], [snorts]) ride inside
-      // quoted excerpts; they are not citations and must not poison
-      // validation. Placeholders like [N] are uppercase and still invalid.
-      if (/^[a-z][a-z\s-]*$/.test(body)) continue;
+      // Transcript annotations ([laughter], [Music], [snorts], [applause])
+      // ride inside quoted excerpts; they are not citations and must not
+      // poison validation. Placeholders like [N] are not annotation words
+      // and still invalidate.
+      if (/^(?:laughter|laughing|music|snorts?|applause|clapping|cheering|crosstalk|inaudible|silence|noise)(?:\s+[a-z]+)*$/i.test(body)) continue;
       invalid = true;
       continue;
     }
