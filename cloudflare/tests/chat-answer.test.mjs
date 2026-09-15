@@ -22,31 +22,48 @@ test("hasCitationCoverage accepts glm's labelled-list style and still rejects un
 
 const vector = Array.from({ length: 1024 }, () => 0.1);
 
+// Generation runs on OpenRouter (fetch); Workers AI only serves embeddings.
 function environment(matches, prompts = [], response = "The evidence supports this answer [1] and [2].") {
+  globalThis.fetch = async (_url, init) => {
+    const body = JSON.parse(init?.body ?? "{}");
+    prompts.push(body.messages);
+    return new Response(JSON.stringify({ choices: [{ message: { content: response } }] }), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  };
   return {
     AI: {
-      async run(model, input) {
+      async run(model) {
         if (model === "@cf/baai/bge-large-en-v1.5") return { data: [vector] };
-        prompts.push(input?.messages);
-        return { response };
+        throw new Error("generation must use OpenRouter, not Workers AI");
       },
     },
     VECTORIZE: { async query() { return { matches }; }, async getByIds() { return []; } },
+    OPENROUTER_API_KEY: "test-openrouter-key",
   };
 }
 
 test("shared authenticated runner returns the Alpha editor-sheet moment payload", async () => {
   const videoId = "abcdefghijk";
+  globalThis.fetch = async (_url, init) => {
+    const body = JSON.parse(init?.body ?? "{}");
+    const content = body.messages?.[0]?.content?.includes("You label podcast moments")
+      ? JSON.stringify({ m: 1, guest: "Nikhil Kamath", theme: "career path", topic: "building conviction", summary: "Nikhil describes building conviction through repeated work.", whyRelevant: "It directly answers how conviction develops.", strength: 5 })
+      : "Nikhil describes the first step [1] and the next step [2].";
+    return new Response(JSON.stringify({ choices: [{ message: { content } }] }), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  };
   const env = {
     AI: {
-      async run(model, input) {
+      async run(model) {
         if (model === "@cf/baai/bge-large-en-v1.5") return { data: [vector] };
-        if (input?.messages?.[0]?.content?.includes("You label podcast moments")) {
-          return { response: JSON.stringify({ m: 1, guest: "Nikhil Kamath", theme: "career path", topic: "building conviction", summary: "Nikhil describes building conviction through repeated work.", whyRelevant: "It directly answers how conviction develops.", strength: 5 }) };
-        }
-        return { response: "Nikhil describes the first step [1] and the next step [2]." };
+        throw new Error("generation must use OpenRouter, not Workers AI");
       },
     },
+    OPENROUTER_API_KEY: "test-openrouter-key",
     VECTORIZE: {
       async query() {
         return { matches: [

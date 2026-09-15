@@ -35,6 +35,7 @@ import {
   selectAnswerableFollowUps,
 } from "./skills/wtf-os-conversation.ts";
 import { coverageFailure, hasCitationCoverage } from "./answer.ts";
+import { answerWithOpenRouter, openRouterChat } from "./openrouter.ts";
 
 /**
  * The single Ask WTF answering pipeline. The public /v1/chat route and the
@@ -68,13 +69,10 @@ export type PublicChatInput = {
 export type PublicChatResult = { status: number; body: Record<string, unknown> };
 
 const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
-const DEFAULT_OPENROUTER_ANSWER_MODEL = "google/gemini-3.5-flash";
-// glm-5.3-flash is the single model for every generation call: answers,
-// reformulation, follow-ups, and moment enrichment. It appears twice in the
-// fallback chain so a transient failure retries it after OpenRouter.
-const GLM_MODEL = "@cf/zai-org/glm-5.3-flash";
-const ANSWER_MODELS = [GLM_MODEL, GLM_MODEL];
-const FAST_MODEL = GLM_MODEL;
+// Embeddings stay on Workers AI (the vector index is bge-large and cannot
+// move without re-embedding the corpus). Every generation call — answers,
+// reformulation, follow-ups, moment enrichment — runs on OpenRouter
+// glm-5.3-flash via src/chat/openrouter.ts.
 export const MAX_QUESTION_CHARS = 2_000;
 export const MAX_HISTORY_TURNS = 6;
 const MIN_SCORE = 0.45;
@@ -94,111 +92,18 @@ async function vectorFor(env: PublicChatEnv, text: string): Promise<number[]> {
   return vector;
 }
 
-// glm-5.3-flash returns the OpenAI chat-completions shape (choices[0].message.content)
-// while the llama models return { response } — accept both.
-function extractAnswerText(result: any): string {
-  if (typeof result === "string") return result;
-  if (typeof result?.response === "string") return result.response;
-  const content = result?.choices?.[0]?.message?.content;
-  if (typeof content === "string") return content;
-  if (Array.isArray(content)) {
-    return content.map((part: any) => (typeof part?.text === "string" ? part.text : "")).join("");
-  }
-  return "";
-}
-
-async function answerWithWorkersAi(env: PublicChatEnv, model: string, messages: unknown[]) {
-  const params: Record<string, unknown> = { messages, max_tokens: 2500, temperature: 0.1 };
-  // glm-5.3-flash is a reasoning model; low effort keeps hidden reasoning from
-  // eating the completion budget and adding latency.
-  if (model.includes("glm")) params.reasoning_effort = "low";
-  const result = await env.AI.run(model, params);
-  const answer = extractAnswerText(result);
-  if (!answer.trim()) throw new Error("empty answer response");
-  return { answer, model };
-}
-
-async function openRouterCompletion(apiKey: string, model: string, messages: unknown[]) {
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "https://wtfhq.in",
-      "X-Title": "Ask WTF",
-    },
-    body: JSON.stringify({
-      model,
-      messages,
-      // Reasoning models (gpt-5, inkling) burn hidden reasoning tokens against
-      // this cap — 900 starved them into empty answers.
-      max_tokens: 3000,
-      temperature: 0.1,
-      // Keep thinking at the floor; gpt-5 cannot fully disable reasoning.
-      reasoning: { effort: "low" },
-    }),
-  });
-  if (!response.ok) {
-    const detail = (await response.text()).slice(0, 200);
-    const error = new Error(`openrouter ${response.status}: ${detail}`);
-    (error as { status?: number }).status = response.status;
-    throw error;
-  }
-  const payload: any = await response.json();
-  const content = payload?.choices?.[0]?.message?.content;
-  const answer = typeof content === "string"
-    ? content
-    : Array.isArray(content)
-      ? content.map((part: any) => (typeof part?.text === "string" ? part.text : "")).join("")
-      : "";
-  if (!answer.trim()) throw new Error("empty openrouter answer response");
-  return { answer, model };
-}
-
-// Key rotation: the primary key is tried first; only an auth/credit failure
-// (401/402/403 — the key itself failing) falls through to the backup key.
-// Transient upstream errors do not, so a model outage never masquerades as a
-// key failure.
-const OPENROUTER_KEY_FALLBACK_STATUSES = new Set([401, 402, 403]);
-
-export async function answerWithOpenRouter(env: PublicChatEnv, messages: unknown[], modelOverride?: string) {
-  const keys = [env.OPENROUTER_API_KEY, env.OPENROUTER_API_KEY_2].filter(
-    (key): key is string => typeof key === "string" && key.length > 0,
-  );
-  if (keys.length === 0) throw new Error("openrouter api key not configured");
-  const model = modelOverride || env.OPENROUTER_ANSWER_MODEL || DEFAULT_OPENROUTER_ANSWER_MODEL;
-  let lastError: Error | null = null;
-  for (const [index, key] of keys.entries()) {
-    try {
-      return await openRouterCompletion(key, model, messages);
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error("openrouter request failed");
-      const status = (lastError as { status?: number }).status;
-      const hasBackupKey = index < keys.length - 1;
-      if (!hasBackupKey || status == null || !OPENROUTER_KEY_FALLBACK_STATUSES.has(status)) {
-        throw lastError;
-      }
-      console.warn("wtfmedia openrouter primary key rejected, trying backup key", { status });
-    }
-  }
-  throw lastError ?? new Error("openrouter request failed");
-}
 
 async function answerWithFallback(env: PublicChatEnv, messages: unknown[], forcedOpenRouterModel?: string) {
   const failures: string[] = [];
-  // Primary stays on Workers AI; OpenRouter (Gemini) is the mid-chain fallback,
-  // with the small Workers AI model as the final resort. A user-picked retry
-  // model jumps the queue when present.
+  // All generation runs on OpenRouter glm-5.3-flash — Workers AI's per-minute
+  // inference cap starved the pipeline. A forced retry model jumps the queue;
+  // otherwise glm gets two attempts (key rotation lives inside openRouterChat).
   const providers: Array<() => Promise<{ answer: string; model: string }>> = [];
   if (forcedOpenRouterModel) {
     providers.push(() => answerWithOpenRouter(env, messages, forcedOpenRouterModel));
   }
-  providers.push(() => answerWithWorkersAi(env, ANSWER_MODELS[0], messages));
-  const defaultOpenRouterModel = env.OPENROUTER_ANSWER_MODEL || DEFAULT_OPENROUTER_ANSWER_MODEL;
-  if (forcedOpenRouterModel !== defaultOpenRouterModel) {
-    providers.push(() => answerWithOpenRouter(env, messages));
-  }
-  providers.push(() => answerWithWorkersAi(env, ANSWER_MODELS[1], messages));
+  providers.push(() => openRouterChat(env, messages, { maxTokens: 3000 }));
+  providers.push(() => openRouterChat(env, messages, { maxTokens: 3000 }));
   for (const provider of providers) {
     try {
       const { answer, model } = await provider();
@@ -263,17 +168,11 @@ async function reformulateQuery(env: PublicChatEnv, question: string, history: H
   if (history.length === 0 || !NEEDS_REFORMULATION.test(question)) return question;
   const ctx = history.slice(-4).map((t) => `${t.role}: ${t.content.slice(0, 200)}`).join("\n");
   try {
-    const result = await env.AI.run(FAST_MODEL, {
-      messages: [
-        { role: "system", content: "Rewrite the follow-up question as a standalone search query. Resolve pronouns and references using the conversation. Output ONLY the rewritten query, nothing else. Keep it under 60 words." },
-        { role: "user", content: `CONVERSATION:\n${ctx}\n\nFOLLOW-UP: ${question}` },
-      ],
-      max_tokens: 80,
-      temperature: 0,
-      reasoning_effort: "low",
-    });
-    const text = extractAnswerText(result);
-    return (typeof text === "string" && text.trim().length > 5) ? text.trim() : question;
+    const { answer } = await openRouterChat(env, [
+      { role: "system", content: "Rewrite the follow-up question as a standalone search query. Resolve pronouns and references using the conversation. Output ONLY the rewritten query, nothing else. Keep it under 60 words." },
+      { role: "user", content: `CONVERSATION:\n${ctx}\n\nFOLLOW-UP: ${question}` },
+    ], { maxTokens: 80, temperature: 0 });
+    return answer.trim().length > 5 ? answer.trim() : question;
   } catch {
     return question;
   }
@@ -458,19 +357,13 @@ async function generateFollowUps(
   episodeId: string | null,
 ): Promise<string[]> {
   try {
-    const result = await env.AI.run(FAST_MODEL, {
-      messages: [
-        { role: "system", content: WTF_OS_CONVERSATION_SKILL.followUpPrompt },
-        { role: "user", content: buildFollowUpGenerationInput(question, answer, sources) },
-      ],
-      max_tokens: 220,
-      temperature: 0.2,
-      reasoning_effort: "low",
-    });
-    const text = extractAnswerText(result);
-    if (!text.trim()) return [];
+    const { answer: followUpText } = await openRouterChat(env, [
+      { role: "system", content: WTF_OS_CONVERSATION_SKILL.followUpPrompt },
+      { role: "user", content: buildFollowUpGenerationInput(question, answer, sources) },
+    ], { maxTokens: 220, temperature: 0.2 });
+    if (!followUpText.trim()) return [];
     const normalizedQuestion = question.toLocaleLowerCase("en-US");
-    const candidates = parseFollowUpCandidates(text).filter(
+    const candidates = parseFollowUpCandidates(followUpText).filter(
       (candidate) => candidate.toLocaleLowerCase("en-US") !== normalizedQuestion,
     );
     return selectAnswerableFollowUps(candidates, async (candidate) => {
@@ -531,22 +424,14 @@ async function momentsForAnswer(
     try {
       // Same provider and model as answer generation: moment labels and
       // strength scores drive what the reel shows, so they get the big model.
-      const result = await env.AI.run(ANSWER_MODELS[0], {
-        messages: [
-          { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
-          // The model silently skips moments it can't label unless the exact
-          // object count is demanded — a short count costs the tail slots.
-          { role: "user", content: `${buildMomentEnrichmentInput(question, batch)}\n\n${suffix}` },
-        ],
-        max_tokens: 2000,
-        temperature: 0.2,
-        // glm is a reasoning model; low effort keeps hidden reasoning from
-        // eating the JSON budget and adding latency.
-        reasoning_effort: "low",
-      });
-      const text = extractAnswerText(result);
-      if (!text.trim()) throw new Error("empty moment enrichment");
-      return parseMomentEnrichment(text, batch.length);
+      const { answer: enrichmentText } = await openRouterChat(env, [
+        { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
+        // The model silently skips moments it can't label unless the exact
+        // object count is demanded — a short count costs the tail slots.
+        { role: "user", content: `${buildMomentEnrichmentInput(question, batch)}\n\n${suffix}` },
+      ], { maxTokens: 2000, temperature: 0.2 });
+      if (!enrichmentText.trim()) throw new Error("empty moment enrichment");
+      return parseMomentEnrichment(enrichmentText, batch.length);
     } catch (error) {
       console.warn("wtfmedia moment enrichment failed", {
         error: error instanceof Error ? error.message : "unknown",

@@ -13,12 +13,16 @@ import {
   queryEvidenceSourcesForQuestion,
 } from "./evidence-coordinator.ts";
 import { momentsForAnswer } from "./moment-pipeline.ts";
+import { openRouterChat } from "./openrouter.ts";
 import type { EnrichedMoment, MomentSource } from "./moments.ts";
 
 export type ChatAnswerEnvironment = {
   AI: any;
   DB?: any;
   VECTORIZE: any;
+  OPENROUTER_API_KEY?: string;
+  OPENROUTER_API_KEY_2?: string;
+  OPENROUTER_ANSWER_MODEL?: string;
 };
 
 export type ChatAnswerInput = {
@@ -65,12 +69,6 @@ export type ChatAnswer = {
 };
 
 const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
-// Same single model as the public pipeline: glm-5.3-flash, listed twice so a
-// transient failure retries it through the same fallback loop.
-const ANSWER_MODELS = [
-  "@cf/zai-org/glm-5.3-flash",
-  "@cf/zai-org/glm-5.3-flash",
-];
 const MAX_QUESTION_CHARS = 2_000;
 const MIN_SCORE = 0.45;
 const REQUEST_ID_PATTERN = /^[A-Za-z0-9._:-]{1,160}$/u;
@@ -98,19 +96,17 @@ async function vectorFor(env: ChatAnswerEnvironment, text: string): Promise<numb
 
 async function answerWithFallback(env: ChatAnswerEnvironment, messages: unknown[]) {
   const failures: string[] = [];
-  for (const model of ANSWER_MODELS) {
+  // All generation runs on OpenRouter glm-5.3-flash — Workers AI's per-minute
+  // inference cap starved the pipeline. Two attempts through key rotation.
+  for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
-      // glm is a reasoning model; low effort keeps hidden reasoning from
-      // eating the completion budget and adding latency.
-      const result = await env.AI.run(model, { messages, max_tokens: 2000, temperature: 0.1, reasoning_effort: "low" });
-      const answer = typeof result === "string" ? result : (result?.response ?? result?.choices?.[0]?.message?.content);
-      if (typeof answer !== "string" || !answer.trim()) throw new Error("empty answer response");
+      const { answer, model } = await openRouterChat(env, messages, { maxTokens: 2500 });
       if (failures.length) console.warn("wtfmedia answer model fallback used", { model, failedAttempts: failures.length });
       return { answer, model, fallback: failures.length > 0 };
     } catch (error) {
       const message = error instanceof Error ? error.message : "unknown";
-      failures.push(`${model}:${message}`);
-      console.warn("wtfmedia answer model failed", { model, message });
+      failures.push(message);
+      console.warn("wtfmedia answer model failed", { message });
     }
   }
   throw new Error(`answer models unavailable: ${failures.length}`);
