@@ -8,7 +8,6 @@ type SettingsItem = readonly [href: string, label: string, description: string, 
 
 const MEMBER_ITEMS: readonly SettingsItem[] = [
   ["/beta/settings", "account", "account overview", "beta:read"],
-  ["/beta/settings/memory", "memory", "saved preferences", "memory:read"],
   ["/beta/settings/sessions", "sessions", "history and privacy", "chat:read"],
   ["/beta/settings/appearance", "appearance", "display preference", "beta:read"],
 ];
@@ -25,7 +24,6 @@ export function BetaSettingsNavigation() {
     : [...MEMBER_ITEMS, ...OPERATOR_SETTINGS_ITEMS];
   const items = candidateItems.filter(([, , , capability]) => principal.capabilities.includes(capability));
   const showUsers = principal.kind === "operator" && principal.capabilities.includes("members:read");
-  const showAudit = principal.kind === "operator" && principal.capabilities.includes("audit:read");
 
   return (
     <aside className="self-start lg:sticky lg:top-24" aria-label="Settings navigation" data-beta-settings-navigation>
@@ -43,11 +41,11 @@ export function BetaSettingsNavigation() {
               <span className="block text-[10px] text-muted">{description}</span>
             </Link>
           ))}
-          {showUsers || showAudit ? (
+          {showUsers ? (
             <>
               <p className="mt-3 px-3 pb-1 font-label text-[10px] font-bold uppercase tracking-[0.12em] text-muted">administration</p>
-              {showUsers ? <Link href="/beta/admin/users" className="block min-h-11 border-2 border-transparent px-3 py-2 text-sm font-semibold hover:border-foreground/50">users & access</Link> : null}
-              {showAudit ? <Link href="/beta/admin/audit" className="block min-h-11 border-2 border-transparent px-3 py-2 text-sm font-semibold hover:border-foreground/50">audit</Link> : null}
+              <Link href="/beta/admin/users" className="block min-h-11 border-2 border-transparent px-3 py-2 text-sm font-semibold hover:border-foreground/50">users & access</Link>
+              <Link href="/beta/admin/sessions" className="block min-h-11 border-2 border-transparent px-3 py-2 text-sm font-semibold hover:border-foreground/50">user sessions</Link>
             </>
           ) : null}
         </nav>

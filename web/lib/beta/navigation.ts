@@ -29,6 +29,7 @@ export const BETA_PROTECTED_DESTINATIONS: readonly BetaNavigationDestination[] =
   { href: "/beta/settings/workspace/memory", edgePath: "/beta/settings/workspace/memory", capability: "memory:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/sources", edgePath: "/beta/settings/workspace/sources", capability: "transcripts:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/admin/users", edgePath: "/beta/admin/users", capability: "members:read", audiences: ["admin", "super_admin"] },
+  { href: "/beta/admin/sessions", edgePath: "/beta/admin/sessions", capability: "members:read", audiences: ["admin", "super_admin"] },
   { href: "/beta/admin/audit", edgePath: "/beta/admin/audit", capability: "audit:read", audiences: ["admin", "super_admin"] },
   { href: "/beta/admin/release", edgePath: "/beta/admin/release", capability: "release:manage", audiences: ["super_admin"] },
 ];

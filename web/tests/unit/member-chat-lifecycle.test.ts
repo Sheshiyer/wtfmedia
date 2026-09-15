@@ -36,9 +36,9 @@ describe("member conversation lifecycle", () => {
     expect(workspace).toContain("deleteConfirmation");
   });
 
-  it("allows the active heading to wrap while preserving two-line rail titles", () => {
+  it("keeps the active heading bounded while preserving two-line rail titles", () => {
     expect(workspace).toContain('title={view.conversation.title}');
-    expect(workspace).toContain("line-clamp-2 max-h-[4.5rem]");
+    expect(workspace).toContain("truncate font-display text-lg");
     expect(navigator).toContain("line-clamp-2");
   });
 
@@ -50,9 +50,9 @@ describe("member conversation lifecycle", () => {
   });
 
   it("keeps the selected conversation inside the viewport frame", () => {
-    expect(workspace).toContain('flex h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] min-h-0 flex-col');
-    expect(workspace).toContain('grid min-h-0 min-w-0 w-full flex-1');
-    expect(workspace).toContain('section className="min-h-0 min-w-0"');
+    expect(workspace).toContain('flex h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] min-h-0');
+    expect(workspace).toContain('flex min-h-0 min-w-0 flex-1 flex-col');
+    expect(workspace).toContain('section className="min-h-0 min-w-0 flex-1"');
     expect(workspace).toContain('flex h-full min-h-0 flex-col');
     expect(workspace).not.toContain('section className="min-w-0 pb-60"');
   });

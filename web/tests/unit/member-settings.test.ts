@@ -4,10 +4,10 @@ import { describe, expect, it } from "vitest";
 const fromWeb = (path: string) => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
 describe("member settings route contract", () => {
-  it("exposes only the four member settings destinations", () => {
+  it("exposes only the visible member settings destinations (memory stays route-only)", () => {
     const navigation = fromWeb("components/domain/member/MemberSettingsNavigation.tsx");
     expect(navigation).toContain('href: "/beta/settings"');
-    expect(navigation).toContain('href: "/beta/settings/memory"');
+    expect(navigation).not.toContain('href: "/beta/settings/memory"');
     expect(navigation).toContain('href: "/beta/settings/sessions"');
     expect(navigation).toContain('href: "/beta/settings/appearance"');
     expect(navigation).not.toContain("/beta/ops/");
@@ -40,7 +40,7 @@ describe("member settings route contract", () => {
     const workspaceMemory = fromWeb("app/beta/settings/workspace/memory/page.tsx");
 
     expect(navigation).toContain('"/beta/settings/sessions"');
-    expect(navigation).toContain('"/beta/settings/memory"');
+    expect(navigation).not.toContain('"/beta/settings/memory"');
     expect(navigation).not.toContain("/beta/settings/workspace/sessions");
     expect(navigation).not.toContain("/beta/settings/workspace/memory");
     expect(workspaceSessions).toContain('redirect("/beta/settings/sessions")');

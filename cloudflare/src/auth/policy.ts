@@ -83,6 +83,7 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/beta/settings/workspace/memory": ["control_room", "read"],
   "/beta/settings/workspace/sources": ["transcripts", "read"],
   "/beta/admin/users": ["members", "read"],
+  "/beta/admin/sessions": ["members", "read"],
   "/beta/admin/audit": ["audit", "read"],
   "/beta/admin/release": ["release", "manage"],
 };
@@ -140,6 +141,10 @@ function betaApiRequirement(pathname: string, method: string): readonly [Resourc
     if (requestMethod === "GET") return ["memory", "read"];
     return requestMethod === "POST" ? ["memory", "write"] : null;
   }
+  // Admin read-only view over every member's chat sessions; members:read keeps
+  // it admin+ and matches the /beta/admin/users surface grant.
+  if (pathname === "/beta/api/admin/chat-sessions") return requestMethod === "GET" ? ["members", "read"] : null;
+  if (/^\/beta\/api\/admin\/chat-sessions\/mcnv_[A-Za-z0-9-]{8,88}$/u.test(pathname)) return requestMethod === "GET" ? ["members", "read"] : null;
   if (/^\/beta\/api\/memory\/mmem_[A-Za-z0-9-]{8,88}\/archive$/u.test(pathname)) return requestMethod === "POST" ? ["memory", "write"] : null;
   return null;
 }

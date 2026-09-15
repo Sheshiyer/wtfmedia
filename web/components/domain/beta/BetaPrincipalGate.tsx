@@ -29,12 +29,8 @@ export function useBetaPrincipal(): PrincipalContext {
 const memberNavigation: readonly AppNavItem[] = memberBottomNavigation;
 const operatorNavigation: readonly AppNavItem[] = [
   { href: "/beta/chat", label: "ask wtf", section: "workspace" },
-  { href: "/beta/workspace", label: "control room", section: "workspace" },
-  { href: "/beta/workspace/production", label: "production", section: "workspace" },
   { href: "/beta/workspace/episodes", label: "episodes", section: "workspace" },
   { href: "/beta/settings", label: "settings", section: "administration" },
-  { href: "/beta/admin/users", label: "users", section: "administration" },
-  { href: "/beta/admin/audit", label: "audit", section: "administration" },
 ];
 
 type OperatorRole = "editor" | "admin" | "super_admin";

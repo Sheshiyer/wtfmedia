@@ -12,6 +12,7 @@ import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/Button";
 import { createMemberChatAdapter, type BetaChatAdapter, type BetaConversationResponse } from "@/components/domain/beta/BetaChatAdapter";
 import { appendNewestMemberConversationMessages, canConfirmMemberConversationDeletion, linkedSavedPreferenceDeletionNotice, memberAnswerPresentation, memberCommittedRequestForRetry, memberGreeting, newMemberRequestKey, prependMemberConversationMessages, retryIntentForMemberResponse, shouldApplyMemberResponse, sourceModeForMemberQuestion, type MemberCommittedRequest, type MemberConversation, type MemberRetryIntent } from "@/lib/member/chat";
+import { cachedConversation, markConversationArchived, removeConversation, upsertConversation } from "@/lib/member/conversation-store";
 import { useMemberFetch } from "./MemberBetaGate";
 import { MemberSessionNavigator } from "./MemberSessionNavigator";
 
@@ -80,7 +81,6 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
   const [deleteError, setDeleteError] = useState(false);
   const [loadingEarlier, setLoadingEarlier] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [sessionRevision, setSessionRevision] = useState(0);
   const loadEpoch = useRef(0);
   const submitEpoch = useRef(0);
   const archiveEpoch = useRef(0);
@@ -119,18 +119,27 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
       return;
     }
     const epoch = ++loadEpoch.current;
-    setState("loading");
+    // Cache-first: a cached conversation renders instantly; the network copy
+    // revalidates in the background. Cold cache keeps the loading state.
+    const cached = cachedConversation(conversationId);
+    if (cached) {
+      setView(cached);
+      setState("idle");
+    } else {
+      setState("loading");
+    }
     try {
       const parsed = await resolvedAdapter.get(conversationId);
       if (!shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: loadEpoch.current, requestPath: `/beta/chat/${conversationId}`, currentPath: currentPath.current }) || currentConversation.current !== conversationId) return;
       if (!parsed) throw new Error("member_conversation_unavailable");
+      upsertConversation(parsed);
       setView(parsed);
       const recoveredRetry = retryIntentForMemberResponse(parsed);
       setRetryIntent(recoveredRetry);
       if (recoveredRetry) setQuestion(recoveredRetry.question);
       setState(recoveredRetry ? "error" : "idle");
     } catch {
-      if (epoch === loadEpoch.current && currentConversation.current === conversationId) setState("unavailable");
+      if (epoch === loadEpoch.current && currentConversation.current === conversationId && !cached) setState("unavailable");
     }
   }, [conversationId, resolvedAdapter]);
 
@@ -167,6 +176,9 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
       const href = resolvedAdapter.href(parsed.conversation.id);
       if (!href) throw new Error("member_chat_route_invalid");
       if (!selectedRoute) {
+        // Pre-warm the store with the full response so the route change below
+        // renders instantly from cache — no refetch on navigation.
+        upsertConversation(parsed);
         setQuestion("");
         setPendingQuestion(null);
         setRetryIntent(null);
@@ -176,6 +188,7 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
       }
       if (!result.ok) {
         if (currentConversation.current === selectedRoute) {
+          upsertConversation(parsed);
           setView(parsed);
           setPendingQuestion(null);
           const pendingRetry = retryIntentForMemberResponse(parsed);
@@ -187,13 +200,14 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
         return;
       }
       if (currentConversation.current === selectedRoute) {
-        setView((current) => appendNewestMemberConversationMessages(current, parsed));
+        const merged = appendNewestMemberConversationMessages(view, parsed);
+        upsertConversation(merged);
+        setView(merged);
         setQuestion("");
         setPendingQuestion(null);
         setRetryIntent(null);
         rememberCommittedRequest(null);
         setState("idle");
-        setSessionRevision((current) => current + 1);
       }
     } catch {
       setPendingQuestion(null);
@@ -204,7 +218,7 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
         setSending(false);
       }
     }
-  }, [conversationId, pathname, question, rememberCommittedRequest, resolvedAdapter, retryIntent, router, view?.conversation]);
+  }, [conversationId, pathname, question, rememberCommittedRequest, resolvedAdapter, retryIntent, router, view]);
 
   const loadEarlier = useCallback(async () => {
     const cursor = view?.previousMessageCursor;
@@ -229,6 +243,7 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
     try {
       if (!await resolvedAdapter.archive(conversationId)) throw new Error("member_archive_unavailable");
       if (!shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) || currentConversation.current !== conversationId) return;
+      markConversationArchived(conversationId);
       router.push("/beta/chat");
     } catch {
       if (shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) && currentConversation.current === conversationId) setState("error");
@@ -247,6 +262,7 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
     try {
       if (!await resolvedAdapter.delete(targetId)) throw new Error("member_delete_unavailable");
       if (!shouldApplyMemberResponse({ requestEpoch: epoch, currentEpoch: archiveEpoch.current, requestPath, currentPath: currentPath.current }) || (deleteTarget === null && currentConversation.current !== targetId)) return false;
+      removeConversation(targetId);
       setDeleteDialogOpen(false);
       router.push("/beta/chat");
       return true;
@@ -265,7 +281,7 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
   }, []);
 
   const greeting = memberGreeting(user?.firstName, user?.fullName);
-  const navigator = <MemberSessionNavigator activeConversationId={conversationId} refreshKey={sessionRevision} onNavigate={() => setDrawerOpen(false)} onRequestDelete={resolvedAdapter.canDelete ? requestDeleteFromNavigator : undefined} adapter={resolvedAdapter} />;
+  const navigator = <MemberSessionNavigator activeConversationId={conversationId} onNavigate={() => setDrawerOpen(false)} onRequestDelete={resolvedAdapter.canDelete ? requestDeleteFromNavigator : undefined} adapter={resolvedAdapter} />;
   const canRetry = state === "error" && (retryIntent !== null || committedRequest !== null) && question.trim().length > 0;
   const onDrawerChange = useCallback((open: boolean) => {
     setDrawerOpen(open);
@@ -280,35 +296,35 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
     placement="inline"
   />;
 
-  return <div className="flex h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] min-h-0 flex-col bg-canvas" data-member-chat-workspace>
-    <div className="mx-auto w-full shrink-0 max-w-[var(--wtf-content-max)] px-4 pt-5 sm:px-8 xl:px-12">
-      <div className="flex min-w-0 flex-wrap items-start justify-between gap-4 border-b-2 border-foreground pb-4">
-        <div className="min-w-0 flex-1">
-          <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-knowledge">company beta · private workspace</p>
-          {conversationId && view ? <h1 title={view.conversation.title} className="mt-1 line-clamp-2 max-h-[4.5rem] font-display text-3xl font-extrabold lowercase [overflow-wrap:anywhere]">{view.conversation.title}</h1> : <><h1 className="mt-1 font-display text-lg font-extrabold lowercase">ask wtf</h1><p className="mt-1 text-xs text-secondary">{greeting}. Your history stays with this signed-in workspace.</p></>}
+  return <div className="flex h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] min-h-0 bg-canvas" data-member-chat-workspace>
+    <aside className="hidden w-72 shrink-0 border-r-2 border-foreground bg-surface-raised lg:block">
+      <div className="h-full min-h-0 overflow-y-auto p-3">{navigator}</div>
+    </aside>
+    <Drawer open={drawerOpen} onOpenChange={onDrawerChange} triggerRef={drawerTriggerRef} title="Your conversations" description="Open a saved conversation or start a new question." side="left">{navigator}</Drawer>
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-foreground px-4 py-2.5 sm:px-6">
+        <div className="flex min-w-0 items-center gap-3">
+          <Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="min-h-9 px-3 py-1 text-xs lg:hidden">conversations</Button>
+          {conversationId && view ? <h1 title={view.conversation.title} className="truncate font-display text-lg font-extrabold lowercase [overflow-wrap:anywhere]">{view.conversation.title}</h1> : <h1 className="font-display text-lg font-extrabold lowercase">ask wtf</h1>}
         </div>
-        <div className="flex flex-wrap gap-2"><Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="xl:hidden">conversations</Button>{conversationId ? <><Button type="button" variant="secondary" onClick={() => void archive()} loading={archiving} disabled={archiving || deleting}>archive conversation</Button>{resolvedAdapter.canDelete ? <Button type="button" variant="ghost" onClick={() => { setDeleteError(false); setDeleteTarget(view ? { id: conversationId, title: view.conversation.title, linkedSavedPreferenceCount: view.conversation.linkedSavedPreferenceCount } : null); setDeleteDialogOpen(true); }} disabled={archiving || deleting}>delete</Button> : null}</> : null}</div>
+        {conversationId ? <div className="flex shrink-0 gap-2"><Button type="button" variant="ghost" onClick={() => void archive()} loading={archiving} disabled={archiving || deleting} className="min-h-9 px-3 py-1 text-xs">archive</Button>{resolvedAdapter.canDelete ? <Button type="button" variant="ghost" onClick={() => { setDeleteError(false); setDeleteTarget(view ? { id: conversationId, title: view.conversation.title, linkedSavedPreferenceCount: view.conversation.linkedSavedPreferenceCount } : null); setDeleteDialogOpen(true); }} disabled={archiving || deleting} className="min-h-9 px-3 py-1 text-xs">delete</Button> : null}</div> : null}
       </div>
-    </div>
-    <div className="mx-auto grid min-h-0 min-w-0 w-full flex-1 max-w-[var(--wtf-content-max)] gap-6 px-4 sm:px-8 xl:grid-cols-[15rem_minmax(0,1fr)] xl:px-12">
-      <aside className="hidden min-w-0 self-start pt-6 xl:sticky xl:top-28 xl:block"><div className="max-h-[calc(100dvh-27rem)] min-w-0 overflow-y-auto border-2 border-foreground bg-surface-raised p-3 shadow-[4px_4px_0_rgb(var(--wtf-foreground-rgb)/0.12)]">{navigator}</div></aside>
-      <Drawer open={drawerOpen} onOpenChange={onDrawerChange} triggerRef={drawerTriggerRef} title="Your conversations" description="Open a saved conversation or start a new question." side="left">{navigator}</Drawer>
-      <section className="min-h-0 min-w-0" aria-live="polite" data-selected-conversation-viewport>
+      <section className="min-h-0 min-w-0 flex-1" aria-live="polite" data-selected-conversation-viewport>
         {!conversationId && !pendingQuestion ? <ConversationEmptyState /> : null}
-        {state === "loading" ? <p role="status" className="mt-6 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary">loading conversation…</p> : null}
+        {state === "loading" ? <p role="status" className="mx-auto mt-6 max-w-3xl border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary">loading conversation…</p> : null}
         {state === "unavailable" ? <div role="status" className="mx-auto mt-6 grid max-w-3xl gap-4 border-2 border-foreground/20 bg-surface-subtle p-5 text-sm text-secondary" data-conversation-unavailable><p>This conversation is unavailable. It may have been archived, deleted, or opened from an expired link.</p><div className="flex flex-wrap gap-3"><Button type="button" variant="secondary" onClick={() => void load()} className="min-h-9 px-3 py-1 text-xs">retry loading conversation</Button><Button type="button" variant="ghost" onClick={() => router.push("/beta/chat#new-chat")} className="min-h-9 px-3 py-1 text-xs">start a new question</Button></div></div> : null}
         {view || pendingQuestion ? <div className="flex h-full min-h-0 flex-col"><Thread view={view} sending={sending} canRetry={canRetry} onRetry={() => void submit()} loadingEarlier={loadingEarlier} onLoadEarlier={() => void loadEarlier()} renderFooter={() => renderComposer()} pendingQuestion={pendingQuestion} onFollowUp={(followUp) => void submit(followUp)} /></div> : null}
         {state === "error" ? <p role="status" className="mx-auto mt-4 max-w-3xl border-l-4 border-attention px-4 text-sm text-secondary">We could not finish that answer. {canRetry ? "Retry with the same question." : "Try again."}</p> : null}
       </section>
+      {!view && !pendingQuestion ? <div className="shrink-0 px-4 pb-4 sm:px-6"><div className="mx-auto max-w-3xl"><p className="mb-2 text-center text-xs text-secondary">{greeting}. Your history stays with this signed-in workspace.</p><AskComposer
+        value={question}
+        onChange={(value) => { setQuestion(value); if (retryIntent) setRetryIntent(null); if (committedRequest) rememberCommittedRequest(null); }}
+        onSubmit={() => void submit()}
+        disabled={sending}
+        loading={sending}
+        variant="compact"
+      /></div></div> : null}
     </div>
-    {!view && !pendingQuestion ? <AskComposer
-      value={question}
-      onChange={(value) => { setQuestion(value); if (retryIntent) setRetryIntent(null); if (committedRequest) rememberCommittedRequest(null); }}
-      onSubmit={() => void submit()}
-      disabled={sending}
-      loading={sending}
-      variant="compact"
-    /> : null}
     {deleteDialogOpen && (deleteTarget || (conversationId && view)) ? <DeleteConversationDialog conversationTitle={deleteTarget?.title ?? view?.conversation.title ?? "this conversation"} linkedSavedPreferenceCount={deleteTarget?.linkedSavedPreferenceCount ?? view?.conversation.linkedSavedPreferenceCount} pending={deleting} error={deleteError} onClose={() => { if (!deleting) { setDeleteDialogOpen(false); setDeleteTarget(null); } }} onConfirm={deleteConversation} /> : null}
   </div>;
 }

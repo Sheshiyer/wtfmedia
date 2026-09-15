@@ -26,9 +26,8 @@ export function parsePrincipalContext(value: unknown): PrincipalContext | null {
   if (!role || typeof raw.email !== "string" || !raw.email.includes("@")) return null;
   if ((kind === "member" && role !== "member") || (kind === "operator" && role === "member")) return null;
   const landingValue = raw.canonicalLanding ?? raw.landingRoute;
-  const landing = landingValue === "/beta/chat"
-    ? "/beta/chat"
-    : kind === "member" ? "/beta/chat" : "/beta/workspace";
+  // Everyone lands on chat; the control room is reachable but never the landing.
+  const landing = landingValue === "/beta/workspace" ? "/beta/workspace" : "/beta/chat";
   const environment = raw.environment === "staging" || raw.environment === "production" ? raw.environment : "local";
   const capabilities = Array.isArray(raw.capabilities)
     ? raw.capabilities.filter((entry): entry is string => typeof entry === "string").slice(0, 128)

@@ -1,8 +1,8 @@
 import { createRemoteClerkVerifier, type ClerkVerification } from "./auth/clerk.ts";
 import { principalContextDto, resolvePrincipalContext } from "./auth/principal-context.ts";
 import { decide, policyForPath } from "./auth/policy.ts";
-import { archiveMemberConversation, completeMemberTurn, deleteMemberConversation, getMemberConversation, listMemberConversations, prepareMemberTurn } from "./chat/member-history.ts";
-import { memberChatConversationDto, memberChatPageDto, memberChatViewDto } from "./chat/browser-dto.ts";
+import { archiveMemberConversation, completeMemberTurn, deleteMemberConversation, getMemberConversation, getMemberSessionForAdmin, listAllMemberSessions, listMemberConversations, prepareMemberTurn } from "./chat/member-history.ts";
+import { adminMemberSessionPageDto, memberChatConversationDto, memberChatPageDto, memberChatViewDto } from "./chat/browser-dto.ts";
 import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "./chat/member-memory.ts";
 import { boundedPriorTurns, runChat, type ChatAnswerInput, type ChatAnswer } from "./chat/answer.ts";
 import { runAlphaChat } from "./chat/alpha-gateway.ts";
@@ -34,6 +34,17 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
   if (!requirement) return denied();
   if (!decide(context.role, requirement[0], requirement[1], { environment: context.environment })) return forbidden();
   if (url.pathname === "/beta/api/principal-context" && request.method === "GET") return Response.json(principalContextDto(context), { headers });
+  // Admin session audit: operator-surface reads over every member's history.
+  // Sits above the member-kind gate; policy already required members:read.
+  if (url.pathname === "/beta/api/admin/chat-sessions" && request.method === "GET") {
+    const page = await listAllMemberSessions(env.DB, url.searchParams.get("cursor") ?? undefined);
+    return page ? Response.json(adminMemberSessionPageDto(page), { headers }) : denied();
+  }
+  const adminSession = url.pathname.match(/^\/beta\/api\/admin\/chat-sessions\/(mcnv_[A-Za-z0-9-]{8,88})$/u);
+  if (adminSession && request.method === "GET") {
+    const view = await getMemberSessionForAdmin(env.DB, adminSession[1]);
+    return view ? Response.json(memberChatViewDto(view), { headers }) : denied();
+  }
   if (context.kind !== "member") return forbidden();
   if (url.pathname === "/beta/api/context" && request.method === "GET") return Response.json({ member: { role: context.role, workspace: context.workspace, pilotCohort: context.pilotCohort, environment: context.environment } }, { headers });
   if (url.pathname === "/beta/api/memory" && request.method === "GET") {

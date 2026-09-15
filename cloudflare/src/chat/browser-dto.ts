@@ -1,5 +1,5 @@
 import type { ChatConversation, ChatConversationView, ChatMessage, ChatPage } from "./history.ts";
-import type { MemberConversation, MemberConversationView, MemberMessage } from "./member-history.ts";
+import type { MemberConversation, MemberConversationView, MemberMessage, AdminMemberSession } from "./member-history.ts";
 
 type BrowserChatConversation = Omit<ChatConversation, "operator_id" | "create_idempotency_key" | "operator_email" | "operator_display_name">;
 type BrowserChatMessage = Omit<ChatMessage, "idempotency_key" | "request_id">;
@@ -48,4 +48,15 @@ export function memberChatPageDto(page: { conversations: MemberConversation[]; n
 
 export function memberChatConversationDto(conversation: MemberConversation) {
   return memberConversationDto(conversation);
+}
+
+/** Admin session-audit listing: conversation fields plus the owner email. */
+export function adminMemberSessionPageDto(page: { conversations: AdminMemberSession[]; nextCursor: string | null }) {
+  return {
+    conversations: page.conversations.map(({ member_email, ...conversation }) => ({
+      ...memberConversationDto(conversation as MemberConversation),
+      memberEmail: member_email,
+    })),
+    nextCursor: page.nextCursor,
+  };
 }

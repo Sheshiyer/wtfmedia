@@ -111,7 +111,7 @@ export function principalContextDto(context: PrincipalContext): PrincipalContext
     ...(context.firstName ? { firstName: context.firstName } : {}),
     ...(context.lastName ? { lastName: context.lastName } : {}),
     displayName: context.displayName,
-    landingRoute: context.kind === "operator" ? "/beta/workspace" : "/beta/chat",
+    landingRoute: "/beta/chat",
     capabilities: betaCapabilitiesForRole(context.role),
     environment: context.environment,
   };

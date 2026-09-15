@@ -21,7 +21,7 @@ describe("Beta open-enrollment copy", () => {
   it("offers verified account creation without invitation-only language", () => {
     expect(authFrame).toContain('eyebrow: "company beta"');
     expect(authFrame).toContain("We create your private member account.");
-    expect(memberWorkspace).toContain("company beta · private workspace");
+    expect(memberWorkspace).toContain("ask wtf");
     expect(memberWorkspace).not.toContain("Finish the emailed invitation");
   });
 
@@ -102,10 +102,10 @@ describe("Beta open-enrollment copy", () => {
     expect(memberWorkspace).toContain("triggerRef={drawerTriggerRef}");
     expect(sessionNavigator).toContain("paginationError");
     expect(sessionNavigator).toContain("retry loading more");
-    expect(sessionNavigator).toContain("refreshKey");
+    expect(sessionNavigator).toContain("subscribeConversationStore");
     expect(sessionNavigator).toContain("grid min-w-0 grid-cols-1");
     expect(sessionNavigator).toContain("line-clamp-2");
-    expect(memberWorkspace).toContain("max-h-[calc(100dvh-27rem)]");
+    expect(memberWorkspace).toContain("h-full min-h-0 overflow-y-auto p-3");
   });
 
   it("keeps answer and archive completion state in independent operation generations", () => {

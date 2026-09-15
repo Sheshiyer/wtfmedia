@@ -192,7 +192,7 @@ describe("member chat client contract", () => {
   });
 
   it("keeps archive and permanent deletion as distinct selected-session actions", () => {
-    expect(memberWorkspace).toContain("archive conversation");
+    expect(memberWorkspace).toContain(">archive</Button>");
     expect(memberWorkspace).toContain("delete permanently");
     expect(betaChatAdapter).toContain('method: "DELETE"');
     expect(betaChatAdapter).toContain('confirmation: "DELETE"');

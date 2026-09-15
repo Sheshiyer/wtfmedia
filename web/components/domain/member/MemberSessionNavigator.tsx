@@ -2,21 +2,23 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/Button";
-import { appendMemberHistoryPage, shouldFinishMemberPaginationRequest, type MemberConversation } from "@/lib/member/chat";
-import { createMemberChatAdapter, type BetaChatAdapter, type BetaHistoryResponse, type BetaReadFailure } from "@/components/domain/beta/BetaChatAdapter";
+import { shouldFinishMemberPaginationRequest, type MemberConversation } from "@/lib/member/chat";
+import { cacheHistory, cachedHistory, markConversationArchived, subscribeConversationStore } from "@/lib/member/conversation-store";
+import { createMemberChatAdapter, type BetaChatAdapter, type BetaReadFailure } from "@/components/domain/beta/BetaChatAdapter";
 import { useMemberFetch } from "./MemberBetaGate";
 
 type NavigatorState = "loading" | "ready" | "empty" | "error";
 type ReadFailureKind = BetaReadFailure["kind"];
 
-export function MemberSessionNavigator({ activeConversationId, onNavigate, refreshKey = 0, onRequestDelete, adapter }: { activeConversationId?: string; onNavigate?: () => void; refreshKey?: number; onRequestDelete?: (conversation: MemberConversation) => void; adapter?: BetaChatAdapter }) {
+export function MemberSessionNavigator({ activeConversationId, onNavigate, onRequestDelete, adapter }: { activeConversationId?: string; onNavigate?: () => void; onRequestDelete?: (conversation: MemberConversation) => void; adapter?: BetaChatAdapter }) {
   const memberFetch = useMemberFetch();
   const resolvedAdapter = useMemo(() => adapter ?? createMemberChatAdapter(memberFetch), [adapter, memberFetch]);
   const router = useRouter();
-  const [state, setState] = useState<NavigatorState>("loading");
-  const [history, setHistory] = useState<BetaHistoryResponse | null>(null);
+  const [state, setState] = useState<NavigatorState>(() => cachedHistory() ? (cachedHistory()!.conversations.length ? "ready" : "empty") : "loading");
+  // The store is the list source of truth; local state only tracks load failures.
+  const history = useSyncExternalStore(subscribeConversationStore, cachedHistory, cachedHistory);
   const [loadingMore, setLoadingMore] = useState(false);
   const [paginationError, setPaginationError] = useState(false);
   const [failureKind, setFailureKind] = useState<ReadFailureKind | null>(null);
@@ -27,10 +29,20 @@ export function MemberSessionNavigator({ activeConversationId, onNavigate, refre
   const paginationGeneration = useRef(0);
   const paginationInFlight = useRef(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (force = false) => {
     const epoch = ++historyEpoch.current;
     paginationGeneration.current += 1;
     paginationInFlight.current = false;
+    // Cache-first: render the stored list immediately and only fetch when cold
+    // or explicitly retried. Sends/archives already upsert the store.
+    if (!force && cachedHistory()) {
+      const cached = cachedHistory()!;
+      setState(cached.conversations.length ? "ready" : "empty");
+      setLoadingMore(false);
+      setPaginationError(false);
+      setFailureKind(null);
+      return;
+    }
     setState("loading");
     setLoadingMore(false);
     setPaginationError(false);
@@ -39,7 +51,7 @@ export function MemberSessionNavigator({ activeConversationId, onNavigate, refre
       const parsed = await resolvedAdapter.list();
       if (!parsed) throw new Error("member_history_unavailable");
       if (epoch !== historyEpoch.current) return;
-      setHistory(parsed);
+      cacheHistory(parsed);
       setState(parsed.conversations.length ? "ready" : "empty");
     } catch {
       if (epoch === historyEpoch.current) {
@@ -56,14 +68,14 @@ export function MemberSessionNavigator({ activeConversationId, onNavigate, refre
     try {
       if (!await resolvedAdapter.archive(conversationId)) throw new Error("archive_failed");
       setActionMessage("Conversation archived.");
+      markConversationArchived(conversationId);
       if (conversationId === activeConversationId) router.push("/beta/chat");
-      await load();
     } catch {
       setActionMessage("Conversation could not be archived.");
     } finally {
       setAction(null);
     }
-  }, [action, activeConversationId, load, resolvedAdapter, router]);
+  }, [action, activeConversationId, resolvedAdapter, router]);
 
   const requestDelete = useCallback((conversation: MemberConversation) => {
     if (!onRequestDelete || action) return;
@@ -73,7 +85,7 @@ export function MemberSessionNavigator({ activeConversationId, onNavigate, refre
     setAction(null);
   }, [action, onRequestDelete]);
 
-  useEffect(() => { void load(); }, [load, refreshKey]);
+  useEffect(() => { void load(); }, [load]);
 
   const loadMore = useCallback(async () => {
     if (!history?.nextCursor || loadingMore || paginationInFlight.current) return;
@@ -88,7 +100,7 @@ export function MemberSessionNavigator({ activeConversationId, onNavigate, refre
       const parsed = await resolvedAdapter.list(cursor);
       if (!parsed) throw new Error("member_history_page_unavailable");
       if (epoch !== historyEpoch.current || !shouldFinishMemberPaginationRequest({ requestGeneration: generation, currentGeneration: paginationGeneration.current })) return;
-      setHistory((current) => current && current.nextCursor === cursor ? appendMemberHistoryPage(current, parsed) : current);
+      cacheHistory(parsed, true);
     } catch {
       if (epoch === historyEpoch.current && shouldFinishMemberPaginationRequest({ requestGeneration: generation, currentGeneration: paginationGeneration.current })) {
         setPaginationFailureKind(resolvedAdapter.readFailure?.()?.kind ?? "temporary");

@@ -75,11 +75,11 @@ test("the browser principal DTO contains safe display fields and no stable inter
   assert.doesNotMatch(JSON.stringify(dto), /memberId|operatorId|correlationId|user_|hash|digest/i);
 });
 
-test("operator principals land on the canonical Beta workspace root", () => {
+test("operator principals land on the chat surface like everyone else", () => {
   const dto = principalContextDto({
     kind: "operator", operatorId: 7, role: "editor", email: "operator@example.test", displayName: "Operator", environment: "staging", correlationId: "corr-principal-operator",
   });
-  assert.equal(dto.landingRoute, "/beta/workspace");
+  assert.equal(dto.landingRoute, "/beta/chat");
   assert.equal(dto.capabilities.some((capability) => capability.startsWith("ingest:")), false);
 });
 
