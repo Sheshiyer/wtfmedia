@@ -64,6 +64,8 @@ export interface ConversationThreadFrameProps {
   renderFooter?: (placement: ConversationComposerPlacement) => ReactNode;
   /** Private Beta keeps the composer in the viewport while its thread scrolls. */
   composerPlacement?: "auto" | "fixed";
+  /** Extra classes on the fixed composer frame (e.g. clearing a sidebar). */
+  fixedComposerClassName?: string;
   ariaLabel?: string;
 }
 
@@ -73,6 +75,7 @@ export function ConversationThreadFrame({
   renderContent,
   renderFooter,
   composerPlacement = "auto",
+  fixedComposerClassName,
   ariaLabel = "Conversation",
 }: ConversationThreadFrameProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -143,7 +146,7 @@ export function ConversationThreadFrame({
       </div>
       {placement === "fixed" && renderFooter ? (
         <div
-          className="fixed inset-x-0 z-40"
+          className={`fixed inset-x-0 z-40${fixedComposerClassName ? ` ${fixedComposerClassName}` : ""}`}
           data-fixed-composer
           style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
         >

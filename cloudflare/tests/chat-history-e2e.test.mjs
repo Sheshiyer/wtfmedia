@@ -16,6 +16,7 @@ import {
 import {
   appendMessage,
   archiveConversation,
+  deleteConversation,
   createConversation,
   exportConversationsCsv,
   getConversationForActor,
@@ -45,6 +46,7 @@ const migrations = [
   "0014_principal_profiles.sql",
   "0015_principal_profiles_email_guard.sql",
   "0016_rich_chat_source_metadata.sql",
+  "0017_chat_delete.sql",
 ];
 
 function sqlite(input, json = false) {
@@ -195,8 +197,11 @@ test("D1 history is durable, idempotent, owner-scoped, and archive-only", async 
   assert.equal((await archiveConversation(db, { operatorId: 3, role: "editor" }, first.conversation.id))?.lifecycle_state, "archived");
   assert.equal((await listConversationsForActor(db, { operatorId: 3, role: "editor" })).conversations.length, 0);
   assert.equal((await listConversationsForActor(db, { operatorId: 3, role: "editor" }, undefined, 25, true)).conversations[0]?.lifecycle_state, "archived");
-  const deleteAttempt = sqlite(`DELETE FROM chat_conversations WHERE id = '${first.conversation.id}';`);
-  assert.notEqual(deleteAttempt.status, 0);
+  // Delete is owner-scoped at the DAL; the schema no longer hard-blocks it.
+  assert.equal(await deleteConversation(db, { operatorId: 2, role: "admin" }, first.conversation.id), false);
+  assert.equal(await deleteConversation(db, { operatorId: 3, role: "editor" }, first.conversation.id), true);
+  assert.equal(await getConversationForActor(db, { operatorId: 3, role: "editor" }, first.conversation.id), null);
+  assert.equal(sqlite(`SELECT COUNT(*) FROM chat_messages WHERE conversation_id = '${first.conversation.id}';`).stdout.trim(), "0");
 });
 
 test("Clerk/D1 context is rechecked on every protected request and cannot cross owners", async () => {

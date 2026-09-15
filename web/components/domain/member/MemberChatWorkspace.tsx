@@ -27,6 +27,7 @@ function Thread({ view, sending, canRetry, onRetry, loadingEarlier, onLoadEarlie
     contentVersion={pendingQuestion ? `${messages.length}+pending` : messages}
     layoutVersion={sending}
     composerPlacement="fixed"
+    fixedComposerClassName="lg:left-72"
     renderFooter={renderFooter}
     renderContent={({ scrollAnchor }) => <div className="mx-auto max-w-5xl space-y-6 pr-1">{view?.previousMessageCursor ? <div className="flex justify-center"><Button type="button" variant="ghost" className="text-xs" onClick={onLoadEarlier} loading={loadingEarlier} disabled={loadingEarlier} data-testid="load-earlier-messages">load earlier messages</Button></div> : null}{messages.map((message, index) => {
       const presentation = memberAnswerPresentation(message);
@@ -305,7 +306,7 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
         {view || pendingQuestion ? <div className="flex h-full min-h-0 flex-col"><Thread view={view} sending={sending} canRetry={canRetry} onRetry={() => void submit()} loadingEarlier={loadingEarlier} onLoadEarlier={() => void loadEarlier()} renderFooter={() => renderComposer()} pendingQuestion={pendingQuestion} onFollowUp={(followUp) => void submit(followUp)} /></div> : null}
         {state === "error" ? <p role="status" className="mx-auto mt-4 max-w-3xl border-l-4 border-attention px-4 text-sm text-secondary">We could not finish that answer. {canRetry ? "Retry with the same question." : "Try again."}</p> : null}
       </section>
-      {!view && !pendingQuestion ? <div className="shrink-0 px-4 pb-4 sm:px-6"><div className="mx-auto max-w-3xl"><p className="mb-2 text-center text-xs text-secondary">{greeting}. Your history stays with this signed-in workspace.</p><AskComposer
+      {!view && !pendingQuestion ? <div className="shrink-0 px-4 pb-4 sm:px-6"><div className="mx-auto max-w-5xl"><p className="mb-2 text-center text-xs text-secondary">{greeting}. Your history stays with this signed-in workspace.</p><AskComposer
         value={question}
         onChange={(value) => { setQuestion(value); if (retryIntent) setRetryIntent(null); if (committedRequest) rememberCommittedRequest(null); }}
         onSubmit={() => void submit()}

@@ -283,6 +283,8 @@ export async function deleteConversation(db: DB, actor: ChatActor, id: unknown):
   if (!target) return false;
   try {
     await db.batch([
+      // Saved preferences survive; only the conversation link is removed.
+      db.prepare("UPDATE saved_memories SET source_conversation_id = NULL WHERE operator_id = ? AND source_conversation_id = ?").bind(actor.operatorId, id),
       db.prepare("DELETE FROM chat_messages WHERE conversation_id = ?").bind(id),
       db.prepare("DELETE FROM chat_conversations WHERE id = ? AND operator_id = ?").bind(id, actor.operatorId),
     ]);
