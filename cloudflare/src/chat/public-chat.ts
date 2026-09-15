@@ -21,6 +21,7 @@ import {
   MOMENT_ENRICHMENT_PROMPT,
   parseDurationBudget,
   parseMomentEnrichment,
+  reelRelevant,
   resolveMomentEnds,
   type EnrichedMoment,
   type Moment,
@@ -576,16 +577,19 @@ async function momentsForAnswer(
     }
   });
   const enriched = new Map(visible.map((moment, index) => [moment, enrichments[index]]));
+  const reelMoments = moments
+    .map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) }))
+    // The reel is what the editor trusts; off-topic candidates (strength 1-2
+    // by the model's own judgment) are noise, not a wider net.
+    .filter(reelRelevant);
   if (budgetSec != null) {
-    const ranked = moments
-      .map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) }))
-      .sort((a, b) => (b.strength ?? 0) - (a.strength ?? 0) || b.score - a.score);
+    const ranked = reelMoments.sort((a, b) => (b.strength ?? 0) - (a.strength ?? 0) || b.score - a.score);
     const cut = applyDurationBudget(ranked, budgetSec);
     return { moments: cut.moments, totalDurationSec: cut.totalDurationSec, budgetSec };
   }
   return {
-    moments: budgeted.moments.map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) })),
-    totalDurationSec: budgeted.totalDurationSec,
+    moments: reelMoments,
+    totalDurationSec: reelMoments.reduce((sum, moment) => sum + (moment.durationSec ?? 0), 0),
     budgetSec,
   };
 }

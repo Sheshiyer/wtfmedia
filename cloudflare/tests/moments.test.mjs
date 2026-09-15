@@ -8,6 +8,7 @@ import {
   formatClock,
   parseDurationBudget,
   parseMomentEnrichment,
+  reelRelevant,
   resolveMomentEnds,
 } from "../src/chat/moments.ts";
 
@@ -234,6 +235,17 @@ describe("applyDurationBudget", () => {
     assert.equal(budgetSec, null);
     assert.equal(totalDurationSec, 1800);
     assert.ok(moments.every((m) => m.withinBudget));
+  });
+});
+
+describe("reelRelevant", () => {
+  test("drops moments the enrichment judged off-topic, keeps the rest", () => {
+    assert.equal(reelRelevant({ strength: 1 }), false);
+    assert.equal(reelRelevant({ strength: 2 }), false);
+    assert.equal(reelRelevant({ strength: 3 }), true);
+    assert.equal(reelRelevant({ strength: 5 }), true);
+    // A failed enrichment (no strength) must not erase timestamped evidence.
+    assert.equal(reelRelevant({}), true);
   });
 });
 

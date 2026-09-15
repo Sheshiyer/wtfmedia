@@ -57,6 +57,19 @@ export interface MomentEnrichment {
 
 export type EnrichedMoment = Moment & MomentEnrichment;
 
+/**
+ * Minimum enrichment strength a moment needs to stay in the reel. Off-topic
+ * excerpts ("no discussion of nature" ★5) read as wrong answers in the sheet;
+ * strength 1-2 means the model itself judged the moment irrelevant to the
+ * question. Unenriched moments (undefined strength) stay — a failed
+ * enrichment call must not silently erase timestamped evidence.
+ */
+export const MIN_REEL_STRENGTH = 3;
+
+export function reelRelevant(moment: { strength?: number }): boolean {
+  return moment.strength == null || moment.strength >= MIN_REEL_STRENGTH;
+}
+
 /** Parse "videoId:chunk" segment IDs. Returns null for non-conforming IDs. */
 function parseSegmentRef(segmentId: string | undefined): { videoId: string; chunk: number } | null {
   if (!segmentId) return null;
@@ -272,7 +285,7 @@ export const MOMENT_ENRICHMENT_PROMPT = `You label podcast moments for an editor
 "topic" (3-6 word specific topic, lowercase),
 "summary" (one sentence, max 25 words, what is actually said),
 "whyRelevant" (one sentence, max 20 words, why an editor would cut this for the question),
-"strength" (integer 1-5: how strongly the moment answers the question).
+"strength" (integer 1-5: relevance to the QUESTION. 5 = directly answers it; 4 = clearly about the asked topic; 3 = partially relevant; 2 = tangential; 1 = not about the asked topic. A moment that does not discuss the question's subject MUST score 1-2, no matter how good the content is).
 Output ONLY the JSON objects, no commentary, no code fences. If a text field cannot be honest from the excerpt, use an empty string; strength is always your honest 1-5 judgment.`;
 
 /** Parse one-JSON-object-per-line enrichment output. Tolerant of fences,
