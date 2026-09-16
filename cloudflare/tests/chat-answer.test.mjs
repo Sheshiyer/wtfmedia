@@ -27,14 +27,10 @@ function environment(matches, prompts = [], response = "The evidence supports th
   globalThis.fetch = async (_url, init) => {
     const body = JSON.parse(init?.body ?? "{}");
     prompts.push(body.messages);
-    // The relevance gate and abstention classifier are separate model calls;
-    // answer them truthfully so the shared pipeline continues under test.
+    // The abstention classifier is a separate model call; answer it truthfully
+    // so the shared pipeline continues under test.
     const system = body.messages?.[0]?.content ?? "";
-    const content = system.startsWith("You filter retrieved podcast excerpts")
-      ? [...new Set([...(body.messages?.at(-1)?.content ?? "").matchAll(/\[(\d+)\]/gu)].map((m) => m[1]))].join(", ")
-      : system.startsWith("You classify research-assistant answers")
-        ? "ANSWERED"
-        : response;
+    const content = system.startsWith("You classify research-assistant answers") ? "ANSWERED" : response;
     return new Response(JSON.stringify({ choices: [{ message: { content } }] }), {
       status: 200,
       headers: { "content-type": "application/json" },

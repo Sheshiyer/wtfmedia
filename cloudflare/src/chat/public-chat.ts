@@ -21,7 +21,6 @@ import {
   MOMENT_ENRICHMENT_PROMPT,
   parseDurationBudget,
   parseMomentEnrichment,
-  reelRelevant,
   resolveMomentEnds,
   type EnrichedMoment,
   type Moment,
@@ -136,37 +135,6 @@ async function declaresEvidenceMissing(env: PublicChatEnv, question: string, ans
   } catch (error) {
     console.warn("wtfmedia abstention classifier failed", { error: error instanceof Error ? error.message : "unknown" });
     return false;
-  }
-}
-
-/**
- * Semantic relevance gate. The vector score floor alone lets off-topic chunks
- * through on misspelled or broad queries, and the answer model then dutifully
- * writes about all of them. Drop excerpts that don't actually address the
- * resolved question so weak retrieval degrades to the simple no-information
- * reply instead of a rambling tour of random episodes. Fail-open: a filter
- * error keeps the retrieved set.
- */
-async function filterRelevantSources<T extends { n: number; title: string; text?: string }>(
-  env: PublicChatEnv,
-  question: string,
-  sources: T[],
-): Promise<T[]> {
-  if (sources.length === 0) return sources;
-  try {
-    const list = sources
-      .map((source) => `[${source.n}] ${source.title}: ${(source.text ?? "").replace(/\s+/g, " ").trim().slice(0, 200)}`)
-      .join("\n");
-    const { answer } = await openRouterChat(env, [
-      { role: "system", content: "You filter retrieved podcast excerpts. Given a question and numbered excerpts, reply with ONLY the numbers of excerpts that genuinely discuss the asked topic, comma-separated (e.g. 1, 4), or NONE if none do. An excerpt is relevant only if its content addresses the asked topic itself — sharing a stray word or being about something else entirely is not relevance." },
-      { role: "user", content: `QUESTION: ${question}\n\nEXCERPTS:\n${list}` },
-    ], { maxTokens: 40, temperature: 0 });
-    if (/^\s*none\b/i.test(answer)) return [];
-    const keep = new Set([...answer.matchAll(/\d+/g)].map((match) => Number(match[0])));
-    return sources.filter((source) => keep.has(source.n)).map((source, index) => ({ ...source, n: index + 1 }));
-  } catch (error) {
-    console.warn("wtfmedia relevance filter failed", { error: error instanceof Error ? error.message : "unknown" });
-    return sources;
   }
 }
 
@@ -400,11 +368,7 @@ async function retrieveSourcesForQuery(
     return { ...source, text: match?.metadata?.text as string | undefined };
   });
 
-  // Gate relevance semantically before the answer ever sees the excerpts:
-  // misspelled/broad queries otherwise leak random episodes into both the
-  // answer context and the sources panel.
-  const relevantSources = await filterRelevantSources(env, searchQuery, sources);
-  return { resolved, sources: relevantSources, momentSources, episodeId: queried.episodeId };
+  return { resolved, sources, momentSources, episodeId: queried.episodeId };
 }
 
 async function generateFollowUps(
@@ -539,11 +503,10 @@ async function momentsForAnswer(
     }
   });
   const enriched = new Map(visible.map((moment, index) => [moment, enrichments[index]]));
+  // Weak matches stay in the reel with their honest ★1–2 strength — the reader
+  // sees the rating instead of the moment silently disappearing.
   const reelMoments = moments
-    .map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) }))
-    // The reel is what the editor trusts; off-topic candidates (strength 1-2
-    // by the model's own judgment) are noise, not a wider net.
-    .filter(reelRelevant);
+    .map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) }));
   if (budgetSec != null) {
     const ranked = reelMoments.sort((a, b) => (b.strength ?? 0) - (a.strength ?? 0) || b.score - a.score);
     const cut = applyDurationBudget(ranked, budgetSec);

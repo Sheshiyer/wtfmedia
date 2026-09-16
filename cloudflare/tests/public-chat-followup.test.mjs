@@ -40,11 +40,6 @@ function followUpEnv(calls) {
       JSON.stringify({ choices: [{ message: { content } }] }),
       { status: 200, headers: { "content-type": "application/json" } },
     );
-    if (system.startsWith("You filter retrieved podcast excerpts")) {
-      const user = body.messages?.[1]?.content ?? "";
-      const nums = [...user.matchAll(/\[(\d+)\]/gu)].map((m) => m[1]);
-      return respond(nums.join(", ") || "NONE");
-    }
     if (system.startsWith("You classify research-assistant answers")) {
       calls.classify.push(body);
       const answerText = body.messages?.[1]?.content ?? "";
@@ -206,31 +201,3 @@ test("cited abstention ships no sources or moments", async () => {
   assert.equal(result.body.moments, undefined);
 });
 
-test("irrelevant retrieval gets the simple no-information answer with no sources", async () => {
-  const calls = { reformulate: [], answer: [], enrich: [], embeddings: [] };
-  const env = followUpEnv(calls);
-  const baseFetch = globalThis.fetch;
-  globalThis.fetch = async (url, init) => {
-    const body = JSON.parse(init?.body ?? "{}");
-    const system = body.messages?.[0]?.content ?? "";
-    if (system.startsWith("You filter retrieved podcast excerpts")) {
-      return new Response(JSON.stringify({ choices: [{ message: { content: "NONE" } }] }), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-    }
-    return baseFetch(url, init);
-  };
-  const result = await runPublicChat(env, {
-    question: "tell me about tress",
-    sourceMode: "published",
-    episodeId: null,
-    history: [],
-  });
-  assert.equal(result.status, 200);
-  assert.equal(result.body.responseState, "retrieval_weak");
-  assert.deepEqual(result.body.sources, []);
-  assert.match(result.body.answer, /don’t have enough information/);
-  assert.equal(result.body.moments, undefined);
-  assert.equal(calls.answer.length, 0, "no answer generation when nothing is relevant");
-});

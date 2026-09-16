@@ -5,7 +5,6 @@ import {
   MOMENT_ENRICHMENT_PROMPT,
   parseDurationBudget,
   parseMomentEnrichment,
-  reelRelevant,
   resolveMomentEnds,
   type EnrichedMoment,
   type Moment,
@@ -103,11 +102,10 @@ export async function momentsForAnswer(
   });
 
   const enriched = new Map(visible.map((moment, index) => [moment, enrichments[index]]));
+  // Weak matches stay in the reel with their honest ★1–2 strength — the reader
+  // sees the rating instead of the moment silently disappearing.
   const reel = budgeted.moments
-    .map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) }))
-    // Off-topic candidates (strength 1-2 by the model's own judgment) are
-    // noise in the editor sheet, not a wider net.
-    .filter(reelRelevant);
+    .map((moment) => ({ ...moment, ...(enriched.get(moment) ?? {}) }));
   return {
     moments: reel,
     totalDurationSec: reel.reduce((sum, moment) => sum + (moment.durationSec ?? 0), 0),
