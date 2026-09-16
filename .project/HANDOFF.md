@@ -67,6 +67,13 @@ corpus change.
   cream. Web staging `534824c0-a9fd-4e72-9b65-6cddc23febb6`; smoke 200s,
   production unchanged. Local-note: Clerk dev sessions fail closed when the
   host clock drifts past ~5s (iat-in-future refresh loop) — resync NTP.
+- Answer follow-up (`9e3d91c`): abstention is now decided by a fast model
+  verdict (ANSWERED vs ABSTAIN), replacing the keyword-regex detector per the
+  owner's direction. Absence answers ship with no sources/moments, so
+  "nothing else was discussed?" no longer renders random episodes. Edge
+  staging `b2fd6404-6ce2-428f-b90c-8d2561ca7ed8`; smoke 200s, production
+  unchanged. Suites: Cloudflare 396/397 (pre-existing `calendar.test.mjs`),
+  web 232/232 + 97/97.
 - Open: the composer "drag handle" pill from the owner report was not found
   in source (no `left-1/2`/handle element; both fixed composer wrappers
   already carry `lg:left-72`); needs a devtools selector to fix. Empty-state
