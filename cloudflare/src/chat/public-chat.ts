@@ -129,7 +129,7 @@ async function answerWithFallback(env: PublicChatEnv, messages: unknown[], force
 async function declaresEvidenceMissing(env: PublicChatEnv, question: string, answer: string): Promise<boolean> {
   try {
     const { answer: verdict } = await openRouterChat(env, [
-      { role: "system", content: "You classify research-assistant answers. Reply with exactly one word: ANSWERED if the answer presents excerpt-backed content as an answer to the question (even partially); ABSTAIN if it says the evidence, excerpts, or catalogue do not cover the question, that nothing else exists on the topic, or that it cannot answer. Output only ANSWERED or ABSTAIN." },
+      { role: "system", content: "You classify research-assistant answers. Reply with exactly one word: ABSTAIN if the answer says the asked topic or question is not covered, not supported, missing, or unanswerable from the evidence — even if it then describes what the excerpts cover instead or lists unrelated content; also ABSTAIN if it says nothing else exists on the topic. Otherwise, when the answer presents excerpt-backed content as a real answer to the question, reply ANSWERED. Output only ANSWERED or ABSTAIN." },
       { role: "user", content: `QUESTION: ${question}\n\nANSWER:\n${answer}` },
     ], { maxTokens: 5, temperature: 0 });
     return /abstain/i.test(verdict);
