@@ -1,5 +1,43 @@
 # Project handoff
 
+## 2026-09-16 Follow-up anchoring fix and ask-wtf layout repair
+
+**Status:** STAGING DEPLOYED from exact candidate `83bce50` on
+`rag/alpha-answer-accuracy`. No push, PR, production, DNS, Clerk, D1, or
+corpus change.
+
+- Fix: chat follow-ups are now always reformulated against conversation
+  history before retrieval, and moment-reel relevance is judged against the
+  resolved query rather than the raw follow-up. Previously a bare follow-up
+  ("give me all the timestamps") embedded weakly, retrieval drifted
+  off-topic, and the sources panel rendered irrelevant episodes on a
+  grounded answer. Regression test: `cloudflare/tests/public-chat-followup.test.mjs`.
+- UI: the question-lattice stripe uses a fixed 306px period centered on the
+  card so partial tiles split evenly on both edges instead of clipping
+  purple-only on the right. On `/beta/chat` the rail no longer reserves a
+  separate top band; the workspace header row carries the title and the
+  hamburger in one row with a single divider.
+- Verification: Cloudflare 394/395 (`calendar.test.mjs` fails identically on
+  the clean tree — pre-existing, unrelated); web unit 232/232, contracts
+  97/97, typecheck, lint, architecture freshness (648 inputs), and
+  `git diff --check` pass.
+- Deploys (owner-requested, staging only): edge
+  `a70f22bb-54cc-4f54-bdf0-e1e071349cbd` and web
+  `0c3e96f0-f97f-48de-a40d-36d44ac7ec1a`. Binding readback unchanged:
+  staging D1, `WTFMEDIA_ALPHA_WEB -> wtfmedia-web`, staging Clerk vars on the
+  edge; web keeps self-reference, `WTFMEDIA_EDGE -> wtfmedia-edge-staging`,
+  IMAGES, ASSETS. Note: the named `wtfmedia` Wrangler profile is absent on
+  this host; deploys used the default OAuth profile with the account
+  explicitly pinned (`8f380cb5…fb46`, verified read-only first).
+- Smoke: `/sign-in` 200, `/beta` 200, unsigned `/beta/api/context` 401, GET
+  `/api/chat` 405, production `https://wtfhq.in/chat` 200 unchanged.
+- Open: the composer "drag handle" pill from the owner report was not found
+  in source (no `left-1/2`/handle element; both fixed composer wrappers
+  already carry `lg:left-72`); needs a devtools selector to fix. Empty-state
+  card dead space is a pending content decision (fill vs. shrink). Authenticated
+  IAB re-check of the follow-up scenario and the member acceptance matrix
+  (ISC-344) remain open.
+
 ## 2026-09-12 Issue #78 staging deployment and operator acceptance
 
 **Status:** STAGING DEPLOYED; REAL OPERATOR IAB PASS; MEMBER ACCEPTANCE OPEN.
