@@ -291,7 +291,7 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
   return <div className="flex h-[100dvh] min-h-0 bg-canvas" data-member-chat-workspace>
     <aside className="hidden w-72 shrink-0 border-r-2 border-foreground bg-surface-raised lg:block">
       <div className="flex h-full min-h-0 flex-col">
-        <div className="shrink-0 px-3 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+        <div className="flex min-h-[5.5rem] shrink-0 items-center justify-center border-b-2 border-foreground px-3 pt-[env(safe-area-inset-top)]">
           <Link href="/beta/chat" aria-label="WTF OS" className="inline-block rounded-xl border-2 border-foreground bg-canvas px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention">
             <MigratedWordmarkMini plate />
           </Link>
@@ -302,9 +302,10 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
     <Drawer open={drawerOpen} onOpenChange={onDrawerChange} triggerRef={drawerTriggerRef} title="Your conversations" description="Open a saved conversation or start a new question." side="left">{navigator}</Drawer>
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       {/* The rail hamburger floats into this row's right end (see AppRail's
-          betaChatSurface branch) — one shared row, one divider, no dead band. */}
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-foreground px-4 pb-6 pr-14 pt-[max(0.625rem,env(safe-area-inset-top))] sm:px-6 sm:pr-20">
-        <div className="flex min-w-0 items-center gap-3 pt-3">
+          betaChatSurface branch). Same height as the sidebar logo block, so
+          both bottom borders form one continuous full-width divider. */}
+      <div className="flex min-h-[5.5rem] shrink-0 items-center justify-between gap-3 border-b-2 border-foreground px-4 pr-14 pt-[env(safe-area-inset-top)] sm:px-6 sm:pr-20">
+        <div className="flex min-w-0 items-center gap-3">
           <Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="min-h-9 px-3 py-1 text-xs lg:hidden">conversations</Button>
           {conversationId && view ? <h1 title={view.conversation.title} className="truncate font-display text-lg font-extrabold lowercase [overflow-wrap:anywhere]">{view.conversation.title}</h1> : <h1 className="font-display text-lg font-extrabold lowercase">ask wtf</h1>}
         </div>
@@ -316,7 +317,7 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
         {view || pendingQuestion ? <div className="flex h-full min-h-0 flex-col"><Thread view={view} sending={sending} canRetry={canRetry} onRetry={() => void submit()} loadingEarlier={loadingEarlier} onLoadEarlier={() => void loadEarlier()} renderFooter={() => renderComposer()} pendingQuestion={pendingQuestion} onFollowUp={(followUp) => void submit(followUp)} /></div> : null}
         {state === "error" ? <p role="status" className="mx-auto mt-4 max-w-3xl border-l-4 border-attention px-4 text-sm text-secondary">We could not finish that answer. {canRetry ? "Retry with the same question." : "Try again."}</p> : null}
       </section>
-      {!view && !pendingQuestion ? <div className="fixed inset-x-0 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 -mb-4 bg-canvas px-4 pt-3 sm:px-6 lg:left-72"><div className="mx-auto max-w-5xl"><AskComposer
+      {!view && !pendingQuestion ? <div className="fixed inset-x-0 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 -mb-4 bg-canvas px-4 pt-3 sm:px-6 lg:left-72"><div className="mx-auto max-w-7xl"><AskComposer
         value={question}
         onChange={(value) => { setQuestion(value); if (retryIntent) setRetryIntent(null); if (committedRequest) rememberCommittedRequest(null); }}
         onSubmit={() => void submit()}

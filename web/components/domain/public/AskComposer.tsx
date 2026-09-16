@@ -52,7 +52,7 @@ export function AskComposer({
       data-testid="ask-composer"
       data-composer-variant="compact"
     >
-      <div className="mx-auto flex max-w-5xl items-center gap-1.5 rounded-full border-2 border-foreground bg-surface-raised/95 px-1.5 py-1 shadow-[0_-4px_0_rgb(var(--wtf-foreground-rgb)/0.10)] backdrop-blur-md focus-within:outline focus-within:outline-[3px] focus-within:outline-offset-2 focus-within:outline-foreground sm:gap-2 sm:px-3 sm:py-1.5">
+      <div className="mx-auto flex max-w-7xl items-center gap-1.5 rounded-full border-2 border-foreground bg-surface-raised/95 px-1.5 py-1 shadow-[0_-4px_0_rgb(var(--wtf-foreground-rgb)/0.10)] backdrop-blur-md focus-within:outline focus-within:outline-[3px] focus-within:outline-offset-2 focus-within:outline-foreground sm:gap-2 sm:px-3 sm:py-1.5">
         {/* Public beta is published-only; no uncut/both selector. */}
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" className="ml-2 shrink-0 text-muted"><circle cx="11" cy="11" r="7" /><path strokeLinecap="round" d="m20 20-3.5-3.5" /></svg>
         <div className="relative min-w-0 flex-1">

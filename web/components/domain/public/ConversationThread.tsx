@@ -159,9 +159,11 @@ export function ConversationThreadFrame({
 
 /** The exact Alpha empty-state composition shared by the member workspace. */
 export function ConversationEmptyState() {
+  // Vertically center the card in the space between the header divider and
+  // the floating composer (bottom pad clears the composer zone).
   return (
-    <div className="mx-auto flex w-full max-w-5xl items-center py-4 sm:min-h-[28rem] sm:py-6" data-testid="empty-state" data-evidence-empty>
-      <div className="grid w-full overflow-hidden border-2 border-foreground bg-surface-raised">
+    <div className="mx-auto flex h-full w-full max-w-5xl items-center px-4 pb-48 sm:px-6" data-testid="empty-state" data-evidence-empty>
+      <div className="grid w-full overflow-hidden border-2 border-foreground bg-surface-raised sm:min-h-[32rem]">
         <section className="relative min-w-0 overflow-hidden p-4 sm:p-8">
           <div aria-hidden="true" className="wtf-question-lattice absolute inset-x-0 top-0 h-2" />
           <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-knowledge">start with the source</p>

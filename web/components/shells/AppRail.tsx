@@ -189,7 +189,7 @@ export function AppRail({
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5">
+      <header className={`fixed inset-x-0 top-0 z-50 px-3 sm:px-5 ${betaChatSurface ? "pt-[max(1.25rem,env(safe-area-inset-top))]" : "pt-[max(0.75rem,env(safe-area-inset-top))]"}`}>
         <div className="mx-auto flex max-w-[92rem] items-start justify-between gap-3">
           {/* On the chat surface the wordmark means "new chat": client nav to
               the same route never remounts, so force a full reload there. */}
