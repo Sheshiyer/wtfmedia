@@ -53,6 +53,10 @@ corpus change.
   `ab9565be-34f8-445a-95ae-dfb2be17ae95`; edge unchanged at
   `d65d5e39-39a0-4c11-9956-dfb89546f3a0`. Smoke: 200/200/405, production
   `/chat` 200 unchanged.
+- Sidebar follow-up (`60d2b0e`): divider segment removed from the sidebar logo
+  block and the logo left-aligned; divider spans only the content column. Web
+  staging redeployed as `bc5373dc-a7ae-45b5-b542-495c14b63020`; smoke 200s,
+  production unchanged.
 - Open: the composer "drag handle" pill from the owner report was not found
   in source (no `left-1/2`/handle element; both fixed composer wrappers
   already carry `lg:left-72`); needs a devtools selector to fix. Empty-state
