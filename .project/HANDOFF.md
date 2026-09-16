@@ -74,6 +74,11 @@ corpus change.
   staging `b2fd6404-6ce2-428f-b90c-8d2561ca7ed8`; smoke 200s, production
   unchanged. Suites: Cloudflare 396/397 (pre-existing `calendar.test.mjs`),
   web 232/232 + 97/97.
+- Classifier tightening (`1704c57`): "topic unsupported but here is what the
+  excerpts cover" now classifies ABSTAIN. Edge staging
+  `2bf4066a-c14c-4430-b5ca-f0847ab00211`. Production remains on the pre-fix
+  pipeline — the owner's failing screenshot was the public surface, which is
+  production unless taken on the staging hostname.
 - Open: the composer "drag handle" pill from the owner report was not found
   in source (no `left-1/2`/handle element; both fixed composer wrappers
   already carry `lg:left-72`); needs a devtools selector to fix. Empty-state
