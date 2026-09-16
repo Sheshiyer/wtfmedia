@@ -40,6 +40,19 @@ corpus change.
   `d019af7e-3f83-475a-a52e-3eb5625bab29`; smoke 200/200/405, production
   unchanged. Suites: Cloudflare 395/396 (pre-existing `calendar.test.mjs`),
   web 232/232 + 97/97 + typecheck + lint.
+- Owner-tested UI pass (`c0f3124`, pushed to `rag/alpha-answer-accuracy`,
+  updating PR #48's head per the owner's explicit push instruction): beta chat
+  header row and sidebar logo block share a 5.5rem band with one continuous
+  full-width divider and vertically centered contents; empty-state card hugs
+  content with a 32rem floor, vertically centered between divider and
+  composer; composer widened to max-w-7xl (shared with public Alpha). Local
+  beta proxy now strips content-encoding so `next dev` +
+  `wrangler dev --env local` (staging D1/Vectorize/Alpha over remote
+  bindings) renders the real workspace instead of failing closed on the
+  decoded-but-labelled-gzip principal-context response. Deployed web staging
+  `ab9565be-34f8-445a-95ae-dfb2be17ae95`; edge unchanged at
+  `d65d5e39-39a0-4c11-9956-dfb89546f3a0`. Smoke: 200/200/405, production
+  `/chat` 200 unchanged.
 - Open: the composer "drag handle" pill from the owner report was not found
   in source (no `left-1/2`/handle element; both fixed composer wrappers
   already carry `lg:left-72`); needs a devtools selector to fix. Empty-state
