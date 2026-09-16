@@ -21,6 +21,8 @@ type FrameCopy = {
   body: string;
   panelLabel: string;
   proof: Array<{ label: string; detail: string; tone: "editorial" | "attention" | "live" }>;
+  /** Pinned bottom note; when present it replaces the proof steps and links. */
+  footer?: string;
 };
 
 const operatorFrameCopy: Record<OperatorAuthFrameMode, FrameCopy> = {
@@ -83,15 +85,12 @@ const operatorFrameCopy: Record<OperatorAuthFrameMode, FrameCopy> = {
 
 const memberFrameCopy: Record<OperatorAuthFrameMode, FrameCopy> = {
   "sign-in": {
-    eyebrow: "ask wtf · members",
-    title: "ask the catalogue. get a cited moment.",
-    body: "Sign in to your private Ask WTF workspace. Every answer links to the exact moment it comes from, and your history stays with your account.",
+    eyebrow: "wtf os · team workspace",
+    title: "everything WTF runs on, one search away.",
+    body: "Sign in to your private WTF OS workspace. Ask anything, get a sourced answer, act on it.",
     panelLabel: "member sign in",
-    proof: [
-      { label: "sign in", detail: "Verified access with Google or email.", tone: "editorial" },
-      { label: "ask", detail: "Ask across every published conversation.", tone: "attention" },
-      { label: "cite", detail: "Answers link to the exact moment in the source.", tone: "live" },
-    ],
+    proof: [],
+    footer: "Private workspace. WTF team only.",
   },
   "sign-up": {
     eyebrow: "ask wtf · members",
@@ -180,24 +179,30 @@ export function OperatorAuthFrame({
 
         <div className="relative z-10 mx-auto flex min-h-[calc(100vh-5.5rem)] w-full max-w-[var(--wtf-content-max)] items-center px-4 py-8 sm:px-8 lg:py-12 xl:px-12">
           <div className="grid w-full overflow-hidden border-2 border-foreground bg-surface-raised shadow-[6px_6px_0_rgb(var(--wtf-foreground-rgb)/0.14)] lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.72fr)]">
-            <section className="relative min-w-0 overflow-hidden p-6 sm:p-9 lg:p-12" aria-labelledby="operator-auth-title">
+            <section className="relative flex min-w-0 flex-col overflow-hidden p-6 pt-10 sm:p-9 sm:pt-14 lg:p-12 lg:pt-20" aria-labelledby="operator-auth-title">
               <div aria-hidden="true" className="wtf-question-lattice absolute inset-x-0 top-0 h-2" />
               <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-knowledge">
                 {copy.eyebrow}
               </p>
-              <h1 id="operator-auth-title" className="mt-4 max-w-[10ch] font-display text-4xl font-extrabold lowercase leading-[0.92] sm:text-6xl">
+              <h1 id="operator-auth-title" className="mt-4 max-w-[13ch] font-display text-4xl font-extrabold leading-[0.92] sm:text-6xl">
                 {copy.title}
               </h1>
               <p className="mt-5 max-w-[52ch] font-body text-sm leading-relaxed text-secondary sm:text-base">
                 {copy.body}
               </p>
-              <WtfMotionList items={copy.proof} surface="light" />
-              <Link
-                href="https://wtfhq.in"
-                className="mt-8 inline-flex min-h-11 items-center border-b-2 border-knowledge font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-knowledge"
-              >
-                return to public alpha ↗
-              </Link>
+              {copy.footer ? (
+                <p className="mt-auto pt-8 font-body text-xs text-secondary">{copy.footer}</p>
+              ) : (
+                <>
+                  <WtfMotionList items={copy.proof} surface="light" />
+                  <Link
+                    href="https://wtfhq.in"
+                    className="mt-8 inline-flex min-h-11 items-center border-b-2 border-knowledge font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-knowledge"
+                  >
+                    return to public alpha ↗
+                  </Link>
+                </>
+              )}
             </section>
 
             <section aria-label={copy.panelLabel} className="border-t-2 border-foreground bg-canvas p-4 sm:p-7 lg:border-l-2 lg:border-t-0 lg:p-8">

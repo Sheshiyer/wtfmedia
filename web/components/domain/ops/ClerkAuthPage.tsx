@@ -7,7 +7,7 @@ function AuthUnavailable() {
   return <AccessRecovery mode="unavailable" returnTo={OPERATOR_RETURN_TO} />;
 }
 
-export function ClerkSignInPage({ redirectTo = OPERATOR_RETURN_TO }: { redirectTo?: string }) {
+export function ClerkSignInPage({ redirectTo = MEMBER_BETA_RETURN_TO }: { redirectTo?: string }) {
   if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) return <AuthUnavailable />;
   return (
     <OperatorAuthFrame mode="sign-in" audience={redirectTo === MEMBER_BETA_RETURN_TO ? "member" : "operator"}>
@@ -24,7 +24,7 @@ export function ClerkSignInPage({ redirectTo = OPERATOR_RETURN_TO }: { redirectT
   );
 }
 
-export function ClerkSignUpPage({ redirectTo = OPERATOR_RETURN_TO }: { redirectTo?: string }) {
+export function ClerkSignUpPage({ redirectTo = MEMBER_BETA_RETURN_TO }: { redirectTo?: string }) {
   if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) return <AuthUnavailable />;
   return (
     <OperatorAuthFrame mode="sign-up" audience={redirectTo === MEMBER_BETA_RETURN_TO ? "member" : "operator"}>
