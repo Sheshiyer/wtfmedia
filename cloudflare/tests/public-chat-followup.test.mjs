@@ -124,6 +124,41 @@ test("bare follow-up stays anchored to the conversation topic for retrieval and 
   assert.ok(moments.every((moment) => mockedVideoIds.has(moment.videoId)), "moments must come from the anchored retrieval");
 });
 
+test("citation-free 'nothing else' answer abstains with no sources", async () => {
+  const calls = { reformulate: [], answer: [], enrich: [], embeddings: [] };
+  const env = followUpEnv(calls);
+  const baseFetch = globalThis.fetch;
+  // The truthful answer to "anything else about X?" cites nothing — absence
+  // has no citation. It must ship as an abstention, never as an excerpt dump
+  // of whatever the broad retrieval happened to score.
+  globalThis.fetch = async (url, init) => {
+    const body = JSON.parse(init?.body ?? "{}");
+    const system = body.messages?.[0]?.content ?? "";
+    if (system.startsWith("You are the WTF OS research companion")) {
+      const content = "No — nothing else about trees was discussed in the catalogue.";
+      return new Response(JSON.stringify({ choices: [{ message: { content } }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }
+    return baseFetch(url, init);
+  };
+  const result = await runPublicChat(env, {
+    question: "Nothing else was discussed?",
+    sourceMode: "published",
+    episodeId: null,
+    history: [
+      { role: "user", content: "what was discussed about trees?" },
+      { role: "assistant", content: "Trees came up in two episodes [1] [2]." },
+    ],
+  });
+  assert.equal(result.status, 200);
+  assert.equal(result.body.responseState, "abstained");
+  assert.deepEqual(result.body.sources, []);
+  assert.deepEqual(result.body.citedIndices, []);
+  assert.equal(result.body.moments, undefined);
+});
+
 test("cited abstention ships no sources or moments", async () => {
   const calls = { reformulate: [], answer: [], enrich: [], embeddings: [] };
   const env = followUpEnv(calls);

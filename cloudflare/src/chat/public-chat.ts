@@ -610,8 +610,11 @@ export async function runPublicChat(env: PublicChatEnv, input: PublicChatInput):
     // substance and notes gaps later keeps its sources.
     const ABSENCE_LEAD = /(?:excerpts?|passages?|evidence|catalogue)\b[^.!?\n]*\b(?:contain|covers?|include|offer|provide|discuss|mention)\w*\s+nothing|\bi\s+(?:can't|cannot|can not)\s+(?:provide|give|find|cite|confirm|verify|establish)|\bno\s+(?:discussion|mention|coverage|evidence)\s+of/i;
     const isModelAbstention = (text: string) => {
+      // Absence answers cite nothing by nature ("nothing else about trees was
+      // discussed") — without these patterns they fall into the repair/excerpt
+      // dump path and ship random retrieved excerpts as if they were answers.
       if (!/\[[^\]]*\d/.test(text)
-        && /(?:do(?:es)? not establish|not enough relevant evidence|not supported|cannot be answered from|no excerpt)/i.test(text)) return true;
+        && /(?:do(?:es)? not establish|not enough relevant evidence|not supported|cannot be answered from|no excerpt|nothing else|no other (?:episode|excerpt|passage|discussion|mention))/i.test(text)) return true;
       return ABSENCE_LEAD.test(text.split(/\r?\n/, 1)[0] ?? "");
     };
     const projectSources = () => sources.map(({ text: _text, ...source }: any) => source);
