@@ -165,7 +165,10 @@ function normalizeHostAttribution(question: string): string {
 }
 
 async function reformulateQuery(env: PublicChatEnv, question: string, history: HistoryTurn[]): Promise<string> {
-  if (history.length === 0 || !NEEDS_REFORMULATION.test(question)) return question;
+  // Every follow-up is rewritten against the conversation, not just pronoun
+  // questions: a bare follow-up ("give me all the timestamps") embeds too
+  // weakly on its own and retrieval drifts off the topic the user is on.
+  if (history.length === 0) return question;
   const ctx = history.slice(-4).map((t) => `${t.role}: ${t.content.slice(0, 200)}`).join("\n");
   try {
     const { answer } = await openRouterChat(env, [
@@ -583,9 +586,13 @@ export async function runPublicChat(env: PublicChatEnv, input: PublicChatInput):
     // pipeline alongside answer generation so its LLM call hides behind it.
     // Moments use the wide retrieval slice (no per-episode dedupe) so an
     // episode can contribute several distinct passages, like the editor sheet.
+    // Enrichment judges relevance against the resolved search query, not the
+    // raw follow-up — otherwise a bare "give me all the timestamps" keeps any
+    // moment that merely mentions a timestamp, whatever its episode. A
+    // duration budget still parses from the user's own words.
     const momentsPromise = momentsForAnswer(
       env,
-      question,
+      parseDurationBudget(question) != null ? question : searchQuery,
       momentSources.length > 0 ? momentSources : sources,
     );
     const answered = await answerWithFallback(env, [

@@ -50,7 +50,7 @@ describe("member conversation lifecycle", () => {
   });
 
   it("keeps the selected conversation inside the viewport frame", () => {
-    expect(workspace).toContain('flex h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] min-h-0');
+    expect(workspace).toContain('flex h-[100dvh] min-h-0');
     expect(workspace).toContain('flex min-h-0 min-w-0 flex-1 flex-col');
     expect(workspace).toContain('section className="min-h-0 min-w-0 flex-1"');
     expect(workspace).toContain('flex h-full min-h-0 flex-col');

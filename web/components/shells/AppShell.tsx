@@ -25,6 +25,9 @@ export function AppShell({
 }: AppShellProps) {
   const pathname = usePathname() ?? "/";
   const hideBottomDock = shouldHideBottomDock(mode, pathname);
+  // Beta chat merges the rail toggle into its own header row, so the shell
+  // reserves no separate top band there.
+  const betaChatSurface = pathname === "/beta/chat" || pathname.startsWith("/beta/chat/");
 
   return (
     <div
@@ -38,7 +41,8 @@ export function AppShell({
         <AppRail mode={mode} navigation={navigation} utility={utility} bottomNavigation={bottomNavigation} disclosureGroups={disclosureGroups} />
         <div
           className={[
-            "relative min-h-screen overflow-hidden pt-[calc(4.5rem+env(safe-area-inset-top))]",
+            "relative min-h-screen overflow-hidden",
+            betaChatSurface ? "" : "pt-[calc(4.5rem+env(safe-area-inset-top))]",
             hideBottomDock ? "" : "pb-28 sm:pb-24",
           ].join(" ")}
         >

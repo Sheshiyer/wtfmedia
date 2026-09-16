@@ -267,13 +267,17 @@ html[data-wtf-theme="dark"] .wtf-wordmark-plate {
 }
 
 .wtf-question-lattice {
+  /* Fixed 306px period, centered: the container width (e.g. 1021px) is never an
+     exact multiple, so an even partial tile shows on BOTH edges instead of a
+     clipped purple-only stub on the right. */
   background-image: repeating-linear-gradient(
     90deg,
-    rgb(var(--wtf-knowledge-rgb) / 0.9) 0 10%,
-    rgb(var(--wtf-attention-rgb) / 0.9) 10% 17%,
-    rgb(var(--wtf-information-rgb) / 0.9) 17% 24%,
-    transparent 24% 30%
+    rgb(var(--wtf-knowledge-rgb) / 0.9) 0 102px,
+    rgb(var(--wtf-attention-rgb) / 0.9) 102px 173px,
+    rgb(var(--wtf-information-rgb) / 0.9) 173px 245px,
+    transparent 245px 306px
   );
+  background-position: center;
 }
 
 .wtf-stagger-in {

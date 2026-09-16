@@ -288,8 +288,8 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
     placement="inline"
   />;
 
-  return <div className="flex h-[calc(100dvh-4.5rem-env(safe-area-inset-top))] min-h-0 bg-canvas" data-member-chat-workspace>
-    <aside className="hidden w-72 shrink-0 border-r-2 border-foreground bg-surface-raised lg:-mt-[calc(4.5rem+env(safe-area-inset-top))] lg:block lg:h-[100dvh]">
+  return <div className="flex h-[100dvh] min-h-0 bg-canvas" data-member-chat-workspace>
+    <aside className="hidden w-72 shrink-0 border-r-2 border-foreground bg-surface-raised lg:block">
       <div className="flex h-full min-h-0 flex-col">
         <div className="shrink-0 px-3 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
           <Link href="/beta/chat" aria-label="WTF OS" className="inline-block rounded-xl border-2 border-foreground bg-canvas px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention">
@@ -301,8 +301,10 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
     </aside>
     <Drawer open={drawerOpen} onOpenChange={onDrawerChange} triggerRef={drawerTriggerRef} title="Your conversations" description="Open a saved conversation or start a new question." side="left">{navigator}</Drawer>
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-foreground px-4 py-2.5 sm:px-6">
-        <div className="flex min-w-0 items-center gap-3">
+      {/* The rail hamburger floats into this row's right end (see AppRail's
+          betaChatSurface branch) — one shared row, one divider, no dead band. */}
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-foreground px-4 pb-2.5 pr-14 pt-[max(0.625rem,env(safe-area-inset-top))] sm:px-6 sm:pr-20">
+        <div className="flex min-w-0 items-center gap-3 pt-2.5">
           <Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="min-h-9 px-3 py-1 text-xs lg:hidden">conversations</Button>
           {conversationId && view ? <h1 title={view.conversation.title} className="truncate font-display text-lg font-extrabold lowercase [overflow-wrap:anywhere]">{view.conversation.title}</h1> : <h1 className="font-display text-lg font-extrabold lowercase">ask wtf</h1>}
         </div>

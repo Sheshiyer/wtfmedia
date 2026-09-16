@@ -189,7 +189,7 @@ export function AppRail({
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5">
+      <header className={`fixed inset-x-0 top-0 z-50 px-3 sm:px-5 ${betaChatSurface ? "pt-[max(0.375rem,env(safe-area-inset-top))]" : "pt-[max(0.75rem,env(safe-area-inset-top))]"}`}>
         <div className="mx-auto flex max-w-[92rem] items-start justify-between gap-3">
           {/* On the chat surface the wordmark means "new chat": client nav to
               the same route never remounts, so force a full reload there. */}
@@ -206,7 +206,7 @@ export function AppRail({
           <Link
             href={mode === "operator" ? "/beta/workspace" : mode === "member" ? "/beta" : "/"}
             aria-label="WTF OS"
-            className={`shrink-0 rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention${betaChatSurface ? " lg:hidden" : ""}`}
+            className={`shrink-0 rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention${betaChatSurface ? " hidden" : ""}`}
           >
             <MigratedWordmarkMini plate />
           </Link>
@@ -223,7 +223,7 @@ export function AppRail({
               aria-haspopup="true"
               data-navigation-toggle
               onClick={() => setUtilityOpen((open) => !open)}
-              className="mt-1 grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 border-foreground bg-surface-raised text-foreground shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+              className={`${betaChatSurface ? "mt-0.5" : "mt-1"} grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 border-foreground bg-surface-raised text-foreground shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention focus-visible:ring-offset-2 focus-visible:ring-offset-canvas`}
             >
               <span aria-hidden="true" className="grid gap-1">
                 <span className="h-0.5 w-4 bg-current" />
