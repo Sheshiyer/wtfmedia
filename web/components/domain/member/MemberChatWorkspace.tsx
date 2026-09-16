@@ -303,7 +303,7 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       {/* The rail hamburger floats into this row's right end (see AppRail's
           betaChatSurface branch) — one shared row, one divider, no dead band. */}
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-foreground px-4 pb-4 pr-14 pt-[max(0.625rem,env(safe-area-inset-top))] sm:px-6 sm:pr-20">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-foreground px-4 pb-6 pr-14 pt-[max(0.625rem,env(safe-area-inset-top))] sm:px-6 sm:pr-20">
         <div className="flex min-w-0 items-center gap-3 pt-3">
           <Button ref={drawerTriggerRef} type="button" variant="secondary" onClick={() => setDrawerOpen(true)} className="min-h-9 px-3 py-1 text-xs lg:hidden">conversations</Button>
           {conversationId && view ? <h1 title={view.conversation.title} className="truncate font-display text-lg font-extrabold lowercase [overflow-wrap:anywhere]">{view.conversation.title}</h1> : <h1 className="font-display text-lg font-extrabold lowercase">ask wtf</h1>}
