@@ -62,6 +62,11 @@ corpus change.
   runs on, one search away." with a pinned "Private workspace. WTF team
   only." footer and more space under the panel stripe. Web staging
   `8ac60096-37f7-423c-be37-afba2f8711a4`; smoke 200s, production unchanged.
+- Presentation follow-up (`5938e6f`): member sign-in text block vertically centered
+  (privacy note pinned bottom, nudged right); beta chat sidebar uses canvas
+  cream. Web staging `534824c0-a9fd-4e72-9b65-6cddc23febb6`; smoke 200s,
+  production unchanged. Local-note: Clerk dev sessions fail closed when the
+  host clock drifts past ~5s (iat-in-future refresh loop) — resync NTP.
 - Open: the composer "drag handle" pill from the owner report was not found
   in source (no `left-1/2`/handle element; both fixed composer wrappers
   already carry `lg:left-72`); needs a devtools selector to fix. Empty-state
