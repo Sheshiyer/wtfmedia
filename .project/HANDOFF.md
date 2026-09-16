@@ -67,6 +67,21 @@ corpus change.
   cream. Web staging `534824c0-a9fd-4e72-9b65-6cddc23febb6`; smoke 200s,
   production unchanged. Local-note: Clerk dev sessions fail closed when the
   host clock drifts past ~5s (iat-in-future refresh loop) — resync NTP.
+## 2026-09-16 Production Alpha edge deploy (owner-authorized)
+
+- The owner authorized production deployment of the answer-pipeline fixes
+  after confirming beta-staging member chat answers come from production
+  Alpha through `WTFMEDIA_ALPHA_WEB` — the staging edge only owns auth/D1.
+- Deployed source `1704c57` (plus doc receipts) to production
+  `wtfmedia-edge`: new version `6ee67eba-7ffc-464e-9c1e-3b196afc0e2a`.
+  Pre-deploy version `e9cd9a49-623c-4401-89fb-7d0c1d1e0e42` is the rollback
+  target. Includes: follow-up reformulation anchoring, resolved-query moment
+  enrichment, dynamic abstention classifier (ABSTAIN ships no
+  sources/moments), tightened unsupported-topic verdict.
+- Smoke: production `/` 200, `/chat` 200, GET `/api/chat` 405; staging
+  `/beta` 200 unchanged. No D1, corpus, queue, secret, DNS, or web-worker
+  change accompanied this deploy.
+
 - Answer follow-up (`9e3d91c`): abstention is now decided by a fast model
   verdict (ANSWERED vs ABSTAIN), replacing the keyword-regex detector per the
   owner's direction. Absence answers ship with no sources/moments, so
