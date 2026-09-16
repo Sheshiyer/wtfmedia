@@ -83,6 +83,14 @@ corpus change.
   sources. ABSTAIN now requires that no part of the answer addresses the asked
   question. Production edge `dd1a3f08-b087-45a8-b93b-1d385443ce18`, staging
   edge `4e9205d1-a87e-4014-b0c7-781ff22a3c5c`; smoke 200s.
+- Relevance gate (`8d8e7d4`): a fast model drops retrieved excerpts that do not
+  genuinely discuss the asked topic before answer generation, so misspelled or
+  broad queries return a simple no-information reply with no sources panel.
+  No-information copy is now "Sorry, we don't have enough information about
+  that in the catalogue — try a different question." Production edge
+  `c9ea2779-95af-476b-8d3c-b53882f96cfc`, staging edge
+  `f82b6db6-5c9f-428d-8e9a-f27a73881c28`; prod /chat 200. Cloudflare suite
+  397/398 (pre-existing `calendar.test.mjs` only).
 - Smoke: production `/` 200, `/chat` 200, GET `/api/chat` 405; staging
   `/beta` 200 unchanged. No D1, corpus, queue, secret, DNS, or web-worker
   change accompanied this deploy.
