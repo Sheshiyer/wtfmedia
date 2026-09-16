@@ -57,6 +57,11 @@ corpus change.
   block and the logo left-aligned; divider spans only the content column. Web
   staging redeployed as `bc5373dc-a7ae-45b5-b542-495c14b63020`; smoke 200s,
   production unchanged.
+- Sign-in follow-up (`ff9072c`): bare `/sign-in`/`/sign-up` default to the member
+  return and light member frame; member sign-in copy is now "everything WTF
+  runs on, one search away." with a pinned "Private workspace. WTF team
+  only." footer and more space under the panel stripe. Web staging
+  `8ac60096-37f7-423c-be37-afba2f8711a4`; smoke 200s, production unchanged.
 - Open: the composer "drag handle" pill from the owner report was not found
   in source (no `left-1/2`/handle element; both fixed composer wrappers
   already carry `lg:left-72`); needs a devtools selector to fix. Empty-state
