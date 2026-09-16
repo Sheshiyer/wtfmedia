@@ -602,9 +602,18 @@ export async function runPublicChat(env: PublicChatEnv, input: PublicChatInput):
     // A model-driven "the evidence does not support this" reply carries no
     // citations by design — return it as an abstention instead of routing it
     // into the citation-repair/excerpt-dump path.
-    const isModelAbstention = (text: string) =>
-      !/\[[^\]]*\d/.test(text)
-      && /(?:do(?:es)? not establish|not enough relevant evidence|not supported|cannot be answered from|no excerpt)/i.test(text);
+    // Cited abstention: the answer LEADS by declaring the evidence misses the
+    // question but still cites the misses ("the excerpts contain nothing about
+    // X [1] [2]"). A citation badge claims the excerpt supports the answer, so
+    // these ship with no sources/moments rather than a panel of random
+    // episodes. Only the lead line qualifies — an answer that opens with
+    // substance and notes gaps later keeps its sources.
+    const ABSENCE_LEAD = /(?:excerpts?|passages?|evidence|catalogue)\b[^.!?\n]*\b(?:contain|covers?|include|offer|provide|discuss|mention)\w*\s+nothing|\bi\s+(?:can't|cannot|can not)\s+(?:provide|give|find|cite|confirm|verify|establish)|\bno\s+(?:discussion|mention|coverage|evidence)\s+of/i;
+    const isModelAbstention = (text: string) => {
+      if (!/\[[^\]]*\d/.test(text)
+        && /(?:do(?:es)? not establish|not enough relevant evidence|not supported|cannot be answered from|no excerpt)/i.test(text)) return true;
+      return ABSENCE_LEAD.test(text.split(/\r?\n/, 1)[0] ?? "");
+    };
     const projectSources = () => sources.map(({ text: _text, ...source }: any) => source);
     // Excerpt is enrichment input, not public payload.
     const projectMoments = async () => {

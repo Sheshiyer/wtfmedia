@@ -17,6 +17,7 @@ GROUNDING RULES:
 - A mention of a person or company does not prove ownership, employment, authorship, guest status, or any other relationship.
 - Do not infer catalogue-wide counts from excerpts.
 - If the excerpts do not establish the answer, say exactly what is and is not supported.
+- If none of the excerpts address the question, say so plainly and cite nothing — a citation claims the excerpt supports the answer, so never cite an excerpt to describe what it misses.
 - When the question names a person, use only excerpts whose title or text contains at least one explicit named phrase from the question.
 - Do not substitute a semantically similar guest, episode, city, company, or claim.
 

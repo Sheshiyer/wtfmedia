@@ -123,3 +123,37 @@ test("bare follow-up stays anchored to the conversation topic for retrieval and 
   assert.ok(moments.length > 0, "hospitality moments should ship");
   assert.ok(moments.every((moment) => mockedVideoIds.has(moment.videoId)), "moments must come from the anchored retrieval");
 });
+
+test("cited abstention ships no sources or moments", async () => {
+  const calls = { reformulate: [], answer: [], enrich: [], embeddings: [] };
+  const env = followUpEnv(calls);
+  const baseFetch = globalThis.fetch;
+  // The model declares the evidence misses the question but cites the misses
+  // anyway — the panel must not render those random episodes as "sources".
+  globalThis.fetch = async (url, init) => {
+    const body = JSON.parse(init?.body ?? "{}");
+    const system = body.messages?.[0]?.content ?? "";
+    if (system.startsWith("You are the WTF OS research companion")) {
+      const content = [
+        "The excerpts contain nothing about hospitality — no discussion of hotels, restaurants, or travel appears in any of the passages [1] [2].",
+        "I also cannot provide timestamps for it: no timestamped content covers the topic [1].",
+      ].join("\n\n");
+      return new Response(JSON.stringify({ choices: [{ message: { content } }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }
+    return baseFetch(url, init);
+  };
+  const result = await runPublicChat(env, {
+    question: "tell me all about hospitality that you know, give me timestamps",
+    sourceMode: "published",
+    episodeId: null,
+    history: [],
+  });
+  assert.equal(result.status, 200);
+  assert.equal(result.body.responseState, "abstained");
+  assert.deepEqual(result.body.sources, []);
+  assert.deepEqual(result.body.citedIndices, []);
+  assert.equal(result.body.moments, undefined);
+});
