@@ -91,6 +91,12 @@ corpus change.
   `c9ea2779-95af-476b-8d3c-b53882f96cfc`, staging edge
   `f82b6db6-5c9f-428d-8e9a-f27a73881c28`; prod /chat 200. Cloudflare suite
   397/398 (pre-existing `calendar.test.mjs` only).
+- Gate rollback (`2fca2ad`, owner-directed): the relevance gate dropped good
+  chunks for answerable questions, so it was removed the same day. Retrieval
+  is back to the score floor; weak moments now stay in the reel with honest
+  star ratings instead of being filtered out. The abstention classifier
+  remains. Production edge `3fccf3f6-9953-480a-a75b-a8bf5e470ae8`, staging
+  edge `10b8a7c6-d596-433b-859c-403b94b7b9b3`; smoke 200s.
 - Smoke: production `/` 200, `/chat` 200, GET `/api/chat` 405; staging
   `/beta` 200 unchanged. No D1, corpus, queue, secret, DNS, or web-worker
   change accompanied this deploy.
