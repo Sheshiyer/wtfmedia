@@ -289,7 +289,7 @@ export function MemberChatWorkspace({ conversationId, adapter }: { conversationI
   />;
 
   return <div className="flex h-[100dvh] min-h-0 bg-canvas" data-member-chat-workspace>
-    <aside className="hidden w-72 shrink-0 border-r-2 border-foreground bg-surface-raised lg:block">
+    <aside className="hidden w-72 shrink-0 border-r-2 border-foreground bg-canvas lg:block">
       <div className="flex h-full min-h-0 flex-col">
         <div className="flex min-h-[5.5rem] shrink-0 items-center px-3 pt-[env(safe-area-inset-top)]">
           <Link href="/beta/chat" aria-label="WTF OS" className="inline-block rounded-xl border-2 border-foreground bg-canvas px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention">

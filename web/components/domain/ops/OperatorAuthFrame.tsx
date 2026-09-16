@@ -179,19 +179,21 @@ export function OperatorAuthFrame({
 
         <div className="relative z-10 mx-auto flex min-h-[calc(100vh-5.5rem)] w-full max-w-[var(--wtf-content-max)] items-center px-4 py-8 sm:px-8 lg:py-12 xl:px-12">
           <div className="grid w-full overflow-hidden border-2 border-foreground bg-surface-raised shadow-[6px_6px_0_rgb(var(--wtf-foreground-rgb)/0.14)] lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.72fr)]">
-            <section className="relative flex min-w-0 flex-col overflow-hidden p-6 pt-10 sm:p-9 sm:pt-14 lg:p-12 lg:pt-20" aria-labelledby="operator-auth-title">
+            <section className="relative flex min-w-0 flex-col overflow-hidden p-6 sm:p-9 sm:pl-12 lg:p-12 lg:pl-16" aria-labelledby="operator-auth-title">
               <div aria-hidden="true" className="wtf-question-lattice absolute inset-x-0 top-0 h-2" />
-              <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-knowledge">
-                {copy.eyebrow}
-              </p>
-              <h1 id="operator-auth-title" className="mt-4 max-w-[13ch] font-display text-4xl font-extrabold leading-[0.92] sm:text-6xl">
-                {copy.title}
-              </h1>
-              <p className="mt-5 max-w-[52ch] font-body text-sm leading-relaxed text-secondary sm:text-base">
-                {copy.body}
-              </p>
+              <div className={copy.footer ? "flex flex-1 flex-col justify-center" : undefined}>
+                <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-knowledge">
+                  {copy.eyebrow}
+                </p>
+                <h1 id="operator-auth-title" className="mt-4 max-w-[13ch] font-display text-4xl font-extrabold leading-[0.92] sm:text-6xl">
+                  {copy.title}
+                </h1>
+                <p className="mt-5 max-w-[52ch] font-body text-sm leading-relaxed text-secondary sm:text-base">
+                  {copy.body}
+                </p>
+              </div>
               {copy.footer ? (
-                <p className="mt-auto pt-8 font-body text-xs text-secondary">{copy.footer}</p>
+                <p className="pt-8 font-body text-xs text-secondary">{copy.footer}</p>
               ) : (
                 <>
                   <WtfMotionList items={copy.proof} surface="light" />
