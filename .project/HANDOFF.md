@@ -78,6 +78,11 @@ corpus change.
   target. Includes: follow-up reformulation anchoring, resolved-query moment
   enrichment, dynamic abstention classifier (ABSTAIN ships no
   sources/moments), tightened unsupported-topic verdict.
+- Correction the same day (`72b6511`, owner-authorized for production): the
+  tightened verdict misclassified partial answers with caveats, stripping real
+  sources. ABSTAIN now requires that no part of the answer addresses the asked
+  question. Production edge `dd1a3f08-b087-45a8-b93b-1d385443ce18`, staging
+  edge `4e9205d1-a87e-4014-b0c7-781ff22a3c5c`; smoke 200s.
 - Smoke: production `/` 200, `/chat` 200, GET `/api/chat` 405; staging
   `/beta` 200 unchanged. No D1, corpus, queue, secret, DNS, or web-worker
   change accompanied this deploy.
