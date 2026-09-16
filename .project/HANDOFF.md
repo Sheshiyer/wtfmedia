@@ -31,6 +31,15 @@ corpus change.
   explicitly pinned (`8f380cb5…fb46`, verified read-only first).
 - Smoke: `/sign-in` 200, `/beta` 200, unsigned `/beta/api/context` 401, GET
   `/api/chat` 405, production `https://wtfhq.in/chat` 200 unchanged.
+- Follow-up the same day: `2abcaf7` strips sources/moments entirely on cited
+  abstentions (answer leads with "the excerpts contain nothing about X" while
+  citing the misses) and adds a system-prompt rule against citing excerpts to
+  describe what they miss; `84563cc` deepens the beta chat header row so its
+  divider sits lower. Redeployed staging: edge
+  `d65d5e39-39a0-4c11-9956-dfb89546f3a0`, web
+  `d019af7e-3f83-475a-a52e-3eb5625bab29`; smoke 200/200/405, production
+  unchanged. Suites: Cloudflare 395/396 (pre-existing `calendar.test.mjs`),
+  web 232/232 + 97/97 + typecheck + lint.
 - Open: the composer "drag handle" pill from the owner report was not found
   in source (no `left-1/2`/handle element; both fixed composer wrappers
   already carry `lg:left-72`); needs a devtools selector to fix. Empty-state
