@@ -118,6 +118,27 @@ async function answerWithFallback(env: PublicChatEnv, messages: unknown[], force
   throw new Error(`answer models unavailable: ${failures.length}`);
 }
 
+/**
+ * Dynamic abstention check: instead of keyword-matching refusal phrases, ask
+ * a fast model whether the answer actually answers from the evidence or
+ * declares the evidence missing/insufficient. A citation-free "nothing else
+ * about X was discussed" is a truthful abstention — it must ship bare, not
+ * fall into the repair/excerpt-dump path with random retrieved sources.
+ * Classifier failure returns false, preserving the existing repair behavior.
+ */
+async function declaresEvidenceMissing(env: PublicChatEnv, question: string, answer: string): Promise<boolean> {
+  try {
+    const { answer: verdict } = await openRouterChat(env, [
+      { role: "system", content: "You classify research-assistant answers. Reply with exactly one word: ANSWERED if the answer presents excerpt-backed content as an answer to the question (even partially); ABSTAIN if it says the evidence, excerpts, or catalogue do not cover the question, that nothing else exists on the topic, or that it cannot answer. Output only ANSWERED or ABSTAIN." },
+      { role: "user", content: `QUESTION: ${question}\n\nANSWER:\n${answer}` },
+    ], { maxTokens: 5, temperature: 0 });
+    return /abstain/i.test(verdict);
+  } catch (error) {
+    console.warn("wtfmedia abstention classifier failed", { error: error instanceof Error ? error.message : "unknown" });
+    return false;
+  }
+}
+
 function citedEvidenceFallback(sources: Array<{ n: number; title: string; text?: string }>) {
   const lines = sources.slice(0, 3).map((source) => {
     // Full excerpt text — the user asked for the complete passage, not a
@@ -599,24 +620,25 @@ export async function runPublicChat(env: PublicChatEnv, input: PublicChatInput):
         { role: "system", content: WTF_OS_CONVERSATION_SKILL.systemPrompt },
         { role: "user", content: userContent },
       ], input.forcedAnswerModel);
-    // A model-driven "the evidence does not support this" reply carries no
-    // citations by design — return it as an abstention instead of routing it
-    // into the citation-repair/excerpt-dump path.
-    // Cited abstention: the answer LEADS by declaring the evidence misses the
-    // question but still cites the misses ("the excerpts contain nothing about
-    // X [1] [2]"). A citation badge claims the excerpt supports the answer, so
-    // these ship with no sources/moments rather than a panel of random
-    // episodes. Only the lead line qualifies — an answer that opens with
-    // substance and notes gaps later keeps its sources.
-    const ABSENCE_LEAD = /(?:excerpts?|passages?|evidence|catalogue)\b[^.!?\n]*\b(?:contain|covers?|include|offer|provide|discuss|mention)\w*\s+nothing|\bi\s+(?:can't|cannot|can not)\s+(?:provide|give|find|cite|confirm|verify|establish)|\bno\s+(?:discussion|mention|coverage|evidence)\s+of/i;
-    const isModelAbstention = (text: string) => {
-      // Absence answers cite nothing by nature ("nothing else about trees was
-      // discussed") — without these patterns they fall into the repair/excerpt
-      // dump path and ship random retrieved excerpts as if they were answers.
-      if (!/\[[^\]]*\d/.test(text)
-        && /(?:do(?:es)? not establish|not enough relevant evidence|not supported|cannot be answered from|no excerpt|nothing else|no other (?:episode|excerpt|passage|discussion|mention))/i.test(text)) return true;
-      return ABSENCE_LEAD.test(text.split(/\r?\n/, 1)[0] ?? "");
-    };
+    // Abstention is decided by the classifier, not keyword lists — the verdict
+    // call overlaps the still-running moments enrichment, so it hides behind
+    // latency the response already pays.
+    const abstainedBody = (text: string, model: string | null, modelFallback: boolean) => ({
+      answer: text,
+      sources: [],
+      grounded: false,
+      sourceMode: resolved.sourceMode,
+      requestedSourceMode: resolved.requestedSourceMode,
+      evidenceSourceMode: resolved.evidenceSourceMode,
+      fallbackReason: resolved.fallbackReason,
+      uncutUnavailable: resolved.uncutUnavailable,
+      model,
+      modelFallback,
+      responseState: "abstained",
+      citedIndices: [],
+      followUps: [],
+      ...(searchQuery !== question ? { searchQuery } : {}),
+    });
     const projectSources = () => sources.map(({ text: _text, ...source }: any) => source);
     // Excerpt is enrichment input, not public payload.
     const projectMoments = async () => {
@@ -627,26 +649,8 @@ export async function runPublicChat(env: PublicChatEnv, input: PublicChatInput):
         durationBudgetSec: budgetSec,
       };
     };
-    if (isModelAbstention(answered.answer)) {
-      return {
-        status: 200,
-        body: {
-          answer: answered.answer,
-          sources: [],
-          grounded: false,
-          sourceMode: resolved.sourceMode,
-          requestedSourceMode: resolved.requestedSourceMode,
-          evidenceSourceMode: resolved.evidenceSourceMode,
-          fallbackReason: resolved.fallbackReason,
-          uncutUnavailable: resolved.uncutUnavailable,
-          model: answered.model,
-          modelFallback: answered.fallback,
-          responseState: "abstained",
-          citedIndices: [],
-          followUps: [],
-          ...(searchQuery !== question ? { searchQuery } : {}),
-        },
-      };
+    if (await declaresEvidenceMissing(env, question, answered.answer)) {
+      return { status: 200, body: abstainedBody(answered.answer, answered.model, answered.fallback) };
     }
     const citationValidation = parseCitationMarkers(answered.answer, sources.length);
     if (!citationValidation.valid || !hasCitationCoverage(answered.answer, sources.length)) {
@@ -661,26 +665,8 @@ export async function runPublicChat(env: PublicChatEnv, input: PublicChatInput):
       ], input.forcedAnswerModel);
       // The model often prefixes the rewrite with a meta line; strip it.
       const repaired = { ...repairedRaw, answer: repairedRaw.answer.replace(/^\s*here(?:'|’)s the rewrite[^\n]*\n+/i, "") };
-      if (isModelAbstention(repaired.answer)) {
-        return {
-          status: 200,
-          body: {
-            answer: repaired.answer,
-            sources: [],
-            grounded: false,
-            sourceMode: resolved.sourceMode,
-            requestedSourceMode: resolved.requestedSourceMode,
-            evidenceSourceMode: resolved.evidenceSourceMode,
-            fallbackReason: resolved.fallbackReason,
-            uncutUnavailable: resolved.uncutUnavailable,
-            model: repaired.model,
-            modelFallback: true,
-            responseState: "abstained",
-            citedIndices: [],
-            followUps: [],
-            ...(searchQuery !== question ? { searchQuery } : {}),
-          },
-        };
+      if (await declaresEvidenceMissing(env, question, repaired.answer)) {
+        return { status: 200, body: abstainedBody(repaired.answer, repaired.model, true) };
       }
       const repairedValidation = parseCitationMarkers(repaired.answer, sources.length);
       if (repairedValidation.valid && hasCitationCoverage(repaired.answer, sources.length)) {

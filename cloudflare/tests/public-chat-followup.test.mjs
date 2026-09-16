@@ -32,6 +32,7 @@ const HOSPITALITY_MATCHES = [
 ];
 
 function followUpEnv(calls) {
+  calls.classify = calls.classify ?? [];
   globalThis.fetch = async (_url, init) => {
     const body = JSON.parse(init?.body ?? "{}");
     const system = body.messages?.[0]?.content ?? "";
@@ -39,6 +40,11 @@ function followUpEnv(calls) {
       JSON.stringify({ choices: [{ message: { content } }] }),
       { status: 200, headers: { "content-type": "application/json" } },
     );
+    if (system.startsWith("You classify research-assistant answers")) {
+      calls.classify.push(body);
+      const answerText = body.messages?.[1]?.content ?? "";
+      return respond(/nothing else|contain nothing|cannot provide/i.test(answerText) ? "ABSTAIN" : "ANSWERED");
+    }
     if (system.startsWith("Rewrite the follow-up question")) {
       calls.reformulate.push(body);
       return respond("timestamps for everything discussed about hospitality on the podcast");
@@ -135,6 +141,7 @@ test("citation-free 'nothing else' answer abstains with no sources", async () =>
     const body = JSON.parse(init?.body ?? "{}");
     const system = body.messages?.[0]?.content ?? "";
     if (system.startsWith("You are the WTF OS research companion")) {
+      calls.answer.push(body);
       const content = "No — nothing else about trees was discussed in the catalogue.";
       return new Response(JSON.stringify({ choices: [{ message: { content } }] }), {
         status: 200,
@@ -157,6 +164,7 @@ test("citation-free 'nothing else' answer abstains with no sources", async () =>
   assert.deepEqual(result.body.sources, []);
   assert.deepEqual(result.body.citedIndices, []);
   assert.equal(result.body.moments, undefined);
+  assert.equal(calls.answer.length, 1, "abstention should skip the repair pass");
 });
 
 test("cited abstention ships no sources or moments", async () => {
