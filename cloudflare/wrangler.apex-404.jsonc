@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wtfmedia-apex-auth-404",
+  "main": "src/apex-auth-404.ts",
+  "compatibility_date": "2026-08-11",
+  "workers_dev": false,
+  // The apex stays anonymous public Alpha: sign-in/sign-up live on
+  // beta.wtfhq.in only. These path-specific routes win over the apex
+  // worker's domain catch-all and serve a plain 404.
+  "routes": [
+    { "pattern": "wtfhq.in/sign-in*", "zone_name": "wtfhq.in" },
+    { "pattern": "wtfhq.in/sign-up*", "zone_name": "wtfhq.in" }
+  ]
+}
