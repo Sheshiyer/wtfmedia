@@ -38,6 +38,16 @@ for now (swap to a production Clerk instance is a named later task).
   401, GET /api/chat 405; wtfhq.in / 200, /chat 200; beta-staging /beta
   200 unchanged. Suites: Cloudflare 396/397 (pre-existing
   `calendar.test.mjs`), web 232/232 + 97/97 + typecheck + lint.
+- Same-day revision (owner-directed): the apex must not show the new sign-in
+  or options. beta.wtfhq.in now serves from a NEW worker
+  `wtfmedia-web-beta` (`232c11ac`, then `fa426c83` with the unified
+  sign-in), while `wtfmedia-web` (apex) rolled back to pre-launch
+  `3d5a5965-14f3-486a-a608-330d539dec81`. Sign-in is now ONE page — the
+  member frame for every sign-in/sign-up flow (`acddf9f`, `1970e93`);
+  bare /sign-in defaults to the member return. Verified: beta.wtfhq.in and
+  beta-staging.wtfhq.in show the member frame; wtfhq.in keeps the old
+  operator frame on the rolled-back build; beta /beta 200; apex /chat 200.
+  Staging web redeployed as `ac77a9f2-b9a9-4397-b6c8-11195b41eab4`.
 - Open follow-ups: swap to a production Clerk instance (keys, authorized
   parties, redirect config, secret rotation); the operator control-room
   release track (`release_manifests` / authenticated-chat) remains
