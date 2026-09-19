@@ -88,3 +88,13 @@ test("principal DTO type permits only canonical Beta landing routes", () => {
   assert.match(source, /landingRoute: "\/beta\/chat" \| "\/beta\/workspace";/);
   assert.doesNotMatch(source, /landingRoute: "\/beta\/chat" \| "\/beta\/workspace\/production";/);
 });
+
+test("production environment resolves the same as staging; the release manifest is the gate", async () => {
+  const db = contextDb({
+    operator: { id: 8, email: identity.email, display_name: "Prod Operator", role: "admin", active: 1 },
+  });
+  const context = await resolvePrincipalContext(db, identity, "production", "corr-principal-prod");
+  assert.equal(context?.kind, "operator");
+  assert.equal(context?.role, "admin");
+  assert.equal(context?.environment, "production");
+});

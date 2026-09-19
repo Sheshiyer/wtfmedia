@@ -9,7 +9,7 @@ type OperatorRow = { id: number; email: string; display_name: string; role: Oper
 
 export type PrincipalContext =
   | { kind: "operator"; operatorId: number; role: OperatorRole; email: string; firstName?: string; lastName?: string; displayName: string; environment: Environment; correlationId: string }
-  | { kind: "member"; memberId: number; role: "member"; email: string; firstName?: string; lastName?: string; displayName: string | null; workspace: "wtfmedia"; pilotCohort: "bangalore" | "company"; environment: Exclude<Environment, "production">; correlationId: string };
+  | { kind: "member"; memberId: number; role: "member"; email: string; firstName?: string; lastName?: string; displayName: string | null; workspace: "wtfmedia"; pilotCohort: "bangalore" | "company"; environment: Environment; correlationId: string };
 
 export type PrincipalContextDto = {
   kind: PrincipalContext["kind"];
@@ -48,7 +48,7 @@ function operatorContext(row: OperatorRow, identity: Extract<ClerkVerification, 
   return { kind: "operator", operatorId: row.id, role: row.role, email: row.email, ...(identity.firstName ? { firstName: identity.firstName } : {}), ...(identity.lastName ? { lastName: identity.lastName } : {}), displayName: row.display_name || displayName(identity.firstName, identity.lastName) || "Operator", environment, correlationId };
 }
 
-function memberContext(row: MemberRow, identity: Extract<ClerkVerification, { ok: true }>, environment: Exclude<Environment, "production">, correlationId: string): PrincipalContext {
+function memberContext(row: MemberRow, identity: Extract<ClerkVerification, { ok: true }>, environment: Environment, correlationId: string): PrincipalContext {
   return { kind: "member", memberId: row.id, role: "member", email: row.email, ...(identity.firstName ? { firstName: identity.firstName } : {}), ...(identity.lastName ? { lastName: identity.lastName } : {}), displayName: displayName(identity.firstName, identity.lastName), workspace: "wtfmedia", pilotCohort: row.pilot_cohort, environment, correlationId };
 }
 
@@ -58,7 +58,7 @@ function memberContext(row: MemberRow, identity: Extract<ClerkVerification, { ok
  * cannot downgrade an operator lifecycle denial into member access.
  */
 export async function resolvePrincipalContext(db: DB, identity: ClerkVerification, environment: Environment, correlationId: string, now = new Date().toISOString()): Promise<PrincipalContext | null> {
-  if (!identity.ok || environment === "production" || !validCorrelationId(correlationId)) return null;
+  if (!identity.ok || !validCorrelationId(correlationId)) return null;
   try {
     const operator = await db.prepare("SELECT id, email, display_name, role, active FROM operators WHERE email = ?").bind(identity.email).first<OperatorRow>();
     if (operator) {

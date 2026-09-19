@@ -30,7 +30,7 @@ function validMember(row: MemberRow | null): row is MemberRow {
     && ["invited", "active", "suspended", "revoked"].includes(String(row?.lifecycle_state));
 }
 
-function contextFor(member: MemberRow, environment: "local" | "staging", correlationId: string): MemberContext {
+function contextFor(member: MemberRow, environment: "local" | "staging" | "production", correlationId: string): MemberContext {
   return { memberId: member.id, role: "member", workspace: "wtfmedia", pilotCohort: member.pilot_cohort, environment, correlationId };
 }
 
@@ -42,7 +42,7 @@ export async function resolveMemberContext(
   correlationId: string,
   now = new Date().toISOString(),
 ): Promise<MemberContext | null> {
-  if (!identity.ok || environment === "production" || !validCorrelationId(correlationId)) return null;
+  if (!identity.ok || !validCorrelationId(correlationId)) return null;
   try {
     const ready = await db.prepare("SELECT 1 AS ready FROM sqlite_master WHERE type = 'table' AND name IN ('member_users', 'member_invitations') GROUP BY 1 HAVING COUNT(*) = 2").first<{ ready: number }>();
     if (!ready) return null;
