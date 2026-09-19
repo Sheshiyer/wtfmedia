@@ -11,8 +11,20 @@
     "RATE_LIMIT_PER_MINUTE": "20",
     "DEPLOYMENT_ENVIRONMENT": "production",
     "SERVICE_NAME": "wtfmedia-edge",
-    "CATALOGUE_INDEX_NAME": "wtfmedia-catalogue-v1"
+    "CATALOGUE_INDEX_NAME": "wtfmedia-catalogue-v1",
+    // Member Beta production lane (beta.wtfhq.in). The D1 member_beta_releases
+    // row is the enable gate; dev Clerk instance until the owner swaps keys.
+    "OPS_HOSTNAME": "beta.wtfhq.in",
+    "OPS_ORIGIN": "https://beta.wtfhq.in",
+    "OPS_ENVIRONMENT": "production",
+    "CLERK_ISSUER": "https://mighty-hedgehog-2913.clerk.accounts.dev",
+    "CLERK_JWKS_URL": "https://mighty-hedgehog-2913.clerk.accounts.dev/.well-known/jwks.json",
+    "CLERK_AUTHORIZED_PARTIES": "https://beta.wtfhq.in"
   },
+  // Member chat answers ride the public Alpha pipeline, same as staging.
+  "services": [
+    { "binding": "WTFMEDIA_ALPHA_WEB", "service": "wtfmedia-web" }
+  ],
   "ai": { "binding": "AI" },
   "vectorize": [
     // remote: wrangler dev cannot emulate Vectorize; always query the real index

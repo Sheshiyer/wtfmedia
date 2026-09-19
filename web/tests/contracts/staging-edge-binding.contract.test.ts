@@ -81,8 +81,10 @@ describe("staging web-to-edge binding contract", () => {
     expect(JSON.stringify(staging)).not.toContain("wtfmedia-ingest-staging");
   });
 
-  it("fails closed for Beta member routes when the edge environment is production", () => {
-    expect(memberRouter).toContain('env.OPS_ENVIRONMENT === "production"');
+  it("gates Beta member routes on the release manifest in every environment", () => {
+    expect(memberRouter).toContain("resolveMemberBetaRelease");
+    expect(memberRouter).toContain("isMemberBetaEnabled");
     expect(memberRouter).toContain("return denied()");
+    expect(memberRouter).not.toContain('env.OPS_ENVIRONMENT === "production"');
   });
 });

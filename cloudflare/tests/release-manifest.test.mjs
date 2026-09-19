@@ -74,10 +74,12 @@ test("release migration is environment-scoped, paused by default, and excludes p
   assert.deepEqual(RELEASE_TRACKS, ["alpha", "beta"]);
 });
 
-test("member beta is an independently paused staging-only release gate", async () => {
+test("member beta release follows the manifest in every environment, paused by default", async () => {
   const db = { prepare() { return { bind() { return this; }, async first() { return null; } }; } };
   assert.equal(isMemberBetaEnabled(await resolveMemberBetaRelease(db, "staging")), false);
-  assert.equal(isMemberBetaEnabled({ environment: "production", state: "stable", source: "manifest" }), false);
+  // No manifest row: production stays paused. The row is the only gate.
+  assert.equal(isMemberBetaEnabled(await resolveMemberBetaRelease(db, "production")), false);
+  assert.equal(isMemberBetaEnabled({ environment: "production", state: "stable", source: "manifest" }), true);
   assert.match(readFileSync(join(root, "migrations", "0010_member_beta.sql"), "utf8"), /CREATE TABLE member_beta_releases/);
 });
 

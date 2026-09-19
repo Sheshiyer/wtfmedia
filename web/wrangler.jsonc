@@ -21,6 +21,12 @@
     }
   ],
   "images": { "binding": "IMAGES" },
+  "routes": [
+    {
+      "pattern": "beta.wtfhq.in",
+      "custom_domain": true
+    }
+  ],
   "env": {
     "staging": {
       "name": "wtfmedia-web-staging",

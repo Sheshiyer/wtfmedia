@@ -32,7 +32,7 @@ async function memberIdForPrincipal(db: OpsEnv["DB"], context: PrincipalContext,
 
 export async function handleMemberRequest(request: Request, env: OpsEnv, dependencies: Dependencies = {}) {
   const url = new URL(request.url);
-  if (!url.pathname.startsWith("/beta/api/") || url.hostname !== env.OPS_HOSTNAME || env.OPS_ENVIRONMENT === "production") return denied();
+  if (!url.pathname.startsWith("/beta/api/") || url.hostname !== env.OPS_HOSTNAME) return denied();
   if (!mutationRequestAllowed(request, url)) return denied();
   const release = await resolveMemberBetaRelease(env.DB, env.OPS_ENVIRONMENT);
   if (!isMemberBetaEnabled(release)) return denied();

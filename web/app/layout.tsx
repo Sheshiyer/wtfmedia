@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import Script from "next/script";
 import { ClerkProvider } from "@clerk/nextjs";
 import { appUiVariant, themeForAppUiVariant } from "@/lib/public/public-ui-variant";
 import { LegacyPublicShell } from "@/components/legacy/public/LegacyPublicShell";
@@ -69,6 +70,24 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       {/* suppressHydrationWarning: browser extensions (e.g. Grammarly) inject
           data-* attributes onto <body> before React hydrates. */}
       <body className="min-h-screen flex flex-col overflow-x-hidden" suppressHydrationWarning>
+        {/* Google Tag Manager — beforeInteractive lands the snippet in <head>;
+            the noscript iframe stays first in <body>. */}
+        <Script
+          id="gtm"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-NFGBT3QV');`,
+          }}
+        />
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-NFGBT3QV"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+            title="Google Tag Manager"
+          />
+        </noscript>
         {clerkPublishableKey ? <ClerkProvider publishableKey={clerkPublishableKey}>{page}</ClerkProvider> : page}
       </body>
     </html>
