@@ -25,13 +25,31 @@
     {
       "pattern": "wtfhq.in",
       "custom_domain": true
-    },
-    {
-      "pattern": "beta.wtfhq.in",
-      "custom_domain": true
     }
   ],
   "env": {
+    // Production member Beta lives on its own worker so the apex (wtfhq.in)
+    // can run the older public build while beta.wtfhq.in runs current code.
+    "beta": {
+      "name": "wtfmedia-web-beta",
+      "routes": [
+        {
+          "pattern": "beta.wtfhq.in",
+          "custom_domain": true
+        }
+      ],
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "wtfmedia-web-beta"
+        },
+        {
+          "binding": "WTFMEDIA_EDGE",
+          "service": "wtfmedia-edge"
+        }
+      ],
+      "images": { "binding": "IMAGES" }
+    },
     "staging": {
       "name": "wtfmedia-web-staging",
       "routes": [

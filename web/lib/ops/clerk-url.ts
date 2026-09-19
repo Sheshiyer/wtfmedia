@@ -35,7 +35,10 @@ export function clerkRedirectTarget(
 ): typeof OPERATOR_RETURN_TO | typeof BETA_RELEASE_RETURN_TO | typeof MEMBER_BETA_RETURN_TO {
   if (value === MEMBER_BETA_RETURN_TO) return MEMBER_BETA_RETURN_TO;
   if (value === BETA_RELEASE_RETURN_TO) return BETA_RELEASE_RETURN_TO;
-  if (!value || !requestOrigin) return OPERATOR_RETURN_TO;
+  // Bare sign-in/sign-up is the member entry (/beta routes by role). Operator
+  // flows pass their explicit targets; foreign URLs keep the operator default.
+  if (!value) return MEMBER_BETA_RETURN_TO;
+  if (!requestOrigin) return OPERATOR_RETURN_TO;
 
   try {
     const callback = new URL(value);

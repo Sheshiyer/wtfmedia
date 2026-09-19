@@ -19,6 +19,11 @@ describe("Clerk member Beta return target", () => {
     expect(clerkRedirectTarget("https://untrusted.example/beta", "https://wtfmedia-web-staging.connect2nikhai.workers.dev")).toBe("/beta/workspace");
   });
 
+  it("defaults bare sign-in to the member return so the member frame is the default", () => {
+    expect(clerkRedirectTarget(undefined)).toBe("/beta");
+    expect(clerkRedirectTarget(null, "https://beta.wtfhq.in")).toBe("/beta");
+  });
+
   it("preserves an invitation ticket instead of sending an invited member into generic restricted sign-in", () => {
     expect(memberBetaEntryTarget("invitation-ticket-value")).toBe("/sign-up?redirect_url=%2Fbeta&__clerk_ticket=invitation-ticket-value");
   });
