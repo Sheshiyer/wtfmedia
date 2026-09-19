@@ -1,5 +1,50 @@
 # Project handoff
 
+## 2026-09-19 Member Beta production launch at beta.wtfhq.in + GTM
+
+**Status:** LIVE. Owner-authorized production launch with dev Clerk retained
+for now (swap to a production Clerk instance is a named later task).
+
+- Source: `5c1d725` (launch) + `a91272d` (ledger) + `1fe862c` (domain fix).
+- Code: member beta release is manifest-gated in every environment
+  (`member-release.ts`, `member-router.ts` — the D1
+  `member_beta_releases` row is the only gate; production is no longer
+  hard-paused in code). Production edge config gains `OPS_HOSTNAME=
+  beta.wtfhq.in`, `OPS_ORIGIN`, `OPS_ENVIRONMENT=production`, dev-instance
+  `CLERK_ISSUER`/`CLERK_JWKS_URL`, `CLERK_AUTHORIZED_PARTIES=
+  https://beta.wtfhq.in`, and the `WTFMEDIA_ALPHA_WEB -> wtfmedia-web`
+  binding so member answers ride the public Alpha pipeline.
+- D1 `wtfmedia-ops`: all 17 migrations were already applied. Backup
+  bookmark `00000191-00000002-000050eb-d46dc45c25d837e3b9f780e3a683a368`
+  taken before the owner-approved manifest flip:
+  `member_beta_releases` now has `production = preview` (alongside
+  `local = preview`). No staging row — staging enablement is unchanged.
+- Secret: `CLERK_SECRET_KEY` (dev instance value) set on production
+  `wtfmedia-edge`. Web continues to use the dev publishable/secret keys
+  baked at build.
+- Deploys: production edge `9c588d22-6587-4d12-ba02-b3b711f5efd2`;
+  production web `0c8c9def-e097-4854-9d5e-15089348c685` then
+  `4cdc0dd9-8f8e-4f4b-b659-326b2a033eff`.
+- Incident: the first web deploy declared `routes` with only beta.wtfhq.in
+  and Cloudflare replaced the dashboard-managed domain set, detaching
+  wtfhq.in (522 for ~15 minutes). Owner approved the restore; the config
+  now declares BOTH `wtfhq.in` and `beta.wtfhq.in` as custom domains so
+  future deploys cannot detach the apex. Lesson recorded: routes in
+  wrangler.jsonc replace the worker's full custom-domain set.
+- GTM `GTM-NFGBT3QV` added to the root layout (beforeInteractive head
+  snippet + noscript iframe); verified present in served HTML on wtfhq.in
+  (2 refs) and beta.wtfhq.in (1 ref).
+- Smoke: beta.wtfhq.in/sign-in 200, /beta 200, unsigned principal-context
+  401, GET /api/chat 405; wtfhq.in / 200, /chat 200; beta-staging /beta
+  200 unchanged. Suites: Cloudflare 396/397 (pre-existing
+  `calendar.test.mjs`), web 232/232 + 97/97 + typecheck + lint.
+- Open follow-ups: swap to a production Clerk instance (keys, authorized
+  parties, redirect config, secret rotation); the operator control-room
+  release track (`release_manifests` / authenticated-chat) remains
+  production-paused and untouched; the staging member-acceptance matrix
+  (ISC-344) was never run and stays open.
+
+
 ## 2026-09-16 Follow-up anchoring fix and ask-wtf layout repair
 
 **Status:** STAGING DEPLOYED from exact candidate `83bce50` on
