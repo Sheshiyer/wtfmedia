@@ -48,6 +48,23 @@ for now (swap to a production Clerk instance is a named later task).
   beta-staging.wtfhq.in show the member frame; wtfhq.in keeps the old
   operator frame on the rolled-back build; beta /beta 200; apex /chat 200.
   Staging web redeployed as `ac77a9f2-b9a9-4397-b6c8-11195b41eab4`.
+- 2026-09-19 launch fixes (owner-reported): production beta 403'd on every
+  page — the auth layer (`principal-context.ts`, `member-context.ts`)
+  hard-denied the production environment. Lifted (`3d41ba8`); the
+  member_beta_releases manifest remains the only gate. Production edge
+  `3d046bab-d8c9-477f-9d47-02a59cc205d8`. Staging overlay data was then
+  copied into production D1 (backup bookmark
+  `0000019a-00000000-000050eb-0c5bfa94d8e5579526d488d77f3593c0`):
+  member_users/invitations/conversations/messages/audit/tombstones with
+  original ids, operator `connect2nikhai` inserted as id 100 (FK remap),
+  principal_profiles remapped by email, member ids remapped where open
+  enrollment had already provisioned different prod ids (rpavun52
+  staging 3 -> prod 1; sheshnarayan member staged 1 -> prod 11). Parity
+  verified: 5/10/36/7 rows. Apex sign-in removal (owner chose 404): new
+  stub worker `wtfmedia-apex-auth-404` (`15263cce-d061-430f-b555-3c0181dbed88`)
+  serves 404 on `wtfhq.in/sign-in*` and `/sign-up*` via path-specific
+  routes; zone-rule API was outside the wrangler token's scope. Verified:
+  apex auth paths 404, apex / and /chat 200 unchanged.
 - Open follow-ups: swap to a production Clerk instance (keys, authorized
   parties, redirect config, secret rotation); the operator control-room
   release track (`release_manifests` / authenticated-chat) remains
