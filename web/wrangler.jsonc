@@ -23,6 +23,10 @@
   "images": { "binding": "IMAGES" },
   "routes": [
     {
+      "pattern": "wtfhq.in",
+      "custom_domain": true
+    },
+    {
       "pattern": "beta.wtfhq.in",
       "custom_domain": true
     }
