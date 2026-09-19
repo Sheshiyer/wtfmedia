@@ -65,6 +65,15 @@ for now (swap to a production Clerk instance is a named later task).
   serves 404 on `wtfhq.in/sign-in*` and `/sign-up*` via path-specific
   routes; zone-rule API was outside the wrangler token's scope. Verified:
   apex auth paths 404, apex / and /chat 200 unchanged.
+- Roster fix: `/beta/settings/users` showed "operator roster unavailable" on
+  beta production because the ops lane (`ops-router.ts:297`) requires the
+  `OPS_ORIGIN_PROOF` secret to be configured; it had never been set on the
+  production edge (staging already had it). Owner approved creating the
+  secrets: `OPS_ORIGIN_PROOF` on production `wtfmedia-edge` and
+  `WTFMEDIA_OPS_ORIGIN_PROOF` on `wtfmedia-web-beta` (fresh random value,
+  same on both sides, not logged). Unsigned `/api/ops/operators` returns the
+  same non-enumerating 404 on both environments; signed verification is with
+  the owner in the browser.
 - Open follow-ups: swap to a production Clerk instance (keys, authorized
   parties, redirect config, secret rotation); the operator control-room
   release track (`release_manifests` / authenticated-chat) remains
