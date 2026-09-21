@@ -74,8 +74,20 @@ for now (swap to a production Clerk instance is a named later task).
   same on both sides, not logged). Unsigned `/api/ops/operators` returns the
   same non-enumerating 404 on both environments; signed verification is with
   the owner in the browser.
-- Open follow-ups: swap to a production Clerk instance (keys, authorized
-  parties, redirect config, secret rotation); the operator control-room
+- 2026-09-21 live Clerk swap (owner-provided live keys): production edge vars
+  now point at `clerk.wtfhq.in` issuer/JWKS (`712be2d`), `CLERK_SECRET_KEY`
+  set to the live secret on production `wtfmedia-edge`, beta web rebuilt with
+  the live publishable key (`757598ad-7684-484a-bb33-3fe1209b6e22`), edge
+  deployed `36572c34` then `ac636378-5895-45e0-ad9c-296e4b496057` with the
+  member rebind fix (`86ce3e9`): an active member whose stored clerk_user_id
+  belongs to the dev instance is rebound to the verified live identity on
+  first login (audited, source issuer_rebind). Staging/local keep the dev
+  instance. NOTE: `clerk.wtfhq.in` DNS was still NXDOMAIN at deploy time
+  (authoritative check) — sign-in works only once the CNAME is actually live
+  in the wtfhq.in zone. The web build bakes `.env.local` into one bundle, so
+  a future staging web deploy would carry live keys; split or swap staging
+  before redeploying it.
+- Open follow-ups: the operator control-room
   release track (`release_manifests` / authenticated-chat) remains
   production-paused and untouched; the staging member-acceptance matrix
   (ISC-344) was never run and stays open.
