@@ -94,7 +94,16 @@ export async function resolvePrincipalContext(db: DB, identity: ClerkVerificatio
       await mirrorProfile(db, context);
       return context;
     }
-    if (existing.lifecycle_state !== "active" || existing.clerk_user_id !== identity.userId) return null;
+    if (existing.lifecycle_state !== "active") return null;
+    if (existing.clerk_user_id !== identity.userId) {
+      // Issuer migration (e.g. dev -> live Clerk instance): the provider has
+      // already verified this email, so rebind the member row to the verified
+      // identity's user id instead of denying.
+      await db.batch([
+        db.prepare("UPDATE member_users SET clerk_user_id = ?, updated_at = ? WHERE id = ?").bind(identity.userId, now, existing.id),
+        db.prepare("INSERT INTO member_audit_events (id, actor_operator_id, member_id, invitation_id, action, outcome, correlation_id, metadata_json, occurred_at) VALUES (?, NULL, ?, NULL, 'member_activate', 'succeeded', ?, '{\"source\":\"issuer_rebind\"}', ?)").bind(`mevt_${crypto.randomUUID()}`, existing.id, correlationId, now),
+      ]);
+    }
     const context = memberContext(existing, identity, environment, correlationId);
     await mirrorProfile(db, context);
     return context;

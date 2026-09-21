@@ -98,3 +98,10 @@ test("production environment resolves the same as staging; the release manifest 
   assert.equal(context?.role, "admin");
   assert.equal(context?.environment, "production");
 });
+
+test("an active member with a stale clerk id rebinds to the verified identity instead of denying", async () => {
+  const db = contextDb({ member: { id: 9, email: identity.email, clerk_user_id: "user_old_instance", lifecycle_state: "active", pilot_cohort: "company" } });
+  const context = await resolvePrincipalContext(db, identity, "production", "corr-principal-rebind");
+  assert.equal(context?.kind, "member");
+  assert.equal(db.calls.some((call) => call.sql.includes("UPDATE member_users SET clerk_user_id") && call.args.includes(identity.userId)), true);
+});
