@@ -17,8 +17,8 @@
     "OPS_HOSTNAME": "beta.wtfhq.in",
     "OPS_ORIGIN": "https://beta.wtfhq.in",
     "OPS_ENVIRONMENT": "production",
-    "CLERK_ISSUER": "https://mighty-hedgehog-2913.clerk.accounts.dev",
-    "CLERK_JWKS_URL": "https://mighty-hedgehog-2913.clerk.accounts.dev/.well-known/jwks.json",
+    "CLERK_ISSUER": "https://clerk.wtfhq.in",
+    "CLERK_JWKS_URL": "https://clerk.wtfhq.in/.well-known/jwks.json",
     "CLERK_AUTHORIZED_PARTIES": "https://beta.wtfhq.in"
   },
   // Member chat answers ride the public Alpha pipeline, same as staging.
