@@ -1,5 +1,41 @@
 # Project handoff
 
+## 2026-09-23 Approved app promoted to wtfhq.in
+
+**Status:** DEPLOYED; unsigned HTTP/API smoke verified. Authenticated user
+acceptance has not been performed in this turn.
+
+- Owner requested the current approved app at `https://wtfhq.in` and explicitly
+  chose to disable the old `beta.wtfhq.in` address rather than redirect it.
+- Exact source: `71fe0d5`, isolated on `codex/apex-app-cutover-20260923`.
+  Existing PR branches were not updated.
+- Apex ingress now uses the existing authenticated `wtfmedia-web-beta` Worker,
+  preserving its secret/service bindings. Web version
+  `4415f659-f443-421b-84a2-608d7d9f50e3`; Custom Domain moved from
+  `wtfmedia-web` to this Worker. The old Beta Custom Domain was removed.
+- Production edge `d3bd05e0-539e-4519-bee9-20326ac14077` trusts `wtfhq.in`
+  for OPS_HOSTNAME, OPS_ORIGIN and CLERK_AUTHORIZED_PARTIES. Existing live
+  Clerk issuer/JWKS, production D1 and corpus bindings remain unchanged.
+- The `wtfmedia-web` Worker remains the internal Alpha inference service via
+  WTFMEDIA_ALPHA_WEB. Its code was not redeployed. No D1 migration, data copy,
+  secret rotation or corpus mutation occurred. Staging was not deployed.
+- Obsolete apex sign-in/sign-up 404 path overrides were explicitly deleted
+  after route inventory: deploying their config with an empty routes list
+  alone left the old routes active. The now-unrouted 404 Worker version is
+  `587f20b2-2853-47a4-9255-eaf87e8ef926`.
+- Verification: 233/233 web unit tests, 97/97 contracts, lint, Next type/build
+  checks and OpenNext bundle passed; architecture current at 650 inputs.
+  Live `/` 307 to `/beta`; `/beta`, `/sign-in`, `/sign-up` 200; sign-in HTML
+  contains approved copy and live Clerk host; unsigned principal-context 401;
+  GET `/api/chat` 405 and empty POST 400. Staging sign-in remains 200.
+  `beta.wtfhq.in` no longer resolves. No signed-in chat/role acceptance claim.
+- Rollback: restore prior domain configuration and edge host vars together.
+  Prior app web version `757598ad-7684-484a-bb33-3fe1209b6e22`; prior edge
+  `ac636378-5895-45e0-ad9c-296e4b496057`; prior apex Alpha version remains
+  `3d5a5965-14f3-486a-a608-330d539dec81`. Worker code rollback alone does not
+  restore Custom Domain ownership or deleted sign-in/sign-up path overrides.
+
+
 ## 2026-09-19 Member Beta production launch at beta.wtfhq.in + GTM
 
 **Status:** LIVE. Owner-authorized production launch with dev Clerk retained
