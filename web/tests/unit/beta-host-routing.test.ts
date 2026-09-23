@@ -5,7 +5,6 @@ import { middleware } from "@/middleware";
 import {
   BETA_PRODUCTION_HOSTNAME,
   BETA_STAGING_HOSTNAME,
-  PUBLIC_ALPHA_HOSTNAME,
   betaRootRedirectForHost,
   isCanonicalBetaHostname,
 } from "@/lib/beta/hosts";
@@ -15,7 +14,7 @@ describe("canonical Beta host routing", () => {
     expect(betaRootRedirectForHost(BETA_STAGING_HOSTNAME, "/")).toBe("/beta");
     expect(betaRootRedirectForHost(BETA_PRODUCTION_HOSTNAME, "/")).toBe("/beta");
     expect(betaRootRedirectForHost(`${BETA_STAGING_HOSTNAME}.evil.test`, "/")).toBeNull();
-    expect(betaRootRedirectForHost(PUBLIC_ALPHA_HOSTNAME, "/")).toBeNull();
+    expect(betaRootRedirectForHost("beta.wtfhq.in", "/")).toBeNull();
     expect(betaRootRedirectForHost("wtfmedia-web-staging.connect2nikhai.workers.dev", "/")).toBeNull();
     expect(betaRootRedirectForHost(BETA_STAGING_HOSTNAME, "/chat")).toBeNull();
     expect(isCanonicalBetaHostname("BETA-STAGING.WTFHQ.IN.")).toBe(true);
@@ -27,8 +26,8 @@ describe("canonical Beta host routing", () => {
     expect(response.headers.get("location")).toBe(`https://${BETA_STAGING_HOSTNAME}/beta`);
   });
 
-  it("keeps public Alpha and workers.dev roots outside the Beta-host redirect", async () => {
-    for (const hostname of [PUBLIC_ALPHA_HOSTNAME, "wtfmedia-web-staging.connect2nikhai.workers.dev"]) {
+  it("keeps retired Beta and workers.dev roots outside the Beta-host redirect", async () => {
+    for (const hostname of ["beta.wtfhq.in", "wtfmedia-web-staging.connect2nikhai.workers.dev"]) {
       const response = await middleware(new NextRequest(`https://${hostname}/`), {} as never);
       expect(response?.headers.get("location"), hostname).toBeNull();
     }

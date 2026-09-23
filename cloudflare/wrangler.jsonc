@@ -12,14 +12,13 @@
     "DEPLOYMENT_ENVIRONMENT": "production",
     "SERVICE_NAME": "wtfmedia-edge",
     "CATALOGUE_INDEX_NAME": "wtfmedia-catalogue-v1",
-    // Member Beta production lane (beta.wtfhq.in). The D1 member_beta_releases
-    // row is the enable gate; dev Clerk instance until the owner swaps keys.
-    "OPS_HOSTNAME": "beta.wtfhq.in",
-    "OPS_ORIGIN": "https://beta.wtfhq.in",
+    // Authenticated production at the apex. The D1 release row remains the gate.
+    "OPS_HOSTNAME": "wtfhq.in",
+    "OPS_ORIGIN": "https://wtfhq.in",
     "OPS_ENVIRONMENT": "production",
     "CLERK_ISSUER": "https://clerk.wtfhq.in",
     "CLERK_JWKS_URL": "https://clerk.wtfhq.in/.well-known/jwks.json",
-    "CLERK_AUTHORIZED_PARTIES": "https://beta.wtfhq.in"
+    "CLERK_AUTHORIZED_PARTIES": "https://wtfhq.in"
   },
   // Member chat answers ride the public Alpha pipeline, same as staging.
   "services": [

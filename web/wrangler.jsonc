@@ -21,20 +21,16 @@
     }
   ],
   "images": { "binding": "IMAGES" },
-  "routes": [
-    {
-      "pattern": "wtfhq.in",
-      "custom_domain": true
-    }
-  ],
+  // Alpha remains reachable through its service binding for chat inference.
+  "routes": [],
   "env": {
-    // Production member Beta lives on its own worker so the apex (wtfhq.in)
-    // can run the older public build while beta.wtfhq.in runs current code.
+    // The approved authenticated app is the apex ingress; keep its existing
+    // worker identity and secrets. Alpha stays the internal inference service.
     "beta": {
       "name": "wtfmedia-web-beta",
       "routes": [
         {
-          "pattern": "beta.wtfhq.in",
+          "pattern": "wtfhq.in",
           "custom_domain": true
         }
       ],
