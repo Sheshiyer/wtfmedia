@@ -2,6 +2,17 @@
 
 This repository is `wtfmedia`.
 
+## Owner branch and push instruction (2026-09-28)
+
+- Continue repository work on `feature/pavun` by default. It includes the
+  approved updates from `codex/apex-app-cutover-20260923`.
+- Keep code changes and commits local. Do not push `feature/pavun` or any
+  other branch unless the owner explicitly asks for a push.
+- Do not create or publish a new delivery branch for routine updates unless
+  the owner explicitly requests one.
+- This instruction supersedes the older mandatory `codex/*` delivery guidance
+  below. Existing PR protection and deployment approval boundaries still apply.
+
 ## Continuity checkpoint (2026-09-12)
 
 - Done:
@@ -42,9 +53,9 @@ This repository is `wtfmedia`.
 - State:
   - `/beta/preview` and fixture/fake-browser data are not acceptance evidence.
   - Preserve Alpha actual Ask WTF interaction as the non-regressable bedrock.
-  - Remote delivery uses a clean new `codex/*` branch at the exact final docs
-    head. Do not update `beta_0.1`/PR #77 until the remaining gates pass; never
-    push or force-push PR #48's branch.
+  - The former new-`codex/*` delivery rule is superseded by the owner branch
+    instruction above. Do not update `beta_0.1`/PR #77 until the remaining
+    gates pass; never push or force-push PR #48's branch.
 
 1. Read `README.md`, `PROJECT.md`, `.project/HANDOFF.md`, and
    `docs/AGENT-ONBOARDING.md` before starting work.
@@ -244,8 +255,8 @@ This repository is `wtfmedia`.
   create/archive preferences, and Sessions may read active plus archived rows.
   Member Delete is tombstone-backed; operator history remains archive-only.
 - Git delivery must leave PR #48 and PR #77 untouched while acceptance remains
-  incomplete. Publish reviewable work only as a clean new `codex/*` branch at
-  the exact final documentation head. After all gates pass, advance PR #77 only
+  incomplete. Follow the owner branch instruction above: work locally on
+  `feature/pavun` and push only when explicitly requested. After all gates pass, advance PR #77 only
   from the accepted SHA or a separately receipted runtime-equivalent artifact.
   Never force-push or promote a moving branch name instead of an accepted
   hash/artifact.

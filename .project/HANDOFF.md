@@ -1,5 +1,16 @@
 # Project handoff
 
+## 2026-09-28 Local feature/pavun branch and no-push instruction
+
+- Owner requested the updated branch be integrated into `feature/pavun` and
+  future changes kept local unless a push is explicitly requested.
+- No local or remote `feature/pavun` existed at inspection. Created it directly
+  from `codex/apex-app-cutover-20260923` at `f535650`; all source and deployment
+  receipts are inherited without conflicts or a redundant merge commit.
+- Updated `AGENTS.md` to make this the default working branch and supersede
+  the older mandatory new-`codex/*` delivery rule. No push or deployment.
+
+
 ## 2026-09-23 Approved app promoted to wtfhq.in
 
 **Status:** DEPLOYED; unsigned HTTP/API smoke verified. Authenticated user
