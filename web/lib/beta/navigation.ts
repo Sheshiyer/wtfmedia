@@ -25,7 +25,7 @@ export const BETA_PROTECTED_DESTINATIONS: readonly BetaNavigationDestination[] =
   { href: "/beta/settings/workspace/readiness", edgePath: "/beta/settings/workspace/readiness", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/release", edgePath: "/beta/settings/workspace/release", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/ai", edgePath: "/beta/settings/workspace/ai", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
-  { href: "/beta/settings/workspace/analytics", edgePath: "/beta/settings/workspace/analytics", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
+  { href: "/beta/settings/workspace/analytics", edgePath: "/beta/settings/workspace/analytics", capability: "analytics:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/sessions", edgePath: "/beta/settings/workspace/sessions", capability: "chat:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/memory", edgePath: "/beta/settings/workspace/memory", capability: "memory:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/sources", edgePath: "/beta/settings/workspace/sources", capability: "transcripts:read", audiences: ["operator", "admin", "super_admin"] },

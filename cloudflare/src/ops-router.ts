@@ -62,6 +62,10 @@ export type OpsEnv = {
   VECTORIZE?: any;
   EDGE_SHARED_SECRET?: string;
   CHAT_HISTORY_ENABLED?: string | boolean;
+  GOOGLE_OAUTH_CLIENT_ID?: string;
+  GOOGLE_OAUTH_CLIENT_SECRET?: string;
+  GOOGLE_OAUTH_REDIRECT_URI?: string;
+  ANALYTICS_TOKEN_ENCRYPTION_KEY?: string;
 };
 
 type OpsDependencies = {

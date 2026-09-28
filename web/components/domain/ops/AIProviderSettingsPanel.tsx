@@ -21,8 +21,13 @@ function statusLabel(state: IntegrationConnectionState) {
     not_configured: "not configured",
     verifying: "verifying",
     connected: "connected",
+    syncing: "syncing",
+    stale: "stale",
     degraded: "degraded",
+    expired: "expired",
     revoked: "revoked",
+    missing_scope: "missing scope",
+    provider_error: "provider error",
     unavailable: "unavailable",
   }[state];
 }
