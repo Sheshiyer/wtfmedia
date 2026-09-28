@@ -2,8 +2,13 @@ export type IntegrationConnectionState =
   | "not_configured"
   | "verifying"
   | "connected"
+  | "syncing"
+  | "stale"
   | "degraded"
+  | "expired"
   | "revoked"
+  | "missing_scope"
+  | "provider_error"
   | "unavailable";
 
 export type OperatorSettingsRole = "super_admin" | "admin" | "editor" | "public_link";
@@ -28,19 +33,6 @@ export const OPENROUTER_LOCAL_POLICY = {
   fallbacks: ["anthropic/claude-3.5-sonnet", "google/gemini-2.0-flash-001"],
   connection: "connected" as const,
 };
-
-export const YOUTUBE_ANALYTICS_FIXTURE = {
-  source: "local fixture",
-  channel: "WTF sample channel",
-  window: "fixture window · last 28 days",
-  refreshed: "not observed",
-  metrics: [
-    { label: "views", value: "12,480", detail: "sample observation" },
-    { label: "watch time", value: "842h", detail: "sample observation" },
-    { label: "subscribers", value: "+318", detail: "sample observation" },
-    { label: "top episode", value: "sample only", detail: "no provider record" },
-  ],
-} as const;
 
 export function modelForId(id: string): ModelPolicyOption | undefined {
   return OPENROUTER_MODEL_OPTIONS.find((model) => model.id === id);

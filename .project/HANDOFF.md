@@ -1,5 +1,34 @@
 # Project handoff
 
+## 2026-09-28 Issue #79 source-only analytics implementation
+
+**Status:** SOURCE-ONLY FEATURE PR PREPARED — no Google Cloud mutation, credential use, D1 apply, Cloudflare configuration, deployment, scheduled trigger, provider connection, or production change occurred.
+
+### Delivered source contract
+
+- Replaced the local YouTube fixture/API-key preview with separate YouTube and Website (GA4) stored-report views at `/beta/settings/workspace/analytics`.
+- Added explicit edge `analytics:read` and `analytics:manage` capabilities. Editors can read; admins and super-admins can manage connections. Member/operator separation remains fail-closed.
+- Added operator-bound, expiring, single-use Google OAuth state; read-only scope validation; encrypted credential envelopes; token refresh; resource validation; and disconnect/revocation handling.
+- Added migration `0016_analytics_connections.sql` for connections, resources, daily history, and idempotent sync state.
+- Added YouTube catalogue backfill plus channel/video daily reports and separate GA4 daily-total/traffic-source reports. Scheduled overlap refresh is source-complete, but no cron trigger is declared.
+- Added setup, recovery, scopes, callback, metric, and staging-acceptance documentation in `docs/ANALYTICS-INTEGRATION.md`.
+
+### Local receipts
+
+- Cloudflare full suite: 274/274 passing.
+- Web unit: 161/161 passing; web contracts: 92/92 passing.
+- Web TypeScript and ESLint pass.
+- Wrangler dry-run bundles the edge Worker; no upload or deployment occurred.
+
+### Remaining live gates
+
+- Revoke/rotate any credential previously disclosed outside the secret store; exposed credentials must never be used.
+- Owner confirmed the authorized YouTube channel ID for staging selection; the GA4 property ID remains pending. Resource identifiers stay runtime selections rather than source constants.
+- Register the approved staging callback and configure fresh server-side secrets directly in the staging secret store.
+- Review/apply migration 0016 to staging, then deploy the exact reviewed source and explicitly add the approved scheduled trigger.
+- Complete real OAuth, provider reconciliation, persona, desktop/mobile, and disconnect/reconnect acceptance in staging.
+- Production remains a separate owner-authorized release.
+
 ## 2026-09-11 Beta single-shell RBAC convergence checkpoint
 
 **Status:** LOCAL SOURCE AND BUILD VERIFIED through `00e8267` — no remote

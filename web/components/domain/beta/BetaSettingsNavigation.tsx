@@ -14,7 +14,7 @@ const WORKSPACE_ITEMS = [
   ["/beta/settings/workspace/readiness", "readiness", "release evidence"],
   ["/beta/settings/workspace/release", "release", "server-governed controls"],
   ["/beta/settings/workspace/ai", "AI route", "non-persisted preview"],
-  ["/beta/settings/workspace/analytics", "YouTube analytics", "non-persisted preview"],
+  ["/beta/settings/workspace/analytics", "YouTube analytics", "stored provider data"],
   ["/beta/settings/workspace/sessions", "sessions & history", "owner scope"],
   ["/beta/settings/workspace/memory", "memory governance", "explicit saves only"],
   ["/beta/settings/workspace/sources", "RAG & sources", "corpus receipt"],

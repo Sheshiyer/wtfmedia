@@ -7,8 +7,9 @@ import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "./c
 import { boundedPriorTurns, runChat, type ChatAnswerInput, type ChatAnswer } from "./chat/answer.ts";
 import { isMemberBetaEnabled, resolveMemberBetaRelease } from "./member-release.ts";
 import type { OpsEnv } from "./ops-router.ts";
+import { handleAnalyticsRequest, type AnalyticsDependencies } from "./analytics.ts";
 
-type Dependencies = { verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer> };
+type Dependencies = { verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer> } & AnalyticsDependencies;
 const headers = { "cache-control": "private, no-store", "x-content-type-options": "nosniff" };
 const denied = () => Response.json({ error: "ops_unavailable" }, { status: 404, headers });
 const unauthorized = () => Response.json({ error: "unauthorized" }, { status: 401, headers });
@@ -31,6 +32,7 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
   if (!requirement) return denied();
   if (!decide(context.role, requirement[0], requirement[1], { environment: context.environment })) return forbidden();
   if (url.pathname === "/beta/api/principal-context" && request.method === "GET") return Response.json(principalContextDto(context), { headers });
+  if (context.kind === "operator" && url.pathname.startsWith("/beta/api/analytics/")) return handleAnalyticsRequest(request, env, context, dependencies);
   if (context.kind !== "member") return forbidden();
   if (url.pathname === "/beta/api/context" && request.method === "GET") return Response.json({ member: { role: context.role, workspace: context.workspace, pilotCohort: context.pilotCohort, environment: context.environment } }, { headers });
   if (url.pathname === "/beta/api/memory" && request.method === "GET") {

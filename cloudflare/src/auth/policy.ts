@@ -1,5 +1,5 @@
 export const roles = ["super_admin", "admin", "editor", "member"] as const;
-export const resources = ["beta", "control_room", "operators", "members", "audit", "chat", "memory", "assets", "episodes", "ingest", "transcripts", "release"] as const;
+export const resources = ["beta", "control_room", "operators", "members", "audit", "chat", "memory", "assets", "episodes", "ingest", "transcripts", "analytics", "release"] as const;
 export const actions = ["read", "write", "export", "manage", "transfer", "approve", "create", "upload", "confirm"] as const;
 export type Role = typeof roles[number];
 export type Resource = typeof resources[number];
@@ -13,6 +13,7 @@ const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
     "episodes:read", "episodes:write", "episodes:create", "episodes:manage",
     "ingest:read", "ingest:write", "ingest:create", "ingest:manage",
     "transcripts:read", "transcripts:write", "transcripts:create", "transcripts:manage",
+    "analytics:read", "analytics:manage",
   ]),
   admin: new Set([
     "beta:read", "control_room:read", "operators:read", "operators:manage", "members:read", "members:manage", "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
@@ -20,12 +21,14 @@ const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
     "episodes:read", "episodes:write", "episodes:create", "episodes:manage",
     "ingest:read", "ingest:write", "ingest:create", "ingest:manage",
     "transcripts:read", "transcripts:write", "transcripts:create", "transcripts:manage",
+    "analytics:read", "analytics:manage",
   ]),
   editor: new Set([
     "beta:read", "control_room:read", "chat:read", "chat:write", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm",
     "episodes:read", "ingest:read",
     "transcripts:read", "transcripts:write",
+    "analytics:read",
   ]),
   member: new Set(["beta:read", "chat:read", "chat:write", "memory:read", "memory:write"]),
 };
@@ -79,7 +82,7 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/beta/settings/workspace/readiness": ["control_room", "read"],
   "/beta/settings/workspace/release": ["control_room", "read"],
   "/beta/settings/workspace/ai": ["control_room", "read"],
-  "/beta/settings/workspace/analytics": ["control_room", "read"],
+  "/beta/settings/workspace/analytics": ["analytics", "read"],
   "/beta/settings/workspace/sessions": ["control_room", "read"],
   "/beta/settings/workspace/memory": ["control_room", "read"],
   "/beta/settings/workspace/sources": ["transcripts", "read"],
@@ -122,6 +125,13 @@ export function policyForPath(pathname: string, method = "GET"): readonly [Resou
 
 function betaApiRequirement(pathname: string, method: string): readonly [Resource, Action] | null {
   const requestMethod = method.toUpperCase();
+  if (["/beta/api/analytics/status", "/beta/api/analytics/youtube", "/beta/api/analytics/ga4"].includes(pathname)) {
+    return requestMethod === "GET" ? ["analytics", "read"] : null;
+  }
+  if (pathname === "/beta/api/analytics/oauth/callback") return requestMethod === "GET" ? ["analytics", "manage"] : null;
+  if (["/beta/api/analytics/oauth/start", "/beta/api/analytics/selection", "/beta/api/analytics/disconnect"].includes(pathname)) {
+    return requestMethod === "POST" ? ["analytics", "manage"] : null;
+  }
   if (pathname === "/beta/api/principal-context" || pathname === "/beta/api/context") return requestMethod === "GET" ? ["beta", "read"] : null;
   if (pathname === "/beta/api/chat") {
     if (requestMethod === "GET") return ["chat", "read"];
