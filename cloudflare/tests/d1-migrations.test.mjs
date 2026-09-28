@@ -78,6 +78,7 @@ test("fresh local migrations are repeatable", () => {
   assert.match(listing, /0014_principal_profiles/);
   assert.match(listing, /0015_principal_profiles_email_guard/);
   assert.match(listing, /0016_rich_chat_source_metadata/);
+  assert.match(listing, /0018_analytics_connections/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'release_manifests';"), /release_manifests/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'calendar_events';"), /calendar_events/);
   assert.match(succeeds("PRAGMA table_info(release_manifests);"), /release_track/);
@@ -93,6 +94,10 @@ test("fresh local migrations are repeatable", () => {
   assert.doesNotMatch(deletionAuditColumns, /content|prompt|response|preference/i);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'member_beta_releases';"), /member_beta_releases/);
   assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'principal_profiles';"), /principal_profiles/);
+  assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'analytics_provider_connections';"), /analytics_provider_connections/);
+  assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'youtube_channel_daily_metrics';"), /youtube_channel_daily_metrics/);
+  assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'youtube_video_daily_metrics';"), /youtube_video_daily_metrics/);
+  assert.match(succeeds("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'ga4_daily_metrics';"), /ga4_daily_metrics/);
   assert.equal(succeeds("SELECT COUNT(*) FROM principal_profiles WHERE operator_id IS NOT NULL AND member_id IS NULL;").trim(), "7");
   assert.equal(succeeds("SELECT COUNT(*) FROM principal_profiles WHERE first_name IS NOT NULL OR last_name IS NOT NULL;").trim(), "0");
 });

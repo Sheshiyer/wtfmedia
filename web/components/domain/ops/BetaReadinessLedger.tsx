@@ -63,7 +63,7 @@ const readinessItems: readonly ReadinessItem[] = [
   {
     label: "YouTube Analytics",
     status: "mock preview",
-    detail: "The read-only dashboard composition is available as fixture data. OAuth, observation freshness, and account scope are not connected.",
+    detail: "The read-only server contract separates YouTube and GA4 data. Live readiness still requires approved OAuth secrets, resource selection, migrations, and a successful stored-data refresh.",
     tone: "held",
     href: "/beta/settings/workspace/analytics",
     action: "open analytics settings",

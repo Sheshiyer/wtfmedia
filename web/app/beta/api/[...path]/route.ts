@@ -15,7 +15,6 @@ async function forward(edge: { fetch: (input: Request) => Promise<Response> } | 
     // the browser gunzip plain JSON and the gate fails closed.
     const sanitized = new Headers(upstream.headers);
     for (const hop of ["connection", "transfer-encoding", "keep-alive", "content-length", "content-encoding"]) sanitized.delete(hop);
-    if (url.pathname === "/beta/api/principal-context") console.log("[beta-api-proxy] principal-context upstream:", upstream.status, await upstream.clone().text().then((text) => text.slice(0, 300)));
     return new Response(upstream.body, { status: upstream.status, headers: sanitized });
   }
   // Deployed: forward the ORIGINAL request object with stripped headers.

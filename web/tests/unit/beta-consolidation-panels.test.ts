@@ -70,7 +70,7 @@ describe("Beta consolidation admin panels", () => {
     for (const value of ["global primary model", "fallback order", "add fallback", "OpenRouter API key", "KV projection", "write-only", "save local policy"]) {
       expect(ai).toContain(value);
     }
-    for (const value of ["YouTube Analytics", "OAuth-first", "local preview", "mock dashboard", "fixture data", "no analytics observation"]) {
+    for (const value of ["analytics", "YouTube", "Website (GA4)", "connect Google", "last successful refresh", "unavailable"]) {
       expect(youtube).toContain(value);
     }
     expect(ai).not.toContain("process.env");

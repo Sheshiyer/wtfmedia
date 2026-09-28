@@ -74,6 +74,10 @@ export type OpsEnv = {
   CHAT_HISTORY_ENABLED?: string | boolean;
   /** Staging-only, read-only route to Alpha's public `/api/chat` contract. */
   WTFMEDIA_ALPHA_WEB?: AlphaChatService;
+  GOOGLE_OAUTH_CLIENT_ID?: string;
+  GOOGLE_OAUTH_CLIENT_SECRET?: string;
+  GOOGLE_OAUTH_REDIRECT_URI?: string;
+  ANALYTICS_TOKEN_ENCRYPTION_KEY?: string;
 };
 
 type OpsDependencies = {

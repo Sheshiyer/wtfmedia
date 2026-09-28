@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 import {
   OPENROUTER_MODEL_OPTIONS,
   OPENROUTER_LOCAL_POLICY,
-  YOUTUBE_ANALYTICS_FIXTURE,
 } from "@/lib/ops/integration-contract";
 
 const source = (file: string) => readFileSync(resolve(process.cwd(), file), "utf8");
@@ -18,20 +17,18 @@ describe("integration settings contracts", () => {
     expect(new Set(OPENROUTER_LOCAL_POLICY.fallbacks).size).toBe(OPENROUTER_LOCAL_POLICY.fallbacks.length);
   });
 
-  it("labels analytics values as fixture observations", () => {
-    expect(YOUTUBE_ANALYTICS_FIXTURE.source).toBe("local fixture");
-    expect(YOUTUBE_ANALYTICS_FIXTURE.refreshed).toBe("not observed");
-    expect(YOUTUBE_ANALYTICS_FIXTURE.metrics.length).toBeGreaterThan(2);
-  });
-
-  it("keeps provider credentials out of the UI source contract", () => {
+  it("keeps provider credentials out of the analytics UI source contract", () => {
     const ai = source("components/domain/ops/AIProviderSettingsPanel.tsx");
     const youtube = source("components/domain/ops/YouTubeAnalyticsSettingsPanel.tsx");
+    expect(ai).toContain("type=\"password\"");
+    expect(ai).toContain("write-only");
     for (const component of [ai, youtube]) {
-      expect(component).toContain("type=\"password\"");
-      expect(component).toContain("write-only");
       expect(component).not.toContain("NEXT_PUBLIC_");
       expect(component).not.toContain("Authorization: Bearer");
     }
+    expect(youtube).not.toContain("type=\"password\"");
+    expect(youtube).not.toContain("YOUTUBE_ANALYTICS_FIXTURE");
+    expect(youtube).toContain("/beta/api/analytics/oauth/start");
+    expect(youtube).toContain("Website (GA4)");
   });
 });

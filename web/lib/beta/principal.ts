@@ -64,6 +64,7 @@ export function capabilityForPath(pathname: string): string | null {
   if (pathname.startsWith("/beta/admin/audit")) return "audit:read";
   if (pathname.startsWith("/beta/workspace/episodes")) return "episodes:read";
   if (pathname.startsWith("/beta/workspace")) return "control_room:read";
+  if (pathname === "/beta/settings/workspace/analytics") return "analytics:read";
   if (pathname.startsWith("/beta/settings/workspace")) return "control_room:read";
   return null;
 }

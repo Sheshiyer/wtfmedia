@@ -72,9 +72,10 @@ describe("Beta single-shell convergence", () => {
 
   it("keeps deferred workspace panels authorized but out of the Settings directory", () => {
     const settingsNavigation = read("components/domain/beta/BetaSettingsNavigation.tsx");
-    for (const label of ["readiness", "AI route", "YouTube analytics", "RAG & sources", "release mutation"]) {
+    for (const label of ["readiness", "AI route", "RAG & sources", "release mutation"]) {
       expect(settingsNavigation).not.toContain(label);
     }
+    expect(settingsNavigation).toContain('["/beta/settings/workspace/analytics", "YouTube analytics", "stored provider data", "analytics:read"]');
     for (const href of [
       "/beta/settings/workspace/readiness",
       "/beta/settings/workspace/ai",

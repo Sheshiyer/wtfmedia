@@ -15,6 +15,7 @@ import {
 } from "./db.ts";
 import { handleOpsRequest, type OpsEnv } from "./ops-router.ts";
 import { handleMemberRequest } from "./member-router.ts";
+import { syncConfiguredAnalytics } from "./analytics-sync.ts";
 import { createRemoteClerkVerifier } from "./auth/clerk.ts";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar.ts";
 import {
@@ -312,5 +313,10 @@ export default {
       try { await ingestTranscriptJob(message.body as TranscriptJob, env); message.ack(); }
       catch (error) { console.error("wtfmedia ingest failed", { message: error instanceof Error ? error.message : "unknown" }); message.retry(); }
     }
+  },
+  async scheduled(event: { scheduledTime: number }, env: Env, context: { waitUntil(promise: Promise<unknown>): void }) {
+    // Source-only handler: a cron trigger is intentionally not declared until
+    // staging configuration and quota cadence receive separate owner approval.
+    context.waitUntil(syncConfiguredAnalytics(env, new Date(event.scheduledTime)));
   },
 };

@@ -147,12 +147,16 @@ This repository is `wtfmedia`.
   preferences or corpus data. Replayed idempotency keys must not resurrect it.
   Member Delete exists; do not claim or render operator Delete until its
   server-side tombstone/lifecycle contract is reviewed and implemented.
+- Owner-requested PR #80 integration enables the Analytics Settings link for
+  operators with `analytics:read`. Live Google OAuth configuration, analytics
+  migrations on shared databases, scheduling, and deployment remain separate
+  from the local source integration; never present fixture data as live.
 - Capability-projected nested Settings must be matched by server page/API
-  enforcement. Beta navigation must not expose Readiness, AI Route, YouTube
-  Analytics, RAG & Sources, or duplicate Release Mutation. Their direct
+  enforcement. Beta navigation must not expose Readiness, AI Route,
+  RAG & Sources, or duplicate Release Mutation. Their direct
   policy-protected routes may remain for later work. Never add ingest to the
-  signed-in Beta navigation. AI Route and YouTube Analytics remain deferred
-  until separately approved provider integrations exist.
+  signed-in Beta navigation. AI Route remains deferred until a separately
+  approved provider integration exists.
 - The admin roster must come from the authenticated D1-backed edge API through
   the paired web service binding. Never ship prefabricated team rows; last-used
   and chat-session metrics remain future work until server contracts exist.
