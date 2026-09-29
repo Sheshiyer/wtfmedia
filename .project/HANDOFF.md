@@ -1,5 +1,13 @@
 # Project handoff
 
+## 2026-09-29 Local PR #81 integration
+
+- Merged `feature/sarthak` / PR #81 at exact head `30b5635b645f6bfd3c90ecfc1c59cc72cd2b4b24` into local `feature/pavun` without conflicts. No push or GitHub PR-state mutation.
+- Adds YouTube Reporting API reach imports, audience/retention observations, period and episode comparisons, derived metrics, manual sync routes, and a labelled demo reference. Migration 0019 follows 0018; neither was applied to a shared database by this task.
+- Verified locally: 413/413 edge tests, 232/232 web unit tests, 97/97 contracts, typecheck, lint, and the 657-input architecture ledger. Removed trailing whitespace in two incoming documents.
+- GitHub Phase 2 Gate remains failed: nine browser tests on audit, control-room, and operator routes. Inspected failure logs; no browser tests were rerun and no claim is made that these failures are resolved or pre-existing.
+- No deployment, credential changes, Google sync, scheduling, or database mutation. Live metric accuracy and provider reconciliation remain unverified; local passing tests do not prove spreadsheet parity or production acceptance.
+
 ## 2026-09-28 Local PR #80 integration and Google OAuth configuration
 
 - Integrated PR #80 head `3cfe4a8` into `feature/pavun` locally, preserving current chat, identity, and UI contracts. No push or deployment.

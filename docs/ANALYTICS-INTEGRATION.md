@@ -12,6 +12,7 @@ Enable:
 
 - YouTube Data API v3
 - YouTube Analytics API
+- YouTube Reporting API
 - Google Analytics Data API
 
 Create an OAuth 2.0 Web Application client. Register an exact callback for each approved environment:
@@ -44,7 +45,14 @@ Do not configure any of these values until the target environment and callback r
 
 ## Migration
 
-`0018_analytics_connections.sql` adds:
+`0018_analytics_connections.sql` adds the connection and core daily schema. `0019_youtube_decision_analytics.sql` adds:
+
+- average view percentage and nullable thumbnail reach fields;
+- subscribed/unsubscribed activity rows;
+- per-video retention points;
+- Reporting API job and idempotent import receipts.
+
+Together the migrations provide:
 
 - single-use OAuth transactions;
 - encrypted provider connection envelopes;
@@ -76,7 +84,9 @@ The default worker window is the previous seven complete UTC days. This overlap 
 
 ## Metrics
 
-YouTube stores views, estimated watch minutes, average view duration, likes, comments, shares, subscribers gained, and subscribers lost when returned by the report. Unknown or unsupported values remain `NULL` and render as unavailable.
+YouTube stores views, estimated watch minutes, average view duration, average view percentage, likes, comments, shares, subscribers gained/lost, and subscribed-status activity from targeted Analytics API queries. Thumbnail impressions and CTR are imported asynchronously from the Reporting API `channel_reach_basic_a1` report. Per-video retention curves use the dedicated `elapsedVideoTimeRatio` report. Unknown or unsupported values remain `NULL` and render as unavailable.
+
+The complete route and derivation contract is documented in `docs/ANALYTICS-PRODUCTION-MAPPING.md`.
 
 GA4 stores daily active users, sessions, engaged sessions, engagement rate, and session default channel group. Daily totals use a separate no-dimension report because user counts are non-additive across traffic-source rows.
 
@@ -104,8 +114,8 @@ Do not log Google response bodies, tokens, authorization codes, OAuth state, or 
 
 ## Local development
 
-The local edge uses the existing staging D1 binding. Applying migration
-`0018_analytics_connections.sql` there requires explicit owner approval; a local
+The local edge uses the existing staging D1 binding. Applying migrations
+`0018_analytics_connections.sql` and `0019_youtube_decision_analytics.sql` there requires explicit owner approval; a local
 server does not imply an isolated database.
 
 Store server credentials in ignored `cloudflare/.dev.vars` using the canonical
