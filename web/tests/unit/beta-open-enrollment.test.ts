@@ -10,6 +10,8 @@ const memberWorkspace = readFileSync(new URL("../../components/domain/member/Mem
 const memberGate = readFileSync(new URL("../../components/domain/member/MemberBetaGate.tsx", import.meta.url), "utf8");
 const sessionNavigator = readFileSync(new URL("../../components/domain/member/MemberSessionNavigator.tsx", import.meta.url), "utf8");
 const askComposer = readFileSync(new URL("../../components/domain/public/AskComposer.tsx", import.meta.url), "utf8");
+const appRail = readFileSync(new URL("../../components/shells/AppRail.tsx", import.meta.url), "utf8");
+const conversationThread = readFileSync(new URL("../../components/domain/public/ConversationThread.tsx", import.meta.url), "utf8");
 
 describe("Beta open-enrollment copy", () => {
   it("permanently removes the temporary browser-only preview route", () => {
@@ -55,6 +57,18 @@ describe("Beta open-enrollment copy", () => {
     expect(memberWorkspace).not.toContain('aria-label="Your workspace"');
     expect(memberWorkspace).not.toContain("Source-backed answers");
     expect(memberWorkspace).not.toMatch(/#[0-9a-f]{3,8}/iu);
+  });
+
+  it("keeps member Beta in the Alpha chat frame instead of a two-button dock", () => {
+    expect(appRail).toContain('mode === "member"');
+    expect(appRail).toContain("shouldHideBottomDock");
+    expect(appRail).toContain("hideBottomDock ? null");
+    expect(appRail).toContain('href="/beta/settings"');
+    expect(askComposer).toContain('placement?: "fixed" | "inline"');
+    expect(askComposer).toContain('bottom-[calc(1rem+env(safe-area-inset-bottom))]');
+    expect(conversationThread).toContain("ResizeObserver");
+    expect(conversationThread).toContain('data-composer-placement={isOverflowing ? "inline" : "fixed"}');
+    expect(conversationThread).toContain("data-fixed-composer");
   });
 
   it("fails closed before mounting Clerk hooks when the publishable key is absent", () => {

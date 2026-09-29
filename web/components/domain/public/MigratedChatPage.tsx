@@ -1,11 +1,9 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AskComposer } from "./AskComposer";
 import { ConversationThread, type Message, type Source } from "./ConversationThread";
-import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
 import { parsePublicSourceHeader } from "@/lib/provenance/public-source-header";
 import { parseSourceMode, type SourceMode } from "@/lib/provenance/source-mode";
 
@@ -165,40 +163,22 @@ function ChatInner() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-canvas">
-      <WorkspaceHeader
-        eyebrow="get the moment"
-        title="ask wtf"
-        summary="ask the catalogue. quoted evidence stays beside synthesis. published and uncut stay named."
-        accent="knowledge"
-        size="page"
-        context={
-          <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
-            <span>{episodeId ? "episode scope" : "catalogue scope"}</span>
-            <span>source-backed answers</span>
-            <span>mapped time only</span>
-            <Link href="/beta/ops/chat" className="text-knowledge underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-knowledge">
-              sign in for account sessions
-            </Link>
-          </div>
-        }
-      />
-
-      {/* Conversation */}
+    <div className="flex h-[calc(100vh-4.5rem-env(safe-area-inset-top))] min-h-0 flex-col bg-canvas" data-chat-frame="alpha">
       <ConversationThread
         messages={messages}
         loading={loading}
         onRetry={retry}
-      />
-
-      {/* Composer */}
-      <AskComposer
-        value={input}
-        onChange={setInput}
-        onSubmit={send}
-        loading={loading}
-        sourceMode={sourceMode}
-        onSourceModeChange={setSourceMode}
+        footer={
+          <AskComposer
+            value={input}
+            onChange={setInput}
+            onSubmit={send}
+            loading={loading}
+            sourceMode={sourceMode}
+            onSourceModeChange={setSourceMode}
+            placement="inline"
+          />
+        }
       />
     </div>
   );

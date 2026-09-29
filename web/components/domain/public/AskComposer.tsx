@@ -25,6 +25,7 @@ interface AskComposerProps {
   onSourceModeChange?: (mode: SourceMode) => void;
   sourceModeDisabled?: boolean;
   variant?: "expanded" | "compact";
+  placement?: "fixed" | "inline";
 }
 
 export function AskComposer({
@@ -37,6 +38,7 @@ export function AskComposer({
   onSourceModeChange,
   sourceModeDisabled = false,
   variant = "expanded",
+  placement = "fixed",
 }: AskComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const compactInputRef = useRef<HTMLInputElement>(null);
@@ -69,7 +71,12 @@ export function AskComposer({
           event.preventDefault();
           onSubmit();
         }}
-        className="wtf-ask-composer fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-40 px-3 py-2 sm:px-5"
+        className={[
+          "wtf-ask-composer px-3 py-2 sm:px-5",
+          placement === "fixed"
+            ? "fixed inset-x-0 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40"
+            : "shrink-0",
+        ].join(" ")}
         data-testid="ask-composer"
         data-composer-variant="compact"
       >
@@ -112,7 +119,12 @@ export function AskComposer({
         e.preventDefault();
         onSubmit();
       }}
-      className="wtf-ask-composer fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-40 border-y-2 border-foreground bg-surface-raised px-4 py-4 shadow-[0_-10px_0_rgb(var(--wtf-foreground-rgb)/0.08)] sm:bottom-24 sm:px-8"
+      className={[
+        "wtf-ask-composer border-y-2 border-foreground bg-surface-raised px-4 py-4 shadow-[0_-10px_0_rgb(var(--wtf-foreground-rgb)/0.08)] sm:px-8",
+        placement === "fixed"
+          ? "fixed inset-x-0 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40"
+          : "shrink-0",
+      ].join(" ")}
       data-testid="ask-composer"
     >
       <div className="mx-auto grid max-w-5xl gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">

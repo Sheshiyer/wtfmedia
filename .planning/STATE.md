@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: active
-stopped_at: Annotated Member Beta rail clamp, compact composer, and icon pill verified in authenticated staging IAB; mobile and three-persona gates remain
-last_updated: "2026-09-11T02:09:00+05:30"
+stopped_at: PR #77 open from beta_0.1 into release/beta; Cloudflare topology mapped; no deploy or merge
+last_updated: "2026-09-11T15:49:00+05:30"
 last_activity: 2026-09-11
 progress:
   total_phases: 10
@@ -24,38 +24,115 @@ See: `.planning/PROJECT.md` (updated 2026-08-20)
 its source asset, exact evidence, current owner, workflow state, and next action
 without losing provenance.
 
-**Current focus:** Complete the ordinary-member Beta workspace on the separate
-staging lane without altering Public Alpha. The owner reaffirmed that Beta must
-reuse Alpha's actual Ask WTF composition and components, not merely its palette:
-floating wordmark, minimal workspace pill, hamburger-owned utilities,
-evidence-first empty state, and shared composer. Private auth, conversations,
-history, memory, and Settings are additive. The rejected preview fixture,
-welcome dashboard, feature-summary cards, dark member gateway, and duplicate
-Settings chrome are not accepted fallbacks.
+**Current focus:** The source-only single authenticated Beta shell is locally
+verified through `4220eda` and is open as PR #77 from `beta_0.1` into
+`release/beta`. Alpha's actual Ask WTF UI, interaction, inference,
+retrieval, and navigation remain the product bedrock; authentication, private
+conversations, history, explicit memory, scoped Settings, and role routing are
+modular Beta additions. Staging deployment/migrations and real Clerk/D1 IAB
+acceptance remain open. The Cloudflare placement and promotion authority is
+`docs/releases/beta-0.1-cloudflare-promotion-map.md`; the implementation authority is
+`.planning/inputs/2026-09-11-beta-single-shell-rbac-convergence-plan.md`.
+
+## Beta 0.1 PR and Cloudflare promotion checkpoint
+
+- `beta_0.1` is a source-integration branch label, not a package version, tag,
+  staging receipt, or production claim. PR #77 targets
+  `release/beta@498c0e0`.
+- Read-only named-profile inventory confirms separate staging/production web,
+  edge, D1, R2, Vectorize, KV, and ingest queue/DLQ resources. The most recent
+  deployments predate this candidate and do not prove its revision is live.
+- The web Worker owns OpenNext routes plus `ASSETS` and reaches only its paired
+  edge Worker. The edge Worker owns Clerk-token verification, D1 RBAC/chat and
+  provenance, R2 source objects, Vectorize retrieval, Workers AI, KV state,
+  and ingest queue consumption.
+- Staging D1 has migrations 0012-0015 pending; production D1 has 0011-0015
+  pending. This source branch therefore cannot be accepted from current live
+  behavior without a new staging migration/deployment receipt.
+- Staging order is migration inventory and recovery receipt, staging D1
+  migration, edge deploy/health/binding receipt, web deploy/service-binding
+  receipt, then the real Clerk/D1 persona matrix. Production remains separately
+  owner-authorized after staging acceptance and rollback planning.
+- Open PRs #57 and #59 are conflicting historical inputs superseded by the
+  integrated candidate. They must not be stacked or closed automatically.
+
+## Current Beta single-shell authority — local source checkpoint `00e8267`
+
+- `/beta` is the authenticated principal landing. Members resolve to
+  `/beta/chat`; operators resolve to `/beta/workspace`. The public `/chat` and
+  legacy `/ops` trees remain Alpha surfaces; `/beta/ops/*` is middleware
+  redirect compatibility only and renders no independent Beta shell.
+- The edge is the authorization authority: principal resolution gives any
+  operator record precedence over a member record, inactive operators deny,
+  and profile mirrors do not grant authority. Browser navigation is projected
+  from edge capabilities and its contract imports the edge policy; unknown
+  routes fail closed and no Beta `public_link` fallback exists.
+- Canonical Beta pages are `/beta/chat[/conversationId]`, nested
+  `/beta/settings/*`, `/beta/workspace/*`, `/beta/admin/users`, and
+  `/beta/admin/audit`. Settings are capability-scoped for members, operators,
+  admins, and super-admins; each page/API still rechecks the edge policy.
+- Member and operator persistence remains separate and owner-scoped. Public
+  URLs expose only conversation UUIDs with their established prefixes; Clerk
+  subjects, hashes, and D1 owner identifiers remain server-side. Session cards
+  provide Archive and separately confirmed permanent Delete.
+- Legacy operator `cnv_` deep links redirect from public `/chat/*` into the
+  protected canonical `/beta/chat/*` route. Browser chat DTOs are projected at
+  the server boundary, and admin/super-admin roster authority never grants
+  cross-operator private-chat read, archive, or export access.
+- AI Route and YouTube Analytics panels are labelled non-persisted local
+  previews. They neither configure inference/providers nor claim server writes
+  until a separately approved integration exists.
+- Local receipts: Cloudflare 267/267; web unit 162/162; web contracts 92/92;
+  typecheck, lint, production build, architecture check, and privacy scan with
+  zero violations passed. These are source/build receipts only, not staging or
+  production runtime evidence.
+- Remaining release gate: a named staging deployment/migration receipt and
+  real Clerk/D1 Codex IAB matrix for signed-out, two members,
+  suspended/revoked, editor, admin, and super-admin personas at desktop and
+  mobile. Production is not deployed or changed by this checkpoint.
 
 ## Active Member Beta lane — anti-drift authority
 
-- Source branch: `codex/beta-e2e-acceptance`; PR #60 targets `release/beta`.
+- Source branch: isolated `codex/beta-chat-refinement`; source-only checkpoint
+  `3e4c887` is local, unpushed, and undeployed. PR #60 is already merged at the
+  `origin/release/beta` baseline `498c0e0`.
 - Acceptance authorities: `.project/HANDOFF.md`, this state file,
   `02-MEMBER-BETA-UI-ADDENDUM.md`, and Member Beta ISC criteria must agree.
-- Visual authority: the live Public Alpha at `https://wtfhq.in`, compared with
-  the real authenticated staging `/beta` in the Codex in-app browser.
+- Visual authority: live Public Alpha at `https://wtfhq.in`, the named Alpha
+  release head `origin/release/alpha` at `e86923b`, and the later Alpha
+  answer-accuracy line with `887699e` as the accepted composer-placement
+  reference. Beta is not descended from that later line, so source ancestry is
+  an explicit acceptance gate.
 - Direct component lock: ordinary-member empty Ask uses
   `ConversationEmptyState`; its composer uses the live-production compact
   `AskComposer` capsule rather than the expanded source-mode panel.
 - Navigation lock: the floating wordmark and hamburger remain global;
-  account/display utilities live only in the hamburger; the bottom pill carries
-  only icon-labelled Ask WTF and Settings routes; sessions remain in the
-  rail/drawer; nested Settings adds no second global header.
+  member Ask routes hide the bottom dock like live Alpha `/chat`; Alpha's Ask
+  WTF, Episodes, Connections, and theme disclosure remains intact, with member
+  account/logout and one Settings gear added as utilities. The rejected
+  two-button icon-labelled Ask WTF/Settings bottom substitute is not the
+  baseline. Sessions remain in the rail/drawer and nested Settings adds no
+  second global header.
 - Layout lock: desktop session grids/links are zero-min-width, titles clamp to
   two wrapped lines, and long history scrolls inside a bounded rail without
   crossing the evidence card or compact composer at 1382x887.
 - Data lock: Clerk verifies identity, D1 remains authority, private records stay
-  owner-scoped, memory is explicit-save only, and operators route separately.
+  owner-scoped, explicit saved memory remains distinct from chat context, and
+  operators route separately. Archive retains storage. Permanent Delete is a
+  new owner-approved contract requiring an additive migration, confirmation,
+  privacy-safe audit semantics, a reviewed detach/tombstone design for the
+  current `ON DELETE RESTRICT` saved-memory link, and non-resurrection probes
+  that replay both continuation and original create idempotency keys.
 - Forbidden fallback: `/beta/preview`, fake member data, browser-only fixtures,
   demo acceptance, or a generic dashboard may not substitute for the real flow.
-- Remaining live gate: one active super-admin plus two ordinary members must
-  still prove routing and cross-member isolation before full Beta acceptance.
+- Long-session lock: there is no auto-compaction today. The selected API returns
+  the full message history while inference receives only the latest eight turns
+  within 8,000 characters. Message pagination and versioned, non-evidence
+  context checkpoints must be implemented and evaluated before full-session
+  memory is claimed.
+- Remaining live gate: one editor, one admin, one active super-admin, two
+  ordinary members, signed-out, and suspended/revoked states must prove their
+  route, screen, action, and server-policy matrices before full Beta acceptance.
 - Staging receipt: source commit `5bdbd3e`, web version
   `51cce902-fdde-4327-80f3-758f79d38d30`; authenticated IAB verified real
   create, continue, reload, browser history, and all four member Settings
@@ -70,6 +147,10 @@ Settings chrome are not accepted fallbacks.
   two clamped session cards wholly inside the rail, the unobscured Alpha
   evidence card, compact one-line composer, and icon-labelled Ask/Settings pill;
   the compact bar also continued a real persisted conversation.
+- The 1382x1180 owner review now supersedes the corrected receipt's pill and
+  selected-session acceptance. Its auth/continuation evidence remains useful;
+  its two-button navigation, dead unavailable canvas, ambiguous archive link,
+  and lack of long-session compaction do not pass the new convergence contract.
 
 ## Current Position
 
@@ -135,6 +216,16 @@ authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
 
 ### Decisions
 
+- [Alpha-bedrock convergence 2026-09-11]: Alpha's exact Ask WTF UI,
+  interaction, inference, retrieval, source, and navigation implementation is
+  the bedrock; Beta adds private/authenticated capabilities modularly. Because
+  the branches diverged, convergence starts with an exact capability ledger and
+  bounded forward-ports rather than palette matching or wholesale merge.
+- [Member lifecycle and long context 2026-09-11]: Archive retains private D1
+  records; confirmed permanent Delete is a distinct new migration/API/UI
+  contract. There is no auto-compaction today; message pagination and
+  non-evidence context checkpoints are required before full-session memory is
+  claimed.
 - [Member Beta anti-drift 2026-09-11]: Public Alpha is the ordinary-member
   composition and component baseline. Beta must extend the shared Ask WTF empty
   state and composer directly; token-only similarity, welcome dashboards, dark

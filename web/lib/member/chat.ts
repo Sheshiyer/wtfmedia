@@ -1,3 +1,5 @@
+import { parsePublicSourceRecords, type PublicSourceCitation } from "@/lib/provenance/public-source-header";
+
 export type MemberSourceMode = "published" | "uncut" | "both";
 export type MemberMessageRole = "user" | "assistant";
 
@@ -6,7 +8,10 @@ export type MemberMessage = {
   role: MemberMessageRole;
   content: string;
   createdAt: string;
-  sources?: unknown[];
+  sources?: PublicSourceCitation[];
+  sourceMode?: MemberSourceMode;
+  groundingState?: "grounded" | "ungrounded" | "unavailable";
+  uncutUnavailable?: boolean;
 };
 
 export type MemberConversation = {
@@ -16,12 +21,15 @@ export type MemberConversation = {
   state: "active" | "archived";
   createdAt: string;
   updatedAt: string;
+  /** Safe optional server count; preferences remain independently retained. */
+  linkedSavedPreferenceCount?: number;
   messages?: MemberMessage[];
 };
 
 export type MemberConversationResponse = {
   conversation: MemberConversation;
   messages: MemberMessage[];
+  previousMessageCursor: string | null;
   retryable: boolean;
   retrySourceMode: MemberSourceMode | null;
   resumeMessageId: string | null;
@@ -51,15 +59,23 @@ function retrySourceMode(value: unknown): MemberSourceMode | null {
   return value === "uncut" || value === "both" || value === "published" ? value : null;
 }
 
-function parseSources(value: unknown): unknown[] | undefined {
+function safeCount(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : undefined;
+}
+
+function previousMessageCursor(value: unknown): string | null {
+  return typeof value === "string" && /^[A-Za-z0-9_-]{1,512}$/u.test(value) ? value : null;
+}
+
+function parseMetadata(value: unknown): Record<string, unknown> {
   const record = asRecord(value);
-  const raw = record?.source_metadata_json;
-  if (typeof raw !== "string") return Array.isArray(record?.sources) ? record.sources : undefined;
+  if (!record) return {};
+  const raw = record.source_metadata_json;
+  if (typeof raw !== "string") return record;
   try {
-    const metadata = asRecord(JSON.parse(raw));
-    return Array.isArray(metadata?.sources) ? metadata.sources : undefined;
+    return asRecord(JSON.parse(raw)) ?? {};
   } catch {
-    return undefined;
+    return {};
   }
 }
 
@@ -68,12 +84,19 @@ function parseMessage(value: unknown): MemberMessage | null {
   const role = record?.role;
   const content = asString(record?.content).trim();
   if (!record || (role !== "user" && role !== "assistant") || !content) return null;
+  const metadata = parseMetadata(record);
+  const sources = parsePublicSourceRecords(Array.isArray(record.sources) ? record.sources : metadata.sources);
+  const source = sourceMode(record.sourceMode ?? record.source_mode ?? metadata.sourceMode ?? metadata.source_mode);
+  const grounding = record.groundingState ?? record.grounding_state;
   return {
     id: asString(record.id, `${role}-${content.slice(0, 16)}`),
     role,
     content,
     createdAt: asString(record.created_at, asString(record.createdAt)),
-    sources: parseSources(record),
+    ...(sources.length ? { sources } : {}),
+    ...(role === "assistant" ? { sourceMode: source } : {}),
+    ...(grounding === "grounded" || grounding === "ungrounded" || grounding === "unavailable" ? { groundingState: grounding } : {}),
+    ...(record.uncutUnavailable === true || metadata.uncutUnavailable === true ? { uncutUnavailable: true } : {}),
   };
 }
 
@@ -81,6 +104,7 @@ function parseConversation(value: unknown): MemberConversation | null {
   const record = asRecord(value);
   const id = asString(record?.id, asString(record?.conversationId));
   if (!record || !conversationIdPattern.test(id)) return null;
+  const linkedSavedPreferenceCount = safeCount(record.linkedSavedPreferenceCount ?? record.linked_saved_preference_count);
   return {
     id,
     title: asString(record.title, "New conversation"),
@@ -88,8 +112,19 @@ function parseConversation(value: unknown): MemberConversation | null {
     state: record.lifecycle_state === "archived" || record.state === "archived" ? "archived" : "active",
     createdAt: asString(record.created_at, asString(record.createdAt)),
     updatedAt: asString(record.updated_at, asString(record.updatedAt)),
+    ...(linkedSavedPreferenceCount === undefined ? {} : { linkedSavedPreferenceCount }),
     messages: Array.isArray(record.messages) ? record.messages.map(parseMessage).filter((item): item is MemberMessage => item !== null) : undefined,
   };
+}
+
+export function canConfirmMemberConversationDeletion(value: string): boolean {
+  return value === "DELETE";
+}
+
+export function linkedSavedPreferenceDeletionNotice(linkedSavedPreferenceCount?: number): string {
+  if (linkedSavedPreferenceCount === undefined) return "Saved preferences are separate and will not be deleted.";
+  if (linkedSavedPreferenceCount === 0) return "No saved preferences are linked to this conversation; any saved preferences remain separate.";
+  return `${linkedSavedPreferenceCount} saved preference${linkedSavedPreferenceCount === 1 ? "" : "s"} stay separate and will not be deleted.`;
 }
 
 export function memberConversationHref(conversationId: string): string | null {
@@ -104,10 +139,32 @@ export function parseMemberConversationResponse(value: unknown): MemberConversat
   return {
     conversation: { ...conversation, messages },
     messages,
+    previousMessageCursor: previousMessageCursor(record.previousMessageCursor),
     retryable: record.retryable === true,
     retrySourceMode: retrySourceMode(record.retrySourceMode),
     resumeMessageId: typeof record.resumeMessageId === "string" && messageIdPattern.test(record.resumeMessageId) ? record.resumeMessageId : null,
   };
+}
+
+/** Prepends the chronologically ordered older page without duplicating a boundary message. */
+export function prependMemberConversationMessages(current: MemberConversationResponse, older: MemberConversationResponse): MemberConversationResponse {
+  if (current.conversation.id !== older.conversation.id) return current;
+  const currentIds = new Set(current.messages.map((message) => message.id));
+  const messages = [...older.messages.filter((message) => !currentIds.has(message.id)), ...current.messages];
+  return {
+    ...current,
+    conversation: { ...current.conversation, messages },
+    messages,
+    previousMessageCursor: older.previousMessageCursor,
+  };
+}
+
+/** Retains already loaded older pages when a newest-page POST response arrives. */
+export function appendNewestMemberConversationMessages(current: MemberConversationResponse | null, newest: MemberConversationResponse): MemberConversationResponse {
+  if (!current || current.conversation.id !== newest.conversation.id) return newest;
+  const seen = new Set(current.messages.map((message) => message.id));
+  const messages = [...current.messages, ...newest.messages.filter((message) => !seen.has(message.id))];
+  return { ...newest, conversation: { ...newest.conversation, messages }, messages };
 }
 
 export function parseMemberHistoryResponse(value: unknown): MemberHistoryResponse | null {
@@ -150,6 +207,18 @@ export function shouldFinishMemberPaginationRequest({ requestGeneration, current
 
 export function shouldApplyMemberResponse({ requestEpoch, currentEpoch, requestPath, currentPath }: { requestEpoch: number; currentEpoch: number; requestPath: string; currentPath: string }): boolean {
   return requestEpoch === currentEpoch && requestPath === currentPath;
+}
+
+export function memberAnswerPresentation(message: MemberMessage): { abstained: boolean; uncutUnavailable: boolean; sources: PublicSourceCitation[] } {
+  return {
+    abstained: message.role === "assistant" && message.groundingState === "ungrounded",
+    uncutUnavailable: message.uncutUnavailable === true,
+    sources: message.sources ?? [],
+  };
+}
+
+export function shouldKeepMemberScrollPinned({ scrollTop, scrollHeight, clientHeight }: { scrollTop: number; scrollHeight: number; clientHeight: number }): boolean {
+  return scrollHeight - scrollTop - clientHeight < 50;
 }
 
 export function retryIntentForMemberResponse(response: MemberConversationResponse): MemberRetryIntent | null {

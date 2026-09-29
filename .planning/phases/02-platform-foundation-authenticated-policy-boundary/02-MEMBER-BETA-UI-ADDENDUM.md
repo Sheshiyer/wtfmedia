@@ -19,15 +19,23 @@ navigation. Authentication, private conversation routing, history, memory, and
 member Settings are additive capabilities inside that system; they do not
 license an alternate dashboard aesthetic or a visual reset.
 
+The source authority is not inferred from the current Beta copy of these
+components. `origin/release/alpha` at `e86923b` owns the named Alpha release
+line, and the later Ask WTF interaction work on
+`origin/rag/alpha-answer-accuracy` — with commit `887699e` as the accepted
+composer-placement reference — must be mapped before shared UI changes. The
+Beta branch is not descended from that later Alpha line.
+
 This is a composition and component contract, not a palette-only guideline.
 The ordinary-member empty Ask surface reuses the Public Alpha
 `ConversationEmptyState`, and its input reuses the live-production compact
 `AskComposer` capsule: one line, one compact Ask WTF button, and no permanent
 source-mode strip, type rail, tall panel, or full-width background band. The
 Alpha source prompt, editorial question card, floating wordmark, hamburger, and
-workspace-only bottom pill remain recognizable before private history or
-Settings is added. A personalized greeting is subordinate account context; it
-never replaces the Alpha Ask WTF hero.
+route-appropriate navigation remain recognizable before private history or
+Settings is added. Live Alpha `/chat` has no bottom dock, so member Ask routes
+inherit that exemption. A personalized greeting is subordinate account
+context; it never replaces the Alpha Ask WTF hero.
 
 The following regressions fail acceptance even when semantic tokens match:
 
@@ -35,8 +43,9 @@ The following regressions fail acceptance even when semantic tokens match:
 - a three-card feature-summary or infrastructure-status introduction;
 - a dark operator gateway for ordinary-member sign-in or recovery;
 - a second global header inside member Settings;
-- Account, Appearance, or Theme utilities duplicated outside the hamburger, or
-  any Settings shortcut beyond the primary Settings route in the bottom pill;
+- Account, Appearance, or Theme utilities duplicated outside the hamburger;
+- replacing Alpha's top-right disclosure with a Beta-only pair of
+  icon-labelled Ask WTF and Settings buttons in a bottom dock;
 - a member route accepted from source tests without authenticated staging IAB
   comparison against `https://wtfhq.in`.
 
@@ -61,14 +70,18 @@ rail. It must never intrude into the Alpha evidence card or composer. Below the
 wide-shell breakpoint the rail becomes a labelled modal drawer. The trigger
 has a 44px target, Escape/backdrop close the drawer, focus stays inside while
 open, and close restores focus to the trigger. Conversation navigation and the
-sticky composer must not overlap the bottom product pill at 320px width or a
-710px-tall viewport.
+sticky composer must clear the rail/drawer, viewport edge, and safe area at
+320px width or a 710px-tall viewport; they do not reserve space for a bottom
+dock that is absent on Ask routes.
 
-The bottom pill contains only icon-labelled Ask WTF and Settings destinations.
-Individual conversations stay in the desktop rail or mobile drawer. The hamburger groups
-active Beta destinations separately from explicit Public Alpha exits. It never
-lists `/beta/ops`, operator Settings, disabled future modules, or individual
-conversations.
+Like live Alpha `/chat`, the member Ask routes render no bottom dock. The
+floating wordmark and top-right hamburger are the navigation chrome. Its
+disclosure preserves Alpha's Ask WTF, Episodes, Connections, and display/theme
+grammar; member account/logout and one Settings gear are additive utilities in
+that disclosure. Ask WTF and Settings are not rendered as a replacement
+two-button bottom pill. Individual conversations stay in the desktop rail or
+mobile drawer. The disclosure never lists `/beta/ops`, operator Settings,
+disabled future modules, or individual conversations for an ordinary member.
 
 ## Ask WTF screen contract
 
@@ -86,6 +99,12 @@ invites a first question. Access denial remains non-enumerating. Failed turns
 stay attached to their canonical conversation with an explicit same-question
 retry. A late request may update only the route that originated it; switching,
 unmounting, or signing out invalidates stale responses and navigation.
+
+The selected-conversation surface remains a bounded conversation viewport in
+loading, unavailable, empty, answer, and long-history states. An unavailable
+fetch displays a same-route retry inside that viewport; it never collapses into
+a short banner above an otherwise empty page. Only session-card titles clamp to
+two lines. The active conversation heading may wrap and must not be truncated.
 
 Request state is separated by concern: conversation loading, answer generation,
 archive, pagination, and memory operations do not share one global busy flag.
@@ -147,10 +166,37 @@ without a network or external integration.
 
 ### Sessions and privacy
 
-This page explains that private sessions remain separate from public Alpha,
-that archive removes a session from active history, and that no destructive
-delete control is offered here. It contains guidance only; it does not expose
-operator controls or internal storage details.
+This page explains that private sessions remain separate from public Alpha and
+distinguishes archive from deletion. Archive removes a session from active
+history while retaining it. Permanent deletion removes the selected
+conversation, its messages, and internal context checkpoints from private
+storage after an explicit confirmation and cannot be undone. Explicit saved
+preferences remain separate and are never silently deleted with a conversation.
+This member surface exposes no operator controls or infrastructure identifiers.
+
+### Selected-session lifecycle
+
+The session rail/card and active conversation expose a contextual action for
+that exact session; a global `archive` link to the Sessions settings page is not
+an accepted substitute.
+
+- `Archive conversation` uses the owner-scoped archive route and accurately
+  states that storage is retained.
+- `Delete conversation permanently` opens a labelled, focus-managed dialog.
+- The destructive action is disabled while its request is in flight, returns
+  focus on cancel, leaves content intact on failure, and navigates to `/beta`
+  only after the server confirms deletion.
+- Linked saved preferences, if any, require separate disclosure and explicit
+  selection. Transcript corpus assets are never part of member deletion.
+
+### Long conversations
+
+Selected history loads the newest bounded message page and supports older-page
+loading without moving a reader who has scrolled upward. Automatic context
+checkpoints may preserve earlier conversational meaning for inference after a
+declared threshold, but they are untrusted conversational context — not
+transcript evidence and not member-saved preference. Compaction failure falls
+back to bounded recent turns and never blocks storage or fabricates a success.
 
 ### Appearance
 
@@ -172,11 +218,14 @@ The deterministic web unit contract is:
 - `npm --prefix web run typecheck`
 - `npm --prefix web run lint`
 
-The source-level anti-drift contract additionally asserts direct reuse of
+The source-level anti-drift contract already asserts direct reuse of
 `ConversationEmptyState` and `AskComposer`, absence of the rejected feature
 grid, the live-production compact composer variant, bounded two-line session
-items, the Alpha-composed member entry frame, icon-labelled workspace-only
-bottom navigation, and no duplicate Appearance shortcut in the hamburger.
+items, the Alpha-composed member entry frame, the chat-route bottom-dock
+exemption, Alpha hamburger-menu continuity with one additive member Settings
+gear, and no duplicate Appearance shortcut. The next implementation must add
+assertions for distinct Archive/Delete contracts, a same-route unavailable
+retry, and bounded long-history/context behavior.
 
 These checks establish route registry, member-safe copy, bounded local parsing,
 active-record projection, and per-candidate save wiring. They do not establish

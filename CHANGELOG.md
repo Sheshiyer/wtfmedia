@@ -5,6 +5,10 @@ versioning; the web application version is held in `web/package.json`.
 
 ## [Unreleased]
 
+- Added the source-only `beta_0.1` integration and Cloudflare promotion map,
+  separating web assets, catalogue objects, D1 authority, derived retrieval
+  state, environment bindings, pending migrations, and production gates.
+
 - Replaced the operator Cloudflare Access boundary with Clerk verification
   while preserving the D1 email-to-role mapping and deny-by-default RBAC.
 - Added per-user authenticated Ask WTF conversations, durable message/source

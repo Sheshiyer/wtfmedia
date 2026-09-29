@@ -31,7 +31,7 @@ function stateForStatus(status: number): Exclude<NavigatorState, "loading" | "re
 function SessionRow({ item, active }: { item: ChatConversation; active: boolean }) {
   return (
     <Link
-      href={`/chat/${encodeURIComponent(item.id)}-operator`}
+      href={`/beta/chat/${encodeURIComponent(item.id)}`}
       aria-current={active ? "page" : undefined}
       data-chat-session-link
       data-chat-session-active={active ? "true" : undefined}
@@ -132,14 +132,14 @@ export function ChatSessionNavigator({ activeConversationId }: { activeConversat
 
         <div className="mt-3 grid gap-2">
           <Link
-            href="/beta/ops/chat#new-chat"
+            href="/beta/chat#new-chat"
             data-chat-new-session
             className="inline-flex min-h-11 items-center justify-center border-2 border-foreground bg-attention px-3 py-2 font-label text-xs font-bold lowercase text-on-attention shadow-[3px_3px_0_var(--wtf-foreground)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-information"
           >
             new session
           </Link>
           <Link
-            href="/beta/ops/chat"
+            href="/beta/chat"
             data-chat-all-sessions
             className="inline-flex min-h-11 items-center justify-center border-2 border-foreground bg-canvas px-3 py-2 font-label text-xs font-bold lowercase text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-information"
           >

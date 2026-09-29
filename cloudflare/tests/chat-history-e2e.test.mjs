@@ -21,7 +21,7 @@ import {
   getConversationForActor,
   listConversationsForActor,
 } from "../src/chat/history.ts";
-import { archiveMemberConversation, createMemberConversation, getMemberConversation, listMemberConversations } from "../src/chat/member-history.ts";
+import { archiveMemberConversation, createMemberConversation, deleteMemberConversation, getMemberConversation, listMemberConversations } from "../src/chat/member-history.ts";
 import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "../src/chat/member-memory.ts";
 import { resolveOperatorContext } from "../src/auth/operator-context.ts";
 
@@ -39,6 +39,11 @@ const migrations = [
   "0008_release_track.sql",
   "0009_saved_memory.sql",
   "0010_member_beta.sql",
+  "0011_clerk_invitation_id_prefix.sql",
+  "0012_member_chat_deletion.sql",
+  "0013_member_chat_context.sql",
+  "0014_principal_profiles.sql",
+  "0015_principal_profiles_email_guard.sql",
 ];
 
 function sqlite(input, json = false) {
@@ -163,13 +168,15 @@ test("D1 history is durable, idempotent, owner-scoped, and archive-only", async 
   assert.ok(second);
   assert.equal((await listConversationsForActor(db, { operatorId: 4, role: "editor" })).conversations.length, 1);
   assert.equal(await getConversationForActor(db, { operatorId: 4, role: "editor" }, first.conversation.id), null);
-  assert.ok(await getConversationForActor(db, { operatorId: 2, role: "admin" }, first.conversation.id));
+  assert.equal(await getConversationForActor(db, { operatorId: 2, role: "admin" }, first.conversation.id), null);
+  assert.equal((await listConversationsForActor(db, { operatorId: 2, role: "admin" })).conversations.some(({ id }) => id === first.conversation.id), false);
   assert.equal(await archiveConversation(db, { operatorId: 4, role: "editor" }, first.conversation.id), null);
+  assert.equal(await archiveConversation(db, { operatorId: 2, role: "admin" }, first.conversation.id), null);
   assert.equal((await exportConversationsCsv(db, { operatorId: 4, role: "editor" })), null);
-  const archived = await archiveConversation(db, { operatorId: 2, role: "admin" }, first.conversation.id, "2026-09-02T00:03:00.000Z");
+  assert.equal(await exportConversationsCsv(db, { operatorId: 2, role: "admin" }, 3), null);
+  const archived = await archiveConversation(db, { operatorId: 3, role: "editor" }, first.conversation.id, "2026-09-02T00:03:00.000Z");
   assert.equal(archived?.lifecycle_state, "archived");
-  assert.match(await exportConversationsCsv(db, { operatorId: 2, role: "admin" }, 3), /private operator question/);
-  assert.equal((await archiveConversation(db, { operatorId: 2, role: "admin" }, first.conversation.id))?.lifecycle_state, "archived");
+  assert.equal((await archiveConversation(db, { operatorId: 3, role: "editor" }, first.conversation.id))?.lifecycle_state, "archived");
   const deleteAttempt = sqlite(`DELETE FROM chat_conversations WHERE id = '${first.conversation.id}';`);
   assert.notEqual(deleteAttempt.status, 0);
 });
@@ -265,12 +272,16 @@ test("Clerk/D1 context is rechecked on every protected request and cannot cross 
   assert.equal(JSON.parse(continuedBody.messages.at(-2).source_metadata_json).sourceMode, "uncut");
   assert.equal(JSON.parse(continuedBody.messages.at(-1).source_metadata_json).sourceMode, "uncut");
 
-  const listed = await request("aditi@allthingswtf.com", "/ops/api/chat/conversations");
+  const listed = await request("sai@allthingswtf.com", "/ops/api/chat/conversations");
   const listedBody = await listed.json();
   const generatedSummary = listedBody.conversations.find((item) => item.id === generatedBody.conversation.id);
   assert.equal(generatedSummary.message_count, 4);
-  assert.equal(generatedSummary.operator_display_name, "Sai Date");
-  assert.equal(generatedSummary.operator_email, "sai@allthingswtf.com");
+  for (const payload of [generatedBody, listedBody]) {
+    assert.doesNotMatch(JSON.stringify(payload), /\b(?:operator_id|member_id|create_idempotency_key|idempotency_key|request_id)\b/);
+  }
+  const ownerRead = await request("sai@allthingswtf.com", `/ops/api/chat/conversations/${generatedId}`);
+  assert.equal(ownerRead.status, 200);
+  assert.doesNotMatch(JSON.stringify(await ownerRead.json()), /\b(?:operator_id|member_id|create_idempotency_key|idempotency_key|request_id)\b/);
 
   const memoryCreate = await request("aditi@allthingswtf.com", "/ops/api/memory", {
     method: "POST",
@@ -287,7 +298,7 @@ test("Clerk/D1 context is rechecked on every protected request and cannot cross 
   const crossOwner = await request("naisthika@allthingswtf.com", `/ops/api/chat/conversations/${id}`);
   assert.equal(crossOwner.status, 404);
   const adminRead = await request("aditi@allthingswtf.com", `/ops/api/chat/conversations/${id}`);
-  assert.equal(adminRead.status, 200);
+  assert.equal(adminRead.status, 404);
 
   const expired = await handleOpsRequest(new Request(`https://ops.staging.test/ops/api/chat/conversations/${id}`, { headers: { authorization: "Bearer expired" } }), { ...env, DB: db }, { verifyClerk: async () => ({ ok: false }) });
   assert.equal(expired.status, 404);
@@ -358,7 +369,31 @@ function memberRequest(identity, path, payload, key, runChat, database = d1()) {
   }), { ...env, DB: database }, { verifyClerk: async () => identity, runChat });
 }
 
+function memberDeleteRequest(identity, conversationId, payload, database = d1()) {
+  return handleMemberRequest(new Request(`https://ops.staging.test/beta/api/chat/${conversationId}`, {
+    method: "DELETE",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(payload),
+  }), { ...env, DB: database }, { verifyClerk: async () => identity });
+}
+
 const memberAnswer = (input) => ({ answer: "A sourced answer [1].", sources: [], grounded: true, sourceMode: input.sourceMode ?? "published", uncutUnavailable: false, model: "test-model", modelFallback: false, requestId: input.requestId });
+
+test("member chat browser payloads project away internal ownership and idempotency fields", async () => {
+  const identity = seedMember(121);
+  const created = await memberRequest(identity, "/beta/api/chat", { question: "private browser contract", sourceMode: "published" }, "safe-member-key-121", async (input) => memberAnswer(input));
+  assert.equal(created.status, 201);
+  const createdBody = await created.json();
+  const list = await memberRequest(identity, "/beta/api/chat");
+  assert.equal(list.status, 200);
+  const view = await memberRequest(identity, `/beta/api/chat/${createdBody.conversation.id}`);
+  assert.equal(view.status, 200);
+  for (const payload of [createdBody, await list.json(), await view.json()]) {
+    assert.ok(payload.conversation?.id ?? payload.conversations?.[0]?.id);
+    assert.ok(payload.messages?.[0]?.source_metadata_json ?? true);
+    assert.doesNotMatch(JSON.stringify(payload), /\b(?:operator_id|member_id|create_idempotency_key|idempotency_key|request_id)\b/);
+  }
+});
 
 test("member create and continuation replay retain one ordered turn pair and bounded prior context", async () => {
   const identity = seedMember(101);
@@ -412,6 +447,49 @@ test("member turn authorization and validation fail before generation and owner 
   assert.equal(generations, 2);
 });
 
+test("member permanent delete is confirmed, owner-scoped, preserves preferences, and blocks create-key resurrection", async () => {
+  const one = seedMember(117), two = seedMember(118);
+  const db = d1();
+  const payload = { question: "forget this private conversation", sourceMode: "published" };
+  let generations = 0;
+  const generate = async (input) => { generations++; return memberAnswer(input); };
+  const created = await (await memberRequest(one, "/beta/api/chat", payload, "delete-create-key-117", generate, db)).json();
+  const conversationId = created.conversation.id;
+  await db.prepare("INSERT INTO member_saved_memories (id, member_id, content, source_conversation_id, lifecycle_state, created_at, updated_at, archived_at) VALUES (?, ?, ?, ?, 'active', ?, ?, NULL)").bind("mmem_delete_117", 117, "retain this explicit preference", conversationId, "2026-09-11T00:01:00.000Z", "2026-09-11T00:01:00.000Z").run();
+  assert.equal((await getMemberConversation(db, 117, conversationId))?.conversation.linked_saved_preference_count, 1);
+
+  const missingConfirmation = await memberDeleteRequest(one, conversationId, {}, db);
+  const crossOwner = await memberDeleteRequest(two, conversationId, { confirmation: "DELETE" }, db);
+  const unknown = await memberDeleteRequest(two, "mcnv_unknown1234", { confirmation: "DELETE" }, db);
+  assert.equal(missingConfirmation.status, 404);
+  assert.equal(crossOwner.status, 404);
+  assert.deepEqual(await crossOwner.json(), await unknown.json());
+
+  const deleted = await memberDeleteRequest(one, conversationId, { confirmation: "DELETE" }, db);
+  assert.equal(deleted.status, 200);
+  assert.deepEqual(await deleted.json(), { deleted: true, linkedSavedPreferenceCount: 1 });
+  assert.equal(await getMemberConversation(db, 117, conversationId), null);
+  assert.equal((await listMemberConversations(db, 117))?.conversations.length, 0);
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM member_chat_conversations WHERE id = ?").bind(conversationId).first()).count, 0);
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM member_chat_messages WHERE conversation_id = ?").bind(conversationId).first()).count, 0);
+  const memory = await db.prepare("SELECT content, source_conversation_id FROM member_saved_memories WHERE id = ? AND member_id = ?").bind("mmem_delete_117", 117).first();
+  assert.deepEqual(memory, { content: "retain this explicit preference", source_conversation_id: null });
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM member_saved_memory_conversation_tombstones WHERE memory_id = ? AND member_id = ? AND source_conversation_id = ?").bind("mmem_delete_117", 117, conversationId).first()).count, 1);
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM member_chat_deletion_tombstones WHERE conversation_id = ? AND member_id = ?").bind(conversationId, 117).first()).count, 1);
+  const auditReceipt = await db.prepare("SELECT member_id, conversation_id, event, occurred_at FROM member_conversation_deletion_audit_events WHERE conversation_id = ? AND member_id = ?").bind(conversationId, 117).first();
+  assert.deepEqual(auditReceipt, { member_id: 117, conversation_id: conversationId, event: "member_conversation_deleted", occurred_at: auditReceipt.occurred_at });
+  assert.match(auditReceipt.occurred_at, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+
+  const replay = await memberRequest(one, "/beta/api/chat", payload, "delete-create-key-117", async () => { assert.fail("deleted create key must not invoke generation"); }, db);
+  assert.equal(replay.status, 404);
+  assert.equal(generations, 1);
+  const fresh = await memberRequest(one, "/beta/api/chat", payload, "fresh-create-key-117", generate, db);
+  assert.equal(fresh.status, 201);
+  assert.notEqual((await fresh.json()).conversation.id, conversationId);
+  assert.equal((await memberDeleteRequest(one, conversationId, { confirmation: "DELETE" }, db)).status, 200);
+  assert.equal(await deleteMemberConversation(db, 118, conversationId), null);
+});
+
 test("member route accepts pagination cursors and rejects impossible cursor timestamps", async () => {
   const identity = seedMember(108);
   const db = d1();
@@ -422,6 +500,32 @@ test("member route accepts pagination cursors and rejects impossible cursor time
   assert.equal(second.nextCursor, null);
   const invalid = btoa(JSON.stringify({ updatedAt: "2026-02-31T00:00:00.000Z", id: first.conversations[0].id })).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
   assert.equal((await memberRequest(identity, `/beta/api/chat?cursor=${invalid}`)).status, 404);
+});
+
+test("member message history reverse-keyset paginates while generation retains only bounded prior turns", async () => {
+  const identity = seedMember(119), other = seedMember(120);
+  const db = d1();
+  const inputs = [];
+  const generate = async (input) => { inputs.push(input); return memberAnswer(input); };
+  const created = await (await memberRequest(identity, "/beta/api/chat", { question: "message 1", sourceMode: "published" }, "message-page-create-119", generate, db)).json();
+  const path = `/beta/api/chat/${created.conversation.id}`;
+  for (let index = 2; index <= 26; index++) {
+    const response = await memberRequest(identity, path, { question: `message ${index}`, sourceMode: "published" }, `message-page-${index}-119`, generate, db);
+    assert.equal(response.status, 200);
+  }
+
+  const latest = await (await memberRequest(identity, path, undefined, undefined, undefined, db)).json();
+  assert.equal(latest.messages.length, 50);
+  assert.deepEqual(latest.messages.map(({ sequence }) => sequence), Array.from({ length: 50 }, (_, index) => index + 3));
+  assert.equal(typeof latest.previousMessageCursor, "string");
+
+  const previous = await (await memberRequest(identity, `${path}?before=${latest.previousMessageCursor}`, undefined, undefined, undefined, db)).json();
+  assert.deepEqual(previous.messages.map(({ sequence }) => sequence), [1, 2]);
+  assert.equal(previous.previousMessageCursor, null);
+  assert.equal((await memberRequest(other, `${path}?before=${latest.previousMessageCursor}`, undefined, undefined, undefined, db)).status, 404);
+  assert.equal((await memberRequest(identity, `${path}?before=not-a-message-cursor`, undefined, undefined, undefined, db)).status, 404);
+  assert.equal(inputs.at(-1).priorTurns.length, 8);
+  assert.deepEqual(inputs.at(-1).priorTurns.map(({ content }) => content), ["message 22", "A sourced answer [1].", "message 23", "A sourced answer [1].", "message 24", "A sourced answer [1].", "message 25", "A sourced answer [1]."]);
 });
 
 test("failed member generation retries the pending turn and concurrent requests cannot interleave", async () => {

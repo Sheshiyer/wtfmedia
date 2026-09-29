@@ -167,19 +167,6 @@ function selectedConversationColumns(): string {
   return "id, operator_id, workspace, title, source_mode, episode_id, lifecycle_state, create_idempotency_key, created_at, updated_at, archived_at, (SELECT COUNT(*) FROM chat_messages AS message_count_rows WHERE message_count_rows.conversation_id = chat_conversations.id) AS message_count";
 }
 
-async function addOperatorProjection(db: DB, conversations: ChatConversation[], actor: ChatActor): Promise<ChatConversation[]> {
-  if (actor.role !== "admin" && actor.role !== "super_admin") return conversations;
-  const operatorIds = [...new Set(conversations.map((conversation) => conversation.operator_id))];
-  if (operatorIds.length === 0) return conversations;
-  const placeholders = operatorIds.map(() => "?").join(", ");
-  const operators = await db.prepare(`SELECT id, email, display_name FROM operators WHERE id IN (${placeholders})`).bind(...operatorIds).all<{ id: number; email: string; display_name: string }>();
-  const byId = new Map(operators.results.map((operator) => [operator.id, operator]));
-  return conversations.map((conversation) => {
-    const operator = byId.get(conversation.operator_id);
-    return operator ? { ...conversation, operator_email: operator.email, operator_display_name: operator.display_name } : conversation;
-  });
-}
-
 function selectedMessageColumns(): string {
   return "id, conversation_id, sequence, role, content, source_metadata_json, grounding_state, model, model_fallback, request_id, idempotency_key, created_at";
 }
@@ -256,13 +243,7 @@ export async function getConversation(db: DB, operatorId: number, id: unknown): 
 
 export async function getConversationForActor(db: DB, actor: ChatActor, id: unknown): Promise<ChatConversationView | null> {
   if (!validOperatorId(actor.operatorId) || !validId(id, conversationIdPattern)) return null;
-  const conversation = actor.role === "admin" || actor.role === "super_admin"
-    ? await db.prepare(`SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE id = ?`).bind(id).first<ChatConversation>()
-    : await conversationForOperator(db, actor.operatorId, id);
-  if (!conversation) return null;
-  const [projectedConversation] = await addOperatorProjection(db, [conversation], actor);
-  const result = await db.prepare(`SELECT ${selectedMessageColumns()} FROM chat_messages WHERE conversation_id = ? ORDER BY sequence ASC`).bind(id).all<ChatMessage>();
-  return { conversation: projectedConversation ?? conversation, messages: result.results };
+  return getConversation(db, actor.operatorId, id);
 }
 
 export async function listConversations(db: DB, operatorId: number, cursor?: unknown, limit = 25): Promise<ChatPage | null> {
@@ -278,28 +259,13 @@ export async function listConversations(db: DB, operatorId: number, cursor?: unk
 }
 
 export async function listConversationsForActor(db: DB, actor: ChatActor, cursor?: unknown, limit = 25): Promise<ChatPage | null> {
-  if (!validOperatorId(actor.operatorId) || !Number.isInteger(limit) || limit < 1 || limit > MAX_PAGE_SIZE) return null;
-  const decoded = cursor == null ? null : decodeCursor(cursor);
-  if (cursor !== undefined && !decoded) return null;
-  const scope = actor.role === "admin" || actor.role === "super_admin" ? "" : "operator_id = ? AND ";
-  const values = actor.role === "admin" || actor.role === "super_admin"
-    ? (decoded ? [decoded.updatedAt, decoded.updatedAt, decoded.id, limit + 1] : [limit + 1])
-    : (decoded ? [actor.operatorId, decoded.updatedAt, decoded.updatedAt, decoded.id, limit + 1] : [actor.operatorId, limit + 1]);
-  const query = decoded
-    ? `SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE ${scope}(updated_at < ? OR (updated_at = ? AND id < ?)) ORDER BY updated_at DESC, id DESC LIMIT ?`
-    : `SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE ${scope}1 = 1 ORDER BY updated_at DESC, id DESC LIMIT ?`;
-  const rows = await db.prepare(query).bind(...values).all<ChatConversation>();
-  const conversations = rows.results.slice(0, limit);
-  const last = rows.results.length > limit ? conversations.at(-1) : undefined;
-  return { conversations: await addOperatorProjection(db, conversations, actor), nextCursor: last ? encodeCursor(last.updated_at, last.id) : null };
+  return listConversations(db, actor.operatorId, cursor, limit);
 }
 
 export async function archiveConversation(db: DB, actor: ChatActor, id: unknown, now = new Date().toISOString()): Promise<ChatConversation | null> {
   if (!validOperatorId(actor.operatorId) || !validId(id, conversationIdPattern) || !validTimestamp(now)) return null;
-  const target = await db.prepare(`SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE id = ?`).bind(id).first<ChatConversation>();
+  const target = await db.prepare(`SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE id = ? AND operator_id = ?`).bind(id, actor.operatorId).first<ChatConversation>();
   if (!target) return null;
-  const crossOperator = target.operator_id !== actor.operatorId;
-  if (crossOperator && actor.role !== "admin" && actor.role !== "super_admin") return null;
   try {
     await db.prepare("UPDATE chat_conversations SET lifecycle_state = 'archived', archived_at = ?, updated_at = ? WHERE id = ? AND lifecycle_state = 'active'").bind(now, now, id).run();
   } catch {
@@ -316,12 +282,10 @@ function csvCell(value: unknown): string {
 
 export async function exportConversationsCsv(db: DB, actor: ChatActor, operatorScope?: unknown): Promise<string | null> {
   if (!validOperatorId(actor.operatorId) || (actor.role !== "admin" && actor.role !== "super_admin")) return null;
-  const scope = operatorScope == null ? null : Number.isSafeInteger(operatorScope) && Number(operatorScope) > 0 ? Number(operatorScope) : null;
-  if (operatorScope !== undefined && scope === null) return null;
-  const rows = scope === null
-    ? await db.prepare(`SELECT c.id AS conversation_id, c.operator_id, c.title, c.source_mode, c.episode_id, c.lifecycle_state, m.id AS message_id, m.sequence, m.role, m.content, m.source_metadata_json, m.grounding_state, m.model, m.model_fallback, m.request_id, m.created_at FROM chat_conversations c JOIN chat_messages m ON m.conversation_id = c.id ORDER BY c.updated_at DESC, c.id, m.sequence`).all<Record<string, unknown>>()
-    : await db.prepare(`SELECT c.id AS conversation_id, c.operator_id, c.title, c.source_mode, c.episode_id, c.lifecycle_state, m.id AS message_id, m.sequence, m.role, m.content, m.source_metadata_json, m.grounding_state, m.model, m.model_fallback, m.request_id, m.created_at FROM chat_conversations c JOIN chat_messages m ON m.conversation_id = c.id WHERE c.operator_id = ? ORDER BY c.updated_at DESC, c.id, m.sequence`).bind(scope).all<Record<string, unknown>>();
-  const columns = ["conversation_id", "operator_id", "title", "source_mode", "episode_id", "lifecycle_state", "message_id", "sequence", "role", "content", "source_metadata_json", "grounding_state", "model", "model_fallback", "request_id", "created_at"];
+  const scope = operatorScope == null ? actor.operatorId : Number.isSafeInteger(operatorScope) && Number(operatorScope) > 0 ? Number(operatorScope) : null;
+  if (scope !== actor.operatorId) return null;
+  const rows = await db.prepare(`SELECT c.id AS conversation_id, c.title, c.source_mode, c.episode_id, c.lifecycle_state, m.id AS message_id, m.sequence, m.role, m.content, m.source_metadata_json, m.grounding_state, m.model, m.model_fallback, m.created_at FROM chat_conversations c JOIN chat_messages m ON m.conversation_id = c.id WHERE c.operator_id = ? ORDER BY c.updated_at DESC, c.id, m.sequence`).bind(scope).all<Record<string, unknown>>();
+  const columns = ["conversation_id", "title", "source_mode", "episode_id", "lifecycle_state", "message_id", "sequence", "role", "content", "source_metadata_json", "grounding_state", "model", "model_fallback", "created_at"];
   return [columns.join(","), ...rows.results.map((row) => columns.map((column) => csvCell(row[column])).join(","))].join("\n");
 }
 

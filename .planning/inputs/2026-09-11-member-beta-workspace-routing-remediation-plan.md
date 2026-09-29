@@ -2,7 +2,14 @@
 
 ## Status
 
-**PLANNING INPUT — READY FOR A FRESH IMPLEMENTATION SESSION.** This document
+**SUPERSEDED IN PART.** The route, privacy, settings, and persistence map below
+remains evidence, but its UI/nav and archive-only assumptions are superseded by
+[`2026-09-11-alpha-bedrock-beta-modular-convergence-handoff.md`](2026-09-11-alpha-bedrock-beta-modular-convergence-handoff.md).
+That handoff records the later Alpha branch split, makes Alpha's actual chat
+implementation the bedrock, replaces the two-button Beta pill assumption, and
+adds confirmed permanent deletion plus long-session compaction planning.
+
+**PLANNING INPUT — HISTORICAL IMPLEMENTATION MAP.** This document
 maps the authenticated member Beta work that already exists, identifies the
 actual product gaps visible in the 2026-09-10 staging review, and sequences a
 staging-only remediation. It does not authorize a production deployment,

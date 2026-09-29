@@ -107,6 +107,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
 
         <ul className="space-y-2.5 pl-1">
           {visibleSources.map((source, index) => {
+            const citationNumber = source.n ?? index + 1;
             const resolved = resolveCitation({
               ...source,
               requestedMode: source.sourceMode ?? "published",
@@ -125,12 +126,12 @@ export function SourcePanel({ sources }: SourcePanelProps) {
 
             return (
               <li
-                key={`${source.episodeId ?? source.videoId ?? source.url ?? "source"}-${index}`}
+                key={`${citationNumber}-${source.episodeId ?? source.videoId ?? source.url ?? "source"}`}
                 className="space-y-1.5 rounded border border-foreground/10 bg-canvas/40 p-2 transition-colors hover:bg-canvas/70"
               >
                 <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <div className="flex min-w-0 flex-1 items-center gap-1.5">
-                    <span className="font-mono text-[10px] font-bold text-attention">[{index + 1}]</span>
+                    <span className="font-mono text-[10px] font-bold text-attention">[{citationNumber}]</span>
                     {episodeHref ? (
                       <Link
                         href={episodeHref}

@@ -8,6 +8,7 @@ export type OperatorContextDto = {
   workspace: "operations";
   organizationScope: "unknown";
   lastVerifiedAt: string;
+  capabilities?: readonly string[];
 };
 export type SafeOpsError = { error: "operator_unavailable" };
 const productionEnvironment: OperatorContextDto["environment"] = "production";
