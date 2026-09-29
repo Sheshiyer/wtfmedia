@@ -10,6 +10,7 @@ import { isMemberBetaEnabled, resolveMemberBetaRelease } from "./member-release.
 import type { OpsEnv } from "./ops-router.ts";
 import { mutationRequestAllowed } from "./ops-router.ts";
 import { handleAnalyticsRequest, type AnalyticsDependencies } from "./analytics.ts";
+import { syncSelectedAnalytics, syncYouTubeRetention } from "./analytics-sync.ts";
 
 type Dependencies = { verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer> } & AnalyticsDependencies;
 const headers = { "cache-control": "private, no-store", "x-content-type-options": "nosniff" };
@@ -48,6 +49,24 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
   if (!requirement) return denied();
   if (!decide(context.role, requirement[0], requirement[1], { environment: context.environment })) return forbidden();
   if (url.pathname === "/beta/api/principal-context" && request.method === "GET") return Response.json(principalContextDto(context), { headers });
+  if (context.kind === "operator" && url.pathname === "/beta/api/analytics/sync" && request.method === "POST") {
+    const input = await body(request);
+    const provider = input?.provider === "youtube" || input?.provider === "ga4" ? input.provider : null;
+    const startDate = typeof input?.startDate === "string" ? input.startDate : "";
+    const endDate = typeof input?.endDate === "string" ? input.endDate : "";
+    if (!provider || !validAnalyticsRange(startDate, endDate)) return Response.json({ error: "invalid_sync_request" }, { status: 400, headers });
+    const result = await syncSelectedAnalytics(env, provider, startDate, endDate, dependencies);
+    return Response.json({ sync: result }, { status: result.status === "completed" ? 200 : 409, headers });
+  }
+  if (context.kind === "operator" && url.pathname === "/beta/api/analytics/youtube/retention" && request.method === "POST") {
+    const input = await body(request);
+    const videoId = typeof input?.videoId === "string" && /^[A-Za-z0-9_-]{6,24}$/u.test(input.videoId) ? input.videoId : "";
+    const startDate = typeof input?.startDate === "string" ? input.startDate : "";
+    const endDate = typeof input?.endDate === "string" ? input.endDate : "";
+    if (!videoId || !validAnalyticsRange(startDate, endDate)) return Response.json({ error: "invalid_retention_request" }, { status: 400, headers });
+    const result = await syncYouTubeRetention(env, videoId, startDate, endDate, dependencies);
+    return Response.json({ retention: result }, { status: result.status === "completed" ? 200 : 409, headers });
+  }
   if (context.kind === "operator" && url.pathname.startsWith("/beta/api/analytics/")) return handleAnalyticsRequest(request, env, context, dependencies);
   // Admin session audit: operator-surface reads over every member's history.
   // Sits above the member-kind gate; policy already required members:read.
@@ -146,4 +165,11 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     return memory ? Response.json({ memory }, { headers }) : denied();
   }
   return denied();
+}
+
+function validAnalyticsRange(startDate: string, endDate: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/u.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/u.test(endDate)) return false;
+  const start = Date.parse(`${startDate}T00:00:00Z`);
+  const end = Date.parse(`${endDate}T00:00:00Z`);
+  return Number.isFinite(start) && Number.isFinite(end) && start <= end && end - start <= 366 * 86_400_000;
 }

@@ -124,7 +124,7 @@ describe("Beta consolidation admin panels", () => {
       ["readiness", "BetaReadinessLedger"],
       ["release", "ReleaseControl"],
       ["ai", "AIProviderSettingsPanel"],
-      ["analytics", "YouTubeAnalyticsSettingsPanel"],
+      ["analytics", "YouTubeAnalyticsWorkspace"],
       ["sessions", "SessionHistoryPolicyPanel"],
       ["memory", "MemoryGovernancePanel"],
       ["sources", "RagSourceHealthPanel"],

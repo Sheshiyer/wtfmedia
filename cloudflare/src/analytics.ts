@@ -1,5 +1,14 @@
 import type { PrincipalContext } from "./auth/principal-context.ts";
 import type { DB } from "./db.ts";
+import {
+  aggregateYouTubePeriod,
+  comparison,
+  impressionTier,
+  performanceGroup,
+  writtenInsights,
+  YOUTUBE_FORMULA_VERSION,
+  type YouTubeDailyObservation,
+} from "./analytics-derivations.ts";
 
 export type AnalyticsProvider = "youtube" | "ga4";
 
@@ -362,6 +371,47 @@ function dateRange(url: URL): { startDate: string; endDate: string } | null {
   return { startDate, endDate };
 }
 
+const analyticsDayMs = 86_400_000;
+function shiftDate(value: string, days: number): string {
+  return new Date(Date.parse(`${value}T00:00:00Z`) + days * analyticsDayMs).toISOString().slice(0, 10);
+}
+
+function dayCount(startDate: string, endDate: string): number {
+  return Math.floor((Date.parse(`${endDate}T00:00:00Z`) - Date.parse(`${startDate}T00:00:00Z`)) / analyticsDayMs) + 1;
+}
+
+const numeric = (value: unknown): number | null => typeof value === "number" && Number.isFinite(value) ? value : null;
+
+type DailyRow = {
+  date: string;
+  views: number | null;
+  watchMinutes: number | null;
+  averageViewDurationSeconds: number | null;
+  averageViewPercentage: number | null;
+  impressions: number | null;
+  impressionsCtr: number | null;
+  subscribersGained: number | null;
+  subscribersLost: number | null;
+  subscribedViews: number | null;
+  unsubscribedViews: number | null;
+};
+
+function observation(row: DailyRow): YouTubeDailyObservation {
+  return {
+    date: row.date,
+    views: numeric(row.views),
+    watchMinutes: numeric(row.watchMinutes),
+    averageViewDurationSeconds: numeric(row.averageViewDurationSeconds),
+    averageViewPercentage: numeric(row.averageViewPercentage),
+    impressions: numeric(row.impressions),
+    impressionsCtr: numeric(row.impressionsCtr),
+    subscribersGained: numeric(row.subscribersGained),
+    subscribersLost: numeric(row.subscribersLost),
+    subscribedViews: numeric(row.subscribedViews),
+    unsubscribedViews: numeric(row.unsubscribedViews),
+  };
+}
+
 async function youtubeReport(request: Request, env: AnalyticsEnv): Promise<Response> {
   const range = dateRange(new URL(request.url));
   if (!range) return json({ error: "invalid_date_range" }, 400);
@@ -369,10 +419,128 @@ async function youtubeReport(request: Request, env: AnalyticsEnv): Promise<Respo
   if (!connection?.selected_resource_id) return json({ error: "channel_not_selected" }, 409);
   const channel = await env.DB.prepare("SELECT id, youtube_channel_id, title, reporting_timezone FROM youtube_analytics_channels WHERE connection_id = ? AND youtube_channel_id = ? AND active = 1").bind(connection.id, connection.selected_resource_id).first<{ id: string; youtube_channel_id: string; title: string; reporting_timezone: string }>();
   if (!channel) return json({ error: "channel_not_selected" }, 409);
-  const totals = await env.DB.prepare("SELECT SUM(views) AS views, SUM(watch_minutes) AS watch_minutes, CASE WHEN SUM(views) > 0 THEN SUM(average_view_duration_seconds * views) / SUM(views) END AS average_view_duration_seconds, SUM(likes) AS likes, SUM(comments_count) AS comments_count, SUM(shares) AS shares, SUM(subscribers_gained) AS subscribers_gained, SUM(subscribers_lost) AS subscribers_lost FROM youtube_channel_daily_metrics WHERE channel_id = ? AND metric_date BETWEEN ? AND ?").bind(channel.id, range.startDate, range.endDate).first<Record<string, number | null>>();
-  const trends = await env.DB.prepare("SELECT metric_date AS date, views, watch_minutes AS watchMinutes, subscribers_gained AS subscribersGained, subscribers_lost AS subscribersLost FROM youtube_channel_daily_metrics WHERE channel_id = ? AND metric_date BETWEEN ? AND ? ORDER BY metric_date").bind(channel.id, range.startDate, range.endDate).all();
-  const videos = await env.DB.prepare("SELECT v.youtube_video_id AS videoId, v.title, v.published_at AS publishedAt, SUM(m.views) AS views, SUM(m.watch_minutes) AS watchMinutes, CASE WHEN SUM(m.views) > 0 THEN SUM(m.average_view_duration_seconds * m.views) / SUM(m.views) END AS averageViewDurationSeconds, SUM(m.likes) AS likes, SUM(m.comments_count) AS comments, SUM(m.shares) AS shares, SUM(m.subscribers_gained) - SUM(m.subscribers_lost) AS subscriberChange FROM youtube_analytics_videos v LEFT JOIN youtube_video_daily_metrics m ON m.video_id = v.id AND m.metric_date BETWEEN ? AND ? WHERE v.channel_id = ? GROUP BY v.id ORDER BY views DESC LIMIT 100").bind(range.startDate, range.endDate, channel.id).all();
-  return json({ provider: "youtube", resource: { id: channel.youtube_channel_id, name: channel.title, timezone: channel.reporting_timezone }, range, freshness: connection.last_successful_refresh_at, status: connection.status, totals: totals ?? {}, trends: trends.results, videos: videos.results });
+  const selectedDays = dayCount(range.startDate, range.endDate);
+  const previousEnd = shiftDate(range.startDate, -1);
+  const previousStart = shiftDate(previousEnd, -(selectedDays - 1));
+  const trailingEnd = previousEnd;
+  const trailingStart = shiftDate(trailingEnd, -27);
+  const earliest = previousStart < trailingStart ? previousStart : trailingStart;
+  const daily = await env.DB.prepare("SELECT m.metric_date AS date, m.views, m.watch_minutes AS watchMinutes, m.average_view_duration_seconds AS averageViewDurationSeconds, m.average_view_percentage AS averageViewPercentage, m.thumbnail_impressions AS impressions, m.thumbnail_impressions_ctr AS impressionsCtr, m.subscribers_gained AS subscribersGained, m.subscribers_lost AS subscribersLost, (SELECT SUM(a.views) FROM youtube_audience_daily_metrics a WHERE a.channel_id = m.channel_id AND a.metric_date = m.metric_date AND a.subscribed_status = 'SUBSCRIBED') AS subscribedViews, (SELECT SUM(a.views) FROM youtube_audience_daily_metrics a WHERE a.channel_id = m.channel_id AND a.metric_date = m.metric_date AND a.subscribed_status = 'UNSUBSCRIBED') AS unsubscribedViews FROM youtube_channel_daily_metrics m WHERE m.channel_id = ? AND m.metric_date BETWEEN ? AND ? ORDER BY m.metric_date").bind(channel.id, earliest, range.endDate).all<DailyRow>();
+  const observations = daily.results.map(observation);
+  const within = (start: string, end: string) => observations.filter((row) => row.date >= start && row.date <= end);
+  const current = aggregateYouTubePeriod(within(range.startDate, range.endDate));
+  const previous = aggregateYouTubePeriod(within(previousStart, previousEnd));
+  const trailing = aggregateYouTubePeriod(within(trailingStart, trailingEnd));
+  const legacyTotals = await env.DB.prepare("SELECT SUM(views) AS views, SUM(watch_minutes) AS watch_minutes, CASE WHEN SUM(views) > 0 THEN SUM(average_view_duration_seconds * views) / SUM(views) END AS average_view_duration_seconds, SUM(likes) AS likes, SUM(comments_count) AS comments_count, SUM(shares) AS shares, SUM(subscribers_gained) AS subscribers_gained, SUM(subscribers_lost) AS subscribers_lost FROM youtube_channel_daily_metrics WHERE channel_id = ? AND metric_date BETWEEN ? AND ?").bind(channel.id, range.startDate, range.endDate).first<Record<string, number | null>>();
+  const videos = await env.DB.prepare("SELECT v.youtube_video_id AS videoId, v.title, v.published_at AS publishedAt, v.content_type AS contentType, SUM(m.views) AS views, SUM(m.watch_minutes) AS watchMinutes, CASE WHEN SUM(m.views) > 0 THEN SUM(m.average_view_duration_seconds * m.views) / SUM(m.views) END AS averageViewDurationSeconds, CASE WHEN SUM(m.views) > 0 THEN SUM(m.average_view_percentage * m.views) / SUM(m.views) END AS averageViewPercentage, SUM(m.thumbnail_impressions) AS impressions, CASE WHEN SUM(m.thumbnail_impressions) > 0 THEN SUM(m.thumbnail_impressions_ctr * m.thumbnail_impressions) / SUM(m.thumbnail_impressions) END AS impressionsCtr, SUM(m.thumbnail_impressions * m.thumbnail_impressions_ctr) AS estimatedImpressionClicks, SUM(m.likes) AS likes, SUM(m.comments_count) AS comments, SUM(m.shares) AS shares, SUM(m.subscribers_gained) AS subscribersGained, SUM(m.subscribers_lost) AS subscribersLost, SUM(m.subscribers_gained) - SUM(m.subscribers_lost) AS subscriberChange FROM youtube_analytics_videos v LEFT JOIN youtube_video_daily_metrics m ON m.video_id = v.id AND m.metric_date BETWEEN ? AND ? WHERE v.channel_id = ? GROUP BY v.id ORDER BY views DESC LIMIT 100").bind(range.startDate, range.endDate, channel.id).all<Record<string, unknown>>();
+  const expectedCtr = trailing.impressionsCtr;
+  const expectedRetention = trailing.averageViewPercentage;
+  const episodeRows = videos.results.map((row) => {
+    const impressions = numeric(row.impressions);
+    const subscribersGained = numeric(row.subscribersGained);
+    const ctr = numeric(row.impressionsCtr);
+    const retention = numeric(row.averageViewPercentage);
+    return {
+      ...row,
+      subscribersPerMillionImpressions: impressions != null && impressions > 0 && subscribersGained != null ? subscribersGained * 1_000_000 / impressions : null,
+      impressionTier: impressionTier(impressions),
+      ctrDeviationFromExpected: ctr != null && expectedCtr != null ? ctr - expectedCtr : null,
+      retentionDeviationFromExpected: retention != null && expectedRetention != null ? retention - expectedRetention : null,
+      performanceGroup: performanceGroup(ctr, expectedCtr, retention, expectedRetention),
+    };
+  });
+  const patterns = Object.values(episodeRows.reduce<Record<string, { contentType: string; episodeCount: number; views: number; impressions: number; subscribersGained: number }>>((groups, row) => {
+    const key = String(row.contentType ?? "other");
+    const group = groups[key] ?? { contentType: key, episodeCount: 0, views: 0, impressions: 0, subscribersGained: 0 };
+    group.episodeCount += 1;
+    group.views += numeric(row.views) ?? 0;
+    group.impressions += numeric(row.impressions) ?? 0;
+    group.subscribersGained += numeric(row.subscribersGained) ?? 0;
+    groups[key] = group;
+    return groups;
+  }, {})).map((group) => ({ ...group, status: group.episodeCount >= 3 ? "eligible" : "insufficient_sample", hypothesisOnly: true }));
+  const reachJob = await env.DB.prepare("SELECT status, last_checked_at AS lastCheckedAt, last_error_code AS errorCode FROM youtube_reporting_jobs WHERE connection_id = ? AND report_type_id = 'channel_reach_basic_a1'").bind(connection.id).first<Record<string, unknown>>();
+  const currentRows = within(range.startDate, range.endDate);
+  const reachObservedDays = currentRows.filter((row) => row.impressions != null && row.impressionsCtr != null).length;
+  return json({
+    provider: "youtube",
+    resource: { id: channel.youtube_channel_id, name: channel.title, timezone: channel.reporting_timezone },
+    range,
+    freshness: connection.last_successful_refresh_at,
+    status: connection.status,
+    totals: { ...(legacyTotals ?? {}), average_view_percentage: current.averageViewPercentage, impressions: current.impressions, impressions_ctr: current.impressionsCtr, estimated_impression_clicks: current.estimatedImpressionClicks, subscribed_views: current.subscribedViews, unsubscribed_views: current.unsubscribedViews, unsubscribed_view_percentage: current.unsubscribedViewPercentage, stv_rate: current.stvRate, conversion_rate: current.conversionRate, subscribers_per_million_impressions: current.subscribersPerMillionImpressions },
+    periods: { current, previous, trailing28: trailing },
+    comparisons: { previous: comparison(current, previous), trailing28: comparison(current, trailing) },
+    expectations: { ctr: expectedCtr, retention: expectedRetention, method: "weighted_previous_28_complete_days", formulaVersion: YOUTUBE_FORMULA_VERSION },
+    trends: currentRows,
+    videos: episodeRows,
+    contentPatterns: patterns,
+    insights: writtenInsights(current, previous, trailing),
+    coverage: { requestedDays: selectedDays, observedDays: currentRows.length, reach: { ...(reachJob ?? { status: "pending_job_creation" }), observedDays: reachObservedDays }, retention: "per_video_route" },
+    formulas: {
+      version: YOUTUBE_FORMULA_VERSION,
+      stvRate: "subscribersGained / views",
+      conversionRate: "subscribersGained / unsubscribedViews",
+      estimatedImpressionClicks: "thumbnailImpressions * thumbnailImpressionsCtr",
+      subscribersPerMillionImpressions: "subscribersGained / thumbnailImpressions * 1000000",
+      expectedCtr: "impression-weighted CTR over the previous 28 complete days",
+      performanceGroup: "current CTR and retention compared with their previous-28-day baselines",
+    },
+  });
+}
+
+async function youtubeRetentionReport(request: Request, env: AnalyticsEnv): Promise<Response> {
+  const url = new URL(request.url);
+  const range = dateRange(url);
+  const videoId = url.searchParams.get("videoId") ?? "";
+  if (!range || !/^[A-Za-z0-9_-]{6,24}$/u.test(videoId)) return json({ error: "invalid_retention_request" }, 400);
+  const connection = await connectionFor(env, "youtube");
+  if (!connection?.selected_resource_id) return json({ error: "channel_not_selected" }, 409);
+  const video = await env.DB.prepare("SELECT v.id, v.youtube_video_id, v.title FROM youtube_analytics_videos v JOIN youtube_analytics_channels c ON c.id = v.channel_id WHERE c.connection_id = ? AND c.youtube_channel_id = ? AND c.active = 1 AND v.youtube_video_id = ?").bind(connection.id, connection.selected_resource_id, videoId).first<{ id: string; youtube_video_id: string; title: string }>();
+  if (!video) return json({ error: "video_not_found" }, 404);
+  const points = await env.DB.prepare("SELECT elapsed_video_time_ratio AS elapsedVideoTimeRatio, audience_watch_ratio AS audienceWatchRatio, relative_retention_performance AS relativeRetentionPerformance, started_watching AS startedWatching, stopped_watching AS stoppedWatching, total_segment_impressions AS totalSegmentImpressions, observed_at AS observedAt FROM youtube_video_retention_points WHERE video_id = ? AND range_start = ? AND range_end = ? ORDER BY elapsed_video_time_ratio").bind(video.id, range.startDate, range.endDate).all();
+  return json({ provider: "youtube", video: { id: video.youtube_video_id, title: video.title }, range, points: points.results, status: points.results.length ? "available" : "not_synced" });
+}
+
+async function youtubeEpisodeComparison(request: Request, env: AnalyticsEnv): Promise<Response> {
+  const url = new URL(request.url);
+  const videoA = url.searchParams.get("videoA") ?? "";
+  const videoB = url.searchParams.get("videoB") ?? "";
+  const window = url.searchParams.get("window") ?? "first7";
+  if (![videoA, videoB].every((value) => /^[A-Za-z0-9_-]{6,24}$/u.test(value)) || !["first24", "first7", "first28", "lifetime"].includes(window)) return json({ error: "invalid_episode_comparison" }, 400);
+  const connection = await connectionFor(env, "youtube");
+  if (!connection?.selected_resource_id) return json({ error: "channel_not_selected" }, 409);
+  const channel = await env.DB.prepare("SELECT id FROM youtube_analytics_channels WHERE connection_id = ? AND youtube_channel_id = ? AND active = 1").bind(connection.id, connection.selected_resource_id).first<{ id: string }>();
+  if (!channel) return json({ error: "channel_not_selected" }, 409);
+  const videoRows = await env.DB.prepare("SELECT id, youtube_video_id AS videoId, title, published_at AS publishedAt FROM youtube_analytics_videos WHERE channel_id = ? AND youtube_video_id IN (?, ?)").bind(channel.id, videoA, videoB).all<{ id: string; videoId: string; title: string; publishedAt: string | null }>();
+  if (videoRows.results.length !== 2 || videoRows.results.some((video) => !video.publishedAt)) return json({ error: "comparison_videos_unavailable" }, 404);
+  const days = window === "first24" ? 1 : window === "first7" ? 7 : window === "first28" ? 28 : null;
+  async function metrics(video: typeof videoRows.results[number]) {
+    const startDate = video.publishedAt!.slice(0, 10);
+    const endDate = days == null ? "9999-12-31" : shiftDate(startDate, days - 1);
+    const row = await env.DB.prepare("SELECT SUM(views) AS views, SUM(watch_minutes) AS watchMinutes, CASE WHEN SUM(views) > 0 THEN SUM(average_view_duration_seconds * views) / SUM(views) END AS averageViewDurationSeconds, CASE WHEN SUM(views) > 0 THEN SUM(average_view_percentage * views) / SUM(views) END AS averageViewPercentage, SUM(thumbnail_impressions) AS impressions, CASE WHEN SUM(thumbnail_impressions) > 0 THEN SUM(thumbnail_impressions_ctr * thumbnail_impressions) / SUM(thumbnail_impressions) END AS impressionsCtr, SUM(thumbnail_impressions * thumbnail_impressions_ctr) AS estimatedImpressionClicks, SUM(subscribers_gained) AS subscribersGained, SUM(subscribers_lost) AS subscribersLost FROM youtube_video_daily_metrics WHERE video_id = ? AND metric_date BETWEEN ? AND ?").bind(video.id, startDate, endDate).first<Record<string, number | null>>();
+    const values = row ?? {};
+    const impressions = numeric(values.impressions);
+    const subscribersGained = numeric(values.subscribersGained);
+    return {
+      videoId: video.videoId,
+      title: video.title,
+      publishedAt: video.publishedAt,
+      range: { startDate, endDate: days == null ? "latest stored observation" : endDate },
+      ...values,
+      subscribersPerMillionImpressions: impressions != null && impressions > 0 && subscribersGained != null ? subscribersGained * 1_000_000 / impressions : null,
+      impressionTier: impressionTier(impressions),
+    };
+  }
+  const byId = new Map(videoRows.results.map((video) => [video.videoId, video]));
+  const [a, b] = await Promise.all([metrics(byId.get(videoA)!), metrics(byId.get(videoB)!)]);
+  const keys = ["views", "watchMinutes", "averageViewDurationSeconds", "averageViewPercentage", "impressions", "impressionsCtr", "estimatedImpressionClicks", "subscribersGained", "subscribersLost", "subscribersPerMillionImpressions"];
+  const deviations = Object.fromEntries(keys.map((key) => {
+    const left = numeric(a[key as keyof typeof a]);
+    const right = numeric(b[key as keyof typeof b]);
+    return [key, { absolute: left != null && right != null ? left - right : null, relative: left != null && right != null && right !== 0 ? (left - right) / Math.abs(right) : null }];
+  }));
+  return json({ provider: "youtube", window, sameAgeGuard: days != null, formulaVersion: YOUTUBE_FORMULA_VERSION, episodeA: a, episodeB: b, deviations });
 }
 
 async function ga4Report(request: Request, env: AnalyticsEnv): Promise<Response> {
@@ -402,6 +570,8 @@ export async function handleAnalyticsRequest(
     if (pathname === "/beta/api/analytics/selection" && request.method === "POST") return selectResource(request, env, dependencies);
     if (pathname === "/beta/api/analytics/disconnect" && request.method === "POST") return disconnect(request, env, dependencies);
     if (pathname === "/beta/api/analytics/youtube" && request.method === "GET") return youtubeReport(request, env);
+    if (pathname === "/beta/api/analytics/youtube/retention" && request.method === "GET") return youtubeRetentionReport(request, env);
+    if (pathname === "/beta/api/analytics/youtube/episodes/compare" && request.method === "GET") return youtubeEpisodeComparison(request, env);
     if (pathname === "/beta/api/analytics/ga4" && request.method === "GET") return ga4Report(request, env);
     return json({ error: "analytics_route_not_found" }, 404);
   } catch {

@@ -122,11 +122,11 @@ export function policyForPath(pathname: string, method = "GET"): readonly [Resou
 
 function betaApiRequirement(pathname: string, method: string): readonly [Resource, Action] | null {
   const requestMethod = method.toUpperCase();
-  if (["/beta/api/analytics/status", "/beta/api/analytics/youtube", "/beta/api/analytics/ga4"].includes(pathname)) {
-    return requestMethod === "GET" ? ["analytics", "read"] : null;
+  if (["/beta/api/analytics/status", "/beta/api/analytics/youtube", "/beta/api/analytics/ga4", "/beta/api/analytics/youtube/retention", "/beta/api/analytics/youtube/episodes/compare"].includes(pathname) && requestMethod === "GET") {
+    return ["analytics", "read"];
   }
   if (pathname === "/beta/api/analytics/oauth/callback") return requestMethod === "GET" ? ["analytics", "manage"] : null;
-  if (["/beta/api/analytics/oauth/start", "/beta/api/analytics/selection", "/beta/api/analytics/disconnect"].includes(pathname)) {
+  if (["/beta/api/analytics/oauth/start", "/beta/api/analytics/selection", "/beta/api/analytics/disconnect", "/beta/api/analytics/sync", "/beta/api/analytics/youtube/retention"].includes(pathname)) {
     return requestMethod === "POST" ? ["analytics", "manage"] : null;
   }
   if (pathname === "/beta/api/principal-context" || pathname === "/beta/api/context") return requestMethod === "GET" ? ["beta", "read"] : null;

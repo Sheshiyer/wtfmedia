@@ -8,6 +8,7 @@ import {
 import { capabilitiesForRole, policyForPath } from "../src/auth/policy.ts";
 import { handleMemberRequest } from "../src/member-router.ts";
 import { syncAnalyticsConnection, syncConfiguredAnalytics } from "../src/analytics-sync.ts";
+import { aggregateYouTubePeriod, impressionTier, performanceGroup, writtenInsights, YOUTUBE_FORMULA_VERSION } from "../src/analytics-derivations.ts";
 
 const operator = {
   kind: "operator",
@@ -43,11 +44,39 @@ test("analytics credentials use an authenticated encrypted envelope", async () =
 test("edge policy separates analytics read and management", () => {
   assert.deepEqual(policyForPath("/beta/settings/workspace/analytics"), ["analytics", "read"]);
   assert.deepEqual(policyForPath("/beta/api/analytics/status", "GET"), ["analytics", "read"]);
+  assert.deepEqual(policyForPath("/beta/api/analytics/youtube/retention", "GET"), ["analytics", "read"]);
+  assert.deepEqual(policyForPath("/beta/api/analytics/youtube/episodes/compare", "GET"), ["analytics", "read"]);
+  assert.deepEqual(policyForPath("/beta/api/analytics/youtube/retention", "POST"), ["analytics", "manage"]);
+  assert.deepEqual(policyForPath("/beta/api/analytics/sync", "POST"), ["analytics", "manage"]);
   assert.deepEqual(policyForPath("/beta/api/analytics/oauth/start", "POST"), ["analytics", "manage"]);
   assert.equal(policyForPath("/beta/api/analytics/oauth/start", "GET"), null);
   assert.ok(capabilitiesForRole("editor").includes("analytics:read"));
   assert.ok(!capabilitiesForRole("editor").includes("analytics:manage"));
   assert.ok(capabilitiesForRole("admin").includes("analytics:manage"));
+});
+
+test("YouTube decision formulas preserve provider absence and use weighted observations", () => {
+  const period = aggregateYouTubePeriod([
+    { date: "2026-09-01", views: 100, watchMinutes: 50, averageViewDurationSeconds: 30, averageViewPercentage: 25, impressions: 1_000, impressionsCtr: 0.04, subscribersGained: 2, subscribersLost: 1, subscribedViews: 40, unsubscribedViews: 60 },
+    { date: "2026-09-02", views: 300, watchMinutes: 200, averageViewDurationSeconds: 40, averageViewPercentage: 35, impressions: 3_000, impressionsCtr: 0.06, subscribersGained: 6, subscribersLost: 2, subscribedViews: 120, unsubscribedViews: 180 },
+  ]);
+  assert.equal(YOUTUBE_FORMULA_VERSION, "wtfos-youtube-v1");
+  assert.equal(period.views, 400);
+  assert.equal(period.impressions, 4_000);
+  assert.equal(period.impressionsCtr, 0.055);
+  assert.equal(period.estimatedImpressionClicks, 220);
+  assert.equal(period.averageViewPercentage, 32.5);
+  assert.equal(period.stvRate, 0.02);
+  assert.equal(period.conversionRate, 8 / 240);
+  assert.equal(period.subscribersPerMillionImpressions, 2_000);
+  assert.equal(impressionTier(9_000_000)?.id, "tier_4");
+  assert.equal(performanceGroup(0.06, 0.05, 32, 30), "reach_and_attention_leader");
+  assert.ok(writtenInsights(period, { ...period, impressions: 5_000 }, { ...period, impressionsCtr: 0.06 }).some((item) => item.kind === "test"));
+
+  const absent = aggregateYouTubePeriod([{ date: "2026-09-03", views: null, watchMinutes: null, averageViewDurationSeconds: null, averageViewPercentage: null, impressions: null, impressionsCtr: null, subscribersGained: null, subscribersLost: null, subscribedViews: null, unsubscribedViews: null }]);
+  assert.equal(absent.views, null);
+  assert.equal(absent.stvRate, null);
+  assert.equal(absent.estimatedImpressionClicks, null);
 });
 
 test("OAuth start persists only hashed state and returns a read-only Google consent URL", async () => {
