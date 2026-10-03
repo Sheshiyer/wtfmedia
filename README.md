@@ -111,7 +111,7 @@ source-asset mismatches are resolved.
 <td width="50%" valign="top">
 
 ### 🕸️ Connections
-An experimental view of recurring themes and ideas across the catalogue. It is not a verified people, ownership, or company index; claims in those categories need curated source metadata.
+A generated semantic view of recurring topics across the catalogue. Topic counts include only episodes with a published caption-aligned location, and every counted episode is shown with its native YouTube time range, matched language, transcript evidence, and perspective. It is not a verified people, ownership, causality, or company index.
 
 </td>
 <td width="50%" valign="top">

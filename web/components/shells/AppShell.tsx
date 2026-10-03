@@ -28,6 +28,7 @@ export function AppShell({
   // Beta chat merges the rail toggle into its own header row, so the shell
   // reserves no separate top band there.
   const betaChatSurface = pathname === "/beta/chat" || pathname.startsWith("/beta/chat/");
+  const needsStickyWorkspace = pathname === "/connections";
 
   return (
     <div
@@ -41,7 +42,8 @@ export function AppShell({
         <AppRail mode={mode} navigation={navigation} utility={utility} bottomNavigation={bottomNavigation} disclosureGroups={disclosureGroups} />
         <div
           className={[
-            "relative min-h-screen overflow-hidden",
+            "relative min-h-screen",
+            needsStickyWorkspace ? "overflow-x-clip" : "overflow-hidden",
             betaChatSurface ? "" : "pt-[calc(4.5rem+env(safe-area-inset-top))]",
             hideBottomDock ? "" : "pb-28 sm:pb-24",
           ].join(" ")}

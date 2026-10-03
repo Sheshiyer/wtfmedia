@@ -1,5 +1,99 @@
 # Project handoff
 
+## 2026-10-02 Connections sidebar navigation polish
+
+**Status:** LOCAL SOURCE COMPLETE — no push, pull request, GitHub action,
+deployment, Cloudflare mutation, corpus ingest, provider call, or secret use.
+
+- Converted the Connections topic rail into a viewport-bounded sticky panel.
+  The search header and category footer stay fixed while only the topic rows
+  scroll; the panel clears the fixed WTF OS logo and keeps an intact frame at
+  both page and list scroll boundaries.
+- Added thin native-scrollbar styling, overscroll containment, and conditional
+  top/bottom fades so continuation is visible without clipped cards or a
+  broken-looking border.
+- Added a generated category selector in the fixed footer. It composes with
+  text search, reports the filtered/total count, and currently exposes all
+  eight categories from the generated data rather than a hard-coded list.
+- Replaced the native category select after full-screen browser acceptance
+  exposed unreliable popup behavior inside the clipped sticky rail. The new
+  in-page menu opens upward, reports per-category counts, closes on outside
+  press or Escape, resets the topic scroll position, and selects the first
+  matching topic so the evidence panel remains synchronized with the filter.
+- Reproduced the remaining click failure in the user's full-screen Chrome
+  layout. The visible category row overlapped the fixed bottom dock's
+  transparent full-width wrapper, so Chrome delivered the pointer event to
+  the invisible shell layer. The dock wrapper is now pointer-transparent and
+  only the visible navigation pill accepts pointer input. A 1470x956 journey
+  assertion guards the overlap with `elementFromPoint` before opening the
+  category menu.
+- Local browser verification confirmed sticky geometry, internal list
+  scrolling, restored top state, menu open/select/restore at 1470x956, a
+  13-topic AI & Technology result, synchronized Science & Climate detail, and
+  successful menu opening at the formerly blocked full-screen Chrome position.
+  Verification passes: TypeScript, ESLint, web unit 237/237, contracts 97/97,
+  production Next build (92 pages), architecture ledger check (657 inputs),
+  and `git diff --check`. Repository Playwright remains locally unavailable
+  because its pinned Chromium headless-shell binary is not installed; the new
+  journey is committed as a regression check and the exact interaction was
+  accepted manually in installed Chrome.
+
+## 2026-10-02 Expanded, fully receipted topic Connections index
+
+**Status:** LOCAL SOURCE COMPLETE — no push, pull request, GitHub action,
+deployment, Cloudflare mutation, corpus ingest, provider call, or secret use.
+
+- Expanded the deterministic Connections discovery pipeline from 24 broad
+  clusters to 72 topic connections, 201 strong shared-episode links, and 653
+  exact caption-aligned moments across the existing 55-episode local index.
+- Corrected the topic-count contract: `episodeCount`, `occurrenceCount`, and
+  the number of distinct evidence episodes are now identical for every topic.
+  Every episode counted by the UI has a displayed start/end time, transcript
+  excerpt, direct YouTube moment link, and local episode link.
+- Added phrase-level discovery alongside semantic clustering. Generic
+  conversational phrases, place-style labels, duplicate aliases, and weak
+  graph overlaps are filtered; normalized labels and their actual matched
+  anchor language are exposed in the API and UI.
+- Limited graph degree to six strong relationships per topic so the expanded
+  catalogue remains navigable. Search includes labels, categories, anchor
+  language, related phrases, episode titles, and connection explanations.
+- Verification remains local-only; see the command/test receipts in the
+  current task before making any staging or production claim.
+
+## 2026-10-01 Local dynamic topic Connections implementation
+
+**Status:** LOCAL SOURCE COMPLETE — no push, pull request, GitHub action,
+deployment, Cloudflare mutation, corpus ingest, provider call, or secret use.
+
+- Replaced the migrated `/connections` entity/place projection with a generated
+  topic index derived from the existing local RAG passage embeddings. The
+  legacy rollback surface and its historical dataset remain unchanged.
+- Added `npm run connections:build`. The provider-free builder performs
+  deterministic semantic clustering, rejects over-broad/place-style labels,
+  applies per-topic evidence thresholds, and aligns focused evidence phrases
+  back to native published-caption sidecars. It does not estimate timestamps;
+  unaligned evidence is omitted.
+- The current local artifact contains 24 topics, 41 shared-episode topic links,
+  and 143 caption-aligned evidence moments across 55 indexed episodes.
+- Added public `GET /api/connections` with full-index, text-filter, bounded
+  limit, and per-topic detail modes plus schema/freshness headers. The browser
+  bypasses its own cache while shared caches may retain the immutable generated
+  projection briefly.
+- The Connections UI now includes dynamic topic search, an interactive graph,
+  related-topic navigation, confidence/readback metadata, exact start/end
+  clocks, transcript excerpts, semantic match explanations, direct YouTube
+  timestamp links, dedicated episode links, and explicit loading/error/empty/
+  methodology states.
+- Verification: generator completed; web unit 237/237 and contracts 97/97
+  passed before the final evidence-window tightening; focused topic/API tests
+  4/4, TypeScript, ESLint, production Next build, and `git diff --check` pass.
+  In-app browser verified topic search/selection, API freshness, 143-moment
+  readback, timestamp links, and zero horizontal overflow at the available
+  621px viewport. Repository Playwright journeys remain unexecuted because its
+  pinned Chromium binary is not installed on this host.
+- Local preview is available at `http://127.0.0.1:4321/connections`. No live or
+  production acceptance is claimed.
+
 ## 2026-09-28 Local PR #80 integration and Google OAuth configuration
 
 - Integrated PR #80 head `3cfe4a8` into `feature/pavun` locally, preserving current chat, identity, and UI contracts. No push or deployment.
