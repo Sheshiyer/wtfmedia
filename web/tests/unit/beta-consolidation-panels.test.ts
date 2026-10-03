@@ -5,6 +5,28 @@ import { describe, expect, it } from "vitest";
 const source = (file: string) => readFileSync(resolve(process.cwd(), file), "utf8");
 
 describe("Beta consolidation admin panels", () => {
+  it("uses the imported decision workspace as the OAuth-backed primary YouTube UI", () => {
+    const workspace = source("components/domain/ops/YouTubeAnalyticsWorkspace.tsx");
+    const document = source("public/analytics-demo/index.html");
+    const bridge = source("public/analytics-demo/production-bridge.js");
+
+    expect(workspace).toContain("/analytics-demo/index.html?mode=production");
+    expect(workspace).not.toContain("demo reference");
+    expect(document).toContain("production-bridge.js");
+    expect(document).toContain("OAUTH-BACKED PRODUCTION WORKSPACE");
+    for (const route of [
+      "/beta/api/analytics/status",
+      "/beta/api/analytics/oauth/start",
+      "/beta/api/analytics/selection",
+      "/beta/api/analytics/sync",
+      "/beta/api/analytics/youtube?",
+      "/beta/api/analytics/youtube/episodes/compare?",
+      "/beta/api/analytics/youtube/retention",
+    ]) expect(bridge).toContain(route);
+    expect(bridge).toContain("clearProviderData");
+    expect(bridge).not.toMatch(/CLIENT_SECRET|access[_-]?token|refresh[_-]?token/i);
+  });
+
   it("projects explicit memory as separate from durable history", () => {
     const panel = source("components/domain/ops/MemoryGovernancePanel.tsx");
 
@@ -124,7 +146,7 @@ describe("Beta consolidation admin panels", () => {
       ["readiness", "BetaReadinessLedger"],
       ["release", "ReleaseControl"],
       ["ai", "AIProviderSettingsPanel"],
-      ["analytics", "YouTubeAnalyticsSettingsPanel"],
+      ["analytics", "YouTubeAnalyticsWorkspace"],
       ["sessions", "SessionHistoryPolicyPanel"],
       ["memory", "MemoryGovernancePanel"],
       ["sources", "RagSourceHealthPanel"],

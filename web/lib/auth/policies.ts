@@ -39,7 +39,7 @@ export function checkPolicy(role: Role | null, pathname: string): boolean {
 }
 
 export function isPublicRoute(pathname: string): boolean {
-  const publicPatterns = [/^\/$/, /^\/episodes/, /^\/connections/, /^\/chat/, /^\/api\/chat/, /^\/sign-in/, /^\/request-access/, /^\/_next/, /^\/favicon/, /^\/brand/];
+  const publicPatterns = [/^\/$/, /^\/episodes/, /^\/connections/, /^\/chat/, /^\/api\/chat/, /^\/api\/connections/, /^\/sign-in/, /^\/request-access/, /^\/_next/, /^\/favicon/, /^\/brand/];
   return publicPatterns.some((p) => p.test(pathname));
 }
 

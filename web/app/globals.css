@@ -27,7 +27,7 @@ html[data-wtf-theme] {
 
 html {
   scroll-behavior: smooth;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 html,
