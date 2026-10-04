@@ -1,5 +1,18 @@
 # Project handoff
 
+## 2026-10-04 GLM and member analytics deployed after key provisioning
+
+- Owner supplied the OpenRouter key and authorized adding it. Stored only as `OPENROUTER_API_KEY` on `wtfmedia-edge-staging`; no value written to repository or local env files. Advised rotation because it appeared in chat. Prior missing-key deployment hold is resolved.
+- Deployed runtime source `4b346b8e42a3fae807eb2b7dc18ea15fea03a5ca`: Edge `3ab50842-302e-41df-8353-95f90463d1fe`, Web `02bdf9a2-5a26-4c58-a1d3-75921aa829a7` at `beta-staging.wtfhq.in`. Rollback pair before this task: Edge `c6ee1e97-97f4-46af-9111-13916ca7a0b9`, Web `db2adfff-251e-4802-a972-46b20a336a4a`.
+- Analytics planning now uses the shared GLM/OpenRouter lane. All admitted members/operators can read analytics and use chat; only admin/super-admin can manage channel connection and synchronization. No production changes, database migrations, or branch push.
+- Source verification: 428 backend tests, 241 frontend tests, 97 contracts, typecheck/lint, architecture check, and isolated OpenNext build pass. A first synthetic provider smoke failed without status; a retry through the shared client returned valid JSON from `z-ai/glm-5.3-flash`. Real YouTube answer reconciliation and signed-in role UI remain manual acceptance.
+
+## 2026-10-04 GLM/access deployment prepared; staging key missing
+
+- Owner requested deployment of GLM analytics and member analytics access. Candidate `4b346b8` includes the member-compatible legacy analytics redirect; local source changes are committed, not pushed. Backend 428/428, frontend 241/241, contracts 97/97, typecheck/lint and architecture checks pass.
+- Rechecked live secret names after owner stated Ask WTF works: staging Edge and staging Web both have no OpenRouter key; Alpha Web has its Edge transport secret; production Edge has `OPENROUTER_API_KEY` and `_2`. Staging Ask WTF uses the Alpha gateway to production inference, while analytics planning runs on staging Edge. No secret values read or copied.
+- Deployment is held pending `OPENROUTER_API_KEY` on `wtfmedia-edge-staging` (or secure local availability for provisioning). Owner was asked to add it without posting it in chat. No new deployment or remote mutation in this task; previous staging analytics model remains running. Build artifact is being prepared in the existing temporary deployment checkout.
+
 ## 2026-10-04 Member analytics access and provider configuration status
 
 - Owner requested analytics and analytics chat for all admitted users, with channel controls restricted to admins. Members now receive `analytics:read`, see the analytics menu/page, and reach protected report/chat routes. Connect, OAuth callback, selection, disconnect, synchronization, and retention mutations remain admin/super-admin only; editors and members do not receive manage controls or API permission.
