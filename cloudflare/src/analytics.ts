@@ -293,10 +293,10 @@ async function connectionFor(env: AnalyticsEnv, provider: AnalyticsProvider): Pr
 async function selectResource(request: Request, env: AnalyticsEnv, dependencies: AnalyticsDependencies): Promise<Response> {
   const input = await body(request);
   const provider = providerValue(input?.provider);
-  const resourceId = typeof input?.resourceId === "string" ? input.resourceId.trim() : "";
+  let resourceId = typeof input?.resourceId === "string" ? input.resourceId.trim() : "";
   const timezone = typeof input?.timezone === "string" && /^[A-Za-z_+\/-]{1,64}$/u.test(input.timezone) ? input.timezone : "UTC";
   if (!provider) return json({ error: "invalid_provider" }, 400);
-  if (provider === "youtube" && !/^UC[A-Za-z0-9_-]{22}$/u.test(resourceId)) return json({ error: "invalid_channel_id" }, 400);
+  if (provider === "youtube" && resourceId && !/^UC[A-Za-z0-9_-]{22}$/u.test(resourceId)) return json({ error: "invalid_channel_id" }, 400);
   if (provider === "ga4" && !/^\d{5,24}$/u.test(resourceId)) return json({ error: "invalid_property_id" }, 400);
   const row = await connectionFor(env, provider);
   if (!row || !row.encrypted_credentials || row.status === "revoked") return json({ error: "connection_required" }, 409);
@@ -311,7 +311,11 @@ async function selectResource(request: Request, env: AnalyticsEnv, dependencies:
     channelsUrl.searchParams.set("mine", "true");
     const response = await fetchGoogle(channelsUrl, { headers: { authorization: `Bearer ${accessToken}`, accept: "application/json" } });
     const payload = await response.json().catch(() => null) as { items?: Array<{ id?: string; snippet?: { title?: string } }> } | null;
-    const channel = response.ok ? payload?.items?.find((item) => item.id === resourceId) : null;
+    if (!response.ok) return json({ error: "channel_lookup_failed" }, 502);
+    const available = (payload?.items ?? []).filter((item) => item.id && /^UC[A-Za-z0-9_-]{22}$/u.test(item.id));
+    if (!resourceId && available.length > 1) return json({ channels: available.map((item) => ({ id: item.id, name: item.snippet?.title || item.id })) });
+    if (!resourceId && available.length === 1) resourceId = available[0].id!;
+    const channel = available.find((item) => item.id === resourceId);
     if (!channel) return json({ error: response.status === 403 ? "missing_permission" : "resource_not_authorized" }, 403);
     resourceName = channel.snippet?.title?.slice(0, 160) || resourceName || resourceId;
   } else {

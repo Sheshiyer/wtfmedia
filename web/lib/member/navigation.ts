@@ -12,6 +12,7 @@ export const memberDisclosureGroups: readonly AppNavGroup[] = [
     label: "Beta workspace",
     items: [
       memberBottomNavigation[0],
+      { href: "/beta/connections", label: "connections" },
       memberBottomNavigation[1],
     ],
   },

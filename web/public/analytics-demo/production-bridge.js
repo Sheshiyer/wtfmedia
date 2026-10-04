@@ -158,17 +158,17 @@
     const connect = $('#api-connect-demo');
     const form = $('#api-channel-form');
     const sync = $('#api-sync-production');
-    const refresh = $('#api-refresh-production');
-    [connect, sync, refresh].forEach(button => { button.hidden = !canManage; });
-    form.hidden = !canManage || !api.connection;
+    const active = Boolean(api.connection && api.connection.status !== 'revoked');
+    const disconnect = $('#api-disconnect');
+    connect.hidden = !canManage || connected;
+    disconnect.hidden = !canManage || !active;
+    sync.hidden = !canManage || !connected;
     connect.disabled = !api.configured || api.reportLoading;
-    connect.textContent = api.connection ? 'reconnect Google →' : 'connect Google →';
+    connect.textContent = active && !api.connection.resource ? 'connect channel' : 'connect Google';
+    disconnect.disabled = api.reportLoading;
     sync.disabled = !connected || api.reportLoading;
-    refresh.disabled = !connected || api.reportLoading;
-    if (api.connection?.resource) {
-      $('#api-channel-id').value = api.connection.resource.id || '';
-      $('#api-timezone').value = api.connection.resource.timezone || 'UTC';
-    }
+    sync.textContent = api.reportLoading ? 'updating…' : 'update data';
+    if (!active) form.hidden = true;
     document.querySelectorAll('.answer-confidence').forEach(node => { node.textContent = api.report ? 'CONFIDENCE · STORED PROVIDER OBSERVATIONS' : 'CONFIDENCE · PROVIDER DATA UNAVAILABLE'; });
     const episodeCopy = document.querySelector('#episodes .section-title > p');
     if (episodeCopy) episodeCopy.textContent = api.report ? 'Choose an episode to review its performance.' : 'No synchronized episode observations available.';
@@ -185,7 +185,11 @@
       const result = await request('/beta/api/analytics/status');
       api.configured = Boolean(result.configured);
       api.migrationRequired = Boolean(result.migrationRequired);
-      api.connection = Array.isArray(result.connections) ? result.connections.find(item => item.provider === 'youtube') || null : null;
+      api.connection = Array.isArray(result.connections) ? result.connections.find(item => item.provider === 'youtube' && item.status !== 'revoked') || null : null;
+      if (canManage && api.connection && !api.connection.resource) {
+        await selectChannel();
+        return;
+      }
       if (!api.connection?.resource) {
         clearProviderData();
         api.notice = api.migrationRequired ? 'Channel connection is temporarily unavailable.' : api.configured ? 'Connect Google and select the authorized channel.' : 'Google connection is not available yet. Please contact your administrator.';
@@ -248,23 +252,54 @@
   }
 
   async function selectChannel(event) {
-    event.preventDefault();
+    event?.preventDefault();
     if (!canManage) return;
     const resourceId = $('#api-channel-id').value.trim();
-    const timezone = $('#api-timezone').value.trim() || 'UTC';
+    const timezone = 'UTC';
     setBusy(true, 'Verifying channel ownership with Google.');
     try {
-      await request('/beta/api/analytics/selection', {
+      const result = await request('/beta/api/analytics/selection', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ provider: 'youtube', resourceId, timezone }),
       });
-      api.notice = 'Channel verified and selected.';
+      if (result.channels) {
+        const select = $('#api-channel-id');
+        select.replaceChildren(...result.channels.map(channel => {
+          const option = document.createElement('option');
+          option.value = channel.id;
+          option.textContent = channel.name;
+          return option;
+        }));
+        $('#api-channel-form').hidden = false;
+        setBusy(false, 'Choose the channel you want to connect.');
+        return;
+      }
+      $('#api-channel-form').hidden = true;
+      api.notice = 'Channel connected.';
       api.reportLoading = false;
       await loadStatus();
     } catch (error) {
       setBusy(false, `Channel selection failed · ${error.message}`);
     }
+  }
+
+  async function disconnectChannel() {
+    if (!canManage || !api.connection) return;
+    setBusy(true, 'Disconnecting channel…');
+    try {
+      await request('/beta/api/analytics/disconnect', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ provider: 'youtube' }),
+      });
+      api.connection = null;
+      api.report = null;
+      api.reportKey = '';
+      $('#api-channel-id').replaceChildren();
+      clearProviderData();
+      setBusy(false, 'Channel disconnected.');
+      render();
+    } catch (error) { setBusy(false, `Could not disconnect · ${error.message}`); }
   }
 
   async function synchronize() {
@@ -387,10 +422,11 @@
   }
 
   function wireProductionControls() {
-    $('#api-connect-demo').onclick = connectGoogle;
+    $('#api-connect-demo').onclick = () => api.connection && !api.connection.resource ? selectChannel() : connectGoogle();
+    $('#api-disconnect').onclick = disconnectChannel;
     $('#api-channel-form').onsubmit = selectChannel;
     $('#api-sync-production').onclick = synchronize;
-    $('#api-refresh-production').onclick = () => { api.reportKey = ''; void loadReport(true); };
+
   }
 
   render = function productionRender() {

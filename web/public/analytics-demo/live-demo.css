@@ -454,3 +454,10 @@
   .annotation-rail form { grid-template-columns: 1fr; }
   .annotation-rail form button { grid-column: auto; }
 }
+
+.connection-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.connection-actions button, .connection-card #api-channel-form button { border: 1px solid #fffdf8; border-radius: 24px; padding: 8px 12px; background: #fffdf8; color: #242220; font-size: 12px; font-weight: 700; }
+.connection-card #api-action-status { margin: 0; font-size: 12px; line-height: 1.4; }
+.connection-card #api-channel-form label { display: grid; gap: 6px; font-size: 12px; }
+.connection-card #api-channel-form select { max-width: 100%; padding: 8px; }
+.connection-card [hidden] { display: none !important; }

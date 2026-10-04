@@ -4,7 +4,7 @@ import test from "node:test";
 
 const configUrl = new URL("../wrangler.jsonc", import.meta.url);
 
-test("Beta staging has only D1 state plus the read-only Alpha web binding", async () => {
+test("Beta staging retains Alpha corpus authority with analytics AI planning", async () => {
   const config = await readFile(configUrl, "utf8");
   const staging = config.slice(config.indexOf('"staging": {'));
   assert.match(staging, /"binding": "WTFMEDIA_ALPHA_WEB"/);
@@ -18,8 +18,8 @@ test("Beta staging has only D1 state plus the read-only Alpha web binding", asyn
     '"CATALOGUE"',
     '"WTFMEDIA_STATE"',
     '"INGEST_QUEUE"',
-    '"ai":',
   ]) assert.equal(staging.includes(forbidden), false, forbidden);
+  assert.match(staging, /"ai": \{ "binding": "AI" \}/);
   // Production's established Alpha data plane remains independently declared.
   assert.match(config.slice(0, config.indexOf('"env": {')), /"index_name": "wtfmedia-catalogue-v1"/);
 });

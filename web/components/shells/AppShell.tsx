@@ -28,7 +28,7 @@ export function AppShell({
   // Beta chat merges the rail toggle into its own header row, so the shell
   // reserves no separate top band there.
   const betaChatSurface = pathname === "/beta/chat" || pathname.startsWith("/beta/chat/");
-  const needsStickyWorkspace = pathname === "/connections";
+  const needsStickyWorkspace = pathname === "/connections" || pathname === "/beta/connections";
 
   return (
     <div

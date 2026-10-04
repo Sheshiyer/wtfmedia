@@ -1,5 +1,17 @@
 # Project handoff
 
+## 2026-10-04 Local compact YouTube connection controls
+
+- Replaced Manage connection and its expanded setup panel with direct Connect, Disconnect, and Update data actions in the connection card. Removed manual channel ID/timezone fields; multiple owned channels use a name-based selector.
+- The existing protected selection endpoint now discovers the authenticated account's channel when no ID is supplied, selects only an unambiguous single result, and returns choices without writes for multiple results. Explicit IDs still require ownership verification. Disconnect uses the existing revocation endpoint and clears displayed report data.
+- Verification: 20 analytics backend tests including single/multiple/empty owned-channel results; 6 targeted frontend tests; script syntax and whitespace checks pass. Local changes only, no deployment or push. Signed-in visual/Google interaction remains for owner testing.
+
+## 2026-10-04 Local Connections menu integration
+
+- Fetched `feature/sarthak`; its existing `260f50d` topic explorer is already merged and no newer commits remain to integrate.
+- Replaced the signed-in operator Episodes menu entry with Connections. Added the same Connections destination to member menu disclosure, reusing the existing explorer at `/beta/connections` within the authenticated app shell. Direct episode routes remain available.
+- Registered the destination with existing `beta:read` access and retained the explorer's sticky workspace layout without a bottom dock. Targeted navigation/topic tests 20/20 and typecheck pass; local page/API HTTP checks pass. Owner requested local testing before deployment: no push or deployment for this change.
+
 ## 2026-10-04 Owner-authorized staging analytics deployment
 
 - Deployed exact source `36e9eb953037c0fa0739aa061ef2a5b3b37d2f55` to `beta-staging.wtfhq.in`: Edge `ed3fbf48-15db-4632-82f6-33c7ab96fc34`, final Web `595b5650-cd1c-41fa-a0d6-9b7a0358697c`. Web binds only to staging Edge; staging D1 and Alpha bridge remain unchanged.

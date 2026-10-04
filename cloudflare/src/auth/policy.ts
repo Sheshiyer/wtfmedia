@@ -65,6 +65,7 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/api/ops/assets/upload-stream": ["assets", "upload"],
   "/api/ops/assets/confirm-upload": ["assets", "confirm"],
   "/beta": ["beta", "read"],
+  "/beta/connections": ["beta", "read"],
   "/beta/chat": ["chat", "read"],
   "/beta/settings": ["beta", "read"],
   "/beta/settings/account": ["beta", "read"],

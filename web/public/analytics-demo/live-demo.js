@@ -197,9 +197,6 @@ function wireAnswerTools(message){
 }
 
 function wireLiveControls(){
-  $('#api-details-toggle').onclick=()=>{$('#api-handoff').hidden=false;$('#api-details-toggle').setAttribute('aria-expanded','true');$('#api-handoff').scrollIntoView({behavior:'smooth',block:'nearest'})};
-  $('#api-handoff-close').onclick=()=>{$('#api-handoff').hidden=true;$('#api-details-toggle').setAttribute('aria-expanded','false')};
-  $('#api-connect-demo').onclick=()=>{liveDemoState.connected=true;updateConnectionStatus();$('#api-connect-demo').textContent='connected preview active ✓'};
   $('#metric-definition-close').onclick=()=>{$('#metric-definition').hidden=true};
   document.querySelectorAll('[data-route]').forEach(button=>button.onclick=()=>{
     let route=button.dataset.route;

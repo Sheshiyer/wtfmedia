@@ -231,3 +231,39 @@ test("OAuth denial returns to the allowlisted primary operator analytics page", 
   assert.equal(response.status, 303);
   assert.equal(response.headers.get("location"), "http://localhost:3000/beta/analytics?oauth=denied&provider=youtube");
 });
+
+test("YouTube connection discovers owned channels without manual IDs and never guesses between channels", async () => {
+  const secret = "test-channel-discovery-key";
+  const encrypted = await encryptAnalyticsCredentials({ accessToken: "test-access", refreshToken: "test-refresh", expiresAt: "2026-10-05T00:00:00Z" }, secret);
+  const first = { id: `UC${"a".repeat(22)}`, snippet: { title: "First channel" } };
+  const second = { id: `UC${"b".repeat(22)}`, snippet: { title: "Second channel" } };
+  for (const items of [[first], [first, second], []]) {
+    const writes = [];
+    const db = {
+      prepare() { return statement({ async first() { return { id: "connection-test", provider: "youtube", status: "connected", encrypted_credentials: encrypted }; } }); },
+      async batch(statements) { writes.push(...statements); return []; },
+    };
+    const response = await handleAnalyticsRequest(new Request("https://app.test/beta/api/analytics/selection", {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ provider: "youtube" }),
+    }), { DB: db, OPS_ENVIRONMENT: "staging", ANALYTICS_TOKEN_ENCRYPTION_KEY: secret, GOOGLE_OAUTH_CLIENT_ID: "test-client", GOOGLE_OAUTH_CLIENT_SECRET: "test-secret" }, operator, {
+      now: () => new Date("2026-10-04T00:00:00Z"),
+      fetchGoogle: async (url) => {
+        assert.equal(new URL(url).searchParams.get("mine"), "true");
+        return Response.json({ items });
+      },
+    });
+    const result = await response.json();
+    if (items.length === 1) {
+      assert.equal(response.status, 200);
+      assert.equal(result.connection.resource.id, first.id);
+      assert.equal(writes.length, 3);
+    } else if (items.length === 2) {
+      assert.equal(response.status, 200);
+      assert.deepEqual(result.channels.map(channel => channel.name), ["First channel", "Second channel"]);
+      assert.equal(writes.length, 0);
+    } else {
+      assert.equal(response.status, 403);
+      assert.equal(writes.length, 0);
+    }
+  }
+});
