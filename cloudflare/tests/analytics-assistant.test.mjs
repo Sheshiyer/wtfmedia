@@ -45,10 +45,10 @@ test('disconnected and provider failures are truthful',async()=>{
  const f=await fixture({disconnected:true});assert.equal((await handleAnalyticsAssistant(request(),f.env,f.deps)).status,409);assert.equal(f.calls(),0);
  const g=await fixture({httpStatus:403});const v=await(await handleAnalyticsAssistant(request(),g.env,g.deps)).json();assert.equal(v.status,'provider_unavailable');assert.deepEqual(v.sources,[]);
 });
-test('assistant is analytics read only and does not authorize members',()=>{
+test('assistant is analytics read only and is available to members',()=>{
  assert.deepEqual(policyForPath('/beta/api/analytics/assistant','POST'),['analytics','read']);
  assert.equal(policyForPath('/beta/api/analytics/assistant','GET'),null);
- assert.equal(capabilitiesForRole('member').includes('analytics:read'),false);
+ assert.equal(capabilitiesForRole('member').includes('analytics:read'),true);
  assert.equal(capabilitiesForRole('editor').includes('analytics:read'),true);
 });
 
@@ -58,4 +58,39 @@ test('explicit channel scope overrides a previously selected video',async()=>{
  const v=await(await handleAnalyticsAssistant(request({videoId:'video_test1'}),f.env,f.deps)).json();
  assert.equal(v.status,'answered');assert.equal(v.scope.videoId,null);
  assert.equal(f.bindings.length,1);
+});
+
+test('analytics uses the shared Ask WTF GLM OpenRouter lane with JSON and backup-key fallback', async () => {
+ const f=await fixture();
+ delete f.deps.planAnalytics;
+ f.env.OPENROUTER_API_KEY='test-primary';
+ f.env.OPENROUTER_API_KEY_2='test-backup';
+ const originalFetch=globalThis.fetch;
+ const calls=[];
+ globalThis.fetch=async (url, init)=>{
+  assert.equal(url,'https://openrouter.ai/api/v1/chat/completions');
+  const payload=JSON.parse(init.body);calls.push(init.headers.Authorization);
+  assert.equal(payload.model,'z-ai/glm-5.3-flash');
+  assert.deepEqual(payload.response_format,{type:'json_object'});
+  assert.deepEqual(payload.reasoning,{effort:'low'});
+  assert.doesNotMatch(init.body,/test-access-token|test-refresh-token|connection-test|test-primary/);
+  if(calls.length===1)return new Response('auth failed',{status:401});
+  return Response.json({choices:[{message:{content:JSON.stringify(plan)}}]});
+ };
+ try {
+  const response=await handleAnalyticsAssistant(request(),f.env,f.deps);
+  const value=await response.json();
+  assert.equal(value.status,'answered');
+  assert.equal(value.metrics.find(x=>x.key==='netSubscribers').value,75);
+  assert.deepEqual(calls,['Bearer test-primary','Bearer test-backup']);
+ } finally {globalThis.fetch=originalFetch;}
+});
+
+test('missing OpenRouter configuration fails without a Workers AI fallback or Google report',async()=>{
+ const f=await fixture();delete f.deps.planAnalytics;
+ f.env.AI={run(){throw new Error('Workers AI must not be used');}};
+ const response=await handleAnalyticsAssistant(request(),f.env,f.deps);
+ assert.equal(response.status,503);
+ assert.equal((await response.json()).status,'assistant_unavailable');
+ assert.equal(f.calls(),0);
 });

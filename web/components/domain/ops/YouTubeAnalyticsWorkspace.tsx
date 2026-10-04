@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useAuth } from "@clerk/nextjs";
 import type { OperatorSettingsRole } from "@/lib/ops/integration-contract";
 
-export function YouTubeAnalyticsWorkspace({ role }: { role: OperatorSettingsRole }) {
+export function YouTubeAnalyticsWorkspace({ role }: { role: OperatorSettingsRole | "member" }) {
   const { getToken } = useAuth();
   const observer = useRef<ResizeObserver | null>(null);
   useEffect(() => () => observer.current?.disconnect(), []);

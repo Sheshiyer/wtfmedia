@@ -70,7 +70,7 @@ test("the browser principal DTO contains safe display fields and no stable inter
   });
   assert.deepEqual(dto, {
     kind: "member", role: "member", email: identity.email, firstName: "Person", lastName: "Example", displayName: "Person Example",
-    landingRoute: "/beta/chat", capabilities: ["beta:read", "chat:read", "chat:write", "memory:read", "memory:write"], environment: "staging",
+    landingRoute: "/beta/chat", capabilities: ["analytics:read", "beta:read", "chat:read", "chat:write", "memory:read", "memory:write"], environment: "staging",
   });
   assert.doesNotMatch(JSON.stringify(dto), /memberId|operatorId|correlationId|user_|hash|digest/i);
 });

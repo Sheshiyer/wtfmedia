@@ -48,6 +48,7 @@ export function principalCanAccess(context: PrincipalContext, pathname: string):
   if (pathname === "/beta" || pathname === "/beta/api/principal-context") return true;
   if (context.kind === "member") {
     return betaChatPath.test(pathname) || [
+      "/beta/analytics",
       "/beta/connections",
       "/beta/settings",
       "/beta/settings/account",

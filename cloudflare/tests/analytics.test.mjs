@@ -267,3 +267,17 @@ test("YouTube connection discovers owned channels without manual IDs and never g
     }
   }
 });
+
+test("members can read analytics and submit chat but cannot manage the channel", async () => {
+  const member = { kind: "member", role: "member", memberId: 12, environment: "staging", email: "member@example.test" };
+  assert.ok(capabilitiesForRole("member").includes("analytics:read"));
+  assert.ok(!capabilitiesForRole("member").includes("analytics:manage"));
+  assert.deepEqual(policyForPath("/beta/api/analytics/assistant", "POST"), ["analytics", "read"]);
+  const env = { DB: { prepare() { return statement(); } }, OPS_ENVIRONMENT: "staging" };
+  assert.equal((await handleAnalyticsRequest(new Request("https://app.test/beta/api/analytics/status"), env, member)).status, 200);
+  for (const path of ["oauth/start", "selection", "disconnect"]) {
+    const result = await handleAnalyticsRequest(new Request(`https://app.test/beta/api/analytics/${path}`, { method: "POST" }), env, member);
+    assert.equal(result.status, 403);
+  }
+  assert.equal((await handleAnalyticsRequest(new Request("https://app.test/beta/api/analytics/oauth/callback"), env, member)).status, 403);
+});

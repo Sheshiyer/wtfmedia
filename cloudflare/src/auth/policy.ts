@@ -30,7 +30,7 @@ const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
     "transcripts:read", "transcripts:write",
     "analytics:read",
   ]),
-  member: new Set(["beta:read", "chat:read", "chat:write", "memory:read", "memory:write"]),
+  member: new Set(["analytics:read", "beta:read", "chat:read", "chat:write", "memory:read", "memory:write"]),
 };
 
 const routeRequirements: Record<string, readonly [Resource, Action]> = {

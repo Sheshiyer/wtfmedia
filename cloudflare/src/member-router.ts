@@ -50,7 +50,7 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
   if (!requirement) return denied();
   if (!decide(context.role, requirement[0], requirement[1], { environment: context.environment })) return forbidden();
   if (url.pathname === "/beta/api/principal-context" && request.method === "GET") return Response.json(principalContextDto(context), { headers });
-  if (context.kind === "operator" && url.pathname === "/beta/api/analytics/assistant" && request.method === "POST") return handleAnalyticsAssistant(request, env, dependencies);
+  if (url.pathname === "/beta/api/analytics/assistant" && request.method === "POST") return handleAnalyticsAssistant(request, env, dependencies);
   if (context.kind === "operator" && url.pathname === "/beta/api/analytics/sync" && request.method === "POST") {
     const input = await body(request);
     const provider = input?.provider === "youtube" || input?.provider === "ga4" ? input.provider : null;
@@ -69,7 +69,7 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     const result = await syncYouTubeRetention(env, videoId, startDate, endDate, dependencies);
     return Response.json({ retention: result }, { status: result.status === "completed" ? 200 : 409, headers });
   }
-  if (context.kind === "operator" && url.pathname.startsWith("/beta/api/analytics/")) return handleAnalyticsRequest(request, env, context, dependencies);
+  if (url.pathname.startsWith("/beta/api/analytics/")) return handleAnalyticsRequest(request, env, context, dependencies);
   // Admin session audit: operator-surface reads over every member's history.
   // Sits above the member-kind gate; policy already required members:read.
   if (url.pathname === "/beta/api/admin/chat-sessions" && request.method === "GET") {

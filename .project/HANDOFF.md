@@ -1,5 +1,17 @@
 # Project handoff
 
+## 2026-10-04 Member analytics access and provider configuration status
+
+- Owner requested analytics and analytics chat for all admitted users, with channel controls restricted to admins. Members now receive `analytics:read`, see the analytics menu/page, and reach protected report/chat routes. Connect, OAuth callback, selection, disconnect, synchronization, and retention mutations remain admin/super-admin only; editors and members do not receive manage controls or API permission.
+- Verification: 428 backend tests pass, including member router read/chat admission and all channel mutation denials; frontend typecheck and 9 focused tests pass. Architecture current at 667 inputs. Local changes only; no deployment or push.
+- Owner reported the existing OpenRouter key was already added. Read-only production binding-name check confirms `OPENROUTER_API_KEY` and `OPENROUTER_API_KEY_2` on the production Edge worker. Local environment and local vars files still lack those bindings; Cloudflare secret values were not accessed or copied. Live analytics GLM testing/staging provisioning remains pending secure key availability. Staging remains on the previously deployed model and role policy.
+
+## 2026-10-04 Analytics model aligned with Ask WTF (local)
+
+- Owner requested the same GLM/OpenRouter structure as Ask WTF. Analytics planning now calls shared `openRouterChat`, inheriting default `z-ai/glm-5.3-flash`, model override, low-effort reasoning, and primary/backup key handling. Added opt-in JSON output to the shared client; existing Ask WTF callers retain their default request shape. Google still supplies all numerical report values.
+- Removed the analytics Workers AI inference call and fallback. No remote binding or secret changes, deployment, or push. Local `.dev.vars` and `.dev.vars.local` contain no OpenRouter key; asked owner for its existing secure source or to add it to ignored `.dev.vars`. Do not claim live GLM verification until credentials are available.
+- Verification: 426/426 backend tests, including shared model/JSON/key-fallback and missing-key behavior; architecture current at 667 inputs; whitespace check passes. Staging remains on its previously deployed runtime/model.
+
 ## 2026-10-04 Staging Connections and compact controls deployment
 
 - Owner authorized staging deployment of runtime source `e0eb4937b8ae5f8cfeaaa453b05ccfee9803f792`: Edge `c6ee1e97-97f4-46af-9111-13916ca7a0b9`, Web `db2adfff-251e-4802-a972-46b20a336a4a` at `beta-staging.wtfhq.in`. Previous rollback pair: Edge `ed3fbf48-15db-4632-82f6-33c7ab96fc34`, Web `595b5650-cd1c-41fa-a0d6-9b7a0358697c`.

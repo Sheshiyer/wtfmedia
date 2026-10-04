@@ -20,7 +20,7 @@ export const OPENROUTER_GLM_MODEL = "z-ai/glm-5.3-flash";
 // key failure.
 const KEY_FALLBACK_STATUSES = new Set([401, 402, 403]);
 
-async function completion(apiKey: string, model: string, messages: unknown[], options: { maxTokens: number; temperature: number }) {
+async function completion(apiKey: string, model: string, messages: unknown[], options: { maxTokens: number; temperature: number; json?: boolean }) {
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -32,6 +32,7 @@ async function completion(apiKey: string, model: string, messages: unknown[], op
     body: JSON.stringify({
       model,
       messages,
+      ...(options.json ? { response_format: { type: "json_object" } } : {}),
       max_tokens: options.maxTokens,
       temperature: options.temperature,
       // glm-5.3 is a reasoning model; low effort keeps hidden reasoning from
@@ -60,7 +61,7 @@ async function completion(apiKey: string, model: string, messages: unknown[], op
 export async function openRouterChat(
   env: OpenRouterEnv,
   messages: unknown[],
-  options: { maxTokens?: number; temperature?: number; model?: string } = {},
+  options: { maxTokens?: number; temperature?: number; model?: string; json?: boolean } = {},
 ): Promise<{ answer: string; model: string }> {
   const keys = [env.OPENROUTER_API_KEY, env.OPENROUTER_API_KEY_2].filter(
     (key): key is string => typeof key === "string" && key.length > 0,
@@ -72,7 +73,7 @@ export async function openRouterChat(
   let lastError: Error | null = null;
   for (const [index, key] of keys.entries()) {
     try {
-      return await completion(key, model, messages, { maxTokens, temperature });
+      return await completion(key, model, messages, { maxTokens, temperature, json: options.json });
     } catch (error) {
       lastError = error instanceof Error ? error : new Error("openrouter request failed");
       const status = (lastError as { status?: number }).status;

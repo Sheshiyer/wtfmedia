@@ -570,14 +570,15 @@ async function ga4Report(request: Request, env: AnalyticsEnv): Promise<Response>
 export async function handleAnalyticsRequest(
   request: Request,
   env: AnalyticsEnv,
-  context: OperatorPrincipal,
+  context: PrincipalContext,
   dependencies: AnalyticsDependencies = {},
 ): Promise<Response> {
   const pathname = new URL(request.url).pathname;
+  if ((request.method !== "GET" || pathname.endsWith("/oauth/callback")) && (context.kind !== "operator" || !["admin", "super_admin"].includes(context.role))) return json({ error: "forbidden" }, 403);
   try {
     if (pathname === "/beta/api/analytics/status" && request.method === "GET") return status(env);
-    if (pathname === "/beta/api/analytics/oauth/start" && request.method === "POST") return startOAuth(request, env, context, dependencies);
-    if (pathname === "/beta/api/analytics/oauth/callback" && request.method === "GET") return oauthCallback(request, env, context, dependencies);
+    if (pathname === "/beta/api/analytics/oauth/start" && request.method === "POST") return context.kind === "operator" ? startOAuth(request, env, context, dependencies) : json({ error: "forbidden" }, 403);
+    if (pathname === "/beta/api/analytics/oauth/callback" && request.method === "GET") return context.kind === "operator" ? oauthCallback(request, env, context, dependencies) : json({ error: "forbidden" }, 403);
     if (pathname === "/beta/api/analytics/selection" && request.method === "POST") return selectResource(request, env, dependencies);
     if (pathname === "/beta/api/analytics/disconnect" && request.method === "POST") return disconnect(request, env, dependencies);
     if (pathname === "/beta/api/analytics/youtube" && request.method === "GET") return youtubeReport(request, env);

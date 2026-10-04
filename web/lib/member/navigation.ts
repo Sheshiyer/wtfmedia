@@ -13,6 +13,7 @@ export const memberDisclosureGroups: readonly AppNavGroup[] = [
     items: [
       memberBottomNavigation[0],
       { href: "/beta/connections", label: "connections" },
+      { href: "/beta/analytics", label: "youtube analytics" },
       memberBottomNavigation[1],
     ],
   },
