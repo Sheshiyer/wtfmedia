@@ -1,5 +1,12 @@
 # Project handoff
 
+## 2026-10-04 Staging OAuth callback redirect hotfix
+
+- Owner reported `not_found` after Google returned to the staging callback. Deployed web proxy left redirect mode implicit, allowing the return-to-page redirect to be followed inside the Edge service binding; that backend has no `/beta/analytics` page. Explicit `redirect: manual` now preserves the 303/Location for the browser, matching the existing localhost forwarding path.
+- Regression test reproduces the follow-mode 404 and verifies manual-mode 303/header preservation. 242 frontend unit tests, 97 contracts, typecheck/lint and isolated OpenNext build pass. No OAuth code from the screenshot replayed or recorded.
+- Deployed source `b9594b97344b07df7b118586b99e533933f16d84` to staging Web version `9d55eb20-413f-424c-a01c-aad1dfe9abea`. Backend unchanged at `3ab50842-302e-41df-8353-95f90463d1fe`; previous Web rollback version `02bdf9a2-5a26-4c58-a1d3-75921aa829a7`. Production untouched, no branch push.
+- Read-only staging connection check showed YouTube revoked with no selected channel. Owner should start fresh Connect Google after this update. Successful signed-in consent and channel synchronization remain unverified; no browser automation used.
+
 ## 2026-10-04 GLM and member analytics deployed after key provisioning
 
 - Owner supplied the OpenRouter key and authorized adding it. Stored only as `OPENROUTER_API_KEY` on `wtfmedia-edge-staging`; no value written to repository or local env files. Advised rotation because it appeared in chat. Prior missing-key deployment hold is resolved.
