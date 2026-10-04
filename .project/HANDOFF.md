@@ -1,5 +1,12 @@
 # Project handoff
 
+## 2026-10-04 Staging Connections and compact controls deployment
+
+- Owner authorized staging deployment of runtime source `e0eb4937b8ae5f8cfeaaa453b05ccfee9803f792`: Edge `c6ee1e97-97f4-46af-9111-13916ca7a0b9`, Web `db2adfff-251e-4802-a972-46b20a336a4a` at `beta-staging.wtfhq.in`. Previous rollback pair: Edge `ed3fbf48-15db-4632-82f6-33c7ab96fc34`, Web `595b5650-cd1c-41fa-a0d6-9b7a0358697c`.
+- Includes Connections menu instead of Episodes, shared authenticated topic explorer, direct channel controls, owned-channel discovery, and disconnect. Existing staging secrets and bindings retained; no migrations, production deployment, or branch push.
+- Verification: 424 backend tests, 241 frontend tests, 97 contracts, typecheck/lint, and isolated OpenNext build pass. Updated the staging binding test to accept the owner-approved analytics AI binding while retaining bans on duplicate corpus/ingest resources. Post-commit documentation refresh covers 667 tracked inputs.
+- Live HTTP: Connections 200, analytics 200, unsigned analytics API 401, staging backend healthy with Alpha corpus authority. Signed-in channel operations and visual acceptance remain manual.
+
 ## 2026-10-04 Local compact YouTube connection controls
 
 - Replaced Manage connection and its expanded setup panel with direct Connect, Disconnect, and Update data actions in the connection card. Removed manual channel ID/timezone fields; multiple owned channels use a name-based selector.
