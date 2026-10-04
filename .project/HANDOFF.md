@@ -1,5 +1,13 @@
 # Project handoff
 
+## 2026-10-04 Owner-authorized staging analytics deployment
+
+- Deployed exact source `36e9eb953037c0fa0739aa061ef2a5b3b37d2f55` to `beta-staging.wtfhq.in`: Edge `ed3fbf48-15db-4632-82f6-33c7ab96fc34`, final Web `595b5650-cd1c-41fa-a0d6-9b7a0358697c`. Web binds only to staging Edge; staging D1 and Alpha bridge remain unchanged.
+- Owner separately approved staging provider setup: added Google OAuth client ID/secret, encryption key, callback `https://beta-staging.wtfhq.in/beta/api/analytics/oauth/callback`, and analytics-planner AI binding. No secret values recorded. No migrations pending; no database migration applied. No production changes or branch push.
+- Source checks: Edge 423/423, web 241/241, contracts 97/97, typecheck/lint, topic route 4/4 after runtime adaptation, architecture current at 666 inputs, privacy 0/411. OpenNext build passes after changing the imported connections route to the adapter-compatible nodejs runtime.
+- Initial isolated build used symlinked dependencies and produced a manifest-resolution HTTP 500 on staging. Rebuilt identical source with copied dependencies and replaced Web version `351c94db-ae2d-453d-8929-45ed0e86db1f`; final smoke verifies sign-in 200, analytics page 200, unsigned analytics API 401, dashboard static asset 200 after canonical redirect, and Edge health reporting staging/Alpha corpus authority.
+- Pre-task rollback versions: Web `ac77a9f2-b9a9-4397-b6c8-11195b41eab4`, Edge `10b8a7c6-d596-433b-859c-403b94b7b9b3`. Provider secrets were separately updated by owner approval. No browser automation; Google console redirect registration and signed-in consent/live metrics remain unverified. This is deployment evidence, not full Beta persona acceptance or spreadsheet parity.
+
 ## 2026-10-04 OAuth start constraint fix
 
 - Backend logs identified the OAuth-start 500 as migration 0018's return_path CHECK rejecting `/ops/settings/analytics`. OAuth transactions now always persist the schema-compatible legacy value; callbacks return to the fixed `/beta/analytics` page on the configured frontend origin. User-supplied return paths cannot alter that destination.
