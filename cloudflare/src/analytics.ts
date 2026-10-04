@@ -166,14 +166,12 @@ async function status(env: AnalyticsEnv): Promise<Response> {
   }
 }
 
-const analyticsReturnPaths = new Set(["/beta/settings/workspace/analytics", "/ops/settings/analytics"]);
+// Migration 0018 restricts persisted return paths to this compatibility route.
+// The public destination can evolve independently of the stored OAuth transaction.
+const oauthStoredReturnPath = "/beta/settings/workspace/analytics";
 
-function returnPathValue(value: unknown): string {
-  return typeof value === "string" && analyticsReturnPaths.has(value) ? value : "/beta/settings/workspace/analytics";
-}
-
-function safeReturn(request: Request, env: AnalyticsEnv, result: "connected" | "denied" | "failed", provider?: AnalyticsProvider, returnPath?: string): Response {
-  const target = new URL(returnPathValue(returnPath), new URL(env.GOOGLE_OAUTH_REDIRECT_URI || request.url).origin);
+function safeReturn(request: Request, env: AnalyticsEnv, result: "connected" | "denied" | "failed", provider?: AnalyticsProvider): Response {
+  const target = new URL("/beta/analytics", new URL(env.GOOGLE_OAUTH_REDIRECT_URI || request.url).origin);
   target.searchParams.set("oauth", result);
   if (provider) target.searchParams.set("provider", provider);
   return new Response(null, { status: 303, headers: { location: target.toString(), "cache-control": "private, no-store" } });
@@ -183,7 +181,6 @@ async function startOAuth(request: Request, env: AnalyticsEnv, context: Operator
   if (!configured(env)) return json({ error: "analytics_oauth_not_configured" }, 503);
   const input = await body(request);
   const provider = providerValue(input?.provider);
-  const returnPath = returnPathValue(input?.returnPath);
   if (!provider) return json({ error: "invalid_provider" }, 400);
   const stateBytes = crypto.getRandomValues(new Uint8Array(32));
   const state = base64Url(stateBytes);
@@ -193,7 +190,7 @@ async function startOAuth(request: Request, env: AnalyticsEnv, context: Operator
   const id = `aotx_${(dependencies.randomUUID?.() ?? crypto.randomUUID()).replaceAll("-", "")}`;
   await env.DB.prepare(
     "INSERT INTO analytics_oauth_transactions (id, state_sha256, operator_id, provider, return_path, expires_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-  ).bind(id, stateHash, context.operatorId, provider, returnPath, expiresAt, now.toISOString()).run();
+  ).bind(id, stateHash, context.operatorId, provider, oauthStoredReturnPath, expiresAt, now.toISOString()).run();
   const authorization = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   authorization.searchParams.set("client_id", env.GOOGLE_OAUTH_CLIENT_ID!.trim());
   authorization.searchParams.set("redirect_uri", env.GOOGLE_OAUTH_REDIRECT_URI!.trim());
@@ -241,14 +238,14 @@ async function oauthCallback(request: Request, env: AnalyticsEnv, context: Opera
   // Consume before exchanging the code so concurrent callback replays cannot
   // both reach Google. A failed exchange requires a fresh authorization start.
   const consumed = await env.DB.prepare("UPDATE analytics_oauth_transactions SET consumed_at = ? WHERE id = ? AND consumed_at IS NULL").bind(now.toISOString(), transaction.id).run();
-  if ((consumed.meta?.changes ?? 0) !== 1) return safeReturn(request, env, "failed", transaction.provider, transaction.return_path);
-  if (denied) return safeReturn(request, env, "denied", transaction.provider, transaction.return_path);
-  if (!code) return safeReturn(request, env, "failed", transaction.provider, transaction.return_path);
+  if ((consumed.meta?.changes ?? 0) !== 1) return safeReturn(request, env, "failed", transaction.provider);
+  if (denied) return safeReturn(request, env, "denied", transaction.provider);
+  if (!code) return safeReturn(request, env, "failed", transaction.provider);
   const token = await exchangeCode(code, env, dependencies.fetchGoogle ?? fetch);
   const grantedScopes = (token.scope ?? "").split(/\s+/u).filter(Boolean);
   const missingScope = scopes[transaction.provider].some((scope) => !grantedScopes.includes(scope));
   if (!token.access_token || !token.refresh_token || !token.expires_in || missingScope) {
-    return safeReturn(request, env, "failed", transaction.provider, transaction.return_path);
+    return safeReturn(request, env, "failed", transaction.provider);
   }
   const expiresAt = new Date(now.getTime() + token.expires_in * 1_000).toISOString();
   const encrypted = await encryptAnalyticsCredentials({ accessToken: token.access_token, refreshToken: token.refresh_token, expiresAt }, env.ANALYTICS_TOKEN_ENCRYPTION_KEY!.trim());
@@ -258,7 +255,7 @@ async function oauthCallback(request: Request, env: AnalyticsEnv, context: Opera
       "INSERT INTO analytics_provider_connections (id, environment, provider, status, encrypted_credentials, encryption_key_version, granted_scopes_json, token_expires_at, connected_by_operator_id, created_at, updated_at) VALUES (?, ?, ?, 'connected', ?, 'v1', ?, ?, ?, ?, ?) ON CONFLICT(environment, provider) DO UPDATE SET status = 'connected', encrypted_credentials = excluded.encrypted_credentials, encryption_key_version = excluded.encryption_key_version, granted_scopes_json = excluded.granted_scopes_json, token_expires_at = excluded.token_expires_at, connected_by_operator_id = excluded.connected_by_operator_id, last_error_code = NULL, revoked_at = NULL, updated_at = excluded.updated_at",
     ).bind(connectionId, env.OPS_ENVIRONMENT, transaction.provider, encrypted, JSON.stringify(grantedScopes), expiresAt, context.operatorId, now.toISOString(), now.toISOString()),
   ]);
-  return safeReturn(request, env, "connected", transaction.provider, transaction.return_path);
+  return safeReturn(request, env, "connected", transaction.provider);
 }
 
 export async function refreshAnalyticsAccessToken(row: AnalyticsConnectionRow, env: AnalyticsEnv, dependencies: AnalyticsDependencies = {}): Promise<string> {

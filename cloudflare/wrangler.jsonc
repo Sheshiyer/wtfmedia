@@ -101,6 +101,8 @@
     },
     "staging": {
       "name": "wtfmedia-edge-staging",
+      // Analytics question planning only; transcript inference remains with Alpha.
+      "ai": { "binding": "AI" },
       "vars": {
         "ALLOWED_ORIGIN": "https://beta-staging.wtfhq.in",
         "RATE_LIMIT_PER_MINUTE": "20",

@@ -1,41 +1,56 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import { useAuth } from "@clerk/nextjs";
 import type { OperatorSettingsRole } from "@/lib/ops/integration-contract";
 
-const gaps = [
-  ["Impressions + CTR", "YouTube Reporting API reach job"],
-  ["Retention", "YouTube Analytics per-video retention route"],
-  ["Unsubscribed audience", "subscribedStatus activity segments"],
-  ["STV + conversion", "versioned server derivations"],
-  ["Week / trailing comparisons", "equal-length stored-period comparisons"],
-  ["Episode comparison", "matched first-1/7/28-day API route"],
-  ["Tiers + patterns", "guarded catalogue derivations"],
-  ["Expected performance", "previous-28-day weighted baselines"],
-  ["Recommendations", "deterministic evidence rules"],
-] as const;
-
 export function YouTubeAnalyticsWorkspace({ role }: { role: OperatorSettingsRole }) {
+  const { getToken } = useAuth();
+  const observer = useRef<ResizeObserver | null>(null);
+  useEffect(() => () => observer.current?.disconnect(), []);
   const canManage = role === "admin" || role === "super_admin";
-  const source = `/analytics-demo/index.html?mode=production&manage=${canManage ? "1" : "0"}`;
+  const source = `/analytics-demo/index.html?mode=production&embedded=1&manage=${canManage ? "1" : "0"}`;
 
   return <section className="min-w-0" data-youtube-analytics-workspace>
-    <div className="overflow-hidden border-2 border-foreground bg-[#fbf5e9]">
+    <div className="min-w-0">
       <iframe
-        className="block h-[calc(100vh-7rem)] min-h-[920px] w-full"
+        className="block min-h-[920px] w-full border-0"
+        onLoad={(event) => {
+          observer.current?.disconnect();
+          const frame = event.currentTarget;
+          const frameWindow = frame.contentWindow as (Window & {
+            wtfAuthenticatedFetch?: (path: string, options?: RequestInit) => Promise<Response>;
+          }) | null;
+          if (frameWindow) {
+            frameWindow.wtfAuthenticatedFetch = async (path, options = {}) => {
+              const url = new URL(path, window.location.origin);
+              if (url.origin !== window.location.origin || !url.pathname.startsWith("/beta/api/analytics/")) {
+                throw new Error("Invalid analytics request");
+              }
+              const send = async (skipCache: boolean) => {
+                const token = await getToken({ skipCache });
+                if (!token) throw new Error("Please sign in again to connect your channel.");
+                const headers = new Headers(options.headers);
+                headers.set("authorization", `Bearer ${token}`);
+                return fetch(url, { ...options, headers, cache: "no-store", redirect: "error" });
+              };
+              const response = await send(false);
+              return response.status === 401 ? send(true) : response;
+            };
+            frameWindow.dispatchEvent(new Event("wtf-analytics-auth-ready"));
+          }
+          const body = frame.contentDocument?.body;
+          if (!body) return;
+          const resize = () => { frame.style.height = `${Math.ceil(body.getBoundingClientRect().height)}px`; };
+          observer.current = new ResizeObserver(resize);
+          observer.current.observe(body);
+          resize();
+        }}
         src={source}
         title="WTFOS YouTube analytics production workspace"
         sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation"
       />
     </div>
 
-    <details className="mt-4 border-2 border-foreground bg-surface-raised">
-      <summary className="cursor-pointer px-5 py-4 font-label text-xs font-bold uppercase tracking-[0.1em]">production mapping contract</summary>
-      <div className="overflow-x-auto border-t-2 border-foreground">
-        <table className="min-w-full border-collapse text-left text-sm">
-          <thead><tr className="bg-surface-subtle"><th className="border-b-2 border-foreground px-4 py-3 font-label uppercase">workspace signal</th><th className="border-b-2 border-foreground px-4 py-3 font-label uppercase">production source</th></tr></thead>
-          <tbody>{gaps.map(([requirement, sourceLabel]) => <tr key={requirement}><th className="border-b border-foreground/20 px-4 py-3 font-semibold">{requirement}</th><td className="border-b border-foreground/20 px-4 py-3 text-secondary">{sourceLabel}</td></tr>)}</tbody>
-        </table>
-      </div>
-    </details>
   </section>;
 }

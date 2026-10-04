@@ -13,7 +13,6 @@ const MEMBER_ITEMS: readonly SettingsItem[] = [
 ];
 
 const OPERATOR_SETTINGS_ITEMS: readonly SettingsItem[] = [
-  ["/beta/settings/workspace/analytics", "YouTube analytics", "stored provider data", "analytics:read"],
   ["/beta/settings/workspace/release", "release", "server-governed controls", "control_room:read"],
 ];
 

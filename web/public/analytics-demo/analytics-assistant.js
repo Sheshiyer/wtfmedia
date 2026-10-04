@@ -23,7 +23,7 @@
     const pending = append('assistant-message', 'Looking up your YouTube analytics…');
     try {
       const selected = range();
-      const response = await fetch('/beta/api/analytics/assistant', {
+      const response = await (globalThis.wtfAnalyticsRequest || fetch)('/beta/api/analytics/assistant', {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ question, startDate: selected.from, endDate: selected.to, videoId: chosenVideo || (state.episode !== 'all' ? state.episode : null), previousQuestions }),
         signal: AbortSignal.timeout(60000),

@@ -16,6 +16,15 @@ const nextConfig = {  images: {
         { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
       ],
     },
+    {
+      // The authenticated analytics workspace embeds this same-origin dashboard.
+      // Keep other pages non-embeddable and prohibit external sites here too.
+      source: "/analytics-demo/index.html",
+      headers: [
+        { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+      ],
+    },
   ],
   // Ensure the prebuilt vector store is traced into the /api/chat serverless function
   outputFileTracingIncludes: {

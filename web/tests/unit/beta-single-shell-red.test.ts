@@ -75,11 +75,13 @@ describe("Beta single-shell convergence", () => {
     for (const label of ["readiness", "AI route", "RAG & sources", "release mutation"]) {
       expect(settingsNavigation).not.toContain(label);
     }
-    expect(settingsNavigation).toContain('["/beta/settings/workspace/analytics", "YouTube analytics", "stored provider data", "analytics:read"]');
+    expect(settingsNavigation).not.toContain("/beta/settings/workspace/analytics");
+    expect(read("components/domain/beta/BetaPrincipalGate.tsx")).toContain('href: "/beta/analytics"');
     for (const href of [
       "/beta/settings/workspace/readiness",
       "/beta/settings/workspace/ai",
       "/beta/settings/workspace/analytics",
+      "/beta/analytics",
       "/beta/settings/workspace/sources",
       "/beta/admin/release",
     ]) {

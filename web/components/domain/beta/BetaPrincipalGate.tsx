@@ -30,6 +30,7 @@ const memberNavigation: readonly AppNavItem[] = memberBottomNavigation;
 const operatorNavigation: readonly AppNavItem[] = [
   { href: "/beta/chat", label: "ask wtf", section: "workspace" },
   { href: "/beta/workspace/episodes", label: "episodes", section: "workspace" },
+  { href: "/beta/analytics", label: "youtube analytics", section: "workspace" },
   { href: "/beta/settings", label: "settings", section: "administration" },
 ];
 

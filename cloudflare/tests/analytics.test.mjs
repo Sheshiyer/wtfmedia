@@ -113,9 +113,9 @@ test("OAuth start persists only hashed state and returns a read-only Google cons
   assert.match(authorization.searchParams.get("scope"), /yt-analytics\.readonly/u);
   assert.ok(authorization.searchParams.get("state"));
   assert.equal(inserted.length, 1);
+  assert.equal(inserted[0].values[4], "/beta/settings/workspace/analytics", "must satisfy migration 0018 return_path constraint");
   const persisted = inserted[0].values.join(" ");
   assert.doesNotMatch(persisted, new RegExp(authorization.searchParams.get("state"), "u"));
-  assert.match(persisted, /\/ops\/settings\/analytics/u);
   assert.doesNotMatch(JSON.stringify(payload), /test-secret|test-encryption-secret/u);
 });
 
@@ -206,7 +206,7 @@ test("OAuth callback returns to the configured frontend through a local edge pro
     ANALYTICS_TOKEN_ENCRYPTION_KEY: "test-encryption-secret",
   }, operator);
   assert.equal(response.status, 303);
-  assert.equal(response.headers.get("location"), "http://localhost:3000/beta/settings/workspace/analytics?oauth=denied");
+  assert.equal(response.headers.get("location"), "http://localhost:3000/beta/analytics?oauth=denied");
 });
 
 test("OAuth denial returns to the allowlisted primary operator analytics page", async () => {
@@ -229,5 +229,5 @@ test("OAuth denial returns to the allowlisted primary operator analytics page", 
     ANALYTICS_TOKEN_ENCRYPTION_KEY: "test-encryption-secret",
   }, operator, { now: () => new Date("2026-09-29T00:00:00.000Z") });
   assert.equal(response.status, 303);
-  assert.equal(response.headers.get("location"), "http://localhost:3000/ops/settings/analytics?oauth=denied&provider=youtube");
+  assert.equal(response.headers.get("location"), "http://localhost:3000/beta/analytics?oauth=denied&provider=youtube");
 });

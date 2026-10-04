@@ -55,7 +55,7 @@ export function principalCanAccess(context: PrincipalContext, pathname: string):
       "/beta/settings/appearance",
     ].includes(pathname);
   }
-  return betaChatPath.test(pathname) || pathname.startsWith("/beta/workspace") || pathname.startsWith("/beta/settings") || pathname.startsWith("/beta/admin") || pathname.startsWith("/beta/api/");
+  return pathname === "/beta/analytics" || betaChatPath.test(pathname) || pathname.startsWith("/beta/workspace") || pathname.startsWith("/beta/settings") || pathname.startsWith("/beta/admin") || pathname.startsWith("/beta/api/");
 }
 
 export function capabilityForPath(pathname: string): string | null {
@@ -64,7 +64,7 @@ export function capabilityForPath(pathname: string): string | null {
   if (pathname.startsWith("/beta/admin/audit")) return "audit:read";
   if (pathname.startsWith("/beta/workspace/episodes")) return "episodes:read";
   if (pathname.startsWith("/beta/workspace")) return "control_room:read";
-  if (pathname === "/beta/settings/workspace/analytics") return "analytics:read";
+  if (pathname === "/beta/analytics" || pathname === "/beta/settings/workspace/analytics") return "analytics:read";
   if (pathname.startsWith("/beta/settings/workspace")) return "control_room:read";
   return null;
 }

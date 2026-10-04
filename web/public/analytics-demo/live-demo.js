@@ -90,7 +90,7 @@ function updateEpisodeWindow(){
   let boundary=$('#episode-detail .comparison-boundary p');
   if(boundary&&state.cohort==='episode')boundary.textContent=`The production comparison uses ${windowLabel().toLowerCase()} for both episodes. Demo values show the final layout; the live API query will enforce equal post-publish age.`;
   if(boundary&&state.cohort==='matched')boundary.textContent=`Production will automatically compare ${windowLabel().toLowerCase()} against videos of the same format and publish age. This demo shows the unavailable state until live history is synchronized.`;
-  if(boundary&&state.cohort==='snapshot')boundary.textContent=`This compares the episode with the current channel episode average for ${windowLabel().toLowerCase()}. Production will calculate the average from live video history.`;
+  if(boundary&&state.cohort==='snapshot')boundary.textContent=`This compares the episode with the current channel episode average for ${windowLabel().toLowerCase()}.`;
 }
 
 function decorateMetricHelp(){
@@ -175,7 +175,7 @@ function setSaved(items){localStorage.setItem(savedKey,JSON.stringify(items.slic
 function renderSaved(){
   let items=getSaved();
   $('#saved-count').textContent=String(items.length);
-  $('#saved-list').innerHTML=items.length?items.map(item=>`<article class="saved-item"><strong>${escapeHtml(item.question)}</strong><small>${escapeHtml(item.scope)}<br>${escapeHtml(item.savedAt)}</small></article>`).join('')+'<button class="saved-clear" type="button">clear demo saves</button>':'<p>No saved investigations yet.</p>';
+  $('#saved-list').innerHTML=items.length?items.map(item=>`<article class="saved-item"><strong>${escapeHtml(item.question)}</strong><small>${escapeHtml(item.scope)}<br>${escapeHtml(item.savedAt)}</small></article>`).join('')+'<button class="saved-clear" type="button">clear saved investigations</button>':'<p>No saved investigations yet.</p>';
   let clear=$('#saved-list .saved-clear');
   if(clear)clear.onclick=()=>{localStorage.removeItem(savedKey);renderSaved()};
 }
@@ -184,15 +184,15 @@ function wireAnswerTools(message){
   let status=message.querySelector('.answer-action-status');
   message.querySelector('[data-answer-action="save"]').onclick=()=>{
     let items=getSaved(),item={question:message.dataset.question||'Analysis question',scope:$('#chat-scope').textContent,savedAt:new Date().toLocaleString('en-IN'),brief:answerBrief(message)};
-    items.unshift(item);setSaved(items);renderSaved();status.textContent='Saved in this browser demo. Production should save it to the WTFOS workspace.';
+    items.unshift(item);setSaved(items);renderSaved();status.textContent='Saved in this browser.';
   };
   message.querySelector('[data-answer-action="copy"]').onclick=async()=>{
-    try{await navigator.clipboard.writeText(answerBrief(message));status.textContent='Brief copied.'}catch{status.textContent='Copy is unavailable in this browser preview.'}
+    try{await navigator.clipboard.writeText(answerBrief(message));status.textContent='Brief copied.'}catch{status.textContent='Copy is unavailable in this browser.'}
   };
   message.querySelectorAll('[data-answer-feedback]').forEach(button=>button.onclick=()=>{
     message.querySelectorAll('[data-answer-feedback]').forEach(x=>x.classList.remove('selected'));
     button.classList.add('selected');
-    status.textContent=button.dataset.answerFeedback==='useful'?'Feedback recorded for this demo.':'Feedback recorded. Production should attach it to the answer, scope, and source query.';
+    status.textContent=button.dataset.answerFeedback==='useful'?'Feedback noted for this session.':'Feedback noted for this session.';
   });
 }
 

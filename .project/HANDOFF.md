@@ -1,5 +1,34 @@
 # Project handoff
 
+## 2026-10-04 OAuth start constraint fix
+
+- Backend logs identified the OAuth-start 500 as migration 0018's return_path CHECK rejecting `/ops/settings/analytics`. OAuth transactions now always persist the schema-compatible legacy value; callbacks return to the fixed `/beta/analytics` page on the configured frontend origin. User-supplied return paths cannot alter that destination.
+- Updated dashboard request and regressions for persisted path and callback outcomes. All 19 analytics tests pass; local backend auto-reloaded. No shared schema changes, deployment, or successful live Google consent claimed.
+
+## 2026-10-04 Analytics connection authentication and copy cleanup
+
+- Owner reported unauthorized status disabling Google connection in the embedded dashboard. Its plain fetch calls lacked the explicit Clerk bearer authentication used by the app. Added a same-origin analytics-only request bridge using the parent Clerk session, with one fresh-token retry after 401. Embedded calls wait for bridge readiness; Google credentials remain server-side.
+- Removed connection implementation instructions, build brief/data contract, speculative historical tiers, and outer mapping contract. Retained simple Google connection, channel selection, update and refresh controls; replaced developer-facing status and local-save copy.
+- Verification: 241/241 frontend unit tests, typecheck, targeted lint, script syntax and diff checks pass. New auth bridge is served locally with HTTP 200. No authenticated Google consent success, live metrics validation, deployment, or production-readiness claim. Prior provider/API gaps still apply.
+
+## 2026-10-04 Analytics single-page presentation
+
+- Owner requested removal of the nested-page appearance. Embedded dashboard mode hides its duplicate header/logo/menu and uses a transparent background; the app retains its primary navigation. Removed the extra page heading and frame border, and hid the bottom dock on `/beta/analytics`.
+- A cleaned-up ResizeObserver follows dashboard content height so the surrounding page handles scrolling as reports and answers change. Standalone dashboard presentation remains available without embedded mode.
+- Frontend typecheck, targeted lint, and diff whitespace validation pass. Visual verification remains manual; no push or deployment.
+
+## 2026-10-04 Standalone analytics navigation
+
+- Added YouTube analytics to the operator main menu, capability-filtered by `analytics:read`, with a standalone `/beta/analytics` page outside the Settings layout. Removed the Settings navigation item; its old page redirects to the new destination.
+- Registered the new route in frontend principal/destination checks and edge policy, preserving operator-only access and existing protected analytics APIs.
+- Verification: 17 targeted frontend tests, 5 edge policy tests, frontend typecheck, and whitespace checks pass. Local new/old URLs respond with HTTP 200 behind the principal gate; authenticated visual verification remains manual. No push or deployment.
+
+## 2026-10-04 Analytics iframe header fix
+
+- Firefox blocked the analytics iframe because the global response header was `X-Frame-Options: DENY`.
+- Added an exact `/analytics-demo/index.html` header override with `SAMEORIGIN` and CSP `frame-ancestors 'self'`. Other pages retain `DENY`.
+- Live localhost HTTP verification after automatic frontend reload: dashboard returns 200 with the new headers; sign-in returns 200 with `DENY`. Diff whitespace check passes. No browser automation, push, or deployment.
+
 ## 2026-10-04 Sarthak refresh and analytics assistant
 
 - Preserved prior local OAuth fixes in `1fe73fb`, then merged `feature/sarthak` head `260f50d` (analytics workspace and topic explorer) into `feature/pavun` as `52f95c8`. Only HANDOFF conflicted; retained both histories. Nothing pushed.

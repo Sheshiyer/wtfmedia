@@ -15,7 +15,7 @@
     retention: null,
     retentionKey: '',
     retentionLoading: false,
-    notice: 'Checking the server-side analytics connection.',
+    notice: 'Checking your YouTube connection.',
   };
 
   const priorRender = render;
@@ -126,20 +126,20 @@
   }
 
   async function request(path, options) {
-    const response = await fetch(path, { cache: 'no-store', ...options });
+    const response = await (globalThis.wtfAnalyticsRequest || fetch)(path, { cache: 'no-store', ...options });
     const payload = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(payload.error || `request_failed_${response.status}`);
+    if (!response.ok) throw new Error(response.status === 401 ? "Your session expired. Please sign in again." : response.status === 403 ? "You do not have permission to manage this channel." : "We could not complete this request. Please try again.");
     return payload;
   }
 
   function connectionStatus() {
     const connection = api.connection;
-    if (api.migrationRequired) return ['Migration required', 'Apply the approved D1 analytics migrations before connecting Google.'];
-    if (!api.configured) return ['OAuth not configured', 'Server-side Google OAuth and encryption secrets are not configured in this environment.'];
-    if (!connection) return ['Google not connected', 'Authorize the channel owner with the read-only YouTube scopes.'];
-    if (!connection.resource) return ['Select the channel', 'OAuth is connected. Verify and select the channel that this account owns.'];
+    if (api.migrationRequired) return ['Connection unavailable', 'Channel connection is temporarily unavailable. Please contact your administrator.'];
+    if (!api.configured) return ['Connection unavailable', 'Google connection is not available yet. Please contact your administrator.'];
+    if (!connection) return ['Google not connected', 'Connect the Google account that manages your channel. Access is read-only.'];
+    if (!connection.resource) return ['Select the channel', 'Google is connected. Select your YouTube channel to continue.'];
     if (connection.status !== 'connected') return [String(connection.status).replaceAll('_', ' '), 'Reconnect Google before synchronizing provider observations.'];
-    return [connection.resource.name || connection.resource.id, 'OAuth-backed observations are read from the WTFOS analytics store.'];
+    return [connection.resource.name || connection.resource.id, 'Your channel is connected. Update data to see the latest results.'];
   }
 
   function renderProductionStatus() {
@@ -162,7 +162,7 @@
     [connect, sync, refresh].forEach(button => { button.hidden = !canManage; });
     form.hidden = !canManage || !api.connection;
     connect.disabled = !api.configured || api.reportLoading;
-    connect.textContent = api.connection ? 'reconnect Google OAuth →' : 'connect Google OAuth →';
+    connect.textContent = api.connection ? 'reconnect Google →' : 'connect Google →';
     sync.disabled = !connected || api.reportLoading;
     refresh.disabled = !connected || api.reportLoading;
     if (api.connection?.resource) {
@@ -171,7 +171,7 @@
     }
     document.querySelectorAll('.answer-confidence').forEach(node => { node.textContent = api.report ? 'CONFIDENCE · STORED PROVIDER OBSERVATIONS' : 'CONFIDENCE · PROVIDER DATA UNAVAILABLE'; });
     const episodeCopy = document.querySelector('#episodes .section-title > p');
-    if (episodeCopy) episodeCopy.textContent = api.report ? 'Synchronized API observations · choose a row to review it.' : 'No synchronized episode observations available.';
+    if (episodeCopy) episodeCopy.textContent = api.report ? 'Choose an episode to review its performance.' : 'No synchronized episode observations available.';
   }
 
   function setBusy(value, notice) {
@@ -188,11 +188,11 @@
       api.connection = Array.isArray(result.connections) ? result.connections.find(item => item.provider === 'youtube') || null : null;
       if (!api.connection?.resource) {
         clearProviderData();
-        api.notice = api.migrationRequired ? 'Analytics storage migration is required.' : api.configured ? 'Connect Google and select the authorized channel.' : 'OAuth must be configured using server-side secrets.';
+        api.notice = api.migrationRequired ? 'Channel connection is temporarily unavailable.' : api.configured ? 'Connect Google and select the authorized channel.' : 'Google connection is not available yet. Please contact your administrator.';
         render();
         return;
       }
-      api.notice = 'Connection loaded. Reading stored provider observations.';
+      api.notice = 'Loading your channel’s data.';
       render();
       await loadReport(true);
     } catch (error) {
@@ -234,16 +234,16 @@
 
   async function connectGoogle() {
     if (!canManage || !api.configured) return;
-    setBusy(true, 'Starting Google OAuth.');
+    setBusy(true, 'Opening Google sign-in…');
     try {
       const result = await request('/beta/api/analytics/oauth/start', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ provider: 'youtube', returnPath: '/ops/settings/analytics' }),
+        body: JSON.stringify({ provider: 'youtube', returnPath: '/beta/analytics' }),
       });
       window.top.location.assign(result.authorizationUrl);
     } catch (error) {
-      setBusy(false, `OAuth could not start · ${error.message}`);
+      setBusy(false, `Google sign-in could not open · ${error.message}`);
     }
   }
 
@@ -341,7 +341,7 @@
     const max = Math.max(1, ...points.map(point => point.audienceWatchRatio));
     const path = points.map(point => `${(point.elapsedVideoTimeRatio * 100).toFixed(2)},${(70 - point.audienceWatchRatio / max * 64).toFixed(2)}`).join(' ');
     const status = api.retentionLoading ? 'Loading stored curve' : points.length ? `${points.length} retention points` : result?.status === 'not_synced' ? 'Retention has not been synchronized' : 'Retention unavailable for this range';
-    $('#episode-detail').insertAdjacentHTML('beforeend', `<section class="production-retention"><div><span>YOUTUBE RETENTION API</span><strong>${safe(status)}</strong><small>${safe(result?.video?.title || ep()?.name || state.episode)}</small></div><svg viewBox="0 0 100 76" role="img" aria-label="Audience retention curve">${path ? `<polyline points="${path}" fill="none" stroke="#2862d9" stroke-width="2" vector-effect="non-scaling-stroke"/>` : ''}</svg>${canManage ? '<button id="api-sync-retention" type="button">sync retention →</button>' : '<small>Admin authority is required to synchronize retention.</small>'}</section>`);
+    $('#episode-detail').insertAdjacentHTML('beforeend', `<section class="production-retention"><div><span>AUDIENCE RETENTION</span><strong>${safe(status)}</strong><small>${safe(result?.video?.title || ep()?.name || state.episode)}</small></div><svg viewBox="0 0 100 76" role="img" aria-label="Audience retention curve">${path ? `<polyline points="${path}" fill="none" stroke="#2862d9" stroke-width="2" vector-effect="non-scaling-stroke"/>` : ''}</svg>${canManage ? '<button id="api-sync-retention" type="button">sync retention →</button>' : '<small>Admin authority is required to synchronize retention.</small>'}</section>`);
     const button = $('#api-sync-retention');
     if (button) { button.disabled = api.retentionLoading; button.onclick = synchronizeRetention; }
   }

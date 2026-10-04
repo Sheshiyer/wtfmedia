@@ -37,7 +37,7 @@ export function shouldHideBottomDock(
   pathname: string,
 ): boolean {
   const betaChatOrSettings = pathname.startsWith("/beta/chat") || pathname.startsWith("/beta/settings");
-  return mode === "member" || betaChatOrSettings || (mode === "public" && (pathname === "/" || pathname === "/chat"));
+  return pathname === "/beta/analytics" || mode === "member" || betaChatOrSettings || (mode === "public" && (pathname === "/" || pathname === "/chat"));
 }
 
 export function AppRail({

@@ -13,7 +13,9 @@ describe("Beta consolidation admin panels", () => {
     expect(workspace).toContain("/analytics-demo/index.html?mode=production");
     expect(workspace).not.toContain("demo reference");
     expect(document).toContain("production-bridge.js");
-    expect(document).toContain("OAUTH-BACKED PRODUCTION WORKSPACE");
+    expect(document).toContain("auth-bridge.js");
+    expect(document).not.toContain("PRODUCTION DATA CONTRACT");
+    expect(document).not.toContain("Frontend rule:");
     for (const route of [
       "/beta/api/analytics/status",
       "/beta/api/analytics/oauth/start",
