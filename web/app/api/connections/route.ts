@@ -4,7 +4,8 @@ import {
   type TopicConnection,
 } from "@/lib/topic-connections";
 
-export const runtime = "edge";
+// OpenNext bundles this route into the Cloudflare Worker server runtime.
+export const runtime = "nodejs";
 
 const MAX_QUERY_CHARS = 120;
 
