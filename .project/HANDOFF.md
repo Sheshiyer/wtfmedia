@@ -1,5 +1,20 @@
 # Project handoff
 
+## 2026-09-29 Approved staging analytics migrations
+
+- Owner explicitly approved applying analytics migrations 0018 and 0019 to shared staging D1 (`wtfmedia-ops-staging`). Confirmed those were the only pending migrations, then applied both using Wrangler migration tracking.
+- Captured pre-apply D1 Time Travel recovery bookmark `0000011e-00000000-000050f5-942b9ccd6397a39e02c395e3f7a15739`; no database contents exported.
+- Remote readback verifies both migration records, all 13 analytics tables, and the three added video reach/retention columns. Prior pending-migration notes are superseded by this receipt.
+- Production unchanged. No deployment, scheduling, provider sync, or Google consent performed; owner can refresh localhost analytics and start Google consent.
+
+## 2026-09-29 Local analytics OAuth origin fix
+
+- Diagnosed OAuth start returning 404 before authentication: local frontend origin used port 3000 while HTTP upstream used port 8787. Google credential bindings were present.
+- Local proxy now validates the original browser origin before translating it to the internal edge origin. Foreign-origin mutations return 403. Deployed service-binding path is unchanged.
+- Analytics UI distinguishes storage setup, disconnected accounts, missing configuration, and generic connection failures. Connect is disabled while storage migration is required.
+- Verification: 234 web unit tests, typecheck, lint; unsigned same-origin live POST reaches 401 authentication, foreign-origin POST returns 403. No authenticated OAuth success claimed.
+- Migrations 0018/0019 remain pending owner approval for shared staging D1. No migrations, provider configuration changes, push, or deployment performed.
+
 ## 2026-09-29 Local PR #81 integration
 
 - Merged `feature/sarthak` / PR #81 at exact head `30b5635b645f6bfd3c90ecfc1c59cc72cd2b4b24` into local `feature/pavun` without conflicts. No push or GitHub PR-state mutation.

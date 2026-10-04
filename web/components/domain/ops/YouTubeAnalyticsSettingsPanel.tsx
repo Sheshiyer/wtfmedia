@@ -37,7 +37,7 @@ const command = "inline-flex min-h-11 items-center justify-center rounded-contro
 function isoDate(date: Date) { return date.toISOString().slice(0, 10); }
 function formatMetric(value: unknown) { return typeof value === "number" && Number.isFinite(value) ? new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(value) : "unavailable"; }
 function formatPercent(value: unknown) { return typeof value === "number" && Number.isFinite(value) ? `${new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(value * 100)}%` : "unavailable"; }
-function labelFor(state: IntegrationConnectionState | "loading") {
+function labelFor(state: IntegrationConnectionState | "loading" | "setup_required" | "not_connected") {
   if (state === "missing_scope") return "permission denied";
   return state.replaceAll("_", " ");
 }
@@ -102,8 +102,11 @@ export function YouTubeAnalyticsSettingsPanel({ role }: { role: OperatorSettings
       const value = await response.json() as { authorizationUrl?: string; error?: string };
       if (!response.ok || !value.authorizationUrl) throw new Error(value.error ?? "oauth_unavailable");
       window.location.assign(value.authorizationUrl);
-    } catch {
-      setNotice("Google OAuth is not configured for this environment.");
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "oauth_unavailable";
+      setNotice(code === "analytics_oauth_not_configured"
+        ? "Google OAuth is not configured for this environment."
+        : "Google connection could not start. Check the connection status and try again.");
       setBusy(false);
     }
   }
@@ -149,7 +152,7 @@ export function YouTubeAnalyticsSettingsPanel({ role }: { role: OperatorSettings
     } finally { setBusy(false); }
   }
 
-  const state = connection?.status ?? "not_configured";
+  const state = connection?.status ?? (status?.migrationRequired ? "setup_required" : status?.configured ? "not_connected" : "not_configured");
   const totals = report?.totals ?? {};
   const cards = provider === "youtube"
     ? [["views", totals.views], ["impressions", totals.impressions], ["thumbnail CTR", typeof totals.impressions_ctr === "number" ? totals.impressions_ctr * 100 : null], ["retention %", totals.average_view_percentage], ["watch time (minutes)", totals.watch_minutes], ["average view duration (seconds)", totals.average_view_duration_seconds], ["subscribers gained", totals.subscribers_gained], ["unsubscribed views", totals.unsubscribed_views]]
@@ -167,9 +170,9 @@ export function YouTubeAnalyticsSettingsPanel({ role }: { role: OperatorSettings
       <div className="border-2 border-foreground bg-canvas p-4">
         <p className="font-label text-[11px] font-bold uppercase tracking-[0.1em] text-muted">connection</p>
         <dl className="mt-3 grid gap-2 text-sm"><div className="flex justify-between gap-3"><dt className="text-secondary">provider</dt><dd className="font-semibold">{provider === "youtube" ? "Google / YouTube" : "Google Analytics 4"}</dd></div><div className="flex justify-between gap-3"><dt className="text-secondary">selected resource</dt><dd className="text-right font-semibold">{connection?.resource?.name ?? "not selected"}</dd></div><div className="flex justify-between gap-3"><dt className="text-secondary">last attempted refresh</dt><dd className="text-right font-semibold">{connection?.lastAttemptedRefreshAt ?? "not observed"}</dd></div><div className="flex justify-between gap-3"><dt className="text-secondary">last successful refresh</dt><dd className="text-right font-semibold">{connection?.lastSuccessfulRefreshAt ?? "not observed"}</dd></div>{connection?.errorCode ? <div className="flex justify-between gap-3"><dt className="text-secondary">provider state</dt><dd className="text-right font-semibold">{connection.errorCode.replaceAll("_", " ")}</dd></div> : null}</dl>
-        {canManage ? <div className="mt-4 flex flex-wrap gap-2"><button type="button" className={command} onClick={connect} disabled={busy || !status?.configured}>{state === "connected" ? "reconnect Google" : "connect Google"}</button>{connection && state !== "revoked" ? <button type="button" className={button} onClick={disconnect} disabled={busy}>disconnect</button> : null}</div> : <p className="mt-4 border-l-4 border-information bg-surface-subtle px-3 py-2 text-xs text-secondary">Editor access is report-only. Connection management requires admin authority.</p>}
+        {canManage ? <div className="mt-4 flex flex-wrap gap-2"><button type="button" className={command} onClick={connect} disabled={busy || !status?.configured || status?.migrationRequired}>{state === "connected" ? "reconnect Google" : "connect Google"}</button>{connection && state !== "revoked" ? <button type="button" className={button} onClick={disconnect} disabled={busy}>disconnect</button> : null}</div> : <p className="mt-4 border-l-4 border-information bg-surface-subtle px-3 py-2 text-xs text-secondary">Editor access is report-only. Connection management requires admin authority.</p>}
         {!status?.configured ? <p className="mt-3 text-xs text-secondary">OAuth secrets are not configured in this environment. No credential is accepted in the browser.</p> : null}
-        {canManage && connection && !["not_configured", "revoked"].includes(state) ? <div className="mt-5 grid gap-3 border-t-2 border-foreground/20 pt-4"><label className="grid gap-1"><span className="font-label text-xs font-bold uppercase">{provider === "youtube" ? "YouTube channel ID" : "GA4 property ID"}</span><input className={control} value={resourceId} onChange={(event) => setResourceId(event.target.value)} placeholder={provider === "youtube" ? "UC…" : "numeric property ID"} /></label>{provider === "ga4" ? <label className="grid gap-1"><span className="font-label text-xs font-bold uppercase">property display name</span><input className={control} value={resourceName} onChange={(event) => setResourceName(event.target.value)} placeholder="website name" /></label> : null}<label className="grid gap-1"><span className="font-label text-xs font-bold uppercase">reporting timezone</span><input className={control} value={timezone} onChange={(event) => setTimezone(event.target.value)} /></label><button type="button" className={command} onClick={selectResource} disabled={busy || !resourceId.trim()}>{connection.resource ? "validate and change selection" : "validate and select"}</button></div> : null}
+        {canManage && connection && !["not_configured", "not_connected", "setup_required", "revoked"].includes(state) ? <div className="mt-5 grid gap-3 border-t-2 border-foreground/20 pt-4"><label className="grid gap-1"><span className="font-label text-xs font-bold uppercase">{provider === "youtube" ? "YouTube channel ID" : "GA4 property ID"}</span><input className={control} value={resourceId} onChange={(event) => setResourceId(event.target.value)} placeholder={provider === "youtube" ? "UC…" : "numeric property ID"} /></label>{provider === "ga4" ? <label className="grid gap-1"><span className="font-label text-xs font-bold uppercase">property display name</span><input className={control} value={resourceName} onChange={(event) => setResourceName(event.target.value)} placeholder="website name" /></label> : null}<label className="grid gap-1"><span className="font-label text-xs font-bold uppercase">reporting timezone</span><input className={control} value={timezone} onChange={(event) => setTimezone(event.target.value)} /></label><button type="button" className={command} onClick={selectResource} disabled={busy || !resourceId.trim()}>{connection.resource ? "validate and change selection" : "validate and select"}</button></div> : null}
         <p className="mt-4 text-xs leading-relaxed text-secondary" aria-live="polite">{notice}</p>
       </div>
       <div className="border-2 border-foreground bg-canvas p-4">

@@ -8,7 +8,14 @@ async function forward(edge: { fetch: (input: Request) => Promise<Response> } | 
     const init: RequestInit = { method: request.method, headers, redirect: "manual" };
     if (request.method !== "GET" && request.method !== "HEAD") init.body = await request.arrayBuffer();
     const url = new URL(request.url);
-    const upstream = await fetch(new URL(url.pathname + url.search, localOrigin), init);
+    const upstreamUrl = new URL(url.pathname + url.search, localOrigin);
+    // Validate the browser origin before translating it to the internal dev port.
+    const origin = headers.get("origin");
+    if (origin && request.method !== "GET" && request.method !== "HEAD") {
+      if (origin !== url.origin) return Response.json({ error: "origin_not_allowed" }, { status: 403, headers: { "cache-control": "private, no-store" } });
+      headers.set("origin", upstreamUrl.origin);
+    }
+    const upstream = await fetch(upstreamUrl, init);
     // Strip hop-by-hop headers from the upstream response — browsers reject
     // responses that re-emit them (Firefox reports NS_ERROR_*). content-encoding
     // must go too: fetch already decoded the body, so re-emitting "gzip" makes
