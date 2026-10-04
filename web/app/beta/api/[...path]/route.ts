@@ -27,7 +27,9 @@ async function forward(edge: { fetch: (input: Request) => Promise<Response> } | 
   // Deployed: forward the ORIGINAL request object with stripped headers.
   // Rebuilding from a URL string drops the internal routing context and the
   // subrequest leaves the service binding — Cloudflare answers 1003.
-  return edge.fetch(new Request(request, { headers }));
+  // OAuth callbacks redirect to a web page, not another backend endpoint.
+  // Preserve that response for the browser instead of following it in the binding.
+  return edge.fetch(new Request(request, { headers, redirect: "manual" }));
 }
 
 async function proxy(request: Request): Promise<Response> {

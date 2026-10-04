@@ -43,6 +43,18 @@ describe("same-origin member API edge proxy", () => {
     expect(forwarded.headers.get("authorization")).toBe("Bearer member-session-token");
   });
 
+  it("returns OAuth redirects to the browser instead of following them inside the backend", async () => {
+    const destination = "https://beta-staging.wtfhq.in/beta/analytics?oauth=connected&provider=youtube";
+    state.edgeFetch.mockImplementation(async (request: Request) => request.redirect === "manual"
+      ? new Response(null, { status: 303, headers: { location: destination, "cache-control": "private, no-store" } })
+      : Response.json({ error: "not_found" }, { status: 404 }));
+    const response = await GET(new Request("https://beta-staging.wtfhq.in/beta/api/analytics/oauth/callback?code=test-code&state=test-state"));
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe(destination);
+    expect(state.edgeFetch).toHaveBeenCalledOnce();
+    expect((state.edgeFetch.mock.calls[0][0] as Request).redirect).toBe("manual");
+  });
+
   it("preserves a supplied bearer credential without replacing it", async () => {
     await GET(new Request("https://wtfmedia-web-staging.connect2nikhai.workers.dev/beta/api/context", {
       headers: { authorization: "Bearer browser-token" },
