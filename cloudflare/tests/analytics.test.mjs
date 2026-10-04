@@ -91,7 +91,7 @@ test("OAuth start persists only hashed state and returns a read-only Google cons
   const response = await handleAnalyticsRequest(new Request("https://ops.staging.test/beta/api/analytics/oauth/start", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ provider: "youtube" }),
+    body: JSON.stringify({ provider: "youtube", returnPath: "/ops/settings/analytics" }),
   }), {
     DB: db,
     OPS_ENVIRONMENT: "staging",
@@ -115,6 +115,7 @@ test("OAuth start persists only hashed state and returns a read-only Google cons
   assert.equal(inserted.length, 1);
   const persisted = inserted[0].values.join(" ");
   assert.doesNotMatch(persisted, new RegExp(authorization.searchParams.get("state"), "u"));
+  assert.match(persisted, /\/ops\/settings\/analytics/u);
   assert.doesNotMatch(JSON.stringify(payload), /test-secret|test-encryption-secret/u);
 });
 
@@ -206,4 +207,27 @@ test("OAuth callback returns to the configured frontend through a local edge pro
   }, operator);
   assert.equal(response.status, 303);
   assert.equal(response.headers.get("location"), "http://localhost:3000/beta/settings/workspace/analytics?oauth=denied");
+});
+
+test("OAuth denial returns to the allowlisted primary operator analytics page", async () => {
+  const db = {
+    prepare(sql) {
+      if (sql.startsWith("SELECT id, provider, return_path")) return statement({
+        async first() { return { id: "aotx_test", provider: "youtube", return_path: "/ops/settings/analytics" }; },
+      });
+      if (sql.startsWith("UPDATE analytics_oauth_transactions")) return statement({
+        async run() { return { success: true, meta: { changes: 1 } }; },
+      });
+      return statement();
+    },
+  };
+  const response = await handleAnalyticsRequest(new Request("http://localhost:8787/beta/api/analytics/oauth/callback?error=access_denied&state=test-state"), {
+    DB: db,
+    GOOGLE_OAUTH_CLIENT_ID: "test-client",
+    GOOGLE_OAUTH_CLIENT_SECRET: "test-secret",
+    GOOGLE_OAUTH_REDIRECT_URI: "http://localhost:3000/beta/api/analytics/oauth/callback",
+    ANALYTICS_TOKEN_ENCRYPTION_KEY: "test-encryption-secret",
+  }, operator, { now: () => new Date("2026-09-29T00:00:00.000Z") });
+  assert.equal(response.status, 303);
+  assert.equal(response.headers.get("location"), "http://localhost:3000/ops/settings/analytics?oauth=denied&provider=youtube");
 });

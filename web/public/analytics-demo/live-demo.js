@@ -118,14 +118,14 @@ function showMetricDefinition(key){
 }
 
 function renderAttentionInbox(){
-  let n=now(),p=comparison().m,leader=[...episodes].sort((a,b)=>b.subscribers-a.subscribers)[0],items;
+  let n=now(),p=comparison().m,leader=[...episodes].filter(item=>finite(item.subscribers)).sort((a,b)=>b.subscribers-a.subscribers)[0],items;
   if(!n){
-    items=[['CONNECT','Connect this scope','The current demo has no response for this selection. Production should show the missing API field without substituting another scope.','What data is missing for this selected scope?','context']];
+    items=[['CONNECT','Connect this scope','No synchronized provider response exists for this selection. Missing API fields remain unavailable and no fixture is substituted.','What data is missing for this selected scope?','context']];
   }else{
     items=[
       [p&&n.impressions<p.impressions?'REVIEW':'KEEP',p&&n.impressions<p.impressions?'Reach is below the comparison':'Reach is holding',p?`Impressions moved ${signed(rel(n.impressions,p.impressions))} and CTR moved ${pp(n.ctr,p.ctr)}.`:'Add a comparison to judge distribution movement.','Why did channel impressions and CTR change in this range?',p&&n.impressions<p.impressions?'':'keep'],
       [p&&n.retention<p.retention?'REVIEW':'KEEP',p&&n.retention<p.retention?'Attention softened':'Attention held up',p?`Retention moved ${pp(n.retention,p.retention)} and AVD is ${time(n.avd)}.`:`Current AVD is ${time(n.avd)} and retention is ${rate(n.retention)}.`,'Why did attention change in this range?',p&&n.retention<p.retention?'':'keep'],
-      ['CATALOGUE SIGNAL',`${leader.name} leads subscriber gain`,`${exact(leader.subscribers)} subscribers at ${rate(leader.stv)} yield in the demo video catalogue.`,'Which episode gained most subscribers?','context']
+      ['CATALOGUE SIGNAL',leader?`${leader.name} leads subscriber gain`:'Episode growth unavailable',leader?`${exact(leader.subscribers)} subscribers at ${rate(leader.stv)} yield in the synchronized catalogue.`:'No synchronized episode subscriber observations are available for this range.','Which episode gained most subscribers?','context']
     ];
   }
   $('#attention-items').innerHTML=items.map(([tag,title,copy,q,tone])=>`<article class="attention-item ${tone}"><span>${tag}</span><strong>${title}</strong><p>${copy}</p><button type="button" data-attention-question="${q}">investigate →</button></article>`).join('');
@@ -203,8 +203,8 @@ function wireLiveControls(){
   $('#metric-definition-close').onclick=()=>{$('#metric-definition').hidden=true};
   document.querySelectorAll('[data-route]').forEach(button=>button.onclick=()=>{
     let route=button.dataset.route;
-    if(route==='latest'){Object.assign(state,{episode:episodes[0].id,cohort:'matched',episodeWindow:'first7'});render();$('#episode-review').scrollIntoView({behavior:'smooth',block:'start'})}
-    if(route==='compare'){Object.assign(state,{episode:episodes[0].id,cohort:'episode',compareEpisode:episodes[4].id});render();$('#episode-review').scrollIntoView({behavior:'smooth',block:'start'})}
+    if(route==='latest'&&episodes[0]){Object.assign(state,{episode:episodes[0].id,cohort:'matched',episodeWindow:'first7'});render();$('#episode-review').scrollIntoView({behavior:'smooth',block:'start'})}
+    if(route==='compare'&&episodes.length>1){Object.assign(state,{episode:episodes[0].id,cohort:'episode',compareEpisode:episodes[1].id});render();$('#episode-review').scrollIntoView({behavior:'smooth',block:'start'})}
     if(route==='change'){Object.assign(state,{episode:'all',range:'latest',start:presets.latest.from,end:presets.latest.to});render();$('#week-heading').scrollIntoView({behavior:'smooth',block:'start'})}
     if(route==='ask'){$('#ask').scrollIntoView({behavior:'smooth',block:'start'});$('.chat-compose input').focus()}
   });

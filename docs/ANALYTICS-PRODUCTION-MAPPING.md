@@ -19,6 +19,8 @@ Implementation migration: `0019_youtube_decision_analytics.sql`
 
 All dashboard GET requests read D1. They never call Google and never expose Google credentials.
 
+The imported decision-workspace design is the primary YouTube analytics UI. Its production adapter calls the authenticated status, OAuth, selection, sync, report, equal-age comparison, and retention routes above. Static fixture values are removed before the first server read and are never used as a fallback when OAuth or provider observations are unavailable.
+
 ## Provider mappings
 
 | WTFOS field | Google source | Storage |

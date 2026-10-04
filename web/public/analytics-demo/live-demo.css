@@ -184,6 +184,82 @@
 .api-security p { margin: 0; font-size: 12px; line-height: 1.4; }
 .api-security button { border-color: var(--ink); background: var(--yellow); color: var(--ink); }
 
+.api-production-controls {
+  display: grid;
+  grid-template-columns: auto minmax(360px, 1fr) auto auto;
+  gap: 10px;
+  align-items: end;
+  padding: 16px 18px;
+  border-top: 1.5px solid var(--ink);
+  background: #fffaf0;
+}
+
+.api-production-controls > button,
+.api-production-controls form button,
+.production-retention button {
+  min-height: 39px;
+  padding: 8px 11px;
+  border: 1.5px solid var(--ink);
+  border-radius: 18px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.api-production-controls button:disabled,
+.production-retention button:disabled { cursor: not-allowed; opacity: .45; }
+
+.api-production-controls form {
+  display: grid;
+  grid-template-columns: minmax(190px, 1fr) minmax(120px, .55fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.api-production-controls label {
+  display: grid;
+  gap: 5px;
+  font: 700 9px "DM Mono", monospace;
+  letter-spacing: .5px;
+}
+
+.api-production-controls input {
+  min-width: 0;
+  min-height: 39px;
+  padding: 8px 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.api-production-controls > p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  font: 10px/1.45 "DM Mono", monospace;
+}
+
+.api-production-controls form[hidden],
+.api-production-controls button[hidden] { display: none; }
+
+.production-retention {
+  display: grid;
+  grid-template-columns: minmax(180px, .6fr) minmax(0, 1.4fr) auto;
+  gap: 16px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 14px;
+  border: 1.5px solid var(--ink);
+  background: #e6ebfb;
+}
+
+.production-retention span { display: block; color: var(--purple); font: 700 9px "DM Mono", monospace; letter-spacing: .6px; }
+.production-retention strong { display: block; margin-top: 5px; font-size: 14px; }
+.production-retention svg { width: 100%; height: 76px; overflow: visible; }
+.production-retention small { color: var(--muted); font: 10px/1.4 "DM Mono", monospace; }
+
 .data-trust {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -319,6 +395,9 @@
 @media (max-width: 1120px) {
   .live-command { grid-template-columns: 1fr; }
   .connection-card { flex-direction: row; align-items: center; }
+  .api-production-controls { grid-template-columns: 1fr 1fr; }
+  .api-production-controls form { grid-column: 1 / -1; }
+  .production-retention { grid-template-columns: 1fr; }
   .review-controls,
   .review-controls.two-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -346,6 +425,9 @@
 }
 
 @media (max-width: 540px) {
+  .api-production-controls,
+  .api-production-controls form { grid-template-columns: 1fr; }
+  .api-production-controls form { grid-column: auto; }
   .connection-card,
   .api-security,
   .attention-head,

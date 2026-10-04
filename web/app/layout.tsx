@@ -69,7 +69,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       {/* suppressHydrationWarning: browser extensions (e.g. Grammarly) inject
           data-* attributes onto <body> before React hydrates. */}
-      <body className="min-h-screen flex flex-col overflow-x-hidden" suppressHydrationWarning>
+      <body className="min-h-screen flex flex-col overflow-x-clip" suppressHydrationWarning>
         {/* Google Tag Manager — beforeInteractive lands the snippet in <head>;
             the noscript iframe stays first in <body>. */}
         <Script

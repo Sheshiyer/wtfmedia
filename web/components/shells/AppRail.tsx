@@ -296,8 +296,8 @@ export function AppRail({
           </div>
         </div>
       </header>
-      {hideBottomDock ? null : <div className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
-        <div className="wtf-bottom-pill mx-auto flex w-fit max-w-[min(74rem,calc(100vw-1.5rem))] items-center overflow-x-auto rounded-full border-2 border-foreground bg-surface-raised/95 px-1.5 py-1 shadow-[0_10px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md sm:px-3 sm:py-2">
+      {hideBottomDock ? null : <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
+        <div className="wtf-bottom-pill pointer-events-auto mx-auto flex w-fit max-w-[min(74rem,calc(100vw-1.5rem))] items-center overflow-x-auto rounded-full border-2 border-foreground bg-surface-raised/95 px-1.5 py-1 shadow-[0_10px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md sm:px-3 sm:py-2">
           <nav
             id="wtf-application-navigation"
             aria-label={mode === "operator" ? "Workspace" : mode === "member" ? "Member workspace" : "Application"}

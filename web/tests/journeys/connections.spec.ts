@@ -47,8 +47,8 @@ test.describe("Connections route journeys", () => {
     const count = await buttons.count();
     expect(count).toBeGreaterThan(0);
 
-    // First button should be unselected by default
-    await expect(buttons.first()).toHaveAttribute("aria-pressed", "false");
+    // The strongest discovered topic is selected so evidence is visible immediately.
+    await expect(buttons.first()).toHaveAttribute("aria-pressed", "true");
   });
 
   test("clicking node button shows selection detail", async ({ page }) => {
@@ -69,7 +69,7 @@ test.describe("Connections route journeys", () => {
     expect(linkCount).toBeGreaterThan(0);
   });
 
-  test("clicking same node again deselects", async ({ page }) => {
+  test("clicking the selected node keeps its evidence visible", async ({ page }) => {
     await page.goto("/connections", { waitUntil: "domcontentloaded" });
 
     const nodeList = page.locator('[data-testid="graph-node-list"]');
@@ -80,9 +80,9 @@ test.describe("Connections route journeys", () => {
     const detail = page.locator('[data-testid="graph-selection-detail"]');
     await expect(detail).toBeVisible();
 
-    // Deselect
+    // A topic view remains selected instead of leaving an empty detail area.
     await firstButton.click();
-    await expect(detail).not.toBeVisible();
+    await expect(detail).toBeVisible();
   });
 
   test("keyboard Enter selects node", async ({ page }) => {
@@ -131,6 +131,18 @@ test.describe("Connections route journeys", () => {
     await expect(firstLink).not.toHaveText(/^[A-Za-z0-9_-]{8,}$/);
   });
 
+  test("evidence includes a native timestamp range and a direct watch link", async ({ page }) => {
+    await page.goto("/connections", { waitUntil: "domcontentloaded" });
+
+    const detail = page.locator('[data-testid="graph-selection-detail"]');
+    await expect(detail).toBeVisible();
+    await expect(detail.getByText(/evidence 01 · \d+:\d{2}–\d+:\d{2}/)).toBeVisible();
+    await expect(detail.getByRole("link", { name: /watch moment/i }).first()).toHaveAttribute(
+      "href",
+      /youtube\.com\/watch\?v=[A-Za-z0-9_-]+&t=\d+s/,
+    );
+  });
+
   test("semantic edge list exists", async ({ page }) => {
     await page.goto("/connections", { waitUntil: "domcontentloaded" });
 
@@ -141,6 +153,42 @@ test.describe("Connections route journeys", () => {
     const edges = edgeList.locator("li");
     const count = await edges.count();
     expect(count).toBeGreaterThan(0);
+  });
+
+  test("category menu opens and filters the topic list", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/connections", { waitUntil: "domcontentloaded" });
+
+    const categoryButton = page.getByRole("button", { name: "Category: All categories" });
+    await categoryButton.click();
+    await expect(page.getByRole("listbox", { name: "Topic categories" })).toBeVisible();
+
+    await page.getByRole("option", { name: /AI & Technology/ }).click();
+    await expect(page.getByRole("button", { name: "Category: AI & Technology" })).toBeVisible();
+    await expect(page.getByTestId("connections-category-count")).toHaveText("13/72");
+
+    const categoryBadges = page.locator('[data-testid="graph-node-list"] li button > span:first-child');
+    await expect(categoryBadges).toHaveCount(13);
+    await expect(categoryBadges.first()).toHaveText("AI & Technology");
+  });
+
+  test("category menu remains clickable where the bottom dock overlaps its row", async ({ page }) => {
+    await page.setViewportSize({ width: 1470, height: 956 });
+    await page.goto("/connections", { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => window.scrollTo(0, 1500));
+
+    const categoryButton = page.getByRole("button", { name: "Category: All categories" });
+    await expect(categoryButton).toBeVisible();
+
+    const hitTargetIsCategoryControl = await categoryButton.evaluate((button) => {
+      const bounds = button.getBoundingClientRect();
+      const hitTarget = document.elementFromPoint(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2);
+      return hitTarget === button || button.contains(hitTarget);
+    });
+    expect(hitTargetIsCategoryControl).toBe(true);
+
+    await categoryButton.click();
+    await expect(page.getByRole("listbox", { name: "Topic categories" })).toBeVisible();
   });
 
   test("page has no horizontal overflow at 320px", async ({ page }) => {
