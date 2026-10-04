@@ -138,3 +138,42 @@ file arguments, Wrangler selects `.dev.vars.local` and skips `.dev.vars`.
 OAuth completion returns to the configured callback origin, including when the
 frontend proxies to a different edge port. Real provider connection still
 requires Google consent, the required APIs enabled, and the analytics migration.
+
+
+## Analytics assistant (local source, 2026-10-04)
+
+The production workspace chat posts to `/beta/api/analytics/assistant` behind
+operator admission and `analytics:read`. It uses the existing Workers AI binding
+for natural-language query planning, validates the plan against allowed metrics
+and dates, resolves a channel-scoped video from the synchronized catalogue, and
+requests totals from YouTube Analytics. This is structured-data retrieval,
+separate from transcript Ask WTF; it creates no new corpus or vector index.
+
+Responses include exact provider values, computed net subscriber change,
+video identity, date range, source links, and reporting-delay limitations.
+Ambiguous video titles require a choice. Missing data stays unavailable. Tokens,
+owner IDs, and database rows never enter the model prompt or browser response.
+The selected UI dates are the default; explicit dates in questions can override
+them. Chat history is bounded to four prior questions in browser memory only.
+
+Supported questions cover views, watch time, average view duration/percentage,
+subscriber gains/losses, likes, comments, and shares for one video or channel.
+Comparisons, rankings, causal explanations, reach metrics, and transcript
+questions currently return an explicit unsupported response. This is not full
+spreadsheet parity. Environments without the AI binding fail truthfully;
+no deployment bindings were changed by this local implementation.
+
+Live acceptance remains blocked until the owner connects Google, selects the
+channel, and synchronizes the catalogue. The staging connection inventory on
+2026-10-04 was empty. OAuth callback registration and project API activation
+have not been verified through a successful Google consent flow.
+
+API review findings still requiring follow-up: video daily sync requests
+`day,video` without a video filter (Google documents adding video dimensions
+alongside video filters); the report fetcher does not paginate Analytics rows;
+missing provider numbers can be converted to zero by `Number(null)`; catalogue
+content classifications are not populated; expected CTR uses a trailing baseline
+rather than the spreadsheet audit's fitted trendline. These findings prevent a
+claim that every spreadsheet report is production-complete.
+
+Reference: https://developers.google.com/youtube/analytics/channel_reports

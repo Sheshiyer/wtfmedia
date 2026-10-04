@@ -10,6 +10,7 @@ import { isMemberBetaEnabled, resolveMemberBetaRelease } from "./member-release.
 import type { OpsEnv } from "./ops-router.ts";
 import { mutationRequestAllowed } from "./ops-router.ts";
 import { handleAnalyticsRequest, type AnalyticsDependencies } from "./analytics.ts";
+import { handleAnalyticsAssistant } from "./analytics-assistant.ts";
 import { syncSelectedAnalytics, syncYouTubeRetention } from "./analytics-sync.ts";
 
 type Dependencies = { verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer> } & AnalyticsDependencies;
@@ -49,6 +50,7 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
   if (!requirement) return denied();
   if (!decide(context.role, requirement[0], requirement[1], { environment: context.environment })) return forbidden();
   if (url.pathname === "/beta/api/principal-context" && request.method === "GET") return Response.json(principalContextDto(context), { headers });
+  if (context.kind === "operator" && url.pathname === "/beta/api/analytics/assistant" && request.method === "POST") return handleAnalyticsAssistant(request, env, dependencies);
   if (context.kind === "operator" && url.pathname === "/beta/api/analytics/sync" && request.method === "POST") {
     const input = await body(request);
     const provider = input?.provider === "youtube" || input?.provider === "ga4" ? input.provider : null;

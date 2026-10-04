@@ -1,5 +1,16 @@
 # Project handoff
 
+## 2026-10-04 Sarthak refresh and analytics assistant
+
+- Preserved prior local OAuth fixes in `1fe73fb`, then merged `feature/sarthak` head `260f50d` (analytics workspace and topic explorer) into `feature/pavun` as `52f95c8`. Only HANDOFF conflicted; retained both histories. Nothing pushed.
+- Added protected POST `/beta/api/analytics/assistant` with operator `analytics:read`. The existing production workspace chat now calls this API instead of the fixture keyword responder.
+- Workers AI interprets questions into validated metric/date/title plans. Channel-scoped catalogue retrieval resolves video identity; ambiguous matches ask for selection. YouTube supplies totals directly. Answers contain metrics, net subscriber growth, dates, source links, and reporting caveats; no LLM-authored numerical claims.
+- Scope: one video or channel; views, watch time, average duration/percentage, subscriber gains/losses, likes, comments, shares. Comparisons/rankings/causes/reach are explicitly unsupported in chat. No transcript corpus changes or new migrations.
+- Verification: full edge suite 422/422 before final channel-scope adjustment; focused final assistant suite 9/9, frontend 240/240 unit and 97/97 contracts, typecheck/lint. Local sign-in and assistant script return 200; unsigned assistant returns 401. No browser automation.
+- Synthetic live Workers AI smoke returned a valid JSON metric plan; no private channel data sent.
+- Local frontend :3000 and backend :8787 running with existing configuration. Read-only staging inventory has zero provider connections, so authenticated Google consent and real-channel answer reconciliation remain unverified.
+- API review gaps recorded in `docs/ANALYTICS-INTEGRATION.md`: daily-video query filter, Analytics pagination, null coercion, content classifications, and spreadsheet expected-CTR differences. Do not claim all YouTube integration or spreadsheet parity is complete. No deployment or shared database mutations in this task.
+
 ## 2026-09-29 Approved staging analytics migrations
 
 - Owner explicitly approved applying analytics migrations 0018 and 0019 to shared staging D1 (`wtfmedia-ops-staging`). Confirmed those were the only pending migrations, then applied both using Wrangler migration tracking.
