@@ -5,10 +5,22 @@ import {
   memberDestinationForPath,
 } from "@/lib/member/navigation";
 import { readFileSync } from "node:fs";
+import { betaDestinationVisible } from "@/lib/beta/navigation";
 
 const appRail = readFileSync(new URL("../../components/shells/AppRail.tsx", import.meta.url), "utf8");
 
 describe("member workspace navigation", () => {
+  it("hides analytics in production while retaining local and staging access", () => {
+    for (const path of ["/beta/analytics", "/beta/settings/workspace/analytics"]) {
+      expect(betaDestinationVisible(path, "production")).toBe(false);
+      expect(betaDestinationVisible(path, "staging")).toBe(true);
+      expect(betaDestinationVisible(path, "local")).toBe(true);
+    }
+    expect(memberDisclosureGroups[0].items.filter((item) => betaDestinationVisible(item.href, "production")).map((item) => item.href))
+      .toEqual(["/beta", "/beta/connections", "/beta/settings"]);
+    expect(betaDestinationVisible("/beta/chat", "production")).toBe(true);
+  });
+
   it("keeps conversation routes under Ask WTF without marking Settings active", () => {
     expect(memberDestinationForPath("/beta/chat/mcnv_12345678")).toBe("ask");
     expect(memberDestinationForPath("/beta/settings")).toBe("settings");

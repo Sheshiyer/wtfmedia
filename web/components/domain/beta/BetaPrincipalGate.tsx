@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { OperatorContextProvider } from "@/components/domain/ops/OperatorContextProvider";
 import { AppShell, type AppNavItem } from "@/components/shells/AppShell";
-import { audienceForRole, betaDestinationForPath, capabilityForBetaPath } from "@/lib/beta/navigation";
+import { audienceForRole, betaDestinationForPath, betaDestinationVisible, capabilityForBetaPath } from "@/lib/beta/navigation";
 import { parsePrincipalContext, principalCanAccess, type PrincipalContext } from "@/lib/beta/principal";
 import { memberBottomNavigation, memberDisclosureGroups } from "@/lib/member/navigation";
 import { memberInvitationTicket } from "@/lib/ops/clerk-url";
@@ -41,6 +41,7 @@ function isOperatorRole(role: PrincipalContext["role"]): role is OperatorRole {
 
 function Shell({ context, children }: { context: PrincipalContext; children: React.ReactNode }) {
   const navigation = context.kind === "member" ? memberNavigation : operatorNavigation.filter((item) => {
+    if (!betaDestinationVisible(item.href, context.environment)) return false;
     const capability = capabilityForBetaPath(item.href);
     return capability ? context.capabilities.includes(capability) : false;
   });
@@ -51,7 +52,10 @@ function Shell({ context, children }: { context: PrincipalContext; children: Rea
     mode={context.kind === "member" ? "member" : "operator"}
     navigation={navigation}
     bottomNavigation={bottomNavigation}
-    disclosureGroups={context.kind === "member" ? memberDisclosureGroups : undefined}
+    disclosureGroups={context.kind === "member" ? memberDisclosureGroups.map((group) => ({
+      ...group,
+      items: group.items.filter((item) => betaDestinationVisible(item.href, context.environment)),
+    })) : undefined}
   >{children}</AppShell>;
 }
 

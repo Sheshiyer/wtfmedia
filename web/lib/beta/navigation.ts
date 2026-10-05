@@ -49,6 +49,11 @@ export function capabilityForBetaPath(pathname: string): string | null {
   return betaDestinationForPath(pathname)?.capability ?? null;
 }
 
+/** Product visibility only; capability enforcement remains at the edge. */
+export function betaDestinationVisible(pathname: string, environment: "local" | "staging" | "production"): boolean {
+  return environment !== "production" || capabilityForBetaPath(pathname) !== "analytics:read";
+}
+
 export function audienceForRole(role: string): BetaAudience {
   return role === "member" ? "member" : role === "admin" ? "admin" : role === "super_admin" ? "super_admin" : "operator";
 }
