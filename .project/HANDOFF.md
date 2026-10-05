@@ -1,5 +1,17 @@
 # Project handoff
 
+## 2026-10-05 Phase 2 tests migrated to Beta
+
+- Owner authorized updating the legacy tests and pushing all changes on `feature/pavun`. Replaced retired `/ops` UI expectations/HMAC admission with canonical Beta workspace, users settings and audit paths. Added denied-principal, legacy redirect, member/operator environment visibility and mobile assertions; retained roster, transfer confirmation and audit export coverage.
+- Dedicated Phase 2 config builds a disposable source copy with test-only Clerk adapters; production configuration and runtime auth are unchanged. Browser API fixtures return explicit principal/record responses and otherwise fail closed; external browser traffic is blocked. This is deterministic UI evidence, not live Clerk/D1 acceptance.
+- Full Phase 2 gate passes: 428 backend tests, 16 browser tests, audit-filter tests, typecheck and privacy 0/414. Frontend unit 243/243, contracts 97/97 and lint pass. Architecture regenerated after this handoff and after tracking new files. No application deployment in this task.
+
+## 2026-10-05 Branch CI investigation
+
+- Owner asked to inspect failed CI on pushed `feature/pavun` source `dae114d`. Architecture run 37292394217 failed because the final deployment handoff changed a fingerprint input after generation. Reproduced locally and regenerated the three artifacts after this checkpoint.
+- Phase 2 run 37292394210 passed backend tests but failed nine legacy operator browser tests. They navigate retired `/ops`, `/ops/operators`, and `/ops/audit` paths using HMAC context headers; middleware redirects these to Clerk-protected Beta destinations. Identical nine failures already occur in September 28 run 36438800711, predating the production analytics change.
+- Browser test migration to the current Beta/Clerk admission contract remains outstanding. No authentication bypass, skipped test, workflow weakening, browser automation, deployment, or push performed. This is a CI diagnosis, not a claim that Phase 2 is green.
+
 ## 2026-10-05 Production analytics visibility update
 
 - Owner confirmed existing production `wtfhq.in` after initially naming another domain. Production menus for both member and operator principals now hide YouTube Analytics; the canonical dashboard also displays unavailable in production. Local/staging visibility is retained using the verified principal environment. This is UI visibility, not a change to backend permissions.

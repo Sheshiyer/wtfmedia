@@ -1,31 +1,24 @@
-import { createHmac } from "node:crypto";
-import { expect, test, type Page } from "@playwright/test";
-
-async function authenticate(page: Page, role: "super_admin" | "admin" | "editor") {
-  const payload = Buffer.from(JSON.stringify({ operatorId: 1, role, environment: "local", correlationId: `phase2-operators-${role}`, exp: Date.now() + 60_000 })).toString("base64url");
-  const proof = createHmac("sha256", "phase2-e2e-test-key").update(payload).digest("base64url");
-  await page.setExtraHTTPHeaders({ "x-wtf-ops-context": payload, "x-wtf-ops-proof": proof });
-}
+import { test, expect, authenticate } from "./fixtures";
 
 test("roster route is truthful when its protected service is unavailable", async ({ page }) => {
   await authenticate(page, "admin");
-  await page.goto("/ops/operators", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: "operators" })).toBeVisible();
+  await page.goto("/beta/settings/users", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "users & access" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "operator roster unavailable" })).toBeVisible();
   await expect(page.getByText("no roster details were loaded.")).toBeVisible();
   await expect(page.getByText("Yash")).toHaveCount(0);
 });
 
-test("denied roles can view the operators page without a live roster", async ({ page }) => {
+test("editors cannot open protected users settings", async ({ page }) => {
   await authenticate(page, "editor");
-  await page.goto("/ops/operators", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: "operators", exact: true })).toBeVisible();
+  await page.goto("/beta/settings/users", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "access is not granted", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "sign-in is not in this release" })).toHaveCount(0);
 });
 
 test("transfer controls are absent until a verified roster can identify an active target", async ({ page }) => {
   await authenticate(page, "admin");
-  await page.goto("/ops/operators", { waitUntil: "domcontentloaded" });
+  await page.goto("/beta/settings/users", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("button", { name: "transfer seat" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "deactivate operator" })).toHaveCount(0);
 });
@@ -38,7 +31,7 @@ test("transfer uses a separate super-admin confirmation with a verified target",
     ] } });
   });
   await authenticate(page, "super_admin");
-  await page.goto("/ops/operators", { waitUntil: "domcontentloaded" });
+  await page.goto("/beta/settings/users", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("button", { name: "transfer seat" })).toBeVisible();
   await page.getByRole("button", { name: "transfer seat" }).click();
   await expect(page.getByRole("dialog")).toContainText("this makes approved@example.test the single super admin and records the handoff.");

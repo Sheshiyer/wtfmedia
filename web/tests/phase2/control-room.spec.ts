@@ -1,73 +1,70 @@
-import { createHmac } from "node:crypto";
-import { expect, test, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { test, expect, authenticate } from "./fixtures";
 
-async function authenticate(page: Page, role: "admin" | "editor" = "admin") {
-  const payload = Buffer.from(JSON.stringify({
-    operatorId: 1,
-    role,
-    environment: "local",
-    correlationId: `phase2-e2e-${role}`,
-    exp: Date.now() + 60_000,
-  })).toString("base64url");
-  const proof = createHmac("sha256", "phase2-e2e-test-key").update(payload).digest("base64url");
-  await page.setExtraHTTPHeaders({ "x-wtf-ops-context": payload, "x-wtf-ops-proof": proof });
-}
-
-async function openOperationsNav(page: Page) {
+async function openNavigation(page: Page) {
   const toggle = page.locator("[data-navigation-toggle]");
   await expect(toggle).toBeVisible();
   if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
-  const operationsNavigation = page.locator('nav[aria-label="Operations"]:visible').first();
-  await expect(operationsNavigation).toBeVisible();
-  return operationsNavigation;
+  const nav = page.locator("[data-navigation-disclosure]");
+  await expect(nav).toBeVisible();
+  return nav.locator("[data-navigation-links]");
 }
 
-test("truthful role-projected Control Room shell shows only activated administration navigation", async ({ page }) => {
+test("verified operator uses the canonical workspace and current menu", async ({ page }) => {
   await authenticate(page);
-  await page.goto("/ops", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: "control room" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "the room is open" })).toBeVisible();
-  await expect(page.getByText("production records are live. ingest, seats, and access gates are not. missing evidence stays unnamed.")).toBeVisible();
-  await expect(page.getByText("all systems operational")).toHaveCount(0);
-  await expect(page.locator("[data-primary-action]")).toHaveCount(1);
-  await expect(page.getByRole("link", { name: "open production" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "refresh status" })).toHaveCount(0);
-  const promoted = page.locator("[data-promoted=true]");
-  await expect(promoted).toHaveCount(1);
-  await expect(promoted).toContainText("do this next");
-  await expect(promoted).toHaveAttribute("href", "/beta/workspace/production");
-  await expect(promoted).not.toHaveClass(/bg-attention/);
-  const operationsNavigation = await openOperationsNav(page);
-  const operationsLinks = operationsNavigation.locator("[data-navigation-links]");
-  await expect(operationsLinks.getByRole("link", { name: "settings" })).toBeVisible();
-  await expect(operationsLinks.getByRole("link", { name: "operators" })).toHaveCount(0);
-  await expect(operationsLinks.getByRole("link", { name: "audit" })).toHaveCount(0);
+  await page.goto("/beta/workspace");
+  await expect(page.getByRole("heading", { name: "control room", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "open production" })).toHaveAttribute("href", "/beta/workspace/production");
+  const nav = await openNavigation(page);
+  for (const name of ["ask wtf", "connections", "youtube analytics", "settings"]) await expect(nav.getByRole("link", { name, exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "episodes", exact: true })).toHaveCount(0);
 });
 
-test("editor role exposes only the activated Control Room destination", async ({ page }) => {
+test("editor navigation cannot grant access to admin destinations", async ({ page }) => {
   await authenticate(page, "editor");
-  await page.goto("/ops", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("link", { name: "open production" })).toBeVisible();
-  await expect(page.getByText("audit ledger")).toHaveCount(0);
-  const promoted = page.locator("[data-promoted=true]");
-  await expect(promoted).toHaveCount(1);
-  await expect(promoted).toContainText("production");
-  await expect(promoted).toHaveAttribute("href", "/beta/workspace/production");
-  const operationsNavigation = await openOperationsNav(page);
-  const operationsLinks = operationsNavigation.locator("[data-navigation-links]");
-  await expect(operationsLinks.getByRole("link", { name: "control room" })).toBeVisible();
-  await expect(operationsLinks.getByRole("link", { name: "episode map" })).toBeVisible();
-  await expect(operationsLinks.getByRole("link", { name: "settings" })).toBeVisible();
-  await expect(operationsLinks.getByRole("link", { name: "operators" })).toHaveCount(0);
-  await expect(operationsLinks.getByRole("link", { name: "audit" })).toHaveCount(0);
+  await page.goto("/beta/workspace");
+  const nav = await openNavigation(page);
+  await expect(nav.getByRole("link", { name: "settings", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "audit", exact: true })).toHaveCount(0);
+  await page.goto("/beta/admin/audit");
+  await expect(page.getByRole("heading", { name: "access is not granted" })).toBeVisible();
 });
 
 test("responsive shell has no horizontal overflow", async ({ page }) => {
   await authenticate(page);
   await page.setViewportSize({ width: 320, height: 640 });
-  await page.goto("/ops", { waitUntil: "domcontentloaded" });
-  await expect(page.locator("[data-navigation-toggle]")).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Operations", exact: true })).toBeHidden();
-  await openOperationsNav(page);
+  await page.goto("/beta/workspace");
+  await openNavigation(page);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+});
+
+for (const role of ["member", "admin"] as const) {
+  for (const environment of ["production", "staging"] as const) {
+    test(`${role} analytics menu follows ${environment} visibility`, async ({ page }) => {
+      await authenticate(page, role, environment);
+      await page.goto("/beta/settings");
+      const nav = await openNavigation(page);
+      await expect(nav.getByRole("link", { name: "youtube analytics", exact: true })).toHaveCount(environment === "production" ? 0 : 1);
+      if (environment === "production") {
+        await page.goto("/beta/analytics");
+        await expect(page.getByText("This page is not available.")).toBeVisible();
+        await expect(page.locator('iframe[src*="analytics-demo"]')).toHaveCount(0);
+      }
+    });
+  }
+}
+
+test("legacy operator URLs redirect into the Beta shell", async ({ page }) => {
+  await authenticate(page);
+  await page.goto("/ops/operators");
+  await expect(page).toHaveURL(/\/beta\/settings\/users$/);
+  await expect(page.getByRole("heading", { name: "users & access" })).toBeVisible();
+});
+
+test("denied principal cannot render a protected page even with old proof headers", async ({ page }) => {
+  await page.setExtraHTTPHeaders({ "x-wtf-ops-context": "retired-fixture", "x-wtf-ops-proof": "retired-proof" });
+  await page.route("**/beta/api/principal-context", (route) => route.fulfill({ status: 403, json: { error: "access_denied" } }));
+  await page.goto("/beta/workspace");
+  await expect(page.getByRole("heading", { name: "access is not granted" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "control room", exact: true })).toHaveCount(0);
 });
