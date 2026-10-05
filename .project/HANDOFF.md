@@ -1,5 +1,11 @@
 # Project handoff
 
+## 2026-10-05 Production analytics visibility update
+
+- Owner confirmed existing production `wtfhq.in` after initially naming another domain. Production menus for both member and operator principals now hide YouTube Analytics; the canonical dashboard also displays unavailable in production. Local/staging visibility is retained using the verified principal environment. This is UI visibility, not a change to backend permissions.
+- Exact runtime source `f2f95c8` deployed to `wtfmedia-web-beta`, version `28870a53-9cc0-49f6-8bea-2ea21b3e45b8`, with Custom Domain `wtfhq.in`. Previous Web rollback version `4415f659-f443-421b-84a2-608d7d9f50e3`. Production Edge remains `d3bd05e0-539e-4519-bee9-20326ac14077`; no backend, secrets, database, DNS or staging changes. No branch push.
+- Verification: 243 frontend unit tests, 97 contracts, typecheck, lint, architecture check and isolated OpenNext build pass. Live root redirects (307); sign-in/chat/Connections return 200; unsigned principal-context returns 401. Live Clerk publishable configuration matches the previous production page. Staging analytics returns 200. No browser automation or signed-in visual acceptance claimed.
+
 ## 2026-10-04 Staging OAuth callback redirect hotfix
 
 - Owner reported `not_found` after Google returned to the staging callback. Deployed web proxy left redirect mode implicit, allowing the return-to-page redirect to be followed inside the Edge service binding; that backend has no `/beta/analytics` page. Explicit `redirect: manual` now preserves the 303/Location for the browser, matching the existing localhost forwarding path.
