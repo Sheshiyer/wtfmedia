@@ -1,5 +1,12 @@
 # Project handoff
 
+## 2026-10-06 User management deployed to staging
+
+- Owner authorized staging deployment of committed runtime source `7544f159c45e94bcb77923dd3292c58773dcfeec`. Edge version `5ac88d27-0244-437f-949b-cdbe65af389c`; final Web version `082645bf-8813-4573-87c8-cddd095882ae` on `beta-staging.wtfhq.in`, bound only to staging Edge. Production unchanged; no branch push.
+- Applied only reviewed D1 migrations 0020/0021 to staging; post-apply inventory has no outstanding migrations. Pre-migration Time Travel bookmark: `0000014b-00000000-000050fc-422a7c34527e94ac74ed741da8c4ef1f`. Previous rollback pair: Edge `3ab50842-302e-41df-8353-95f90463d1fe`, Web `9d55eb20-413f-424c-a01c-aad1dfe9abea`. Schema changes remain backward compatible; avoid database recovery after real deletion without reviewing resurrection risk.
+- The first frontend artifact (`25a13032-bdda-4dc3-a10f-9d66c53c15a0`) failed live requests with an unsupported dynamic Next middleware-manifest require. Immediately restored previous Web, rebuilt with local dependency files instead of an external node_modules symlink, verified the Worker locally (200), then deployed the corrected artifact. Use real copied dependencies for isolated OpenNext production builds.
+- Exact-commit source checks passed: 433 backend, 243 frontend unit, 97 contracts, typecheck/lint and architecture. OpenNext built 95 pages. Live backend health is OK with Alpha corpus authority; final page/API smoke and deployment traffic readback recorded. Signed-out IAB reaches sign-in; no authenticated admin session is available for live invitation, role-change, suspension or destructive deletion acceptance. No actual users were deleted or invitations sent during verification.
+
 ## 2026-10-06 Unified user management and permanent deletion (local)
 
 - Owner requested all signed-in members/operators, role changes, working invitations, suspension and permanent deletion including all history. The authenticated `/beta/api/admin/users` roster deduplicates D1 users; UsersWorkspace supports search, member invitations, role changes, suspension/reactivation and typed-email Delete confirmation. Self and super-admin changes are protected; ownership transfer remains separate.
