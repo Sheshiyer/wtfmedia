@@ -5,7 +5,7 @@ import { betaCapabilitiesForRole, type Role } from "./policy.ts";
 type Environment = "local" | "staging" | "production";
 type MemberLifecycle = "invited" | "active" | "suspended" | "revoked";
 type MemberRow = { id: number; email: string; clerk_user_id: string | null; lifecycle_state: MemberLifecycle; pilot_cohort: "bangalore" | "company" };
-type OperatorRow = { id: number; email: string; display_name: string; role: OperatorRole; active: number };
+type OperatorRow = { id: number; email: string; display_name: string; role: OperatorRole; active: number; member_only?: number };
 
 export type PrincipalContext =
   | { kind: "operator"; operatorId: number; role: OperatorRole; email: string; firstName?: string; lastName?: string; displayName: string; environment: Environment; correlationId: string }
@@ -60,8 +60,8 @@ function memberContext(row: MemberRow, identity: Extract<ClerkVerification, { ok
 export async function resolvePrincipalContext(db: DB, identity: ClerkVerification, environment: Environment, correlationId: string, now = new Date().toISOString()): Promise<PrincipalContext | null> {
   if (!identity.ok || !validCorrelationId(correlationId)) return null;
   try {
-    const operator = await db.prepare("SELECT id, email, display_name, role, active FROM operators WHERE email = ?").bind(identity.email).first<OperatorRow>();
-    if (operator) {
+    const operator = await db.prepare("SELECT * FROM operators WHERE email = ?").bind(identity.email).first<OperatorRow>();
+    if (operator && operator.member_only !== 1) {
       if (!operatorRow(operator) || operator.active !== 1) return null;
       const context = operatorContext(operator, identity, environment, correlationId);
       await mirrorProfile(db, context);

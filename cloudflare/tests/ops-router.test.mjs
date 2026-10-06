@@ -11,7 +11,7 @@ function db() {
         bind() { return this; },
         async first() {
           if (sql.includes("sqlite_master")) return { ready: 1 };
-          return sql.includes("SELECT id") ? {
+          return sql.includes("FROM operators") ? {
             id: 7,
             email: "operator@example.test",
             display_name: "Operator Example",

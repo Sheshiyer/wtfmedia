@@ -1,3 +1,6 @@
+import { createClerkUserDeleter } from "./clerk/delete-user.ts";
+import { listUsers, manageUser } from "./user-admin.ts";
+import { createClerkInvitationClient } from "./clerk/invitations.ts";
 import { createRemoteClerkVerifier, type ClerkVerification } from "./auth/clerk.ts";
 import { principalContextDto, resolvePrincipalContext, type PrincipalContext } from "./auth/principal-context.ts";
 import { decide, policyForPath } from "./auth/policy.ts";
@@ -49,6 +52,15 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
   const requirement = policyForPath(url.pathname, request.method);
   if (!requirement) return denied();
   if (!decide(context.role, requirement[0], requirement[1], { environment: context.environment })) return forbidden();
+  if (url.pathname === "/beta/api/admin/users" && context.kind === "operator") {
+    try {
+      if (request.method === "GET") return Response.json({ users: await listUsers(env.DB) }, { headers });
+      const input = await body(request);
+      if (!input) return Response.json({ error: "invalid_request" }, { status: 400, headers });
+      const result = await manageUser(env.DB, context, input, createClerkInvitationClient(env.CLERK_SECRET_KEY), env.OPS_ORIGIN, createClerkUserDeleter(env.CLERK_SECRET_KEY));
+      return Response.json(result.ok ? { users: await listUsers(env.DB) } : { error: result.error }, { status: result.ok ? 200 : 409, headers });
+    } catch { return Response.json({ error: "user_management_unavailable" }, { status: 503, headers }); }
+  }
   if (url.pathname === "/beta/api/principal-context" && request.method === "GET") return Response.json(principalContextDto(context), { headers });
   if (url.pathname === "/beta/api/analytics/assistant" && request.method === "POST") return handleAnalyticsAssistant(request, env, dependencies);
   if (context.kind === "operator" && url.pathname === "/beta/api/analytics/sync" && request.method === "POST") {

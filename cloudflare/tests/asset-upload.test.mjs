@@ -73,7 +73,7 @@ function createMockDb() {
           if (sql.includes("COUNT(*) AS count FROM sqlite_master")) {
             return { count: 10 };
           }
-          if (sql.includes("SELECT id") && sql.includes("FROM operators")) {
+          if (sql.includes("FROM operators")) {
             return { id: 1, email: "operator@example.test", role: "admin", active: 1 };
           }
           if (sql.includes("SELECT * FROM episodes WHERE id = ?")) {

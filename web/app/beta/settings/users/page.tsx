@@ -1,6 +1,6 @@
 "use client";
 
-import { OperatorsWorkspace } from "@/components/domain/ops/OperatorsWorkspace";
+import { UsersWorkspace } from "@/components/domain/beta/UsersWorkspace";
 import { useBetaPrincipal } from "@/components/domain/beta/BetaPrincipalGate";
 
 export default function BetaSettingsUsersPage() {
@@ -9,8 +9,8 @@ export default function BetaSettingsUsersPage() {
   return <div className="grid gap-4" data-settings-users>
     <div>
       <h1 className="font-display text-2xl font-extrabold lowercase">users & access</h1>
-      <p className="mt-1 text-sm text-secondary">membership lifecycle and invitations remain server-authorized.</p>
+      <p className="mt-1 text-sm text-secondary">Manage accounts, roles, invitations, and access.</p>
     </div>
-    <OperatorsWorkspace role={principal.role} />
+    <UsersWorkspace />
   </div>;
 }

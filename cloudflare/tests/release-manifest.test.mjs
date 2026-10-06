@@ -37,7 +37,7 @@ function releaseDb({ row = null, role = "super_admin" } = {}) {
         async first() {
           if (sql.includes("sqlite_master")) return { ready: 1 };
           if (sql.includes("release_manifests")) return row;
-          if (sql.includes("SELECT id, email")) return { id: 7, email: "operator@example.test", role, active: 1 };
+          if (sql.includes("FROM operators")) return { id: 7, email: "operator@example.test", role, active: 1 };
           return null;
         },
         async run() {

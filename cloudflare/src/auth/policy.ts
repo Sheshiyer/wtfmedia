@@ -145,6 +145,7 @@ function betaApiRequirement(pathname: string, method: string): readonly [Resourc
     if (requestMethod === "GET") return ["memory", "read"];
     return requestMethod === "POST" ? ["memory", "write"] : null;
   }
+  if (pathname === "/beta/api/admin/users") return requestMethod === "GET" ? ["members", "read"] : requestMethod === "POST" ? ["members", "manage"] : null;
   // Admin read-only view over every member's chat sessions; members:read keeps
   // it admin+ and matches the /beta/admin/users surface grant.
   if (pathname === "/beta/api/admin/chat-sessions") return requestMethod === "GET" ? ["members", "read"] : null;

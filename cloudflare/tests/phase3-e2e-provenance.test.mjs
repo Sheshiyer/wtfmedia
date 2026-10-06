@@ -210,7 +210,7 @@ function createMockProvenanceDb() {
           if (normalizedSql.includes("SELECT 1 AS ready FROM sqlite_master")) {
             return { ready: 1 };
           }
-          if (normalizedSql.includes("SELECT id") && normalizedSql.includes("FROM operators")) {
+          if (normalizedSql.includes("FROM operators")) {
             return { id: 1, email: "operator@example.test", role: "admin", active: 1 };
           }
           if (normalizedSql.includes("SELECT COUNT(*) AS count FROM episodes")) {

@@ -1,5 +1,13 @@
 # Project handoff
 
+## 2026-10-06 Unified user management and permanent deletion (local)
+
+- Owner requested all signed-in members/operators, role changes, working invitations, suspension and permanent deletion including all history. The authenticated `/beta/api/admin/users` roster deduplicates D1 users; UsersWorkspace supports search, member invitations, role changes, suspension/reactivation and typed-email Delete confirmation. Self and super-admin changes are protected; ownership transfer remains separate.
+- Migration 0020 preserves historical operator IDs when explicitly demoting to member; both admission paths honor this flag and ordinary inactive operators still deny. Migration 0021 permits account-scoped history erasure and prevents deleted accounts recreating chats/preferences or regaining operator access.
+- Delete atomically erases both member/operator active and archived conversations, messages, saved preferences, profile and pending OAuth transactions. It blocks access before deleting the matching Clerk account. Provider failure leaves a visible retryable deletion-pending state; completion hides the user. Minimal access-denial, security audit and content-free deletion receipts remain; shared channel data is unaffected.
+- VERIFIED-SOURCE: 433 backend tests, 243 frontend unit tests, 97 contracts, 18 isolated browser checks, typecheck, lint and privacy 0/415 pass. Tests cover full deletion, retries, other-user isolation and typed confirmation. Contract tests require local listener permission; sandbox-only run could not open its stub server. No real invitation delivery or Clerk account deletion was performed.
+- Changes remain local on feature/pavun. Migrations 0020/0021 have NOT been applied to shared databases; no push or deployment. Regenerate architecture after this checkpoint and tracking new source files. Live staging role/provider acceptance remains outstanding.
+
 ## 2026-10-05 Phase 2 tests migrated to Beta
 
 - Owner authorized updating the legacy tests and pushing all changes on `feature/pavun`. Replaced retired `/ops` UI expectations/HMAC admission with canonical Beta workspace, users settings and audit paths. Added denied-principal, legacy redirect, member/operator environment visibility and mobile assertions; retained roster, transfer confirmation and audit export coverage.

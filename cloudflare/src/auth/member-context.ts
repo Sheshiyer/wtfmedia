@@ -48,8 +48,8 @@ export async function resolveMemberContext(
     if (!ready) return null;
     // Operator authority remains an explicit D1 allowlist. An active operator is
     // routed to /beta/ops and must never acquire member authority as a side effect.
-    const operator = await db.prepare("SELECT id FROM operators WHERE email = ? AND active = 1").bind(identity.email).first<{ id: number }>();
-    if (operator) return null;
+    const operator = await db.prepare("SELECT * FROM operators WHERE email = ?").bind(identity.email).first<{ id: number; member_only?: number }>();
+    if (operator && operator.member_only !== 1) return null;
 
     const member = await db.prepare("SELECT id, email, clerk_user_id, lifecycle_state, pilot_cohort FROM member_users WHERE email = ?").bind(identity.email).first<MemberRow>();
     if (!member) {
