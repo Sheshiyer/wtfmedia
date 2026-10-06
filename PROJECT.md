@@ -81,3 +81,14 @@ exercises the Cloudflare/D1/provenance path, but a stale generated `.next`
 tree in a checkout can make the web TypeScript portion fail for generated
 route references; report that as a checkout artifact unless a fresh clean web
 build reproduces it.
+
+## Staging frontend build identity
+
+Do not copy `web/.env.local` into staging build directories: it may contain
+production Clerk configuration. Supply the verified staging public key explicitly
+through the build environment. Next.js embeds this key in browser assets.
+Before deployment, decode the compiled key and compare its domain with
+`cloudflare/wrangler.jsonc` → `env.staging.vars.CLERK_ISSUER`; reject a mismatch.
+Repeat that comparison against the live sign-in page after deployment.
+Use copied dependency files, not an external node_modules symlink, for isolated
+OpenNext builds so framework manifest patches resolve inside the build directory.

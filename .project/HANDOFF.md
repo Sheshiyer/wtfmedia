@@ -1,5 +1,11 @@
 # Project handoff
 
+## 2026-10-06 Staging Clerk build configuration corrected
+
+- Owner reported a sign-in/workspace loop when using separate staging and production accounts. Root cause confirmed: staging Web `082645bf-8813-4573-87c8-cddd095882ae` compiled the production public Clerk key from copied local environment material. Its browser used `clerk.wtfhq.in` while the staging Edge verifier correctly expected `mighty-hedgehog-2913.clerk.accounts.dev`; rejected admission redirected back to an already-signed-in provider.
+- Restored known-good Web `9d55eb20-413f-424c-a01c-aad1dfe9abea` while rebuilding runtime source `7544f159c45e94bcb77923dd3292c58773dcfeec` with the verified staging public key explicitly in the build environment and no local env file. Checked compiled artifacts contain staging key and no production public key. Final staging Web is `9a814433-789c-4364-bf35-30b7b94029e4`; Edge remains `5ac88d27-0244-437f-949b-cdbe65af389c` and migrations 0020/0021 remain applied.
+- Live public-key readback confirms staging uses the staging instance and production still uses `clerk.wtfhq.in`. Staging unsigned principal API returns 401. Build passed; no source runtime change, production mutation, credential change or branch push. Authenticated dual-account behavior still requires the owner's browser refresh/sign-in. PROJECT.md now records mandatory build/live identity checks and excludes copying local environment material into staging builds.
+
 ## 2026-10-06 User management deployed to staging
 
 - Owner authorized staging deployment of committed runtime source `7544f159c45e94bcb77923dd3292c58773dcfeec`. Edge version `5ac88d27-0244-437f-949b-cdbe65af389c`; final Web version `082645bf-8813-4573-87c8-cddd095882ae` on `beta-staging.wtfhq.in`, bound only to staging Edge. Production unchanged; no branch push.
