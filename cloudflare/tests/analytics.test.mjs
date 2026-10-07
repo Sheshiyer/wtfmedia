@@ -126,6 +126,69 @@ test("status remains truthful before the analytics migration and never invents a
   assert.deepEqual(await response.json(), { configured: false, connections: [], migrationRequired: true });
 });
 
+test("status hides a dangling selected resource so staging repeats validated channel selection", async () => {
+  const connection = {
+    id: "acon_dangling",
+    provider: "youtube",
+    status: "provider_error",
+    encrypted_credentials: "encrypted",
+    granted_scopes_json: "[]",
+    token_expires_at: "2026-10-08T00:00:00Z",
+    selected_resource_id: `UC${"d".repeat(22)}`,
+    selected_resource_name: "Previously selected",
+    reporting_timezone: "UTC",
+    last_attempted_refresh_at: "2026-10-07T00:00:00Z",
+    last_successful_refresh_at: null,
+    last_error_code: "resource_not_selected",
+  };
+  const db = {
+    prepare(sql) {
+      if (sql.includes("FROM analytics_provider_connections")) return statement({ async all() { return { results: [connection] }; } });
+      if (sql.includes("FROM youtube_analytics_channels")) return statement({ async first() { return null; } });
+      return statement();
+    },
+  };
+  const response = await handleAnalyticsRequest(new Request("https://app.test/beta/api/analytics/status"), { DB: db, OPS_ENVIRONMENT: "staging" }, operator);
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.connections[0].resource, null);
+  assert.equal(payload.connections[0].errorCode, "resource_not_selected");
+});
+
+test("OAuth reconnection clears stale selections and deactivates their provider resource", async () => {
+  const prepared = [];
+  const batched = [];
+  const db = {
+    prepare(sql) {
+      prepared.push(sql);
+      if (sql.startsWith("SELECT id, provider, return_path")) return statement({ async first() { return { id: "aotx_test", provider: "youtube", return_path: "/beta/settings/workspace/analytics" }; } });
+      if (sql.startsWith("UPDATE analytics_oauth_transactions")) return statement({ async run() { return { success: true, meta: { changes: 1 } }; } });
+      return statement({ sql });
+    },
+    async batch(statements) { batched.push(...statements); return []; },
+  };
+  const response = await handleAnalyticsRequest(new Request("https://app.test/beta/api/analytics/oauth/callback?state=test-state&code=test-code"), {
+    DB: db,
+    OPS_ENVIRONMENT: "staging",
+    GOOGLE_OAUTH_CLIENT_ID: "test-client",
+    GOOGLE_OAUTH_CLIENT_SECRET: "test-secret",
+    GOOGLE_OAUTH_REDIRECT_URI: "https://app.test/beta/api/analytics/oauth/callback",
+    ANALYTICS_TOKEN_ENCRYPTION_KEY: "test-encryption-secret",
+  }, operator, {
+    now: () => new Date("2026-10-07T00:00:00Z"),
+    fetchGoogle: async () => Response.json({
+      access_token: "test-access",
+      refresh_token: "test-refresh",
+      expires_in: 3600,
+      scope: "https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/yt-analytics.readonly",
+    }),
+  });
+  assert.equal(response.status, 303);
+  assert.equal(batched.length, 2);
+  assert.ok(prepared.some(sql => sql.includes("selected_resource_id = NULL") && sql.includes("last_successful_refresh_at = NULL")));
+  assert.ok(prepared.some(sql => sql.includes("UPDATE youtube_analytics_channels SET active = 0")));
+});
+
 test("operator analytics API is readable by editors but management remains denied", async () => {
   const db = {
     prepare(sql) {

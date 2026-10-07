@@ -157,10 +157,31 @@ async function connections(db: DB, environment: string): Promise<AnalyticsConnec
   return result.results;
 }
 
+async function hasActiveSelectedResource(db: DB, row: AnalyticsConnectionRow): Promise<boolean> {
+  if (!row.selected_resource_id) return false;
+  const selected = row.provider === "youtube"
+    ? await db.prepare("SELECT 1 AS selected FROM youtube_analytics_channels WHERE connection_id = ? AND youtube_channel_id = ? AND active = 1").bind(row.id, row.selected_resource_id).first<{ selected: number }>()
+    : await db.prepare("SELECT 1 AS selected FROM ga4_analytics_properties WHERE connection_id = ? AND ga4_property_id = ? AND active = 1").bind(row.id, row.selected_resource_id).first<{ selected: number }>();
+  return selected?.selected === 1;
+}
+
 async function status(env: AnalyticsEnv): Promise<Response> {
   try {
     const rows = await connections(env.DB, env.OPS_ENVIRONMENT);
-    return json({ configured: configured(env), connections: rows.map(connectionDto) });
+    const projected = await Promise.all(rows.map(async (row) => {
+      if (!row.selected_resource_id || await hasActiveSelectedResource(env.DB, row)) return connectionDto(row);
+      // A reconnect can leave an older selection ID without an active provider
+      // resource row. Never present that dangling ID as a usable connection:
+      // the management UI will run ownership-validated selection again.
+      return connectionDto({
+        ...row,
+        selected_resource_id: null,
+        selected_resource_name: null,
+        reporting_timezone: null,
+        last_error_code: "resource_not_selected",
+      });
+    }));
+    return json({ configured: configured(env), connections: projected });
   } catch {
     return json({ configured: configured(env), connections: [], migrationRequired: true });
   }
@@ -250,11 +271,13 @@ async function oauthCallback(request: Request, env: AnalyticsEnv, context: Opera
   const expiresAt = new Date(now.getTime() + token.expires_in * 1_000).toISOString();
   const encrypted = await encryptAnalyticsCredentials({ accessToken: token.access_token, refreshToken: token.refresh_token, expiresAt }, env.ANALYTICS_TOKEN_ENCRYPTION_KEY!.trim());
   const connectionId = `acon_${(dependencies.randomUUID?.() ?? crypto.randomUUID()).replaceAll("-", "")}`;
-  await env.DB.batch([
-    env.DB.prepare(
-      "INSERT INTO analytics_provider_connections (id, environment, provider, status, encrypted_credentials, encryption_key_version, granted_scopes_json, token_expires_at, connected_by_operator_id, created_at, updated_at) VALUES (?, ?, ?, 'connected', ?, 'v1', ?, ?, ?, ?, ?) ON CONFLICT(environment, provider) DO UPDATE SET status = 'connected', encrypted_credentials = excluded.encrypted_credentials, encryption_key_version = excluded.encryption_key_version, granted_scopes_json = excluded.granted_scopes_json, token_expires_at = excluded.token_expires_at, connected_by_operator_id = excluded.connected_by_operator_id, last_error_code = NULL, revoked_at = NULL, updated_at = excluded.updated_at",
-    ).bind(connectionId, env.OPS_ENVIRONMENT, transaction.provider, encrypted, JSON.stringify(grantedScopes), expiresAt, context.operatorId, now.toISOString(), now.toISOString()),
-  ]);
+  const reconnect = env.DB.prepare(
+    "INSERT INTO analytics_provider_connections (id, environment, provider, status, encrypted_credentials, encryption_key_version, granted_scopes_json, token_expires_at, connected_by_operator_id, created_at, updated_at) VALUES (?, ?, ?, 'connected', ?, 'v1', ?, ?, ?, ?, ?) ON CONFLICT(environment, provider) DO UPDATE SET status = 'connected', encrypted_credentials = excluded.encrypted_credentials, encryption_key_version = excluded.encryption_key_version, granted_scopes_json = excluded.granted_scopes_json, token_expires_at = excluded.token_expires_at, connected_by_operator_id = excluded.connected_by_operator_id, selected_resource_id = NULL, selected_resource_name = NULL, reporting_timezone = NULL, last_validated_at = NULL, last_attempted_refresh_at = NULL, last_successful_refresh_at = NULL, last_error_code = NULL, revoked_at = NULL, updated_at = excluded.updated_at",
+  ).bind(connectionId, env.OPS_ENVIRONMENT, transaction.provider, encrypted, JSON.stringify(grantedScopes), expiresAt, context.operatorId, now.toISOString(), now.toISOString());
+  const deactivate = transaction.provider === "youtube"
+    ? env.DB.prepare("UPDATE youtube_analytics_channels SET active = 0, updated_at = ? WHERE connection_id = (SELECT id FROM analytics_provider_connections WHERE environment = ? AND provider = 'youtube')").bind(now.toISOString(), env.OPS_ENVIRONMENT)
+    : env.DB.prepare("UPDATE ga4_analytics_properties SET active = 0, updated_at = ? WHERE connection_id = (SELECT id FROM analytics_provider_connections WHERE environment = ? AND provider = 'ga4')").bind(now.toISOString(), env.OPS_ENVIRONMENT);
+  await env.DB.batch([reconnect, deactivate]);
   return safeReturn(request, env, "connected", transaction.provider);
 }
 
