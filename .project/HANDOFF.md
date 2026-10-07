@@ -1,5 +1,11 @@
 # Project handoff
 
+## 2026-10-07 View-count distinction deployed to staging
+
+- Owner-authorized backend candidate `ba3432a5039c543632473f06d87217df294f5219` deployed as Edge `209d34e7-e61c-491f-b539-fcccf7595381`, verified at 100% traffic. Rollback Edge: `aaff6ee7-f41f-4794-b333-186123db92f9`. Web remains `b9a80954-81dd-4dff-b4bb-443e9bfd7a4e`; no web-source changes since that build.
+- Exact candidate checks: 446 backend tests, 97 contracts, privacy 0/415 and architecture pass. No pending migrations; no database, credentials, production or branch-push changes.
+- Live staging Edge health is ok; unauthenticated assistant POST returns 401 through beta-staging.wtfhq.in. Current lifetime views are now queried separately from period views. The owner's actual live video count remains for authenticated testing, not independently verified by these smoke checks.
+
 ## 2026-10-07 Period versus lifetime video views (local)
 
 - Owner reported zero views despite a roughly 3.4k YouTube total. Read-only staging catalogue inspection confirms the selected video was published in May while the answer requested September 10–October 7; no synchronized daily rows exist for that video. This establishes the scope mismatch risk, not independent confirmation of the current public total.
