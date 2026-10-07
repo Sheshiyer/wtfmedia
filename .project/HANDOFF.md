@@ -1,5 +1,18 @@
 # Project handoff
 
+## 2026-10-07 Analytics chat UX review (local)
+
+- Fixed composer clearing unsent drafts while busy; submission now preserves the next draft, disables the send button during response generation and exposes aria-busy. Malformed source URLs are skipped instead of replacing a valid answer with a generic error.
+- Successful saves now update the list from the save receipt, so a subsequent list-refresh failure cannot misreport a successful save. Only genuinely unsaved changes trigger discard confirmation; account requests have a bounded timeout. Ambiguous video choices identify the query and Video A/B slot.
+- Two-video comparisons now support explicitly requested calendar dates through a validated selected window, instead of silently using first-seven-days. Existing post-publication windows remain supported. Calendar comparisons disclose that ages differ.
+- Verification: 445 backend tests, 250 frontend tests, typecheck/lint pass. Actual GLM plus synthetic reports verified explicit calendar dates and both second-video follow-up phrasings. No browser automation or real-channel acceptance claim. All changes remain local; no push, deployment or database changes.
+
+## 2026-10-07 Conversational video follow-ups and suggestions toggle (local)
+
+- Fixed follow-ups that repeated a comparison when the owner asked about the second video. The planner now receives the last eight user/assistant messages, capped at 6,000 characters each and treated as untrusted context; provider queries remain the numeric authority. Latest-task and ordinal interpretation stay model-driven. Reopened saved chats reuse their transcript for context.
+- Added an accessible Hide suggestions / Show suggestions toggle without clearing chat. No persistence/schema change.
+- Verification: 20 focused backend tests, 249 frontend unit tests, typecheck/lint pass. Live GLM with synthetic reports returned only Video B and its prior dates for both the exact reported shorthand and an explicit second-video follow-up. These changes are local, not deployed or pushed.
+
 ## 2026-10-07 Analytics chat and saved investigations deployed to staging
 
 - Owner authorized staging deployment of exact local source `76936255fea3302d3f91c79a6803c0e6a6bb23be`. Edge `37fb272e-d565-4285-b6b6-248638745671` and Web `de613a4d-ba94-4cb2-a3f5-382594c7272e` each verified at 100% traffic; custom domain remains https://beta-staging.wtfhq.in. Web binds only the staging Edge/self services. No branch push or production change.

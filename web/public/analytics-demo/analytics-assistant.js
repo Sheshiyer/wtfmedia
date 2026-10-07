@@ -6,6 +6,7 @@
   const previousQuestions = [];
   let transcript = [];
   let savedId = null;
+  let dirty = false;
   const conversation = document.querySelector('#conversation');
   if (!conversation) return;
   conversation.replaceChildren();
@@ -17,11 +18,23 @@
     conversation.scrollTop = conversation.scrollHeight;
     return node;
   };
+  const suggestions = document.querySelector('.prompt-chips');
+  if (suggestions) {
+    suggestions.id = 'analytics-suggestions';
+    const toggle = document.createElement('button'); toggle.type = 'button'; toggle.className = 'suggestions-toggle';
+    toggle.textContent = 'Hide suggestions'; toggle.setAttribute('aria-controls', suggestions.id); toggle.setAttribute('aria-expanded', 'true');
+    toggle.onclick = () => {
+      suggestions.hidden = !suggestions.hidden;
+      toggle.textContent = suggestions.hidden ? 'Show suggestions' : 'Hide suggestions';
+      toggle.setAttribute('aria-expanded', String(!suggestions.hidden));
+    };
+    suggestions.before(toggle);
+  }
   const savedList = document.querySelector('#saved-list');
   const savedCount = document.querySelector('#saved-count');
   let savedItems = [];
   const api = async (path, options) => {
-    const response = await (globalThis.wtfAnalyticsRequest || fetch)(path, options);
+    const response = await (globalThis.wtfAnalyticsRequest || fetch)(path, { ...options, signal: AbortSignal.timeout(30000) });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error === 'chat_too_large' ? 'This chat is too large to save. Start a new chat.' : 'Saved chats are unavailable. Please try again.');
     return data;
@@ -50,11 +63,11 @@
         const open = document.createElement('button'); open.type = 'button'; open.textContent = item.title;
         open.onclick = async () => {
           if (busy || saving) return;
-          if (transcript.length && !await confirmAction('Open this saved chat? Unsaved changes to the current chat will be lost.')) return;
+          if (dirty && !await confirmAction('Open this saved chat? Unsaved changes to the current chat will be lost.')) return;
           saving = true;
           try {
             const data = await api(`/beta/api/analytics/investigations/${item.id}`);
-            transcript = data.messages; savedId = data.id; chosenVideo = null;
+            transcript = data.messages; dirty = false; savedId = data.id; chosenVideo = null;
             previousQuestions.splice(0, previousQuestions.length, ...transcript.filter(m => m.role === 'user').slice(-4).map(m => m.content));
             conversation.replaceChildren();
             for (const message of transcript) { const node = append(`${message.role}-message`, message.content); node.style.whiteSpace = 'pre-wrap'; }
@@ -82,23 +95,36 @@
       saving = true; save.disabled = true;
       try {
         savedId ||= `ainv_${crypto.randomUUID()}`;
-        await api('/beta/api/analytics/investigations', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: savedId, messages: transcript }) });
-        await loadSaved(); status.textContent = 'Saved to your account.';
+        const saved = await api('/beta/api/analytics/investigations', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: savedId, messages: transcript }) });
+        dirty = false; savedItems = [saved, ...savedItems.filter(item => item.id !== saved.id)]; renderAccountSaved(); status.textContent = 'Saved to your account.';
       } catch (error) { status.textContent = error.message; }
       finally { saving = false; save.disabled = false; }
     };
     fresh.onclick = async () => {
-      if (busy || saving || transcript.length && !await confirmAction('Start a new chat? Save any changes you want to keep first.')) return;
-      transcript = []; savedId = null; chosenVideo = null; previousQuestions.length = 0; conversation.replaceChildren(); status.textContent = '';
+      if (busy || saving || dirty && !await confirmAction('Start a new chat? Save any changes you want to keep first.')) return;
+      transcript = []; dirty = false; savedId = null; chosenVideo = null; previousQuestions.length = 0; conversation.replaceChildren(); status.textContent = '';
     };
     renderAccountSaved();
     void loadSaved().catch(error => { status.textContent = error.message; });
   }
+  const compose = document.querySelector('.chat-compose');
+  const input = document.querySelector('.chat-compose input');
+  const submit = document.querySelector('.chat-compose button');
+  if (compose && input) compose.onsubmit = event => {
+    event.preventDefault();
+    if (busy || saving || !input.value.trim()) return;
+    const question = input.value.trim();
+    if (question.length <= 2000) input.value = '';
+    void answer(question);
+  };
   append('assistant-message', 'Ask about views, watch time, engagement, or subscriber growth for a video or your connected channel. Answers show the date range and YouTube source.');
   answer = async function analyticsAnswer(question) {
     if (busy || saving || typeof question !== 'string' || !question.trim()) return;
     if (question.length > 2000) { append('assistant-message', 'Please keep your question under 2,000 characters.'); return; }
     busy = true;
+    dirty = true;
+    if (submit) { submit.disabled = true; submit.textContent = 'Thinking…'; }
+    conversation.setAttribute('aria-busy', 'true');
     append('user-message', question);
     transcript.push({ role: 'user', content: question });
     const pending = append('assistant-message', 'Looking up your YouTube analytics…');
@@ -106,7 +132,7 @@
       const selected = range();
       const response = await (globalThis.wtfAnalyticsRequest || fetch)('/beta/api/analytics/assistant', {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ question, startDate: selected.from, endDate: selected.to, videoId: state.episode !== 'all' ? state.episode : chosenVideo, comparisonVideoId: state.compareEpisode || null, comparisonWindow: state.episodeWindow || "first7", previousQuestions }),
+        body: JSON.stringify({ question, startDate: selected.from, endDate: selected.to, videoId: state.episode !== 'all' ? state.episode : chosenVideo, comparisonVideoId: state.compareEpisode || null, comparisonWindow: state.episodeWindow || "first7", previousQuestions, recentMessages: transcript.slice(0, -1).slice(-8).map(message => ({ role: message.role, content: message.content.slice(0, 6000) })) }),
         signal: AbortSignal.timeout(60000),
       });
       const result = await response.json();
@@ -167,7 +193,8 @@
       const evidence = document.createElement('div'); evidence.className = 'answer-evidence';
       for (const source of result.sources || []) {
         const link = document.createElement('a');
-        const url = new URL(source.url);
+        let url;
+        try { url = new URL(source.url); } catch { continue; }
         if (url.protocol !== 'https:' || !['www.youtube.com', 'developers.google.com'].includes(url.hostname)) continue;
         link.href = url.href; link.target = '_blank'; link.rel = 'noopener noreferrer';
         link.textContent = `${source.label}${source.fetchedAt ? ` · fetched ${new Date(source.fetchedAt).toLocaleString()}` : ''}`;
@@ -179,7 +206,7 @@
       if (evidence.children.length) pending.append(evidence);
       for (const candidate of result.candidates || []) {
         const button = document.createElement('button'); button.type = 'button'; button.textContent = candidate.title;
-        button.onclick = () => { chosenVideo = candidate.videoId; void answer(`${question}\nUse video ID ${candidate.videoId}.`); };
+        button.onclick = () => { chosenVideo = candidate.videoId; void answer(`${question}\nFor ${result.selection || "the requested video"}, use video ID ${candidate.videoId}.`); };
         pending.append(button);
       }
     } catch {
@@ -187,6 +214,8 @@
     } finally {
       transcript.push({ role: 'assistant', content: pending.innerText || pending.textContent });
       busy = false;
+      if (submit) { submit.disabled = false; submit.textContent = 'ask →'; }
+      conversation.setAttribute('aria-busy', 'false');
       conversation.scrollTop = pending.offsetTop || 0;
     }
   };

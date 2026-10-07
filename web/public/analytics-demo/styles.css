@@ -17,3 +17,5 @@ main{max-width:1440px;margin:auto;padding:42px clamp(20px,4vw,64px) 54px}.intro{
 .answer-ranking a{color:inherit;text-underline-offset:3px}
 
 .answer-table{min-width:340px}.answer-table th,.answer-table td{overflow-wrap:normal;word-break:normal}.answer-table th:not(:first-child),.answer-table td:not(:first-child){white-space:nowrap}
+
+.prompt-chips[hidden]{display:none}.suggestions-toggle{display:block;margin:10px 0;padding:5px 0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:12px;text-decoration:underline;cursor:pointer}.suggestions-toggle:focus-visible{outline:2px solid var(--blue);outline-offset:3px}

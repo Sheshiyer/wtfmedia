@@ -7,6 +7,8 @@ class Element {
   style = {};
   disabled = false;
   type = "";
+  value = "";
+  onsubmit?: (event: {preventDefault: () => void}) => void;
   onclick?: () => Promise<void>;
   parentElement!: Element;
   setAttribute() {}
@@ -25,7 +27,7 @@ describe("production analytics assistant", () => {
     const fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({
       status: "answered", answer: "Verified API answer", scope: { videoId: "video_test1" },
       metrics: [{ label: "Net subscriber growth", value: 75 }],
-      sources: [{ label: "<script>untrusted title</script>", url: "https://www.youtube.com/watch?v=video_test1" }],
+      sources: [{label: "Malformed link", url: "not-a-url"}, { label: "<script>untrusted title</script>", url: "https://www.youtube.com/watch?v=video_test1" }],
     }) });
     const context = vm.createContext({
       document: { querySelector: (selector: string) => selector === "#conversation" ? conversation : null, createElement: () => new Element() },
@@ -41,6 +43,7 @@ describe("production analytics assistant", () => {
     context.state.episode = 'video_test2';
     await context.answer('Compare the selected videos');
     expect(JSON.parse(fetch.mock.calls[1][1].body).videoId).toBe('video_test2');
+    expect(JSON.parse(fetch.mock.calls[1][1].body).recentMessages).toEqual([{role:'user',content:'Subscriber growth for \"Example\"?'},{role:'assistant',content:'Verified API answer'}]);
     const list = conversation.children.at(-1)?.children.find(node => node.className === 'answer-metrics');
     expect(list?.children[0].children[1].textContent).toBe("75");
     expect(conversation.children.at(-1)?.children.find(node => node.className === 'answer-evidence')?.children[0].children[0].textContent).toBe("<script>untrusted title</script>");
@@ -91,9 +94,38 @@ describe("production analytics assistant", () => {
     await first.container.children[0].children[0].onclick!();
     expect(snapshot!.messages).toEqual([{role:'user',content:'Question'},{role:'assistant',content:'<b>Stored answer</b>'}]);
     expect(first.count.textContent).toBe('1');
+    expect(fetch.mock.calls.filter(([path])=>path.endsWith('/investigations')).length).toBe(2);
+    expect(first.container.children[0].children[2].textContent).toBe('Saved to your account.');
     const reopened=setup(); await new Promise(resolve=>setTimeout(resolve,0));
     await reopened.list.children[0].children[0].onclick!();
     expect(reopened.conversation.children.at(-1)?.textContent).toBe('<b>Stored answer</b>');
+  });
+
+  it("allows suggestions to be hidden and shown without clearing chat", async () => {
+    const conversation = new Element(), chips = new Element();
+    const context = vm.createContext({document:{querySelector:(s:string)=>s==='#conversation'?conversation:s==='.prompt-chips'?chips:null,createElement:()=>new Element()}});
+    vm.runInContext(readFileSync('public/analytics-demo/analytics-assistant.js','utf8'),context);
+    const toggle=chips.children[0];
+    expect(toggle.textContent).toBe('Hide suggestions');
+    await toggle.onclick!(); expect(toggle.textContent).toBe('Show suggestions');
+    await toggle.onclick!(); expect(toggle.textContent).toBe('Hide suggestions');
+    expect(conversation.children.length).toBe(1);
+  });
+
+  it("preserves a second draft while busy and reenables the composer after failure", async () => {
+    const conversation=new Element(),compose=new Element(),input=new Element(),submit=new Element();
+    const nodes:Record<string,Element>={'#conversation':conversation,'.chat-compose':compose,'.chat-compose input':input,'.chat-compose button':submit};
+    let reject!: (error: Error)=>void;
+    const fetch=vi.fn(()=>new Promise((_resolve,failed)=>{reject=failed;}));
+    const context=vm.createContext({document:{querySelector:(s:string)=>nodes[s]||null,createElement:()=>new Element()},fetch,URL,AbortSignal,Date,range:()=>({from:'2026-09-01',to:'2026-09-30'}),state:{episode:'all'},answer:vi.fn()});
+    vm.runInContext(readFileSync('public/analytics-demo/analytics-assistant.js','utf8'),context);
+    input.value='First question';compose.onsubmit!({preventDefault(){}});
+    expect(input.value).toBe('');expect(submit.disabled).toBe(true);
+    input.value='My next question';compose.onsubmit!({preventDefault(){}});
+    expect(input.value).toBe('My next question');expect(fetch).toHaveBeenCalledTimes(1);
+    reject(new Error('network'));await new Promise(resolve=>setTimeout(resolve,0));
+    expect(submit.disabled).toBe(false);expect(input.value).toBe('My next question');
+    expect(conversation.children.at(-1)?.textContent).toContain('could not complete');
   });
 
 });

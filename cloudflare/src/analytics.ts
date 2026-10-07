@@ -518,7 +518,9 @@ export async function youtubeEpisodeComparison(request: Request, env: AnalyticsE
   const videoA = url.searchParams.get("videoA") ?? "";
   const videoB = url.searchParams.get("videoB") ?? "";
   const window = url.searchParams.get("window") ?? "first7";
-  if (![videoA, videoB].every((value) => /^[A-Za-z0-9_-]{6,24}$/u.test(value)) || !["first24", "first7", "first28", "lifetime"].includes(window)) return json({ error: "invalid_episode_comparison" }, 400);
+  if (![videoA, videoB].every((value) => /^[A-Za-z0-9_-]{6,24}$/u.test(value)) || !["first24", "first7", "first28", "lifetime", "selected"].includes(window)) return json({ error: "invalid_episode_comparison" }, 400);
+  const selectedRange = window === "selected" ? dateRange(url) : null;
+  if (window === "selected" && !selectedRange) return json({ error: "invalid_date_range" }, 400);
   const connection = await connectionFor(env, "youtube");
   if (!connection?.selected_resource_id) return json({ error: "channel_not_selected" }, 409);
   const channel = await env.DB.prepare("SELECT id FROM youtube_analytics_channels WHERE connection_id = ? AND youtube_channel_id = ? AND active = 1").bind(connection.id, connection.selected_resource_id).first<{ id: string }>();
@@ -529,8 +531,8 @@ export async function youtubeEpisodeComparison(request: Request, env: AnalyticsE
   const today = (dependencies.now?.() ?? new Date()).toISOString().slice(0, 10);
   const days = window === "first24" ? 1 : window === "first7" ? 7 : window === "first28" ? 28 : null;
   async function metrics(video: typeof videoRows.results[number]) {
-    const startDate = video.publishedAt!.slice(0, 10);
-    const endDate = days == null ? "9999-12-31" : shiftDate(startDate, days - 1);
+    const startDate = selectedRange?.startDate ?? video.publishedAt!.slice(0, 10);
+    const endDate = selectedRange?.endDate ?? (days == null ? "9999-12-31" : shiftDate(startDate, days - 1));
     const row = await env.DB.prepare("SELECT SUM(views) AS views, SUM(watch_minutes) AS watchMinutes, CASE WHEN SUM(views) > 0 THEN SUM(average_view_duration_seconds * views) / SUM(views) END AS averageViewDurationSeconds, CASE WHEN SUM(views) > 0 THEN SUM(average_view_percentage * views) / SUM(views) END AS averageViewPercentage, SUM(thumbnail_impressions) AS impressions, CASE WHEN SUM(thumbnail_impressions) > 0 THEN SUM(thumbnail_impressions_ctr * thumbnail_impressions) / SUM(thumbnail_impressions) END AS impressionsCtr, SUM(thumbnail_impressions * thumbnail_impressions_ctr) AS estimatedImpressionClicks, SUM(subscribers_gained) AS subscribersGained, SUM(subscribers_lost) AS subscribersLost FROM youtube_video_daily_metrics WHERE video_id = ? AND metric_date BETWEEN ? AND ?").bind(video.id, startDate, endDate).first<Record<string, number | null>>();
     const values = row ?? {};
     if (accessToken) {
@@ -554,7 +556,7 @@ export async function youtubeEpisodeComparison(request: Request, env: AnalyticsE
       videoId: video.videoId,
       title: video.title,
       publishedAt: video.publishedAt,
-      range: { startDate, endDate: fresh ? (endDate < today ? endDate : today) : days == null ? "latest stored observation" : endDate },
+      range: { startDate, endDate: fresh ? (endDate < today ? endDate : today) : days == null && !selectedRange ? "latest stored observation" : endDate },
       ...values,
       subscribersPerMillionImpressions: impressions != null && impressions > 0 && subscribersGained != null ? subscribersGained * 1_000_000 / impressions : null,
       impressionTier: impressionTier(impressions),

@@ -130,6 +130,7 @@ test('empty comparison history remains unavailable, never a fabricated zero base
 test('two-video chat fetches live metrics when stored observations are missing', async () => {
  const f = await fixture({plan:{...plan,kind:'video_comparison',scope:'selected',videoQuery:'Rohit',comparisonVideoQuery:'Artist',window:'first7',metrics:['views']}});
  const videos=[{id:'stored-a',videoId:'video_test1',title:'Rohit',publishedAt:'2026-09-01T00:00:00Z'},{id:'stored-b',videoId:'video_test2',title:'Artist',publishedAt:'2026-09-15T00:00:00Z'}];
+ let calendar=false;
  const original=f.env.DB.prepare;
  f.env.DB.prepare=sql=>{
   if(sql.includes('analytics_provider_connections'))return original(sql);
@@ -137,7 +138,7 @@ test('two-video chat fetches live metrics when stored observations are missing',
   return {bind(...values){args=values;return this;},async first(){
    if(sql.includes('SELECT id FROM youtube_analytics_channels'))return{id:'channel-test'};
    assert.match(sql,/youtube_video_daily_metrics/);
-   assert.deepEqual(args.slice(1),args[0]==='stored-a'?['2026-09-01','2026-09-07']:['2026-09-15','2026-09-21']);
+   assert.deepEqual(args.slice(1),calendar?['2026-09-01','2026-09-30']:args[0]==='stored-a'?['2026-09-01','2026-09-07']:['2026-09-15','2026-09-21']);
    return {views:null,impressions:null};
   },async all(){
    if(sql.includes('JOIN youtube_analytics_channels')){
@@ -151,8 +152,8 @@ test('two-video chat fetches live metrics when stored observations are missing',
  f.deps.fetchGoogle=async(url)=>{
   const q=new URL(url).searchParams;calls.push(q);
   const first=q.get('filters')==='video==video_test1';
-  assert.equal(q.get('startDate'),first?'2026-09-01':'2026-09-15');
-  assert.equal(q.get('endDate'),first?'2026-09-07':'2026-09-21');
+  assert.equal(q.get('startDate'),calendar?'2026-09-01':first?'2026-09-01':'2026-09-15');
+  assert.equal(q.get('endDate'),calendar?'2026-09-30':first?'2026-09-07':'2026-09-21');
   return Response.json({columnHeaders:[{name:'views'}],rows:[[first?13000:7000]]});
  };
  const result=await(await handleAnalyticsAssistant(request(),f.env,f.deps)).json();
@@ -160,6 +161,10 @@ test('two-video chat fetches live metrics when stored observations are missing',
  assert.equal(result.metrics.find(m=>m.key==='impressions').value,null);
  assert.equal(result.comparison.title,'Artist');assert.equal(result.scope.title,'Rohit');
  assert.match(result.insights[0],/Video A has 6,000 more/);assert.equal(calls.length,2);
+ calendar=true;
+ f.deps.planAnalytics=async()=>({...plan,kind:'video_comparison',videoQuery:'Rohit',comparisonVideoQuery:'Artist',window:'selected'});
+ const dated=await(await handleAnalyticsAssistant(request(),f.env,f.deps)).json();
+ assert.equal(dated.status,'answered');assert.equal(dated.scope.startDate,'2026-09-01');assert.equal(dated.comparison.endDate,'2026-09-30');
  f.deps.fetchGoogle=async()=>Response.json({rows:[]});
  const empty=await(await handleAnalyticsAssistant(request(),f.env,f.deps)).json();
  assert.equal(empty.metrics[0].value,null);assert.equal(empty.metrics[0].change,null);
@@ -191,4 +196,19 @@ test('Google baseline without a rows property means no data, not a service failu
  f.deps.fetchGoogle=async(...args)=>n++===0?original(...args):Response.json({columnHeaders:[{name:'subscribersGained'}]});
  const response=await handleAnalyticsAssistant(request(),f.env,f.deps);
  assert.equal(response.status,200);const data=await response.json();assert.equal(data.metrics[0].previous,null);
+});
+
+test('single-video follow-up receives bounded conversation context and queries only that video',async()=>{
+ const f=await fixture({videos:[{videoId:'video_test2',title:'Artist'}]});
+ f.deps.planAnalytics=async(question,context)=>{
+  assert.equal(context.recentMessages.length,8);
+  assert.equal(context.recentMessages.at(-1).role,'assistant');
+  assert.equal(context.recentMessages.at(-1).content.length,6000);
+  assert.ok(context.recentMessages.every(m=>Object.keys(m).length===2));
+  return {...plan,kind:'metrics',videoQuery:'video_test2'};
+ };
+ const recentMessages=Array.from({length:10},()=>({role:'assistant',content:'x'.repeat(7000),extra:'discard'}));
+ const result=await(await handleAnalyticsAssistant(request({question:'How did the second video perform?',recentMessages}),f.env,f.deps)).json();
+ assert.equal(result.scope.videoId,'video_test2');assert.equal(result.comparison,undefined);assert.equal(f.calls(),1);
+ assert.equal(new URL(f.urls[0]).searchParams.get('filters'),'video==video_test2');
 });
