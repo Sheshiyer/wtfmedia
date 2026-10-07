@@ -513,7 +513,7 @@ async function youtubeRetentionReport(request: Request, env: AnalyticsEnv): Prom
   return json({ provider: "youtube", video: { id: video.youtube_video_id, title: video.title }, range, points: points.results, status: points.results.length ? "available" : "not_synced" });
 }
 
-async function youtubeEpisodeComparison(request: Request, env: AnalyticsEnv): Promise<Response> {
+export async function youtubeEpisodeComparison(request: Request, env: AnalyticsEnv, dependencies: AnalyticsDependencies = {}, fresh = false): Promise<Response> {
   const url = new URL(request.url);
   const videoA = url.searchParams.get("videoA") ?? "";
   const videoB = url.searchParams.get("videoB") ?? "";
@@ -525,19 +525,36 @@ async function youtubeEpisodeComparison(request: Request, env: AnalyticsEnv): Pr
   if (!channel) return json({ error: "channel_not_selected" }, 409);
   const videoRows = await env.DB.prepare("SELECT id, youtube_video_id AS videoId, title, published_at AS publishedAt FROM youtube_analytics_videos WHERE channel_id = ? AND youtube_video_id IN (?, ?)").bind(channel.id, videoA, videoB).all<{ id: string; videoId: string; title: string; publishedAt: string | null }>();
   if (videoRows.results.length !== 2 || videoRows.results.some((video) => !video.publishedAt)) return json({ error: "comparison_videos_unavailable" }, 404);
+  const accessToken = fresh ? await refreshAnalyticsAccessToken(connection, env, dependencies) : null;
+  const today = (dependencies.now?.() ?? new Date()).toISOString().slice(0, 10);
   const days = window === "first24" ? 1 : window === "first7" ? 7 : window === "first28" ? 28 : null;
   async function metrics(video: typeof videoRows.results[number]) {
     const startDate = video.publishedAt!.slice(0, 10);
     const endDate = days == null ? "9999-12-31" : shiftDate(startDate, days - 1);
     const row = await env.DB.prepare("SELECT SUM(views) AS views, SUM(watch_minutes) AS watchMinutes, CASE WHEN SUM(views) > 0 THEN SUM(average_view_duration_seconds * views) / SUM(views) END AS averageViewDurationSeconds, CASE WHEN SUM(views) > 0 THEN SUM(average_view_percentage * views) / SUM(views) END AS averageViewPercentage, SUM(thumbnail_impressions) AS impressions, CASE WHEN SUM(thumbnail_impressions) > 0 THEN SUM(thumbnail_impressions_ctr * thumbnail_impressions) / SUM(thumbnail_impressions) END AS impressionsCtr, SUM(thumbnail_impressions * thumbnail_impressions_ctr) AS estimatedImpressionClicks, SUM(subscribers_gained) AS subscribersGained, SUM(subscribers_lost) AS subscribersLost FROM youtube_video_daily_metrics WHERE video_id = ? AND metric_date BETWEEN ? AND ?").bind(video.id, startDate, endDate).first<Record<string, number | null>>();
     const values = row ?? {};
+    if (accessToken) {
+      const fields = { views: "views", estimatedMinutesWatched: "watchMinutes", averageViewDuration: "averageViewDurationSeconds", averageViewPercentage: "averageViewPercentage", subscribersGained: "subscribersGained", subscribersLost: "subscribersLost" };
+      const query = new URL("https://youtubeanalytics.googleapis.com/v2/reports");
+      query.search = new URLSearchParams({ ids: `channel==${connection.selected_resource_id}`, filters: `video==${video.videoId}`, startDate, endDate: endDate < today ? endDate : today, metrics: Object.keys(fields).join(",") }).toString();
+      if (startDate > today) throw new Error("comparison_video_not_published");
+      const response = await (dependencies.fetchGoogle ?? fetch)(query, { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(20000) });
+      if (!response.ok) throw new Error("comparison_provider_unavailable");
+      const report = await response.json() as { columnHeaders?: Array<{ name: string }>; rows?: unknown[][] };
+      if (report.rows != null && (!Array.isArray(report.rows) || report.rows.length > 1 || report.rows.length === 1 && (!Array.isArray(report.rows[0]) || !Array.isArray(report.columnHeaders)))) throw new Error("comparison_report_invalid");
+      const reported = new Map((report.columnHeaders ?? []).map((column, i) => [column.name, report.rows?.[0]?.[i]]));
+      for (const [providerKey, storedKey] of Object.entries(fields)) {
+        const value = reported.get(providerKey);
+        values[storedKey] = typeof value === "number" && Number.isFinite(value) ? value : null;
+      }
+    }
     const impressions = numeric(values.impressions);
     const subscribersGained = numeric(values.subscribersGained);
     return {
       videoId: video.videoId,
       title: video.title,
       publishedAt: video.publishedAt,
-      range: { startDate, endDate: days == null ? "latest stored observation" : endDate },
+      range: { startDate, endDate: fresh ? (endDate < today ? endDate : today) : days == null ? "latest stored observation" : endDate },
       ...values,
       subscribersPerMillionImpressions: impressions != null && impressions > 0 && subscribersGained != null ? subscribersGained * 1_000_000 / impressions : null,
       impressionTier: impressionTier(impressions),

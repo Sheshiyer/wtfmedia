@@ -1,5 +1,46 @@
 # Project handoff
 
+## 2026-10-07 Analytics chat regression review (local)
+
+- Exercised the actual GLM/OpenRouter interpreter for single-video metrics, subscriber/view rankings, period changes, misspelled two-video references, fair selected-pair comparison, lifetime comparison, unsupported revenue, follow-up likes, and unknown titles, using synthetic Google reports/catalogue only. All ten final scenarios passed; this does not certify real-channel data accuracy.
+- Reproduced and fixed a 503 when Google omitted rows for an empty baseline: available current metrics now remain visible with a null baseline. Corrected the planner instruction so unknown selected-catalogue titles go through server catalogue lookup rather than being misclassified unsupported.
+- Verification: 444 backend tests, 248 frontend tests, typecheck/lint pass; focused assistant tests rerun after the prompt adjustment. Local unauthenticated assistant, saved-chat list and save routes all return 401. Existing saved-chat isolation/reopen/deletion coverage passes. No browser automation, deployment, push, credential or database changes in this review. Owner-authenticated live-channel checks remain unverified.
+
+## 2026-10-07 Live comparison metrics and selection continuity (local)
+
+- Owner reported unavailable comparison values despite working single-video answers. Single-video chat queried Google live, while two-video chat only aggregated synchronized rows. The shared comparison service now optionally fetches live core metrics for both videos; chat enables it with each video's displayed publication window. Missing provider values stay null; provider denial fails truthfully. Impression metrics remain explicitly identified as synchronized data.
+- Dashboard selection now takes precedence over a prior answer's video ID in chat requests. Comparison headings use Video A/B with full titles above, and the table scrolls horizontally instead of splitting words into narrow columns.
+- Verification: 443 backend tests pass, including absent stored observations, live per-video dates/values, empty reports and provider denial. Frontend unit/typecheck/lint checked; local analytics and backend health respond 200. No deployment, push, database or credential changes in this update. Real signed-in channel comparison remains for owner testing.
+
+## 2026-10-07 Account-saved analytics chats and title spelling (local)
+
+- Selected channel-owned video titles now accompany model query context, allowing GLM to resolve misspelled references without hard-coded intent matching. Live-model tests resolved the owner's misspelled comparison against synthetic catalogue/report data.
+- Replaced demo-only saved investigations with Save chat, New chat, account list, reopen, and confirmed delete. Private text snapshots use the existing verified member-owner lane for all roles; bounded inputs, owner-filtered reads/writes/deletes, safe text rendering, and account-history erasure are covered. Saved answers remain snapshots, never retrieval evidence.
+- New migration 0022 creates analytics_investigations. Owner separately approved applying 0022 to staging D1 for local testing. Applied successfully and verified the table and migration receipt without reading user data. Pre-migration recovery bookmark: 0000015d-00000000-000050fd-69a6bdf02e74cd1e61452219d9d1f9c0. No application deployment, production change or push.
+- Verification: 443 backend tests and 248 frontend unit tests pass, including account isolation, upsert/reopen, deletion and safe rendering. Local services remain running. Typecheck, lint, privacy scan and architecture check pass. Local analytics/health endpoints return 200; the owner can now test Save chat and reopen with their signed-in account.
+
+## 2026-10-07 Analytics chat two-video comparisons (local)
+
+- Removed the planner's two-video rejection. Named videos resolve within the connected channel; selected-pair questions receive the dashboard comparison IDs/window. Chat reuses the existing Episode Review comparison service and synchronized observations, with title/date columns, exact differences, net subscriber change, CTR percentages and text findings. Missing values stay unavailable; ambiguous titles require selection. No keyword-based intent detection or second evidence store.
+- Verification: 440 backend tests, 247 frontend unit tests, 97 contracts, typecheck and lint pass. Live OpenRouter correctly interpreted named-video and selected-pair comparison questions against synthetic stored reports; this is not live channel accuracy acceptance. Both local endpoints return 200. No push or deployment; owner can test locally.
+
+## 2026-10-07 Local analytics interpreter configuration reload
+
+- The owner-added OpenRouter key existed in ignored provider vars and the merged temporary local vars, but the already-running Wrangler process had not added the new binding on hot reload. Fully restarted the local backend; startup now confirms the hidden OpenRouter binding. Frontend analytics and backend health both return 200. The owner's signed-in chat retry remains unverified; no deployment or push.
+
+## 2026-10-07 Local login proxy startup corrected
+
+- Local principal-context returned 503 because Next was launched on 0.0.0.0, bypassing the localhost HTTP forwarder and reaching an incompatible dev service-binding Request implementation. Restarting on localhost exposed a second startup mismatch: upstream 127.0.0.1 did not match Edge OPS_HOSTNAME=localhost. Both frontend bind hostname and upstream now use localhost.
+- Verified through the frontend: invalid bearer receives backend 401 unauthorized instead of 503/404. Existing auth checks remain unchanged. Both local servers remain running; authenticated retry requires the owner browser. No deployment or push. PROJECT.md records the exact startup pairing and verification.
+
+## 2026-10-07 Analytics assistant ranking and structured answers (local)
+
+- Owner reported suggested ranking questions being rejected and unstructured metric output, and requested local testing before deployment. Root cause: the model planner explicitly rejected rankings/comparisons while the dashboard suggested them; the renderer used unstyled definition-list values and scrolled to the end of long answers.
+- Added validated model query kinds for live channel video rankings (provider sort, maximum 10 results, ignoring selected-video scope), same-scope period comparisons (preceding equal-length period by default), and general fair-comparison guidance. Query interpretation stays in the existing OpenRouter lane; all metric values remain provider-sourced. Missing baseline stays unavailable and comparisons do not assert causation. Two-video comparisons and unsupported metrics remain explicitly unsupported.
+- Responses now show dates, aligned metric/value rows, ranking links, a current/previous/change table, and compact source/limitation notes. The newest answer opens at its summary rather than its final source link. Safe text rendering is preserved.
+- Verification: 438 backend tests, full frontend unit checks and focused ranking/comparison rendering checks, typecheck/lint pass. Live OpenRouter interpretation passed ranking, period-change and guidance questions against synthetic Google reports; this is not a real-channel accuracy receipt. Local frontend responds 200; backend health responds OK.
+- Both local servers run on ports 3000/8787. Frontend explicitly uses staging Clerk with browser-token admission and forwards to local Edge. Temporary local backend vars combine ignored provider configuration with existing local overrides; owner added the missing OpenRouter key to the ignored provider file and it was loaded without printing it. Existing local configuration uses staging D1 and remote Alpha bindings; no migrations or shared-data testing mutations were performed. No deployment or push; await owner's local testing feedback.
+
 ## 2026-10-07 PR #82 analytics synchronization merged and staged
 
 - Owner requested review/merge of PR #82 (`feature/sarthak`, `4a520b95478380c65d588c8b197e52868443aa23`) into feature/pavun and staging deployment. Local merge candidate `ca6199e663c8924e3949b4f61744800e7607ffbe` retains user-management changes. Only generated architecture files conflicted; regenerated against the merged source. No branch push or GitHub PR closure.

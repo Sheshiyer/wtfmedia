@@ -127,6 +127,8 @@ function betaApiRequirement(pathname: string, method: string): readonly [Resourc
   if (["/beta/api/analytics/status", "/beta/api/analytics/youtube", "/beta/api/analytics/ga4", "/beta/api/analytics/youtube/retention", "/beta/api/analytics/youtube/episodes/compare"].includes(pathname) && requestMethod === "GET") {
     return ["analytics", "read"];
   }
+  if (pathname === "/beta/api/analytics/investigations") return ["GET", "POST"].includes(requestMethod) ? ["analytics", "read"] : null;
+  if (/^\/beta\/api\/analytics\/investigations\/ainv_[0-9a-f-]{36}$/u.test(pathname)) return ["GET", "DELETE"].includes(requestMethod) ? ["analytics", "read"] : null;
   if (pathname === "/beta/api/analytics/assistant") return requestMethod === "POST" ? ["analytics", "read"] : null;
   if (pathname === "/beta/api/analytics/oauth/callback") return requestMethod === "GET" ? ["analytics", "manage"] : null;
   if (["/beta/api/analytics/oauth/start", "/beta/api/analytics/selection", "/beta/api/analytics/disconnect", "/beta/api/analytics/sync", "/beta/api/analytics/youtube/retention"].includes(pathname)) {

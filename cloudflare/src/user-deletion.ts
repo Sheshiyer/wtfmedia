@@ -10,6 +10,7 @@ export async function eraseUserHistory(db: DB, email: string) {
     db.prepare("UPDATE operators SET active = 0, display_name = '', updated_at = ? WHERE email = ? AND role <> 'super_admin'").bind(now, email),
     db.prepare("INSERT OR IGNORE INTO member_chat_deletion_tombstones (conversation_id, member_id, create_idempotency_key, deleted_at) SELECT c.id, c.member_id, c.create_idempotency_key, ? FROM member_chat_conversations c JOIN member_users m ON m.id = c.member_id WHERE m.email = ?").bind(now, email),
     db.prepare("DELETE FROM member_saved_memory_conversation_tombstones WHERE member_id IN (SELECT id FROM member_users WHERE email = ?)").bind(email),
+    db.prepare("DELETE FROM analytics_investigations WHERE member_id IN (SELECT id FROM member_users WHERE email = ?) ").bind(email),
     db.prepare("DELETE FROM member_saved_memories WHERE member_id IN (SELECT id FROM member_users WHERE email = ?)").bind(email),
     db.prepare("DELETE FROM member_chat_messages WHERE conversation_id IN (SELECT c.id FROM member_chat_conversations c JOIN member_users m ON m.id = c.member_id WHERE m.email = ?)").bind(email),
     db.prepare("DELETE FROM member_chat_conversations WHERE member_id IN (SELECT id FROM member_users WHERE email = ?)").bind(email),

@@ -1,3 +1,4 @@
+import { handleAnalyticsInvestigations } from "./analytics-investigations.ts";
 import { createClerkUserDeleter } from "./clerk/delete-user.ts";
 import { listUsers, manageUser } from "./user-admin.ts";
 import { createClerkInvitationClient } from "./clerk/invitations.ts";
@@ -62,6 +63,10 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     } catch { return Response.json({ error: "user_management_unavailable" }, { status: 503, headers }); }
   }
   if (url.pathname === "/beta/api/principal-context" && request.method === "GET") return Response.json(principalContextDto(context), { headers });
+  if (/^\/beta\/api\/analytics\/investigations(?:\/[^/]+)?$/u.test(url.pathname)) {
+    const memberId = await memberIdForPrincipal(env.DB, context);
+    return memberId ? handleAnalyticsInvestigations(request, env.DB, memberId) : forbidden();
+  }
   if (url.pathname === "/beta/api/analytics/assistant" && request.method === "POST") return handleAnalyticsAssistant(request, env, dependencies);
   if (context.kind === "operator" && url.pathname === "/beta/api/analytics/sync" && request.method === "POST") {
     const input = await body(request);

@@ -92,3 +92,10 @@ Before deployment, decode the compiled key and compare its domain with
 Repeat that comparison against the live sign-in page after deployment.
 Use copied dependency files, not an external node_modules symlink, for isolated
 OpenNext builds so framework manifest patches resolve inside the build directory.
+
+For local Beta testing, start Next with `--hostname localhost` and set
+`WTFMEDIA_EDGE_LOCAL_ORIGIN=http://localhost:8787`, matching the local Edge
+`OPS_HOSTNAME=localhost`. Binding Next to `0.0.0.0` changes its internal request
+hostname and skips the localhost forwarder; using `127.0.0.1` as the upstream
+fails the backend hostname check. Verify an invalid bearer returns 401 through
+`http://localhost:3000/beta/api/principal-context` before handing off testing.
