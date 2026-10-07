@@ -212,3 +212,24 @@ test('single-video follow-up receives bounded conversation context and queries o
  assert.equal(result.scope.videoId,'video_test2');assert.equal(result.comparison,undefined);assert.equal(f.calls(),1);
  assert.equal(new URL(f.urls[0]).searchParams.get('filters'),'video==video_test2');
 });
+
+test('period zero and current lifetime views remain distinct; absent totals never become zero',async()=>{
+ for(const [rows,count,channel,expected] of [[[0],'3400','UC_selected_channel',3400],[null,'3400','UC_selected_channel',3400],[[0],undefined,'UC_selected_channel',null],[[0],'3400','UC_other_channel',null],[[0],'invalid','UC_selected_channel',null]]){
+  const f=await fixture({plan:{...plan,metrics:['views']}});
+  f.deps.fetchGoogle=async(input)=>{
+   const url=new URL(input);
+   if(url.hostname==='youtubeanalytics.googleapis.com'){
+    assert.equal(url.searchParams.get('filters'),'video==video_test1');
+    return Response.json({columnHeaders:[{name:'views'}],rows:rows===null?[]:[rows]});
+   }
+   assert.equal(url.hostname,'www.googleapis.com');assert.equal(url.searchParams.get('id'),'video_test1');
+   return Response.json({items:[{id:'video_test1',snippet:{channelId:channel},statistics:{viewCount:count}}]});
+  };
+  const response=await handleAnalyticsAssistant(request(),f.env,f.deps);const result=await response.json();
+  assert.equal(response.status,200);
+  assert.equal(result.metrics.find(m=>m.key==='views').value,rows===null?null:0);
+  assert.equal(result.metrics.find(m=>m.key==='lifetimeViews').value,expected);
+  assert.match(result.answer,/lifetime view total is shown separately/);
+  assert.equal(result.sources.some(s=>s.label.includes('Data API')),expected!==null);
+ }
+});

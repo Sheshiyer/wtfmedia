@@ -1,5 +1,11 @@
 # Project handoff
 
+## 2026-10-07 Period versus lifetime video views (local)
+
+- Owner reported zero views despite a roughly 3.4k YouTube total. Read-only staging catalogue inspection confirms the selected video was published in May while the answer requested September 10–October 7; no synchronized daily rows exist for that video. This establishes the scope mismatch risk, not independent confirmation of the current public total.
+- Single-video views now fetch current statistics through YouTube Data API videos.list as a separately labelled lifetime count, while preserving the Analytics period value and explicitly explaining the date scope. Statistics must match both video and connected channel; missing/invalid totals remain unavailable. Empty Analytics reports can still show a valid lifetime count without fabricating period zeros. Subscriber responses explicitly identify period totals.
+- Verification: 446 backend and 250 frontend tests and web typecheck pass; focused assistant checks rerun after report normalization. Tests include zero period/3,400 lifetime, missing period rows, absent or invalid statistics and wrong-channel statistics. No deployment, push, credential or database changes. Actual current public total remains unverified by the agent; owner-authenticated retry is needed.
+
 ## 2026-10-07 Chat context and UX fixes deployed to staging
 
 - Owner-authorized candidate `b56d3a6f594f18fc5b76640fc950d87ea19245ad` deployed to staging: Edge `aaff6ee7-f41f-4794-b333-186123db92f9`, Web `b9a80954-81dd-4dff-b4bb-443e9bfd7a4e`, both verified at 100% traffic. Custom domain https://beta-staging.wtfhq.in and staging-only paired service bindings verified. No push or production change.

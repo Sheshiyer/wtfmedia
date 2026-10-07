@@ -129,22 +129,40 @@ export async function handleAnalyticsAssistant(request: Request, env: Env, depen
     const response = await (dependencies.fetchGoogle ?? fetch)(url, { headers: { authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(20000) });
     if (!response.ok) return message("provider_unavailable", response.status === 401 || response.status === 403 ? "Google denied this report. Check the connected channel, granted permissions, and enabled YouTube Analytics API." : "YouTube could not supply this report. Please try again later.", 503);
     const report = await response.json() as { columnHeaders?: Array<{ name: string }>; rows?: unknown[][] };
-    if (!Array.isArray(report.rows) || report.rows.length === 0) return message("no_data", "YouTube returned no data for this video/channel and date range. I cannot infer a value from an empty report.");
+    let lifetimeViews: number | null = null;
+    const showLifetimeViews = plan.kind === "metrics" && !!video && plan.metrics.includes("views");
+    if (showLifetimeViews) {
+      try {
+        const detailsUrl = new URL("https://www.googleapis.com/youtube/v3/videos");
+        detailsUrl.search = new URLSearchParams({ part: "snippet,statistics", id: video!.videoId }).toString();
+        const detailsResponse = await (dependencies.fetchGoogle ?? fetch)(detailsUrl, { headers: { authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(15000) });
+        if (detailsResponse.ok) {
+          const details = await detailsResponse.json() as { items?: Array<{ id?: string; snippet?: { channelId?: string }; statistics?: { viewCount?: string } }> };
+          const item = details.items?.find(item => item.id === video!.videoId && item.snippet?.channelId === connection.selected_resource_id);
+          const count = item?.statistics?.viewCount;
+          if (typeof count === "string" && /^\d+$/u.test(count) && Number.isSafeInteger(Number(count))) lifetimeViews = Number(count);
+        }
+      } catch { /* Preserve the period report if current public statistics cannot be fetched. */ }
+    }
+    const reportRows = Array.isArray(report.rows) ? report.rows : [];
+    const emptyReport = reportRows.length === 0;
+    if (emptyReport && !(showLifetimeViews && lifetimeViews !== null)) return message("no_data", "YouTube returned no data for this video/channel and date range. I cannot infer a value from an empty report.");
     const sources = [{ label: "YouTube Analytics API", url: "https://developers.google.com/youtube/analytics/channel_reports", fetchedAt: now.toISOString() }];
     if (plan.kind === "ranking") {
       const videoIndex = report.columnHeaders?.findIndex(h => h.name === "video") ?? -1;
       const metricIndex = report.columnHeaders?.findIndex(h => h.name === plan.rankBy) ?? -1;
-      if (videoIndex < 0 || metricIndex < 0 || report.rows.length > plan.limit! || report.rows.some(row => !Array.isArray(row) || !validId(row[videoIndex]) || typeof row[metricIndex] !== "number" || !Number.isFinite(row[metricIndex]))) return message("provider_unavailable", "YouTube returned an unexpected ranking format.", 503);
-      const ids = report.rows.map(row => row[videoIndex] as string);
+      if (videoIndex < 0 || metricIndex < 0 || reportRows.length > plan.limit! || reportRows.some(row => !Array.isArray(row) || !validId(row[videoIndex]) || typeof row[metricIndex] !== "number" || !Number.isFinite(row[metricIndex]))) return message("provider_unavailable", "YouTube returned an unexpected ranking format.", 503);
+      const ids = reportRows.map(row => row[videoIndex] as string);
       const titles = await env.DB.prepare(`SELECT v.youtube_video_id AS videoId, v.title FROM youtube_analytics_videos v JOIN youtube_analytics_channels c ON c.id = v.channel_id WHERE c.connection_id = ? AND c.youtube_channel_id = ? AND c.active = 1 AND v.youtube_video_id IN (${ids.map(() => "?").join(",")})`).bind(connection.id, connection.selected_resource_id, ...ids).all<{ videoId: string; title: string }>();
       const names = new Map(titles.results.map(item => [item.videoId, item.title]));
-      const ranking = report.rows.map((row, i) => ({ rank: i + 1, videoId: ids[i], title: names.get(ids[i]) ?? ids[i], value: row[metricIndex] as number, label: metrics[plan.rankBy!], url: `https://www.youtube.com/watch?v=${ids[i]}` }));
+      const ranking = reportRows.map((row, i) => ({ rank: i + 1, videoId: ids[i], title: names.get(ids[i]) ?? ids[i], value: row[metricIndex] as number, label: metrics[plan.rankBy!], url: `https://www.youtube.com/watch?v=${ids[i]}` }));
       const leader = ranking[0];
       return reply({ status: "answered", answer: `${leader.title} has the ${plan.order === "asc" ? "lowest" : "highest"} ${metrics[plan.rankBy!].toLowerCase()} in YouTube's report: ${leader.value.toLocaleString("en-US", { maximumFractionDigits: 2 })}.`, scope: { videoId: null, title: "Channel video ranking", startDate: plan.startDate, endDate: plan.endDate }, metrics: [], ranking, sources, limitations: ["Includes all video formats reported by YouTube, not only full episodes. Videos without reported data are omitted; equal values are ties.", "YouTube reporting may be delayed. Video subscriber gains are attributed to the video, not all channel growth."] });
     }
-    if (report.rows.length !== 1 || !Array.isArray(report.columnHeaders)) return message("provider_unavailable", "YouTube returned an unexpected report format.", 503);
-    const values = new Map(report.columnHeaders.map((h, i) => [h.name, report.rows![0][i]]));
-    const result: Array<{ key: string; label: string; value: number | null; previous?: number | null; change?: number | null }> = plan.metrics.map(key => ({ key, label: metrics[key], value: typeof values.get(key) === "number" && Number.isFinite(values.get(key)) ? values.get(key) as number : null }));
+    if (!emptyReport && (reportRows.length !== 1 || !Array.isArray(report.columnHeaders))) return message("provider_unavailable", "YouTube returned an unexpected report format.", 503);
+    const values = new Map((report.columnHeaders ?? []).map((h, i) => [h.name, reportRows[0]?.[i]]));
+    const result: Array<{ key: string; label: string; value: number | null; previous?: number | null; change?: number | null }> = plan.metrics.map(key => ({ key, label: key === "views" ? "Views in selected period" : metrics[key], value: typeof values.get(key) === "number" && Number.isFinite(values.get(key)) ? values.get(key) as number : null }));
+    if (showLifetimeViews) result.push({ key: "lifetimeViews", label: "Lifetime views (current YouTube total)", value: lifetimeViews });
     const gained = result.find(m => m.key === "subscribersGained")?.value;
     const lost = result.find(m => m.key === "subscribersLost")?.value;
     if (gained != null && lost != null) result.push({ key: "netSubscribers", label: "Net subscriber growth (gained − lost)", value: gained - lost });
@@ -167,7 +185,7 @@ export async function handleAnalyticsAssistant(request: Request, env: Env, depen
       }
     }
     const title = video?.title ?? connection.selected_resource_name ?? "Connected YouTube channel";
-    return reply({ status: "answered", answer: comparison ? `Performance changes for ${title}. The table shows the current period against the comparison period; these changes do not establish why performance changed.` : `Performance summary for ${title}.`, comparison, scope: { videoId: video?.videoId ?? null, title, startDate: plan.startDate, endDate: plan.endDate }, metrics: result, sources: [{ label: "YouTube Analytics API", url: "https://developers.google.com/youtube/analytics/channel_reports", fetchedAt: now.toISOString() }, ...(video ? [{ label: video.title, url: `https://www.youtube.com/watch?v=${video.videoId}` }] : [])], limitations: ["YouTube reporting may be delayed; a live request does not guarantee data through the end date.", ...(video && plan.metrics.includes("subscribersGained") ? ["Video-filtered subscriber changes are attributed by YouTube to this video, not all channel growth during the period."] : [])] });
+    return reply({ status: "answered", answer: comparison ? `Performance changes for ${title}. The table shows the current period against the comparison period; these changes do not establish why performance changed.` : `Performance for ${title} during ${plan.startDate}–${plan.endDate}.${showLifetimeViews ? " The current lifetime view total is shown separately; it includes views outside this period." : " These are period totals, not lifetime totals."}`, comparison, scope: { videoId: video?.videoId ?? null, title, startDate: plan.startDate, endDate: plan.endDate }, metrics: result, sources: [...(showLifetimeViews && lifetimeViews !== null ? [{ label: "YouTube Data API · current lifetime views", url: "https://developers.google.com/youtube/v3/docs/videos", fetchedAt: now.toISOString() }] : []), { label: "YouTube Analytics API", url: "https://developers.google.com/youtube/analytics/channel_reports", fetchedAt: now.toISOString() }, ...(video ? [{ label: video.title, url: `https://www.youtube.com/watch?v=${video.videoId}` }] : [])], limitations: ["YouTube reporting may be delayed; a live request does not guarantee data through the end date.", ...(video && plan.metrics.includes("subscribersGained") ? ["Video-filtered subscriber changes are attributed by YouTube to this video, not all channel growth during the period."] : [])] });
   } catch {
     return message("unavailable", "Analytics data is unavailable. Check the connection and storage setup, then try again.", 503);
   }
