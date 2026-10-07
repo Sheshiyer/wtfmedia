@@ -1,5 +1,12 @@
 # Project handoff
 
+## 2026-10-07 Analytics chat and saved investigations deployed to staging
+
+- Owner authorized staging deployment of exact local source `76936255fea3302d3f91c79a6803c0e6a6bb23be`. Edge `37fb272e-d565-4285-b6b6-248638745671` and Web `de613a4d-ba94-4cb2-a3f5-382594c7272e` each verified at 100% traffic; custom domain remains https://beta-staging.wtfhq.in. Web binds only the staging Edge/self services. No branch push or production change.
+- Rollback receipts before deployment: Edge `86678121-4e9a-436f-9245-bc823d14c262`, Web `089ea899-4a75-4385-ad49-6b9082c2aaf9`. Migration inventory confirms no pending migrations; previously approved 0022 remains applied, with no additional database mutation in this deployment.
+- Candidate backend 444 tests, contracts 97, privacy 0/415 and architecture pass; frontend unit 248 and typecheck/lint passed before commit. Isolated OpenNext build completed 95 pages using copied dependencies, no local env files, and explicitly verified staging Clerk public configuration. Compiled assets and live sign-in both identify the staging Clerk instance.
+- Live curl checks: sign-in 200, updated analytics chat asset 200, unauthenticated saved-chat API 401. Edge health is ok/staging with Alpha public API inference authority. Full owner-authenticated channel/chat/save acceptance remains for staging testing; synthetic model checks are not real-channel evidence.
+
 ## 2026-10-07 Analytics chat regression review (local)
 
 - Exercised the actual GLM/OpenRouter interpreter for single-video metrics, subscriber/view rankings, period changes, misspelled two-video references, fair selected-pair comparison, lifetime comparison, unsupported revenue, follow-up likes, and unknown titles, using synthetic Google reports/catalogue only. All ten final scenarios passed; this does not certify real-channel data accuracy.
