@@ -196,6 +196,66 @@ test("a sync without an approved resource fails before token or provider access"
   assert.ok(operations.some(({ sql }) => sql.includes("analytics_sync_runs")));
 });
 
+test("YouTube sync filters day-by-video reports to the owned catalogue and keeps optional reach non-blocking", async () => {
+  const secret = "test-filtered-video-sync-key";
+  const encrypted = await encryptAnalyticsCredentials({ accessToken: "test-access", refreshToken: "test-refresh", expiresAt: "2026-10-08T00:00:00Z" }, secret);
+  const videoIds = ["video-id-01", "video-id-02"];
+  const analyticsRequests = [];
+  const db = {
+    prepare(sql) {
+      return statement({
+        async first() {
+          if (sql.includes("SELECT id FROM youtube_analytics_channels")) return { id: "ytch_test" };
+          if (sql.includes("SELECT attempt_count")) return { attempt_count: 1 };
+          return null;
+        },
+      });
+    },
+    async batch(statements) { for (const item of statements) await item.run(); },
+  };
+  const result = await syncAnalyticsConnection({
+    DB: db,
+    OPS_ENVIRONMENT: "staging",
+    ANALYTICS_TOKEN_ENCRYPTION_KEY: secret,
+    GOOGLE_OAUTH_CLIENT_ID: "test-client",
+    GOOGLE_OAUTH_CLIENT_SECRET: "test-secret",
+  }, {
+    id: "acon_test",
+    environment: "staging",
+    provider: "youtube",
+    status: "connected",
+    encrypted_credentials: encrypted,
+    granted_scopes_json: "[]",
+    token_expires_at: "2026-10-08T00:00:00Z",
+    selected_resource_id: `UC${"a".repeat(22)}`,
+    selected_resource_name: "Test channel",
+    reporting_timezone: "UTC",
+    last_attempted_refresh_at: null,
+    last_successful_refresh_at: null,
+    last_error_code: null,
+  }, "2026-09-10", "2026-10-07", {
+    now: () => new Date("2026-10-07T00:00:00Z"),
+    fetchGoogle: async (input, init) => {
+      const url = new URL(input);
+      if (url.hostname === "www.googleapis.com" && url.pathname.endsWith("/channels")) return Response.json({ items: [{ contentDetails: { relatedPlaylists: { uploads: "UU-test" } } }] });
+      if (url.hostname === "www.googleapis.com" && url.pathname.endsWith("/playlistItems")) return Response.json({ items: videoIds.map(videoId => ({ contentDetails: { videoId } })) });
+      if (url.hostname === "www.googleapis.com" && url.pathname.endsWith("/videos")) return Response.json({ items: videoIds.map(videoId => ({ id: videoId, snippet: { title: videoId, publishedAt: "2026-09-01T00:00:00Z" } })) });
+      if (url.hostname === "youtubeanalytics.googleapis.com") {
+        analyticsRequests.push(url);
+        const dimensions = url.searchParams.get("dimensions");
+        if (dimensions === "day,video") return Response.json({ columnHeaders: [{ name: "day" }, { name: "video" }, { name: "views" }], rows: [["2026-10-01", videoIds[0], 10]] });
+        if (dimensions === "day,subscribedStatus") return Response.json({ columnHeaders: [{ name: "day" }, { name: "subscribedStatus" }, { name: "views" }], rows: [["2026-10-01", "SUBSCRIBED", 4]] });
+        return Response.json({ columnHeaders: [{ name: "day" }, { name: "views" }], rows: [["2026-10-01", 10]] });
+      }
+      if (url.hostname === "youtubereporting.googleapis.com" && init?.method === "POST") return Response.json({ error: { status: "SERVICE_DISABLED" } }, { status: 403 });
+      throw new Error(`unexpected_provider_request:${url.hostname}${url.pathname}`);
+    },
+  });
+  assert.equal(result.status, "completed");
+  const videoRequest = analyticsRequests.find(url => url.searchParams.get("dimensions") === "day,video");
+  assert.equal(videoRequest?.searchParams.get("filters"), `video==${videoIds.join(",")}`);
+});
+
 
 test("OAuth callback returns to the configured frontend through a local edge proxy", async () => {
   const response = await handleAnalyticsRequest(new Request("http://localhost:8787/beta/api/analytics/oauth/callback?error=access_denied&returnTo=https://untrusted.test"), {
