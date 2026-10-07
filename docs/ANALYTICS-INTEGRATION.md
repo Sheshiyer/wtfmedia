@@ -170,10 +170,9 @@ channel, and synchronizes the catalogue. The staging connection inventory on
 2026-10-04 was empty. OAuth callback registration and project API activation
 have not been verified through a successful Google consent flow.
 
-API review findings still requiring follow-up: video daily sync requests
-`day,video` without a video filter (Google documents adding video dimensions
-alongside video filters); the report fetcher does not paginate Analytics rows;
-missing provider numbers can be converted to zero by `Number(null)`; catalogue
+API review findings still requiring follow-up: the report fetcher does not
+paginate Analytics rows; missing provider numbers can be converted to zero by
+`Number(null)`; catalogue
 content classifications are not populated; expected CTR uses a trailing baseline
 rather than the spreadsheet audit's fitted trendline. These findings prevent a
 claim that every spreadsheet report is production-complete.

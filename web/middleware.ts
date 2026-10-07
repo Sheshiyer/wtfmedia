@@ -76,7 +76,12 @@ export const config = {
   matcher: ["/", "/ops/:path*", "/api/ops/:path*", "/beta/:path*", "/chat/:path*", "/sign-in/:path*", "/sign-up/:path*", "/request-access"],
 };
 
-const clerkHandler = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim()
+const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim();
+const clerkSecretKey = process.env.CLERK_SECRET_KEY?.trim();
+// Local Beta requests authenticate in the browser and forward the Clerk bearer
+// token to the edge verifier. Do not make that path depend on a copied Clerk
+// server secret. Deployed builds keep the server middleware fail-closed.
+const clerkHandler = clerkPublishableKey && (clerkSecretKey || process.env.NODE_ENV !== "development")
   ? clerkMiddleware(async (auth, request) => {
       // Signed-in principals enter the canonical resolver. It selects the
       // member or operator landing after the edge has resolved authority.

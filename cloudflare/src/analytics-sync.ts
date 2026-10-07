@@ -22,6 +22,7 @@ async function batch(db: DB, statements: D1PreparedStatement[], size = 80): Prom
 }
 
 function providerError(status: number): { status: SyncResult["status"]; code: string } {
+  if (status === 400) return { status: "failed", code: "provider_query_invalid" };
   if (status === 401) return { status: "failed", code: "credential_revoked" };
   if (status === 403) return { status: "failed", code: "missing_permission" };
   if (status === 429 || status >= 500) return { status: "retryable", code: status === 429 ? "quota_limited" : "provider_unavailable" };
@@ -32,12 +33,19 @@ async function googleJson(fetchGoogle: typeof fetch, url: string | URL, accessTo
   const response = await fetchGoogle(url, { ...init, headers: { accept: "application/json", authorization: `Bearer ${accessToken}`, ...(init.headers ?? {}) } });
   if (!response.ok) {
     const error = providerError(response.status);
+    const endpoint = new URL(url).pathname;
+    let reason = "unknown";
+    try {
+      const payload = await response.clone().json() as { error?: { errors?: Array<{ reason?: string }>; status?: string } };
+      reason = payload.error?.errors?.[0]?.reason ?? payload.error?.status ?? reason;
+    } catch { /* Google did not return a JSON error envelope. */ }
+    console.warn("Google analytics request failed", { endpoint, status: response.status, code: error.code, reason });
     throw Object.assign(new Error(error.code), error, { httpStatus: response.status });
   }
   return response.json();
 }
 
-async function syncYouTubeCatalogue(env: AnalyticsEnv, connection: SyncConnection, accessToken: string, fetchGoogle: typeof fetch, now: string): Promise<{ channelKey: string; videos: number }> {
+async function syncYouTubeCatalogue(env: AnalyticsEnv, connection: SyncConnection, accessToken: string, fetchGoogle: typeof fetch, now: string): Promise<{ channelKey: string; videoIds: string[]; videos: number }> {
   const channelId = connection.selected_resource_id!;
   const channel = await env.DB.prepare("SELECT id FROM youtube_analytics_channels WHERE connection_id = ? AND youtube_channel_id = ? AND active = 1").bind(connection.id, channelId).first<{ id: string }>();
   if (!channel) throw Object.assign(new Error("resource_not_selected"), { status: "failed", code: "resource_not_selected" });
@@ -75,7 +83,7 @@ async function syncYouTubeCatalogue(env: AnalyticsEnv, connection: SyncConnectio
     }
   }
   await batch(env.DB, statements);
-  return { channelKey: channel.id, videos: statements.length };
+  return { channelKey: channel.id, videoIds, videos: statements.length };
 }
 
 type YouTubeReport = { columnHeaders?: Array<{ name?: string }>; rows?: unknown[][] };
@@ -203,11 +211,20 @@ async function syncYouTubeReach(env: AnalyticsEnv, connection: SyncConnection, c
 
 async function syncYouTube(env: AnalyticsEnv, connection: SyncConnection, accessToken: string, fetchGoogle: typeof fetch, startDate: string, endDate: string, now: string): Promise<number> {
   const catalogue = await syncYouTubeCatalogue(env, connection, accessToken, fetchGoogle, now);
-  const [channelRows, videoRows, audienceRows] = await Promise.all([
+  // YouTube rejects an unfiltered day+video report. Filter the report to the
+  // channel's owned catalogue (Google supports up to 500 video IDs per filter)
+  // and keep batches small enough to avoid oversized request URLs.
+  const videoReports = [] as Array<Promise<Array<Record<string, unknown>>>>;
+  for (let index = 0; index < catalogue.videoIds.length; index += 200) {
+    const videoFilter = `video==${catalogue.videoIds.slice(index, index + 200).join(",")}`;
+    videoReports.push(youtubeReport(fetchGoogle, accessToken, startDate, endDate, "day,video", undefined, videoFilter));
+  }
+  const [channelRows, audienceRows, ...videoBatches] = await Promise.all([
     youtubeReport(fetchGoogle, accessToken, startDate, endDate, "day"),
-    youtubeReport(fetchGoogle, accessToken, startDate, endDate, "day,video"),
     youtubeReport(fetchGoogle, accessToken, startDate, endDate, "day,subscribedStatus", "views,estimatedMinutesWatched,averageViewDuration,averageViewPercentage"),
+    ...videoReports,
   ]);
+  const videoRows = videoBatches.flat();
   const statements: D1PreparedStatement[] = [];
   for (const row of channelRows) {
     statements.push(env.DB.prepare("INSERT INTO youtube_channel_daily_metrics (channel_id, metric_date, views, watch_minutes, average_view_duration_seconds, average_view_percentage, likes, comments_count, shares, subscribers_gained, subscribers_lost, raw_analytics_json, observed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(channel_id, metric_date) DO UPDATE SET views = excluded.views, watch_minutes = excluded.watch_minutes, average_view_duration_seconds = excluded.average_view_duration_seconds, average_view_percentage = excluded.average_view_percentage, likes = excluded.likes, comments_count = excluded.comments_count, shares = excluded.shares, subscribers_gained = excluded.subscribers_gained, subscribers_lost = excluded.subscribers_lost, raw_analytics_json = excluded.raw_analytics_json, observed_at = excluded.observed_at").bind(catalogue.channelKey, row.day, numberOrNull(row.views), numberOrNull(row.estimatedMinutesWatched), numberOrNull(row.averageViewDuration), numberOrNull(row.averageViewPercentage), numberOrNull(row.likes), numberOrNull(row.comments), numberOrNull(row.shares), numberOrNull(row.subscribersGained), numberOrNull(row.subscribersLost), JSON.stringify(row), now));
@@ -221,7 +238,16 @@ async function syncYouTube(env: AnalyticsEnv, connection: SyncConnection, access
     statements.push(env.DB.prepare("INSERT INTO youtube_audience_daily_metrics (channel_id, metric_date, subscribed_status, views, watch_minutes, average_view_duration_seconds, average_view_percentage, raw_analytics_json, observed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(channel_id, metric_date, subscribed_status) DO UPDATE SET views = excluded.views, watch_minutes = excluded.watch_minutes, average_view_duration_seconds = excluded.average_view_duration_seconds, average_view_percentage = excluded.average_view_percentage, raw_analytics_json = excluded.raw_analytics_json, observed_at = excluded.observed_at").bind(catalogue.channelKey, row.day, subscribedStatus, numberOrNull(row.views), numberOrNull(row.estimatedMinutesWatched), numberOrNull(row.averageViewDuration), numberOrNull(row.averageViewPercentage), JSON.stringify(row), now));
   }
   await batch(env.DB, statements);
-  const reachRows = await syncYouTubeReach(env, connection, catalogue.channelKey, accessToken, fetchGoogle, startDate, endDate, now);
+  // Reach reports are asynchronous (the first report can take up to 24 hours)
+  // and may be unavailable when the optional YouTube Reporting API is disabled.
+  // Core YouTube Analytics data must still complete successfully in that case.
+  let reachRows = 0;
+  try {
+    reachRows = await syncYouTubeReach(env, connection, catalogue.channelKey, accessToken, fetchGoogle, startDate, endDate, now);
+  } catch (cause) {
+    const error = cause as { code?: string; message?: string };
+    console.warn("YouTube reach synchronization deferred", { code: error.code ?? error.message ?? "reach_sync_failed" });
+  }
   await env.DB.prepare("UPDATE youtube_analytics_channels SET last_synced_at = ?, updated_at = ? WHERE id = ?").bind(now, now, catalogue.channelKey).run();
   return catalogue.videos + statements.length + reachRows;
 }
