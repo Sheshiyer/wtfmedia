@@ -126,6 +126,69 @@ test("status remains truthful before the analytics migration and never invents a
   assert.deepEqual(await response.json(), { configured: false, connections: [], migrationRequired: true });
 });
 
+test("status hides a dangling selected resource so staging repeats validated channel selection", async () => {
+  const connection = {
+    id: "acon_dangling",
+    provider: "youtube",
+    status: "provider_error",
+    encrypted_credentials: "encrypted",
+    granted_scopes_json: "[]",
+    token_expires_at: "2026-10-08T00:00:00Z",
+    selected_resource_id: `UC${"d".repeat(22)}`,
+    selected_resource_name: "Previously selected",
+    reporting_timezone: "UTC",
+    last_attempted_refresh_at: "2026-10-07T00:00:00Z",
+    last_successful_refresh_at: null,
+    last_error_code: "resource_not_selected",
+  };
+  const db = {
+    prepare(sql) {
+      if (sql.includes("FROM analytics_provider_connections")) return statement({ async all() { return { results: [connection] }; } });
+      if (sql.includes("FROM youtube_analytics_channels")) return statement({ async first() { return null; } });
+      return statement();
+    },
+  };
+  const response = await handleAnalyticsRequest(new Request("https://app.test/beta/api/analytics/status"), { DB: db, OPS_ENVIRONMENT: "staging" }, operator);
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.connections[0].resource, null);
+  assert.equal(payload.connections[0].errorCode, "resource_not_selected");
+});
+
+test("OAuth reconnection clears stale selections and deactivates their provider resource", async () => {
+  const prepared = [];
+  const batched = [];
+  const db = {
+    prepare(sql) {
+      prepared.push(sql);
+      if (sql.startsWith("SELECT id, provider, return_path")) return statement({ async first() { return { id: "aotx_test", provider: "youtube", return_path: "/beta/settings/workspace/analytics" }; } });
+      if (sql.startsWith("UPDATE analytics_oauth_transactions")) return statement({ async run() { return { success: true, meta: { changes: 1 } }; } });
+      return statement({ sql });
+    },
+    async batch(statements) { batched.push(...statements); return []; },
+  };
+  const response = await handleAnalyticsRequest(new Request("https://app.test/beta/api/analytics/oauth/callback?state=test-state&code=test-code"), {
+    DB: db,
+    OPS_ENVIRONMENT: "staging",
+    GOOGLE_OAUTH_CLIENT_ID: "test-client",
+    GOOGLE_OAUTH_CLIENT_SECRET: "test-secret",
+    GOOGLE_OAUTH_REDIRECT_URI: "https://app.test/beta/api/analytics/oauth/callback",
+    ANALYTICS_TOKEN_ENCRYPTION_KEY: "test-encryption-secret",
+  }, operator, {
+    now: () => new Date("2026-10-07T00:00:00Z"),
+    fetchGoogle: async () => Response.json({
+      access_token: "test-access",
+      refresh_token: "test-refresh",
+      expires_in: 3600,
+      scope: "https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/yt-analytics.readonly",
+    }),
+  });
+  assert.equal(response.status, 303);
+  assert.equal(batched.length, 2);
+  assert.ok(prepared.some(sql => sql.includes("selected_resource_id = NULL") && sql.includes("last_successful_refresh_at = NULL")));
+  assert.ok(prepared.some(sql => sql.includes("UPDATE youtube_analytics_channels SET active = 0")));
+});
+
 test("operator analytics API is readable by editors but management remains denied", async () => {
   const db = {
     prepare(sql) {
@@ -194,6 +257,66 @@ test("a sync without an approved resource fails before token or provider access"
   });
   assert.deepEqual(result, { connectionId: "acon_test", provider: "youtube", status: "failed", rows: 0, errorCode: "resource_not_selected" });
   assert.ok(operations.some(({ sql }) => sql.includes("analytics_sync_runs")));
+});
+
+test("YouTube sync filters day-by-video reports to the owned catalogue and keeps optional reach non-blocking", async () => {
+  const secret = "test-filtered-video-sync-key";
+  const encrypted = await encryptAnalyticsCredentials({ accessToken: "test-access", refreshToken: "test-refresh", expiresAt: "2026-10-08T00:00:00Z" }, secret);
+  const videoIds = ["video-id-01", "video-id-02"];
+  const analyticsRequests = [];
+  const db = {
+    prepare(sql) {
+      return statement({
+        async first() {
+          if (sql.includes("SELECT id FROM youtube_analytics_channels")) return { id: "ytch_test" };
+          if (sql.includes("SELECT attempt_count")) return { attempt_count: 1 };
+          return null;
+        },
+      });
+    },
+    async batch(statements) { for (const item of statements) await item.run(); },
+  };
+  const result = await syncAnalyticsConnection({
+    DB: db,
+    OPS_ENVIRONMENT: "staging",
+    ANALYTICS_TOKEN_ENCRYPTION_KEY: secret,
+    GOOGLE_OAUTH_CLIENT_ID: "test-client",
+    GOOGLE_OAUTH_CLIENT_SECRET: "test-secret",
+  }, {
+    id: "acon_test",
+    environment: "staging",
+    provider: "youtube",
+    status: "connected",
+    encrypted_credentials: encrypted,
+    granted_scopes_json: "[]",
+    token_expires_at: "2026-10-08T00:00:00Z",
+    selected_resource_id: `UC${"a".repeat(22)}`,
+    selected_resource_name: "Test channel",
+    reporting_timezone: "UTC",
+    last_attempted_refresh_at: null,
+    last_successful_refresh_at: null,
+    last_error_code: null,
+  }, "2026-09-10", "2026-10-07", {
+    now: () => new Date("2026-10-07T00:00:00Z"),
+    fetchGoogle: async (input, init) => {
+      const url = new URL(input);
+      if (url.hostname === "www.googleapis.com" && url.pathname.endsWith("/channels")) return Response.json({ items: [{ contentDetails: { relatedPlaylists: { uploads: "UU-test" } } }] });
+      if (url.hostname === "www.googleapis.com" && url.pathname.endsWith("/playlistItems")) return Response.json({ items: videoIds.map(videoId => ({ contentDetails: { videoId } })) });
+      if (url.hostname === "www.googleapis.com" && url.pathname.endsWith("/videos")) return Response.json({ items: videoIds.map(videoId => ({ id: videoId, snippet: { title: videoId, publishedAt: "2026-09-01T00:00:00Z" } })) });
+      if (url.hostname === "youtubeanalytics.googleapis.com") {
+        analyticsRequests.push(url);
+        const dimensions = url.searchParams.get("dimensions");
+        if (dimensions === "day,video") return Response.json({ columnHeaders: [{ name: "day" }, { name: "video" }, { name: "views" }], rows: [["2026-10-01", videoIds[0], 10]] });
+        if (dimensions === "day,subscribedStatus") return Response.json({ columnHeaders: [{ name: "day" }, { name: "subscribedStatus" }, { name: "views" }], rows: [["2026-10-01", "SUBSCRIBED", 4]] });
+        return Response.json({ columnHeaders: [{ name: "day" }, { name: "views" }], rows: [["2026-10-01", 10]] });
+      }
+      if (url.hostname === "youtubereporting.googleapis.com" && init?.method === "POST") return Response.json({ error: { status: "SERVICE_DISABLED" } }, { status: 403 });
+      throw new Error(`unexpected_provider_request:${url.hostname}${url.pathname}`);
+    },
+  });
+  assert.equal(result.status, "completed");
+  const videoRequest = analyticsRequests.find(url => url.searchParams.get("dimensions") === "day,video");
+  assert.equal(videoRequest?.searchParams.get("filters"), `video==${videoIds.join(",")}`);
 });
 
 

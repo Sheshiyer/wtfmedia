@@ -12,6 +12,7 @@ const sessionNavigator = readFileSync(new URL("../../components/domain/member/Me
 const askComposer = readFileSync(new URL("../../components/domain/public/AskComposer.tsx", import.meta.url), "utf8");
 const appRail = readFileSync(new URL("../../components/shells/AppRail.tsx", import.meta.url), "utf8");
 const conversationThread = readFileSync(new URL("../../components/domain/public/ConversationThread.tsx", import.meta.url), "utf8");
+const middleware = readFileSync(new URL("../../middleware.ts", import.meta.url), "utf8");
 
 describe("Beta open-enrollment copy", () => {
   it("permanently removes the temporary browser-only preview route", () => {
@@ -89,6 +90,12 @@ describe("Beta open-enrollment copy", () => {
     expect(betaLayout).toContain("<MemberBetaUnavailable />");
     expect(memberUnavailable).not.toContain("useAuth");
     expect(memberUnavailable).toContain("No conversation, history, or saved note has been shown.");
+  });
+
+  it("allows local browser-token admission without copying a Clerk server secret", () => {
+    expect(middleware).toContain('const clerkSecretKey = process.env.CLERK_SECRET_KEY?.trim()');
+    expect(middleware).toContain('clerkSecretKey || process.env.NODE_ENV !== "development"');
+    expect(middleware).toContain("Deployed builds keep the server middleware fail-closed");
   });
 
   it("keeps member admission, recovered chat, and mobile session navigation bounded to the live route", () => {
