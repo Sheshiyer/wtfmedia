@@ -1,5 +1,13 @@
 # Project handoff
 
+## 2026-10-07 PR #82 analytics synchronization merged and staged
+
+- Owner requested review/merge of PR #82 (`feature/sarthak`, `4a520b95478380c65d588c8b197e52868443aa23`) into feature/pavun and staging deployment. Local merge candidate `ca6199e663c8924e3949b4f61744800e7607ffbe` retains user-management changes. Only generated architecture files conflicted; regenerated against the merged source. No branch push or GitHub PR closure.
+- Fix filters daily video Analytics reports to the owned catalogue in batches of 200; unavailable optional Reporting reach data no longer blocks core sync. Local development may use browser bearer admission without a copied Clerk server secret; deployed middleware remains enforced. Analytics report pagination and other documented spreadsheet coverage gaps remain outside this fix.
+- VERIFIED-SOURCE: 434 backend, 244 frontend unit, 97 contracts, typecheck, lint, architecture check and isolated OpenNext build (95 pages) pass. Built with copied dependencies and explicitly verified staging public Clerk key, without local environment files. Compiled artifact rejects any production public key; live readback matches the staging issuer.
+- Staging Edge `236106c8-0831-4bd5-a50c-f5ea64cd1a5c`; Web `089ea899-4a75-4385-ad49-6b9082c2aaf9` on beta-staging.wtfhq.in, bound only to staging Edge. Previous rollback pair: Edge `5ac88d27-0244-437f-949b-cdbe65af389c`, Web `9a814433-789c-4364-bf35-30b7b94029e4`. No outstanding migrations; no database, credential or production changes.
+- Live backend health OK, analytics page 200, unsigned analytics/principal APIs 401. Owner/colleague reported real local synchronization working; this deployment's signed-in YouTube synchronization remains for owner testing and is not claimed as independently verified.
+
 ## 2026-10-06 Staging Clerk build configuration corrected
 
 - Owner reported a sign-in/workspace loop when using separate staging and production accounts. Root cause confirmed: staging Web `082645bf-8813-4573-87c8-cddd095882ae` compiled the production public Clerk key from copied local environment material. Its browser used `clerk.wtfhq.in` while the staging Edge verifier correctly expected `mighty-hedgehog-2913.clerk.accounts.dev`; rejected admission redirected back to an already-signed-in provider.
