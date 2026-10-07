@@ -1,5 +1,12 @@
 # Project handoff
 
+## 2026-10-07 Chat context and UX fixes deployed to staging
+
+- Owner-authorized candidate `b56d3a6f594f18fc5b76640fc950d87ea19245ad` deployed to staging: Edge `aaff6ee7-f41f-4794-b333-186123db92f9`, Web `b9a80954-81dd-4dff-b4bb-443e9bfd7a4e`, both verified at 100% traffic. Custom domain https://beta-staging.wtfhq.in and staging-only paired service bindings verified. No push or production change.
+- Rollback versions: Edge `37fb272e-d565-4285-b6b6-248638745671`, Web `de613a4d-ba94-4cb2-a3f5-382594c7272e`. No pending migrations and no database mutations in this deployment.
+- Exact candidate backend tests 445, contracts 97, privacy 0/415, architecture and isolated OpenNext build (95 pages) pass. Frontend 250 unit tests, typecheck/lint and synthetic live-model checks passed before commit. Copied dependency files and explicit staging Clerk identity used; no local env files copied.
+- Live sign-in and updated chat script return 200; the script contains conversation context, suggestion visibility controls and composer fixes. Compiled/live Clerk identity matches staging. Saved-chat API rejects unauthenticated requests with 401; Edge health is ok/staging with Alpha public API authority. Owner-authenticated live-channel acceptance remains for user testing.
+
 ## 2026-10-07 Analytics chat UX review (local)
 
 - Fixed composer clearing unsent drafts while busy; submission now preserves the next draft, disables the send button during response generation and exposes aria-busy. Malformed source URLs are skipped instead of replacing a valid answer with a generic error.
