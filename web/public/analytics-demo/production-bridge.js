@@ -152,7 +152,17 @@
     $('#trust-connection').textContent = connected ? `YouTube · ${api.connection.resource.name || api.connection.resource.id}` : title;
     $('#trust-sync').textContent = api.report?.freshness || api.connection?.lastSuccessfulRefreshAt || 'No successful synchronization';
     const coverage = api.report?.coverage;
-    if (coverage) $('#trust-coverage').textContent = `${coverage.observedDays || 0}/${coverage.requestedDays || 0} daily rows · ${coverage.reach?.observedDays || 0} reach days`;
+    if (coverage) {
+      const reach = coverage.reach || {};
+      const reachState = reach.errorCode === 'reporting_api_disabled'
+        ? 'reach unavailable · enable YouTube Reporting API'
+        : reach.errorCode === 'reach_report_type_unavailable'
+          ? 'reach report unavailable for this channel'
+          : reach.status === 'active' && !reach.observedDays
+            ? 'reach job active · awaiting Google report'
+            : `${reach.observedDays || 0} reach days`;
+      $('#trust-coverage').textContent = `${coverage.observedDays || 0}/${coverage.requestedDays || 0} daily rows · ${reachState}`;
+    }
     if (!api.report) $('#coverage-note').textContent = 'No synchronized provider observations in this selected scope.';
     $('#api-action-status').textContent = api.notice;
     const connect = $('#api-connect-demo');

@@ -1,5 +1,12 @@
 # Project handoff
 
+## 2026-10-09 YouTube reach/CTR repair (PR candidate)
+
+- Diagnosed the staging state through read-only CLI queries: core YouTube Analytics synchronization had completed, but the selected connection had no `youtube_reporting_jobs` receipt and therefore zero reach days. Impressions and CTR come from the separate asynchronous YouTube Reporting API rather than the core Analytics query.
+- Reach synchronization now discovers the required `channel_reach_basic_a1` report type before job creation, retries failed job setup, and persists redacted failure states such as `reporting_api_disabled` and `reach_report_type_unavailable`. These failures remain non-blocking for views/watch-time/subscriber synchronization and are rendered in dashboard coverage instead of an unexplained zero.
+- Corrected Reporting CSV CTR normalization: provider values are percentages and are always divided by 100, preserving sub-1% values (`0.87%` becomes ratio `0.0087`) and weighted channel CTR. Added success and provider-disabled regression coverage.
+- This source change does not deploy, enable a Google API, mutate shared D1 data, or promise immediate reach history. The first Google report may take up to 24 hours after a successful job creation; a later synchronization imports it.
+
 ## 2026-10-05 Phase 2 tests migrated to Beta
 
 - Owner authorized updating the legacy tests and pushing all changes on `feature/pavun`. Replaced retired `/ops` UI expectations/HMAC admission with canonical Beta workspace, users settings and audit paths. Added denied-principal, legacy redirect, member/operator environment visibility and mobile assertions; retained roster, transfer confirmation and audit export coverage.
