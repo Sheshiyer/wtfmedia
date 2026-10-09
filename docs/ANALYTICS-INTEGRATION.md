@@ -84,7 +84,7 @@ The default worker window is the previous seven complete UTC days. This overlap 
 
 ## Metrics
 
-YouTube stores views, estimated watch minutes, average view duration, average view percentage, likes, comments, shares, subscribers gained/lost, and subscribed-status activity from targeted Analytics API queries. Thumbnail impressions and CTR are imported asynchronously from the Reporting API `channel_reach_basic_a1` report. Per-video retention curves use the dedicated `elapsedVideoTimeRatio` report. Unknown or unsupported values remain `NULL` and render as unavailable.
+YouTube stores views, estimated watch minutes, average view duration, average view percentage, likes, comments, shares, subscribers gained/lost, and subscribed-status activity from targeted Analytics API queries. Thumbnail impressions and CTR are imported asynchronously from the Reporting API `channel_reach_basic_a1` report. The provider CSV expresses CTR as a percentage, so every value is divided by 100 before storage; this includes sub-1% values such as `0.87`, which is stored as ratio `0.0087`. Per-video retention curves use the dedicated `elapsedVideoTimeRatio` report. Unknown or unsupported values remain `NULL` and render as unavailable.
 
 The complete route and derivation contract is documented in `docs/ANALYTICS-PRODUCTION-MAPPING.md`.
 
@@ -96,6 +96,8 @@ GA4 stores daily active users, sessions, engaged sessions, engagement rate, and 
 - `missing_permission`: reconnect and confirm the approved scopes/resource access.
 - `quota_limited`: wait for the recorded retry window; do not repeatedly trigger manual requests.
 - `provider_unavailable`: allow bounded retries, then inspect the redacted sync-run code.
+- `reporting_api_disabled`: enable the YouTube Reporting API in the OAuth client's Google Cloud project, then synchronize again.
+- `reach_report_type_unavailable`: the connected channel did not advertise the required `channel_reach_basic_a1` report type; impressions and CTR remain unavailable without substituting estimates.
 - `migrationRequired`: apply the reviewed D1 migration before configuring OAuth.
 - revoked access: reconnect; never reuse a previously exposed or revoked secret.
 

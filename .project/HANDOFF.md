@@ -1,5 +1,12 @@
 # Project handoff
 
+## 2026-10-09 YouTube reach/CTR repair (PR candidate)
+
+- Diagnosed the staging state through read-only CLI queries: core YouTube Analytics synchronization had completed, but the selected connection had no `youtube_reporting_jobs` receipt and therefore zero reach days. Impressions and CTR come from the separate asynchronous YouTube Reporting API rather than the core Analytics query.
+- Reach synchronization now discovers the required `channel_reach_basic_a1` report type before job creation, retries failed job setup, and persists redacted failure states such as `reporting_api_disabled` and `reach_report_type_unavailable`. These failures remain non-blocking for views/watch-time/subscriber synchronization and are rendered in dashboard coverage instead of an unexplained zero.
+- Corrected Reporting CSV CTR normalization: provider values are percentages and are always divided by 100, preserving sub-1% values (`0.87%` becomes ratio `0.0087`) and weighted channel CTR. Added success and provider-disabled regression coverage.
+- This source change does not deploy, enable a Google API, mutate shared D1 data, or promise immediate reach history. The first Google report may take up to 24 hours after a successful job creation; a later synchronization imports it.
+
 ## 2026-10-07 View-count distinction deployed to staging
 
 - Owner-authorized backend candidate `ba3432a5039c543632473f06d87217df294f5219` deployed as Edge `209d34e7-e61c-491f-b539-fcccf7595381`, verified at 100% traffic. Rollback Edge: `aaff6ee7-f41f-4794-b333-186123db92f9`. Web remains `b9a80954-81dd-4dff-b4bb-443e9bfd7a4e`; no web-source changes since that build.

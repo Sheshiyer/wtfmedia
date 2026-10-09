@@ -31,7 +31,7 @@ The imported decision-workspace design is the primary YouTube analytics UI. Its 
 | Thumbnail impressions and CTR | YouTube Reporting API `channel_reach_basic_a1` | Channel/video daily reach fields plus job/import receipts |
 | Retention curve | Analytics API `elapsedVideoTimeRatio` with retention metrics and a required video filter | Per-video, per-range retention points |
 
-The Reporting API is asynchronous. The first reach synchronization creates the managed job; later synchronizations import available daily CSV reports idempotently. Reach coverage reports the number of selected days with both impressions and CTR.
+The Reporting API is asynchronous. WTFOS first discovers that `channel_reach_basic_a1` is available, then creates the managed job; later synchronizations import available daily CSV reports idempotently. Google's first report can take up to 24 hours after job creation. Reach coverage reports the number of selected days with both impressions and CTR and exposes redacted job-creation failures instead of silently remaining at zero. CSV CTR is provider percentage data and is always divided by 100 before ratio storage, including values below 1%.
 
 ## Derived metrics
 
