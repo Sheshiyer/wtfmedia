@@ -264,6 +264,7 @@ test("YouTube sync filters day-by-video reports to the owned catalogue and keeps
   const encrypted = await encryptAnalyticsCredentials({ accessToken: "test-access", refreshToken: "test-refresh", expiresAt: "2026-10-08T00:00:00Z" }, secret);
   const videoIds = ["video-id-01", "video-id-02"];
   const analyticsRequests = [];
+  const writes = [];
   const db = {
     prepare(sql) {
       return statement({
@@ -272,6 +273,7 @@ test("YouTube sync filters day-by-video reports to the owned catalogue and keeps
           if (sql.includes("SELECT attempt_count")) return { attempt_count: 1 };
           return null;
         },
+        async run() { writes.push({ sql, values: this.values }); return { success: true }; },
       });
     },
     async batch(statements) { for (const item of statements) await item.run(); },
@@ -310,6 +312,9 @@ test("YouTube sync filters day-by-video reports to the owned catalogue and keeps
         if (dimensions === "day,subscribedStatus") return Response.json({ columnHeaders: [{ name: "day" }, { name: "subscribedStatus" }, { name: "views" }], rows: [["2026-10-01", "SUBSCRIBED", 4]] });
         return Response.json({ columnHeaders: [{ name: "day" }, { name: "views" }], rows: [["2026-10-01", 10]] });
       }
+      if (url.hostname === "youtubereporting.googleapis.com" && url.pathname.endsWith("/reportTypes")) {
+        return Response.json({ reportTypes: [{ id: "channel_reach_basic_a1", systemManaged: false }] });
+      }
       if (url.hostname === "youtubereporting.googleapis.com" && init?.method === "POST") return Response.json({ error: { status: "SERVICE_DISABLED" } }, { status: 403 });
       throw new Error(`unexpected_provider_request:${url.hostname}${url.pathname}`);
     },
@@ -317,6 +322,78 @@ test("YouTube sync filters day-by-video reports to the owned catalogue and keeps
   assert.equal(result.status, "completed");
   const videoRequest = analyticsRequests.find(url => url.searchParams.get("dimensions") === "day,video");
   assert.equal(videoRequest?.searchParams.get("filters"), `video==${videoIds.join(",")}`);
+  const reachFailure = writes.find(({ sql }) => sql.startsWith("INSERT INTO youtube_reporting_jobs") && sql.includes("'failed'"));
+  assert.equal(reachFailure.values[4], "reporting_api_disabled");
+});
+
+test("YouTube reach sync discovers the report type and preserves sub-1% CTR percentages", async () => {
+  const secret = "test-reach-sync-key";
+  const encrypted = await encryptAnalyticsCredentials({ accessToken: "test-access", refreshToken: "test-refresh", expiresAt: "2026-10-10T00:00:00Z" }, secret);
+  const writes = [];
+  const requests = [];
+  const videoIds = ["video-id-01", "video-id-02"];
+  const db = {
+    prepare(sql) {
+      return statement({
+        async first() {
+          if (sql.includes("SELECT id FROM youtube_analytics_channels")) return { id: "ytch_test" };
+          if (sql.includes("SELECT attempt_count")) return { attempt_count: 1 };
+          return null;
+        },
+        async run() { writes.push({ sql, values: this.values }); return { success: true }; },
+      });
+    },
+    async batch(statements) { for (const item of statements) await item.run(); },
+  };
+  const result = await syncAnalyticsConnection({
+    DB: db,
+    OPS_ENVIRONMENT: "staging",
+    ANALYTICS_TOKEN_ENCRYPTION_KEY: secret,
+    GOOGLE_OAUTH_CLIENT_ID: "test-client",
+    GOOGLE_OAUTH_CLIENT_SECRET: "test-secret",
+  }, {
+    id: "acon_test",
+    environment: "staging",
+    provider: "youtube",
+    status: "connected",
+    encrypted_credentials: encrypted,
+    granted_scopes_json: "[]",
+    token_expires_at: "2026-10-10T00:00:00Z",
+    selected_resource_id: `UC${"a".repeat(22)}`,
+    selected_resource_name: "Test channel",
+    reporting_timezone: "UTC",
+    last_attempted_refresh_at: null,
+    last_successful_refresh_at: null,
+    last_error_code: null,
+  }, "2026-10-01", "2026-10-07", {
+    now: () => new Date("2026-10-09T00:00:00Z"),
+    fetchGoogle: async (input, init) => {
+      const url = new URL(input);
+      requests.push(`${init?.method ?? "GET"} ${url.hostname}${url.pathname}`);
+      if (url.hostname === "www.googleapis.com" && url.pathname.endsWith("/channels")) return Response.json({ items: [{ contentDetails: { relatedPlaylists: { uploads: "UU-test" } } }] });
+      if (url.hostname === "www.googleapis.com" && url.pathname.endsWith("/playlistItems")) return Response.json({ items: videoIds.map(videoId => ({ contentDetails: { videoId } })) });
+      if (url.hostname === "www.googleapis.com" && url.pathname.endsWith("/videos")) return Response.json({ items: videoIds.map(videoId => ({ id: videoId, snippet: { title: videoId, publishedAt: "2026-10-01T00:00:00Z" } })) });
+      if (url.hostname === "youtubeanalytics.googleapis.com") {
+        const dimensions = url.searchParams.get("dimensions");
+        if (dimensions === "day,video") return Response.json({ columnHeaders: [{ name: "day" }, { name: "video" }, { name: "views" }], rows: [["2026-10-01", videoIds[0], 10]] });
+        if (dimensions === "day,subscribedStatus") return Response.json({ columnHeaders: [{ name: "day" }, { name: "subscribedStatus" }, { name: "views" }], rows: [["2026-10-01", "SUBSCRIBED", 4]] });
+        return Response.json({ columnHeaders: [{ name: "day" }, { name: "views" }], rows: [["2026-10-01", 10]] });
+      }
+      if (url.hostname === "youtubereporting.googleapis.com" && url.pathname.endsWith("/reportTypes")) return Response.json({ reportTypes: [{ id: "channel_reach_basic_a1", systemManaged: false }] });
+      if (url.hostname === "youtubereporting.googleapis.com" && url.pathname.endsWith("/jobs") && init?.method === "POST") return Response.json({ id: "reach-job-1", reportTypeId: "channel_reach_basic_a1" });
+      if (url.hostname === "youtubereporting.googleapis.com" && url.pathname.endsWith("/jobs/reach-job-1/reports")) return Response.json({ reports: [{ id: "reach-report-1", downloadUrl: "https://reports.example.test/reach.csv" }] });
+      if (url.hostname === "reports.example.test") return new Response("date,channel_id,video_id,video_thumbnail_impressions,video_thumbnail_impressions_ctr\n2026-10-01,UC-test,video-id-01,1000,0.87\n2026-10-01,UC-test,video-id-02,2000,4.5\n", { headers: { "content-type": "text/csv" } });
+      throw new Error(`unexpected_provider_request:${url.hostname}${url.pathname}`);
+    },
+  });
+  assert.equal(result.status, "completed");
+  assert.ok(requests.indexOf("GET youtubereporting.googleapis.com/v1/reportTypes") < requests.indexOf("POST youtubereporting.googleapis.com/v1/jobs"));
+  const reachWrites = writes.filter(({ sql }) => sql.startsWith("INSERT INTO youtube_video_daily_metrics") && sql.includes("thumbnail_impressions"));
+  assert.equal(reachWrites.length, 2);
+  assert.equal(reachWrites[0].values[2], 0.0087, "0.87% must remain below one percent");
+  assert.equal(reachWrites[1].values[2], 0.045);
+  const channelReach = writes.find(({ sql }) => sql.startsWith("INSERT INTO youtube_channel_daily_metrics") && sql.includes("thumbnail_impressions"));
+  assert.equal(channelReach.values[3], (1000 * 0.0087 + 2000 * 0.045) / 3000);
 });
 
 
