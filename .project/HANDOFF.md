@@ -1,5 +1,12 @@
 # Project handoff
 
+## 2026-10-09 PR #83 merged and deployed to staging
+
+- Owner-authorized local merge of PR #83 head `9072c57ef5217c57f41a79cadc7b4f7e85f41b98` into feature/pavun produced candidate `ded0b4c8285996092bf4d3b410e8a52a5b268a89`. Includes stale resource recovery plus Reporting type discovery, failed reach setup receipts, percentage CTR normalization and reach coverage status. Existing assistant, saved chat and lifetime-view updates retained. Documentation conflicts resolved by preserving both histories and regenerating architecture. No branch push or GitHub PR closure.
+- VERIFIED-SOURCE: 449 backend tests, 250 frontend unit tests, 97 contracts, typecheck, lint, privacy 0/415 and architecture 683-input check pass. Isolated OpenNext build completes 95 pages with copied dependencies, no local env files and verified staging Clerk public identity.
+- Staging Edge `a4e8d686-5630-49b0-b116-a8c35aa45514` and Web `99a603ec-e557-44db-8591-6b251cf5b18f` each read back at 100% traffic on beta-staging.wtfhq.in. Web binds only to staging Edge/self. Rollback: Edge `209d34e7-e61c-491f-b539-fcccf7595381`, Web `b9a80954-81dd-4dff-b4bb-443e9bfd7a4e`. No pending migrations, database mutation, credential changes or production deployment.
+- Live smoke: staging Edge health ok with Alpha corpus authority; sign-in and updated production bridge return 200; live Clerk identity matches staging; unauthenticated saved-chat GET and assistant POST return 401. Actual signed-in channel sync and generated Google reach reports were not exercised. Reach remains asynchronous and requires a subsequent sync once Google provides its report; deployment does not establish that impressions/CTR are populated.
+
 ## 2026-10-09 YouTube reach/CTR repair (PR candidate)
 
 - Diagnosed the staging state through read-only CLI queries: core YouTube Analytics synchronization had completed, but the selected connection had no `youtube_reporting_jobs` receipt and therefore zero reach days. Impressions and CTR come from the separate asynchronous YouTube Reporting API rather than the core Analytics query.
