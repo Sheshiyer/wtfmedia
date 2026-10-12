@@ -2,6 +2,7 @@
 
 ## 2026-10-09 YouTube reach/CTR repair (PR candidate)
 
+- 2026-10-12 deployment follow-up: read-only staging receipts show the reach job failed before creation with `provider_request_failed`, zero imports, and zero channel/video reach rows while core synchronization completed. Google RPC errors now inspect structured `error.details[].reason`, so an API-disabled response is recorded as `reporting_api_disabled` rather than the generic code. The required OAuth scopes are present. Enabling the Reporting API remains a Google Cloud project operation, not something a Worker deployment can bypass.
 - Diagnosed the staging state through read-only CLI queries: core YouTube Analytics synchronization had completed, but the selected connection had no `youtube_reporting_jobs` receipt and therefore zero reach days. Impressions and CTR come from the separate asynchronous YouTube Reporting API rather than the core Analytics query.
 - Reach synchronization now discovers the required `channel_reach_basic_a1` report type before job creation, retries failed job setup, and persists redacted failure states such as `reporting_api_disabled` and `reach_report_type_unavailable`. These failures remain non-blocking for views/watch-time/subscriber synchronization and are rendered in dashboard coverage instead of an unexplained zero.
 - Corrected Reporting CSV CTR normalization: provider values are percentages and are always divided by 100, preserving sub-1% values (`0.87%` becomes ratio `0.0087`) and weighted channel CTR. Added success and provider-disabled regression coverage.

@@ -315,7 +315,7 @@ test("YouTube sync filters day-by-video reports to the owned catalogue and keeps
       if (url.hostname === "youtubereporting.googleapis.com" && url.pathname.endsWith("/reportTypes")) {
         return Response.json({ reportTypes: [{ id: "channel_reach_basic_a1", systemManaged: false }] });
       }
-      if (url.hostname === "youtubereporting.googleapis.com" && init?.method === "POST") return Response.json({ error: { status: "SERVICE_DISABLED" } }, { status: 403 });
+      if (url.hostname === "youtubereporting.googleapis.com" && init?.method === "POST") return Response.json({ error: { status: "PERMISSION_DENIED", details: [{ reason: "SERVICE_DISABLED" }] } }, { status: 403 });
       throw new Error(`unexpected_provider_request:${url.hostname}${url.pathname}`);
     },
   });

@@ -36,8 +36,11 @@ async function googleJson(fetchGoogle: typeof fetch, url: string | URL, accessTo
     const endpoint = new URL(url).pathname;
     let reason = "unknown";
     try {
-      const payload = await response.clone().json() as { error?: { errors?: Array<{ reason?: string }>; status?: string } };
-      reason = payload.error?.errors?.[0]?.reason ?? payload.error?.status ?? reason;
+      const payload = await response.clone().json() as { error?: { errors?: Array<{ reason?: string }>; details?: Array<{ reason?: string }>; status?: string } };
+      reason = payload.error?.errors?.[0]?.reason
+        ?? payload.error?.details?.find((detail) => detail.reason)?.reason
+        ?? payload.error?.status
+        ?? reason;
     } catch { /* Google did not return a JSON error envelope. */ }
     console.warn("Google analytics request failed", { endpoint, status: response.status, code: error.code, reason });
     throw Object.assign(new Error(error.code), error, { httpStatus: response.status, providerReason: reason });
@@ -276,7 +279,7 @@ async function syncYouTube(env: AnalyticsEnv, connection: SyncConnection, access
   } catch (cause) {
     const error = cause as { code?: string; message?: string; providerReason?: string };
     const providerReason = error.providerReason?.toLowerCase() ?? "";
-    const code = providerReason === "service_disabled" || providerReason === "accessnotconfigured"
+    const code = providerReason === "service_disabled" || providerReason === "accessnotconfigured" || providerReason === "api_disabled"
       ? "reporting_api_disabled"
       : error.code ?? error.message ?? "reach_sync_failed";
     try {
