@@ -148,7 +148,7 @@ async function googleText(fetchGoogle: typeof fetch, url: string, accessToken: s
   return response.text();
 }
 
-type ReportingJob = { id?: string; reportTypeId?: string };
+type ReportingJob = { id?: string; reportTypeId?: string; expireTime?: string };
 type ReportingReport = { id?: string; startTime?: string; endTime?: string; downloadUrl?: string };
 type ReportingReportType = { id?: string; deprecateTime?: string; systemManaged?: boolean };
 
@@ -176,19 +176,56 @@ async function recordReachFailure(env: AnalyticsEnv, connection: SyncConnection,
     .run();
 }
 
+async function findExistingReachJob(fetchGoogle: typeof fetch, accessToken: string, now: string): Promise<string | null> {
+  const url = new URL("https://youtubereporting.googleapis.com/v1/jobs");
+  url.searchParams.set("includeSystemManaged", "false");
+  url.searchParams.set("pageSize", "100");
+  let pageToken = "";
+  do {
+    if (pageToken) url.searchParams.set("pageToken", pageToken);
+    else url.searchParams.delete("pageToken");
+    const payload = await googleJson(fetchGoogle, url, accessToken) as { jobs?: ReportingJob[]; nextPageToken?: string };
+    const existing = (payload.jobs ?? []).find((job) => job.id && job.reportTypeId === reachReportType && (!job.expireTime || job.expireTime > now));
+    if (existing?.id) return existing.id;
+    pageToken = payload.nextPageToken ?? "";
+  } while (pageToken);
+  return null;
+}
+
+async function recordActiveReachJob(env: AnalyticsEnv, connection: SyncConnection, jobId: string, now: string): Promise<void> {
+  await env.DB.prepare("INSERT INTO youtube_reporting_jobs (connection_id, report_type_id, google_job_id, status, last_checked_at, created_at, updated_at) VALUES (?, ?, ?, 'active', ?, ?, ?) ON CONFLICT(connection_id, report_type_id) DO UPDATE SET google_job_id = excluded.google_job_id, status = 'active', last_checked_at = excluded.last_checked_at, last_error_code = NULL, updated_at = excluded.updated_at")
+    .bind(connection.id, reachReportType, jobId, now, now, now)
+    .run();
+}
+
 async function ensureReachJob(env: AnalyticsEnv, connection: SyncConnection, accessToken: string, fetchGoogle: typeof fetch, now: string): Promise<string> {
   const stored = await env.DB.prepare("SELECT google_job_id FROM youtube_reporting_jobs WHERE connection_id = ? AND report_type_id = ? AND status = 'active'").bind(connection.id, reachReportType).first<{ google_job_id: string }>();
   if (stored?.google_job_id) return stored.google_job_id;
   if (!await hasReachReportType(fetchGoogle, accessToken)) {
     throw Object.assign(new Error("reach_report_type_unavailable"), { status: "failed", code: "reach_report_type_unavailable" });
   }
-  const payload = await googleJson(fetchGoogle, "https://youtubereporting.googleapis.com/v1/jobs", accessToken, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ reportTypeId: reachReportType, name: "WTFOS channel reach" }),
-  }) as ReportingJob;
+  const existingJobId = await findExistingReachJob(fetchGoogle, accessToken, now);
+  if (existingJobId) {
+    await recordActiveReachJob(env, connection, existingJobId, now);
+    return existingJobId;
+  }
+  let payload: ReportingJob;
+  try {
+    payload = await googleJson(fetchGoogle, "https://youtubereporting.googleapis.com/v1/jobs", accessToken, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ reportTypeId: reachReportType, name: "WTFOS channel reach" }),
+    }) as ReportingJob;
+  } catch (cause) {
+    const error = cause as { httpStatus?: number };
+    if (error.httpStatus !== 409) throw cause;
+    const conflictedJobId = await findExistingReachJob(fetchGoogle, accessToken, now);
+    if (!conflictedJobId) throw cause;
+    await recordActiveReachJob(env, connection, conflictedJobId, now);
+    return conflictedJobId;
+  }
   if (!payload.id) throw Object.assign(new Error("reporting_job_unavailable"), { status: "failed", code: "reporting_job_unavailable" });
-  await env.DB.prepare("INSERT INTO youtube_reporting_jobs (connection_id, report_type_id, google_job_id, status, last_checked_at, created_at, updated_at) VALUES (?, ?, ?, 'active', ?, ?, ?) ON CONFLICT(connection_id, report_type_id) DO UPDATE SET google_job_id = excluded.google_job_id, status = 'active', last_checked_at = excluded.last_checked_at, last_error_code = NULL, updated_at = excluded.updated_at").bind(connection.id, reachReportType, payload.id, now, now, now).run();
+  await recordActiveReachJob(env, connection, payload.id, now);
   return payload.id;
 }
 

@@ -2,6 +2,7 @@
 
 ## 2026-10-12 Staging YouTube reach diagnostics deployment
 
+- Follow-up after owner proved the API enabled and ran a fresh sync: the job still failed before local receipt creation. The Reporting API documents `409 Conflict` when the same report job already exists. Reach setup now lists and adopts an existing non-expired `channel_reach_basic_a1` job before creating one, and re-lists after a create-time 409 to handle races. This repairs lost D1 job receipts without deleting or duplicating Google's job.
 - Confirmed `origin/feature/pavun` (`20a1969`) is an ancestor of deployment source `225fbef`; no newer Pawan commit was overwritten. Deployed only staging Edge version `8c9801e3-13a6-40ab-b958-f6ad03e827ec`; staging Web remains `99a603ec-e557-44db-8591-6b251cf5b18f`. Previous Edge rollback is `a4e8d686-5630-49b0-b116-a8c35aa45514`.
 - Read-only pre-deploy receipts: connected YouTube resource and both required OAuth scopes are present; core sync completed; reach job creation failed with generic `provider_request_failed`; reach imports, channel reach rows, and video reach rows are all zero. The deployed parser now records Google's structured service error reason so the next sync distinguishes `reporting_api_disabled` from other permission failures.
 - Verification: 432/432 Edge tests, focused analytics 16/16, architecture check (672 inputs), diff check, deployed health, and retained secret-name inventory. No Web deployment, migration, cron trigger, production change, or secret-value read/write.
