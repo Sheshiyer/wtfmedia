@@ -135,7 +135,10 @@ function csvRows(value: string): Array<Record<string, string>> {
     } else field += character;
   }
   if (field || row.length) { row.push(field); rows.push(row); }
-  const headers = rows.shift() ?? [];
+  // Google bulk CSVs may start with a UTF-8 BOM. Without removing it, the
+  // first column is keyed as "\uFEFFdate", so every otherwise-valid reach row
+  // is silently rejected by the date validation below.
+  const headers = (rows.shift() ?? []).map((header) => header.replace(/^\uFEFF/u, "").trim());
   return rows.map((values) => Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""])));
 }
 
@@ -249,8 +252,14 @@ async function syncYouTubeReach(env: AnalyticsEnv, connection: SyncConnection, c
     const exists = await env.DB.prepare("SELECT 1 AS imported FROM youtube_reporting_imports WHERE google_report_id = ?").bind(report.id).first<{ imported: number }>();
     if (exists) continue;
     const rows = csvRows(await googleText(fetchGoogle, report.downloadUrl, accessToken));
+    const requiredColumns = ["date", "video_id", "video_thumbnail_impressions", "video_thumbnail_impressions_ctr"];
+    if (rows.length > 0 && requiredColumns.some((column) => !(column in rows[0]))) {
+      console.warn("YouTube reach report schema mismatch", { columns: Object.keys(rows[0]).sort() });
+      throw Object.assign(new Error("report_schema_unexpected"), { status: "failed", code: "report_schema_unexpected" });
+    }
     const statements: D1PreparedStatement[] = [];
     const daily = new Map<string, { impressions: number; clicks: number }>();
+    let acceptedRows = 0;
     for (const row of rows) {
       const metricDate = row.date;
       const videoId = row.video_id;
@@ -267,11 +276,12 @@ async function syncYouTubeReach(env: AnalyticsEnv, connection: SyncConnection, c
       aggregate.clicks += impressions * ctr;
       daily.set(metricDate, aggregate);
       importedRows += 1;
+      acceptedRows += 1;
     }
     for (const [metricDate, aggregate] of daily) {
       statements.push(env.DB.prepare("INSERT INTO youtube_channel_daily_metrics (channel_id, metric_date, thumbnail_impressions, thumbnail_impressions_ctr, raw_analytics_json, observed_at) VALUES (?, ?, ?, ?, '{}', ?) ON CONFLICT(channel_id, metric_date) DO UPDATE SET thumbnail_impressions = excluded.thumbnail_impressions, thumbnail_impressions_ctr = excluded.thumbnail_impressions_ctr, observed_at = excluded.observed_at").bind(channelKey, metricDate, aggregate.impressions, aggregate.impressions > 0 ? aggregate.clicks / aggregate.impressions : null, now));
     }
-    statements.push(env.DB.prepare("INSERT INTO youtube_reporting_imports (google_report_id, connection_id, report_type_id, report_start_time, report_end_time, rows_imported, imported_at) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(report.id, connection.id, reachReportType, report.startTime ?? null, report.endTime ?? null, rows.length, now));
+    statements.push(env.DB.prepare("INSERT INTO youtube_reporting_imports (google_report_id, connection_id, report_type_id, report_start_time, report_end_time, rows_imported, imported_at) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(report.id, connection.id, reachReportType, report.startTime ?? null, report.endTime ?? null, acceptedRows, now));
     await batch(env.DB, statements);
   }
   await env.DB.prepare("UPDATE youtube_reporting_jobs SET last_checked_at = ?, last_error_code = NULL, updated_at = ? WHERE connection_id = ? AND report_type_id = ?").bind(now, now, connection.id, reachReportType).run();

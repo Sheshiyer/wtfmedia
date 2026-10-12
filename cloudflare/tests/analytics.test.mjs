@@ -384,7 +384,7 @@ test("YouTube reach sync discovers the report type and preserves sub-1% CTR perc
       if (url.hostname === "youtubereporting.googleapis.com" && url.pathname.endsWith("/jobs") && !init?.method) return Response.json({ jobs: [{ id: "reach-job-1", reportTypeId: "channel_reach_basic_a1" }] });
       if (url.hostname === "youtubereporting.googleapis.com" && url.pathname.endsWith("/jobs") && init?.method === "POST") throw new Error("duplicate job must be adopted rather than recreated");
       if (url.hostname === "youtubereporting.googleapis.com" && url.pathname.endsWith("/jobs/reach-job-1/reports")) return Response.json({ reports: [{ id: "reach-report-1", downloadUrl: "https://reports.example.test/reach.csv" }] });
-      if (url.hostname === "reports.example.test") return new Response("date,channel_id,video_id,video_thumbnail_impressions,video_thumbnail_impressions_ctr\n2026-10-01,UC-test,video-id-01,1000,0.87\n2026-10-01,UC-test,video-id-02,2000,4.5\n", { headers: { "content-type": "text/csv" } });
+      if (url.hostname === "reports.example.test") return new Response("\uFEFFdate,channel_id,video_id,video_thumbnail_impressions,video_thumbnail_impressions_ctr\n2026-10-01,UC-test,video-id-01,1000,0.87\n2026-10-01,UC-test,video-id-02,2000,4.5\n", { headers: { "content-type": "text/csv" } });
       throw new Error(`unexpected_provider_request:${url.hostname}${url.pathname}`);
     },
   });
