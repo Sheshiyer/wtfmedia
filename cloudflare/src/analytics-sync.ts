@@ -142,6 +142,18 @@ function csvRows(value: string): Array<Record<string, string>> {
   return rows.map((values) => Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""])));
 }
 
+function reportingDate(value: string | undefined): string | null {
+  const match = value?.trim().match(/^(\d{4})-?(\d{2})-?(\d{2})$/u);
+  if (!match) return null;
+  const normalized = `${match[1]}-${match[2]}-${match[3]}`;
+  return isoDate(new Date(`${normalized}T00:00:00Z`)) === normalized ? normalized : null;
+}
+
+function reportingNumber(value: string | undefined): number | null {
+  if (!value?.trim() || value.trim().toLowerCase() === "null") return null;
+  return numberOrNull(value);
+}
+
 async function googleText(fetchGoogle: typeof fetch, url: string, accessToken: string): Promise<string> {
   const response = await fetchGoogle(url, { headers: { authorization: `Bearer ${accessToken}`, accept: "text/csv" } });
   if (!response.ok) {
@@ -260,17 +272,23 @@ async function syncYouTubeReach(env: AnalyticsEnv, connection: SyncConnection, c
     const statements: D1PreparedStatement[] = [];
     const daily = new Map<string, { impressions: number; clicks: number }>();
     let acceptedRows = 0;
+    const rejected = { date: 0, impressions: 0, ctr: 0 };
     for (const row of rows) {
-      const metricDate = row.date;
+      const metricDate = reportingDate(row.date);
       const videoId = row.video_id;
-      const impressions = numberOrNull(row.video_thumbnail_impressions);
+      const impressions = reportingNumber(row.video_thumbnail_impressions);
       // The Reporting API CSV defines this field as a percentage, including
       // values below 1. Convert 0.87% to the internal ratio 0.0087 rather than
       // misreading it as 87%.
-      const providerCtrPercent = numberOrNull(row.video_thumbnail_impressions_ctr);
+      const providerCtrPercent = reportingNumber(row.video_thumbnail_impressions_ctr);
       const ctr = providerCtrPercent == null ? null : providerCtrPercent / 100;
-      if (!/^\d{4}-\d{2}-\d{2}$/u.test(metricDate) || !videoId || impressions == null || ctr == null || ctr < 0 || ctr > 1) continue;
-      statements.push(env.DB.prepare("INSERT INTO youtube_video_daily_metrics (video_id, metric_date, thumbnail_impressions, thumbnail_impressions_ctr, raw_analytics_json, observed_at) SELECT id, ?, ?, ?, '{}', ? FROM youtube_analytics_videos WHERE channel_id = ? AND youtube_video_id = ? ON CONFLICT(video_id, metric_date) DO UPDATE SET thumbnail_impressions = excluded.thumbnail_impressions, thumbnail_impressions_ctr = excluded.thumbnail_impressions_ctr, observed_at = excluded.observed_at").bind(metricDate, impressions, ctr, now, channelKey, videoId));
+      if (!metricDate) { rejected.date += 1; continue; }
+      if (impressions == null || impressions < 0) { rejected.impressions += 1; continue; }
+      if (ctr == null || ctr < 0 || ctr > 1) { rejected.ctr += 1; continue; }
+      // Google can leave resource dimensions empty for channel-level events or
+      // deleted resources. Preserve those values in channel totals even when
+      // there is no safe video row to attach them to.
+      if (videoId) statements.push(env.DB.prepare("INSERT INTO youtube_video_daily_metrics (video_id, metric_date, thumbnail_impressions, thumbnail_impressions_ctr, raw_analytics_json, observed_at) SELECT id, ?, ?, ?, '{}', ? FROM youtube_analytics_videos WHERE channel_id = ? AND youtube_video_id = ? ON CONFLICT(video_id, metric_date) DO UPDATE SET thumbnail_impressions = excluded.thumbnail_impressions, thumbnail_impressions_ctr = excluded.thumbnail_impressions_ctr, observed_at = excluded.observed_at").bind(metricDate, impressions, ctr, now, channelKey, videoId));
       const aggregate = daily.get(metricDate) ?? { impressions: 0, clicks: 0 };
       aggregate.impressions += impressions;
       aggregate.clicks += impressions * ctr;
@@ -278,6 +296,7 @@ async function syncYouTubeReach(env: AnalyticsEnv, connection: SyncConnection, c
       importedRows += 1;
       acceptedRows += 1;
     }
+    if (rows.length > 0 && acceptedRows === 0) console.warn("YouTube reach report contained no usable metric rows", { rows: rows.length, rejected });
     for (const [metricDate, aggregate] of daily) {
       statements.push(env.DB.prepare("INSERT INTO youtube_channel_daily_metrics (channel_id, metric_date, thumbnail_impressions, thumbnail_impressions_ctr, raw_analytics_json, observed_at) VALUES (?, ?, ?, ?, '{}', ?) ON CONFLICT(channel_id, metric_date) DO UPDATE SET thumbnail_impressions = excluded.thumbnail_impressions, thumbnail_impressions_ctr = excluded.thumbnail_impressions_ctr, observed_at = excluded.observed_at").bind(channelKey, metricDate, aggregate.impressions, aggregate.impressions > 0 ? aggregate.clicks / aggregate.impressions : null, now));
     }

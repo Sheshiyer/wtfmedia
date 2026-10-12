@@ -384,7 +384,7 @@ test("YouTube reach sync discovers the report type and preserves sub-1% CTR perc
       if (url.hostname === "youtubereporting.googleapis.com" && url.pathname.endsWith("/jobs") && !init?.method) return Response.json({ jobs: [{ id: "reach-job-1", reportTypeId: "channel_reach_basic_a1" }] });
       if (url.hostname === "youtubereporting.googleapis.com" && url.pathname.endsWith("/jobs") && init?.method === "POST") throw new Error("duplicate job must be adopted rather than recreated");
       if (url.hostname === "youtubereporting.googleapis.com" && url.pathname.endsWith("/jobs/reach-job-1/reports")) return Response.json({ reports: [{ id: "reach-report-1", downloadUrl: "https://reports.example.test/reach.csv" }] });
-      if (url.hostname === "reports.example.test") return new Response("\uFEFFdate,channel_id,video_id,video_thumbnail_impressions,video_thumbnail_impressions_ctr\n2026-10-01,UC-test,video-id-01,1000,0.87\n2026-10-01,UC-test,video-id-02,2000,4.5\n", { headers: { "content-type": "text/csv" } });
+      if (url.hostname === "reports.example.test") return new Response("\uFEFFdate,channel_id,video_id,video_thumbnail_impressions,video_thumbnail_impressions_ctr\n20261001,UC-test,video-id-01,1000,0.87\n2026-10-01,UC-test,,2000,4.5\n", { headers: { "content-type": "text/csv" } });
       throw new Error(`unexpected_provider_request:${url.hostname}${url.pathname}`);
     },
   });
@@ -393,9 +393,8 @@ test("YouTube reach sync discovers the report type and preserves sub-1% CTR perc
   assert.equal(requests.includes("GET youtubereporting.googleapis.com/v1/jobs"), true);
   assert.equal(requests.includes("POST youtubereporting.googleapis.com/v1/jobs"), false);
   const reachWrites = writes.filter(({ sql }) => sql.startsWith("INSERT INTO youtube_video_daily_metrics") && sql.includes("thumbnail_impressions"));
-  assert.equal(reachWrites.length, 2);
+  assert.equal(reachWrites.length, 1, "a channel-only reach row must not be attached to a guessed video");
   assert.equal(reachWrites[0].values[2], 0.0087, "0.87% must remain below one percent");
-  assert.equal(reachWrites[1].values[2], 0.045);
   const channelReach = writes.find(({ sql }) => sql.startsWith("INSERT INTO youtube_channel_daily_metrics") && sql.includes("thumbnail_impressions"));
   assert.equal(channelReach.values[3], (1000 * 0.0087 + 2000 * 0.045) / 3000);
 });
