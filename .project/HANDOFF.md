@@ -1,5 +1,21 @@
 # Project handoff
 
+## 2026-10-12 Staging YouTube reach diagnostics deployment
+
+- Follow-up after owner proved the API enabled and ran a fresh sync: the job still failed before local receipt creation. The Reporting API documents `409 Conflict` when the same report job already exists. Reach setup now lists and adopts an existing non-expired `channel_reach_basic_a1` job before creating one, and re-lists after a create-time 409 to handle races. This repairs lost D1 job receipts without deleting or duplicating Google's job.
+- Confirmed `origin/feature/pavun` (`20a1969`) is an ancestor of deployment source `225fbef`; no newer Pawan commit was overwritten. Deployed only staging Edge version `8c9801e3-13a6-40ab-b958-f6ad03e827ec`; staging Web remains `99a603ec-e557-44db-8591-6b251cf5b18f`. Previous Edge rollback is `a4e8d686-5630-49b0-b116-a8c35aa45514`.
+- Read-only pre-deploy receipts: connected YouTube resource and both required OAuth scopes are present; core sync completed; reach job creation failed with generic `provider_request_failed`; reach imports, channel reach rows, and video reach rows are all zero. The deployed parser now records Google's structured service error reason so the next sync distinguishes `reporting_api_disabled` from other permission failures.
+- Verification: 432/432 Edge tests, focused analytics 16/16, architecture check (672 inputs), diff check, deployed health, and retained secret-name inventory. No Web deployment, migration, cron trigger, production change, or secret-value read/write.
+- Cloud data is still blocked until the next authenticated sync successfully creates the YouTube Reporting API job. Neither locally authenticated gcloud account can access project `n8n-oauth-462108`, so this task could not verify or enable `youtubereporting.googleapis.com` in that project. Do not claim impressions/CTR are populated until a reporting job/import receipt exists; Google documents the first report as asynchronous.
+
+## 2026-10-09 YouTube reach/CTR repair (PR candidate)
+
+- 2026-10-12 deployment follow-up: read-only staging receipts show the reach job failed before creation with `provider_request_failed`, zero imports, and zero channel/video reach rows while core synchronization completed. Google RPC errors now inspect structured `error.details[].reason`, so an API-disabled response is recorded as `reporting_api_disabled` rather than the generic code. The required OAuth scopes are present. Enabling the Reporting API remains a Google Cloud project operation, not something a Worker deployment can bypass.
+- Diagnosed the staging state through read-only CLI queries: core YouTube Analytics synchronization had completed, but the selected connection had no `youtube_reporting_jobs` receipt and therefore zero reach days. Impressions and CTR come from the separate asynchronous YouTube Reporting API rather than the core Analytics query.
+- Reach synchronization now discovers the required `channel_reach_basic_a1` report type before job creation, retries failed job setup, and persists redacted failure states such as `reporting_api_disabled` and `reach_report_type_unavailable`. These failures remain non-blocking for views/watch-time/subscriber synchronization and are rendered in dashboard coverage instead of an unexplained zero.
+- Corrected Reporting CSV CTR normalization: provider values are percentages and are always divided by 100, preserving sub-1% values (`0.87%` becomes ratio `0.0087`) and weighted channel CTR. Added success and provider-disabled regression coverage.
+- This source change does not deploy, enable a Google API, mutate shared D1 data, or promise immediate reach history. The first Google report may take up to 24 hours after a successful job creation; a later synchronization imports it.
+
 ## 2026-10-05 Phase 2 tests migrated to Beta
 
 - Owner authorized updating the legacy tests and pushing all changes on `feature/pavun`. Replaced retired `/ops` UI expectations/HMAC admission with canonical Beta workspace, users settings and audit paths. Added denied-principal, legacy redirect, member/operator environment visibility and mobile assertions; retained roster, transfer confirmation and audit export coverage.

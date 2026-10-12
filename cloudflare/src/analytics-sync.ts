@@ -36,11 +36,14 @@ async function googleJson(fetchGoogle: typeof fetch, url: string | URL, accessTo
     const endpoint = new URL(url).pathname;
     let reason = "unknown";
     try {
-      const payload = await response.clone().json() as { error?: { errors?: Array<{ reason?: string }>; status?: string } };
-      reason = payload.error?.errors?.[0]?.reason ?? payload.error?.status ?? reason;
+      const payload = await response.clone().json() as { error?: { errors?: Array<{ reason?: string }>; details?: Array<{ reason?: string }>; status?: string } };
+      reason = payload.error?.errors?.[0]?.reason
+        ?? payload.error?.details?.find((detail) => detail.reason)?.reason
+        ?? payload.error?.status
+        ?? reason;
     } catch { /* Google did not return a JSON error envelope. */ }
     console.warn("Google analytics request failed", { endpoint, status: response.status, code: error.code, reason });
-    throw Object.assign(new Error(error.code), error, { httpStatus: response.status });
+    throw Object.assign(new Error(error.code), error, { httpStatus: response.status, providerReason: reason });
   }
   return response.json();
 }
@@ -132,8 +135,23 @@ function csvRows(value: string): Array<Record<string, string>> {
     } else field += character;
   }
   if (field || row.length) { row.push(field); rows.push(row); }
-  const headers = rows.shift() ?? [];
+  // Google bulk CSVs may start with a UTF-8 BOM. Without removing it, the
+  // first column is keyed as "\uFEFFdate", so every otherwise-valid reach row
+  // is silently rejected by the date validation below.
+  const headers = (rows.shift() ?? []).map((header) => header.replace(/^\uFEFF/u, "").trim());
   return rows.map((values) => Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""])));
+}
+
+function reportingDate(value: string | undefined): string | null {
+  const match = value?.trim().match(/^(\d{4})-?(\d{2})-?(\d{2})$/u);
+  if (!match) return null;
+  const normalized = `${match[1]}-${match[2]}-${match[3]}`;
+  return isoDate(new Date(`${normalized}T00:00:00Z`)) === normalized ? normalized : null;
+}
+
+function reportingNumber(value: string | undefined): number | null {
+  if (!value?.trim() || value.trim().toLowerCase() === "null") return null;
+  return numberOrNull(value);
 }
 
 async function googleText(fetchGoogle: typeof fetch, url: string, accessToken: string): Promise<string> {
@@ -145,25 +163,88 @@ async function googleText(fetchGoogle: typeof fetch, url: string, accessToken: s
   return response.text();
 }
 
-type ReportingJob = { id?: string; reportTypeId?: string };
+type ReportingJob = { id?: string; reportTypeId?: string; expireTime?: string };
 type ReportingReport = { id?: string; startTime?: string; endTime?: string; downloadUrl?: string };
+type ReportingReportType = { id?: string; deprecateTime?: string; systemManaged?: boolean };
+
+const reachReportType = "channel_reach_basic_a1";
+
+async function hasReachReportType(fetchGoogle: typeof fetch, accessToken: string): Promise<boolean> {
+  const url = new URL("https://youtubereporting.googleapis.com/v1/reportTypes");
+  url.searchParams.set("includeSystemManaged", "false");
+  url.searchParams.set("pageSize", "100");
+  let pageToken = "";
+  do {
+    if (pageToken) url.searchParams.set("pageToken", pageToken);
+    else url.searchParams.delete("pageToken");
+    const payload = await googleJson(fetchGoogle, url, accessToken) as { reportTypes?: ReportingReportType[]; nextPageToken?: string };
+    if ((payload.reportTypes ?? []).some((report) => report.id === reachReportType && !report.deprecateTime)) return true;
+    pageToken = payload.nextPageToken ?? "";
+  } while (pageToken);
+  return false;
+}
+
+async function recordReachFailure(env: AnalyticsEnv, connection: SyncConnection, errorCode: string, now: string): Promise<void> {
+  const pendingJobId = `pending:${connection.id}:${reachReportType}`;
+  await env.DB.prepare("INSERT INTO youtube_reporting_jobs (connection_id, report_type_id, google_job_id, status, last_checked_at, last_error_code, created_at, updated_at) VALUES (?, ?, ?, 'failed', ?, ?, ?, ?) ON CONFLICT(connection_id, report_type_id) DO UPDATE SET status = 'failed', last_checked_at = excluded.last_checked_at, last_error_code = excluded.last_error_code, updated_at = excluded.updated_at")
+    .bind(connection.id, reachReportType, pendingJobId, now, errorCode, now, now)
+    .run();
+}
+
+async function findExistingReachJob(fetchGoogle: typeof fetch, accessToken: string, now: string): Promise<string | null> {
+  const url = new URL("https://youtubereporting.googleapis.com/v1/jobs");
+  url.searchParams.set("includeSystemManaged", "false");
+  url.searchParams.set("pageSize", "100");
+  let pageToken = "";
+  do {
+    if (pageToken) url.searchParams.set("pageToken", pageToken);
+    else url.searchParams.delete("pageToken");
+    const payload = await googleJson(fetchGoogle, url, accessToken) as { jobs?: ReportingJob[]; nextPageToken?: string };
+    const existing = (payload.jobs ?? []).find((job) => job.id && job.reportTypeId === reachReportType && (!job.expireTime || job.expireTime > now));
+    if (existing?.id) return existing.id;
+    pageToken = payload.nextPageToken ?? "";
+  } while (pageToken);
+  return null;
+}
+
+async function recordActiveReachJob(env: AnalyticsEnv, connection: SyncConnection, jobId: string, now: string): Promise<void> {
+  await env.DB.prepare("INSERT INTO youtube_reporting_jobs (connection_id, report_type_id, google_job_id, status, last_checked_at, created_at, updated_at) VALUES (?, ?, ?, 'active', ?, ?, ?) ON CONFLICT(connection_id, report_type_id) DO UPDATE SET google_job_id = excluded.google_job_id, status = 'active', last_checked_at = excluded.last_checked_at, last_error_code = NULL, updated_at = excluded.updated_at")
+    .bind(connection.id, reachReportType, jobId, now, now, now)
+    .run();
+}
 
 async function ensureReachJob(env: AnalyticsEnv, connection: SyncConnection, accessToken: string, fetchGoogle: typeof fetch, now: string): Promise<string> {
-  const reportType = "channel_reach_basic_a1";
-  const stored = await env.DB.prepare("SELECT google_job_id FROM youtube_reporting_jobs WHERE connection_id = ? AND report_type_id = ? AND status = 'active'").bind(connection.id, reportType).first<{ google_job_id: string }>();
+  const stored = await env.DB.prepare("SELECT google_job_id FROM youtube_reporting_jobs WHERE connection_id = ? AND report_type_id = ? AND status = 'active'").bind(connection.id, reachReportType).first<{ google_job_id: string }>();
   if (stored?.google_job_id) return stored.google_job_id;
-  const payload = await googleJson(fetchGoogle, "https://youtubereporting.googleapis.com/v1/jobs", accessToken, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ reportTypeId: reportType, name: "WTFOS channel reach" }),
-  }) as ReportingJob;
+  if (!await hasReachReportType(fetchGoogle, accessToken)) {
+    throw Object.assign(new Error("reach_report_type_unavailable"), { status: "failed", code: "reach_report_type_unavailable" });
+  }
+  const existingJobId = await findExistingReachJob(fetchGoogle, accessToken, now);
+  if (existingJobId) {
+    await recordActiveReachJob(env, connection, existingJobId, now);
+    return existingJobId;
+  }
+  let payload: ReportingJob;
+  try {
+    payload = await googleJson(fetchGoogle, "https://youtubereporting.googleapis.com/v1/jobs", accessToken, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ reportTypeId: reachReportType, name: "WTFOS channel reach" }),
+    }) as ReportingJob;
+  } catch (cause) {
+    const error = cause as { httpStatus?: number };
+    if (error.httpStatus !== 409) throw cause;
+    const conflictedJobId = await findExistingReachJob(fetchGoogle, accessToken, now);
+    if (!conflictedJobId) throw cause;
+    await recordActiveReachJob(env, connection, conflictedJobId, now);
+    return conflictedJobId;
+  }
   if (!payload.id) throw Object.assign(new Error("reporting_job_unavailable"), { status: "failed", code: "reporting_job_unavailable" });
-  await env.DB.prepare("INSERT INTO youtube_reporting_jobs (connection_id, report_type_id, google_job_id, status, last_checked_at, created_at, updated_at) VALUES (?, ?, ?, 'active', ?, ?, ?) ON CONFLICT(connection_id, report_type_id) DO UPDATE SET google_job_id = excluded.google_job_id, status = 'active', last_checked_at = excluded.last_checked_at, last_error_code = NULL, updated_at = excluded.updated_at").bind(connection.id, reportType, payload.id, now, now, now).run();
+  await recordActiveReachJob(env, connection, payload.id, now);
   return payload.id;
 }
 
 async function syncYouTubeReach(env: AnalyticsEnv, connection: SyncConnection, channelKey: string, accessToken: string, fetchGoogle: typeof fetch, startDate: string, endDate: string, now: string): Promise<number> {
-  const reportType = "channel_reach_basic_a1";
   const jobId = await ensureReachJob(env, connection, accessToken, fetchGoogle, now);
   const reportsUrl = new URL(`https://youtubereporting.googleapis.com/v1/jobs/${encodeURIComponent(jobId)}/reports`);
   reportsUrl.searchParams.set("startTimeAtOrAfter", `${startDate}T00:00:00Z`);
@@ -183,29 +264,46 @@ async function syncYouTubeReach(env: AnalyticsEnv, connection: SyncConnection, c
     const exists = await env.DB.prepare("SELECT 1 AS imported FROM youtube_reporting_imports WHERE google_report_id = ?").bind(report.id).first<{ imported: number }>();
     if (exists) continue;
     const rows = csvRows(await googleText(fetchGoogle, report.downloadUrl, accessToken));
+    const requiredColumns = ["date", "video_id", "video_thumbnail_impressions", "video_thumbnail_impressions_ctr"];
+    if (rows.length > 0 && requiredColumns.some((column) => !(column in rows[0]))) {
+      console.warn("YouTube reach report schema mismatch", { columns: Object.keys(rows[0]).sort() });
+      throw Object.assign(new Error("report_schema_unexpected"), { status: "failed", code: "report_schema_unexpected" });
+    }
     const statements: D1PreparedStatement[] = [];
     const daily = new Map<string, { impressions: number; clicks: number }>();
+    let acceptedRows = 0;
+    const rejected = { date: 0, impressions: 0, ctr: 0 };
     for (const row of rows) {
-      const metricDate = row.date;
+      const metricDate = reportingDate(row.date);
       const videoId = row.video_id;
-      const impressions = numberOrNull(row.video_thumbnail_impressions);
-      const providerCtr = numberOrNull(row.video_thumbnail_impressions_ctr);
-      const ctr = providerCtr != null && providerCtr > 1 ? providerCtr / 100 : providerCtr;
-      if (!/^\d{4}-\d{2}-\d{2}$/u.test(metricDate) || !videoId || impressions == null || ctr == null || ctr < 0 || ctr > 1) continue;
-      statements.push(env.DB.prepare("INSERT INTO youtube_video_daily_metrics (video_id, metric_date, thumbnail_impressions, thumbnail_impressions_ctr, raw_analytics_json, observed_at) SELECT id, ?, ?, ?, '{}', ? FROM youtube_analytics_videos WHERE channel_id = ? AND youtube_video_id = ? ON CONFLICT(video_id, metric_date) DO UPDATE SET thumbnail_impressions = excluded.thumbnail_impressions, thumbnail_impressions_ctr = excluded.thumbnail_impressions_ctr, observed_at = excluded.observed_at").bind(metricDate, impressions, ctr, now, channelKey, videoId));
+      const impressions = reportingNumber(row.video_thumbnail_impressions);
+      // The Reporting API CSV defines this field as a percentage, including
+      // values below 1. Convert 0.87% to the internal ratio 0.0087 rather than
+      // misreading it as 87%.
+      const providerCtrPercent = reportingNumber(row.video_thumbnail_impressions_ctr);
+      const ctr = providerCtrPercent == null ? null : providerCtrPercent / 100;
+      if (!metricDate) { rejected.date += 1; continue; }
+      if (impressions == null || impressions < 0) { rejected.impressions += 1; continue; }
+      if (ctr == null || ctr < 0 || ctr > 1) { rejected.ctr += 1; continue; }
+      // Google can leave resource dimensions empty for channel-level events or
+      // deleted resources. Preserve those values in channel totals even when
+      // there is no safe video row to attach them to.
+      if (videoId) statements.push(env.DB.prepare("INSERT INTO youtube_video_daily_metrics (video_id, metric_date, thumbnail_impressions, thumbnail_impressions_ctr, raw_analytics_json, observed_at) SELECT id, ?, ?, ?, '{}', ? FROM youtube_analytics_videos WHERE channel_id = ? AND youtube_video_id = ? ON CONFLICT(video_id, metric_date) DO UPDATE SET thumbnail_impressions = excluded.thumbnail_impressions, thumbnail_impressions_ctr = excluded.thumbnail_impressions_ctr, observed_at = excluded.observed_at").bind(metricDate, impressions, ctr, now, channelKey, videoId));
       const aggregate = daily.get(metricDate) ?? { impressions: 0, clicks: 0 };
       aggregate.impressions += impressions;
       aggregate.clicks += impressions * ctr;
       daily.set(metricDate, aggregate);
       importedRows += 1;
+      acceptedRows += 1;
     }
+    if (rows.length > 0 && acceptedRows === 0) console.warn("YouTube reach report contained no usable metric rows", { rows: rows.length, rejected });
     for (const [metricDate, aggregate] of daily) {
       statements.push(env.DB.prepare("INSERT INTO youtube_channel_daily_metrics (channel_id, metric_date, thumbnail_impressions, thumbnail_impressions_ctr, raw_analytics_json, observed_at) VALUES (?, ?, ?, ?, '{}', ?) ON CONFLICT(channel_id, metric_date) DO UPDATE SET thumbnail_impressions = excluded.thumbnail_impressions, thumbnail_impressions_ctr = excluded.thumbnail_impressions_ctr, observed_at = excluded.observed_at").bind(channelKey, metricDate, aggregate.impressions, aggregate.impressions > 0 ? aggregate.clicks / aggregate.impressions : null, now));
     }
-    statements.push(env.DB.prepare("INSERT INTO youtube_reporting_imports (google_report_id, connection_id, report_type_id, report_start_time, report_end_time, rows_imported, imported_at) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(report.id, connection.id, reportType, report.startTime ?? null, report.endTime ?? null, rows.length, now));
+    statements.push(env.DB.prepare("INSERT INTO youtube_reporting_imports (google_report_id, connection_id, report_type_id, report_start_time, report_end_time, rows_imported, imported_at) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(report.id, connection.id, reachReportType, report.startTime ?? null, report.endTime ?? null, acceptedRows, now));
     await batch(env.DB, statements);
   }
-  await env.DB.prepare("UPDATE youtube_reporting_jobs SET last_checked_at = ?, last_error_code = NULL, updated_at = ? WHERE connection_id = ? AND report_type_id = ?").bind(now, now, connection.id, reportType).run();
+  await env.DB.prepare("UPDATE youtube_reporting_jobs SET last_checked_at = ?, last_error_code = NULL, updated_at = ? WHERE connection_id = ? AND report_type_id = ?").bind(now, now, connection.id, reachReportType).run();
   return importedRows;
 }
 
@@ -245,8 +343,18 @@ async function syncYouTube(env: AnalyticsEnv, connection: SyncConnection, access
   try {
     reachRows = await syncYouTubeReach(env, connection, catalogue.channelKey, accessToken, fetchGoogle, startDate, endDate, now);
   } catch (cause) {
-    const error = cause as { code?: string; message?: string };
-    console.warn("YouTube reach synchronization deferred", { code: error.code ?? error.message ?? "reach_sync_failed" });
+    const error = cause as { code?: string; message?: string; providerReason?: string };
+    const providerReason = error.providerReason?.toLowerCase() ?? "";
+    const code = providerReason === "service_disabled" || providerReason === "accessnotconfigured" || providerReason === "api_disabled"
+      ? "reporting_api_disabled"
+      : error.code ?? error.message ?? "reach_sync_failed";
+    try {
+      await recordReachFailure(env, connection, code, now);
+    } catch {
+      // Reach is optional and asynchronous. A diagnostic write must never
+      // turn an otherwise successful core Analytics API sync into a failure.
+    }
+    console.warn("YouTube reach synchronization deferred", { code });
   }
   await env.DB.prepare("UPDATE youtube_analytics_channels SET last_synced_at = ?, updated_at = ? WHERE id = ?").bind(now, now, catalogue.channelKey).run();
   return catalogue.videos + statements.length + reachRows;
