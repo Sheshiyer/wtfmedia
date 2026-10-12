@@ -1,5 +1,12 @@
 # Project handoff
 
+## 2026-10-12 Staging YouTube reach diagnostics deployment
+
+- Confirmed `origin/feature/pavun` (`20a1969`) is an ancestor of deployment source `225fbef`; no newer Pawan commit was overwritten. Deployed only staging Edge version `8c9801e3-13a6-40ab-b958-f6ad03e827ec`; staging Web remains `99a603ec-e557-44db-8591-6b251cf5b18f`. Previous Edge rollback is `a4e8d686-5630-49b0-b116-a8c35aa45514`.
+- Read-only pre-deploy receipts: connected YouTube resource and both required OAuth scopes are present; core sync completed; reach job creation failed with generic `provider_request_failed`; reach imports, channel reach rows, and video reach rows are all zero. The deployed parser now records Google's structured service error reason so the next sync distinguishes `reporting_api_disabled` from other permission failures.
+- Verification: 432/432 Edge tests, focused analytics 16/16, architecture check (672 inputs), diff check, deployed health, and retained secret-name inventory. No Web deployment, migration, cron trigger, production change, or secret-value read/write.
+- Cloud data is still blocked until the next authenticated sync successfully creates the YouTube Reporting API job. Neither locally authenticated gcloud account can access project `n8n-oauth-462108`, so this task could not verify or enable `youtubereporting.googleapis.com` in that project. Do not claim impressions/CTR are populated until a reporting job/import receipt exists; Google documents the first report as asynchronous.
+
 ## 2026-10-09 YouTube reach/CTR repair (PR candidate)
 
 - 2026-10-12 deployment follow-up: read-only staging receipts show the reach job failed before creation with `provider_request_failed`, zero imports, and zero channel/video reach rows while core synchronization completed. Google RPC errors now inspect structured `error.details[].reason`, so an API-disabled response is recorded as `reporting_api_disabled` rather than the generic code. The required OAuth scopes are present. Enabling the Reporting API remains a Google Cloud project operation, not something a Worker deployment can bypass.
