@@ -1,0 +1,143 @@
+{
+  "checked": "2026-10-13",
+  "source": "https://treg.to/catalog/endpoints/<id>",
+  "endpoints": [
+    {
+      "id": "perplexity.web.search",
+      "method": "POST",
+      "kind": "data",
+      "async": null,
+      "cost": {
+        "type": "per_call",
+        "value": 0.005,
+        "currency": "USD",
+        "unit": "call",
+        "source": "docs",
+        "source_url": "https://docs.perplexity.ai/docs/getting-started/pricing",
+        "checked": "2026-09-29",
+        "confidence": "verified",
+        "note": "Search bills each successful POST once, including a no-result response; there are no token charges.",
+        "usd": 0.005
+      },
+      "input": {
+        "bodyType": "json",
+        "body": {
+          "query": {
+            "type": "string",
+            "required": true,
+            "example": "IANA reserved example domains"
+          },
+          "search_type": {
+            "type": "string",
+            "required": true,
+            "enum": [
+              "web"
+            ],
+            "example": "web"
+          },
+          "max_results": {
+            "type": "integer",
+            "required": false,
+            "default": 10,
+            "min": 1,
+            "max": 20,
+            "example": 1
+          },
+          "country": {
+            "type": "string",
+            "required": false,
+            "example": "US"
+          },
+          "search_domain_filter": {
+            "type": "array[string]",
+            "required": false,
+            "maxItems": 20
+          },
+          "search_language_filter": {
+            "type": "array[string]",
+            "required": false,
+            "maxItems": 10
+          },
+          "search_context_size": {
+            "type": "string",
+            "required": false,
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          }
+        },
+        "note": "One successful request costs $0.005, including a no-result response. This row accepts one query; a raw own-key tool can use the full upstream API."
+      },
+      "docs_url": "https://docs.perplexity.ai/docs/search/quickstart"
+    },
+    {
+      "id": "exa.web.contents.get",
+      "method": "POST",
+      "kind": "data",
+      "async": null,
+      "cost": {
+        "type": "per_result",
+        "value": 1,
+        "currency": "USD",
+        "per": 1000,
+        "unit": "page",
+        "source": "observed",
+        "source_url": "https://exa.ai/pricing",
+        "checked": "2026-08-27",
+        "confidence": "verified",
+        "note": "$0.001 per page PER CONTENT TYPE: text, highlights and summary are each billed separately (OBSERVED 2026-08-27: text on one page \u2192 costDollars.total 0.001; highlights+summary on one page \u2192 0.002 as {highlights: 0.001, summary: 0.001}). A failed URL is not billed. Platform billing settles the exact costDollars.total.",
+        "usd": 0.001
+      },
+      "input": {
+        "bodyType": "json",
+        "body": {
+          "urls": {
+            "type": "array[string]",
+            "required": true,
+            "note": "one or more page URLs; each page is billed per content type requested",
+            "example": [
+              "https://en.wikipedia.org/wiki/Hierarchical_navigable_small_world"
+            ]
+          },
+          "text": {
+            "type": "boolean|object",
+            "required": false,
+            "note": "true, or {maxCharacters: N} \u2014 the page as clean text. $0.001 per page",
+            "example": {
+              "maxCharacters": 2000
+            }
+          },
+          "highlights": {
+            "type": "object",
+            "required": false,
+            "note": "{query, maxCharacters, numSentences} \u2014 the passages most relevant to `query`. $0.001 per page"
+          },
+          "summary": {
+            "type": "object",
+            "required": false,
+            "note": "{query} \u2014 an AI summary of the page focused on `query`. $0.001 per page"
+          },
+          "maxAgeHours": {
+            "type": "integer",
+            "required": false,
+            "note": "serve cache if younger than this, else live-crawl; omit for Exa's default freshness"
+          },
+          "livecrawlTimeout": {
+            "type": "integer",
+            "required": false,
+            "note": "ms, default 10000"
+          },
+          "subpages": {
+            "type": "integer",
+            "required": false,
+            "note": "also crawl N linked subpages (each billed as a page)"
+          }
+        },
+        "note": "each result carries url, title, author, publishedDate and whichever of text / highlights / summary was asked for; `statuses` says per URL whether it came from cache or a live crawl, or failed. Request only the content types you need \u2014 each one is a separate $0.001 per page."
+      },
+      "docs_url": "https://docs.exa.ai/reference/get-contents"
+    }
+  ]
+}

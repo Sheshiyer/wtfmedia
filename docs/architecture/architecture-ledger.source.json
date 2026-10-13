@@ -16,6 +16,7 @@
     ".project/HANDOFF.md",
     "docs/PHASE2-OPERATIONS-RUNBOOK.md",
     "docs/wtf-os-agentic-settings.md",
+    "docs/RESEARCH-RUNNER.md",
     "docs/CLOUDFLARE-INFRASTRUCTURE.md",
     "cloudflare/config/ops-environments.schema.json",
     "CHANGELOG.md",
@@ -37,6 +38,7 @@
     "cloudflare/migrations",
     "cloudflare/config",
     "cloudflare/tests",
+    "research",
     "plugins/wtf-os",
     ".github/workflows",
     "scripts"
@@ -388,6 +390,20 @@
         "When architecture-affecting code, bindings, migrations, workflows, version metadata, or release metadata changes, update this source ledger for semantic claims and regenerate before review.",
         "Runtime changes remain human-attested: an owner may append a redacted receipt after a separately approved action. CI must never configure Cloudflare, OAuth, calendar, MCP, or OTA state."
       ]
+    },
+    {
+      "id": "research-workspace",
+      "number": "21",
+      "title": "Authenticated research workspace and private runner",
+      "status": "implemented_source",
+      "summary": "Research uses the existing Beta shell and principal policy. D1 stores private briefs and versions; a separate token-authenticated Python runner reuses GPT Researcher with allowlisted Treg tools and OpenRouter.",
+      "facts": [
+        { "label": "Workspace", "value": "Four-tier briefs, notes consent, versions, regeneration, Markdown export, follow-up and explicit read-only sharing", "evidence": ["web/components/domain/beta/ResearchWorkspace.tsx", "cloudflare/src/research.ts"] },
+        { "label": "Persistence", "value": "Owner-scoped D1 records, durable SQLite runner jobs, fenced cancellation and retryable erasure", "evidence": ["cloudflare/migrations/0023_research.sql", "cloudflare/src/research-erasure.ts", "research/store.py"] },
+        { "label": "Evidence boundary", "value": "External public extracts are separate from Ask WTF. Alpha supplies validated episode references, never a copied transcript corpus", "evidence": ["cloudflare/src/research-alpha.ts", "research/evidence.py", "research/gptr.py"] },
+        { "label": "Activation", "value": "Provider token, private runner hosting, shared migration and live editorial acceptance remain pending", "evidence": ["docs/RESEARCH-RUNNER.md"] }
+      ],
+      "body": ["Local automated checks are source evidence only. The managed-research comparison, real provider billing, retrieval quality and three-guest editorial trial remain open; no deployment is implied."]
     }
   ],
   "drift": [

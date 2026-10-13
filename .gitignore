@@ -3,6 +3,8 @@
 __pycache__/
 *.pyc
 .venv/
+# Private research jobs, evidence and SQLite journal files
+research/.state/
 .themes_cache/
 web/src/data/connections.entities.json
 

@@ -31,6 +31,7 @@ const operatorNavigation: readonly AppNavItem[] = [
   { href: "/beta/chat", label: "ask wtf", section: "workspace" },
   { href: "/beta/connections", label: "connections", section: "workspace" },
   { href: "/beta/analytics", label: "youtube analytics", section: "workspace" },
+  { href: "/beta/research", label: "research", section: "workspace" },
   { href: "/beta/settings", label: "settings", section: "administration" },
 ];
 
@@ -54,7 +55,7 @@ function Shell({ context, children }: { context: PrincipalContext; children: Rea
     bottomNavigation={bottomNavigation}
     disclosureGroups={context.kind === "member" ? memberDisclosureGroups.map((group) => ({
       ...group,
-      items: group.items.filter((item) => betaDestinationVisible(item.href, context.environment)),
+      items: group.items.filter((item) => betaDestinationVisible(item.href, context.environment) && (item.href !== "/beta/research" || context.capabilities.includes("research:read"))),
     })) : undefined}
   >{children}</AppShell>;
 }

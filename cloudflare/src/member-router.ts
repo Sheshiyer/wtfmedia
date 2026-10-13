@@ -1,4 +1,6 @@
 import { handleAnalyticsInvestigations } from "./analytics-investigations.ts";
+import { handleResearch } from "./research.ts";
+import { erasePendingResearchJobs } from "./research-erasure.ts";
 import { createClerkUserDeleter } from "./clerk/delete-user.ts";
 import { listUsers, manageUser } from "./user-admin.ts";
 import { createClerkInvitationClient } from "./clerk/invitations.ts";
@@ -17,7 +19,7 @@ import { handleAnalyticsRequest, type AnalyticsDependencies } from "./analytics.
 import { handleAnalyticsAssistant } from "./analytics-assistant.ts";
 import { syncSelectedAnalytics, syncYouTubeRetention } from "./analytics-sync.ts";
 
-type Dependencies = { verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer> } & AnalyticsDependencies;
+type Dependencies = { verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer>; fetchRunner?: typeof fetch } & AnalyticsDependencies;
 const headers = { "cache-control": "private, no-store", "x-content-type-options": "nosniff" };
 const denied = () => Response.json({ error: "ops_unavailable" }, { status: 404, headers });
 const unauthorized = () => Response.json({ error: "unauthorized" }, { status: 401, headers });
@@ -58,11 +60,17 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
       if (request.method === "GET") return Response.json({ users: await listUsers(env.DB) }, { headers });
       const input = await body(request);
       if (!input) return Response.json({ error: "invalid_request" }, { status: 400, headers });
-      const result = await manageUser(env.DB, context, input, createClerkInvitationClient(env.CLERK_SECRET_KEY), env.OPS_ORIGIN, createClerkUserDeleter(env.CLERK_SECRET_KEY));
+      const deleteIdentity = createClerkUserDeleter(env.CLERK_SECRET_KEY);
+      const result = await manageUser(env.DB, context, input, createClerkInvitationClient(env.CLERK_SECRET_KEY), env.OPS_ORIGIN,
+        deleteIdentity ? async email => await erasePendingResearchJobs(env, email, dependencies.fetchRunner) && await deleteIdentity(email) : undefined);
       return Response.json(result.ok ? { users: await listUsers(env.DB) } : { error: result.error }, { status: result.ok ? 200 : 409, headers });
     } catch { return Response.json({ error: "user_management_unavailable" }, { status: 503, headers }); }
   }
   if (url.pathname === "/beta/api/principal-context" && request.method === "GET") return Response.json(principalContextDto(context), { headers });
+  if (url.pathname === "/beta/api/research" || url.pathname.startsWith("/beta/api/research/")) {
+    const memberId = await memberIdForPrincipal(env.DB, context);
+    return memberId ? handleResearch(request, env, memberId, dependencies) : forbidden();
+  }
   if (/^\/beta\/api\/analytics\/investigations(?:\/[^/]+)?$/u.test(url.pathname)) {
     const memberId = await memberIdForPrincipal(env.DB, context);
     return memberId ? handleAnalyticsInvestigations(request, env.DB, memberId) : forbidden();

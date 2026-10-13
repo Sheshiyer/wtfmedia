@@ -17,7 +17,7 @@ describe("member workspace navigation", () => {
       expect(betaDestinationVisible(path, "local")).toBe(true);
     }
     expect(memberDisclosureGroups[0].items.filter((item) => betaDestinationVisible(item.href, "production")).map((item) => item.href))
-      .toEqual(["/beta", "/beta/connections", "/beta/settings"]);
+      .toEqual(["/beta", "/beta/connections", "/beta/research", "/beta/settings"]);
     expect(betaDestinationVisible("/beta/chat", "production")).toBe(true);
   });
 
@@ -30,7 +30,7 @@ describe("member workspace navigation", () => {
 
   it("exposes only member destinations", () => {
     expect(memberDisclosureGroups[0]).toMatchObject({ label: "Beta workspace" });
-    expect(memberDisclosureGroups[0]?.items.map((item) => item.href)).toEqual(["/beta", "/beta/connections", "/beta/analytics", "/beta/settings"]);
+    expect(memberDisclosureGroups[0]?.items.map((item) => item.href)).toEqual(["/beta", "/beta/connections", "/beta/analytics", "/beta/research", "/beta/settings"]);
     expect(memberDisclosureGroups).toHaveLength(1);
     expect(memberDisclosureGroups.flatMap((group) => group.items).map((item) => item.href)).not.toContain("/beta/ops/settings");
   });

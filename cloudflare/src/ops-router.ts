@@ -78,6 +78,8 @@ export type OpsEnv = {
   GOOGLE_OAUTH_CLIENT_SECRET?: string;
   GOOGLE_OAUTH_REDIRECT_URI?: string;
   ANALYTICS_TOKEN_ENCRYPTION_KEY?: string;
+  RESEARCH_RUNNER_URL?: string;
+  RESEARCH_RUNNER_TOKEN?: string;
 };
 
 type OpsDependencies = {

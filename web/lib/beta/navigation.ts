@@ -12,6 +12,7 @@ export type BetaNavigationDestination = {
 export const BETA_PROTECTED_DESTINATIONS: readonly BetaNavigationDestination[] = [
   { href: "/beta", edgePath: "/beta", capability: "beta:read", audiences: ["member", "operator", "admin", "super_admin"] },
   { href: "/beta/connections", edgePath: "/beta/connections", capability: "beta:read", audiences: ["member", "operator", "admin", "super_admin"] },
+  { href: "/beta/research", edgePath: "/beta/research", capability: "research:read", audiences: ["member", "operator", "admin", "super_admin"] },
   { href: "/beta/chat", edgePath: "/beta/chat", capability: "chat:read", audiences: ["member", "operator", "admin", "super_admin"] },
   { href: "/beta/settings", edgePath: "/beta/settings", capability: "beta:read", audiences: ["member", "operator", "admin", "super_admin"] },
   { href: "/beta/settings/account", edgePath: "/beta/settings/account", capability: "beta:read", audiences: ["member", "operator", "admin", "super_admin"] },

@@ -75,6 +75,19 @@ or reinterpreted; a later prerelease is published only after final acceptance.
 Cross-timeline alignment and synchronized uncut playback remain explicitly
 held; an approved Frame.io episode URL is not itself a timestamp mapping.
 
+## Research workspace (local source)
+
+The authenticated `/beta/research` page adds saved four-section briefs, source
+review, private notes with model consent, editing/version restore, section
+regeneration, read-only team sharing, Markdown export, and evidence-based
+follow-up questions. Research uses a private Python runner with GPT Researcher,
+Treg, and OpenRouter; it does not create another Ask WTF transcript corpus.
+
+Activation requires migration `0023_research.sql`, a running private research
+service, and server-side provider configuration. These source changes do not
+activate staging or production. See [runner setup and limitations](docs/RESEARCH-RUNNER.md)
+and the [research plan](WTF_OS_Research_Agent_Plan.md).
+
 ## Current production release
 
 The current production release is the WTF OS web app on `https://wtfhq.in` with

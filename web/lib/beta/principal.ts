@@ -46,6 +46,7 @@ export function parsePrincipalContext(value: unknown): PrincipalContext | null {
 
 export function principalCanAccess(context: PrincipalContext, pathname: string): boolean {
   if (pathname === "/beta" || pathname === "/beta/api/principal-context") return true;
+  if (pathname === "/beta/research") return context.capabilities.includes("research:read");
   if (context.kind === "member") {
     return betaChatPath.test(pathname) || [
       "/beta/analytics",
@@ -62,6 +63,7 @@ export function principalCanAccess(context: PrincipalContext, pathname: string):
 }
 
 export function capabilityForPath(pathname: string): string | null {
+  if (pathname === "/beta/research") return "research:read";
   if (pathname.startsWith("/beta/admin/release")) return "release:manage";
   if (pathname.startsWith("/beta/admin/users")) return "members:read";
   if (pathname.startsWith("/beta/admin/audit")) return "audit:read";

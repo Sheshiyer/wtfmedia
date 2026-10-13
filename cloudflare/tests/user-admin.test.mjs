@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { listUsers, manageUser } from '../src/user-admin.ts';
 import { resolvePrincipalContext } from '../src/auth/principal-context.ts';
 import { getOperatorByEmail } from '../src/db.ts';
+import { erasePendingResearchJobs } from '../src/research-erasure.ts';
 
 function database() {
   const sqlite = new DatabaseSync(':memory:');
@@ -76,6 +77,11 @@ test('confirmed deletion erases both complete history stores, survives provider 
   }
  }
  db.sqlite.exec("INSERT INTO chat_conversations (id, operator_id, title, created_at, updated_at) VALUES ('cnv_other_history', 1, 'Keep other user', 'now', 'now')");
+ const researchId = 'rbrief_' + crypto.randomUUID();
+ const runId = 'rrun_' + crypto.randomUUID();
+ db.sqlite.prepare('INSERT INTO research_briefs (id, member_id, revision, document_json, updated_at) VALUES (?, ?, 1, ?, ?)').run(researchId, mid, '{"notes":"Private notes"}', 'now');
+ db.sqlite.prepare('INSERT INTO research_versions (brief_id, revision, document_json, created_at) VALUES (?, 1, ?, ?)').run(researchId, '{"notes":"Old private notes"}', 'now');
+ db.sqlite.prepare('INSERT INTO research_runs (run_id, brief_id, payload_json) VALUES (?, ?, ?)').run(runId, researchId, '{"notes":"Runner notes"}');
  const input = { action: 'delete', email: identity.email, confirmEmail: identity.email };
  let calls = 0;
  const provider = async () => { calls++; return false; };
@@ -85,6 +91,13 @@ test('confirmed deletion erases both complete history stores, survives provider 
  for (const table of ['member_chat_messages', 'member_chat_conversations', 'member_saved_memories', 'chat_messages', 'saved_memories']) assert.equal(db.sqlite.prepare(`SELECT COUNT(*) AS n FROM ${table}`).get().n, 0, table);
  assert.equal(db.sqlite.prepare('SELECT COUNT(*) AS n FROM chat_conversations').get().n, 1);
  assert.equal((await listUsers(db)).find(u => u.email === identity.email).status, 'deletion_pending');
+ for (const table of ['research_briefs', 'research_versions', 'research_runs']) assert.equal(db.sqlite.prepare(`SELECT COUNT(*) AS n FROM ${table}`).get().n, 0, table);
+ assert.equal(db.sqlite.prepare('SELECT COUNT(*) AS n FROM research_erasure_jobs').get().n, 1);
+ const runnerEnv = { DB: db, OPS_ENVIRONMENT: 'local', RESEARCH_RUNNER_URL: 'http://localhost:8091', RESEARCH_RUNNER_TOKEN: 'fixture-token' };
+ assert.equal(await erasePendingResearchJobs(runnerEnv, identity.email, async()=>new Response('',{status:503})), false);
+ assert.equal(db.sqlite.prepare('SELECT COUNT(*) AS n FROM research_erasure_jobs').get().n, 1);
+ assert.equal(await erasePendingResearchJobs(runnerEnv, identity.email, async(url,init)=>{assert.equal(init.method,'DELETE');assert.equal(new URL(url).pathname, '/jobs/'+runId);return Response.json({deleted:true});}), true);
+ assert.equal(db.sqlite.prepare('SELECT COUNT(*) AS n FROM research_erasure_jobs').get().n, 0);
  assert.equal(await resolvePrincipalContext(db, identity, 'staging', 'corr-deleted-block'), null);
  assert.throws(() => db.sqlite.prepare('UPDATE operators SET active = 1 WHERE id = ?').run(oid), /deleted user/);
  assert.throws(() => db.sqlite.prepare("INSERT INTO member_chat_conversations (id, member_id, created_at, updated_at) VALUES ('mcnv_replay_attempt', ?, 'now', 'now')").run(mid), /deleted user/);

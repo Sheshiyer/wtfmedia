@@ -1,0 +1,16 @@
+{
+  "RETRIEVER": "custom",
+  "CONTEXT_FILTER": "none",
+  "FAST_LLM": "openai:z-ai/glm-5.3-flash",
+  "SMART_LLM": "openai:z-ai/glm-5.3-flash",
+  "STRATEGIC_LLM": "openai:z-ai/glm-5.3-flash",
+  "MAX_ITERATIONS": 2,
+  "MAX_SEARCH_RESULTS_PER_QUERY": 10,
+  "SMART_TOKEN_LIMIT": 3000,
+  "IMAGE_GENERATION_ENABLED": false,
+  "CURATE_SOURCES": false,
+  "MCP_SERVERS": [],
+  "MCP_STRATEGY": "disabled",
+  "LLM_KWARGS": {},
+  "VERBOSE": false
+}
