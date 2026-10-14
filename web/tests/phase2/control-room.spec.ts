@@ -44,12 +44,9 @@ for (const role of ["member", "admin"] as const) {
       await authenticate(page, role, environment);
       await page.goto("/beta/settings");
       const nav = await openNavigation(page);
-      await expect(nav.getByRole("link", { name: "youtube analytics", exact: true })).toHaveCount(environment === "production" ? 0 : 1);
-      if (environment === "production") {
-        await page.goto("/beta/analytics");
-        await expect(page.getByText("This page is not available.")).toBeVisible();
-        await expect(page.locator('iframe[src*="analytics-demo"]')).toHaveCount(0);
-      }
+      await expect(nav.getByRole("link", { name: "youtube analytics", exact: true })).toHaveCount(1);
+      await page.goto("/beta/analytics");
+      await expect(page.locator('iframe[src*="analytics-demo"]')).toHaveCount(1);
     });
   }
 }

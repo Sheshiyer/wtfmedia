@@ -5,20 +5,15 @@ import {
   memberDestinationForPath,
 } from "@/lib/member/navigation";
 import { readFileSync } from "node:fs";
-import { betaDestinationVisible } from "@/lib/beta/navigation";
 
 const appRail = readFileSync(new URL("../../components/shells/AppRail.tsx", import.meta.url), "utf8");
 
 describe("member workspace navigation", () => {
-  it("hides analytics in production while retaining local and staging access", () => {
-    for (const path of ["/beta/analytics", "/beta/settings/workspace/analytics"]) {
-      expect(betaDestinationVisible(path, "production")).toBe(false);
-      expect(betaDestinationVisible(path, "staging")).toBe(true);
-      expect(betaDestinationVisible(path, "local")).toBe(true);
-    }
-    expect(memberDisclosureGroups[0].items.filter((item) => betaDestinationVisible(item.href, "production")).map((item) => item.href))
-      .toEqual(["/beta", "/beta/connections", "/beta/research", "/beta/settings"]);
-    expect(betaDestinationVisible("/beta/chat", "production")).toBe(true);
+  it("allows the analytics page in production while retaining capability checks", () => {
+    const page = readFileSync(new URL("../../app/beta/analytics/page.tsx", import.meta.url), "utf8");
+    expect(page).not.toContain("principal.environment");
+    expect(page).toContain('principal.capabilities.includes("analytics:read")');
+    expect(memberDisclosureGroups[0].items.map((item) => item.href)).toContain("/beta/analytics");
   });
 
   it("keeps conversation routes under Ask WTF without marking Settings active", () => {

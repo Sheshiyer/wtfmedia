@@ -1,5 +1,22 @@
 # Project handoff
 
+## 2026-10-15 Production analytics promotion — deployed with verified smoke checks
+
+- Owner requested the current staging analytics in production before Research testing and separately approved production migrations/OAuth configuration. Reconciled newer October 12 reach fixes from PR #83 head `c510014` with the October 9 baseline. Isolated exact candidate `5518cd1536d0c93ba52dd6f0fba01dfc0e28dd43` excludes Research and enables production analytics navigation. Candidate is a detached local commit; no new delivery branch or push.
+- VERIFIED-SOURCE: 449 backend, 250 frontend unit, 97 contract tests, lint, privacy 0/415, architecture, Worker dry-run and OpenNext build pass. Verified compiled production Clerk public identity. No browser acceptance claimed.
+- Production migrations 0016–0022 applied and rechecked with no pending candidate migrations. Research 0023 excluded. Pre-migration recovery bookmark: `000001f6-00000000-00005104-1d71bb38360949bc65695ddb529f723b`. No user/history copying from staging. Production Google OAuth settings and fresh encryption key configured via protected stdin; callback is `https://wtfhq.in/beta/api/analytics/oauth/callback`. Google allowlist/consent remains unverified.
+- Production Edge `01bafaf1-9143-46de-974d-9e048c81ea6e` is at 100% traffic; health reports ok/production. Previous Edge `d3bd05e0-539e-4519-bee9-20326ac14077`. Existing corpus/ingest bindings preserved.
+- First Web candidate `7bdcc10a-c89f-4493-a313-fd1e5f214fcf` returned 500; immediately restored Web `28870a53-9cc0-49f6-8bea-2ea21b3e45b8` at 100%, and live sign-in returned 200. Diagnosis: production Web has no CLERK_SECRET_KEY binding. Existing local production key was independently verified against production public JWKS; the candidate returns 200 locally with that key supplied. Local runtime used compatibility date 2026-08-27 because installed workerd does not support deployed date 2026-08-29; deployed configuration is unchanged.
+- Owner explicitly approved adding the existing verified production Clerk key as server-only CLERK_SECRET_KEY on wtfmedia-web-beta. A separate secret upload was rejected by Cloudflare after rollback (10215), so the same candidate artifact and secret were deployed together. Final Web version `7234eb06-b50f-429c-8792-d3e170bc916a` serves wtfhq.in; readback verifies secret_text type and only production Edge/self service bindings. No Clerk key rotation or identity change.
+- Live smoke: root 307; sign-in, /beta/analytics, /beta/chat and assistant asset 200; unsigned principal, analytics status, saved investigations, assistant POST and OAuth-start POST 401. Live Clerk public identity matches clerk.wtfhq.in. Backend health remains ok/production. Authenticated YouTube consent/sync/chat and Google callback allowlist remain unverified; production needs its own admin channel connection. Staging and internal Alpha Web were not deployed. No branch push.
+
+## 2026-10-15 Production promotion preparation — blocked on Cloudflare access
+
+- Owner requested promoting the current staging version to production with YouTube Analytics, before testing Research. Use the live-verified staging source plus the analytics visibility change, excluding Research; the last recorded staging candidate is `ded0b4c8285996092bf4d3b410e8a52a5b268a89`, not a fresh live receipt.
+- Locally removed the production-only analytics visibility restriction in navigation/page and updated unit/browser expectations. Four focused navigation tests and web typecheck pass. Browser tests were not run.
+- Current Wrangler OAuth login has access to two accounts; read-only deployment lookups for `wtfmedia-edge-staging` return Worker-not-found (10007) in both. The required named-profile host Wrangler is unavailable. Correct WTF Media Cloudflare authentication is needed before live revision, production migration/provider/rollback checks and promotion.
+- No deployment, database mutation, credential change, commit or push occurred. Production remains unchanged. Research is committed separately at `c236792` and must not enter this promotion.
+
 ## 2026-10-13 Research workspace — local implementation
 
 - Owner approved the research plan and Research navigation entry, then explicitly deferred the Treg token and live testing. Work stays on `feature/pavun`; no push, deployment, shared migration, credentials or hosting changes.
