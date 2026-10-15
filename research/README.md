@@ -14,7 +14,7 @@ Verified supplied timing is preserved; page text is not silently called a
 transcript and no timestamps are inferred. Missing transcripts/timing are explicit.
 
 Offline source tests, including real upstream conduct/write with fake external
-adapters, are separate from live acceptance. The default `z-ai/glm-5.3-flash`
+adapters, are separate from live acceptance. The default `deepseek/deepseek-v4-flash-0731`
 model must pass the three-brief real trial after keys are supplied. No provider
 quality, endpoint availability, billing, full transcript coverage or Docker
 runtime acceptance is claimed from fake tests.

@@ -29,6 +29,8 @@ class RecordingCalls:
         if len(encoded) > 90000:
             raise AssertionError('oversized context')
         self.models.append(encoded)
+        if 'Write the ' in encoded and max_tokens != 12000:
+            raise AssertionError('Report writer must receive the full 12000-token budget')
         if 'Resolve the public entity' in encoded:
             return '{"clarification":null}'
         if 'Extract numeric claims' in encoded:

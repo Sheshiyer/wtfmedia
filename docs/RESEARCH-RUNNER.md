@@ -178,7 +178,7 @@ provider boundary that still needs real validation.
 Follow-up body: `{question,messages,sections,sources,notes,notesApproved}`;
 messages contain only `user`/`assistant` roles. Bounds: title 400 characters,
 notes 12,000; four sections at 24,000 content characters each; 80 sources at
-12,000 excerpt characters each; question 2,000; last 12 messages at 6,000 each.
+12,000 excerpt characters each; question 2,000; last 12 messages at 12,000 each.
 Model context separately selects relevance-ranked verbatim excerpt slices and
 bounded notes, previous sections and recent messages. Full accepted evidence stays
 in the job. These byte bounds prevent a growing source set from overflowing every
@@ -238,8 +238,13 @@ each research tier has two durable attempts, and completed tiers survive restart
 The global admission limit is 100 queued/running jobs; duplicate replay precedes it.
 
 `budgetMicro` is at most 5,000,000. Search reserves 5,000 micro-USD, extraction 1,000,
-and a model request 250,000. Model requests are limited to 90 KB input and 3,000
-output tokens, with provider price ceilings of $1/m prompt and $10/m completion
+and a model request 250,000. Model requests are limited to 90 KB input and 12,000
+output tokens with the same low reasoning effort as Ask WTF. Report writing receives
+the full 12,000-token allowance; shorter planning and follow-up calls retain their
+existing limits. A response ending because of the token limit is rejected as
+truncated rather than saved as a complete answer. Keep-alive response
+chunks cannot extend the 600-second response deadline (an idle read is separately
+bounded to 45 seconds). Requests use provider price ceilings of $1/m prompt and $10/m completion
 tokens and no per-request fee. Provider fallback is disabled, supported parameters
 are required, and data collection is denied. These are conservative local holds
 and requested provider constraints, not an independently tested billing guarantee.
@@ -280,7 +285,7 @@ provisioned or changed here.
 
 ## Remaining live acceptance
 
-The default **`z-ai/glm-5.3-flash` must pass the real three-brief trial** before product
+The default **`deepseek/deepseek-v4-flash-0731` must pass the real three-brief trial** before product
 acceptance: availability through the specified provider constraints, planning JSON,
 editorial usefulness, real citation support, extraction coverage, numeric comparison,
 latency, cancellation and settled billing. This source delivery intentionally makes

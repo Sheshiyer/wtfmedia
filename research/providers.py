@@ -7,6 +7,7 @@ import re
 import ipaddress
 import socket
 import threading
+import time
 from decimal import Decimal, ROUND_CEILING
 from uuid import uuid4
 
@@ -17,7 +18,7 @@ from .contracts import safe_url
 from urllib.parse import urlsplit
 from .store import BudgetExceeded, Stopped, digest, encode
 
-MODEL = 'z-ai/glm-5.3-flash'
+MODEL = 'deepseek/deepseek-v4-flash-0731'
 TOOL = 'perplexity.web.search'
 EXTRACT = 'exa.web.contents.get'
 TOOL_RESERVE = 5000
@@ -50,10 +51,13 @@ def redact(value):
 class Network:
     def request(self, method, url, headers, body=None):
         try:
+            deadline = time.monotonic() + 600
             with httpx.Client(timeout=45, follow_redirects=False, trust_env=False) as client:
                 with client.stream(method, url, headers=headers, json=body) as response:
                     data = bytearray()
                     for chunk in response.iter_bytes():
+                        if time.monotonic() > deadline:
+                            raise ProviderError('provider deadline exceeded')
                         data.extend(chunk)
                         if len(data) > MAX_RESPONSE:
                             raise ProviderError('provider response too large')
@@ -195,8 +199,10 @@ class Calls:
             self.stage_calls += 1
             payload, _ = self.network.request('POST', 'https://openrouter.ai/api/v1/chat/completions', {
                 'Authorization': 'Bearer ' + os.environ.get('OPENROUTER_API_KEY', ''),
-            }, {'model': MODEL, 'messages': messages, 'max_tokens': min(max_tokens or 1800, 3000),
+            }, {'model': MODEL, 'messages': messages, 'max_tokens': min(max_tokens or 1800, 12000),
                 'temperature': 0.2, 'stream': False,
+                # Low effort leaves room in the completion budget for the answer.
+                'reasoning': {'effort': 'low'},
                 'provider': {'allow_fallbacks': False, 'require_parameters': True,
                              'data_collection': 'deny',
                              'max_price': {'prompt': 1, 'completion': 10, 'request': 0}},
@@ -212,7 +218,10 @@ class Calls:
             if billed is not None and billed > MODEL_RESERVE:
                 raise BudgetExceeded('provider exceeded reservation')
             try:
-                answer = payload['choices'][0]['message']['content']
+                choice = payload['choices'][0]
+                if choice.get('finish_reason') == 'length':
+                    raise ProviderError('model output truncated')
+                answer = choice['message']['content']
             except (KeyError, IndexError, TypeError):
                 raise ProviderError('invalid model response') from None
             if not isinstance(answer, str) or not answer.strip():

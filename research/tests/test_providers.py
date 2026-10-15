@@ -4,9 +4,9 @@ from pathlib import Path
 import socket
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
-from research.providers import Calls, EXTRACT, MODEL, TOOL, ProviderError, redact
+from research.providers import Calls, EXTRACT, MODEL, TOOL, ProviderError, redact, Network as ProviderNetwork
 from research.store import BudgetExceeded, Store, Stopped
 from research.tests.test_runner import body, source
 
@@ -46,6 +46,15 @@ class ProviderTests(unittest.TestCase):
         self.calls = Calls(self.store,*self.claim[:2],network=self.net)
     def tearDown(self):
         self.tmp.cleanup()
+    def test_keepalive_chunks_do_not_extend_provider_deadline(self):
+        response = MagicMock(status_code=200)
+        response.iter_bytes.return_value = iter([b' ', b' '])
+        client = MagicMock()
+        client.__enter__.return_value.stream.return_value.__enter__.return_value = response
+        with patch('research.providers.httpx.Client', return_value=client), patch('research.providers.time.monotonic', side_effect=[0, 60, 601]):
+            with self.assertRaisesRegex(ProviderError, 'provider deadline exceeded'):
+                ProviderNetwork().request('GET', 'https://treg.to/catalog', {})
+
     def test_search_contract_cache_and_receipt(self):
         found = self.calls.search('Public query')
         self.assertEqual(found,self.calls.search('Public query'))
@@ -95,16 +104,29 @@ class ProviderTests(unittest.TestCase):
             with self.assertRaises(ProviderError): self.calls.extract(source())
         self.assertEqual(self.net.requests,[])
     def test_model_receipt_bounds_and_unknown_cost(self):
-        self.calls.model([{'role':'user','content':'Public question'}],8000)
+        self.calls.model([{'role':'user','content':'Public question'}],16000)
         paid = self.net.requests[-1][3]
         self.assertEqual(paid['model'],MODEL)
-        self.assertEqual(paid['max_tokens'],3000)
+        self.assertEqual(MODEL,'deepseek/deepseek-v4-flash-0731')
+        self.assertEqual(paid['max_tokens'],12000)
+        self.assertEqual(paid['reasoning'],{'effort':'low'})
         self.assertFalse(paid['provider']['allow_fallbacks'])
         self.assertEqual(paid['provider']['max_price'],{'prompt':1,'completion':10,'request':0})
         self.assertEqual(self.store.get(self.claim[0])['cost']['modelUsd'],0.000025)
         self.net.model_cost = None
         self.calls.model([{'role':'user','content':'Another public question'}])
         self.assertIsNone(self.store.get(self.claim[0])['cost']['modelUsd'])
+    def test_truncated_model_output_is_not_accepted_as_complete(self):
+        original = self.net.request
+        def truncated(*args, **kwargs):
+            payload, headers = original(*args, **kwargs)
+            payload['choices'][0]['finish_reason'] = 'length'
+            return payload, headers
+        self.net.request = truncated
+        with self.assertRaisesRegex(ProviderError, 'model output truncated'):
+            self.calls.model([{'role':'user','content':'Public question'}])
+        self.assertEqual(self.store.get(self.claim[0])['cost']['modelUsd'],0.000025)
+
     def test_unknown_tool_cost_warning(self):
         self.net.cost = None
         self.calls.search('Public')
