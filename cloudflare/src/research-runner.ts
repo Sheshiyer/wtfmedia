@@ -3,11 +3,12 @@ export type ResearchRunnerEnv = {
     RESEARCH_RUNNER_URL?: string;
     RESEARCH_RUNNER_TOKEN?: string;
     OPS_ENVIRONMENT?: string;
+    DEPLOYMENT_ENVIRONMENT?: string;
 };
 export function researchConfigured(env: ResearchRunnerEnv): boolean {
     try {
         const u = new URL(env.RESEARCH_RUNNER_URL || '');
-        return !!env.RESEARCH_RUNNER_TOKEN && !u.username && !u.password && !u.search && !u.hash && (u.protocol === 'https:' || (env.OPS_ENVIRONMENT === 'local' && u.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(u.hostname)));
+        return !!env.RESEARCH_RUNNER_TOKEN && !u.username && !u.password && !u.search && !u.hash && (u.protocol === 'https:' || ((env.OPS_ENVIRONMENT === 'local' || env.DEPLOYMENT_ENVIRONMENT === 'local') && u.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(u.hostname)));
     }
     catch {
         return false;
@@ -17,7 +18,7 @@ export async function researchRunner(env: ResearchRunnerEnv, path: string, metho
     if (!researchConfigured(env))
         throw new ResearchError(503, 'research_not_configured');
     try {
-        const response = await fetchRunner(env.RESEARCH_RUNNER_URL!.replace(/\/$/, '') + path, { method, headers: { authorization: `Bearer ${env.RESEARCH_RUNNER_TOKEN}`, 'content-type': 'application/json' }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}), redirect: 'error', signal: AbortSignal.timeout(path === '/chat' ? 100000 : 20000) });
+        const response = await fetchRunner(env.RESEARCH_RUNNER_URL!.replace(/\/$/, '') + path, { method, headers: { authorization: `Bearer ${env.RESEARCH_RUNNER_TOKEN}`, 'content-type': 'application/json' }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}), redirect: 'manual', signal: AbortSignal.timeout(path === '/chat' ? 100000 : 20000) });
         if (method === 'DELETE' && response.status === 404)
             return {};
         if (response.status === 422 || response.status === 400)

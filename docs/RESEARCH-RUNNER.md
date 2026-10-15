@@ -44,7 +44,11 @@ document:
 
 - `RESEARCH_RUNNER_TOKEN`: shared only with the trusted backend adapter.
 - `TREG_TOKEN`: org-scoped Treg API token.
-- `OPENROUTER_API_KEY`: existing approved OpenRouter key.
+- `OMNIROUTE_BASE_URL` and `OMNIROUTE_API_KEY`: optional paired server-only settings.
+  The base URL includes the API prefix (normally `/v1`) and must use HTTPS.
+  When present, Research uses the verified `noesis-research` route. Incomplete
+  settings fail closed; request failures do not fall back to OpenRouter.
+- `OPENROUTER_API_KEY`: used only when neither OmniRoute setting is present.
 - Optional `RESEARCH_RUNNER_DB`: defaults to `research/.state/runner.sqlite`.
 
 Run the loopback service:
@@ -53,8 +57,8 @@ Run the loopback service:
 research/.venv/bin/python -m research.serve
 ```
 
-If the three values already live in the owner's existing ignored
-`cloudflare/.dev.vars`, this explicit alternative reads **only those three keys**
+If these values already live in the owner's existing ignored
+`cloudflare/.dev.vars`, this explicit alternative reads **only the five provider/auth settings listed above**
 into the runner process. Existing environment values win. It does not shell-source
 the file, interpolate references, copy it, print values, or load Clerk/D1 values:
 
@@ -62,7 +66,7 @@ the file, interpolate references, copy it, print values, or load Clerk/D1 values
 research/.venv/bin/python -m research.serve --provider-vars cloudflare/.dev.vars
 ```
 
-The file is not read automatically. This delivery did not read it. Add the runner
+The file is not read automatically. Add the runner
 and Treg tokens through the owner's local secret workflow when available; do not
 paste them into chat. Launching without provider keys is allowed for health and
 cleanup, but new jobs and chat return 503. No automatic provider probe runs at
@@ -78,7 +82,7 @@ The frontend uses `/beta/api/research` through the existing authenticated web-to
 proxy. It never calls the Python service directly. The Edge environment needs:
 
 - `RESEARCH_RUNNER_URL`: the private service origin. A local service uses
-  `http://localhost:8080` with `OPS_ENVIRONMENT=local`; deployed environments require HTTPS.
+  `http://127.0.0.1:8080` with `DEPLOYMENT_ENVIRONMENT=local` (or `OPS_ENVIRONMENT=local`); deployed environments require HTTPS. The local Wrangler environment keeps `OPS_ENVIRONMENT=staging` for staging admission records.
 - `RESEARCH_RUNNER_TOKEN`: the same private adapter token supplied to the runner.
 
 Migration `cloudflare/migrations/0023_research.sql` must be applied to the intended
@@ -110,6 +114,7 @@ docker run --rm --name wtf-research-runner \
   -p 127.0.0.1:8080:8080 \
   --mount type=volume,source=wtf-research-private,target=/data \
   -e RESEARCH_RUNNER_TOKEN -e TREG_TOKEN -e OPENROUTER_API_KEY \
+  -e OMNIROUTE_BASE_URL -e OMNIROUTE_API_KEY \
   wtf-research-runner:local
 ```
 
@@ -187,18 +192,14 @@ subsequent tier. No model-generated follow-up answer is promoted into evidence.
 ## Research, evidence and cost behavior
 
 GPT Researcher owns query planning, research conduction and report writing. The
-runner supplies lifecycle/checkpoints, its Treg retriever and a budgeted OpenRouter
+runner supplies lifecycle/checkpoints, its Treg retriever and a budgeted model
 completion adapter. It does not implement a replacement research engine.
 
-After entity clarification, shared discovery tries three public appearance queries.
-Each independently retried tier uses GPTR's planner (at most two subqueries plus
-the original), accumulated sources and up to four raw page extractions. The Snacks
-section lists up to eight candidate appearances with a target of five when found;
-fewer results are explicitly reported. Search hits are **appearance leads**, not
-proof that a guest attended. A page extract is not a transcript. Automatic ASR,
-exhaustive Spotify/Apple discovery and dedicated caption retrieval are not implemented;
-missing transcript/timing coverage is explicit. Supplied verified timing is retained,
-never inferred from prose.
+After clarification, shared discovery uses the full public request for background,
+industry/competitors and recent developments. GPTR plans up to two subqueries per
+section and extracts up to four pages. Reports cover guest background, company and
+industry, competitors and interview preparation. No episode ID or uploaded file is
+required or offered; optional approved notes remain available.
 
 Two allowlisted, synchronous, read-only Treg endpoints are used:
 
@@ -212,12 +213,9 @@ The checked receipt is `research/catalog-receipt.json`; contract changes fail cl
 Private notes never enter search, including GPTR planning. Approved notes enter only
 report writing and follow-up; unapproved notes are withheld from every provider.
 
-The current Alpha public chat interface provides validated citation/moment references,
-**not raw transcript extracts**. Empty `alpha_reference` sources remain in the source
-list for discovery and cannot support facts. Neither an Alpha generated answer nor
-any provider summary is treated as transcript evidence. Independent permitted
-extraction can add actual raw page evidence under the existing source ID without
-inventing timing. This is limited public API coverage, not full Alpha research access.
+Research does not call Alpha episode retrieval. Legacy Alpha references remain
+readable in old briefs but are excluded from new runner submissions. Public videos
+may still be cited if Treg returns relevant supporting evidence.
 
 Output citations must use retained supporting source IDs. Unknown IDs, arbitrary
 model links and HTML are removed. Generated synthesis is visibly marked unverified:
@@ -233,24 +231,31 @@ Before each paid call, SQLite durably reserves budget in one transaction. Treg c
 carry a stable idempotency key and route max-cost header; tool responses/receipts are
 cached privately. Retries retain reservations and use the same key; at most two
 attempts for the same tool payload. Model retries receive distinct reservations
-because OpenRouter replay is not assumed free. Each stage caps paid attempts at 12,
+because model replay is not assumed free. Each stage caps paid attempts at 12,
 each research tier has two durable attempts, and completed tiers survive restarts.
 The global admission limit is 100 queued/running jobs; duplicate replay precedes it.
 
 `budgetMicro` is at most 5,000,000. Search reserves 5,000 micro-USD, extraction 1,000,
 and a model request 250,000. Model requests are limited to 90 KB input and 12,000
-output tokens with the same low reasoning effort as Ask WTF. Report writing receives
+output tokens. Direct OpenRouter calls use low reasoning effort. Report writing receives
 the full 12,000-token allowance; shorter planning and follow-up calls retain their
 existing limits. A response ending because of the token limit is rejected as
 truncated rather than saved as a complete answer. Keep-alive response
 chunks cannot extend the 600-second response deadline (an idle read is separately
-bounded to 45 seconds). Requests use provider price ceilings of $1/m prompt and $10/m completion
+bounded to 45 seconds for Treg/direct OpenRouter; OmniRoute
+model requests use streaming transport with a 600-second read window, with a 45-second connection
+timeout). Direct OpenRouter requests use provider price ceilings of $1/m prompt and $10/m completion
 tokens and no per-request fee. Provider fallback is disabled, supported parameters
 are required, and data collection is denied. These are conservative local holds
 and requested provider constraints, not an independently tested billing guarantee.
 Unknown/timeout charges keep their full reservation; the runner can stop before the
 nominal budget is fully consumed. Configure provider account spend caps separately
-when setup is approved.
+when setup is approved. OmniRoute owns its upstream routing, fallback, privacy and
+pricing policies; OpenRouter-specific controls are not sent to it. Its model catalog
+advertises `noesis-research` as a combo, so the actual model can change server-side.
+Streaming is assembled server-side and requires a finish marker; incomplete or
+malformed streams are rejected. Token-only usage does not establish dollar cost: reservations remain and modelUsd
+is null without a cost receipt. The local reservation is not a gateway price cap.
 
 `cost.toolMicro` is recorded charge plus reserved estimates for missing receipts;
 GET includes **"Tool cost includes reserved estimates where receipts unavailable"**
@@ -285,7 +290,8 @@ provisioned or changed here.
 
 ## Remaining live acceptance
 
-The default **`deepseek/deepseek-v4-flash-0731` must pass the real three-brief trial** before product
+The selected route (**`noesis-research` via OmniRoute**, or direct OpenRouter
+`deepseek/deepseek-v4-flash-0731` when OmniRoute is absent) **must pass the real three-brief trial** before product
 acceptance: availability through the specified provider constraints, planning JSON,
 editorial usefulness, real citation support, extraction coverage, numeric comparison,
 latency, cancellation and settled billing. This source delivery intentionally makes

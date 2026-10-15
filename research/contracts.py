@@ -9,10 +9,10 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 Tier = Literal['snacks', 'appetizers', 'main', 'desserts']
 TIERS = {
-    'snacks': ('Snacks', 'Background, biography, decisions and prior podcast appearances'),
-    'appetizers': ('Appetizers', 'Industry structure, primary statistics, competitors and debates'),
-    'main': ('Main course', 'Practical opportunities, barriers and skills for young Indians'),
-    'desserts': ('Desserts', 'Takeaways, uncertainties, outlook and useful interview questions'),
+    'snacks': ('Guest background', 'Background, biography and major decisions of the people named in the request'),
+    'appetizers': ('Company and industry', 'Company strategy, industry structure, primary statistics and recent developments'),
+    'main': ('Competitive landscape', 'Named competitors, evidence-based comparisons, risks and debates relevant to the request'),
+    'desserts': ('Interview preparation', 'Takeaways, uncertainties, outlook and useful interview questions'),
 }
 
 

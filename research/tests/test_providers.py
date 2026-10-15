@@ -46,6 +46,81 @@ class ProviderTests(unittest.TestCase):
         self.calls = Calls(self.store,*self.claim[:2],network=self.net)
     def tearDown(self):
         self.tmp.cleanup()
+    def test_omniroute_routes_only_model_calls_and_keeps_unknown_cost(self):
+        original = self.net.request
+        def gateway(method, url, headers, body=None):
+            if url == 'https://gateway.example/v1/chat/completions':
+                self.assertEqual(headers['Authorization'], 'Bearer omni-test-secret')
+                self.assertEqual(body['model'], 'noesis-research')
+                self.assertTrue(body['stream'])
+                self.assertNotIn('provider', body)
+                self.assertNotIn('usage', body)
+                return {'choices': [{'finish_reason': 'stop', 'message': {'content': 'Answer'}}],
+                        'usage': {'total_tokens': 20}}, {}
+            return original(method, url, headers, body)
+        self.net.request = gateway
+        with patch.dict(os.environ, {'OMNIROUTE_BASE_URL': 'https://gateway.example/v1/',
+                                     'OMNIROUTE_API_KEY': 'omni-test-secret'}):
+            self.assertEqual(self.calls.model([{'role': 'user', 'content': 'Public'}]), 'Answer')
+            self.assertIsNone(self.store.get(self.claim[0])['cost']['modelUsd'])
+            self.assertEqual(redact({'text': 'omni-test-secret'}), {'text': '[redacted]'})
+            self.calls.search('Public query')
+            self.assertTrue(self.net.requests[-1][1].startswith('https://treg.to/'))
+
+    def test_incomplete_or_unsafe_gateway_fails_before_network(self):
+        for url, key in [('https://gateway.example/v1', ''), ('', 'secret'),
+                         ('http://gateway.example/v1', 'secret'),
+                         ('https://user:pass@gateway.example/v1', 'secret'),
+                         ('https://gateway.example/v1?key=secret', 'secret')]:
+            with self.subTest(url=url), patch.dict(os.environ, {
+                    'OMNIROUTE_BASE_URL': url, 'OMNIROUTE_API_KEY': key}):
+                with self.assertRaises(ProviderError):
+                    self.calls.model([{'role': 'user', 'content': 'Public'}])
+        self.assertEqual(self.net.requests, [])
+
+    def test_launcher_loads_gateway_settings_without_unrelated_secrets(self):
+        from research.serve import load_provider_vars
+        from research.providers import configured, model_name
+        path = Path(self.tmp.name) / 'vars'
+        path.write_text('OMNIROUTE_BASE_URL=https://gateway.example/v1\n'
+                        'OMNIROUTE_API_KEY=omni-test-secret\nTREG_TOKEN=treg-test\n'
+                        'RESEARCH_RUNNER_TOKEN=runner-test\nUNRELATED_SECRET=hidden\n')
+        with patch.dict(os.environ, {}, clear=True):
+            load_provider_vars(path)
+            self.assertEqual(os.environ['OMNIROUTE_API_KEY'], 'omni-test-secret')
+            self.assertEqual(model_name(), 'noesis-research')
+            self.assertTrue(configured())
+            self.assertNotIn('UNRELATED_SECRET', os.environ)
+
+    def test_gateway_stream_requires_finished_text_and_preserves_usage(self):
+        from research.providers import stream_response
+        events = [
+            {'id': 'gen-test', 'choices': [{'delta': {'content': 'Hello '}, 'finish_reason': None}]},
+            {'choices': [{'delta': {'content': 'world'}, 'finish_reason': 'stop'}]},
+            {'choices': [], 'usage': {'total_tokens': 7}},
+        ]
+        raw = ''.join('data: ' + json.dumps(e) + '\n\n' for e in events).encode()
+        result = stream_response(raw + b'data: [DONE]\n\n')
+        self.assertEqual(result['choices'][0]['message']['content'], 'Hello world')
+        self.assertEqual(result['usage'], {'total_tokens': 7})
+        self.assertEqual(result['id'], 'gen-test')
+        for invalid in [b'data: {broken}\n', b'data: [DONE]\n',
+                        b'data: {"error":{"message":"private"}}\n',
+                        b'data: {"choices":[{"delta":{"content":"partial"}}]}\n']:
+            with self.assertRaises(ProviderError):
+                stream_response(invalid)
+
+    def test_gateway_report_has_full_read_window(self):
+        response = MagicMock(status_code=200)
+        response.iter_bytes.return_value = iter([b'{}'])
+        client = MagicMock()
+        client.__enter__.return_value.stream.return_value.__enter__.return_value = response
+        with patch.dict(os.environ, {'OMNIROUTE_BASE_URL': 'https://gateway.example/v1'}), \
+                patch('research.providers.httpx.Client', return_value=client) as factory:
+            ProviderNetwork().request('POST', 'https://gateway.example/v1/chat/completions', {})
+            self.assertEqual(factory.call_args.kwargs['timeout'].read, 600)
+            self.assertEqual(factory.call_args.kwargs['timeout'].connect, 45)
+
     def test_keepalive_chunks_do_not_extend_provider_deadline(self):
         response = MagicMock(status_code=200)
         response.iter_bytes.return_value = iter([b' ', b' '])

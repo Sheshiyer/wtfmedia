@@ -1,4 +1,47 @@
+## 2026-10-15 — Pre-shoot research scope and simplified inputs
+
+- Local source only: removed YouTube ID and file upload controls from new and saved briefs; retained optional consented notes and legacy DTO compatibility.
+- New runner submissions exclude legacy Alpha references and no longer call Alpha episode retrieval. Treg discovery preserves the full guest/company/competitor request; four sections now cover background, company/industry, competitors and interview preparation.
+- Shared report renderer uses numbered source links, horizontally scrollable evidence tables, and collapsed numeric-audit details. Existing stored reports are unchanged; new research is needed to regenerate content.
+- VERIFIED-SOURCE: 47 Python tests, 25 frontend research tests, backend research test entry, web typecheck and focused lint pass. Architecture ledger refreshed. No deployment or new live provider run performed for this change.
+
 # Project handoff
+
+## 2026-10-15 Research history semantics and scroll header
+
+- Owner reported two versions before report generation. Existing draft creation and queued-run saves each increment the optimistic-lock revision. Preserved internal revisions/history for concurrency and recovery, but history listings now include only completed/partial snapshots with nonempty findings. Removed internal revision counters from the sidebar/header; visible saved entries use their timestamps. Mutation receipts add history entries under the same conditions.
+- Research-only AppRail now has an opaque canvas background, bottom border/padding and corresponding shell top clearance; other routes retain their existing header presentation.
+- Focused backend Research tests and 24 frontend Research tests pass; typecheck passes. Added regression for zero history entries during initial generation and one stable entry after findings save. No migrations, deployment, push or browser visual acceptance.
+
+## 2026-10-15 Research optional-input layout
+
+- Owner requested tidier YouTube ID and upload fields. Made the ID a fixed-height compact field in a top-aligned narrow column; grouped notes, styled native file upload, file limits and consent in the wider column, stacking on mobile. Existing import validation, replace confirmation and consent behavior remain. Local-only styling update; no deployment or browser visual acceptance.
+
+## 2026-10-15 Research availability and workspace layout fix
+
+- Owner saw Research unavailable despite a healthy runner. Reproduced exact root cause in installed workerd: fetch rejects redirect:error before network access. Changed the shared Research adapter to redirect:manual; non-2xx (including redirects) still fail closed. Actual local backend adapter health now returns configured:true. Temporary diagnostic code was removed; no new public diagnostic or auth bypass remains.
+- Reorganized Research into a full-width new-brief form, separate saved-brief sidebar, and results area with section descriptions. Preserved existing design tokens, note consent and permissions. Added explicit Retry connection and 30-second unavailable-state recovery checks with timer cleanup.
+- Both backend Research test files and 24 frontend Research tests pass, including redirect rejection, outage retry and timer cleanup. Local browser visual and signed-in full creation flow remain unverified; no Playwright, push or deployment.
+
+## 2026-10-15 Local Clerk redirect correction
+
+- Local frontend had production Clerk keys in ignored .env.local while the backend used staging identity. Production handshake rejected the localhost redirect. Reused the existing staging key pair from ignored web provider vars in the local frontend and restarted Next; no Clerk dashboard, deployed credentials or production changes. Signed-in browser retry remains for the owner.
+
+## 2026-10-15 Local Research services and staging persistence
+
+- Owner requested all local services and previously authorized applying Research persistence to staging. Applied sole pending migration 0023_research.sql to existing wtfmedia-ops-staging; readback reports no pending migrations. Recovery bookmark: 0000017d-00000000-00005105-616e5c084924caaba6c11edd2cc8cf79. No new application database, deployed code or production mutation.
+- Runner uses ignored local provider vars and loopback port 8080; private token generated locally. Next starts on localhost:3000 with WTFMEDIA_EDGE_LOCAL_ORIGIN=http://localhost:8787. Backend uses --env local and both --env-file .dev.vars and --env-file .dev.vars.local, retaining staging D1/admission settings while loading the private runner credentials. No private credentials were added to the tracked local settings file.
+- Installed workerd supports only compatibility date 2026-06-02, so local startup uses that CLI override and --persist-to .wrangler/research-local-state to avoid incompatible old runtime cache. Deployed compatibility settings and old cache are unchanged. This runtime mismatch limits local/deployed parity.
+- Fixed Research localhost allowance to also recognize DEPLOYMENT_ENVIRONMENT=local, while preserving OPS_ENVIRONMENT=staging for admission. Loopback-only HTTP restriction remains; deployed staging HTTP and local non-loopback HTTP are rejected. Both focused backend Research test files pass. Signed-in browser flow remains for owner testing.
+
+## 2026-10-15 Research OmniRoute integration — local only
+
+- Owner supplied OmniRoute base URL/key in ignored local provider vars and authorized using it for Research. Read-only authenticated catalog returned 5,324 advertised IDs/aliases, including the noesis-research combo. A short request succeeded in 5.6 seconds and reported claude-sonnet-5-5. Catalog presence does not prove every advertised model works; combo routing can change remotely.
+- Research loader accepts only its five provider/auth settings. Paired OmniRoute settings select noesis-research for all Research generation; incomplete/unsafe configuration fails closed, with no request-time OpenRouter fallback. With neither setting supplied, prior direct OpenRouter behavior remains. Treg search/extraction and Ask WTF/analytics are unchanged. No host router configuration, credentials, shared persistence, deployment, commit or push was changed.
+- OmniRoute owns upstream routing/privacy/pricing; OpenRouter-specific options are not sent. Token-only receipts leave modelUsd null and preserve conservative local reservations, which are not a gateway billing cap. Key redaction includes OmniRoute.
+- Initial real section attempts failed with generic provider-unavailable errors; the precise upstream cause was not captured. A separate long-answer probe succeeded in 33 seconds. Non-streaming OmniRoute model calls now permit the existing 600-second generation/read window instead of the generic 45-second idle read. Connect timeout remains 45 seconds; Treg/direct OpenRouter keep their previous idle behavior.
+- Reports use OmniRoute streaming transport, assembled server-side into the existing response contract. Incomplete/error/malformed streams fail closed and token-limit finishes still reject truncated answers. A second non-streaming section trial also failed after the longer read allowance; no exact upstream cause is claimed.
+- VERIFIED-SOURCE: 46 runner tests pass, including real pinned GPTR compatibility with fake external adapters, gateway selection, secret loading/redaction, invalid paired settings, unknown costs, stream completeness and gateway timeout. Live streaming section completed in 141 seconds with 47 retained sources, including real Treg search/extraction, report generation and numeric-review stage. Recorded tool charges were 34,000 micro-USD; modelUsd remains unknown. Earlier non-streaming failures are separate attempts, not included in that successful-run charge. Architecture check passes with 723 inputs; diff check passes. No full-four-section, follow-up, browser or production acceptance claim.
 
 ## 2026-10-15 DeepSeek V4 research trial — not accepted for deployment
 

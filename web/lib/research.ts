@@ -12,10 +12,10 @@ export type ResearchBrief = ResearchSummary & {
 export type ResearchVersion = { revision: number; createdAt: string };
 export type ResearchDraft = Pick<ResearchBrief, "revision" | "title" | "notes" | "episodeId" | "shared" | "sections"> & { notesApproved: boolean };
 export const RESEARCH_SECTIONS: ReadonlyArray<{ key: ResearchSectionKey; title: string; description: string }> = [
-  { key: "snacks", title: "Snacks", description: "Background and the story so far" },
-  { key: "appetizers", title: "Appetizers", description: "Industry context and the bigger picture" },
-  { key: "main", title: "Main course", description: "Opportunities for young Indians" },
-  { key: "desserts", title: "Desserts", description: "Takeaways and what comes next" },
+  { key: "snacks", title: "Guest background", description: "Background and the story so far" },
+  { key: "appetizers", title: "Company and industry", description: "Industry context and the bigger picture" },
+  { key: "main", title: "Competitive landscape", description: "Competitors, comparisons and risks" },
+  { key: "desserts", title: "Interview preparation", description: "Takeaways and what comes next" },
 ];
 export const RESEARCH_NOTES_LIMIT = 12_000;
 export function researchIsRunning(status: ResearchStatus) { return status === "queued" || status === "running"; }

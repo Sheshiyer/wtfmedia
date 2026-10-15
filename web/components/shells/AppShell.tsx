@@ -44,7 +44,7 @@ export function AppShell({
           className={[
             "relative min-h-screen",
             needsStickyWorkspace ? "overflow-x-clip" : "overflow-hidden",
-            betaChatSurface ? "" : "pt-[calc(4.5rem+env(safe-area-inset-top))]",
+            betaChatSurface ? "" : pathname === "/beta/research" ? "pt-[calc(6rem+env(safe-area-inset-top))]" : "pt-[calc(4.5rem+env(safe-area-inset-top))]",
             hideBottomDock ? "" : "pb-28 sm:pb-24",
           ].join(" ")}
         >

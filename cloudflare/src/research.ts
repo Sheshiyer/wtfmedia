@@ -1,10 +1,8 @@
 import type { DB } from './db.ts';
-import { readAlphaResearchEvidence } from './research-alpha.ts';
 import { boundedText, bounded, sectionsValid, validatedResult, ResearchError, tiers, type ResearchDocument } from './research-contract.ts';
 import { researchAvailable, researchRunner, deleteResearchRun, type ResearchRunnerEnv } from './research-runner.ts';
 type Env = ResearchRunnerEnv & {
     DB: DB;
-    WTFMEDIA_ALPHA_WEB?: Parameters<typeof readAlphaResearchEvidence>[0]['WTFMEDIA_ALPHA_WEB'];
 };
 type Row = {
     id: string;
@@ -92,8 +90,7 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
             if (tiers.includes(priorSection)) section = priorSection;
         }
         const runId = 'rrun_' + crypto.randomUUID();
-        const alpha = await readAlphaResearchEvidence(env, doc.title, doc.episodeId ?? undefined);
-        const payload = { id: runId, title: doc.title, notes: doc.notes, notesApproved: doc.notesApproved, section, clarification: input.clarification ?? null, sections: doc.sections, sources: [...doc.sources, ...alpha].filter((s, i, a) => a.findIndex(v => v.id === s.id) === i).slice(0, 80), budgetMicro: 5000000 };
+        const payload = { id: runId, title: doc.title, notes: doc.notes, notesApproved: doc.notesApproved, section, clarification: input.clarification ?? null, sections: doc.sections, sources: doc.sources.filter(s => s.kind !== 'alpha_reference').slice(0, 80), budgetMicro: 5000000 };
         const saved = await save(row, { ...doc, status: 'queued', progress: [], warnings: [], clarification: null }, runId, payload);
         // Submission is retried from the identical durable payload on the next poll.
         try {
@@ -218,7 +215,11 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
                     doc = {...doc,warnings:[...doc.warnings,'The research runner is temporarily unavailable. Showing the last saved brief.']};
                 }
             }
-            const versions = owner ? (await db.prepare('SELECT revision,created_at AS createdAt FROM research_versions WHERE brief_id = ? ORDER BY revision DESC').bind(id).all()).results : [];
+            const versions = owner ? (await db.prepare(`SELECT revision,created_at AS createdAt FROM research_versions WHERE brief_id = ?
+              AND json_extract(document_json,'$.status') IN ('completed','partial')
+              AND EXISTS (SELECT 1 FROM json_each(document_json,'$.sections')
+                WHERE length(trim(json_extract(value,'$.content'))) > 0)
+              ORDER BY revision DESC`).bind(id).all()).results : [];
             return reply({ brief: view(doc, owner), versions });
         }
         if (method === 'DELETE' && !action) {

@@ -19,7 +19,7 @@ from research.evidence import (merge_sources, normalize_results, number_comparis
                                select_context, validate_report)
 from research.providers import Calls, ProviderError, validate_catalog
 from research.store import BudgetExceeded, Conflict, Gone, QueueFull, Stopped, Store
-from research.worker import appearance_text, run_job
+from research.worker import run_job
 
 
 def body(**changes):
@@ -149,7 +149,21 @@ class WorkflowTests(StoreFixture):
         self.assertEqual(result['status'], 'completed')
         self.assertEqual(len(result['sections']), 4)
         self.assertEqual(len(result['sources']), 6)
-        self.assertIn('transcript unavailable', result['sections'][0]['content'])
+        self.assertNotIn('Prior appearance discovery', result['sections'][0]['content'])
+    def test_discovery_preserves_full_request_without_episode_bias(self):
+        queries = []
+        class CaptureCalls(FakeCalls):
+            def search(self, query):
+                queries.append(query)
+                return super().search(query)
+        self.body['title'] = 'Research Elon Musk, Tesla and competitor BYD'
+        asyncio.run(run_job(self.db, self.claim(), FakeEngine, CaptureCalls))
+        self.assertEqual(len(queries), 3)
+        for query in queries:
+            self.assertIn(self.body['title'], query)
+            self.assertNotIn('site:youtube.com', query)
+            self.assertNotIn('podcast', query)
+
     def test_failed_tier_does_not_erase_others(self):
         FakeEngine.failing = 'appetizers'
         claim = self.claim()
@@ -196,7 +210,6 @@ class EvidenceTests(unittest.TestCase):
         text, warnings = validate_report('Claim [alpha_video_1].', [s])
         self.assertNotIn('[alpha_video_1]', text)
         self.assertIn('Unsupported citation removed.', warnings)
-        self.assertIn('42 seconds', appearance_text([s]))
         upgraded = merge_sources([s], [{**source(), 'url':s['url']}])[0]
         self.assertEqual(upgraded['id'], s['id'])
         self.assertEqual(upgraded['timestampSeconds'], 42)

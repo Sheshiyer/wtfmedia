@@ -30,29 +30,88 @@ class ProviderError(Exception):
     pass
 
 
+def model_endpoint():
+    base = os.environ.get('OMNIROUTE_BASE_URL', '').strip().rstrip('/')
+    key = os.environ.get('OMNIROUTE_API_KEY', '').strip()
+    if base or key:
+        try:
+            url = urlsplit(base)
+            valid = (url.scheme == 'https' and url.hostname and not url.username
+                     and not url.password and not url.query and not url.fragment)
+        except ValueError:
+            valid = False
+        if not valid or not key:
+            raise ProviderError('incomplete or invalid OmniRoute configuration')
+        return base, key
+    return 'https://openrouter.ai/api/v1', os.environ.get('OPENROUTER_API_KEY', '').strip()
+
+
+def model_name():
+    return 'noesis-research' if os.environ.get('OMNIROUTE_BASE_URL', '').strip() else MODEL
+
+
 def configured():
     try:
         installed = importlib.metadata.version('gpt-researcher') == '0.16.1'
     except importlib.metadata.PackageNotFoundError:
         installed = False
-    return installed and all(os.environ.get(k, '').strip() for k in
-                             ('RESEARCH_RUNNER_TOKEN', 'TREG_TOKEN', 'OPENROUTER_API_KEY'))
+    try:
+        _, key = model_endpoint()
+    except ProviderError:
+        return False
+    return bool(installed and key and all(os.environ.get(k, '').strip() for k in
+                                         ('RESEARCH_RUNNER_TOKEN', 'TREG_TOKEN')))
 
 
 def redact(value):
     text = encode(value)
-    for name in ('RESEARCH_RUNNER_TOKEN', 'TREG_TOKEN', 'OPENROUTER_API_KEY'):
+    for name in ('RESEARCH_RUNNER_TOKEN', 'TREG_TOKEN', 'OPENROUTER_API_KEY', 'OMNIROUTE_API_KEY'):
         secret = os.environ.get(name, '')
         if secret:
             text = text.replace(secret, '[redacted]')
     return json.loads(text)
 
 
+def stream_response(data):
+    text, finish, receipt, usage = [], None, None, {}
+    try:
+        for line in data.decode('utf-8').splitlines():
+            if not line.startswith('data:'):
+                continue
+            value = line[5:].strip()
+            if value == '[DONE]':
+                break
+            event = json.loads(value)
+            if event.get('error'):
+                raise ProviderError('gateway stream failed')
+            receipt = event.get('id') or receipt
+            usage = event.get('usage') or usage
+            for choice in event.get('choices', []):
+                if choice.get('index', 0) != 0:
+                    continue
+                content = choice.get('delta', {}).get('content')
+                if content is not None:
+                    if not isinstance(content, str):
+                        raise ProviderError('invalid gateway text')
+                    text.append(content)
+                finish = choice.get('finish_reason') or finish
+        if not finish:
+            raise ProviderError('incomplete gateway stream')
+        return {'id': receipt, 'usage': usage,
+                'choices': [{'finish_reason': finish, 'message': {'content': ''.join(text)}}]}
+    except (ValueError, TypeError, AttributeError):
+        raise ProviderError('invalid gateway stream') from None
+
+
 class Network:
     def request(self, method, url, headers, body=None):
         try:
             deadline = time.monotonic() + 600
-            with httpx.Client(timeout=45, follow_redirects=False, trust_env=False) as client:
+            omni_base = os.environ.get('OMNIROUTE_BASE_URL', '').strip().rstrip('/')
+            # Gateway reasoning can delay the first content chunk.
+            read_timeout = 600 if omni_base and url == omni_base + '/chat/completions' else 45
+            with httpx.Client(timeout=httpx.Timeout(45, read=read_timeout),
+                              follow_redirects=False, trust_env=False) as client:
                 with client.stream(method, url, headers=headers, json=body) as response:
                     data = bytearray()
                     for chunk in response.iter_bytes():
@@ -63,7 +122,8 @@ class Network:
                             raise ProviderError('provider response too large')
                     if response.status_code != 200:
                         raise ProviderError('provider unavailable')
-                    return redact(json.loads(data)), dict(response.headers)
+                    payload = stream_response(data) if body and body.get('stream') else json.loads(data)
+                    return redact(payload), dict(response.headers)
         except (httpx.HTTPError, ValueError):
             raise ProviderError('provider unavailable') from None
 
@@ -192,21 +252,28 @@ class Calls:
             self.check()
             if len(encode(messages).encode('utf-8')) > 90000:
                 raise ProviderError('model context exceeds bound')
-            # Each model attempt reserves separately: OpenRouter retries are not assumed free.
+            base, api_key = model_endpoint()
+            # Each model attempt reserves separately; retries are not assumed free.
             key = 'model_' + uuid4().hex
             self.store.reserve(self.job_id, self.lease, key, 'model', MODEL_RESERVE)
             self.store.started(self.job_id, self.lease, key)
             self.stage_calls += 1
-            payload, _ = self.network.request('POST', 'https://openrouter.ai/api/v1/chat/completions', {
-                'Authorization': 'Bearer ' + os.environ.get('OPENROUTER_API_KEY', ''),
-            }, {'model': MODEL, 'messages': messages, 'max_tokens': min(max_tokens or 1800, 12000),
-                'temperature': 0.2, 'stream': False,
-                # Low effort leaves room in the completion budget for the answer.
-                'reasoning': {'effort': 'low'},
-                'provider': {'allow_fallbacks': False, 'require_parameters': True,
-                             'data_collection': 'deny',
-                             'max_price': {'prompt': 1, 'completion': 10, 'request': 0}},
-                'usage': {'include': True}})
+            body = {'model': model_name(), 'messages': messages,
+                    'max_tokens': min(max_tokens or 1800, 12000),
+                    'temperature': 0.2, 'stream': False}
+            if model_name() == MODEL:
+                body.update({'reasoning': {'effort': 'low'},
+                             'provider': {'allow_fallbacks': False, 'require_parameters': True,
+                                          'data_collection': 'deny',
+                                          'max_price': {'prompt': 1, 'completion': 10, 'request': 0}},
+                             'usage': {'include': True}})
+            else:
+                body['stream'] = True
+                body['stream_options'] = {'include_usage': True}
+            # OmniRoute owns upstream routing; OpenRouter-specific controls do not apply.
+            payload, _ = self.network.request('POST', base + '/chat/completions', {
+                'Authorization': 'Bearer ' + api_key,
+            }, body)
             cost = payload.get('usage', {}).get('cost')
             if isinstance(cost, (int, float)) and not isinstance(cost, bool) and math.isfinite(cost) and cost >= 0:
                 billed = int((Decimal(str(cost)) * 1000000).to_integral_value(rounding=ROUND_CEILING))

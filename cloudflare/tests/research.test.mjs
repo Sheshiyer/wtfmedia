@@ -112,6 +112,9 @@ test('only safe configured origins and bounded provider responses are accepted',
  assert.equal(researchConfigured({RESEARCH_RUNNER_URL:'http://example.com',RESEARCH_RUNNER_TOKEN:'x'}),false);
  assert.equal(researchConfigured({RESEARCH_RUNNER_URL:'https://user:pass@example.com',RESEARCH_RUNNER_TOKEN:'x'}),false);
  assert.equal(researchConfigured({RESEARCH_RUNNER_URL:'https://example.com',RESEARCH_RUNNER_TOKEN:'x'}),true);
+ assert.equal(researchConfigured({OPS_ENVIRONMENT:'staging',DEPLOYMENT_ENVIRONMENT:'local',RESEARCH_RUNNER_URL:'http://127.0.0.1:8080',RESEARCH_RUNNER_TOKEN:'x'}),true);
+ assert.equal(researchConfigured({OPS_ENVIRONMENT:'staging',DEPLOYMENT_ENVIRONMENT:'staging',RESEARCH_RUNNER_URL:'http://127.0.0.1:8080',RESEARCH_RUNNER_TOKEN:'x'}),false);
+ assert.equal(researchConfigured({OPS_ENVIRONMENT:'staging',DEPLOYMENT_ENVIRONMENT:'local',RESEARCH_RUNNER_URL:'http://example.com',RESEARCH_RUNNER_TOKEN:'x'}),false);
  await assert.rejects(()=>researchRunner({RESEARCH_RUNNER_URL:'https://example.com',RESEARCH_RUNNER_TOKEN:'x'},'/jobs','GET',undefined,async()=>new Response('a'.repeat(1200001))),e=>e.status===502);
 });
 test('runner JSON boundary accepts nullable Python DTO fields and supported section statuses',async()=>{
@@ -270,4 +273,26 @@ test('Unicode four-section edits fit the PATCH envelope while POST and oversized
  assert.equal((await call('PATCH',path,input)).status,200);
  assert.equal((await call('POST','',{...input,title:'Another founder'})).status,413);
  assert.equal((await call('PATCH',path,{padding:'a'.repeat(500001)})).status,413);db.sqlite.close();
+});
+
+test('runner uses Workers-supported manual redirects and rejects redirect responses',async()=>{
+ const {researchRunner}=await import('../src/research-runner.ts');
+ const env={RESEARCH_RUNNER_URL:'https://runner.example',RESEARCH_RUNNER_TOKEN:'test'};
+ assert.deepEqual(await researchRunner(env,'/health','GET',undefined,async(_url,init)=>{assert.equal(init.redirect,'manual');return Response.json({configured:true});}),{configured:true});
+ await assert.rejects(()=>researchRunner(env,'/health','GET',undefined,async()=>new Response(null,{status:302,headers:{location:'https://other.example'}})),e=>e.status===503);
+});
+
+test('visible version history excludes draft and running bookkeeping snapshots',async()=>{
+ const db=database();const call=client(db,async(...args)=>accepted(...args));
+ const created=(await(await call('POST','',{title:'Founder'})).json()).brief;
+ const path='/'+created.id;
+ assert.deepEqual((await(await call('GET',path)).json()).versions,[]);
+ // Use the submitted run ID, not the brief ID.
+ const run=db.sqlite.prepare('SELECT current_run_id FROM research_briefs WHERE id=?').get(created.id).current_run_id;
+ const finished=client(db,async()=>Response.json({...emptyJob,id:run}));
+ const result=await(await finished('GET',path)).json();
+ assert.equal(result.versions.length,1);
+ assert.equal(result.versions[0].revision,result.brief.revision);
+ assert.equal((await(await finished('GET',path)).json()).versions.length,1);
+ db.sqlite.close();
 });

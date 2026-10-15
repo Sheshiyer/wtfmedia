@@ -2,7 +2,6 @@
 import asyncio
 import json
 import os
-import re
 import threading
 import time
 from uuid import uuid4
@@ -44,20 +43,6 @@ async def numeric_review(calls, text, sources):
     return number_comparison(text, sources, claims)
 
 
-def appearance_text(sources):
-    lines = ['**Prior appearance discovery (not confirmed attendance):**']
-    candidates = [s for s in sources if re.search(r'podcast|interview|youtube\.com/watch|youtu\.be/', s['title'] + ' ' + s['url'], re.I)][:8]
-    for source in candidates:
-        title = re.sub(r'[<>\[\]\n\r]', '', source['title'])[:150]
-        timing = (f"verified supplied marker {source['timestampSeconds']} seconds"
-                  if source.get('timestampSeconds') is not None else 'timing unavailable')
-        lines.append(f"- {title} [{source['id']}]: transcript unavailable; {timing}.")
-    if len(candidates) < 5:
-        lines.append(f'Only {len(candidates)} candidate appearances found within the bounded search; five not established.')
-    lines.append('Page text and search snippets do not establish transcript coverage. No ASR was run.')
-    return '\n'.join(lines)
-
-
 async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
     if engine_factory is None:
         from .gptr import GPTREngine
@@ -67,7 +52,6 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
     engine = engine_factory(calls)
     result['warnings'] = list(dict.fromkeys(result['warnings'] + [
         'Model context uses bounded verbatim source slices; complete retained extracts remain in sources.',
-        'Alpha reference links are discovery only until a separate permitted extraction provides text.',
         'Unknown tool charges retain reservations; modelUsd is null when accounting is unavailable.',
     ]))
     if body.get('notes') and not body.get('notesApproved'):
@@ -105,18 +89,18 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
             return
 
         # Shared discovery survives restart; each public query has a durable idempotent call receipt.
-        queries = [body['title'] + ' podcast interview appearances',
-                   body['title'] + ' interview podcast site:youtube.com',
-                   body['title'] + ' podcast interview Spotify Apple Podcasts']
+        queries = [body['title'] + ' background biography companies primary sources',
+                   body['title'] + ' industry competitors strategy official reports',
+                   body['title'] + ' recent developments debates credible reporting']
         for index in range(state.get('discovery_index', 0), len(queries)):
             calls.stage()
             try:
                 found = await asyncio.to_thread(calls.search, queries[index])
                 result['sources'] = merge_sources(result['sources'], found)
             except (ProviderError, BudgetExceeded, ValueError):
-                result['warnings'].append('Appearance discovery incomplete; provider or budget unavailable.')
+                result['warnings'].append('Web research incomplete; provider or budget unavailable.')
             state['discovery_index'] = index + 1
-            result['progress'].append('Shared appearance discovery checkpoint')
+            result['progress'].append('Research sources collected')
             save()
         selected_keys = [body['section']] if body.get('section') else list(TIERS)
         for key in selected_keys:
@@ -141,8 +125,6 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                     comparisons, numeric_notes = await numeric_review(calls, text[:16000], sources)
                     if comparisons:
                         checked += '\n\n**Numeric evidence comparisons**\n\n' + comparisons[:5000]
-                    if key == 'snacks':
-                        checked += '\n\n' + appearance_text(sources)
                     result['sections'][-1].update(content=checked[:24000], status='completed')
                     result['warnings'].extend(warnings + numeric_notes)
                     result['progress'].append(key + ': saved')

@@ -1,10 +1,11 @@
-"""Local-only launcher; optionally load three server keys without shell evaluation."""
+"""Local-only launcher; optionally load allowlisted server settings without shell evaluation."""
 import argparse
 import logging
 import os
 
 
-KEYS = ('RESEARCH_RUNNER_TOKEN', 'TREG_TOKEN', 'OPENROUTER_API_KEY')
+KEYS = ('RESEARCH_RUNNER_TOKEN', 'TREG_TOKEN', 'OPENROUTER_API_KEY',
+        'OMNIROUTE_BASE_URL', 'OMNIROUTE_API_KEY')
 
 
 def load_provider_vars(path):

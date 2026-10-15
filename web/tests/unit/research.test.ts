@@ -138,6 +138,18 @@ describe("Research frontend", () => {
     expect(list).toContain('id="research-source-src_a"'); expect(list).toContain('id="research-source-alpha_b"');
   });
 
+  it("renders numbered citations and scrollable evidence inside an expandable audit", () => {
+    const sources = [{ ...brief.sources[0], id: "src_a" }];
+    const html = renderToStaticMarkup(createElement(ResearchMarkdown, { sources,
+      content: "Finding [src_a].\n\n**Numeric evidence comparisons**\n\n| Source | Value |\n| --- | --- |\n| src_a | 12 |" }));
+    expect(html).toContain("Check numeric evidence");
+    expect(html).toContain("<details");
+    expect(html).toContain("overflow-x-auto");
+    expect(html).toContain('aria-label="Research evidence table"');
+    expect(html).not.toContain(">src_a<");
+    expect(html).toContain(">1</a>");
+  });
+
   it("labels Alpha references without inventing transcript excerpts or timestamps", () => {
     const source = { ...brief.sources[0], kind: "alpha_reference", excerpt: "" };
     const html = renderToStaticMarkup(createElement(ResearchSources, { sources: [source] }));
