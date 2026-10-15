@@ -5,16 +5,16 @@ import json
 import os
 import sys
 
+from .remote_store import open_store
 from .contracts import ChatInput
 from .evidence import validate_report
 from .providers import Calls
-from .store import Store
 from .worker import state_path
 
 
 async def run():
     body = ChatInput.model_validate_json(sys.stdin.buffer.read(1_200_001)).model_dump(exclude_none=True)
-    store = Store(state_path())
+    store = open_store(state_path())
     claim = store.claim_id(sys.argv[1])
     if claim is None:
         raise RuntimeError('follow-up missing')

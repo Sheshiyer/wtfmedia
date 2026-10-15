@@ -90,7 +90,7 @@ def validate_report(text, sources):
         cited = [usable[s] for s in CITATION.findall(paragraph) if s in usable]
         warnings.extend(numeric_warnings(paragraph, cited))
         # shortcut: semantic entailment needs editorial review; valid IDs never certify prose.
-        paragraphs.append('Unverified synthesis: ' + paragraph)
+        paragraphs.append(paragraph)
     warnings.append('Generated claims require editorial verification against retained extracts.')
     return '\n\n'.join(paragraphs), list(dict.fromkeys(warnings))
 

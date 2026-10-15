@@ -223,11 +223,17 @@ class EvidenceTests(unittest.TestCase):
                     'http://2130706433/', 'http://[::1]/'):
             with self.subTest(url=url), self.assertRaises(ValueError):
                 safe_url(url)
+    def test_validation_does_not_label_every_paragraph_unverified(self):
+        text, warnings = validate_report('# Background\n\nA sourced observation [src_1].', [source()])
+        self.assertTrue(text.startswith('# Background'))
+        self.assertNotIn('Unverified synthesis:', text)
+        self.assertIn('Generated claims require editorial verification against retained extracts.', warnings)
+
     def test_fabricated_citations_removed(self):
         text, warnings = validate_report('Growth 20% [invented]. [link](https://bad.com)', [source()])
         self.assertNotIn('invented', text)
         self.assertNotIn('https://bad.com', text)
-        self.assertIn('Unverified', text)
+        self.assertIn('[unverified]', text)
         self.assertTrue(any('Numeric' in w for w in warnings))
     def test_per_claim_numeric_disagreement_and_forged_quote(self):
         a, b = source(), source(2)

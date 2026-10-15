@@ -28,7 +28,7 @@ export function AppShell({
   // Beta chat merges the rail toggle into its own header row, so the shell
   // reserves no separate top band there.
   const betaChatSurface = pathname === "/beta/chat" || pathname.startsWith("/beta/chat/");
-  const needsStickyWorkspace = pathname === "/connections" || pathname === "/beta/connections";
+  const needsStickyWorkspace = pathname === "/connections" || pathname === "/beta/connections" || pathname === "/beta/research";
 
   return (
     <div
@@ -62,7 +62,7 @@ export function AppShell({
           <main
             id="wtf-main"
             tabIndex={-1}
-            className="relative z-10 min-h-[calc(100vh-4.5rem-env(safe-area-inset-top))] focus:outline-none"
+            className={`relative z-10 focus:outline-none ${pathname === "/beta/research" ? "min-h-0" : "min-h-[calc(100vh-4.5rem-env(safe-area-inset-top))]"}`}
           >
             {children}
           </main>

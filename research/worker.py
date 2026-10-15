@@ -6,11 +6,12 @@ import threading
 import time
 from uuid import uuid4
 
+from .remote_store import open_store
 from .contracts import TIERS
 from .evidence import (NUMBER, merge_sources, number_comparison, select_context,
                        supports, validate_report)
 from .providers import Calls, ProviderError, configured
-from .store import BudgetExceeded, Stopped, Store
+from .store import BudgetExceeded, Stopped
 
 
 def state_path():
@@ -176,7 +177,7 @@ def execute_claim(store, claim):
 
 def main():
     os.umask(0o077)
-    store = Store(state_path())
+    store = open_store(state_path())
     while True:
         if configured():
             claim = store.claim()

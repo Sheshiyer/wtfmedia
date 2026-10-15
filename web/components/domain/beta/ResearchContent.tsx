@@ -5,6 +5,11 @@ import remarkGfm from "remark-gfm";
 import { RESEARCH_SECTIONS, safeResearchUrl, type ResearchBrief, type ResearchSource } from "@/lib/research";
 
 export function ResearchMarkdown({ content, sources, sourcePrefix = "research-source-" }: { content: string; sources: ResearchSource[]; sourcePrefix?: string }) {
+  // Older receipts added this blanket prefix even to headings; keep specific evidence warnings.
+  if (/^Unverified synthesis: /mu.test(content)) return <div className="min-w-0 space-y-3">
+    <p className="text-sm text-secondary">AI-generated research. Review claims against the linked sources.</p>
+    <ResearchMarkdown content={content.replace(/^Unverified synthesis: /gmu, "")} sources={sources} sourcePrefix={sourcePrefix} />
+  </div>;
   const marker = "**Numeric evidence comparisons**";
   const split = content.indexOf(marker);
   if (split >= 0) return <div className="min-w-0 space-y-5">
@@ -23,7 +28,13 @@ export function ResearchMarkdown({ content, sources, sourcePrefix = "research-so
     a: ({ href, children }) => {
       const citation = sources.find(source => href === `#${sourcePrefix}${encodeURIComponent(source.id)}`);
       const safe = href ? safeResearchUrl(href) : null;
-      return citation ? <a href={href} title={citation.title} className="underline">{children}</a>
+      return citation ? <a href={href} title={citation.title} className="underline" onClick={() => {
+          const target = document.getElementById(`${sourcePrefix}${encodeURIComponent(citation.id)}`);
+          const sourceDetails = target?.querySelector("details");
+          if (sourceDetails) sourceDetails.open = true;
+          const disclosure = target?.closest("details");
+          if (disclosure) disclosure.open = true;
+        }}>{children}</a>
         : safe ? <a href={safe} target="_blank" rel="noopener noreferrer" className="underline">{children}</a> : <span>{children}</span>;
     },
     img: ({ alt }) => <span>{alt}</span>,
@@ -31,20 +42,22 @@ export function ResearchMarkdown({ content, sources, sourcePrefix = "research-so
 }
 
 export function ResearchSources({ sources, sourcePrefix = "research-source-" }: { sources: ResearchSource[]; sourcePrefix?: string }) {
-  return <section aria-label="Research sources" className="space-y-3">
-    <h3 className="font-heading text-xl font-bold">Sources · {sources.length}</h3>
+  return <details aria-label="Research sources" className="min-w-0 border-2 border-foreground bg-surface-raised p-4">
+    <summary className="cursor-pointer font-heading text-xl font-bold">Sources · {sources.length}</summary>
     {!sources.length && <p className="text-sm text-secondary">No source evidence has been returned yet.</p>}
-    <ol className="grid gap-3 md:grid-cols-2">{sources.map((source, index) => {
+    <ol className="mt-4 grid items-start gap-3 md:grid-cols-2">{sources.map((source, index) => {
       const url = safeResearchUrl(source.url);
       return <li id={`${sourcePrefix}${encodeURIComponent(source.id)}`} key={source.id} className="min-w-0 scroll-mt-24 border-2 border-foreground bg-surface-raised p-4">
-        <p className="break-all font-label text-xs">Source {index + 1}</p>
-        <h4 className="mt-1 break-words font-bold">{url ? <a href={url} target="_blank" rel="noopener noreferrer" className="underline">{source.title}</a> : source.title}</h4>
+        <details>
+          <summary className="cursor-pointer break-words font-bold"><span className="font-label text-xs font-normal">Source {index + 1}</span><span className="mt-1 block">{source.title}</span></summary>
+          {url && <a href={url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm underline">Open original source ↗</a>}
         <p className="mt-2 whitespace-pre-wrap break-words text-sm">{source.excerpt || (source.kind === "alpha_reference" ? "Episode reference, transcript excerpt unavailable." : "Supporting excerpt unavailable.")}</p>
         <p className="mt-2 break-words text-xs text-secondary">{source.publisher && `${source.publisher} · `}{source.publishedAt && `Published ${source.publishedAt} · `}Retrieved {source.retrievedAt}</p>
         {typeof source.timestampSeconds === "number" && Number.isFinite(source.timestampSeconds) && source.timestampSeconds >= 0 && <p className="mt-1 text-xs">Source timestamp: {Math.floor(source.timestampSeconds / 60)}:{String(Math.floor(source.timestampSeconds % 60)).padStart(2, "0")}</p>}
+        </details>
       </li>;
     })}</ol>
-  </section>;
+  </details>;
 }
 
 export function ResearchContent({ brief }: { brief: ResearchBrief }) {

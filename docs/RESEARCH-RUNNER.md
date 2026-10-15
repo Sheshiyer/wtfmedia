@@ -297,3 +297,12 @@ editorial usefulness, real citation support, extraction coverage, numeric compar
 latency, cancellation and settled billing. This source delivery intentionally makes
 no paid calls. An optional managed Linkup comparison is not implemented/defaulted;
 selecting it would require its own exact schema, retention and cost review.
+
+## Cloudflare staging container
+
+The staging host is implemented in `research-host/`. Its Durable Object stores
+runner jobs, provider-call receipts, leases and deletion tombstones transactionally.
+`RESEARCH_STATE_URL` plus `RESEARCH_STATE_TOKEN` select remote storage in Python;
+missing or failed remote storage never falls back to an ephemeral SQLite file.
+The local launcher still uses its existing SQLite file when neither is configured.
+See `research-host/README.md` for deployment settings and recovery boundaries.

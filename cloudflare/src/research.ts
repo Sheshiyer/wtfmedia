@@ -90,7 +90,7 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
             if (tiers.includes(priorSection)) section = priorSection;
         }
         const runId = 'rrun_' + crypto.randomUUID();
-        const payload = { id: runId, title: doc.title, notes: doc.notes, notesApproved: doc.notesApproved, section, clarification: input.clarification ?? null, sections: doc.sections, sources: doc.sources.filter(s => s.kind !== 'alpha_reference').slice(0, 80), budgetMicro: 5000000 };
+        const payload = { id: runId, title: doc.title, notes: doc.notes, notesApproved: doc.notesApproved, section, clarification: input.clarification ?? null, sections: section ? doc.sections : [], sources: section ? doc.sources.filter(s => s.kind !== 'alpha_reference').slice(0, 80) : [], budgetMicro: 5000000 };
         const saved = await save(row, { ...doc, status: 'queued', progress: [], warnings: [], clarification: null }, runId, payload);
         // Submission is retried from the identical durable payload on the next poll.
         try {

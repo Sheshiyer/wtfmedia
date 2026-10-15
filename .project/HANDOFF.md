@@ -1,3 +1,23 @@
+## 2026-10-15 — Staging research runner preparation
+
+- Owner approved staging deployment including Cloudflare-hosted Python research. Added a staging-only Container plus SQLite Durable Object for job checkpoints, lease fencing, budgets, receipts and deletion tombstones; private method RPC uses a separate token. Existing local SQLite mode remains supported.
+- Provider credentials are injected as Worker secrets, never browser variables or image layers. Staging runner/state tokens are distinct from local credentials. No production resources changed.
+- VERIFIED-SOURCE: 479 backend, 282 web unit, 97 web contract, 52 Python and 4 durable-store tests passed; web lint/typecheck, runner-host typecheck, privacy scan (0/419) and isolated staging OpenNext build passed. Built image imports GPT Researcher 0.16.1 successfully without network.
+- Staging D1 readback reports no pending migrations. Browser assets verified against the staging Clerk issuer. Runtime deployment and signed-in persona acceptance are not yet claimed.
+
+## 2026-10-15 — Saved report episode bias and blanket labels
+
+- Inspected the owner-requested saved report: completed under the old appearance-discovery workflow. The long-lived runner had not reloaded the updated Python workflow. All jobs were complete before restarting it.
+- Validator no longer prefixes every paragraph/heading with “Unverified synthesis”. Unknown citations and specific numeric/conflict warnings remain; legacy UI replaces only the blanket prefix with one editorial-review notice.
+- Full Research again submissions now start with fresh sources and sections, avoiding saturation by the old 80-source list. Single-section regeneration retains context. Saved history is not overwritten by this source change.
+- VERIFIED-SOURCE: 48 Python tests, backend research tests, 25 frontend research tests, typecheck and focused lint pass. New live generation has not been run.
+
+## 2026-10-15 — Research loading recovery
+
+- Local logs showed brief reads taking 51–112 seconds and returning 503 while Wrangler reported lost network connections. Frontend and private runner remained reachable. Restarted the local backend with the existing staging binding/configuration; no data or credentials changed.
+- Added a 30-second read deadline covering session acquisition, fetch and response parsing. Stalled reads now show the existing retry UI instead of indefinite loading; writes retain existing behavior to avoid ambiguous automatic replays.
+- VERIFIED-SOURCE: 26 focused frontend tests, typecheck, lint and diff check passed. Authenticated browser reload still needs verification.
+
 ## 2026-10-15 — Pre-shoot research scope and simplified inputs
 
 - Local source only: removed YouTube ID and file upload controls from new and saved briefs; retained optional consented notes and legacy DTO compatibility.

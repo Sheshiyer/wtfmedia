@@ -9,8 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rm -rf /var/lib/apt/lists/* && \
     groupadd --gid 10001 runner && useradd --uid 10001 --gid 10001 --no-create-home runner && \
     mkdir /data && chown 10001:10001 /data && chmod 700 /data
+COPY --from=ghcr.io/astral-sh/uv:0.11.24@sha256:99ea34acedc870ba4ad11a1f540a1c04267c9f30aadc465a94406f52dfda2c36 /uv /usr/local/bin/uv
 COPY requirements.lock /app/requirements.lock
-RUN pip install --no-cache-dir --require-hashes -r /app/requirements.lock
+RUN --mount=type=cache,target=/root/.cache/uv uv pip install --system --require-hashes -r /app/requirements.lock
 COPY --chown=10001:10001 . /app/research
 USER 10001:10001
 VOLUME ["/data"]

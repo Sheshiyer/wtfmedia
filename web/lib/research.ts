@@ -58,25 +58,51 @@ export class ResearchRequestError extends Error {
 export async function researchRequest<T>(fetcher: ResearchFetch, path: string, options: { method?: string; body?: unknown; signal?: AbortSignal } = {}): Promise<T> {
   const method = options.method ?? "GET";
   const mutation = !["GET", "HEAD"].includes(method);
-  const response = await fetcher(`/beta/api/research${path}`, {
-    method, signal: options.signal,
-    ...(mutation ? { headers: { "content-type": "application/json" }, body: JSON.stringify(options.body ?? {}) } : {}),
-  });
-  const data = await response.json().catch(() => null);
+  const controller = new AbortController();
+  const abort = () => controller.abort(options.signal?.reason);
+  options.signal?.addEventListener("abort", abort, { once: true });
+  if (options.signal?.aborted) abort();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let response: Response;
+  let data: unknown;
+  try {
+    const request = async () => {
+      const result = await fetcher(`/beta/api/research${path}`, {
+        method, signal: controller.signal,
+        ...(mutation ? { headers: { "content-type": "application/json" }, body: JSON.stringify(options.body ?? {}) } : {}),
+      });
+      return { response: result, data: await result.json().catch(() => null) };
+    };
+    const result = mutation ? await request() : await Promise.race([
+      request(),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          reject(new ResearchRequestError("Loading research took too long. Please try again. Your saved research has not been deleted.", 504, "research_load_timeout"));
+          controller.abort();
+        }, 30000);
+      }),
+    ]);
+    response = result.response;
+    data = result.data;
+  } finally {
+    if (timer) clearTimeout(timer);
+    options.signal?.removeEventListener("abort", abort);
+  }
+  const errorData = data as { error?: string } | null;
   if (!response.ok) {
-    const message = data?.error === "research_not_configured" ? "Research is currently unavailable. Please try again later."
-      : data?.error === "research_cancel_pending" ? "Cancellation is not confirmed yet. Retry cancellation to stop remote work."
-      : data?.error === "notes_consent_required" ? "Approve use of your notes before saving or starting research."
-      : data?.error === "research_chat_limit" ? "This brief has reached its follow-up limit."
-      : data?.error === "research_deletion_pending" ? "Deletion is pending. Editing and research are disabled; retry deletion to finish removing this brief."
-      : data?.error === "research_running" ? "Research is already running. Wait for it to finish or cancel the run before making changes."
-      : data?.error === "research_not_ready" ? "This brief is not ready for follow-up questions. Wait for research to finish and return findings."
-      : data?.error === "research_conflict" || data?.error === "revision_conflict" ? "This brief changed since you opened it. Your edits have been kept. Review the latest saved version before saving again."
+    const message = errorData?.error === "research_not_configured" ? "Research is currently unavailable. Please try again later."
+      : errorData?.error === "research_cancel_pending" ? "Cancellation is not confirmed yet. Retry cancellation to stop remote work."
+      : errorData?.error === "notes_consent_required" ? "Approve use of your notes before saving or starting research."
+      : errorData?.error === "research_chat_limit" ? "This brief has reached its follow-up limit."
+      : errorData?.error === "research_deletion_pending" ? "Deletion is pending. Editing and research are disabled; retry deletion to finish removing this brief."
+      : errorData?.error === "research_running" ? "Research is already running. Wait for it to finish or cancel the run before making changes."
+      : errorData?.error === "research_not_ready" ? "This brief is not ready for follow-up questions. Wait for research to finish and return findings."
+      : errorData?.error === "research_conflict" || errorData?.error === "revision_conflict" ? "This brief changed since you opened it. Your edits have been kept. Review the latest saved version before saving again."
       : response.status === 401 || response.status === 403 ? "You no longer have access to this research."
       : response.status === 404 ? "This brief is no longer available."
       : response.status === 429 ? "Research is busy. Please try again shortly."
       : "Research could not complete that request. Please try again.";
-    throw new ResearchRequestError(message, response.status, typeof data?.error === "string" ? data.error : undefined);
+    throw new ResearchRequestError(message, response.status, typeof errorData?.error === "string" ? errorData.error : undefined);
   }
   if (!data || typeof data !== "object") throw new Error("Research returned an incomplete response. Please try again.");
   return data as T;

@@ -11,9 +11,10 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from .remote_store import open_store
 from .contracts import ChatInput, JobInput
 from .providers import configured
-from .store import Conflict, Gone, QueueFull, Store
+from .store import Conflict, Gone, QueueFull
 from .worker import state_path
 
 
@@ -48,7 +49,7 @@ def create_app(store=None, ready=configured, chat_handler=None, start_workers=Fa
     @asynccontextmanager
     async def lifespan(app):
         os.umask(0o077)
-        app.state.store = store or Store(state_path())
+        app.state.store = store or open_store(state_path())
         processes = []
         async def supervise():
             while True:

@@ -57,3 +57,7 @@ web/tests/security/phase3-threat-results/
 # local worker secrets
 cloudflare/.dev.vars
 web/.dev.vars
+
+# Research container deployment artifacts
+research-host/.wrangler/
+research-host/.dev.vars

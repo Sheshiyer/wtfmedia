@@ -18,6 +18,21 @@ export const brief: ResearchBrief = {
 };
 
 describe("Research frontend", () => {
+  it("times out a stalled read even if session acquisition ignores abort", async () => {
+    vi.useFakeTimers();
+    try {
+      let signal: AbortSignal | null | undefined;
+      const pending = researchRequest((_input, init) => {
+        signal = init?.signal;
+        return new Promise<Response>(() => {});
+      }, "/example");
+      const assertion = expect(pending).rejects.toThrow("Loading research took too long");
+      await vi.advanceTimersByTimeAsync(30000);
+      await assertion;
+      expect(signal?.aborted).toBe(true);
+    } finally { vi.useRealTimers(); }
+  });
+
   it("maps research to server-granted capabilities for both principal kinds", () => {
     expect(betaDestinationForPath("/beta/research")?.capability).toBe("research:read");
     expect(capabilityForPath("/beta/research")).toBe("research:read");
@@ -135,6 +150,11 @@ describe("Research frontend", () => {
     expect(html).toContain('href="#research-source-src_a"'); expect(html).toContain('href="#research-source-alpha_b"');
     expect(html).not.toContain('href="#research-source-src_missing"'); expect(html).not.toContain("javascript:");
     const list = renderToStaticMarkup(createElement(ResearchSources, { sources }));
+    expect(list).toContain('<details aria-label="Research sources"');
+    expect(list).toContain("Sources · 2</summary>");
+    expect((list.match(/<details[ >]/gu) ?? []).length).toBe(3);
+    expect(list).toContain("Open original source");
+    expect(list).not.toContain('open="');
     expect(list).toContain('id="research-source-src_a"'); expect(list).toContain('id="research-source-alpha_b"');
   });
 
@@ -148,6 +168,14 @@ describe("Research frontend", () => {
     expect(html).toContain('aria-label="Research evidence table"');
     expect(html).not.toContain(">src_a<");
     expect(html).toContain(">1</a>");
+  });
+
+  it("replaces legacy blanket labels with one notice and retains specific uncertainty", () => {
+    const html = renderToStaticMarkup(createElement(ResearchMarkdown, { sources: [], content: "Unverified synthesis: # Background\n\nUnverified synthesis: Unverified: sources disagree." }));
+    expect(html).not.toContain("Unverified synthesis:");
+    expect(html).toContain("Unverified: sources disagree.");
+    expect(html).toContain("AI-generated research.");
+    expect(html).toContain("<h1>Background</h1>");
   });
 
   it("labels Alpha references without inventing transcript excerpts or timestamps", () => {
