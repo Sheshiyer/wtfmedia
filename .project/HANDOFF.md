@@ -1,3 +1,13 @@
+## 2026-10-15 — Research deployed to staging
+
+- Owner-authorized runtime candidate: `f29758828cdd57995b4f1f8d3e0f693190aee028` on `feature/pavun`, committed locally; no push and no production deployment.
+- `https://beta-staging.wtfhq.in`: Web `eb151d59-21d8-44c4-b77d-3a25a0d05bf8` binds only to Edge `wtfmedia-edge-staging`, version `5c96378a-330f-41d4-8166-5debcee241b2`. Edge retains staging D1 and Alpha chat authority.
+- New private runner `wtfmedia-research-staging`: Worker `b7cf82e5-4301-494f-99c9-9720d6e10725`; container application `a03ccd7b-0688-4dbe-8b50-98eb080230c2`; image digest `sha256:fc404877fe5b93debbe426e09ed99f7b3f4331292b614f1d53d32365c4874549`. Distinct runner/state credentials and the existing Treg/OmniRoute provider settings were uploaded as secrets. Secrets are retained only in ignored local configuration and Cloudflare.
+- LIVE-VERIFIED: runner health configured=true; unauthenticated runner/state 401; runner token denied state access; synthetic durable checkpoint/read/delete/replay checks passed. A public-subject single-section research job completed with 44 retained sources and citations resolving to source IDs. Follow-up returned HTTP 200 with a nonempty answer. Tool receipt total was 34,000 micro-units; model cost remains unknown, not zero. Disposable test job was deleted after checks.
+- Live custom-domain root redirects to `/beta`; research page responds 200; unauthenticated research/principal APIs return 401. Canonical `/sign-in` responds 200 with the verified staging Clerk issuer. Edge health reports staging, Alpha inference service and Alpha public corpus authority. No pending staging D1 migrations were found; no shared D1 migration was applied in this deployment.
+- Rollback references recorded before deployment: Edge `eebb50b8-4433-4189-b77a-6c435fd44bc8`, Web `99a603ec-e557-44db-8591-6b251cf5b18f`. No rollback rehearsal or forced container-restart test performed. Durable storage must not be deleted for a code rollback.
+- Remaining acceptance: real signed-in two-user/RBAC and responsive UI matrix. No connected browser was available, so API/source checks are not described as browser acceptance. Existing laptop-run jobs were not migrated into the hosted queue; saved D1 briefs remain intact.
+
 ## 2026-10-15 — Staging research runner preparation
 
 - Owner approved staging deployment including Cloudflare-hosted Python research. Added a staging-only Container plus SQLite Durable Object for job checkpoints, lease fencing, budgets, receipts and deletion tombstones; private method RPC uses a separate token. Existing local SQLite mode remains supported.
