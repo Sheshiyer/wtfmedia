@@ -123,7 +123,7 @@ test("status remains truthful before the analytics migration and never invents a
   const db = { prepare() { return statement({ async all() { throw new Error("no such table"); } }); } };
   const response = await handleAnalyticsRequest(new Request("https://ops.staging.test/beta/api/analytics/status"), { DB: db, OPS_ENVIRONMENT: "staging" }, operator);
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { configured: false, connections: [], migrationRequired: true });
+  assert.deepEqual(await response.json(), { configured: false, canManage: true, connections: [], migrationRequired: true });
 });
 
 test("status hides a dangling selected resource so staging repeats validated channel selection", async () => {
@@ -484,3 +484,12 @@ test("members can read analytics and submit chat but cannot manage the channel",
   }
   assert.equal((await handleAnalyticsRequest(new Request("https://app.test/beta/api/analytics/oauth/callback"), env, member)).status, 403);
 });
+
+for (const role of ['member', 'editor', 'admin', 'super_admin']) {
+  test(`analytics status exposes current server management permission for ${role}`, async () => {
+    const context = { ...operator, kind: role === 'member' ? 'member' : 'operator', role };
+    const env = { DB: { prepare() { return statement(); } }, OPS_ENVIRONMENT: 'production' };
+    const response = await handleAnalyticsRequest(new Request('https://app.test/beta/api/analytics/status'), env, context);
+    assert.equal((await response.json()).canManage, role === 'admin' || role === 'super_admin');
+  });
+}

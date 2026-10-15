@@ -27,6 +27,7 @@
 }
 
 .connection-card {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -38,7 +39,7 @@
 
 .connection-status {
   display: grid;
-  grid-template-columns: 13px 1fr;
+  grid-template-columns: 13px minmax(0, 1fr);
   gap: 11px;
   align-items: start;
 }
@@ -394,7 +395,6 @@
 
 @media (max-width: 1120px) {
   .live-command { grid-template-columns: 1fr; }
-  .connection-card { flex-direction: row; align-items: center; }
   .api-production-controls { grid-template-columns: 1fr 1fr; }
   .api-production-controls form { grid-column: 1 / -1; }
   .production-retention { grid-template-columns: 1fr; }
@@ -428,7 +428,6 @@
   .api-production-controls,
   .api-production-controls form { grid-template-columns: 1fr; }
   .api-production-controls form { grid-column: auto; }
-  .connection-card,
   .api-security,
   .attention-head,
   .annotation-head { display: block; }
@@ -455,8 +454,9 @@
   .annotation-rail form button { grid-column: auto; }
 }
 
+.connection-card > * { min-width: 0; overflow-wrap: anywhere; }
 .connection-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.connection-actions button, .connection-card #api-channel-form button { border: 1px solid #fffdf8; border-radius: 24px; padding: 8px 12px; background: #fffdf8; color: #242220; font-size: 12px; font-weight: 700; }
+.connection-actions button, .connection-card #api-channel-form button { border: 1px solid #fffdf8; border-radius: 24px; padding: 8px 12px; min-height: 44px; max-width: 100%; white-space: normal; background: #fffdf8; color: #242220; font-size: 12px; font-weight: 700; }
 .connection-card #api-action-status { margin: 0; font-size: 12px; line-height: 1.4; }
 .connection-card #api-channel-form label { display: grid; gap: 6px; font-size: 12px; }
 .connection-card #api-channel-form select { max-width: 100%; padding: 8px; }

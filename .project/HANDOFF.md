@@ -1,5 +1,12 @@
 # Project handoff
 
+## 2026-10-15 Production analytics connection visibility fix
+
+- Owner reported an admin account with Connect Google visible on mobile but absent on desktop, and authorized production redeployment. No coworker identity/session was inspected. Fixed stale UI permission hints: analytics status now returns the current server-derived management permission, and the bridge refreshes controls from it. Backend admin/super-admin enforcement remains unchanged; readers see an accurate admin-required message. Connection controls wrap with 44px minimum targets and narrow-screen card layout remains vertical.
+- Exact isolated production candidate `89c122c5559a4a1bcd4798d1b13065b2df58aa9c` excludes Research. VERIFIED-SOURCE: 453 backend, 255 frontend unit, 97 contract tests; lint, privacy 0/415, architecture 684-input check, Worker dry-run and OpenNext build pass. Focused tests cover stale permission hints in both directions. Direct Chrome layout checks of the actual card/styles pass at 320, 375, 540, 768, 1024, 1440 and 1920px with visible contained controls and no horizontal overflow; this is not authenticated acceptance.
+- Production Edge `bad9782e-6844-400a-bdfb-1992ffadface` and Web `d94eb63c-ed24-4857-9273-ec77c725e953` read back at 100% traffic. Web serves wtfhq.in and binds production Edge/self. Rollback versions: Edge `01bafaf1-9143-46de-974d-9e048c81ea6e`, Web `7234eb06-b50f-429c-8792-d3e170bc916a`.
+- Live smoke: backend healthy/production, root 307, sign-in/chat/analytics 200, unsigned analytics status and same-origin OAuth-start POST 401, updated bridge/CSS assets 200 with permission-refresh code present. OAuth POST without Origin is rejected as 404. Coworker signed-in desktop/mobile and Google consent remain unverified. No database, role, credential, staging or internal Alpha Web changes; no push.
+
 ## 2026-10-15 Production analytics promotion — deployed with verified smoke checks
 
 - Owner requested the current staging analytics in production before Research testing and separately approved production migrations/OAuth configuration. Reconciled newer October 12 reach fixes from PR #83 head `c510014` with the October 9 baseline. Isolated exact candidate `5518cd1536d0c93ba52dd6f0fba01dfc0e28dd43` excludes Research and enables production analytics navigation. Candidate is a detached local commit; no new delivery branch or push.

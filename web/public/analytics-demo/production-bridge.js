@@ -1,7 +1,7 @@
 /* OAuth-backed production adapter for the imported YouTube decision workspace. */
 (() => {
   const parameters = new URLSearchParams(window.location.search);
-  const canManage = parameters.get('manage') === '1';
+  let canManage = parameters.get('manage') === '1';
   const api = {
     configured: false,
     migrationRequired: false,
@@ -147,7 +147,8 @@
     const connected = Boolean(api.connection?.resource && api.connection.status === 'connected');
     $('#api-status-dot').classList.toggle('connected', connected);
     $('#api-status-title').textContent = title;
-    $('#api-status-copy').textContent = copy;
+    const needsAdmin = !canManage && api.configured && !api.migrationRequired && !connected;
+    $('#api-status-copy').textContent = needsAdmin ? 'Channel connections are managed by workspace admins.' : copy;
     $('#header-data-state').textContent = connected ? `OAuth data · ${api.report?.freshness ? `synced ${api.report.freshness}` : 'awaiting sync'}` : title;
     $('#trust-connection').textContent = connected ? `YouTube · ${api.connection.resource.name || api.connection.resource.id}` : title;
     $('#trust-sync').textContent = api.report?.freshness || api.connection?.lastSuccessfulRefreshAt || 'No successful synchronization';
@@ -164,7 +165,7 @@
       $('#trust-coverage').textContent = `${coverage.observedDays || 0}/${coverage.requestedDays || 0} daily rows · ${reachState}`;
     }
     if (!api.report) $('#coverage-note').textContent = 'No synchronized provider observations in this selected scope.';
-    $('#api-action-status').textContent = api.notice;
+    $('#api-action-status').textContent = needsAdmin ? 'Ask a workspace admin to connect or reconnect YouTube. Analytics and chat are available to all members once connected.' : api.notice;
     const connect = $('#api-connect-demo');
     const form = $('#api-channel-form');
     const sync = $('#api-sync-production');
@@ -178,7 +179,7 @@
     disconnect.disabled = api.reportLoading;
     sync.disabled = !connected || api.reportLoading;
     sync.textContent = api.reportLoading ? 'updating…' : 'update data';
-    if (!active) form.hidden = true;
+    if (!active || !canManage) form.hidden = true;
     document.querySelectorAll('.answer-confidence').forEach(node => { node.textContent = api.report ? 'CONFIDENCE · STORED PROVIDER OBSERVATIONS' : 'CONFIDENCE · PROVIDER DATA UNAVAILABLE'; });
     const episodeCopy = document.querySelector('#episodes .section-title > p');
     if (episodeCopy) episodeCopy.textContent = api.report ? 'Choose an episode to review its performance.' : 'No synchronized episode observations available.';
@@ -193,6 +194,7 @@
   async function loadStatus() {
     try {
       const result = await request('/beta/api/analytics/status');
+      canManage = result.canManage === true;
       api.configured = Boolean(result.configured);
       api.migrationRequired = Boolean(result.migrationRequired);
       api.connection = Array.isArray(result.connections) ? result.connections.find(item => item.provider === 'youtube' && item.status !== 'revoked') || null : null;
