@@ -1,3 +1,11 @@
+## 2026-10-16 — YouTube Analytics hidden in production
+
+- Owner-authorized frontend-only deployment: isolated production candidate `616462767832c878d87db10725ddef2f738d937f`, based on prior production source `89c122c5559a4a1bcd4798d1b13065b2df58aa9c`. Equivalent owner-branch fix is local commit `c4b2e676d1e1e28cb9771d09ee2c0f2b1337ba5e`; no push.
+- Production `wtfmedia-web-beta` / `wtfhq.in` now serves version `e0a702a0-a19b-4445-9473-335c8fa539af` at 100% traffic. Rollback Web version: `d94eb63c-ed24-4857-9273-ec77c725e953`. Existing production Edge binding remains `wtfmedia-edge`.
+- Analytics navigation is hidden for production principals; direct Analytics and legacy settings entry URLs redirect to `/beta/chat`. Staging Analytics remains available. Research was not promoted; backend APIs, saved analytics data, credentials and databases were not changed.
+- VERIFIED-SOURCE: 255 unit and 97 contract tests passed; lint, typecheck/OpenNext build, privacy (0/415), architecture and diff checks passed. Built assets use the production Clerk issuer.
+- LIVE-VERIFIED: Analytics and legacy entry return 307 to chat, root 307 to `/beta`, sign-in/chat 200, unauthenticated principal API 401; staging Analytics 200. Signed-in visual/browser acceptance and rollback rehearsal were not performed.
+
 ## 2026-10-15 — Research deployed to staging
 
 - Owner-authorized runtime candidate: `f29758828cdd57995b4f1f8d3e0f693190aee028` on `feature/pavun`, committed locally; no push and no production deployment.
