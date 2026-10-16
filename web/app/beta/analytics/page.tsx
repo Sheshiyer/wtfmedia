@@ -1,10 +1,13 @@
 "use client";
 
+import { notFound } from "next/navigation";
+import { isBetaDestinationVisible } from "@/lib/beta/navigation";
 import { useBetaPrincipal } from "@/components/domain/beta/BetaPrincipalGate";
 import { YouTubeAnalyticsWorkspace } from "@/components/domain/ops/YouTubeAnalyticsWorkspace";
 
 export default function YouTubeAnalyticsPage() {
   const principal = useBetaPrincipal();
+  if (!isBetaDestinationVisible("/beta/analytics", principal.environment)) notFound();
   if (!principal.capabilities.includes("analytics:read")) {
     return <main className="p-6">Access is not granted.</main>;
   }

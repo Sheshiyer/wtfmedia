@@ -1,6 +1,7 @@
 import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 import { clerkMiddleware } from "@clerk/nextjs/server";
-import { betaRootRedirectForHost } from "@/lib/beta/hosts";
+import { isBetaDestinationVisible } from "@/lib/beta/navigation";
+import { BETA_PRODUCTION_HOSTNAME, normalizedRequestHostname, betaRootRedirectForHost } from "@/lib/beta/hosts";
 import { legacyAuthenticatedChatConversationId } from "@/lib/ops/chat-route";
 import { maybeLocalDevOpsHeaders } from "@/lib/ops/local-dev-headers";
 
@@ -8,6 +9,9 @@ const recoveryPaths = new Set(["/ops/recover", "/sign-in", "/request-access", "/
 
 async function routeMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  if (normalizedRequestHostname(request.nextUrl.hostname) === BETA_PRODUCTION_HOSTNAME && !isBetaDestinationVisible(pathname, "production")) {
+    return NextResponse.redirect(new URL("/beta/chat", request.url));
+  }
   const betaRoot = betaRootRedirectForHost(request.nextUrl.hostname, pathname);
   if (betaRoot) {
     const target = request.nextUrl.clone();

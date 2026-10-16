@@ -4,14 +4,21 @@ import {
   memberDisclosureGroups,
   memberDestinationForPath,
 } from "@/lib/member/navigation";
+import { isBetaDestinationVisible } from "@/lib/beta/navigation";
 import { readFileSync } from "node:fs";
 
 const appRail = readFileSync(new URL("../../components/shells/AppRail.tsx", import.meta.url), "utf8");
 
 describe("member workspace navigation", () => {
-  it("allows the analytics page in production while retaining capability checks", () => {
+  it("hides analytics in production while retaining staging and capability checks", () => {
     const page = readFileSync(new URL("../../app/beta/analytics/page.tsx", import.meta.url), "utf8");
-    expect(page).not.toContain("principal.environment");
+    expect(page).toContain('isBetaDestinationVisible("/beta/analytics", principal.environment)');
+    for (const path of ["/beta/analytics", "/beta/analytics/", "/beta/settings/workspace/analytics"]) {
+      expect(isBetaDestinationVisible(path, "production")).toBe(false);
+      expect(isBetaDestinationVisible(path, "staging")).toBe(true);
+      expect(isBetaDestinationVisible(path, "local")).toBe(true);
+    }
+    expect(isBetaDestinationVisible("/beta/chat", "production")).toBe(true);
     expect(page).toContain('principal.capabilities.includes("analytics:read")');
     expect(memberDisclosureGroups[0].items.map((item) => item.href)).toContain("/beta/analytics");
   });

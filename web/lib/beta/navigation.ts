@@ -53,3 +53,7 @@ export function capabilityForBetaPath(pathname: string): string | null {
 export function audienceForRole(role: string): BetaAudience {
   return role === "member" ? "member" : role === "admin" ? "admin" : role === "super_admin" ? "super_admin" : "operator";
 }
+
+export function isBetaDestinationVisible(href: string, environment: string): boolean {
+  return environment !== "production" || !["/beta/analytics", "/beta/settings/workspace/analytics"].includes(href.replace(/\/$/, ""));
+}
