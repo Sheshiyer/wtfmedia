@@ -31,6 +31,7 @@ const operatorNavigation: readonly AppNavItem[] = [
   { href: "/beta/chat", label: "ask wtf", section: "workspace" },
   { href: "/beta/connections", label: "connections", section: "workspace" },
   { href: "/beta/analytics", label: "youtube analytics", section: "workspace" },
+  { href: "/beta/social-analytics", label: "social media analytics", section: "workspace" },
   { href: "/beta/settings", label: "settings", section: "administration" },
 ];
 
@@ -47,7 +48,7 @@ function Shell({ context, children }: { context: PrincipalContext; children: Rea
   });
   const bottomNavigation = context.kind === "member"
     ? memberBottomNavigation
-    : navigation.filter((item) => item.section === "workspace");
+    : navigation.filter((item) => item.section === "workspace" && item.href !== "/beta/social-analytics");
   return <AppShell
     mode={context.kind === "member" ? "member" : "operator"}
     navigation={navigation}

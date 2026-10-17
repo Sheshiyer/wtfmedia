@@ -27,6 +27,7 @@ export const BETA_PROTECTED_DESTINATIONS: readonly BetaNavigationDestination[] =
   { href: "/beta/settings/workspace/ai", edgePath: "/beta/settings/workspace/ai", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/analytics", edgePath: "/beta/settings/workspace/analytics", capability: "analytics:read", audiences: ["member", "operator", "admin", "super_admin"] },
   { href: "/beta/analytics", edgePath: "/beta/analytics", capability: "analytics:read", audiences: ["member", "operator", "admin", "super_admin"] },
+  { href: "/beta/social-analytics", edgePath: "/beta/social-analytics", capability: "analytics:read", audiences: ["member", "operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/sessions", edgePath: "/beta/settings/workspace/sessions", capability: "chat:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/memory", edgePath: "/beta/settings/workspace/memory", capability: "memory:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/sources", edgePath: "/beta/settings/workspace/sources", capability: "transcripts:read", audiences: ["operator", "admin", "super_admin"] },
@@ -51,6 +52,7 @@ export function capabilityForBetaPath(pathname: string): string | null {
 
 /** Product visibility only; capability enforcement remains at the edge. */
 export function betaDestinationVisible(pathname: string, environment: "local" | "staging" | "production"): boolean {
+  if (pathname === "/beta/social-analytics") return environment === "local";
   return environment !== "production" || capabilityForBetaPath(pathname) !== "analytics:read";
 }
 
