@@ -1,3 +1,11 @@
+## 2026-10-17 — PR #84 integrated into feature/pavun
+
+- Owner authorized review, merge, commit and push of PR #84 (`b645c0a36845e925da0bd375460359676f4fa903`). This integration retains Research, the accepted principal shell, and production-only YouTube Analytics hiding. No deployment, shared migration, provider credential change or PR #48/#77 mutation.
+- Adds a local Zernio social dashboard for LinkedIn, Instagram, Facebook and X, with status, hosted authorization handoff, date/platform filters, daily impressions and top posts. Configuration is server-only `web/.env.local`; one shared configured profile, no per-user social store, no AI or YouTube reach work.
+- Resolved five navigation/test merge conflicts and supplied the missing `analytics:read` policy entry. Strengthened the local-only production-build guard, date-range validation and connection origin/content-type checks. Missing metrics remain null/unavailable, reported zero stays zero, the chart no longer changes metric per day, and unknown connection health is not shown as healthy.
+- VERIFIED-SOURCE: regression failures reproduced before fixes; 289 web unit, 97 contract and 479 backend tests pass. Web typecheck, lint, Next production build, privacy (0/428), architecture regeneration and diff checks pass. The sandbox backend run stalled; the same suite passed outside the sandbox.
+- Explanation/setup/limitations: `docs/SOCIAL-ANALYTICS-LOCAL.md`. Live Zernio OAuth/analytics, signed-in UI and cross-browser behavior were not tested in this integration. Provider results in the original author handoff below remain REPORTED.
+
 ## 2026-10-16 — YouTube Analytics hidden in production
 
 - Owner-authorized frontend-only deployment: isolated production candidate `616462767832c878d87db10725ddef2f738d937f`, based on prior production source `89c122c5559a4a1bcd4798d1b13065b2df58aa9c`. Equivalent owner-branch fix is local commit `c4b2e676d1e1e28cb9771d09ee2c0f2b1337ba5e`; no push.
@@ -4209,3 +4217,24 @@ DNS, Clerk, queue, ingest, corpus, or production mutation occurred.
   migrations → deploy edge and verify bindings/health → deploy web and verify
   its staging-only service binding → execute the real Clerk/D1 IAB persona and
   responsive matrix. Production needs a new owner-authorized task after that.
+
+## 2026-10-17 social analytics source handoff
+
+**Status:** Local source integration prepared for review; no Cloudflare deploy.
+
+- The WTF OS social analytics workspace uses Zernio's hosted connection flow
+  for LinkedIn, Instagram, Facebook, and X (Twitter). It shows account status,
+  unified metrics, date/platform filters, daily observations, and top posts.
+- A local-only page and server-only API routes require loopback hostnames and
+  `SOCIAL_ANALYTICS_LOCAL_ENABLED=1`. The Zernio key and profile ID belong in
+  ignored `web/.env.local`; no credential is committed or supplied to clients.
+- The public local hamburger links to `/social-analytics`. An authenticated
+  Beta route at `/beta/social-analytics` is registered under `analytics:read`
+  and appears in local Beta hamburger navigation when Clerk is configured.
+  Both routes stay unavailable on staging and production as currently gated.
+- REPORTED by the PR author, not reverified during integration: their Zernio
+  workspace returned a dashboard response and hosted X connection URL. Their
+  existing Instagram account was inactive and required reconnection.
+- Local checks passed: 246 web unit tests, TypeScript, ESLint, rendered page,
+  CSS asset, and hamburger placement. A signed-in Beta session could not be
+  exercised in this checkout because no local Clerk key was configured.

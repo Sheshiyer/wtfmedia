@@ -21,6 +21,9 @@ describe("member workspace navigation", () => {
     expect(isBetaDestinationVisible("/beta/chat", "production")).toBe(true);
     expect(page).toContain('principal.capabilities.includes("analytics:read")');
     expect(memberDisclosureGroups[0].items.map((item) => item.href)).toContain("/beta/analytics");
+    expect(isBetaDestinationVisible("/beta/social-analytics", "local")).toBe(true);
+    expect(isBetaDestinationVisible("/beta/social-analytics", "staging")).toBe(false);
+    expect(isBetaDestinationVisible("/beta/social-analytics", "production")).toBe(false);
   });
 
   it("keeps conversation routes under Ask WTF without marking Settings active", () => {
@@ -32,7 +35,7 @@ describe("member workspace navigation", () => {
 
   it("exposes only member destinations", () => {
     expect(memberDisclosureGroups[0]).toMatchObject({ label: "Beta workspace" });
-    expect(memberDisclosureGroups[0]?.items.map((item) => item.href)).toEqual(["/beta", "/beta/connections", "/beta/analytics", "/beta/research", "/beta/settings"]);
+    expect(memberDisclosureGroups[0]?.items.map((item) => item.href)).toEqual(["/beta", "/beta/connections", "/beta/analytics", "/beta/social-analytics", "/beta/research", "/beta/settings"]);
     expect(memberDisclosureGroups).toHaveLength(1);
     expect(memberDisclosureGroups.flatMap((group) => group.items).map((item) => item.href)).not.toContain("/beta/ops/settings");
   });
