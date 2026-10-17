@@ -37,7 +37,7 @@ export function shouldHideBottomDock(
   pathname: string,
 ): boolean {
   const betaChatOrSettings = pathname.startsWith("/beta/chat") || pathname.startsWith("/beta/settings");
-  return pathname === "/beta/connections" || pathname === "/beta/analytics" || mode === "member" || betaChatOrSettings || (mode === "public" && (pathname === "/" || pathname === "/chat"));
+  return pathname === "/beta/connections" || pathname === "/beta/analytics" || pathname === "/beta/social-analytics" || pathname === "/social-analytics" || mode === "member" || betaChatOrSettings || (mode === "public" && (pathname === "/" || pathname === "/chat"));
 }
 
 export function AppRail({
@@ -48,8 +48,8 @@ export function AppRail({
   disclosureGroups,
 }: AppRailProps) {
   const pathname = usePathname() ?? "/";
-  const utilityHrefs = new Set(["/beta/workspace", "/beta/workspace/production", "/beta/workspace/episodes", "/beta/settings"]);
-  const utilityOrder = ["/beta/workspace", "/beta/workspace/production", "/beta/workspace/episodes", "/beta/settings"];
+  const utilityHrefs = new Set(["/beta/workspace", "/beta/workspace/production", "/beta/workspace/episodes", "/beta/social-analytics", "/social-analytics", "/beta/settings"]);
+  const utilityOrder = ["/beta/workspace", "/beta/workspace/production", "/beta/workspace/episodes", "/beta/social-analytics", "/social-analytics", "/beta/settings"];
   const utilityNavigation = navigation
     .filter((item) => item.section === "administration" || utilityHrefs.has(item.href))
     .sort((a, b) => {
@@ -65,7 +65,11 @@ export function AppRail({
       const bIndex = primaryOrder.indexOf(b.href);
       return (aIndex === -1 ? primaryOrder.length : aIndex) - (bIndex === -1 ? primaryOrder.length : bIndex);
     });
-  const disclosureNavigation = mode === "operator" ? [...primaryNavigation, ...utilityNavigation] : primaryNavigation;
+  const disclosureNavigation = mode === "operator"
+    ? [...primaryNavigation, ...utilityNavigation]
+    : mode === "public"
+      ? [...primaryNavigation, ...utilityNavigation.filter((item) => item.href === "/social-analytics")]
+      : primaryNavigation;
   const resolvedBottomNavigation = bottomNavigation ?? primaryNavigation;
   const hideBottomDock = shouldHideBottomDock(mode, pathname);
   const disclosureId = mode === "operator"

@@ -3948,3 +3948,24 @@ DNS, Clerk, queue, ingest, corpus, or production mutation occurred.
   migrations → deploy edge and verify bindings/health → deploy web and verify
   its staging-only service binding → execute the real Clerk/D1 IAB persona and
   responsive matrix. Production needs a new owner-authorized task after that.
+
+## 2026-10-17 social analytics source handoff
+
+**Status:** Local source integration prepared for review; no Cloudflare deploy.
+
+- The WTF OS social analytics workspace uses Zernio's hosted connection flow
+  for LinkedIn, Instagram, Facebook, and X (Twitter). It shows account status,
+  unified metrics, date/platform filters, daily observations, and top posts.
+- A local-only page and server-only API routes require loopback hostnames and
+  `SOCIAL_ANALYTICS_LOCAL_ENABLED=1`. The Zernio key and profile ID belong in
+  ignored `web/.env.local`; no credential is committed or supplied to clients.
+- The public local hamburger links to `/social-analytics`. An authenticated
+  Beta route at `/beta/social-analytics` is registered under `analytics:read`
+  and appears in local Beta hamburger navigation when Clerk is configured.
+  Both routes stay unavailable on staging and production as currently gated.
+- The paid Zernio workspace returned a successful dashboard response and a
+  hosted X connection URL. Its existing Instagram account was inactive at the
+  time of local verification and requires reconnection before it supplies data.
+- Local checks passed: 246 web unit tests, TypeScript, ESLint, rendered page,
+  CSS asset, and hamburger placement. A signed-in Beta session could not be
+  exercised in this checkout because no local Clerk key was configured.

@@ -78,9 +78,10 @@ describe("Beta open-enrollment copy", () => {
     expect(appRail).toContain('pathname.startsWith("/beta/settings")');
   });
 
-  it("keeps every admitted operator workspace destination in the primary navigation", () => {
+  it("keeps the social analytics destination in the hamburger rather than the bottom dock", () => {
     const gate = readFileSync(new URL("../../components/domain/beta/BetaPrincipalGate.tsx", import.meta.url), "utf8");
-    expect(gate).toContain('navigation.filter((item) => item.section === "workspace")');
+    expect(gate).toContain('href: "/beta/social-analytics"');
+    expect(gate).toContain('item.href !== "/beta/social-analytics"');
     expect(gate).not.toContain('href: "/beta/workspace/ingest"');
   });
 
