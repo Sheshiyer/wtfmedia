@@ -50,6 +50,9 @@ export interface Env extends OpsEnv {
   EDGE_SHARED_SECRET: string;
   CALENDAR_READ_RATE_LIMIT_PER_MINUTE?: string;
   CALENDAR_WRITE_RATE_LIMIT_PER_MINUTE?: string;
+  ZERNIO_API_KEY?: string;
+  ZERNIO_PROFILE_ID?: string;
+  SOCIAL_ANALYTICS_ENABLED?: string;
   OPENROUTER_API_KEY?: string;
   OPENROUTER_API_KEY_2?: string;
   OPENROUTER_ANSWER_MODEL?: string;

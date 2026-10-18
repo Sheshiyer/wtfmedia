@@ -56,7 +56,7 @@ export function mutationRequestAllowed(request: Request, url: URL): boolean {
   if (url.pathname.endsWith("/assets/upload-stream")) return true;
   return request.headers.get("Content-Type")?.split(";", 1)[0].trim() === "application/json";
 }
-export type OpsEnv = {
+export type OpsEnv = import("./social-analytics.ts").SocialEnv & {
   DB: DB;
   OPS_HOSTNAME: string;
   OPS_ORIGIN: string;

@@ -46,11 +46,11 @@ export function parsePrincipalContext(value: unknown): PrincipalContext | null {
 
 export function principalCanAccess(context: PrincipalContext, pathname: string): boolean {
   if (pathname === "/beta" || pathname === "/beta/api/principal-context") return true;
+  if (pathname === "/beta/social-analytics") return context.capabilities.includes("analytics:read");
   if (pathname === "/beta/research") return context.capabilities.includes("research:read");
   if (context.kind === "member") {
     return betaChatPath.test(pathname) || [
       "/beta/analytics",
-      "/beta/social-analytics",
       "/beta/settings/workspace/analytics",
       "/beta/connections",
       "/beta/settings",
@@ -60,7 +60,7 @@ export function principalCanAccess(context: PrincipalContext, pathname: string):
       "/beta/settings/appearance",
     ].includes(pathname);
   }
-  return pathname === "/beta/connections" || pathname === "/beta/analytics" || pathname === "/beta/social-analytics" || betaChatPath.test(pathname) || pathname.startsWith("/beta/workspace") || pathname.startsWith("/beta/settings") || pathname.startsWith("/beta/admin") || pathname.startsWith("/beta/api/");
+  return pathname === "/beta/connections" || pathname === "/beta/analytics" || betaChatPath.test(pathname) || pathname.startsWith("/beta/workspace") || pathname.startsWith("/beta/settings") || pathname.startsWith("/beta/admin") || pathname.startsWith("/beta/api/");
 }
 
 export function capabilityForPath(pathname: string): string | null {

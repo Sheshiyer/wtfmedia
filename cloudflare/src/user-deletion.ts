@@ -11,6 +11,8 @@ export async function eraseUserHistory(db: DB, email: string) {
     db.prepare("INSERT OR IGNORE INTO member_chat_deletion_tombstones (conversation_id, member_id, create_idempotency_key, deleted_at) SELECT c.id, c.member_id, c.create_idempotency_key, ? FROM member_chat_conversations c JOIN member_users m ON m.id = c.member_id WHERE m.email = ?").bind(now, email),
     db.prepare("DELETE FROM member_saved_memory_conversation_tombstones WHERE member_id IN (SELECT id FROM member_users WHERE email = ?)").bind(email),
     db.prepare("DELETE FROM analytics_investigations WHERE member_id IN (SELECT id FROM member_users WHERE email = ?) ").bind(email),
+    db.prepare("DELETE FROM social_analytics_rate_limits WHERE member_id IN (SELECT id FROM member_users WHERE email = ?) ").bind(email),
+    db.prepare("DELETE FROM social_analytics_investigations WHERE member_id IN (SELECT id FROM member_users WHERE email = ?)").bind(email),
     db.prepare("INSERT OR IGNORE INTO research_erasure_jobs (run_id, member_id, created_at) SELECT r.run_id, b.member_id, ? FROM research_runs r JOIN research_briefs b ON b.id = r.brief_id JOIN member_users m ON m.id = b.member_id WHERE m.email = ?").bind(now, email),
     db.prepare("DELETE FROM research_versions WHERE brief_id IN (SELECT b.id FROM research_briefs b JOIN member_users m ON m.id = b.member_id WHERE m.email = ?)").bind(email),
     db.prepare("DELETE FROM research_runs WHERE brief_id IN (SELECT b.id FROM research_briefs b JOIN member_users m ON m.id = b.member_id WHERE m.email = ?)").bind(email),

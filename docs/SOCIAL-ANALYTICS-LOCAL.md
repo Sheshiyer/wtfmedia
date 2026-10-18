@@ -1,105 +1,144 @@
-# Social analytics local lab
+# Social analytics and private metric chat
 
-The standalone `/social-analytics` route is a local-only experiment. It uses
-Zernio's hosted OAuth handoff so a teammate connects LinkedIn, Instagram,
-Facebook, or X (Twitter) from WTF OS without entering provider credentials into this
-repository.
+The authenticated workspace is `/beta/social-analytics`. Members can read and
+ask questions; admins and super-admins can select the shared Zernio workspace
+and connect/reconnect LinkedIn, Instagram, Facebook and X. Saved chats belong
+to the signed-in account, not everyone using the shared connection.
 
-The same workspace is also available at `/beta/social-analytics` for signed-in
-beta users with `analytics:read` when Clerk is configured locally. During
-`next dev`, the public WTF OS hamburger links to `/social-analytics`, and the
-beta hamburger links to `/beta/social-analytics` for local principals.
+Implementation is local source only. Hosted flags are off by default. No shared
+migration, provider configuration, push or deployment is implied.
 
-## Local environment
+## Setup for local testing
 
-Create `web/.env.local` with these uncommitted values:
+Apply migrations through `0024_social_analytics.sql` to a **local** test D1 before
+testing. The migration adds workspace selection, private snapshots/tombstones,
+and per-user request counters. Applying it to staging or production is a
+separately approved operation with a recovery receipt.
+
+Set these names in ignored `cloudflare/.dev.vars` (do not commit credentials):
 
 ```dotenv
-ZERNIO_API_KEY=your_server_side_zernio_key
-ZERNIO_PROFILE_ID=your_zernio_profile_id
-SOCIAL_ANALYTICS_LOCAL_ENABLED=1
+SOCIAL_ANALYTICS_ENABLED=1
+ZERNIO_API_KEY=
+# Optional verified override; leave unset to discover and confirm a profile.
+ZERNIO_PROFILE_ID=
+OPENROUTER_API_KEY=
+# Optional: inherit the same model configuration as Ask WTF.
+OPENROUTER_ANSWER_MODEL=
 ```
 
-The explicit enable flag is intentionally absent from deployed environments.
-The API key is read only by Next.js route handlers. Client components receive
-connection URLs and normalized analytics data, never the key. All three route
-handlers also reject non-loopback hostnames, preserving the experimental local
-boundary until the module is intentionally integrated with beta authentication.
+Set in ignored `web/.env.local`:
 
-## Flow
+```dotenv
+SOCIAL_ANALYTICS_ENABLED=1
+NEXT_PUBLIC_SOCIAL_ANALYTICS_ENABLED=1
+WTFMEDIA_EDGE_LOCAL_ORIGIN=http://localhost:8787
+```
 
-1. Open `http://localhost:3000/social-analytics`.
-2. Choose a platform and select **connect**.
-3. Complete Zernio's hosted OAuth and any page/profile selection.
-4. Zernio returns to `/social-analytics`; the page refreshes account health.
-5. When the Zernio Analytics add-on is available, the dashboard loads unified
-   totals, daily distribution, follower movement, and top posts.
+Retain the existing local Clerk/Edge host configuration described in `PROJECT.md`.
+Start the Edge with `npm --prefix cloudflare run dev` and Next with
+`npm --prefix web run dev -- --hostname localhost`. Restart after configuration
+changes. Sign in, open the social workspace, and confirm one discovered profile
+as an admin. With multiple profiles, choose deliberately. No profile is created
+or silently selected. A configured profile override must be accessible to the
+key; an invalid override never falls back to another workspace.
 
-LinkedIn personal-profile analytics can be limited to posts published through
-Zernio. LinkedIn organization pages and the other supported account types may
-return broader provider history according to their permissions.
+Staging/production require separate server-side Web and Edge enable flags;
+`NEXT_PUBLIC_SOCIAL_ANALYTICS_ENABLED` only controls navigation and grants no
+access. All API requests still require current Clerk/D1 admission and the
+appropriate capability.
 
-## What PR #84 adds
+## How a question becomes an answer
 
-This is a separate social analytics dashboard, not an extension to YouTube
-analytics, Ask WTF, or the Research agent. It has connection/reconnection cards
-for the four platforms, platform and 7/28/90-day filters, metric cards, a daily
-impressions chart, and a top-post list. The menu entry is in the hamburger,
-not the bottom dock. Research navigation and the production YouTube visibility
-rule are preserved by the integration.
+1. The browser sends the question, visible filters and bounded conversation
+   context to `/beta/api/social-analytics/assistant` through the existing proxy.
+2. The Edge verifies the principal and limits chat to ten requests per minute.
+3. The shared Ask WTF OpenRouter helper interprets the request into a validated
+   query plan. It cannot choose arbitrary tools, URLs, SQL or workspace IDs.
+4. The server reads Zernio evidence under the selected profile. Post references
+   are resolved within a bounded profile-scoped catalogue and checked against
+   connected account IDs, never fetched by an unverified arbitrary ID.
+5. Server code calculates differences and returns typed tables, dates, source
+   references, freshness and limitations. Model-generated numbers are not used.
 
-The browser calls three Next.js routes:
+Supported requests include platform summaries, matching-period platform
+comparisons, equal-length period comparisons, post comparisons, metric rankings
+and daily trends. Follow-ups such as “the second one” resolve one prior entity.
+Explicit new filters take precedence; changing dashboard filters clears implicit
+conversation scope. Post titles with several matches require a choice.
 
-| Route | Purpose |
-| --- | --- |
-| `GET /api/social-analytics/status` | Check configuration, list accounts in the configured profile, then check each account's health. |
-| `POST /api/social-analytics/connect` | Request a hosted platform authorization URL and navigate the browser to it. |
-| `GET /api/social-analytics/dashboard` | Request analytics for the profile, platform and selected UTC date range. |
+Budgets: 2,000-character question, eight prior turns of 2,000 characters,
+four platforms, two periods, ten displayed rows, twelve provider requests,
+three dashboard requests in parallel, up to five pages of 100 posts, 15-second
+provider timeout, 20-second model timeout and 60-second total budget. Transient
+idempotent provider reads retry once within that budget. Connection handoffs do
+not retry automatically. Incomplete coverage is disclosed.
 
-The server adapter in `web/lib/social-analytics/zernio.ts` sends the key to
-Zernio as a bearer credential, uses a 15-second provider timeout and no-store
-fetches, and projects the returned fields into browser DTOs. Platform tokens
-are managed by Zernio; this PR adds no platform-token storage or database
-migration. It does not use an AI model.
+## Reading the results
 
-The profile is one server-configured workspace, not a private profile created
-for each WTF OS user. Use a profile dedicated to the four supported platforms:
-“All connected” requests the provider's totals for that entire profile.
-The Beta page has the existing principal/capability gate. The standalone local
-page and its API intentionally do not implement production user/RBAC controls.
-They require loopback hostnames and the explicit flag, and are disabled in a
-production build even if that flag is accidentally set. The connection POST
-also rejects cross-origin requests and requires JSON. Do not expose the local
-lab through a tunnel or treat it as a production-ready authorization design.
+- Missing values remain **Unavailable**; a reported zero remains **0**.
+- Dashboard totals measure activity received during the selected inclusive UTC
+  dates. Post totals are **lifetime-to-date** for posts published in those dates.
+- Post searches cover the selected publication dates. If an older post cannot
+  be found, widen the date range. First-N-day post comparisons are unavailable
+  without historical observations; lifetime figures are never substituted.
+- Percentage change is unavailable with a zero baseline. Engagement-rate
+  differences are percentage points. Provider formulas can differ by platform;
+  comparisons are directional and reach is not unique people across networks.
+- Daily trends support impressions, reach, views and follower growth. Longer
+  ranges show the latest ten observed days and disclose that limit.
+- Rankings exclude unavailable values. A bounded or incomplete post scan is not
+  presented as an overall winner. Cross-post platform measurements stay separate.
+- A platform error preserves the other platforms' evidence. Causes and suggested
+  improvements are not presented as proven explanations or guaranteed outcomes.
 
-These variables belong in **`web/.env.local`** for this implementation;
-`cloudflare/.dev.vars` is not automatically read by these Next.js routes.
-Restart the local web server after adding them. No credentials are included in
-the merge, and neither staging nor production is activated by it.
+## Chat controls and privacy
 
-## Reading the numbers
+The chat has a separate scrolling conversation area, fixed composer, suggestions
+toggle, retry, stop waiting, copy/download answer, and private save/reopen/delete.
+Stopping waiting cancels the browser wait; it does not promise downstream work
+or billing has stopped.
 
-[Zernio's dashboard contract](https://docs.zernio.com/analytics/get-analytics-dashboard)
-uses UTC days. Totals and daily observations cover engagement received in the
-chosen window. Top posts were published in that window but carry lifetime
-metrics, so their values need not add up to the window totals. Reach totals are
-reported aggregates, not a count of distinct people across platforms and days.
-The chart consistently shows impressions, including real zero values; it does
-not substitute views or reach on individual days. Missing numeric fields show
-as unavailable rather than invented zeroes. Account-health failures remain
-unknown rather than claiming a healthy connection.
+Saved answers are historical snapshots with original evidence timestamps.
+Follow-ups re-fetch data. Snapshot values are never trusted as provider evidence.
+Permanent deletion clears content and leaves a minimal owner-scoped tombstone
+so stale saves cannot restore the chat. Account deletion erases social chat
+content, tombstones and request counters. Ordinary member deletion does not
+remove the shared social connection.
 
-## What is not included
+## API and source map
 
-- Staging/production rollout, per-user profile ownership, or server-side admin
-  authorization for managing connections outside the local lab.
-- Publishing/scheduling posts, disconnecting accounts, saved social reports,
-  automated sync jobs, or social analytics chat.
-- New YouTube impressions/CTR support or changes to YouTube OAuth.
-- A previous-period comparison UI: the provider request includes comparison
-  data, but this workspace currently renders only the current window.
+All private routes are below `/beta/api/social-analytics`:
 
-The provider dashboard requires its Analytics add-on and authorized platform
-accounts. Results depend on platform permissions and synchronization coverage.
-Live OAuth and real account analytics must be tested separately; mocked
-adapter/route tests establish source behavior, not provider acceptance.
+| Route | Access | Result |
+| --- | --- | --- |
+| GET `/status` | Analytics read | Connection state; admins also see available profiles |
+| POST `/selection` | Analytics manage | Confirm a profile from the server's discovery list |
+| POST `/connect` | Analytics manage | Zernio-hosted OAuth URL for the selected profile |
+| GET `/dashboard` | Analytics read | Normalized dashboard for validated platform/dates |
+| POST `/assistant` | Analytics read | Validated plan and structured evidence answer |
+| GET/POST `/investigations` | Owner | List/save private chat snapshots |
+| GET/DELETE `/investigations/:id` | Owner | Reopen/permanently delete a private snapshot |
+
+The runtime-neutral provider and contracts live in `cloudflare/src/social-analytics-*`.
+The local web wrapper uses the same normalizers. UI lives in
+`web/components/domain/social/`. No vector store, research runner or new AI
+provider is introduced. Research, Ask WTF and production YouTube visibility are
+unchanged.
+
+The standalone `/social-analytics` lab retains its loopback-only,
+`SOCIAL_ANALYTICS_LOCAL_ENABLED=1`, non-production guards and old server-only
+`web/.env.local` Zernio configuration. It exposes no private chat/history API.
+Use authenticated Beta to test the new feature.
+
+## Acceptance boundary
+
+Automated provider, planner, router and UI tests use controlled data. They prove
+source behavior, not connected-account accuracy or deployment acceptance. Real
+Zernio reconciliation, hosted OAuth, two-user signed-in privacy, and responsive
+Safari/Chromium checks remain necessary before rollout. The owner deferred
+adding the Zernio key until after implementation.
+
+Provider references: [profile discovery](https://docs.zernio.com/profiles/list-profiles),
+[dashboard](https://docs.zernio.com/analytics/get-analytics-dashboard), and
+[post analytics](https://docs.zernio.com/analytics/get-analytics).

@@ -56,6 +56,6 @@ export function audienceForRole(role: string): BetaAudience {
 }
 
 export function isBetaDestinationVisible(href: string, environment: string): boolean {
-  if (href.replace(/\/$/, "") === "/beta/social-analytics") return environment === "local";
+  if (href.replace(/\/$/, "") === "/beta/social-analytics") return environment === "local" || process.env.NEXT_PUBLIC_SOCIAL_ANALYTICS_ENABLED === "1";
   return environment !== "production" || !["/beta/analytics", "/beta/settings/workspace/analytics"].includes(href.replace(/\/$/, ""));
 }

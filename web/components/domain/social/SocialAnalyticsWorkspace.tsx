@@ -1,8 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { useBetaPrincipal, useMemberFetch } from "@/components/domain/beta/BetaPrincipalGate";
+import { SocialAnalyticsChat } from "@/components/domain/social/SocialAnalyticsChat";
 import { PlatformLogo } from "@/components/domain/social/PlatformLogo";
 import {
   PLATFORM_DEFINITIONS,
@@ -45,9 +47,35 @@ async function responseJson<T>(response: Response): Promise<T> {
   return payload;
 }
 
+type BetaSocialStatusResponse = SocialStatusResponse & {
+  canManage: boolean;
+  profiles?: { id: string; name: string }[];
+  profileName?: string;
+  selectionRequired?: boolean;
+  configuredOverride?: boolean;
+};
+
+type SocialFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+const localFetch: SocialFetch = (input, init) => fetch(input, init);
+
 export function SocialAnalyticsWorkspace() {
+  return <SocialAnalyticsView request={localFetch} apiBase="/api/social-analytics" />;
+}
+
+export function BetaSocialAnalyticsWorkspace() {
+  const request = useMemberFetch();
+  const principal = useBetaPrincipal();
+  return <SocialAnalyticsView request={request} apiBase="/beta/api/social-analytics" beta environment={principal.environment} />;
+}
+
+function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
+  request: SocialFetch;
+  apiBase: string;
+  beta?: boolean;
+  environment?: string;
+}) {
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<SocialStatusResponse | null>(null);
+  const [status, setStatus] = useState<BetaSocialStatusResponse | null>(null);
   const [dashboard, setDashboard] = useState<SocialDashboard | null>(null);
   const [platform, setPlatform] = useState<PlatformFilter>("all");
   const [rangeDays, setRangeDays] = useState<RangeDays>(28);
@@ -56,28 +84,53 @@ export function SocialAnalyticsWorkspace() {
   const [connecting, setConnecting] = useState<SocialPlatform | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const [profileId, setProfileId] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileNotice, setProfileNotice] = useState<string | null>(null);
+  const mutationPending = useRef(false);
+  const dashboardRequest = useRef<AbortController | null>(null);
+  const statusRequest = useRef<AbortController | null>(null);
+  const canManage = !beta || status?.canManage === true;
+  const profiles = beta && canManage ? status?.profiles ?? [] : [];
+  const selectedProfileId = status?.configuredOverride ? status.profileId ?? "" : profileId || (profiles.length === 1 ? profiles[0].id : "");
+  const scope = useMemo(() => ({ platform, ...dateScope(rangeDays) }), [platform, rangeDays]);
+
   const callbackPlatform = searchParams.get("connected");
   const accounts = useMemo(() => status?.accounts ?? [], [status?.accounts]);
   const connectedPlatforms = useMemo(() => new Set(accounts.filter((account) => account.isActive).map((account) => account.platform)), [accounts]);
 
   const loadStatus = useCallback(async () => {
+    dashboardRequest.current?.abort();
+    statusRequest.current?.abort();
+    const controller = new AbortController();
+    statusRequest.current = controller;
     setLoadingStatus(true);
+    setStatus(null);
+    setDashboard(null);
     setError(null);
     try {
-      const response = await fetch("/api/social-analytics/status", { cache: "no-store" });
-      setStatus(await responseJson<SocialStatusResponse>(response));
+      const response = await request(`${apiBase}/status`, { cache: "no-store", signal: controller.signal });
+      const payload = await responseJson<BetaSocialStatusResponse>(response);
+      if (controller.signal.aborted) return;
+      setStatus(payload);
+      setProfileId("");
     } catch (caught) {
+      if (controller.signal.aborted) return;
       setError(caught instanceof Error ? caught.message : "Could not load connected accounts.");
     } finally {
-      setLoadingStatus(false);
+      if (!controller.signal.aborted) setLoadingStatus(false);
     }
-  }, []);
-
-  useEffect(() => { void loadStatus(); }, [loadStatus]);
+  }, [apiBase, request]);
 
   useEffect(() => {
-    if (!status?.configured || accounts.length === 0) {
-      setDashboard(null);
+    void loadStatus();
+    return () => statusRequest.current?.abort();
+  }, [loadStatus]);
+
+  useEffect(() => {
+    setDashboard(null);
+    if (!status?.configured || status.selectionRequired || accounts.length === 0) {
+      setLoadingDashboard(false);
       return;
     }
     if (platform !== "all" && !connectedPlatforms.has(platform)) {
@@ -85,17 +138,17 @@ export function SocialAnalyticsWorkspace() {
       return;
     }
     const controller = new AbortController();
+    dashboardRequest.current = controller;
     const load = async () => {
       setLoadingDashboard(true);
       setError(null);
       try {
-        const scope = dateScope(rangeDays);
-        const query = new URLSearchParams({ platform, ...scope });
-        const response = await fetch(`/api/social-analytics/dashboard?${query}`, { cache: "no-store", signal: controller.signal });
+        const query = new URLSearchParams(scope);
+        const response = await request(`${apiBase}/dashboard?${query}`, { cache: "no-store", signal: controller.signal });
         const payload = await responseJson<{ dashboard: SocialDashboard }>(response);
-        setDashboard(payload.dashboard);
+        if (!controller.signal.aborted) setDashboard(payload.dashboard);
       } catch (caught) {
-        if (caught instanceof Error && caught.name === "AbortError") return;
+        if (controller.signal.aborted) return;
         setDashboard(null);
         setError(caught instanceof Error ? caught.message : "Could not load analytics.");
       } finally {
@@ -104,13 +157,41 @@ export function SocialAnalyticsWorkspace() {
     };
     void load();
     return () => controller.abort();
-  }, [accounts.length, connectedPlatforms, platform, rangeDays, status?.configured]);
+  }, [accounts.length, apiBase, connectedPlatforms, platform, request, scope, status]);
+
+  const confirmProfile = async () => {
+    if (!beta || !canManage || status?.configuredOverride || !profiles.some((profile) => profile.id === selectedProfileId) || mutationPending.current) return;
+    mutationPending.current = true;
+    dashboardRequest.current?.abort();
+    setLoadingDashboard(false);
+    setSavingProfile(true);
+    setDashboard(null);
+    setError(null);
+    setProfileNotice(null);
+    try {
+      const response = await request(`${apiBase}/selection`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ profileId: selectedProfileId }),
+      });
+      await responseJson(response);
+      setProfileNotice("Workspace profile confirmed.");
+      await loadStatus();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Could not confirm the workspace profile.");
+    } finally {
+      mutationPending.current = false;
+      setSavingProfile(false);
+    }
+  };
 
   const connect = async (target: SocialPlatform) => {
+    if (!canManage || !status?.configured || status.selectionRequired || mutationPending.current) return;
+    mutationPending.current = true;
     setConnecting(target);
     setError(null);
     try {
-      const response = await fetch("/api/social-analytics/connect", {
+      const response = await request(`${apiBase}/connect`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ platform: target }),
@@ -118,7 +199,11 @@ export function SocialAnalyticsWorkspace() {
       const payload = await responseJson<{ authUrl: string }>(response);
       window.location.assign(payload.authUrl);
     } catch (caught) {
+      dashboardRequest.current?.abort();
+      setDashboard(null);
+      setLoadingDashboard(false);
       setError(caught instanceof Error ? caught.message : "Could not start the connection.");
+      mutationPending.current = false;
       setConnecting(null);
     }
   };
@@ -141,7 +226,7 @@ export function SocialAnalyticsWorkspace() {
         <div>
           <div className="mb-5 flex items-center gap-3">
             <span className="h-1 w-9 border border-foreground bg-editorial" aria-hidden="true" />
-            <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">WTF social intelligence · local lab</p>
+            <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">WTF social intelligence · {beta ? "Beta" : "local lab"}</p>
           </div>
           <h1 className="font-display text-[clamp(3rem,8vw,7rem)] font-extrabold lowercase leading-[0.82] tracking-[-0.055em] text-foreground">
             read the room.<br /><span className="font-editorial font-medium italic">across every feed.</span>
@@ -151,7 +236,7 @@ export function SocialAnalyticsWorkspace() {
           <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">one connected workspace</p>
           <p className="mt-3 max-w-md font-body text-lg leading-relaxed text-secondary">Connect each channel once. Zernio handles platform OAuth; WTF OS turns the returned data into one decision view.</p>
           <div className="mt-5 inline-flex items-center gap-2 rounded-full border-2 border-foreground bg-surface-raised px-3 py-2 font-label text-xs font-bold uppercase tracking-wide">
-            <span className="h-2.5 w-2.5 rounded-full bg-live" aria-hidden="true" /> local only · not deployed
+            <span className="h-2.5 w-2.5 rounded-full bg-live" aria-hidden="true" /> {beta ? `${environment} workspace` : "local only · not deployed"}
           </div>
         </div>
       </div>
@@ -161,10 +246,28 @@ export function SocialAnalyticsWorkspace() {
       {callbackPlatform && <div className="mb-6 border-2 border-foreground bg-live/10 p-4 font-body text-sm" role="status">
         <strong className="font-label">Connection returned from Zernio.</strong> Refreshing account access for {callbackPlatform}.
       </div>}
-      {status && !status.configured && <p className="mb-6 border-2 border-foreground p-4" role="status">Social analytics is not configured. Add the local Zernio API key and profile ID to enable connections.</p>}
+      {status && !status.configured && <p className="mb-6 border-2 border-foreground p-4" role="status">{beta ? canManage ? "Confirm a workspace profile below to enable social analytics. If profiles cannot be loaded, ask your administrator to check the integration." : "Social analytics is not configured. Ask an administrator to connect the workspace." : "Social analytics is not configured. Add the local Zernio API key and profile ID to enable connections."}</p>}
       {error && <div className="mb-6 border-2 border-editorial bg-editorial/10 p-4 font-body text-sm text-foreground" role="alert">
         <strong className="font-label">Needs attention:</strong> {error}
       </div>}
+
+      {beta && status?.profileName && <p className="mb-4 font-body text-sm">Workspace: <strong>{status.profileName}</strong></p>}
+      {beta && canManage && <section className="mb-8 border-2 border-foreground bg-surface-raised p-5" aria-labelledby="profile-heading">
+        <h2 id="profile-heading" className="font-display text-2xl font-bold">Workspace profile</h2>
+        {status?.configuredOverride && <p className="mt-2 text-sm text-secondary">The workspace profile is fixed by server configuration. Profile switching is disabled.</p>}
+        {profiles.length > 0 || status?.configuredOverride ? <div className="mt-4 flex flex-wrap items-end gap-3">
+          <label className="grid min-w-0 max-w-full gap-2 text-sm">
+            Zernio profile
+            <select className="min-h-11 min-w-0 max-w-full border-2 border-foreground bg-canvas px-3" value={selectedProfileId} onChange={(event) => { setProfileId(event.target.value); setProfileNotice(null); }} disabled={status?.configuredOverride || savingProfile || connecting !== null}>
+              <option value="">Choose a profile</option>
+              {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}</option>)}
+            </select>
+          </label>
+          <Button onClick={() => void confirmProfile()} loading={savingProfile} disabled={!selectedProfileId || status?.configuredOverride || connecting !== null}>confirm workspace profile</Button>
+          <p className="w-full text-sm text-secondary">Confirming uses this profile for everyone in this workspace. Choosing an option alone makes no changes.</p>
+        </div> : <p className="mt-3 text-sm">No accessible profiles. <a className="underline" href="https://zernio.com" target="_blank" rel="noopener noreferrer">Set up a profile in Zernio</a>, then refresh connections.</p>}
+      </section>}
+      {(savingProfile || connecting || loadingStatus || profileNotice) && <p className="mb-4 text-sm" role="status">{savingProfile ? "Confirming workspace profile…" : connecting ? "Opening secure platform connection…" : loadingStatus ? "Loading connected accounts…" : profileNotice}</p>}
 
       <section aria-labelledby="connections-heading">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
@@ -172,7 +275,7 @@ export function SocialAnalyticsWorkspace() {
             <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">01 · connections</p>
             <h2 id="connections-heading" className="mt-2 font-display text-heading font-bold lowercase tracking-tight">bring the channels in</h2>
           </div>
-          <Button variant="secondary" onClick={() => void loadStatus()} loading={loadingStatus}>refresh connections</Button>
+          <Button variant="secondary" onClick={() => void loadStatus()} loading={loadingStatus} disabled={savingProfile || connecting !== null}>refresh connections</Button>
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {PLATFORM_DEFINITIONS.map((definition) => {
@@ -188,16 +291,17 @@ export function SocialAnalyticsWorkspace() {
               <h3 className="mt-5 font-display text-2xl font-bold">{definition.label}</h3>
               <p className="mt-2 flex-1 font-body text-sm leading-relaxed text-secondary">{account ? accountLabel(account) : definition.description}</p>
               {account?.healthMessage && <p className="mb-3 text-xs text-editorial">{account.healthMessage}</p>}
-              <Button variant={account ? "secondary" : "attention"} loading={connecting === definition.id} disabled={!status?.configured || connecting !== null} onClick={() => void connect(definition.id)}>
+              {canManage && <Button variant={account ? "secondary" : "attention"} loading={connecting === definition.id} disabled={!status?.configured || status.selectionRequired || savingProfile || connecting !== null} onClick={() => void connect(definition.id)}>
                 {account ? "reconnect" : `connect ${definition.label}`}
-              </Button>
+              </Button>}
             </article>;
           })}
         </div>
       </section>
 
-      <section className="mt-12 border-2 border-foreground bg-surface-raised" aria-labelledby="dashboard-heading">
-        <div className="flex flex-col gap-5 border-b-2 border-foreground p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between">
+      <div className={beta ? "mt-10 grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "mt-12"}>
+      <section className="min-w-0 border-2 border-foreground bg-surface-raised" aria-labelledby="dashboard-heading">
+        <div className="flex flex-col gap-5 border-b-2 border-foreground p-5 sm:p-6">
           <div>
             <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">02 · performance</p>
             <h2 id="dashboard-heading" className="mt-2 font-display text-heading font-bold lowercase tracking-tight">what changed?</h2>
@@ -220,22 +324,22 @@ export function SocialAnalyticsWorkspace() {
         </div>
 
         {loadingDashboard ? <div className="grid min-h-[360px] place-items-center p-8"><p className="font-label text-sm font-bold uppercase tracking-widest text-muted">loading live analytics…</p></div>
-          : accounts.length === 0 ? <div className="grid min-h-[360px] place-items-center p-8 text-center"><div className="max-w-lg"><p className="font-editorial text-3xl italic">The dashboard is ready for its first signal.</p><p className="mt-4 font-body text-secondary">Connect any platform above. Once OAuth returns, the totals, trend line, and strongest posts will populate here automatically.</p></div></div>
+          : accounts.length === 0 ? <div className="grid min-h-[360px] place-items-center p-8 text-center"><div className="max-w-lg"><p className="font-editorial text-3xl italic">The dashboard is ready for its first signal.</p><p className="mt-4 font-body text-secondary">{canManage ? "Connect any platform above. Once OAuth returns, the totals, trend line, and strongest posts will populate here automatically." : "An administrator can connect platforms for this workspace. Analytics will appear here when data is available."}</p></div></div>
           : dashboard ? <div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4">
-              {metricCards.map((metric) => <article key={metric.label} className="border-b-2 border-foreground p-5 sm:border-r-2 [&:nth-child(2n)]:sm:border-r-0 [&:nth-child(4n)]:lg:border-r-0 [&:nth-child(2n)]:lg:border-r-2">
+            <div className={beta ? "grid sm:grid-cols-2" : "grid sm:grid-cols-2 lg:grid-cols-4"}>
+              {metricCards.map((metric) => <article key={metric.label} className="min-w-0 border-b-2 border-foreground p-5">
                 <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{metric.label}</p>
-                <p className="mt-3 font-display text-4xl font-extrabold tracking-tight">{metric.value}</p>
+                <p className={`mt-3 break-words font-display font-extrabold tracking-tight ${beta ? "text-2xl xl:text-3xl" : "text-4xl"}`}>{metric.value}</p>
                 <p className="mt-2 text-sm text-secondary">{metric.note}</p>
               </article>)}
             </div>
-            <div className="grid lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
-              <article className="border-b-2 border-foreground p-5 lg:border-b-0 lg:border-r-2 sm:p-6">
-                <div className="flex items-center justify-between gap-4"><h3 className="font-display text-2xl font-bold lowercase">daily distribution</h3><p className="font-label text-[10px] uppercase tracking-wide text-muted">impressions</p></div>
-                <div className="mt-8 flex h-56 items-end gap-1 border-b-2 border-foreground" aria-label="Daily performance chart">
+            <div className={beta ? "grid min-w-0" : "grid lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]"}>
+              <article className="min-w-0 border-b-2 border-foreground p-5 sm:p-6">
+                <div className="flex flex-wrap items-center justify-between gap-4"><h3 className="font-display text-2xl font-bold lowercase">daily distribution</h3><p className="font-label text-[10px] uppercase tracking-wide text-muted">impressions</p></div>
+                <div className="mt-8 flex h-56 items-end gap-px overflow-x-auto border-b-2 border-foreground" aria-label="Daily performance chart">
                   {dashboard.daily.length ? dashboard.daily.map((day) => {
                     const value = day.impressions;
-                    return <div key={day.date} className="group relative flex h-full min-w-0 flex-1 items-end" title={`${day.date}: ${value === null ? "Unavailable" : value.toLocaleString()} impressions`}>
+                    return <div key={day.date} className="group relative flex h-full min-w-[4px] flex-1 items-end" title={`${day.date}: ${value === null ? "Unavailable" : value.toLocaleString()} impressions`}>
                       <div className="w-full bg-information transition-colors group-hover:bg-attention" style={{ height: `${((value ?? 0) / chartMaximum) * 100}%` }} />
                     </div>;
                   }) : <div className="grid h-full w-full place-items-center text-sm text-muted">No daily observations returned for this range.</div>}
@@ -255,6 +359,8 @@ export function SocialAnalyticsWorkspace() {
             </div>
           </div> : <div className="grid min-h-[360px] place-items-center p-8 text-center"><p className="max-w-lg font-body text-secondary">Connected accounts were found, but the analytics summary is unavailable. Check the notice above for the provider response.</p></div>}
       </section>
+      {beta && <aside className="w-full min-w-0" aria-label="Social analytics chat"><SocialAnalyticsChat scope={scope} /></aside>}
+      </div>
     </main>
   </div>;
 }

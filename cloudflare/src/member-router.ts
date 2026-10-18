@@ -1,3 +1,4 @@
+import { handleSocialAnalytics } from "./social-analytics.ts";
 import { handleAnalyticsInvestigations } from "./analytics-investigations.ts";
 import { handleResearch } from "./research.ts";
 import { erasePendingResearchJobs } from "./research-erasure.ts";
@@ -19,7 +20,7 @@ import { handleAnalyticsRequest, type AnalyticsDependencies } from "./analytics.
 import { handleAnalyticsAssistant } from "./analytics-assistant.ts";
 import { syncSelectedAnalytics, syncYouTubeRetention } from "./analytics-sync.ts";
 
-type Dependencies = { verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer>; fetchRunner?: typeof fetch } & AnalyticsDependencies;
+type Dependencies = { fetchSocial?: typeof fetch; planSocial?: typeof import("./chat/openrouter.ts").openRouterChat; verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer>; fetchRunner?: typeof fetch } & AnalyticsDependencies;
 const headers = { "cache-control": "private, no-store", "x-content-type-options": "nosniff" };
 const denied = () => Response.json({ error: "ops_unavailable" }, { status: 404, headers });
 const unauthorized = () => Response.json({ error: "unauthorized" }, { status: 401, headers });
@@ -67,6 +68,11 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     } catch { return Response.json({ error: "user_management_unavailable" }, { status: 503, headers }); }
   }
   if (url.pathname === "/beta/api/principal-context" && request.method === "GET") return Response.json(principalContextDto(context), { headers });
+  if (url.pathname.startsWith('/beta/api/social-analytics/')) {
+    if (env.SOCIAL_ANALYTICS_ENABLED !== '1') return denied();
+    const memberId = await memberIdForPrincipal(env.DB, context);
+    return memberId ? handleSocialAnalytics(request,env,context,memberId,dependencies) : forbidden();
+  }
   if (url.pathname === "/beta/api/research" || url.pathname.startsWith("/beta/api/research/")) {
     const memberId = await memberIdForPrincipal(env.DB, context);
     return memberId ? handleResearch(request, env, memberId, dependencies) : forbidden();

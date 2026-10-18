@@ -1,3 +1,28 @@
+## 2026-10-18 — Social analytics chat implemented locally
+
+- Owner approved the social-chat plan for local implementation on `feature/pavun`.
+  No push, deployment, provider credential change or shared migration was performed.
+  Staging/production remain disabled by default; production YouTube hiding stays intact.
+- Adds authenticated `/beta/api/social-analytics/*` routes, admin-only profile
+  discovery/confirmation and OAuth handoffs, shared provider normalizers, bounded
+  metric plans using the existing OpenRouter helper, period/platform/post comparisons,
+  rankings, trends, explicit context and safe unavailable/partial responses.
+- New private social investigations support save/reopen/permanent delete with
+  replay-proof tombstones, account erasure and immediate UI feedback. The standalone
+  local lab exposes no private chat or history. No Ask WTF/Research inference boundary changes.
+- Migration `0024_social_analytics.sql` is source-only and was exercised in isolated
+  SQLite tests. It must be applied through the approved environment-specific recovery
+  and migration process before deploying this candidate. It adds profile selection,
+  investigations and per-user rate-limit counters; no provider secrets are stored.
+- VERIFIED-SOURCE: full backend 514/514, web unit 326/326, contracts 97/97, typecheck,
+  lint and production build pass. Focused social tests cover the reviewed context,
+  ranking, privacy, missing-data and deadline cases, plus authorized route/quota wiring.
+  Chromium fixture interactions/overflow passed at 320/768/1440; these are not
+  signed-in browser or provider acceptance. Safari/WebKit remains untested.
+- Owner will add the Zernio key later. Live profile/account reconciliation, real OAuth,
+  actual metric accuracy and two-user signed-in acceptance remain open. Configuration
+  names, local commands and supported metric limits: `docs/SOCIAL-ANALYTICS-LOCAL.md`.
+
 ## 2026-10-17 — PR #84 integrated into feature/pavun
 
 - Owner authorized review, merge, commit and push of PR #84 (`b645c0a36845e925da0bd375460359676f4fa903`). This integration retains Research, the accepted principal shell, and production-only YouTube Analytics hiding. No deployment, shared migration, provider credential change or PR #48/#77 mutation.

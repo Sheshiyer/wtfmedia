@@ -133,6 +133,15 @@ function betaApiRequirement(pathname: string, method: string): readonly [Resourc
   if (/^\/beta\/api\/research\/rbrief_[0-9a-f-]{36}$/u.test(pathname)) return ["GET", "PATCH", "DELETE"].includes(requestMethod) ? ["research", requestMethod === "GET" ? "read" : "write"] : null;
   if (/^\/beta\/api\/research\/rbrief_[0-9a-f-]{36}\/versions\/[1-9][0-9]{0,8}$/u.test(pathname)) return requestMethod === "GET" ? ["research", "read"] : null;
   if (/^\/beta\/api\/research\/rbrief_[0-9a-f-]{36}\/(?:run|cancel|chat|restore)$/u.test(pathname)) return requestMethod === "POST" ? ["research", "write"] : null;
+  if (pathname.startsWith('/beta/api/social-analytics/')) {
+    const action = pathname.slice('/beta/api/social-analytics/'.length);
+    if (['status','dashboard'].includes(action) && requestMethod === 'GET') return ['analytics','read'];
+    if (['selection','connect'].includes(action) && requestMethod === 'POST') return ['analytics','manage'];
+    if (action === 'assistant' && requestMethod === 'POST') return ['analytics','read'];
+    if (action === 'investigations' && ['GET','POST'].includes(requestMethod)) return ['analytics','read'];
+    if (/^investigations\/sinv_[0-9a-f-]{36}$/.test(action) && ['GET','DELETE'].includes(requestMethod)) return ['analytics','read'];
+    return null;
+  }
   if (["/beta/api/analytics/status", "/beta/api/analytics/youtube", "/beta/api/analytics/ga4", "/beta/api/analytics/youtube/retention", "/beta/api/analytics/youtube/episodes/compare"].includes(pathname) && requestMethod === "GET") {
     return ["analytics", "read"];
   }

@@ -404,6 +404,53 @@
         { "label": "Activation", "value": "Provider token, private runner hosting, shared migration and live editorial acceptance remain pending", "evidence": ["docs/RESEARCH-RUNNER.md"] }
       ],
       "body": ["Local automated checks are source evidence only. The managed-research comparison, real provider billing, retrieval quality and three-guest editorial trial remain open; no deployment is implied."]
+    },
+    {
+      "id": "social-analytics-chat",
+      "number": "22",
+      "title": "Social metrics and private analytics chat",
+      "status": "implemented_source",
+      "summary": "Authenticated Beta uses one environment-specific Zernio workspace, validated OpenRouter query plans, and deterministic metric evidence. Hosted activation remains default-off.",
+      "facts": [
+        {
+          "label": "Authority",
+          "value": "Clerk/D1 admission and analytics read/manage capabilities protect all private routes; admins confirm profiles.",
+          "evidence": [
+            "cloudflare/src/social-analytics.ts",
+            "cloudflare/src/auth/policy.ts",
+            "cloudflare/src/member-router.ts"
+          ]
+        },
+        {
+          "label": "Evidence",
+          "value": "Shared provider normalizers preserve unavailable metrics and distinguish period activity from lifetime post data; one bounded planner call selects allowed queries.",
+          "evidence": [
+            "cloudflare/src/social-analytics-provider.ts",
+            "cloudflare/src/social-analytics-assistant.ts",
+            "cloudflare/src/social-analytics-evidence.ts"
+          ]
+        },
+        {
+          "label": "Privacy",
+          "value": "Owner-scoped snapshots have deletion tombstones and account-erasure integration.",
+          "evidence": [
+            "cloudflare/migrations/0024_social_analytics.sql",
+            "cloudflare/src/social-analytics-investigations.ts",
+            "cloudflare/src/user-deletion.ts"
+          ]
+        },
+        {
+          "label": "Interface",
+          "value": "Structured chat answers, explicit scope, source freshness, cancellation/retry and private saved chats.",
+          "evidence": [
+            "web/components/domain/social/SocialAnalyticsChat.tsx",
+            "docs/SOCIAL-ANALYTICS-LOCAL.md"
+          ]
+        }
+      ],
+      "body": [
+        "Local automated checks are source evidence only. Live Zernio validation, shared migration and deployment require separate completion; Ask WTF and Research retain their existing authority."
+      ]
     }
   ],
   "drift": [

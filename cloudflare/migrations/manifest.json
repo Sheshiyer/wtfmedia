@@ -24,7 +24,8 @@
     "0020_operator_member_access.sql",
     "0021_user_deletion.sql",
     "0022_analytics_investigations.sql",
-    "0023_research.sql"
+    "0023_research.sql",
+    "0024_social_analytics.sql"
   ],
   "duplicate_ordinals": {
     "0006": {
