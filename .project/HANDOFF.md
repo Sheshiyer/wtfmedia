@@ -1,3 +1,26 @@
+## 2026-10-19 — PR #85 profile discovery and admin-only social connections
+
+- Owner authorized merging PR #85 (`c83ba7fa74657256251a6f85e003039764ec6b9e`)
+  into `feature/pavun`, pushing the merge, and adding the supplied Zernio key to
+  ignored local Cloudflare configuration. No shared configuration, migration or
+  deployment is part of this task.
+- Reconciled the PR's older local-lab branch with the current shared provider,
+  authenticated chat, saved investigations, principal policy and production
+  YouTube hiding. Sole/unique-default profile discovery requires only an API
+  key; explicit selections/overrides retain precedence and stale selections fail
+  closed. Ambiguous profiles require an admin choice in the authenticated UI.
+- Members/editors can view metrics and chat. Only admins/super-admins may connect,
+  reconnect or select a shared profile; router tests cover all four roles.
+  Reader status omits profile IDs/lists. The standalone local lab's connection
+  endpoint now denies mutations and links users to the signed-in workspace.
+- VERIFIED-SOURCE: 516 backend, 331 web unit and 97 contract tests passed,
+  including discovery edge cases, non-admin mutation denial, dashboard/chat
+  access and the local-lab bypass regression. Typecheck/lint checked separately.
+- LIVE-VERIFIED: read-only discovery using the locally configured key succeeded
+  with one accessible profile and one Instagram account. No OAuth was initiated,
+  no accounts/profiles were changed, and no metric-accuracy or real-browser
+  acceptance is claimed. Migration 0024 remains required before activation.
+
 ## 2026-10-18 — Social analytics chat implemented locally
 
 - Owner approved the social-chat plan for local implementation on `feature/pavun`.

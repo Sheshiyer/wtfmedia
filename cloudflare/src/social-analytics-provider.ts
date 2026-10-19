@@ -59,6 +59,11 @@ export type SocialProviderEnv = {
     ZERNIO_PROFILE_ID?: string;
     SOCIAL_ANALYTICS_ENABLED?: string;
 };
+export function defaultSocialProfile<T extends { isDefault?: boolean }>(profiles: T[]): T | undefined {
+    if (profiles.length === 1) return profiles[0];
+    const defaults = profiles.filter(profile => profile.isDefault === true);
+    return defaults.length === 1 ? defaults[0] : undefined;
+}
 export function createSocialProvider(env: SocialProviderEnv, fetcher: typeof fetch = fetch, deadline = Date.now() + 60000) {
     let requests = 0;
     async function zernioFetch(path: string, retry = true): Promise<unknown> {
@@ -90,10 +95,14 @@ export function createSocialProvider(env: SocialProviderEnv, fetcher: typeof fet
         }
     }
     async function profiles() {
-        return listPayload(await zernioFetch('/profiles'), 'profiles').flatMap(value => {
+        const payload = await zernioFetch('/profiles');
+        const root = record(payload), data = record(root.data);
+        if (![payload, root.profiles, root.data, data.profiles].some(Array.isArray))
+            throw new ZernioError('Zernio did not return a profile list.', 502, 'invalid_profiles_response');
+        return listPayload(payload, 'profiles').flatMap(value => {
             const p = record(value);
             const id = stringValue(p._id) ?? stringValue(p.id);
-            return id ? [{ id, name: stringValue(p.name) ?? 'Workspace' }] : [];
+            return id ? [{ id, name: stringValue(p.name) ?? 'Workspace', isDefault: p.isDefault === true }] : [];
         });
     }
     async function accounts(profileId: string, includeHealth = false): Promise<SocialAccount[]> {

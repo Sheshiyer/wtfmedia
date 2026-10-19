@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { hostnameFromHostHeader, isSocialPlatform, localHostnameAllowed } from "@/lib/social-analytics/contracts";
-import { createConnectionUrl, socialAnalyticsLocalEnabled, ZernioError } from "@/lib/social-analytics/zernio";
+import { socialAnalyticsLocalEnabled } from "@/lib/social-analytics/zernio";
 
 export const dynamic = "force-dynamic";
 
@@ -19,12 +19,6 @@ export async function POST(request: NextRequest) {
   if (!isSocialPlatform(body.platform)) {
     return NextResponse.json({ error: "invalid_platform", message: "Choose a supported social platform." }, { status: 400 });
   }
-  try {
-    const redirectUrl = new URL("/social-analytics", request.nextUrl.origin).toString();
-    const authUrl = await createConnectionUrl(body.platform, redirectUrl);
-    return NextResponse.json({ authUrl });
-  } catch (error) {
-    const providerError = error instanceof ZernioError ? error : new ZernioError("Could not start this connection.", 502, "unknown");
-    return NextResponse.json({ error: providerError.code, message: providerError.message }, { status: providerError.status });
-  }
+  // The developer lab must not bypass the authenticated admin connection policy.
+  return NextResponse.json({ error: "admin_sign_in_required", message: "Sign in as an admin at /beta/social-analytics to connect an account." }, { status: 403 });
 }

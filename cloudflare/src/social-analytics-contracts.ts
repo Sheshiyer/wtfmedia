@@ -43,7 +43,7 @@ export type SocialAccount = {
 };
 export type SocialStatusResponse = {
     configured: boolean;
-    profileId: string | null;
+    profileId?: string | null;
     accounts: SocialAccount[];
     checkedAt: string;
 };

@@ -90,7 +90,7 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
   const mutationPending = useRef(false);
   const dashboardRequest = useRef<AbortController | null>(null);
   const statusRequest = useRef<AbortController | null>(null);
-  const canManage = !beta || status?.canManage === true;
+  const canManage = beta && status?.canManage === true;
   const profiles = beta && canManage ? status?.profiles ?? [] : [];
   const selectedProfileId = status?.configuredOverride ? status.profileId ?? "" : profileId || (profiles.length === 1 ? profiles[0].id : "");
   const scope = useMemo(() => ({ platform, ...dateScope(rangeDays) }), [platform, rangeDays]);
@@ -246,12 +246,13 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
       {callbackPlatform && <div className="mb-6 border-2 border-foreground bg-live/10 p-4 font-body text-sm" role="status">
         <strong className="font-label">Connection returned from Zernio.</strong> Refreshing account access for {callbackPlatform}.
       </div>}
-      {status && !status.configured && <p className="mb-6 border-2 border-foreground p-4" role="status">{beta ? canManage ? "Confirm a workspace profile below to enable social analytics. If profiles cannot be loaded, ask your administrator to check the integration." : "Social analytics is not configured. Ask an administrator to connect the workspace." : "Social analytics is not configured. Add the local Zernio API key and profile ID to enable connections."}</p>}
+      {status && !status.configured && <p className="mb-6 border-2 border-foreground p-4" role="status">{beta ? canManage ? "Confirm a workspace profile below to enable social analytics. If profiles cannot be loaded, ask your administrator to check the integration." : "Social analytics is not configured. Ask an administrator to connect the workspace." : "Social analytics is not configured. Add the local Zernio API key to discover your workspace and enable connections."}</p>}
       {error && <div className="mb-6 border-2 border-editorial bg-editorial/10 p-4 font-body text-sm text-foreground" role="alert">
         <strong className="font-label">Needs attention:</strong> {error}
       </div>}
 
       {beta && status?.profileName && <p className="mb-4 font-body text-sm">Workspace: <strong>{status.profileName}</strong></p>}
+      {!beta && <p className="mb-4 text-sm"><a className="underline" href="/beta/social-analytics">Open the signed-in workspace</a> to connect accounts as an admin and ask questions about your metrics.</p>}
       {beta && canManage && <section className="mb-8 border-2 border-foreground bg-surface-raised p-5" aria-labelledby="profile-heading">
         <h2 id="profile-heading" className="font-display text-2xl font-bold">Workspace profile</h2>
         {status?.configuredOverride && <p className="mt-2 text-sm text-secondary">The workspace profile is fixed by server configuration. Profile switching is disabled.</p>}

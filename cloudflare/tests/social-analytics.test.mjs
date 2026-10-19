@@ -11,7 +11,7 @@ test('social management denied to members; readers can chat',()=>{
 test('profile discovery does not require a hardcoded ID and values preserve missing versus zero',async()=>{
  const paths=[];
  const p=createSocialProvider({ZERNIO_API_KEY:'test'},async url=>{paths.push(String(url));return Response.json(String(url).includes('/profiles')?{profiles:[{_id:'profile1',name:'Team'}]}:{totals:{views:0,likes:''},daily:[]});});
- assert.deepEqual(await p.profiles(),[{id:'profile1',name:'Team'}]);
+ assert.deepEqual(await p.profiles(),[{id:'profile1',name:'Team',isDefault:false}]);
  const d=await p.dashboard('profile1',{platform:'instagram',fromDate:'2026-01-01',toDate:'2026-01-02'});
  assert.equal(d.totals.views,0);assert.equal(d.totals.likes,null);assert.match(paths[1],/profileId=profile1/);
 });
@@ -44,10 +44,10 @@ test('admin discovers profiles without selecting; stale selection never silently
  await assert.rejects(()=>resolveSocialWorkspace(db(),{...env,ZERNIO_PROFILE_ID:'gone'},p),{code:'profile_unavailable'});
  for(const list of [[],[{_id:'one',name:'First'}],[{_id:'one',name:'First'},{_id:'two',name:'Second'}]]) {
  const res=await handleMemberRequest(req(),{...env,DB:db('admin')},{verifyClerk:async()=>identity,fetchSocial:async()=>Response.json({profiles:list})});
- assert.equal(res.status,200);const body=await res.json();assert.equal(body.canManage,true);assert.equal(body.profiles.length,list.length);assert.equal(body.selectionRequired,true);
+ assert.equal(res.status,200);const body=await res.json();assert.equal(body.canManage,true);assert.equal(body.profiles.length,list.length);assert.equal(body.selectionRequired,list.length!==1);
  }
  const member=await handleMemberRequest(req(),{...env,DB:db()},{verifyClerk:async()=>identity,fetchSocial:async()=>Response.json({profiles:[{_id:'one',name:'Private Profile'}]})});
- assert.ok(!JSON.stringify(await member.json()).includes('Private Profile'));
+ const memberStatus=await member.json();assert.equal(memberStatus.profileId,undefined);assert.equal(memberStatus.profiles,undefined);
 });
 test('foreign profile cannot be selected even by admin',async()=>{
  const res=await handleMemberRequest(req('selection','POST',{profileId:'foreign'}),{...env,DB:db('admin')},{verifyClerk:async()=>identity,fetchSocial:async()=>Response.json({profiles:[{_id:'one',name:'Team'}]})});assert.equal(res.status,400);
@@ -72,4 +72,36 @@ test('authenticated assistant returns scoped provider values, workspace label an
  const call=()=>handleMemberRequest(req('assistant','POST',{question:'Instagram views',scope:{platform:'instagram',fromDate:'2026-01-01',toDate:'2026-01-02'}}),{...env,DB:database,ZERNIO_PROFILE_ID:'one'},{verifyClerk:async()=>identity,fetchSocial,planSocial});
  const response=await call();assert.equal(response.status,200);const answer=await response.json();assert.equal(answer.rows[0].values[0],42);assert.match(answer.summary,/Social Team/);assert.equal(answer.evidence[0].basis,'received_period');
  count=10;const before=providerCalls;assert.equal((await call()).status,429);assert.equal(providerCalls,before);
+});
+test('sole or unique default profile is discovered; ambiguity and stale selection fail closed', async()=>{
+ for (const profiles of [[{id:'one',name:'Team'}],[{id:'other',name:'Other'},{id:'one',name:'Team',isDefault:true}]]) {
+  assert.equal((await resolveSocialWorkspace(db(),env,{profiles:async()=>profiles})).profileId,'one');
+ }
+ assert.equal((await resolveSocialWorkspace(db(),env,{profiles:async()=>[{id:'a',name:'A',isDefault:true},{id:'b',name:'B',isDefault:true}]})).profileId,null);
+ const persisted={prepare:()=>({first:async()=>({profile_id:'chosen'})})};
+ assert.equal((await resolveSocialWorkspace(persisted,env,{profiles:async()=>[{id:'chosen',name:'Chosen'},{id:'default',name:'Default',isDefault:true}]})).profileId,'chosen');
+ await assert.rejects(()=>resolveSocialWorkspace(persisted,env,{profiles:async()=>[{id:'new',name:'New'}]}),{code:'profile_unavailable'});
+});
+test('admin-only connection and selection; all admitted roles can view and ask', async()=>{
+ for (const role of ['member','editor','admin','super_admin']) {
+  let connects=0,writes=0;
+  const database=db(role);const original=database.prepare;
+  database.prepare=sql=>sql.includes('INSERT INTO social_analytics_workspace')?{bind(){return this},async run(){writes++;return {}}}:sql.includes('social_analytics_rate_limits')?{bind(){return this},first:async()=>({requests:1})}:original(sql);
+  const fetchSocial=async url=>{
+   const path=new URL(url).pathname;
+   if(path.includes('/connect/')){connects++;return Response.json({authUrl:'https://example.test/oauth'})}
+   return Response.json(path.endsWith('/profiles')?{profiles:[{_id:'private-profile',name:'Team'}]}:path.endsWith('/accounts')?{accounts:[{_id:'account',platform:'instagram',isActive:true}]}:{totals:{views:42},daily:[]});
+  };
+  const options={verifyClerk:async()=>identity,fetchSocial,planSocial:async()=>({answer:JSON.stringify({intent:'summary',platforms:['instagram'],metrics:['views'],posts:[],target:'platform'})})};
+  const call=(path,method='GET',body)=>handleMemberRequest(req(path,method,body),{...env,DB:database},options);
+  const manager=['admin','super_admin'].includes(role);
+  assert.equal((await call('connect','POST',{platform:'instagram'})).status,manager?200:403,role);
+  assert.equal((await call('selection','POST',{profileId:'private-profile'})).status,manager?200:403,role);
+  assert.equal(connects,manager?1:0);assert.equal(writes,manager?1:0);
+  const status=await (await call('status')).json();assert.equal(status.canManage,manager);
+  if(!manager){assert.equal(status.profileId,undefined);assert.equal(status.profiles,undefined)}
+  assert.equal((await call('dashboard?platform=instagram&fromDate=2026-01-01&toDate=2026-01-02')).status,200,role);
+  const response=await call('assistant','POST',{question:'Instagram views',scope:{platform:'instagram',fromDate:'2026-01-01',toDate:'2026-01-02'}});
+  assert.equal(response.status,200,role);assert.equal((await response.json()).rows[0].values[0],42);
+ }
 });

@@ -20,7 +20,7 @@ Set these names in ignored `cloudflare/.dev.vars` (do not commit credentials):
 ```dotenv
 SOCIAL_ANALYTICS_ENABLED=1
 ZERNIO_API_KEY=
-# Optional verified override; leave unset to discover and confirm a profile.
+# Optional verified override; no profile ID is required for automatic discovery.
 ZERNIO_PROFILE_ID=
 OPENROUTER_API_KEY=
 # Optional: inherit the same model configuration as Ask WTF.
@@ -38,10 +38,13 @@ WTFMEDIA_EDGE_LOCAL_ORIGIN=http://localhost:8787
 Retain the existing local Clerk/Edge host configuration described in `PROJECT.md`.
 Start the Edge with `npm --prefix cloudflare run dev` and Next with
 `npm --prefix web run dev -- --hostname localhost`. Restart after configuration
-changes. Sign in, open the social workspace, and confirm one discovered profile
-as an admin. With multiple profiles, choose deliberately. No profile is created
-or silently selected. A configured profile override must be accessible to the
-key; an invalid override never falls back to another workspace.
+changes. Sign in and open the social workspace. The sole accessible profile or
+unique default is discovered automatically from the API key. If multiple profiles
+have no unique default, an admin must select one. An explicit admin selection
+or server override takes precedence; a stale selection never falls back to a
+different workspace. No profile is created automatically. Only admins and
+super-admins can connect or reconnect accounts. Members and editors can view
+the shared metrics and ask questions, but cannot change connections or profiles.
 
 Staging/production require separate server-side Web and Edge enable flags;
 `NEXT_PUBLIC_SOCIAL_ANALYTICS_ENABLED` only controls navigation and grants no
@@ -128,16 +131,20 @@ unchanged.
 
 The standalone `/social-analytics` lab retains its loopback-only,
 `SOCIAL_ANALYTICS_LOCAL_ENABLED=1`, non-production guards and old server-only
-`web/.env.local` Zernio configuration. It exposes no private chat/history API.
-Use authenticated Beta to test the new feature.
+`web/.env.local` Zernio configuration, with API-key-only discovery. It exposes
+no private chat/history API and cannot initiate connections: its connect route
+returns 403 and the UI links to the signed-in workspace. Use authenticated Beta
+to connect accounts and test chat. Reader status responses omit profile IDs and
+profile lists; admins retain the identifiers required by the profile selector.
 
 ## Acceptance boundary
 
 Automated provider, planner, router and UI tests use controlled data. They prove
 source behavior, not connected-account accuracy or deployment acceptance. Real
 Zernio reconciliation, hosted OAuth, two-user signed-in privacy, and responsive
-Safari/Chromium checks remain necessary before rollout. The owner deferred
-adding the Zernio key until after implementation.
+Safari/Chromium checks remain necessary before rollout. Read-only live profile
+and account discovery succeeded during PR #85 integration. This does not prove
+OAuth completion or metric accuracy in a signed-in browser.
 
 Provider references: [profile discovery](https://docs.zernio.com/profiles/list-profiles),
 [dashboard](https://docs.zernio.com/analytics/get-analytics-dashboard), and

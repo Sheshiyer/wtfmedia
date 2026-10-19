@@ -1,7 +1,7 @@
 import type { DB } from './db.ts';
 import type { PrincipalContext } from './auth/principal-context.ts';
 import { decide } from './auth/policy.ts';
-import { createSocialProvider, ZernioError, type SocialProvider, type SocialProviderEnv } from './social-analytics-provider.ts';
+import { createSocialProvider, defaultSocialProfile, ZernioError, type SocialProvider, type SocialProviderEnv } from './social-analytics-provider.ts';
 import { isSocialPlatform, validSocialRange } from './social-analytics-contracts.ts';
 import { handleSocialAnalyticsAssistant } from './social-analytics-assistant.ts';
 import { handleSocialAnalyticsInvestigations } from './social-analytics-investigations.ts';
@@ -17,7 +17,7 @@ export async function resolveSocialWorkspace(db: DB, env: SocialProviderEnv, pro
     const stored = env.ZERNIO_PROFILE_ID?.trim() || (await db.prepare('SELECT profile_id FROM social_analytics_workspace WHERE id = 1').first<{
         profile_id: string;
     }>())?.profile_id;
-    const profile = profiles.find(p => p.id === stored);
+    const profile = stored ? profiles.find(p => p.id === stored) : defaultSocialProfile(profiles);
     if (stored && !profile)
         throw new ZernioError('The selected workspace is no longer accessible. Ask an admin to select an accessible profile.', 409, 'profile_unavailable');
     return { profiles, profile, profileId: profile?.id ?? null };
@@ -51,7 +51,7 @@ export async function handleSocialAnalytics(request: Request, env: SocialEnv, co
             return reply({ selected: true });
         }
         if (action === 'status' && !env.ZERNIO_API_KEY?.trim())
-            return reply({ configured: false, profileId: null, accounts: [], checkedAt: new Date().toISOString(), canManage, profiles: [] });
+            return reply({ configured: false, accounts: [], checkedAt: new Date().toISOString(), canManage, ...(canManage ? { profiles: [] } : {}) });
         // Rate limit before discovery or model use, scoped to the verified member identity.
         if (action === 'assistant') {
             const window = Math.floor(Date.now() / 60000);
@@ -68,13 +68,13 @@ export async function handleSocialAnalytics(request: Request, env: SocialEnv, co
         catch (error) {
             // A stale persisted selection must still let an admin choose its replacement.
             if (action === 'status' && error instanceof ZernioError && error.code === 'profile_unavailable') {
-                return reply({ configured: false, profileId: null, accounts: [], checkedAt: new Date().toISOString(), canManage, selectionRequired: true, configuredOverride: Boolean(env.ZERNIO_PROFILE_ID?.trim()), ...(canManage ? { profiles: await provider.profiles() } : {}), message: error.message });
+                return reply({ configured: false, accounts: [], checkedAt: new Date().toISOString(), canManage, selectionRequired: true, configuredOverride: Boolean(env.ZERNIO_PROFILE_ID?.trim()), ...(canManage ? { profiles: await provider.profiles() } : {}), message: error.message });
             }
             throw error;
         }
         const accounts = selected.profileId ? await provider.accounts(selected.profileId) : [];
         if (action === 'status' && request.method === 'GET')
-            return reply({ configured: Boolean(selected.profileId), profileId: selected.profileId, profileName: selected.profile?.name, accounts, checkedAt: new Date().toISOString(), canManage, ...(canManage ? { profiles: selected.profiles } : {}), selectionRequired: !selected.profileId, configuredOverride: Boolean(env.ZERNIO_PROFILE_ID?.trim()) });
+            return reply({ configured: Boolean(selected.profileId), profileName: selected.profile?.name, accounts, checkedAt: new Date().toISOString(), canManage, ...(canManage ? { profiles: selected.profiles, profileId: selected.profileId } : {}), selectionRequired: !selected.profileId, configuredOverride: Boolean(env.ZERNIO_PROFILE_ID?.trim()) });
         if (!selected.profileId)
             return reply({ error: 'selection_required', message: 'Ask an admin to select the social workspace first.' }, 409);
         if (action === 'connect' && request.method === 'POST') {
