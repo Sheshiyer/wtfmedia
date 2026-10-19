@@ -48,6 +48,7 @@
     },
     "staging": {
       "name": "wtfmedia-web-staging",
+      "vars": { "SOCIAL_ANALYTICS_ENABLED": "1", "NEXT_PUBLIC_SOCIAL_ANALYTICS_ENABLED": "1" },
       "routes": [
         {
           "pattern": "beta-staging.wtfhq.in",

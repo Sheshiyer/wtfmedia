@@ -104,6 +104,7 @@
       // Analytics question planning only; transcript inference remains with Alpha.
       "ai": { "binding": "AI" },
       "vars": {
+        "SOCIAL_ANALYTICS_ENABLED": "1",
         "ALLOWED_ORIGIN": "https://beta-staging.wtfhq.in",
         "RATE_LIMIT_PER_MINUTE": "20",
         "DEPLOYMENT_ENVIRONMENT": "staging",
