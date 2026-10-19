@@ -3969,3 +3969,16 @@ DNS, Clerk, queue, ingest, corpus, or production mutation occurred.
 - Local checks passed: 246 web unit tests, TypeScript, ESLint, rendered page,
   CSS asset, and hamburger placement. A signed-in Beta session could not be
   exercised in this checkout because no local Clerk key was configured.
+
+## 2026-10-19 social analytics profile discovery
+
+**Status:** Local source change only; not pushed or deployed.
+
+- `ZERNIO_PROFILE_ID` is no longer required. The server discovers the sole
+  profile visible to `ZERNIO_API_KEY`, or a unique default when several are
+  visible, using Zernio's `GET /v1/profiles` endpoint. Ambiguous and empty
+  results fail closed instead of connecting an arbitrary profile.
+- The internal profile ID remains necessary for Zernio connect/account and
+  dashboard calls but is not returned to the browser or requested from a user.
+- The ignored local env file was not changed. See
+  `docs/SOCIAL-ANALYTICS-LOCAL.md` for the reduced configuration.

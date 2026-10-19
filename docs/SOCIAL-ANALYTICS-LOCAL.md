@@ -16,7 +16,6 @@ Create `web/.env.local` with these uncommitted values:
 
 ```dotenv
 ZERNIO_API_KEY=your_server_side_zernio_key
-ZERNIO_PROFILE_ID=your_zernio_profile_id
 SOCIAL_ANALYTICS_LOCAL_ENABLED=1
 ```
 
@@ -25,6 +24,10 @@ The API key is read only by Next.js route handlers. Client components receive
 connection URLs and normalized analytics data, never the key. All three route
 handlers also reject non-loopback hostnames, preserving the experimental local
 boundary until the module is intentionally integrated with beta authentication.
+The server discovers the Zernio profile using this key. It selects the sole
+accessible profile, or the unique default if several are visible. If several
+profiles have no unique default, use a key scoped to the intended workspace;
+the app will not silently connect the team to an arbitrary profile.
 
 ## Flow
 

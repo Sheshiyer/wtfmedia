@@ -24,11 +24,10 @@ export class ZernioError extends Error {
 }
 function configuration() {
   const apiKey = process.env.ZERNIO_API_KEY?.trim();
-  const profileId = process.env.ZERNIO_PROFILE_ID?.trim();
-  if (!apiKey || !profileId) {
+  if (!apiKey) {
     throw new ZernioError("Social analytics is not configured locally.", 503, "not_configured");
   }
-  return { apiKey, profileId };
+  return { apiKey };
 }
 
 function record(value: unknown): JsonRecord {
@@ -115,15 +114,35 @@ function normalizeTotals(value: unknown): SocialMetricTotals {
 }
 
 export function socialAnalyticsConfigured(): boolean {
-  return Boolean(process.env.ZERNIO_API_KEY?.trim() && process.env.ZERNIO_PROFILE_ID?.trim());
+  return Boolean(process.env.ZERNIO_API_KEY?.trim());
 }
 
 export function socialAnalyticsLocalEnabled(): boolean {
   return process.env.SOCIAL_ANALYTICS_LOCAL_ENABLED === "1";
 }
 
+export async function discoverZernioProfileId(): Promise<string> {
+  const payload = record(await zernioFetch("/profiles"));
+  const profiles = payload.profiles;
+  if (!Array.isArray(profiles)) {
+    throw new ZernioError("Zernio did not return a profile list.", 502, "invalid_profiles_response");
+  }
+  const available = profiles.map(record).filter((profile) => stringValue(profile._id) ?? stringValue(profile.id));
+  if (available.length === 0) {
+    throw new ZernioError("No Zernio profile is available for this API key.", 409, "profile_unavailable");
+  }
+  const selected = available.length === 1 ? available[0] : (() => {
+    const defaults = available.filter((profile) => profile.isDefault === true);
+    return defaults.length === 1 ? defaults[0] : null;
+  })();
+  if (!selected) {
+    throw new ZernioError("This API key can access multiple Zernio profiles without a unique default. Use a key scoped to the intended workspace.", 409, "profile_ambiguous");
+  }
+  return (stringValue(selected._id) ?? stringValue(selected.id))!;
+}
+
 export async function listSocialAccounts(): Promise<SocialAccount[]> {
-  const { profileId } = configuration();
+  const profileId = await discoverZernioProfileId();
   const payload = await zernioFetch(`/accounts?profileId=${encodeURIComponent(profileId)}`);
   const candidates = listPayload(payload, "accounts");
   const accounts = candidates.flatMap((value): SocialAccount[] => {
@@ -165,7 +184,7 @@ export async function listSocialAccounts(): Promise<SocialAccount[]> {
 }
 
 export async function createConnectionUrl(platform: SocialPlatform, redirectUrl: string): Promise<string> {
-  const { profileId } = configuration();
+  const profileId = await discoverZernioProfileId();
   const query = new URLSearchParams({ profileId, redirect_url: redirectUrl });
   const payload = record(await zernioFetch(`/connect/${platform}?${query.toString()}`));
   const data = record(payload.data);
@@ -181,7 +200,7 @@ export async function getSocialDashboard(input: {
   fromDate: string;
   toDate: string;
 }): Promise<SocialDashboard> {
-  const { profileId } = configuration();
+  const profileId = await discoverZernioProfileId();
   const query = new URLSearchParams({
     profileId,
     fromDate: input.fromDate,

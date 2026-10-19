@@ -9,13 +9,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
   if (!socialAnalyticsConfigured()) {
-    return NextResponse.json({ configured: false, profileId: null, accounts: [], checkedAt: new Date().toISOString() });
+    return NextResponse.json({ configured: false, accounts: [], checkedAt: new Date().toISOString() });
   }
   try {
     const accounts = await listSocialAccounts();
     return NextResponse.json({
       configured: true,
-      profileId: process.env.ZERNIO_PROFILE_ID ?? null,
       accounts,
       checkedAt: new Date().toISOString(),
     });
