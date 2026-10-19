@@ -1,3 +1,38 @@
+## 2026-10-19 — Social analytics deployed to staging
+
+- Owner authorized staging deployment and Zernio secret upload, and separately
+  approved migration `0024_social_analytics.sql`. Exact runtime candidate:
+  `ce3844a819e59ae071d2f0266799a542722218a0` (PR #85 merge plus staging-only
+  Web/Edge enable flags). No production deployment or source push in this task.
+- D1 recovery bookmark before migration:
+  `00000194-00000002-00005109-f65b3729a5fbba40e7055905b78255c7`.
+  Applied only migration 0024 to `wtfmedia-ops-staging`; final inventory has no
+  pending migrations. Retain these additive tables during a code rollback.
+- Staging Edge `83f831ed-9ea8-47e4-8d18-211db91c5c45` and Web
+  `c8e5c646-baef-4853-8d59-3ca5f468cd41` each read back at 100% traffic.
+  Web Custom Domain is `beta-staging.wtfhq.in`, paired exclusively with staging
+  Edge/self. Edge uses staging D1 and the existing Alpha web inference binding.
+- Uploaded only `ZERNIO_API_KEY` through a temporary mode-0600 secrets file,
+  removed after deployment. Readback confirms `secret_text`; OpenRouter,
+  Google OAuth, Clerk and Research runner secrets remain present. No key value
+  is retained in source or this receipt. Research runner was not redeployed.
+- VERIFIED-SOURCE: exact candidate 516 backend, 331 web unit, 97 contract tests,
+  typecheck, lint, architecture freshness and isolated OpenNext build passed.
+  Both Workers passed dry-run packaging. Excluded tracked local-only config
+  from the build copy; no web env files were copied. Compiled and live public
+  Clerk identity both match the staging issuer. Direct installed Wrangler was
+  used with an explicit verified account because the host-specific named-profile
+  wrapper is unavailable; frontend autoconfig was disabled after its delegation
+  misparsed the deployment message, then the built artifact deployed successfully.
+- LIVE-VERIFIED: backend health reports staging and Alpha corpus authority;
+  root redirects, sign-in/social/Research/YouTube pages respond 200, principal
+  and social status/assistant/connect/selection reject signed-out requests (401).
+  IAB reaches the real staging sign-in widget with a return to social analytics.
+- Rollback: Edge `5c96378a-330f-41d4-8166-5debcee241b2`, Web
+  `eb151d59-21d8-44c4-b77d-3a25a0d05bf8`. Rollback not exercised. Real signed-in
+  admin/member, OAuth completion, chat metric accuracy and saved-chat acceptance
+  remain open; automated role fixtures are not live-persona acceptance.
+
 ## 2026-10-19 — PR #85 profile discovery and admin-only social connections
 
 - Owner authorized merging PR #85 (`c83ba7fa74657256251a6f85e003039764ec6b9e`)
