@@ -57,6 +57,52 @@ class RecordingCalls:
 
 @unittest.skipUnless(installed(), 'install research/requirements.lock for real GPTR compatibility check')
 class GPTRCompatibilityTests(unittest.TestCase):
+    def test_summary_truncation_has_one_larger_retry_not_eight_section_retries(self):
+        from pathlib import Path
+        import tempfile
+        from research.gptr import GPTREngine
+        from research.worker import run_job
+        from research.store import Store
+        from research.tests.test_runner import body
+        for recover in [False, True]:
+            with self.subTest(recover=recover), tempfile.TemporaryDirectory() as tmp:
+                limits = []
+                class SummaryCalls(RecordingCalls):
+                    def model(self, messages, max_tokens=1800):
+                        if 'Extract findings relevant' in json.dumps(messages):
+                            limits.append(max_tokens)
+                            if not recover or len(limits) == 1:
+                                raise ProviderError('truncated', code='output_truncated', reason='output_truncated')
+                            return 'A public observation [src_1].'
+                        return super().model(messages, max_tokens)
+                calls = SummaryCalls()
+                sources = [{**source(i), 'excerpt': 'Public company history. ' * 150} for i in range(10)]
+                sources[1]['url'] = 'https://example.com/podcast'
+                store = Store(Path(tmp) / 'state.sqlite')
+                request = body()
+                store.submit(request)
+                with patch('research.worker.collect_channel', side_effect=lambda channel, *_:
+                           (sources, dict(channel=channel, status='found', sourceCount=len(sources), method='web_search'))), \
+                     patch('socket.socket.connect', side_effect=AssertionError('unexpected external socket')):
+                    asyncio.run(run_job(store, store.claim(), GPTREngine, lambda *_: calls))
+                result = store.get(request['id'])
+                self.assertEqual(limits, [4000, 8000])
+                if recover:
+                    self.assertEqual(result['status'], 'completed')
+                    self.assertEqual(len(result['sections']), 4)
+                    self.assertTrue(all(s['status'] == 'completed' for s in result['sections']))
+                else:
+                    self.assertEqual(result['status'], 'failed')
+                    self.assertEqual(len(result['sections']), 1)
+                    self.assertEqual(result['failure']['code'], 'output_truncated')
+                    self.assertFalse(any('Write the ' in m for m in calls.models))
+                    # Recover after the section checkpoint but before the final job status.
+                    with store.db() as db:
+                        db.execute("UPDATE jobs SET status='running',expires=0")
+                    asyncio.run(run_job(store, store.claim(), GPTREngine, lambda *_: calls))
+                    self.assertEqual(limits, [4000, 8000])
+                    self.assertEqual(store.get(request['id'])['status'], 'failed')
+
     def test_four_sections_share_preparation_and_retry_only_failed_writing(self):
         from research.gptr import GPTREngine
         from research.contracts import TIERS

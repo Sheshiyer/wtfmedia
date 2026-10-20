@@ -1,3 +1,26 @@
+## 2026-10-20 — Summary truncation and retry correction (local)
+
+- Owner requested a 4,000-token summary allowance, corrected retries and staging
+  deployment after the GLM run failed all four tiers twice. Retained metadata
+  confirmed 120 sources and `output_truncated`; no report text entered diagnostics.
+  Saved submission-to-failure span was about 151 seconds. Historical Cloudflare
+  telemetry remained unauthorized, so exact per-section durations are unproven.
+- A bounded retained-public-evidence probe reproduced `finish_reason=length` at
+  1,200 output tokens (471 reasoning tokens). The equivalent 4,000-token probe
+  finished successfully with 1,915 output tokens in 18.41 seconds. This proves
+  summary truncation on that input, not every failed call's internal timing.
+- Summaries now start at 4,000; a truncated batch gets one 8,000-token retry via
+  the existing two-attempt section budget. The allowance and completed batches
+  are checkpointed. Exhausted shared-summary failure stops further tiers, including
+  after process recovery; independent writer failures retain existing behavior.
+  GLM 5.3, source quotas, global spend limits, privacy and output validation remain.
+- VERIFIED-SOURCE: 126 Python tests pass. New regressions failed on old code,
+  reproducing eight calls at the same limit; corrected tests cover 4,000 → 8,000,
+  completed-batch reuse across restart, successful four-tier recovery, and stopping
+  after exhausted shared preparation without issuing calls for other tiers.
+- Deployment receipts follow separately. No failed user report was restarted or
+  modified; any live preparation diagnostic uses temporary local job state only.
+
 ## 2026-10-20 — OpenRouter GLM 5.3 research deployed to staging
 
 - Owner authorized staging deployment. Application source is `60c5289`; final

@@ -392,7 +392,11 @@ See `research-host/README.md` for deployment settings and recovery boundaries.
 A full run prepares its public scope, source discovery and evidence summaries once,
 then reuses the durable checkpoint for all four writers and retries. A section-only
 job prepares its own section scope. Large source pools use 48 KB summary batches;
-small pools up to 24 KB go directly to writing. Original source extracts remain the
+small pools up to 24 KB go directly to writing. Summaries start with 4,000 output
+tokens. A truncated batch gets the existing single retry with 8,000 tokens; its
+allowance and completed batches survive restarts. If shared summaries still fail,
+the run stops instead of restarting the same preparation for each section.
+Original source extracts remain the
 evidence authority. Each successful summary is checkpointed immediately. Stage
 call counters reset between preparation, summaries and writing; the job-wide spend
 ceiling and bounded retries still apply. Provider completion events include safe

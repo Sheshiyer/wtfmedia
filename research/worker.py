@@ -142,6 +142,9 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
             save()
         selected_keys = [body['section']] if body.get('section') else list(TIERS)
         for key in selected_keys:
+            # All writers need shared summaries; a new tier or restart must not reset retries.
+            if calls.preparation.get('summaryFailed') and any(s['status'] == 'failed' for s in result['sections']):
+                break
             if any(s['key'] == key and s['status'] in ('completed', 'partial', 'failed') for s in result['sections']):
                 continue
             title, description = TIERS[key]

@@ -73,6 +73,33 @@ class EvidenceRetentionTests(unittest.TestCase):
             merge_sources(existing, [collision], protected_ids={'src_0'}, query='India')
 
 class EvidenceBatchTests(unittest.TestCase):
+    def test_truncated_batch_retries_with_more_tokens_and_keeps_completed_batches(self):
+        import asyncio
+        import json
+        from research.tests.loop_support import enable_if_needed
+        from research.evidence import synthesis_context
+        from research.providers import ProviderError
+        enable_if_needed()
+        checkpoints = []
+        limits = []
+        class Calls:
+            def __init__(self, saved=None):
+                self.preparation, self.evidence_digests = saved or ({}, {})
+            def checkpoint(self):
+                checkpoints.append(json.loads(json.dumps([self.preparation, self.evidence_digests])))
+            def model(self, messages, max_tokens):
+                limits.append(max_tokens)
+                if len(limits) == 2:
+                    raise ProviderError('truncated', code='output_truncated', reason='output_truncated')
+                rows = json.loads(messages[-1]['content'])['evidence']
+                return 'Reported history [' + rows[0]['id'] + '].'
+        sources = [{**source(i), 'excerpt': 'Public company history. ' * 450} for i in range(6)]
+        with self.assertRaises(ProviderError):
+            asyncio.run(synthesis_context(Calls(), sources, 'Company'))
+        context = asyncio.run(synthesis_context(Calls(checkpoints[-1]), sources, 'Company'))
+        self.assertEqual(limits, [4000, 4000, 8000])
+        self.assertEqual(len(context['evidenceDigests']), 2)
+
     def test_writer_context_considers_all_sources_beyond_80_and_keeps_originals(self):
         import asyncio
         import json

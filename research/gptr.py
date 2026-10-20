@@ -241,7 +241,13 @@ class GPTREngine:
                 synthesis_query += '. Public entity clarification: ' + body['clarification']
             if 'context' not in preparation:
                 self.calls.stage()
-                preparation['context'] = await synthesis_context(self.calls, evidence, synthesis_query)
+                try:
+                    preparation['context'] = await synthesis_context(self.calls, evidence, synthesis_query)
+                except ProviderError:
+                    preparation['summaryFailed'] = True
+                    checkpoint()
+                    raise
+                preparation.pop('summaryFailed', None)
                 checkpoint()
             context = {'searchScope': scope, **preparation['context'],
                        'previousSections': compact_sections(body.get('sections', []))}
