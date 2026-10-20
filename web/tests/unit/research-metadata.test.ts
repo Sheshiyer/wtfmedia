@@ -40,7 +40,7 @@ describe("bounded research metadata", () => {
     { researchInput: { ...researchInput, audienceCountry: "US" } },
     { researchInput: null }, { researchInput: { guestName: "Guest" } },
     { coverage: Array(7).fill(v2.coverage[0]) },
-    { coverage: [{ ...v2.coverage[0], sourceCount: 81 }] },
+    { coverage: [{ ...v2.coverage[0], sourceCount: Number.MAX_SAFE_INTEGER + 1 }] },
     { coverage: [{ ...v2.coverage[0], sourceCount: -1 }] },
     { coverage: [{ ...v2.coverage[0], sourceCount: 0.1 }] },
     { coverage: [{ ...v2.coverage[0], channel: "private" }] },
@@ -107,7 +107,7 @@ it.each([0, 1, 2])("labels %i retained sources independently of the recorded fou
   const html = renderToStaticMarkup(createElement(ResearchCoverageSummary, { coverage: [...coverage] }));
   const count = `${sourceCount} retained ${sourceCount === 1 ? "source" : "sources"}`;
   expect(html).toContain(count);
-  expect(html).toContain(">Found<");
+  expect(html).toContain(sourceCount ? ">Found<" : ">Results found; none retained<");
   expect(html).not.toContain("No results");
   expect(researchMarkdown({ ...legacy, coverage: [...coverage] })).toContain(`Web: found · ${count}`);
 });
@@ -163,4 +163,14 @@ it.each(["queued", "running", "cancel_pending"] as const)("does not export stale
   expect(exported).not.toContain("Model cost: $0");
   expect(exported).not.toContain("Tool cost (recorded or reserved):");
   expect(exported).toContain("Costs will be shown after the run stops.");
+});
+
+
+it("loads every retained source and explains precise failure metadata", () => {
+  const sources = Array.from({ length: 125 }, (_, i) => ({ ...legacy.sources[0], id: `s${i}`, url: `https://example.com/${i}` }));
+  const brief = parseResearchBrief({ ...v2, sources, coverage: [{ channel: "web", status: "found", sourceCount: 125, method: "web_search" }],
+    failure: { stage: "main", code: "provider_unavailable", retryable: true, reason: "http_error", provider: "omniroute", operation: "model", httpStatus: 503 } });
+  expect(brief.sources).toHaveLength(125);
+  expect(researchMarkdown(brief)).toContain("HTTP 503 (omniroute / model)");
+  expect(() => parseResearchBrief({ ...brief, failure: { ...brief.failure, reason: "PRIVATE" } })).toThrow();
 });

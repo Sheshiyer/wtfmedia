@@ -11,6 +11,10 @@ export type ResearchFailure = {
     stage: 'resolve' | 'discovery' | typeof tiers[number] | 'storage' | 'runner';
     code: 'timeout' | 'rate_limit' | 'authentication' | 'budget_exhausted' | 'output_truncated' | 'empty_output' | 'invalid_output' | 'storage_failure' | 'provider_unavailable' | 'internal_error';
     retryable: boolean;
+    reason?: 'http_error' | 'transport_error' | 'connect_timeout' | 'read_timeout' | 'deadline' | 'stream_error' | 'stream_incomplete' | 'stream_invalid' | 'response_too_large' | 'context_limit' | 'no_matching_sources' | 'invalid_json' | 'invalid_schema' | 'output_truncated' | 'empty_output';
+    provider?: 'treg' | 'omniroute' | 'openrouter' | 'runner';
+    operation?: 'catalog' | 'search' | 'social_search' | 'extract' | 'model';
+    httpStatus?: number;
 };
 export type ChannelCoverage = {
     channel: ResearchChannel;
@@ -107,9 +111,15 @@ export function researchTitle(input: ResearchInputV2): string {
 export function failureValid(v: unknown): v is ResearchFailure {
     return record(v) && ['resolve', 'discovery', ...tiers, 'storage', 'runner'].includes(v.stage as string)
         && ['timeout', 'rate_limit', 'authentication', 'budget_exhausted', 'output_truncated', 'empty_output', 'invalid_output', 'storage_failure', 'provider_unavailable', 'internal_error'].includes(v.code as string)
-        && typeof v.retryable === 'boolean';
+        && typeof v.retryable === 'boolean'
+        && (v.reason == null || ['http_error', 'transport_error', 'connect_timeout', 'read_timeout', 'deadline', 'stream_error', 'stream_incomplete', 'stream_invalid', 'response_too_large', 'context_limit', 'no_matching_sources', 'invalid_json', 'invalid_schema', 'output_truncated', 'empty_output'].includes(v.reason as string))
+        && (v.provider == null || ['treg', 'omniroute', 'openrouter', 'runner'].includes(v.provider as string))
+        && (v.operation == null || ['catalog', 'search', 'social_search', 'extract', 'model'].includes(v.operation as string))
+        && (v.httpStatus == null || (typeof v.httpStatus === "number" && Number.isInteger(v.httpStatus) && v.httpStatus >= 100 && v.httpStatus <= 599));
 }
-const projectFailure = (v: ResearchFailure): ResearchFailure => ({ stage: v.stage, code: v.code, retryable: v.retryable });
+const projectFailure = (v: ResearchFailure): ResearchFailure => ({ stage: v.stage, code: v.code, retryable: v.retryable,
+    ...(v.reason != null ? { reason: v.reason } : {}), ...(v.provider != null ? { provider: v.provider } : {}),
+    ...(v.operation != null ? { operation: v.operation } : {}), ...(v.httpStatus != null ? { httpStatus: v.httpStatus } : {}) });
 function modelNameValid(v: unknown): v is string {
     // Route/model identifiers only: never URLs, credentials, headers or provider prose.
     return bounded(v, 120) && /^[A-Za-z0-9][A-Za-z0-9._/:-]*$/.test(v)
@@ -128,7 +138,7 @@ export function resultMetadata(v: Record<string, unknown>): Pick<ResearchDocumen
         if (!Array.isArray(coverage) || coverage.length > 6 || new Set(coverage.map(c => c?.channel)).size !== coverage.length
             || !coverage.every(c => record(c) && channels.includes(c.channel as ResearchChannel)
                 && ['pending', 'searching', 'found', 'no_results', 'unavailable', 'failed', 'budget_limited'].includes(c.status as string)
-                && Number.isSafeInteger(c.sourceCount) && (c.sourceCount as number) >= 0 && (c.sourceCount as number) <= 80
+                && Number.isSafeInteger(c.sourceCount) && (c.sourceCount as number) >= 0
                 && ['dedicated_tool', 'web_search'].includes(c.method as string)))
             throw new ResearchError(502, 'invalid_research_result');
         result.coverage = coverage.map(c => ({ channel: c.channel, status: c.status, sourceCount: c.sourceCount, method: c.method }));
@@ -158,7 +168,7 @@ function platformForHost(host: string): ResearchChannel {
     return domains.find(([, names]) => names.some(d => host === d || host.endsWith('.' + d)))?.[0] ?? 'web';
 }
 export function sourcesValid(v: unknown): v is ResearchSource[] {
-    return Array.isArray(v) && v.length <= 80 && new Set(v.map(s => s?.id)).size === v.length && v.every(s => {
+    return Array.isArray(v) && new Set(v.map(s => s?.id)).size === v.length && v.every(s => {
         if (!s || !bounded(s.id, 100) || !/^[A-Za-z0-9_-]{1,100}$/.test(s.id) || !bounded(s.title, 500) || !bounded(s.excerpt, 12000) || !bounded(s.url, 2048) || !bounded(s.retrievedAt, 80) || !Number.isFinite(Date.parse(s.retrievedAt)))
             return false;
         try {

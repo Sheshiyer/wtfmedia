@@ -1,10 +1,11 @@
 """Code-owned read-only source channels; platform and retrieval method are separate."""
 import hashlib
 import re
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from urllib.parse import urlsplit
 
 from .contracts import Source, safe_url, utf16_slice
+from .scope import filter_sources, scoped_query
 
 CHANNELS = ('web', 'linkedin', 'youtube', 'instagram', 'reddit', 'x')
 DOMAINS = {'linkedin': ('linkedin.com',), 'youtube': ('youtube.com', 'youtu.be', 'youtube-nocookie.com'),
@@ -35,9 +36,9 @@ def public_subject(body):
 def channel_query(channel, body):
     subject = public_subject(body)
     if channel == 'web':
-        return subject + ' background company competitors industry global and India official reports'
+        return scoped_query(subject + ' background company competitors industry global and India official reports', body.get('searchScope', {}))
     domains = ' OR '.join('site:' + domain for domain in DOMAINS[channel])
-    return f'{subject} ({domains})'
+    return scoped_query(f'{subject} ({domains})', body.get('searchScope', {}))
 
 
 def dedicated_input(channel, body):
@@ -45,15 +46,26 @@ def dedicated_input(channel, body):
     # Social query engines AND bare words: keep focused queries rather than feeding instructions.
     company = fields['companyName'] if fields else body['title'][:120]
     guest = fields['guestName'] if fields else ''
+    scope = body.get('searchScope', {})
+    focus = scope.get('focus', '')
+    start, end = scope.get('dateFrom'), scope.get('dateTo')
+    # Broad native windows are followed by exact publication-date filtering.
+    recent_days = (datetime.now(timezone.utc).date() - date.fromisoformat(start)).days if start else None
+    recent = next((name for days, name in [(1, 'day'), (7, 'week'), (31, 'month'), (366, 'year')]
+                   if recent_days is not None and 0 <= recent_days <= days), None)
     if channel == 'instagram':
         return {'hashtag': re.sub(r'\W', '', company, flags=re.UNICODE)[:80], 'mediaType': 'all'}
     if channel == 'youtube':
-        return {'q': f'{guest} {company} interview'.strip(), 'part': 'snippet', 'type': 'video', 'maxResults': 10}
+        return {'q': f'{guest} {company} {focus or "interview"}'.strip(), 'part': 'snippet', 'type': 'video', 'maxResults': 10,
+                **({'publishedAfter': start + 'T00:00:00Z'} if start else {})}
     if channel == 'reddit':
-        return {'query': company, 'sort': 'relevance', 'filter': 'posts', 'timeframe': 'all', 'trim': 'true'}
+        return {'query': f'{company} {focus}'.strip(), 'sort': 'relevance', 'filter': 'posts', 'timeframe': recent or 'all', 'trim': 'true'}
     if channel == 'x':
-        return {'query': '"' + company.replace('"', '') + '"', 'limit': 10, 'queryType': 'Top'}
-    return {'query': f'{guest} {company}'.strip()}
+        query = '"' + company.replace('"', '') + '"' + (' ' + focus if focus else '')
+        if start: query += ' since:' + start
+        if end: query += ' until:' + (date.fromisoformat(end) + timedelta(days=1)).isoformat()
+        return {'query': query, 'limit': 10, 'queryType': 'Top'}
+    return {'query': f'{guest} {company} {focus}'.strip(), **({'datePosted': 'last-' + recent} if recent else {})}
 
 
 def normalize_social(channel, payload):
@@ -77,7 +89,7 @@ def normalize_social(channel, payload):
     if items is None:
         raise ValueError('unknown social response schema')
     sources = []
-    for item in items[:10]:
+    for item in items:
         if not isinstance(item, dict):
             continue
         row = item.get('data', item)
@@ -112,9 +124,9 @@ def normalize_social(channel, payload):
         title = actual_title or row.get('authorName') or f'{channel.title()} public post'
         # Display labels and account names are not evidence of a post's content.
         excerpt = '\n'.join(content)
-        date = snippet.get('publishedAt') or row.get('publishedAt') or row.get('published_at') or row.get('created_at')
+        date = snippet.get('publishedAt') or row.get('publishedAt') or row.get('published_at') or row.get('created_at') or row.get('timestamp') or row.get('taken_at')
         if not isinstance(date, str):
-            stamp = row.get('createdUtc', row.get('created_utc'))
+            stamp = date if type(date) in (int, float) else row.get('createdUtc', row.get('created_utc'))
             if type(stamp) in (int, float) and 0 <= stamp <= 253402300799:
                 date = datetime.fromtimestamp(stamp, tz=timezone.utc).isoformat()
         try:
@@ -157,6 +169,18 @@ def collect_channel(channel, body, calls):
                 emit(dict(stage='discovery', channel=channel, status='failed', code=failure(error, 'discovery')['code']))
                 method = 'web_search'
                 found = calls.search(channel_query(channel, body))
+        scope = body.get('searchScope', {})
+        found = filter_sources(found, scope)
+        if channel != 'web' and method == 'dedicated_tool' and scope and (not found or (channel == 'instagram' and scope.get('focus'))):
+            try:
+                supplemental = filter_sources(calls.search(channel_query(channel, body)), scope)
+                if supplemental:
+                    method = 'web_search'
+                found = list({s['url']: s for s in found + supplemental}.values())
+            except (ProviderError, ValueError, BudgetExceeded) as error:
+                if not found:
+                    raise
+                emit(dict(status='failed', channel=channel, **failure(error, 'discovery')))
         if channel != 'web':
             found = [s for s in found if platform_for_url(s['url']) == channel]
         return found, dict(channel=channel, status='found' if found else 'no_results',

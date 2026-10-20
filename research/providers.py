@@ -27,8 +27,9 @@ MAX_RESPONSE = 2_000_000
 
 
 class ProviderError(Exception):
-    def __init__(self, message='provider unavailable', *, code='provider_unavailable', retry_after=0):
+    def __init__(self, message='provider unavailable', *, code='provider_unavailable', retry_after=0, reason=None):
         super().__init__(message)
+        self.details = {'reason': reason} if reason else {}
         self.code = code
         self.retry_after = min(30, max(0, retry_after))
 
@@ -98,7 +99,14 @@ def stream_response(data):
                 break
             event = json.loads(value)
             if event.get('error'):
-                raise ProviderError('gateway stream failed')
+                error = ProviderError('gateway stream failed', reason='stream_error')
+                upstream = event['error']
+                status = upstream.get('status', upstream.get('code')) if isinstance(upstream, dict) else None
+                if type(status) is int and 400 <= status <= 599:
+                    error.details['httpStatus'] = status
+                    if status == 429: error.code = 'rate_limit'
+                    if status in (401, 403): error.code = 'authentication'
+                raise error
             receipt = event.get('id') or receipt
             usage = event.get('usage') or usage
             model = reported_model(event.get('model')) or model
@@ -108,19 +116,36 @@ def stream_response(data):
                 content = choice.get('delta', {}).get('content')
                 if content is not None:
                     if not isinstance(content, str):
-                        raise ProviderError('invalid gateway text')
+                        raise ProviderError('invalid gateway text', reason='stream_invalid')
                     text.append(content)
                 finish = choice.get('finish_reason') or finish
         if not finish:
-            raise ProviderError('incomplete gateway stream')
+            raise ProviderError('incomplete gateway stream', reason='stream_incomplete')
         return {'id': receipt, 'usage': usage, 'model': model,
                 'choices': [{'finish_reason': finish, 'message': {'content': ''.join(text)}}]}
     except (ValueError, TypeError, AttributeError):
-        raise ProviderError('invalid gateway stream') from None
+        raise ProviderError('invalid gateway stream', reason='stream_invalid') from None
 
 
 class Network:
     def request(self, method, url, headers, body=None):
+        from .diagnostics import emit
+        started = time.monotonic()
+        host = urlsplit(url).hostname
+        provider = 'treg' if host == 'treg.to' else 'openrouter' if host == 'openrouter.ai' else 'omniroute'
+        operation = ('catalog' if '/catalog/endpoints/' in url else 'model' if urlsplit(url).path.endswith('/chat/completions')
+                     else 'extract' if EXTRACT in url else 'search' if TOOL in url else 'social_search')
+        try:
+            return self._request(method, url, headers, body)
+        except ProviderError as error:
+            error.details.update(provider=provider, operation=operation)
+            emit(dict(stage='runner', status='failed', code=error.code, **error.details,
+                      elapsedMs=int((time.monotonic() - started) * 1000),
+                      requestBytes=len(encode(body).encode()) if body is not None else 0))
+            raise
+
+    def _request(self, method, url, headers, body=None):
+        data = bytearray()
         try:
             deadline = time.monotonic() + 600
             omni_base = os.environ.get('OMNIROUTE_BASE_URL', '').strip().rstrip('/')
@@ -134,23 +159,28 @@ class Network:
                                 'rate_limit' if response.status_code == 429 else
                                 'invalid_output' if 400 <= response.status_code < 500 else 'provider_unavailable')
                         retry = response.headers.get('retry-after', '0')
-                        raise ProviderError('provider request failed', code=code,
-                                            retry_after=int(retry) if str(retry).isdigit() else 0)
+                        error = ProviderError('provider request failed', code=code, reason='http_error',
+                                              retry_after=int(retry) if str(retry).isdigit() else 0)
+                        error.details['httpStatus'] = response.status_code
+                        raise error
                     data = bytearray()
                     for chunk in response.iter_bytes():
                         if time.monotonic() > deadline:
-                            raise ProviderError('provider deadline exceeded', code='timeout')
+                            raise ProviderError('provider deadline exceeded', code='timeout', reason='deadline')
                         data.extend(chunk)
                         if len(data) > MAX_RESPONSE:
-                            raise ProviderError('provider response too large')
+                            raise ProviderError('provider response too large', reason='response_too_large')
                     payload = stream_response(data) if body and body.get('stream') else json.loads(data)
                     return redact(payload), dict(response.headers)
-        except httpx.TimeoutException:
-            raise ProviderError('provider request timed out', code='timeout') from None
+        except ProviderError as error:
+            error.details['responseBytes'] = len(data)
+            raise
+        except httpx.TimeoutException as error:
+            raise ProviderError('provider request timed out', code='timeout', reason='connect_timeout' if isinstance(error, httpx.ConnectTimeout) else 'read_timeout') from None
         except ValueError:
-            raise ProviderError('provider returned invalid data', code='invalid_output') from None
+            raise ProviderError('provider returned invalid data', code='invalid_output', reason='invalid_json') from None
         except httpx.HTTPError:
-            raise ProviderError('provider unavailable') from None
+            raise ProviderError('provider unavailable', reason='transport_error') from None
 
 
 def validate_catalog(catalog, tool=TOOL):
@@ -183,6 +213,7 @@ class Calls:
         self.model_receipt_received = False
         self.usage = {}
         self.channel_catalogs = set()
+        self.scope = {}
 
     def stage(self):
         self.stage_calls = 0
@@ -208,7 +239,8 @@ class Calls:
             key = 'tool_' + digest(encode(body))
             cached = self.store.reserve(self.job_id, self.lease, key, 'tool', TOOL_RESERVE)
             if cached is not None:
-                return cached
+                from .scope import filter_sources
+                return filter_sources(cached, self.scope)
             self.stage_calls += 1
             self.store.started(self.job_id, self.lease, key)
             payload, headers = self.network.request('POST', 'https://treg.to/call/' + TOOL, {
@@ -222,7 +254,8 @@ class Calls:
             receipt = headers.get('x-treg-call-id', '')
             receipt = receipt if re.fullmatch(r'[A-Za-z0-9_-]{1,150}', receipt) else None
             self.store.settle(self.job_id, self.lease, key, cost, receipt, None)
-            sources = normalize_results(payload)
+            from .scope import filter_sources
+            sources = filter_sources(normalize_results(payload), self.scope)
             self.store.settle(self.job_id, self.lease, key, cost, receipt, sources)
             if cost is not None and cost > TOOL_RESERVE:
                 raise BudgetExceeded('provider exceeded reservation')
@@ -251,7 +284,8 @@ class Calls:
             key = 'social_' + digest(encode({'tool': tool, 'input': body}))
             cached = self.store.reserve(self.job_id, self.lease, key, 'tool', reserve)
             if cached is not None:
-                return cached
+                from .scope import filter_sources
+                return filter_sources(cached, self.scope)
             self.stage_calls += 1
             self.store.started(self.job_id, self.lease, key)
             url = 'https://treg.to/call/' + tool
@@ -270,7 +304,8 @@ class Calls:
             self.store.settle(self.job_id, self.lease, key, cost, receipt, None)
             if cost is not None and cost > reserve:
                 raise BudgetExceeded('provider exceeded reservation')
-            sources = normalize_social(channel, payload)
+            from .scope import filter_sources
+            sources = filter_sources(normalize_social(channel, payload), self.scope)
             self.store.settle(self.job_id, self.lease, key, cost, receipt, sources)
             return sources
 
@@ -292,7 +327,8 @@ class Calls:
             key = 'extract_' + digest(encode(body))
             cached = self.store.reserve(self.job_id, self.lease, key, 'tool', 1000)
             if cached is not None:
-                return cached
+                from .scope import filter_sources
+                return filter_sources(cached, self.scope)
             self.stage_calls += 1
             self.store.started(self.job_id, self.lease, key)
             payload, headers = self.network.request('POST', 'https://treg.to/call/' + EXTRACT, {
@@ -315,6 +351,8 @@ class Calls:
                     item['evidenceType'] = 'page_extract'
                     item['retrievedVia'] = EXTRACT
                     item['id'] = source['id']
+                    if not item.get('publishedAt') and source.get('publishedAt'):
+                        item['publishedAt'] = source['publishedAt']
                     if 'timestampSeconds' in source:
                         item['timestampSeconds'] = source['timestampSeconds']
             receipt = headers.get('x-treg-call-id', '')
@@ -325,10 +363,21 @@ class Calls:
             return normalized
 
     def model(self, messages, max_tokens=1800):
+        try:
+            return self._model(messages, max_tokens)
+        except ProviderError as error:
+            error.details.setdefault('provider', 'runner' if error.details.get('reason') == 'context_limit' else 'omniroute' if os.environ.get('OMNIROUTE_BASE_URL') else 'openrouter')
+            error.details.setdefault('operation', 'model')
+            from .diagnostics import emit
+            emit(dict(stage='runner', status='failed', code=error.code, **error.details,
+                      requestBytes=len(encode(messages).encode())))
+            raise
+
+    def _model(self, messages, max_tokens=1800):
         with self.lock:
             self.check()
             if len(encode(messages).encode('utf-8')) > 90000:
-                raise ProviderError('model context exceeds bound')
+                raise ProviderError('model context exceeds bound', reason='context_limit')
             base, api_key = model_endpoint()
             # Each model attempt reserves separately; retries are not assumed free.
             key = 'model_' + uuid4().hex
@@ -376,10 +425,10 @@ class Calls:
             try:
                 choice = payload['choices'][0]
                 if choice.get('finish_reason') == 'length':
-                    raise ProviderError('model output truncated', code='output_truncated')
+                    raise ProviderError('model output truncated', code='output_truncated', reason='output_truncated')
                 answer = choice['message']['content']
             except (KeyError, IndexError, TypeError):
                 raise ProviderError('invalid model response', code='invalid_output') from None
             if not isinstance(answer, str) or not answer.strip():
-                raise ProviderError('empty model response', code='empty_output')
+                raise ProviderError('empty model response', code='empty_output', reason='empty_output')
             return answer

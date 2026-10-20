@@ -82,8 +82,8 @@ export function ResearchWorkspace() {
         {canWrite && <form aria-label="New research" className="shrink-0 border-2 border-foreground bg-surface-raised p-5 sm:p-6" onSubmit={event => { event.preventDefault(); void create(); }}><fieldset disabled={creating} className="min-w-0 space-y-4"><legend className="mb-2 font-heading text-xl font-bold">Start a new brief</legend><p className="text-sm text-secondary">Research a guest, their company and industry around the world, with context for an Indian audience.</p>
           <ResearchInputFields value={researchInput} onChange={setResearchInput} />
           <details><summary className="min-h-11 cursor-pointer py-2 text-sm font-bold">Private notes (optional)</summary><div className="grid items-start gap-6 border-t border-foreground/15 pt-5 ">
-            <div className="min-w-0 space-y-4"><label className="grid gap-2 text-sm font-bold">Private notes<textarea placeholder="Add background, topics to explore, or questions you want answered…" className={`${control} min-h-40 resize-y font-normal`} maxLength={RESEARCH_NOTES_LIMIT} value={notes} onChange={event => { setNotes(event.target.value); setNotesApproved(false); }} /></label>
-            <label className="flex items-start gap-3 text-sm leading-relaxed"><input type="checkbox" className="mt-1 h-5 w-5 shrink-0" checked={notesApproved} onChange={event => setNotesApproved(event.target.checked)} /><span>I approve sending these notes to the research model. Your notes stay out of public search queries.</span></label></div>
+            <div className="min-w-0 space-y-4"><label className="grid gap-2 text-sm font-bold">Private notes<textarea placeholder="Guide the research: topics to prioritize, comparisons, exclusions, interview angle, or an optional time period." className={`${control} min-h-40 resize-y font-normal`} maxLength={RESEARCH_NOTES_LIMIT} value={notes} onChange={event => { setNotes(event.target.value); setNotesApproved(false); }} /></label>
+            <label className="flex items-start gap-3 text-sm leading-relaxed"><input type="checkbox" className="mt-1 h-5 w-5 shrink-0" checked={notesApproved} onChange={event => setNotesApproved(event.target.checked)} /><span>Use these notes to guide research and writing. The model receives the notes; derived public topics and date constraints are sent to search providers.</span></label></div>
           </div></details>
           <Button type="submit" className="w-full sm:w-auto" variant="attention" disabled={loading || !configured || !validInput || creating || (!!notes.trim() && !notesApproved)} loading={creating}>{creating ? "Starting…" : "Start new research"}</Button>
           {!!notes.trim() && !notesApproved && <p className="text-xs text-secondary">Approve use of your notes before starting research.</p>}
@@ -153,7 +153,7 @@ function ResearchEditor({ id, configured, canWrite, onChange, onDirty, onDeleted
         if (controller.signal.aborted || mutation.current) return;
         const brief = parseResearchBrief(data.brief);
         if (brief.id !== id) throw new Error("This brief could not be refreshed.");
-        setState(current => current ? applyResearchReceipt(current, brief) : current); setCancelPending(brief.status === "cancel_pending"); setVersions(data.versions ?? []); onChange(brief);
+        setNotice(""); setState(current => current ? applyResearchReceipt(current, brief) : current); setCancelPending(brief.status === "cancel_pending"); setVersions(data.versions ?? []); onChange(brief);
         if (!researchIsRunning(brief.status)) return;
       } catch (error) {
         if (controller.signal.aborted) return;
@@ -259,8 +259,8 @@ function ResearchEditor({ id, configured, canWrite, onChange, onDirty, onDeleted
         <legend className="sr-only">Brief details</legend>
         {draft.researchInput ? <ResearchInputFields value={draft.researchInput} onChange={researchInput => edit({ researchInput, title: researchTitle(researchInput) })} />
           : <label className="grid gap-1 text-sm font-bold">Title<input className={control} minLength={2} maxLength={200} value={draft.title} onChange={event => edit({ title: event.target.value })} /></label>}
-        <label className="grid gap-1 text-sm font-bold">Private notes<textarea className={`${control} min-h-32`} maxLength={RESEARCH_NOTES_LIMIT} value={draft.notes} onChange={event => edit({ notes: event.target.value, notesApproved: false })} /></label>
-        <label className="flex items-start gap-3 text-sm"><input type="checkbox" className="mt-1 h-5 w-5 shrink-0" checked={approved} onChange={event => edit({ notesApproved: event.target.checked })} /><span>I approve sending these notes to the research model. Your notes stay out of public search queries.</span></label>
+        <label className="grid gap-1 text-sm font-bold">Private notes<textarea placeholder="Guide the research: topics to prioritize, comparisons, exclusions, interview angle, or an optional time period." className={`${control} min-h-32`} maxLength={RESEARCH_NOTES_LIMIT} value={draft.notes} onChange={event => edit({ notes: event.target.value, notesApproved: false })} /></label>
+        <label className="flex items-start gap-3 text-sm"><input type="checkbox" className="mt-1 h-5 w-5 shrink-0" checked={approved} onChange={event => edit({ notesApproved: event.target.checked })} /><span>Use these notes to guide research and writing. The model receives the notes; derived public topics and date constraints are sent to search providers.</span></label>
         <label className="flex items-start gap-3 text-sm"><input type="checkbox" className="mt-1 h-5 w-5 shrink-0" checked={draft.shared} onChange={event => edit({ shared: event.target.checked })} /><span>Share with everyone who has access to this workspace. Sections may include content derived from private notes. Notes and chat themselves stay private; others can only read the shared brief.</span></label>
         {RESEARCH_SECTIONS.filter(({ key }) => draft.sections.some(section => section.key === key)).map(({ key, title }) => {
           const section = draft.sections.find(item => item.key === key)!;

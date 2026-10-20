@@ -81,6 +81,12 @@ class Failure(DTO):
     code: Literal['timeout', 'rate_limit', 'authentication', 'budget_exhausted', 'output_truncated',
                   'empty_output', 'invalid_output', 'storage_failure', 'provider_unavailable', 'internal_error']
     retryable: bool
+    reason: Literal['http_error', 'transport_error', 'connect_timeout', 'read_timeout', 'deadline',
+                    'stream_error', 'stream_incomplete', 'stream_invalid', 'response_too_large',
+                    'context_limit', 'no_matching_sources', 'invalid_json', 'invalid_schema', 'output_truncated', 'empty_output'] | None = None
+    provider: Literal['treg', 'omniroute', 'openrouter', 'runner'] | None = None
+    operation: Literal['catalog', 'search', 'social_search', 'extract', 'model'] | None = None
+    httpStatus: int | None = Field(default=None, ge=100, le=599)
 
 
 class Source(DTO):
@@ -113,7 +119,7 @@ class Context(DTO):
     notes: str = Field(default='', max_length=12000)
     notesApproved: bool = False
     sections: list[Section] = Field(default_factory=list, max_length=4)
-    sources: list[Source] = Field(default_factory=list, max_length=80)
+    sources: list[Source] = Field(default_factory=list)
 
     @model_validator(mode='after')
     def unique(self):

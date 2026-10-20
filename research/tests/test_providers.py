@@ -126,7 +126,7 @@ class ProviderTests(unittest.TestCase):
         response.iter_bytes.return_value = iter([b' ', b' '])
         client = MagicMock()
         client.__enter__.return_value.stream.return_value.__enter__.return_value = response
-        with patch('research.providers.httpx.Client', return_value=client), patch('research.providers.time.monotonic', side_effect=[0, 60, 601]):
+        with patch('research.providers.httpx.Client', return_value=client), patch('research.providers.time.monotonic', side_effect=[0, 0, 60, 601, 602]):
             with self.assertRaisesRegex(ProviderError, 'provider deadline exceeded'):
                 ProviderNetwork().request('GET', 'https://treg.to/catalog', {})
 

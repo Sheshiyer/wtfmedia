@@ -1,3 +1,61 @@
+## 2026-10-20 — Research guidance, source retention and failure diagnostics (local)
+
+- Supersedes the earlier local 80-slot representative fix below. Every unique
+  eligible returned source is retained, including results beyond the requested
+  provider page size; Python, Edge and browser contracts accept counts over 80.
+  Saved citation IDs/excerpts remain protected. Large synthesis contexts read
+  all usable extracts in batches while original evidence remains unchanged.
+- Approved private notes now guide searches as well as writing: public topics,
+  priorities, comparisons, exclusions and interview angle are interpreted before
+  discovery. The full approved notes guide synthesis. UI consent explains that
+  derived public guidance goes to search providers; unapproved notes remain
+  in the private record and are not sent to providers.
+- Dates are optional instructions, not the research goal. Calendar-relative
+  ranges are resolved once and checkpointed. Native supported date/recency
+  filters plus local publication-date checks cover discovery and tier searches;
+  undated/out-of-window evidence is excluded for a strict time scope. Raw note
+  prose is not copied into queries. Ambiguous guidance can request clarification.
+- Safe saved failures/logs now identify provider, operation, HTTP status and
+  reason, separating HTTP/transport/stream failures from local context limits.
+  Logs include bounded timing/byte counts and exclude inputs, raw responses,
+  identifiers and credentials. Historical generic failures remain unidentified.
+- VERIFIED-SOURCE: 110 Python tests (real pinned GPTR with fake external
+  adapters included), 542 Edge tests, 395 web unit tests, 38 desktop/mobile
+  fixture browser tests, web typecheck, scoped ESLint and architecture check.
+  Focused receipt tests were rerun after the final diagnostic additions.
+- VERIFIED-LIVE, bounded local synthetic check: OmniRoute `noesis-research`
+  reported `gpt-5.6-terra`; general guidance applied no date constraint, a
+  five-month instruction resolved to 2026-05-20 through 2026-10-20, and Treg
+  returned six eligible dated web sources. Two model planning calls and one
+  web search only; no full report or live social-channel trial was run.
+- No deployment, push, migration, model switch or credential change. Existing
+  reports are unchanged. Deploy tolerant Edge/Web readers with the new runner
+  image together when authorized. Existing payload, model-context and spend
+  safeguards remain; large evidence sets can cost more and fail explicitly at
+  those limits instead of silently evicting sources.
+
+## 2026-10-20 — Research partial-report diagnosis and local source fixes
+
+- Read-only staging run metadata confirms three completed sections and an
+  `appetizers` failure after two attempts with `provider_unavailable`. The last
+  successful model receipt is OmniRoute / `gpt-5.6-terra`; it does not identify
+  the model or HTTP/stream cause of the failed call. Historical telemetry API
+  rejected current credentials (10000), so no exact upstream cause is proven.
+- Discovery recorded all six channels as found. At the 80-source cap, later
+  relevance-ranked web expansion could evict uncited social evidence: final
+  counts were Web 68, LinkedIn 1, YouTube 10, Instagram 0, Reddit 0, X 1.
+  Local retention now reserves usable channel representatives before filling
+  remaining slots by relevance, without replacing protected cited sources.
+- Shared source marks now use brand colors. Zero-retained discovery displays
+  “Results found; none retained”. Successful polling clears an earlier refresh
+  error rather than leaving a stale timeout warning beside the loaded report.
+- VERIFIED-SOURCE: 93 Python tests, 394 web unit tests, 38 desktop/mobile
+  research browser fixture tests, web typecheck and scoped ESLint pass.
+  New regressions failed before the fixes. Local badge screenshot inspected.
+- These fixes are local only. No deployment, push, provider/model change,
+  credential change, migration or paid research rerun was performed. Existing
+  partial reports are unchanged; signed-in staging retry is not verified.
+
 ## 2026-10-20 — Research V2 deployed to staging
 
 - Owner authorized staging deployment and will perform the signed-in research

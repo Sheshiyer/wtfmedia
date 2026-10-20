@@ -48,10 +48,23 @@ test("saved report precedes collapsed editor; citations open nested evidence wit
 test("found coverage can have no retained sources without implying no search results", async ({ page }) => {
   await open(page, { ...saved, coverage: [{ channel: "web", status: "found", sourceCount: 0, method: "web_search" }] });
   const coverage = page.getByRole("region", { name: "Source channel coverage" });
-  await expect(coverage.getByText("Found", { exact: true })).toBeVisible();
+  await expect(coverage.getByText("Results found; none retained", { exact: true })).toBeVisible();
   await expect(coverage.getByText("0 retained sources", { exact: true })).toBeVisible();
   await expect(coverage.getByText("No results", { exact: true })).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test("successful polling clears a previous refresh error", async ({ page }) => {
+  await open(page, { ...saved, status: "running" });
+  let polls = 0;
+  await page.route("**/beta/api/research/rb_fixture", async route => {
+    polls += 1;
+    if (polls === 1) await route.fulfill({ status: 503, json: { error: "unavailable" } });
+    else await route.fulfill({ json: { brief: saved, versions: [] } });
+  });
+  await expect(page.getByRole("alert")).toBeVisible({ timeout: 10000 });
+  await expect(page.getByRole("region", { name: "Source channel coverage" })).toBeVisible({ timeout: 10000 });
+  await expect(page.getByRole("alert")).toHaveCount(0);
 });
 
 test("clarification is primary with no empty sections and only one continuation", async ({ page }) => {

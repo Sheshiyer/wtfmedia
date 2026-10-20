@@ -10,6 +10,10 @@ export type ResearchFailure = {
   stage: "resolve" | "discovery" | "snacks" | "appetizers" | "main" | "desserts" | "storage" | "runner";
   code: "timeout" | "rate_limit" | "authentication" | "budget_exhausted" | "output_truncated" | "empty_output" | "invalid_output" | "storage_failure" | "provider_unavailable" | "internal_error";
   retryable: boolean;
+    reason?: 'http_error' | 'transport_error' | 'connect_timeout' | 'read_timeout' | 'deadline' | 'stream_error' | 'stream_incomplete' | 'stream_invalid' | 'response_too_large' | 'context_limit' | 'no_matching_sources' | 'invalid_json' | 'invalid_schema' | 'output_truncated' | 'empty_output';
+    provider?: 'treg' | 'omniroute' | 'openrouter' | 'runner';
+    operation?: 'catalog' | 'search' | 'social_search' | 'extract' | 'model';
+    httpStatus?: number;
 };
 export type ResearchSection = { key: ResearchSectionKey; title: string; content: string; status: string; failure?: ResearchFailure };
 export type ResearchSummary = { id: string; title: string; status: ResearchStatus; updatedAt: string; revision: number; shared: boolean };
@@ -84,7 +88,17 @@ export function researchFailureSummary(failure?: ResearchFailure): string {
     budget_exhausted: "The research budget was exhausted", output_truncated: "The model output was truncated", empty_output: "The model returned no content",
     invalid_output: "The model output could not be validated", storage_failure: "The result could not be saved", provider_unavailable: "The provider was unavailable", internal_error: "The runner encountered an internal error",
   };
-  return `${reasons[failure.code]} during ${failure.stage}. ${failure.retryable ? "A full research run can be retried." : "Review the failure before starting another run."}`;
+  const detail = failure.reason ? ({
+    http_error: `Upstream returned HTTP ${failure.httpStatus ?? "error"}`,
+    transport_error: "The provider connection failed", connect_timeout: "Connecting to the provider timed out",
+    read_timeout: "Waiting for provider data timed out", deadline: "The provider request exceeded its time limit",
+    stream_error: `The provider reported an error in its response stream${failure.httpStatus ? ` (HTTP ${failure.httpStatus})` : ""}`, stream_incomplete: "The provider response stream ended before completion",
+    stream_invalid: "The provider response stream was malformed", response_too_large: "The provider response exceeded the safe size limit",
+    context_limit: "The evidence exceeded the model request size limit", no_matching_sources: "No supporting sources matched the requested research scope", invalid_json: "The provider returned invalid JSON",
+    invalid_schema: "The provider response did not match the expected format", output_truncated: "The model output was truncated",
+    empty_output: "The model returned no content",
+  } satisfies Record<NonNullable<ResearchFailure["reason"]>, string>)[failure.reason] : reasons[failure.code];
+  return `${detail}${failure.provider ? ` (${failure.provider}${failure.operation ? ` / ${failure.operation}` : ""})` : ""} during ${failure.stage}. ${failure.retryable ? "A full research run can be retried." : "Review the failure before starting another run."}`;
 }
 /** Only known evidence IDs become citations; unknown references remain visible. */
 export function replaceResearchCitations(content: string, sources: ResearchSource[], render: (source: ResearchSource) => string): string {
@@ -200,12 +214,16 @@ export function parseResearchBrief(value: unknown): ResearchBrief {
   const validFailure = (f: ResearchFailure | undefined) => f === undefined || !!f
     && ["resolve", "discovery", "snacks", "appetizers", "main", "desserts", "storage", "runner"].includes(f.stage)
     && ["timeout", "rate_limit", "authentication", "budget_exhausted", "output_truncated", "empty_output", "invalid_output", "storage_failure", "provider_unavailable", "internal_error"].includes(f.code)
-    && typeof f.retryable === "boolean";
+    && typeof f.retryable === "boolean"
+        && (f.reason == null || ['http_error', 'transport_error', 'connect_timeout', 'read_timeout', 'deadline', 'stream_error', 'stream_incomplete', 'stream_invalid', 'response_too_large', 'context_limit', 'no_matching_sources', 'invalid_json', 'invalid_schema', 'output_truncated', 'empty_output'].includes(f.reason))
+        && (f.provider == null || ['treg', 'omniroute', 'openrouter', 'runner'].includes(f.provider))
+        && (f.operation == null || ['catalog', 'search', 'social_search', 'extract', 'model'].includes(f.operation))
+        && (f.httpStatus == null || (typeof f.httpStatus === "number" && Number.isInteger(f.httpStatus) && f.httpStatus >= 100 && f.httpStatus <= 599));
   const boundedModel = (v: unknown) => typeof v === "string" && v.length <= 120;
   if ((b.schemaVersion !== undefined && b.schemaVersion !== 2)
     || (b.coverage !== undefined && (!Array.isArray(b.coverage) || b.coverage.length > 6 || !b.coverage.every(c => c && RESEARCH_CHANNELS.includes(c.channel)
       && ["pending", "searching", "found", "no_results", "unavailable", "failed", "budget_limited"].includes(c.status)
-      && Number.isInteger(c.sourceCount) && c.sourceCount >= 0 && c.sourceCount <= 80 && ["dedicated_tool", "web_search"].includes(c.method))
+      && Number.isSafeInteger(c.sourceCount) && c.sourceCount >= 0 && ["dedicated_tool", "web_search"].includes(c.method))
       || new Set(b.coverage.map(c => c.channel)).size !== b.coverage.length))
     || (b.modelInfo !== undefined && (!b.modelInfo || !["omniroute", "openrouter"].includes(b.modelInfo.service) || !boundedModel(b.modelInfo.requestedModel) || (b.modelInfo.reportedModel !== undefined && !boundedModel(b.modelInfo.reportedModel))))
     || !validFailure(b.failure) || !b.sections.every(s => validFailure(s.failure))

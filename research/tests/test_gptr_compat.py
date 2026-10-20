@@ -36,6 +36,8 @@ class RecordingCalls:
         self.models.append(encoded)
         if 'Write the ' in encoded and max_tokens != 12000:
             raise AssertionError('Report writer must receive the full 12000-token budget')
+        if 'Extract findings relevant to the research scope' in encoded:
+            return '\n'.join(s['excerpt'][:100] + ' [' + s['id'] + '].' for s in json.loads(messages[-1]['content'])['evidence'])
         if 'Resolve the public entity' in encoded:
             return '{"clarification":null}'
         if 'Extract numeric claims' in encoded:
@@ -120,7 +122,7 @@ class GPTRCompatibilityTests(unittest.TestCase):
         with patch('socket.socket.connect', side_effect=AssertionError('unexpected external socket')):
             _, retained = asyncio.run(engine.tier(
                 dict(title='Example founder', sections=sections), 'main', TIERS['main'][1], sources))
-        self.assertEqual(len(retained), 80)
+        self.assertEqual(len(retained), 83)
         self.assertIn(sources[78], retained)
         self.assertIn(sources[79], retained)
         self.assertIn('src_80', {s['id'] for s in retained})
@@ -138,11 +140,11 @@ class GPTRCompatibilityTests(unittest.TestCase):
         with patch('socket.socket.connect', side_effect=AssertionError('unexpected external socket')):
             _, retained = asyncio.run(GPTREngine(LaterEvidence()).tier(
                 dict(title='Example founder', sections=sections), 'main', 'India skills employment', sources))
-        self.assertEqual(len(retained), 80)
+        self.assertEqual(len(retained), 81)
         self.assertIn(sources[79], retained)
         self.assertIn('src_80', {s['id'] for s in retained})
 
-    def test_all_protected_cap_warns_and_does_not_extract_discarded_results(self):
+    def test_all_protected_sources_allow_additional_evidence_and_extraction(self):
         from research.gptr import GPTREngine
         class LaterEvidence(RecordingCalls):
             def search(self, query):
@@ -155,9 +157,10 @@ class GPTRCompatibilityTests(unittest.TestCase):
         with patch('socket.socket.connect', side_effect=AssertionError('unexpected external socket')):
             _, retained = asyncio.run(engine.tier(
                 dict(title='Example founder', sections=sections), 'main', 'India skills employment', sources))
-        self.assertEqual(retained, sources)
-        self.assertFalse(calls.extracts)
-        self.assertTrue(any('80' in warning and 'cited' in warning for warning in engine.warnings))
+        self.assertEqual(len(retained),81)
+        self.assertEqual(retained[:80], sources)
+        self.assertTrue(calls.extracts)
+        self.assertFalse(any('80' in warning and 'cited' in warning for warning in engine.warnings))
 
     def test_search_only_failure_uses_retained_evidence_without_extracting_or_leaking_notes(self):
         from research.gptr import GPTREngine

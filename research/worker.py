@@ -13,6 +13,7 @@ from .evidence import (NUMBER, merge_sources, number_comparison, select_context,
 from .providers import Calls, ProviderError, configured, model_info
 from .store import BudgetExceeded, Stopped
 from .diagnostics import emit, failure
+from .scope import plan_scope
 from .source_channels import CHANNELS, collect_channel, initial_coverage, platform_for_url
 
 
@@ -80,12 +81,18 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                         emit(dict(stage='resolve', status='clarification'))
                         save('clarification')
                         return
+                    scope = await plan_scope(calls, body)
+                    if scope.get('clarification'):
+                        result['clarification'] = scope['clarification']
+                        save('clarification')
+                        return
+                    state['searchScope'] = scope
                     state['resolved'] = True
                     save()
                     break
                 except (ProviderError, ValueError, BudgetExceeded) as error:
                     info = failure(error, 'resolve')
-                    emit(dict(stage='resolve', status='failed', code=info['code'], attempt=attempt + 1))
+                    emit(dict(status='failed', **info, attempt=attempt + 1))
                     if attempt == 1 or not info['retryable']:
                         result['failure'] = info
                         result['warnings'].append('Subject resolution failed; no identity was assumed.')
@@ -97,6 +104,21 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
             result['failure'] = dict(stage='resolve', code='internal_error', retryable=False)
             save('failed')
             return
+
+        scope = state.get('searchScope', {})
+        if body.get('notesApproved') and body.get('notes') and 'searchScope' not in state:
+            # Older in-flight jobs must not silently ignore approved search instructions.
+            scope = await plan_scope(calls, body)
+            if scope.get('clarification'):
+                result['clarification'] = scope['clarification']
+                save('clarification')
+                return
+            state['searchScope'] = scope
+            save()
+        body = {**body, 'searchScope': scope}
+        calls.scope = scope
+        if scope.get('dateFrom') or scope.get('dateTo'):
+            result['warnings'].append(f"Publication-date filter: {scope.get('dateFrom') or 'any start'} through {scope.get('dateTo') or 'today'}. Undated and out-of-range sources are excluded; report figures must also refer to the requested period.")
 
         # Each channel has a durable checkpoint and calls have idempotent receipts.
         for index in range(state.get('channel_index', 0), len(CHANNELS)):
@@ -155,7 +177,7 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                 except (ProviderError, BudgetExceeded, ValueError) as error:
                     info = failure(error, key)
                     result['sections'][-1]['failure'] = info
-                    emit(dict(stage=key, status='failed', code=info['code'], attempt=attempt + 1,
+                    emit(dict(status='failed', **info, attempt=attempt + 1,
                               elapsedMs=int((time.monotonic() - started) * 1000)))
                     save()
                     if not info['retryable']:

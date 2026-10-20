@@ -29,7 +29,7 @@ test('invalid coverage and diagnostics cannot enter a saved receipt even while r
  const coverage={channel:'web',status:'found',sourceCount:1,method:'web_search'};
  const invalid=[
   {coverage:Array(7).fill(coverage)}, {coverage:[coverage,coverage]},
-  ...[-1,81,1.1,'1',null].map(sourceCount=>({coverage:[{...coverage,sourceCount}]})),
+  ...[-1,Number.MAX_SAFE_INTEGER+1,1.1,'1',null].map(sourceCount=>({coverage:[{...coverage,sourceCount}]})),
   {coverage:[{...coverage,channel:'facebook'}]}, {coverage:[{...coverage,status:'complete'}]}, {coverage:[{...coverage,method:'guessed'}]},
   {failure:{...failure,stage:'raw-provider-message'}}, {failure:{...failure,code:'unknown'}}, {failure:{...failure,retryable:'yes'}},
   {modelInfo:{service:'other',requestedModel:'route'}}, {modelInfo:{service:'omniroute',requestedModel:'a'.repeat(121)}},
@@ -80,4 +80,18 @@ test('result input metadata is validated but cannot replace the owner-authored r
  }
  const result=parse({...base,schemaVersion:2,researchInput:{guestName:'Other guest',companyName:'Other company',industry:'Other industry',audienceCountry:'IN'}});
  assert.equal('researchInput' in result,false);assert.equal('schemaVersion' in result,false);
+});
+
+test('more than 80 unique sources survive receipt validation with coverage counts',()=>{
+ const sources=Array.from({length:125},(_,i)=>({...source,id:'s'+i,url:'https://example.com/'+i}));
+ const result=parse({...base,sources,coverage:[{channel:'web',status:'found',sourceCount:125,method:'web_search'}]});
+ assert.equal(result.sources.length,125);assert.equal(result.coverage[0].sourceCount,125);
+ assert.equal(sourcesValid([...sources,sources[0]]),false);
+});
+
+test('failure reasons and operation survive projection but arbitrary diagnostic text does not',()=>{
+ const details={...failure,code:'provider_unavailable',reason:'http_error',provider:'omniroute',operation:'model',httpStatus:503};
+ assert.deepEqual(parse({...base,failure:{...details,message:'PRIVATE',url:'PRIVATE'}}).failure,details);
+ for(const bad of [{reason:'PRIVATE'},{provider:'PRIVATE'},{operation:'PRIVATE'},{httpStatus:99},{httpStatus:'503'}])
+  assert.throws(()=>parse({...base,failure:{...details,...bad}}));
 });

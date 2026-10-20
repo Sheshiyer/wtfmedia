@@ -29,8 +29,9 @@ The per-call maximum header is a requested provider limit, not a guarantee of
 upstream billing. Review this discrepancy before expanding live acceptance.
 
 Source retention protects citations in completed sections, including numeric
-comparisons, while admitting more relevant later evidence into the remaining
-80-source slots. A supplementary search failure can use existing retained
+comparisons, and keeps every unique eligible returned source without a fixed count
+cap. Larger evidence sets are read in bounded synthesis batches with original source
+IDs; generated digests never replace the retained evidence. A supplementary search failure can use existing retained
 evidence with a visible limitation; model, budget, storage and cancellation
 errors are never swallowed. Content-free social records are not evidence.
 
@@ -42,7 +43,9 @@ and flag. This does not rewrite old report content.
 Worker stdout remains suppressed. The API process forwards only whitelisted
 JSON `research_stage` events from worker stderr; arbitrary upstream logs are
 discarded. Events include stage/status, safe failure code, bounded counts,
-duration and token usage when reported. They exclude report text, request
+duration and token usage when reported. Failures retain an allowlisted provider,
+operation, HTTP status and reason (HTTP/transport error, interrupted/invalid stream,
+local context limit). Logs additionally include request/response byte counts. They exclude report text, request
 bodies, provider error bodies, owner/session/run identifiers and credentials.
 Historical generic failures cannot be retroactively assigned a precise cause.
 
@@ -233,10 +236,11 @@ provider boundary that still needs real validation.
 
 Follow-up body: `{question,messages,sections,sources,notes,notesApproved}`;
 messages contain only `user`/`assistant` roles. Bounds: title 400 characters,
-notes 12,000; four sections at 24,000 content characters each; 80 sources at
-12,000 excerpt characters each; question 2,000; last 12 messages at 12,000 each.
-Model context separately selects relevance-ranked verbatim excerpt slices and
-bounded notes, previous sections and recent messages. Full accepted evidence stays
+notes 12,000; four sections at 24,000 content characters each; sources with
+12,000 excerpt characters each and no fixed source-count cap; question 2,000; last 12 messages at 12,000 each.
+Research synthesis considers every eligible source in bounded batches; follow-up
+and numeric checks select relevance-ranked verbatim slices. Notes, previous sections
+and recent messages remain bounded. Full accepted evidence stays
 in the job. These byte bounds prevent a growing source set from overflowing every
 subsequent tier. No model-generated follow-up answer is promoted into evidence.
 
@@ -258,11 +262,29 @@ Two allowlisted, synchronous, read-only Treg endpoints are used:
 - `exa.web.contents.get`: one public URL and raw `text.maxCharacters:12000` only.
 
 No arbitrary endpoint, routed provider waterfall, publishing, contact enrichment,
-async provider task, generated source summary or default direct scraping is enabled.
+async provider task, provider-generated source summary or default direct scraping is enabled.
 The runtime validates current public catalog fields/prices before using each tool.
 The checked receipt is `research/catalog-receipt.json`; contract changes fail closed.
-Private notes never enter search, including GPTR planning. Approved notes enter only
-report writing and follow-up; unapproved notes are withheld from every provider.
+Approved notes are interpreted once into public research guidance before discovery.
+This guides topics, priorities, comparisons, exclusions and interview angle; full
+approved notes also guide synthesis and follow-up. The raw notes are not used as a
+search query. Consent copy explicitly covers derived public guidance going to search
+providers. Unapproved notes are withheld from every provider.
+
+Date ranges are optional, not a default goal. Relative periods are resolved using
+calendar arithmetic against the run's UTC date and checkpointed for retries. Absolute
+ranges are validated. Ambiguous instructions request clarification. YouTube uses
+publishedAfter, X uses since/until, LinkedIn and Reddit use broad native recency
+filters; exact date bounds are checked locally on every channel and tier. Treg's
+Perplexity tool has no dedicated date fields, so queries carry the range and results
+are checked locally. Undated/out-of-range evidence is excluded under a strict date
+constraint; retrieval time is never a substitute for publication time. Report prompts
+also distinguish publication dates from the dates of events/financial periods.
+
+There is no count-based source eviction. The existing 1.2 MB runner/state request
+bound, 1.8 MB saved document bound, provider response limits and per-run/per-stage
+budgets still apply. A limit failure is explicit; sources are not silently dropped
+to make a report appear complete. Larger evidence sets can require more model calls.
 
 Research does not call Alpha episode retrieval. Legacy Alpha references remain
 readable in old briefs but are excluded from new runner submissions. Public videos

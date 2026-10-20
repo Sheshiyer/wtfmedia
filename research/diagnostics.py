@@ -11,6 +11,22 @@ CODES = {
 STAGES = {'resolve', 'discovery', 'snacks', 'appetizers', 'main', 'desserts', 'storage', 'runner'}
 RETRYABLE = {'timeout', 'rate_limit', 'output_truncated', 'empty_output', 'invalid_output', 'provider_unavailable'}
 
+REASONS = {'http_error', 'transport_error', 'connect_timeout', 'read_timeout', 'deadline',
+           'stream_error', 'stream_incomplete', 'stream_invalid', 'response_too_large',
+           'context_limit', 'no_matching_sources', 'invalid_json', 'invalid_schema', 'output_truncated', 'empty_output'}
+PROVIDERS = {'treg', 'omniroute', 'openrouter', 'runner'}
+OPERATIONS = {'catalog', 'search', 'social_search', 'extract', 'model'}
+
+
+def safe_details(value):
+    safe = {}
+    for key, choices in (('reason', REASONS), ('provider', PROVIDERS), ('operation', OPERATIONS)):
+        if isinstance(value.get(key), str) and value[key] in choices:
+            safe[key] = value[key]
+    if type(value.get('httpStatus')) is int and 100 <= value['httpStatus'] <= 599:
+        safe['httpStatus'] = value['httpStatus']
+    return safe
+
 
 def failure(error, stage):
     code = getattr(error, 'code', None)
@@ -21,7 +37,8 @@ def failure(error, stage):
     if code not in CODES:
         code = 'internal_error'
     return {'stage': stage if stage in STAGES else 'runner',
-            'code': code, 'retryable': code in RETRYABLE}
+            'code': code, 'retryable': code in RETRYABLE and getattr(error, 'details', {}).get('reason') not in {'context_limit', 'response_too_large', 'no_matching_sources'},
+            **safe_details(getattr(error, 'details', {}))}
 
 
 def emit(event):
@@ -36,12 +53,13 @@ def emit(event):
     }:
         return
     safe = {'event': 'research_stage', 'stage': stage, 'status': status}
+    safe.update(safe_details(event))
     code, channel = event.get('code'), event.get('channel')
     if isinstance(code, str) and code in CODES:
         safe['code'] = code
     if isinstance(channel, str) and channel in {'web', 'linkedin', 'youtube', 'instagram', 'reddit', 'x'}:
         safe['channel'] = channel
-    for key in ('attempt', 'elapsedMs', 'sourceCount', 'outputCharacters', 'inputTokens', 'outputTokens'):
+    for key in ('attempt', 'elapsedMs', 'sourceCount', 'outputCharacters', 'inputTokens', 'outputTokens', 'requestBytes', 'responseBytes'):
         value = event.get(key)
         if type(value) is int and 0 <= value <= 1_000_000_000:
             safe[key] = value
