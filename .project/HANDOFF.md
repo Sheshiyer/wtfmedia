@@ -1,3 +1,26 @@
+## 2026-10-20 — Balanced research runner deployed to staging
+
+- Owner authorized deployment, then reserved the full report timing test for
+  their own testing. No synthetic paid report was submitted.
+- Application source `9f5df5a`; image-pin candidate `728b4bb`. Python imports and
+  all 14 runtime module hashes match the archived source. 118 Python tests pass;
+  architecture ledger (773 inputs), diff check, and host dry-run pass.
+- Staging research Worker `d9890653-6b7b-459f-8330-5e40536a152a` receives 100%
+  traffic. Container application version 4 rollout
+  `7ef32d90-2728-4bf2-84bf-93c83d1460d7` is completed with no reported errors.
+  Image digest:
+  `sha256:599cb556a70ee8ea53f219fd6306592e1498af84952145ec418bc4e299f17570`.
+- Edge `1686db84-f7e8-4c39-b760-d00e61dc44fd` and Web
+  `d8d04ac5-b1ca-4120-a777-f7e1b1815dbf` are unchanged. All three Workers retain
+  their bindings. Public staging root redirects, sign-in/research return 200,
+  and signed-out protected principal/research/social APIs return 401. Private
+  runner health after the completed rollout returns `configured=true`.
+- Rollback reference: research Worker `a83dc2be-5726-42a1-a012-ade534152413`,
+  image `sha256:2b0ac6e430791a451a21d10fddbe5511f906874643b352beb14f5cf03104a37b`.
+  Production, credentials and shared database schemas were not changed. No push.
+- Full report speed, paid-provider completion, and authenticated UI acceptance
+  remain unmeasured for this candidate; the owner will test timing in staging.
+
 ## 2026-10-20 — Slow research diagnosis and balanced source budget (local)
 
 - Owner reported a roughly 20-minute run. Read-only live runner metadata at
