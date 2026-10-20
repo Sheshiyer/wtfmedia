@@ -147,10 +147,10 @@ class Network:
     def _request(self, method, url, headers, body=None):
         data = bytearray()
         try:
-            deadline = time.monotonic() + 600
+            deadline = time.monotonic() + 180
             omni_base = os.environ.get('OMNIROUTE_BASE_URL', '').strip().rstrip('/')
             # Gateway reasoning can delay the first content chunk.
-            read_timeout = 600 if omni_base and url == omni_base + '/chat/completions' else 45
+            read_timeout = 180 if omni_base and url == omni_base + '/chat/completions' else 45
             with httpx.Client(timeout=httpx.Timeout(45, read=read_timeout),
                               follow_redirects=False, trust_env=False) as client:
                 with client.stream(method, url, headers=headers, json=body) as response:
@@ -196,7 +196,7 @@ def validate_catalog(catalog, tool=TOOL):
     elif (fields.get('query', {}).get('type') != 'string'
             or fields.get('search_type', {}).get('enum') != ['web']
             or fields.get('max_results', {}).get('type') != 'integer'
-            or fields.get('max_results', {}).get('max', 0) < 10):
+            or fields.get('max_results', {}).get('max', 0) < 20):
         raise ProviderError('catalog contract changed')
 
 
@@ -235,7 +235,7 @@ class Calls:
                 catalog, _ = self.network.request('GET', 'https://treg.to/catalog/endpoints/' + TOOL, {})
                 validate_catalog(catalog)
                 self.catalog_checked = True
-            body = {'query': query, 'search_type': 'web', 'max_results': 10}
+            body = {'query': query, 'search_type': 'web', 'max_results': 20}
             key = 'tool_' + digest(encode(body))
             cached = self.store.reserve(self.job_id, self.lease, key, 'tool', TOOL_RESERVE)
             if cached is not None:

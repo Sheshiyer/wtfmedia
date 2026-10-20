@@ -2,6 +2,7 @@
 import asyncio
 import json
 import os
+import re
 import threading
 import time
 from uuid import uuid4
@@ -53,6 +54,7 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
         engine_factory = GPTREngine
     job_id, lease, body, result, state = claim
     calls = calls_factory(store, job_id, lease)
+    calls.evidence_digests = state.setdefault('evidenceDigests', {})
     engine = engine_factory(calls)
     result.setdefault('coverage', initial_coverage())
     result.setdefault('modelInfo', getattr(calls, 'model_info', model_info()))
@@ -127,7 +129,9 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
             result['coverage'][index]['status'] = 'searching'
             save()
             found, coverage = await asyncio.to_thread(collect_channel, channel, body, calls)
-            result['sources'] = merge_sources(result['sources'], found)
+            protected = {citation for section in result['sections'] if section.get('status') == 'completed'
+                         for citation in re.findall(r'\b(src_[A-Za-z0-9_-]+)\b', section.get('content', ''))}
+            result['sources'] = merge_sources(result['sources'], found, protected_ids=protected, query=body['title'])
             result['coverage'][index] = coverage
             state['channel_index'] = index + 1
             result['progress'].append(f'{channel}: {coverage["status"]}')
@@ -143,8 +147,10 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
             for attempt in range(state.get(key, 0), 2):
                 state[key] = attempt + 1
                 calls.stage()
+                previous_failure = next((s.get('failure') for s in result['sections'] if s['key'] == key), None)
                 result['sections'] = [s for s in result['sections'] if s['key'] != key]
-                result['sections'].append(dict(key=key, title=title, content='', status='running'))
+                result['sections'].append(dict(key=key, title=title, content='', status='running',
+                                               **({'failure': previous_failure} if previous_failure else {})))
                 result['progress'].append(f'{key}: attempt {attempt + 1}')
                 started = time.monotonic()
                 emit(dict(stage=key, status='started', attempt=attempt + 1))
@@ -163,6 +169,7 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                         checked += '\n\n**Numeric evidence comparisons**\n\n' + comparisons[:5000]
                     checked = utf16_slice(checked, 24000)
                     result['sections'][-1].update(content=checked, status='completed')
+                    result['sections'][-1].pop('failure', None)
                     result['warnings'].extend(warnings + numeric_notes)
                     result['progress'].append(key + ': saved')
                     emit(dict(stage=key, status='completed', attempt=attempt + 1,
@@ -177,6 +184,7 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                 except (ProviderError, BudgetExceeded, ValueError) as error:
                     info = failure(error, key)
                     result['sections'][-1]['failure'] = info
+                    result['progress'].append(f'{key}: {info["code"]}' + (f' ({info["reason"]})' if info.get('reason') else ''))
                     emit(dict(status='failed', **info, attempt=attempt + 1,
                               elapsedMs=int((time.monotonic() - started) * 1000)))
                     save()

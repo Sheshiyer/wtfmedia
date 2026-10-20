@@ -8,6 +8,7 @@ from .contracts import Source, safe_url, utf16_slice
 from .scope import filter_sources, scoped_query
 
 CHANNELS = ('web', 'linkedin', 'youtube', 'instagram', 'reddit', 'x')
+SOURCES_PER_CHANNEL = 20
 DOMAINS = {'linkedin': ('linkedin.com',), 'youtube': ('youtube.com', 'youtu.be', 'youtube-nocookie.com'),
            'instagram': ('instagram.com',), 'reddit': ('reddit.com', 'redd.it'),
            'x': ('x.com', 'twitter.com')}
@@ -56,7 +57,7 @@ def dedicated_input(channel, body):
     if channel == 'instagram':
         return {'hashtag': re.sub(r'\W', '', company, flags=re.UNICODE)[:80], 'mediaType': 'all'}
     if channel == 'youtube':
-        return {'q': f'{guest} {company} {focus or "interview"}'.strip(), 'part': 'snippet', 'type': 'video', 'maxResults': 10,
+        return {'q': f'{guest} {company} {focus or "interview"}'.strip(), 'part': 'snippet', 'type': 'video', 'maxResults': SOURCES_PER_CHANNEL,
                 **({'publishedAfter': start + 'T00:00:00Z'} if start else {})}
     if channel == 'reddit':
         return {'query': f'{company} {focus}'.strip(), 'sort': 'relevance', 'filter': 'posts', 'timeframe': recent or 'all', 'trim': 'true'}
@@ -64,7 +65,7 @@ def dedicated_input(channel, body):
         query = '"' + company.replace('"', '') + '"' + (' ' + focus if focus else '')
         if start: query += ' since:' + start
         if end: query += ' until:' + (date.fromisoformat(end) + timedelta(days=1)).isoformat()
-        return {'query': query, 'limit': 10, 'queryType': 'Top'}
+        return {'query': query, 'limit': SOURCES_PER_CHANNEL, 'queryType': 'Top'}
     return {'query': f'{guest} {company} {focus}'.strip(), **({'datePosted': 'last-' + recent} if recent else {})}
 
 
@@ -171,9 +172,12 @@ def collect_channel(channel, body, calls):
                 found = calls.search(channel_query(channel, body))
         scope = body.get('searchScope', {})
         found = filter_sources(found, scope)
-        if channel != 'web' and method == 'dedicated_tool' and scope and (not found or (channel == 'instagram' and scope.get('focus'))):
+        if channel != 'web':
+            found = [s for s in found if platform_for_url(s['url']) == channel]
+        if channel != 'web' and method == 'dedicated_tool' and (len(found) < SOURCES_PER_CHANNEL or (channel == 'instagram' and scope.get('focus'))):
             try:
                 supplemental = filter_sources(calls.search(channel_query(channel, body)), scope)
+                supplemental = [s for s in supplemental if platform_for_url(s['url']) == channel]
                 if supplemental:
                     method = 'web_search'
                 found = list({s['url']: s for s in found + supplemental}.values())

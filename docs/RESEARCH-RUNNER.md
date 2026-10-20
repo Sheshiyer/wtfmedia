@@ -28,10 +28,16 @@ that channel as budget-limited; it did not raise the limit or claim coverage.
 The per-call maximum header is a requested provider limit, not a guarantee of
 upstream billing. Review this discrepancy before expanding live acceptance.
 
-Source retention protects citations in completed sections, including numeric
-comparisons, and keeps every unique eligible returned source without a fixed count
-cap. Larger evidence sets are read in bounded synthesis batches with original source
-IDs; generated digests never replace the retained evidence. A supplementary search failure can use existing retained
+Source retention targets 20 sources per channel across six channels (120 total).
+Unused slots are shared across channels with additional evidence, ranked against
+the public research scope. This is a ceiling, not a promise of 120 relevant results.
+Sources cited in completed sections, including numeric comparisons, are never
+evicted; legacy reports with more than 120 protected sources remain readable.
+Larger evidence sets are read in bounded synthesis batches with original source
+IDs. Summaries are cached in private job state by exact evidence and public scope,
+so unchanged batches are reused across sections and retries; changed evidence or
+scope invalidates them. Generated digests never replace the retained evidence.
+A supplementary search failure can use existing retained
 evidence with a visible limitation; model, budget, storage and cancellation
 errors are never swallowed. Content-free social records are not evidence.
 
@@ -238,7 +244,9 @@ Follow-up body: `{question,messages,sections,sources,notes,notesApproved}`;
 messages contain only `user`/`assistant` roles. Bounds: title 400 characters,
 notes 12,000; four sections at 24,000 content characters each; sources with
 12,000 excerpt characters each and no fixed source-count cap; question 2,000; last 12 messages at 12,000 each.
-Research synthesis considers every eligible source in bounded batches; follow-up
+Contracts accept older reports without a source-count limit; new research retains
+the balanced 120-source pool described above. Research synthesis considers every
+retained eligible source in bounded, cached batches; follow-up
 and numeric checks select relevance-ranked verbatim slices. Notes, previous sections
 and recent messages remain bounded. Full accepted evidence stays
 in the job. These byte bounds prevent a growing source set from overflowing every
@@ -314,10 +322,13 @@ output tokens. Direct OpenRouter calls use low reasoning effort. Report writing 
 the full 12,000-token allowance; shorter planning and follow-up calls retain their
 existing limits. A response ending because of the token limit is rejected as
 truncated rather than saved as a complete answer. Keep-alive response
-chunks cannot extend the 600-second response deadline (an idle read is separately
+chunks are checked against a 180-second response deadline (an idle read is separately
 bounded to 45 seconds for Treg/direct OpenRouter; OmniRoute
-model requests use streaming transport with a 600-second read window, with a 45-second connection
-timeout). Direct OpenRouter requests use provider price ceilings of $1/m prompt and $10/m completion
+model requests use streaming transport with a 180-second read window, with a 45-second connection
+timeout). The elapsed deadline is checked when chunks arrive, not an independent
+wall-clock interrupt; a stalled read can finish later. These are per-request bounds,
+not an end-to-end report time guarantee. Retry progress retains the prior safe
+failure reason until a section succeeds. Direct OpenRouter requests use provider price ceilings of $1/m prompt and $10/m completion
 tokens and no per-request fee. Provider fallback is disabled, supported parameters
 are required, and data collection is denied. These are conservative local holds
 and requested provider constraints, not an independently tested billing guarantee.

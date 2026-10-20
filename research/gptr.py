@@ -221,7 +221,11 @@ class GPTREngine:
                       'When searchScope specifies dates, use evidence from that publication window and do not present '
                       'older event dates or financial periods as results from the requested period. Explain missing coverage. '
                       'Use clear headings and explain missing or conflicting evidence. Do not require episode transcripts or podcast appearances. Maximum 1500 words and 14000 characters including citations.\n')
-            context = {'searchScope': scope, **(await synthesis_context(self.calls, evidence, public_query)),
+            # Use one public scope across tiers so unchanged evidence summaries can be reused.
+            synthesis_query = scoped_query(public_subject(body), scope)
+            if body.get('clarification'):
+                synthesis_query += '. Public entity clarification: ' + body['clarification']
+            context = {'searchScope': scope, **(await synthesis_context(self.calls, evidence, synthesis_query)),
                        'previousSections': compact_sections(body.get('sections', []))}
             if body.get('notesApproved'):
                 context['privateEditorialNotes'] = body.get('notes', '')

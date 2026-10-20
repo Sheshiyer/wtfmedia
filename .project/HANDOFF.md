@@ -1,3 +1,35 @@
+## 2026-10-20 — Slow research diagnosis and balanced source budget (local)
+
+- Owner reported a roughly 20-minute run. Read-only live runner metadata at
+  16:49 UTC showed 65 sources / 49,060 excerpt bytes, all six channels found,
+  and the first section on attempt 2 with no retained failure detail.
+  Counts were Web 10, LinkedIn 10, YouTube 10, Instagram 10, Reddit 7, X 18.
+  Historical Cloudflare telemetry rejected credentials (10000); the precise
+  upstream cause is not proven. No run was cancelled, deleted or restarted.
+- Source comparison confirms that `474089e` sent a selected 28 KB evidence
+  context directly to writing; `da4df37` added sequential full-evidence batch
+  model calls for every tier/attempt. The deployed model read timeout is 600
+  seconds. This explains additional possible latency, not an observed timing
+  breakdown or proof that source count caused the reported delay.
+- Local changes target 20 sources per channel, 120 total, sharing unused slots.
+  Relevant candidates rank within channels; URL deduplication and saved citation
+  protection remain. Legacy reports with more than 120 protected citations are
+  preserved. Web/YouTube/X request 20; undersupplied direct social searches get
+  one domain-targeted web supplement, never unbounded pagination.
+- Full evidence summaries now use a common public scope and cache exact batches
+  in private job state across tiers/retries. Changed scope/text invalidates the
+  cache. Private notes still guide search scope and final writing; originals
+  remain the evidence authority. Failure reasons remain during retries and are
+  cleared when the section succeeds.
+- Model read inactivity timeout and chunk-checked elapsed deadline are reduced
+  to 180 seconds; connection timeout stays 45 seconds. These are per-request
+  limits, not a guaranteed three-minute report or strict wall-clock interrupt.
+  Slow but valid upstream calls may now time out earlier.
+- VERIFIED-SOURCE: 118 Python tests pass, including quota/shortfall allocation,
+  protected citations, exact-batch reuse/invalidation, request bounds, and retry
+  failure persistence. New tests failed before changes. No new paid full report,
+  deployment, push, shared migration or provider/model configuration change.
+
 ## 2026-10-20 — Research guidance deployed to staging
 
 - Owner authorized staging deployment. Application source is

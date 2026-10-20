@@ -110,7 +110,7 @@ class ProviderTests(unittest.TestCase):
             with self.assertRaises(ProviderError):
                 stream_response(invalid)
 
-    def test_gateway_report_has_full_read_window(self):
+    def test_gateway_stalls_do_not_wait_ten_minutes(self):
         response = MagicMock(status_code=200)
         response.iter_bytes.return_value = iter([b'{}'])
         client = MagicMock()
@@ -118,7 +118,7 @@ class ProviderTests(unittest.TestCase):
         with patch.dict(os.environ, {'OMNIROUTE_BASE_URL': 'https://gateway.example/v1'}), \
                 patch('research.providers.httpx.Client', return_value=client) as factory:
             ProviderNetwork().request('POST', 'https://gateway.example/v1/chat/completions', {})
-            self.assertEqual(factory.call_args.kwargs['timeout'].read, 600)
+            self.assertEqual(factory.call_args.kwargs['timeout'].read, 180)
             self.assertEqual(factory.call_args.kwargs['timeout'].connect, 45)
 
     def test_keepalive_chunks_do_not_extend_provider_deadline(self):
@@ -126,7 +126,7 @@ class ProviderTests(unittest.TestCase):
         response.iter_bytes.return_value = iter([b' ', b' '])
         client = MagicMock()
         client.__enter__.return_value.stream.return_value.__enter__.return_value = response
-        with patch('research.providers.httpx.Client', return_value=client), patch('research.providers.time.monotonic', side_effect=[0, 0, 60, 601, 602]):
+        with patch('research.providers.httpx.Client', return_value=client), patch('research.providers.time.monotonic', side_effect=[0, 0, 60, 181, 182]):
             with self.assertRaisesRegex(ProviderError, 'provider deadline exceeded'):
                 ProviderNetwork().request('GET', 'https://treg.to/catalog', {})
 
@@ -135,7 +135,7 @@ class ProviderTests(unittest.TestCase):
         self.assertEqual(found,self.calls.search('Public query'))
         paid = [r for r in self.net.requests if '/call/' in r[1]]
         self.assertEqual(len(paid),1)
-        self.assertEqual(paid[0][3],{'query':'Public query','search_type':'web','max_results':10})
+        self.assertEqual(paid[0][3],{'query':'Public query','search_type':'web','max_results':20})
         self.assertEqual(paid[0][2]['X-Treg-Route-Max-Cost'],'0.005')
         self.assertEqual(self.store.get(self.claim[0])['cost']['toolMicro'],5000)
         with self.store.db() as db:
