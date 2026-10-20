@@ -1,3 +1,20 @@
+## 2026-10-21 — Research presentation deployed to staging
+
+- Owner authorized deployment of grouped section sources and the single-tilde
+  rendering fix. Exact candidate `785f1338ed5d6a386550aa22299b826938328fe6`;
+  staging Web version `ea504264-795e-4532-96d1-b7789dcc463e` has 100% traffic on
+  `beta-staging.wtfhq.in`. Rollback Web version:
+  `d8d04ac5-b1ca-4120-a777-f7e1b1815dbf`.
+- VERIFIED-SOURCE: 91 research unit tests, TypeScript, lint, architecture ledger
+  (773 inputs), OpenNext build and staging package dry run pass. Isolated build
+  used the verified staging public Clerk key, with no local environment files.
+- Live research JavaScript matches the built asset byte-for-byte and contains
+  both fixes. Sign-in Clerk issuer matches staging. Root redirects (307);
+  sign-in/research return 200; unsigned principal/research/social APIs return 401.
+- Existing bindings/secrets retained; Edge and research-host deployment versions
+  unchanged. No database/provider/production changes or push. Signed-in report
+  appearance and source expansion still require real-browser verification.
+
 ## 2026-10-21 — Section-level research sources (local)
 
 - Report sections now collect their known citation IDs into one collapsed source
