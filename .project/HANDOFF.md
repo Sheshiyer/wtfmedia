@@ -1,3 +1,43 @@
+## 2026-10-20 — Research guidance deployed to staging
+
+- Owner authorized staging deployment. Application source is
+  `da4df376f70d8406adabbd49c316a6c173842d59`; deployment candidate
+  `a91eee8bd79a2654a6791898033a69363d564468` changes only the pinned image.
+  No push, production change, secret change or database migration.
+- Fresh checks: 110 Python tests, 542 Edge tests, 395 web unit tests,
+  hosted-store test/typecheck, architecture freshness across 772 inputs,
+  isolated 98-page OpenNext build and all three dry-run packages passed.
+  The earlier 38 desktop/mobile fixture checks remain source evidence.
+  All 14 image Python runtime files match committed source; compiled and live
+  Clerk public identity matches the staging issuer.
+- Staging versions read back at 100% traffic:
+  Edge `1686db84-f7e8-4c39-b760-d00e61dc44fd`;
+  Web `d8d04ac5-b1ca-4120-a777-f7e1b1815dbf`;
+  Research `a83dc2be-5726-42a1-a012-ade534152413`.
+  Existing bindings and secret names are unchanged. Custom Domain remains
+  `beta-staging.wtfhq.in`; Web binds to staging Edge/self only.
+  Migration inventory reports no pending migrations.
+- Runner image:
+  `registry.cloudflare.com/8f380cb5640467030b647e12773efb46/wtfmedia-research-staging@sha256:2b0ac6e430791a451a21d10fddbe5511f906874643b352beb14f5cf03104a37b`.
+  Application API confirms version 3 and completed rollout
+  `d2c7ea10-e698-46b1-8ce7-997d38225442`, with no health errors.
+  Build reused the documented offline hash-locked dependencies. A registry
+  manifest rejection was resolved by publishing without build attestation.
+- Live checks: staging Edge health is OK with Alpha corpus authority; root
+  redirects, sign-in/research pages return 200, and research assets contain
+  structured inputs plus updated private-note guidance/consent. Principal,
+  research status/list and social status return 401 without authentication.
+- No new signed-in hosted research report or live social-source trial was
+  started; the owner will test in their account. Existing reports are unchanged.
+  Large runs retain payload/context/spend guards and can cost more or fail
+  explicitly; unlimited retained source count is not an unlimited budget.
+- Rollback versions: Edge `1ec66d09-59bc-4563-954c-7b5c5f9d36cf`;
+  Web `cf4c7f99-31fe-4aaf-b74c-ed5092ce7b60`;
+  Research `c5414d51-13d3-4d3f-8e2e-afef2e817b6b`, with prior image
+  `sha256:6b59ea1cbb7f007f449220262ca8fd4f865a8852c6f666e651bb2c03ebf6e1b7`.
+  Earlier readers enforce 80-source limits, so coordinate rollback with new
+  submissions/results; rolling back code does not roll back saved state.
+
 ## 2026-10-20 — Research guidance, source retention and failure diagnostics (local)
 
 - Supersedes the earlier local 80-slot representative fix below. Every unique
