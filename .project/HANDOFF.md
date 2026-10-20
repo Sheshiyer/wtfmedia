@@ -1,3 +1,27 @@
+## 2026-10-21 — Section-level research sources (local)
+
+- Report sections now collect their known citation IDs into one collapsed source
+  row below the prose, with coloured platform icons and a unique source count.
+  Expanding the row reveals links using the existing source-detail navigation.
+  Repeated references are deduplicated within each section; uncited sources are
+  not attributed to it, and unknown references remain visible.
+- Saved prose and Markdown exports retain original citations. Follow-up chat
+  retains its existing citation presentation; current and historical report
+  sections share the new rendering.
+- VERIFIED-SOURCE: 91 research/metadata unit tests, web TypeScript and diff
+  whitespace checks pass. No deployment/push or live-browser verification.
+
+## 2026-10-21 — Research approximation formatting (local)
+
+- Research Markdown now disables GFM single-tilde strikethrough so paired single
+  tildes in generated prose remain literal. Explicit double-tilde strikethrough,
+  citation links, tables and saved content remain unchanged. The shared renderer
+  covers report sections, historical versions and research follow-up messages.
+- VERIFIED-SOURCE: regression reproduced accidental `<del>` before the fix;
+  89 research/metadata unit tests and web TypeScript pass afterward.
+- No deployment or push. The exact saved report has not been inspected or
+  checked in the live browser; explicit double-tilde formatting still renders.
+
 ## 2026-10-20 — Summary allowance/retry fix deployed to staging
 
 - Owner authorized this deployment. Application source `ce595900dee7705266897697cae3d92b26595397`;

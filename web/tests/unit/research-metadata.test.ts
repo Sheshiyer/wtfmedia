@@ -84,6 +84,42 @@ it("uses readable citations and preserves uncertainty in old prose", () => {
   expect(legacy.sections[0].content).toBe("Unverified synthesis: A disputed claim [src_one].");
   expect(html).not.toContain(">1</a>");
 });
+it("groups only each section's cited sources into a collapsed icon row", () => {
+  const brief: ResearchBrief = { ...legacy, sources: [
+    ...legacy.sources,
+    { ...legacy.sources[0], id: "src_two", title: "Public discussion", publisher: "Reddit", url: "https://reddit.com/r/example" },
+    { ...legacy.sources[0], id: "src_unused", title: "Uncited source" },
+  ], sections: [
+    { ...legacy.sections[0], content: "Background [src_one].\n\nCareer [src_one] [src_two]. Unknown [src_missing]." },
+    { key: "desserts", title: "Takeaways", status: "completed", content: "Outlook [src_two]." },
+  ] };
+  const html = renderToStaticMarkup(createElement(ResearchContent, { brief }));
+  const sections = html.split('<section ').slice(2);
+  const guest = sections[0].split("</section>")[0];
+  const takeaways = sections[1].split("</section>")[0];
+  expect(guest).toContain("<p>Background.</p>");
+  expect(guest).toContain("Unknown [src_missing].");
+  expect(guest).toContain('aria-label="Guest profile sources"');
+  expect(guest).toContain("2 sources");
+  expect(guest).toContain('aria-label="Web"');
+  expect(guest).toContain('aria-label="Reddit"');
+  expect((guest.match(/href="#research-version-1-source-src_one"/gu) ?? []).length).toBe(1);
+  expect((guest.match(/href="#research-version-1-source-src_two"/gu) ?? []).length).toBe(1);
+  expect(guest).not.toContain("src_unused");
+  expect(guest).not.toContain('open="');
+  expect(takeaways).toContain("1 source");
+  expect(takeaways).not.toContain("src_one");
+  expect(brief.sections[0].content).toContain("[src_one]");
+});
+
+it("omits the section citation row when no known sources are cited", () => {
+  const html = renderToStaticMarkup(createElement(ResearchContent, { brief: {
+    ...legacy, sections: [{ ...legacy.sections[0], content: "No cited evidence [src_missing]." }],
+  } }));
+  expect(html).not.toContain('aria-label="Guest profile sources"');
+  expect(html).toContain("[src_missing]");
+});
+
 it("labels snippet evidence and keeps nested sources collapsed", () => {
   const b = parseResearchBrief({ ...legacy, sources: [{ ...legacy.sources[0], platform: "reddit", evidenceType: "search_snippet", retrievedVia: "perplexity.web.search" }] });
   const html = renderToStaticMarkup(createElement(ResearchSources, { sources: b.sources }));

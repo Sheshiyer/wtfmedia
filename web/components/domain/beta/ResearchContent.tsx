@@ -17,7 +17,7 @@ export function ResearchMarkdown({ content, sources, sourcePrefix = "research-so
     <details className="min-w-0 rounded-control border border-foreground/20 p-4"><summary className="cursor-pointer font-bold">Check numeric evidence</summary><div className="mt-4 min-w-0"><ResearchMarkdown content={displayContent.slice(split + marker.length)} sources={sources} sourcePrefix={sourcePrefix} /></div></details>
   </div>;
   const cited = replaceResearchCitations(displayContent, sources, source => `[source](#${sourcePrefix}${encodeURIComponent(source.id)})`);
-  return <div className="prose-chat min-w-0 break-words [overflow-wrap:anywhere] [&_pre]:overflow-x-auto [&_p]:my-3 [&_ul]:my-3 [&_ol]:my-3 [&_h2]:mt-6 [&_h3]:mt-5"><ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+  return <div className="prose-chat min-w-0 break-words [overflow-wrap:anywhere] [&_pre]:overflow-x-auto [&_p]:my-3 [&_ul]:my-3 [&_ol]:my-3 [&_h2]:mt-6 [&_h3]:mt-5"><ReactMarkdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]} components={{
     table: ({ children }) => <div role="region" aria-label="Research evidence table" tabIndex={0} className="my-4 max-w-full overflow-x-auto"><table className="w-full min-w-[44rem] border-collapse text-left text-sm">{children}</table></div>,
     th: ({ children }) => <th className="min-w-32 border-b border-foreground/30 bg-surface-subtle p-3 align-top font-bold">{children}</th>,
     td: ({ children }) => <td className="min-w-32 border-b border-foreground/15 p-3 align-top">{children}</td>,
@@ -73,9 +73,25 @@ export function ResearchContent({ brief, sourcePrefix = `research-version-${brie
     <ResearchCoverageSummary coverage={brief.coverage} />
     {RESEARCH_SECTIONS.filter(({ key }) => brief.sections.some(s => s.key === key && s.content.trim())).map(({ key, title, description }) => {
       const section = brief.sections.find(s => s.key === key);
+      const citations = new Map<string, ResearchSource>();
+      const content = replaceResearchCitations(section?.content ?? "", brief.sources, source => {
+        citations.set(source.id, source);
+        return "";
+      }).replace(/[ \t]+([.,;:!?])/gu, "$1");
+      const citedSources = [...citations.values()];
+      const platforms = [...new Set(citedSources.map(researchSourcePlatform))];
       return <section key={key} className="min-w-0 space-y-3 border-2 border-foreground bg-surface-raised p-4 sm:p-5">
         <div><p className="font-label text-xs uppercase text-secondary">{description}</p><h3 className="font-heading text-2xl font-bold">{title}</h3><p className="text-sm">{section?.status ?? "Not started"}</p></div>
-        {section?.content ? <ResearchMarkdown content={section.content} sources={brief.sources} sourcePrefix={sourcePrefix} /> : <p className="text-sm text-secondary">No findings yet.</p>}
+        {section?.content ? <ResearchMarkdown content={content} sources={brief.sources} sourcePrefix={sourcePrefix} /> : <p className="text-sm text-secondary">No findings yet.</p>}
+        {citedSources.length > 0 && <details aria-label={`${title} sources`} className="min-w-0 border-t border-foreground/15 pt-3">
+          <summary className="w-fit max-w-full cursor-pointer rounded-full border border-foreground/20 bg-surface-subtle px-3 py-1.5 text-sm focus-visible:outline focus-visible:outline-2">
+            <span className="inline-flex flex-wrap items-center gap-2 align-middle">
+              {platforms.map(platform => <ResearchSourceBadge key={platform} platform={platform} label="" />)}
+              <span>{citedSources.length} {citedSources.length === 1 ? "source" : "sources"}</span>
+            </span>
+          </summary>
+          <ResearchMarkdown content={citedSources.map(source => `- [source](#${sourcePrefix}${encodeURIComponent(source.id)})`).join("\n")} sources={citedSources} sourcePrefix={sourcePrefix} />
+        </details>}
         {section?.failure && <p className="text-sm text-secondary">{researchFailureSummary(section.failure)}</p>}
       </section>;
     })}

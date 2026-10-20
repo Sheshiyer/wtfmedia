@@ -171,6 +171,14 @@ describe("Research frontend", () => {
     expect(html).not.toContain(">1</a>");
   });
 
+  it("keeps approximate amounts literal while preserving explicit strikethrough", () => {
+    const html = renderToStaticMarkup(createElement(ResearchMarkdown, { sources: [],
+      content: "Invested ~$100M of personal money~. Follow-up: was it ~$176M?\n\n~~Retracted claim~~" }));
+    expect(html).toContain("Invested ~$100M of personal money~. Follow-up: was it ~$176M?");
+    expect((html.match(/<del>/gu) ?? []).length).toBe(1);
+    expect(html).toContain("<del>Retracted claim</del>");
+  });
+
   it("relabels legacy caution without removing specific uncertainty", () => {
     const html = renderToStaticMarkup(createElement(ResearchMarkdown, { sources: [], content: "Unverified synthesis: # Background\n\nUnverified synthesis: Unverified: sources disagree." }));
     expect(html).toContain("Review against sources:");
