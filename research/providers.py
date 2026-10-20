@@ -406,7 +406,7 @@ class Calls:
                 raise ProviderError('model context exceeds bound', reason='context_limit')
             base, api_key = model_endpoint()
             if not api_key:
-                raise ProviderError('OpenRouter is not configured', code='authentication', reason='missing_api_key')
+                raise ProviderError('OpenRouter is not configured', code='authentication')
             # Each model attempt reserves separately; retries are not assumed free.
             key = 'model_' + uuid4().hex
             self.store.reserve(self.job_id, self.lease, key, 'model', MODEL_RESERVE)

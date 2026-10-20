@@ -13,8 +13,7 @@ RETRYABLE = {'timeout', 'rate_limit', 'output_truncated', 'empty_output', 'inval
 
 REASONS = {'http_error', 'transport_error', 'connect_timeout', 'read_timeout', 'deadline',
            'stream_error', 'stream_incomplete', 'stream_invalid', 'response_too_large',
-           'context_limit', 'no_matching_sources', 'invalid_json', 'invalid_schema', 'output_truncated', 'empty_output',
-           'missing_api_key'}
+           'context_limit', 'no_matching_sources', 'invalid_json', 'invalid_schema', 'output_truncated', 'empty_output'}
 PROVIDERS = {'treg', 'omniroute', 'openrouter', 'runner'}
 OPERATIONS = {'catalog', 'search', 'social_search', 'extract', 'model'}
 

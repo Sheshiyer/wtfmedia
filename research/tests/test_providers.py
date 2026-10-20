@@ -74,6 +74,9 @@ class ProviderTests(unittest.TestCase):
             with self.assertRaises(ProviderError) as caught:
                 self.calls.model([{'role': 'user', 'content': 'Public'}])
             self.assertEqual(caught.exception.details['provider'], 'openrouter')
+            from research.contracts import Failure
+            from research.diagnostics import failure
+            Failure.model_validate(failure(caught.exception, 'runner'))
             self.assertEqual(self.store.get(self.claim[0])['cost']['modelUsd'], 0)
         self.assertEqual(self.net.requests, [])
 
