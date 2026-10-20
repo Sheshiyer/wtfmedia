@@ -1,3 +1,36 @@
+## 2026-10-20 — OpenRouter GLM 5.3 research deployed to staging
+
+- Owner authorized staging deployment. Application source is `60c5289`; final
+  image-pin candidate is `7d84adec0c3eeef005b7211edba0750404fbcd94`.
+  The existing local OpenRouter key was uploaded to the staging research host's
+  `OPENROUTER_API_KEY` secret. No credentials were printed or committed; old
+  OmniRoute secrets remain unused and were not removed or rotated.
+- Final research Worker `2afc677f-b786-40e4-aabb-10791195124f` has 100% traffic.
+  Container application version 6 rollout `1b1d19ff-773a-4211-a4b6-11dcd12729fa`
+  completed with no reported health errors. Final image digest is
+  `sha256:bd890e5f40d578c6a4c31c229bfb4665d01df07661de670183f50cac2fc390f8`.
+  The first image was replaced during final verification to preserve the existing
+  missing-credential failure DTO; a regression now validates that DTO explicitly.
+- All 14 Python runtime file hashes match committed source. Final source checks:
+  124 Python tests, 4 hosted-store tests, TypeScript, architecture freshness
+  (773 inputs), package dry-run and diff check passed. Build used the previously
+  hash-locked offline dependency bundle; no local private state entered the image.
+- Final hosted health returns configured=true. After rollout completion, one
+  synthetic no-search follow-up passed in 10.22 seconds with the expected fact
+  and citation; recorded model cost $0.000056. Its disposable job is removed by
+  the endpoint. An earlier request returned 503 during rollout; the post-rollout
+  retry succeeded. No full research report was started and no stopped user run
+  was resumed. Signed-in UI and full report timing remain for owner testing.
+- Staging public root redirects; sign-in/research pages return 200 and protected
+  principal/research/social APIs return 401 unsigned. Web
+  `d8d04ac5-b1ca-4120-a777-f7e1b1815dbf` and Edge
+  `1686db84-f7e8-4c39-b760-d00e61dc44fd` versions/bindings are unchanged.
+- Previous research rollback reference: Worker
+  `d9890653-6b7b-459f-8330-5e40536a152a`, image
+  `sha256:599cb556a70ee8ea53f219fd6306592e1498af84952145ec418bc4e299f17570`.
+  Rollback does not restore storage or remove the added secret. Production and
+  shared database schemas were unchanged. Local commits only; no branch push.
+
 ## 2026-10-20 — Research model pinned to OpenRouter GLM 5.3 (local)
 
 - Owner stopped their staging research and requested a model-only investigation,
