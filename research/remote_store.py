@@ -3,6 +3,7 @@ import os
 from urllib.parse import urlsplit
 import httpx
 from .store import Conflict, Gone, QueueFull, Stopped, BudgetExceeded
+from .diagnostics import StorageError
 
 METHODS = ('submit', 'get', 'cancel', 'delete', 'claim', 'claim_id', 'heartbeat', 'save', 'reserve', 'started', 'settle')
 ERRORS = {c.__name__: c for c in (Conflict, Gone, QueueFull, Stopped, BudgetExceeded)}
@@ -29,12 +30,12 @@ class RemoteStore:
                 response = httpx.post(self.url, headers={'Authorization': 'Bearer ' + self.token},
                                       json={'method': method, 'args': args}, timeout=20, follow_redirects=False)
                 if response.status_code != 200:
-                    raise RuntimeError('durable research state unavailable')
+                    raise StorageError('durable research state unavailable')
                 data = response.json()
             except (httpx.HTTPError, ValueError):
-                raise RuntimeError('durable research state unavailable') from None
+                raise StorageError('durable research state unavailable') from None
             if data.get('error'):
-                raise ERRORS.get(data['error'], RuntimeError)('durable research operation failed')
+                raise ERRORS.get(data['error'], StorageError)('durable research operation failed')
             return data['value']
         return call
 

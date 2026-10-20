@@ -1,3 +1,75 @@
+## 2026-10-20 — Research V2 implemented locally
+
+- Owner approved the complete research flow. Continued on `feature/pavun`;
+  no push, shared database change, credential update or deployment.
+- New Guest/Company/Industry inputs retain comprehensive global research with
+  Indian audience context throughout. Four tiers cover guest background,
+  company/industry, positioning/opportunities, and interview preparation.
+  Private notes stay consent-gated and out of public queries.
+- Added six Treg channel adapters with observed catalog contracts, truthful
+  fallback/coverage, platform badges and source details. No episode ID,
+  upload control or public per-section regeneration is present.
+- Report-first UI retains cooking, clarification, partial/failure, cancellation,
+  deletion, versions and follow-up states. Scope changes label the retained
+  report as outdated and prevent mismatched follow-up; restoring a clean
+  snapshot restores its corresponding scope/evidence.
+- Safe diagnostics classify failures without provider bodies or identifiers.
+  Model metadata survives recovery and missing billing stays unknown.
+  Later relevant evidence can replace uncited sources without orphaning prior
+  citations; optional search failures can use retained evidence. Empty social
+  records, empty completed sections, malformed metadata and Unicode boundary
+  mismatches have regression coverage.
+- VERIFIED-SOURCE: 91 Python tests, including installed pinned GPTR
+  compatibility; 540 full backend tests plus the subsequent focused snapshot
+  restore regression; 394 web unit, 97 contract and 36 Chromium desktop/320px
+  mobile tests. Frontend build/lint, targeted typechecks, hosted runner
+  typecheck and durable-store tests passed. Browser tests use fixtures.
+- Local runner image `wtfmedia-research:local-v2-20261020` built with the
+  documented offline, hash-locked dependency recipe after the normal dependency
+  download stalled. Local image digest:
+  `sha256:6b59ea1cbb7f007f449220262ca8fd4f865a8852c6f666e651bb2c03ebf6e1b7`.
+  Networking-disabled smoke passed pinned GPTR import, authentication, private
+  validation errors, V2 enqueue/read/delete. No image was pushed or deployed.
+- LIVE-LOCAL: one public-subject trial completed four substantial sections and
+  retained 80 sources with resolvable citation IDs. A provider outage recovered
+  on retry; the successful retry took about eleven minutes. Final data passed
+  Edge/Web validators and Markdown export. Later review fixes were checked
+  offline, not by repeating the full paid trial after every change.
+- The live model receipt reported OmniRoute `noesis-research` and
+  `claude-sonnet-5-5`; tool cost was $0.10768 recorded/reserved, model billing
+  was absent. YouTube used domain-targeted web fallback after its catalog tool
+  returned 404. A LinkedIn call charged $0.008 despite a $0.002 quote/cap, so
+  the channel stopped as budget-limited; limits were not silently raised.
+- Remaining acceptance: the other public editorial trials, genuine ambiguity
+  quality checks, signed-in two-user staging checks, reproduction of the old
+  apparent-empty report, Safari and deployment/rollback. The exact historical
+  final-section failure remains unknown. No live staging acceptance is claimed.
+- Rollout uses additive optional JSON fields, not a new D1 migration. Publish
+  tolerant readers, then the new runner image, then the V2 form. Old runner
+  images reject V2 requests; keep the old image and disable new V2 submissions
+  before rolling back. See the implementation plan and `docs/RESEARCH-RUNNER.md`.
+
+## 2026-10-20 — Research diagnosis and consolidated implementation plan
+
+- Owner requested diagnosis before further changes, then a complete plan.
+  Read-only staging checks found a clarification-paused run with zero sections,
+  a partial run with three completed sections and two failed final-section
+  attempts, and a completed run with four substantial saved sections.
+- Exact historical final-section failure was not retained: current code combines
+  provider, budget and validation errors and discards subprocess output. A short
+  live error tail contained no new events. The apparent missing completed report
+  still needs authenticated browser reproduction; no runtime fix is claimed.
+- Proposed plan:
+  `docs/superpowers/plans/2026-10-20-research-reliability-and-india-focus.md`.
+  Covers safe diagnostics, Guest/Company/Industry inputs, Indian audience context,
+  six honest source-channel outcomes, source icons, model/billing separation,
+  clarification/report layout, and removal of per-section regeneration.
+- Owner clarified that India is context across the whole research process, not
+  a separate section or the sole goal. The plan preserves comprehensive global
+  guest/company/industry research and applies Indian relevance where useful.
+- Planning documents only. No application code, credentials, shared data,
+  deployment, commit or push changed. Await implementation instruction.
+
 ## 2026-10-19 — Social analytics deployed to staging
 
 - Owner authorized staging deployment and Zernio secret upload, and separately

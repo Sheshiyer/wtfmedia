@@ -1,5 +1,56 @@
 # Private research runner
 
+## Structured research and diagnostics
+
+New jobs carry `schemaVersion: 2` and `researchInput` with `guestName`,
+`companyName`, `industry` and `audienceCountry: "IN"`. India is an audience
+context across global research. It is not a separate report section or an
+India-only search filter. Title-only historical jobs remain supported.
+
+The runner returns optional `coverage`, `modelInfo`, and safe `failure` metadata.
+Section failures also carry a safe error category. Coverage has six channels
+and distinguishes dedicated tools from domain-targeted web search, no results,
+unavailable access, failures and budget limits. Public API section regeneration
+is disabled; internal legacy section jobs remain readable and cancellable.
+
+The verified social tool catalog is recorded in
+`research/social-catalog-receipt.json`. Each dedicated call rechecks the tool
+contract before first use, reserves its bounded price and has an idempotency
+receipt. Unknown schemas are errors, not empty successful searches. Provider
+availability and account eligibility can change; do not treat catalog entries
+as live success. Four dedicated channels returned data in the 20 October local
+adapter check; the listed YouTube endpoint returned 404 and requires the
+explicit web-search fallback.
+
+The full local trial also observed a LinkedIn charge of $0.008 against a $0.002
+catalog quote/reservation. The adapter recorded the actual charge and stopped
+that channel as budget-limited; it did not raise the limit or claim coverage.
+The per-call maximum header is a requested provider limit, not a guarantee of
+upstream billing. Review this discrepancy before expanding live acceptance.
+
+Source retention protects citations in completed sections, including numeric
+comparisons, while admitting more relevant later evidence into the remaining
+80-source slots. A supplementary search failure can use existing retained
+evidence with a visible limitation; model, budget, storage and cancellation
+errors are never swallowed. Content-free social records are not evidence.
+
+Editing the research subject keeps the previous report but sets the server-owned
+`needsResearch` flag and blocks follow-up against mismatched evidence until a
+fresh result arrives. Restoring a saved version restores that version's scope
+and flag. This does not rewrite old report content.
+
+Worker stdout remains suppressed. The API process forwards only whitelisted
+JSON `research_stage` events from worker stderr; arbitrary upstream logs are
+discarded. Events include stage/status, safe failure code, bounded counts,
+duration and token usage when reported. They exclude report text, request
+bodies, provider error bodies, owner/session/run identifiers and credentials.
+Historical generic failures cannot be retroactively assigned a precise cause.
+
+The runner state remains durable across restarts; no D1 migration is required
+for these additive fields inside existing JSON documents. Roll out tolerant
+Edge/Web readers before the new runner and new request form. Deploying only the
+web app does not update the Python Container image.
+
 Standalone source lives in `research/`. It implements the private service contract
 for the authenticated Edge integration; it never accesses D1, Clerk, the vault,
 Alpha corpus storage or frontend credentials. Keep it reachable only by the

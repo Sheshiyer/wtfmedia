@@ -158,7 +158,7 @@ describe("Research frontend", () => {
     expect(list).toContain('id="research-source-src_a"'); expect(list).toContain('id="research-source-alpha_b"');
   });
 
-  it("renders numbered citations and scrollable evidence inside an expandable audit", () => {
+  it("renders readable citations and scrollable evidence inside an expandable audit", () => {
     const sources = [{ ...brief.sources[0], id: "src_a" }];
     const html = renderToStaticMarkup(createElement(ResearchMarkdown, { sources,
       content: "Finding [src_a].\n\n**Numeric evidence comparisons**\n\n| Source | Value |\n| --- | --- |\n| src_a | 12 |" }));
@@ -167,15 +167,16 @@ describe("Research frontend", () => {
     expect(html).toContain("overflow-x-auto");
     expect(html).toContain('aria-label="Research evidence table"');
     expect(html).not.toContain(">src_a<");
-    expect(html).toContain(">1</a>");
+    expect(html).toContain("View source: Interview");
+    expect(html).not.toContain(">1</a>");
   });
 
-  it("replaces legacy blanket labels with one notice and retains specific uncertainty", () => {
+  it("relabels legacy caution without removing specific uncertainty", () => {
     const html = renderToStaticMarkup(createElement(ResearchMarkdown, { sources: [], content: "Unverified synthesis: # Background\n\nUnverified synthesis: Unverified: sources disagree." }));
+    expect(html).toContain("Review against sources:");
     expect(html).not.toContain("Unverified synthesis:");
-    expect(html).toContain("Unverified: sources disagree.");
-    expect(html).toContain("AI-generated research.");
-    expect(html).toContain("<h1>Background</h1>");
+    expect(html).toContain("Not independently confirmed: sources disagree.");
+    expect(html).toContain("Background");
   });
 
   it("labels Alpha references without inventing transcript excerpts or timestamps", () => {

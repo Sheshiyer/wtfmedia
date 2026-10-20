@@ -31,6 +31,14 @@ back storage. Do not delete either Durable Object namespace to roll back a deplo
 Existing laptop-run jobs are not migrated into the remote queue; saved D1 reports
 remain readable. A fresh run uses the hosted runner.
 
+Research V2 adds guest/company/industry input, six-channel coverage, model
+metadata and safe failure details to job/result JSON. It does not add tables.
+The existing `save`/`get` Durable Object operations preserve these fields.
+Old runner images cannot accept V2 inputs: deploy compatible Edge readers, the
+tested new image, then the V2 form. Keep the prior image digest and recorded
+Worker versions for rollback; disable new V2 submissions before rolling back
+to an old image. Do not claim V2 is hosted until its image is actually deployed.
+
 The first staging image used the same hash-locked dependencies assembled offline
 with `uv pip install --python <Python-3.13> --target <dependency-directory>
 --offline --require-hashes -r research/requirements.lock`. The temporary build

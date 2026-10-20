@@ -61,3 +61,6 @@ web/.dev.vars
 # Research container deployment artifacts
 research-host/.wrangler/
 research-host/.dev.vars
+
+# Local implementation ledgers and review scratch
+.superpowers/

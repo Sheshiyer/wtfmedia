@@ -7,6 +7,11 @@ import socket
 import unittest
 from unittest.mock import patch
 
+from research.providers import ProviderError
+from research.store import BudgetExceeded, Stopped
+from research.diagnostics import StorageError
+from research.tests.test_evidence_retention import source
+
 from research.tests.loop_support import enable_if_needed
 enable_if_needed()
 
@@ -93,3 +98,138 @@ class GPTRCompatibilityTests(unittest.TestCase):
         with patch('socket.socket.connect',side_effect=AssertionError('unexpected external socket')):
             asyncio.run(exercise())
         self.assertNotIn('NEVER_SEND_PRIVATE',json.dumps(calls.models))
+
+    def test_later_tier_admits_new_evidence_and_protects_full_completed_sections(self):
+        from research.gptr import GPTREngine
+        from research.contracts import TIERS
+        class LaterEvidence(RecordingCalls):
+            def search(self, query):
+                self.searches.append(query)
+                return [{**source(i), 'title': 'India skills employment',
+                         'excerpt': 'NEW_INDIA_EVIDENCE industry skills employment opportunities.'}
+                        for i in range(80, 83)]
+        calls = LaterEvidence()
+        sources = [source(i) for i in range(80)]
+        # Citations after compact_sections' 1500-byte slice must still be protected.
+        sections = [
+            dict(key='snacks', status='completed', content='Background. ' * 200 + '[src_78]'),
+            dict(key='appetizers', status='completed',
+                 content='Industry. ' * 200 + '\n\n**Numeric evidence comparisons**\n| [src_79] | 20 |'),
+        ]
+        engine = GPTREngine(calls)
+        with patch('socket.socket.connect', side_effect=AssertionError('unexpected external socket')):
+            _, retained = asyncio.run(engine.tier(
+                dict(title='Example founder', sections=sections), 'main', TIERS['main'][1], sources))
+        self.assertEqual(len(retained), 80)
+        self.assertIn(sources[78], retained)
+        self.assertIn(sources[79], retained)
+        self.assertIn('src_80', {s['id'] for s in retained})
+        writer = next(m for m in calls.models if 'Write the ' in m)
+        self.assertIn('NEW_INDIA_EVIDENCE', writer)
+
+    def test_bare_source_id_in_full_completed_text_is_protected(self):
+        from research.gptr import GPTREngine
+        class LaterEvidence(RecordingCalls):
+            def search(self, query):
+                return [{**source(80), 'title': 'India skills employment'}]
+        sources = [source(i) for i in range(80)]
+        sections = [dict(key='snacks', status='completed',
+                         content='Background. ' * 200 + 'According to src_79, this is documented.')]
+        with patch('socket.socket.connect', side_effect=AssertionError('unexpected external socket')):
+            _, retained = asyncio.run(GPTREngine(LaterEvidence()).tier(
+                dict(title='Example founder', sections=sections), 'main', 'India skills employment', sources))
+        self.assertEqual(len(retained), 80)
+        self.assertIn(sources[79], retained)
+        self.assertIn('src_80', {s['id'] for s in retained})
+
+    def test_all_protected_cap_warns_and_does_not_extract_discarded_results(self):
+        from research.gptr import GPTREngine
+        class LaterEvidence(RecordingCalls):
+            def search(self, query):
+                return [{**source(80), 'title': 'India skills employment'}]
+        calls = LaterEvidence()
+        sources = [source(i) for i in range(80)]
+        sections = [dict(key='snacks', status='completed',
+                         content=' '.join(f'[src_{i}]' for i in range(80)))]
+        engine = GPTREngine(calls)
+        with patch('socket.socket.connect', side_effect=AssertionError('unexpected external socket')):
+            _, retained = asyncio.run(engine.tier(
+                dict(title='Example founder', sections=sections), 'main', 'India skills employment', sources))
+        self.assertEqual(retained, sources)
+        self.assertFalse(calls.extracts)
+        self.assertTrue(any('80' in warning and 'cited' in warning for warning in engine.warnings))
+
+    def test_search_only_failure_uses_retained_evidence_without_extracting_or_leaking_notes(self):
+        from research.gptr import GPTREngine
+        for error in (ProviderError('PRIVATE_ERROR'), ValueError('PRIVATE_ERROR')):
+            with self.subTest(error=type(error).__name__):
+                class SearchDown(RecordingCalls):
+                    def search(self, query):
+                        self.searches.append(query)
+                        raise error
+                calls = SearchDown()
+                engine = GPTREngine(calls)
+                sources = [source(i) for i in range(80)]
+                with patch('socket.socket.connect', side_effect=AssertionError('unexpected external socket')):
+                    report, retained = asyncio.run(engine.tier(
+                        dict(title='Example founder', notes='PRIVATE_NOTES', notesApproved=True),
+                        'main', 'India skills employment', sources))
+                self.assertIn('[src_1]', report)
+                self.assertEqual(retained, sources)
+                self.assertIsNone(calls.stage_error)
+                self.assertFalse(calls.extracts)
+                self.assertLessEqual(len(calls.searches), 4)
+                self.assertTrue(engine.warnings)
+                self.assertNotIn('PRIVATE_ERROR', ' '.join(engine.warnings))
+                self.assertNotIn('PRIVATE_NOTES', ' '.join(calls.searches))
+                for message in calls.models:
+                    if 'PRIVATE_NOTES' in message:
+                        self.assertIn('Write the ', message)
+
+    def test_search_failure_without_usable_retained_evidence_stays_fatal(self):
+        from research.gptr import GPTREngine
+        for sources in ([], [{**source(1), 'excerpt': ''}],
+                        [{**source(1), 'kind': 'alpha_reference'}]):
+            with self.subTest(sources=sources):
+                error = ProviderError('search failed')
+                class SearchDown(RecordingCalls):
+                    def search(self, query):
+                        raise error
+                calls = SearchDown()
+                with patch('socket.socket.connect', side_effect=AssertionError('unexpected external socket')):
+                    with self.assertRaises(ProviderError) as caught:
+                        asyncio.run(GPTREngine(calls).tier(dict(title='Example founder'),
+                                                          'main', 'India skills', sources))
+                self.assertIs(caught.exception, error)
+                self.assertFalse(any('Write the ' in m for m in calls.models))
+
+    def test_search_fallback_never_masks_fatal_errors_or_a_model_stage_error(self):
+        from research.gptr import GPTREngine
+        for error in (BudgetExceeded('budget'), Stopped('cancelled or fenced'),
+                      StorageError('storage'), ProviderError('model failed')):
+            with self.subTest(error=type(error).__name__):
+                class FatalSearch(RecordingCalls):
+                    def search(self, query):
+                        if isinstance(error, ProviderError):
+                            # Calls.check rethrows a prior/concurrent model error through search.
+                            self.stage_error = error
+                        raise error
+                calls = FatalSearch()
+                with patch('socket.socket.connect', side_effect=AssertionError('unexpected external socket')):
+                    with self.assertRaises(type(error)) as caught:
+                        asyncio.run(GPTREngine(calls).tier(dict(title='Example founder'),
+                                                          'main', 'India skills', [source(1)]))
+                self.assertIs(caught.exception, error)
+                self.assertFalse(any('Write the ' in m for m in calls.models))
+
+    def test_merge_validation_failure_is_not_search_fallback(self):
+        from research.gptr import GPTREngine
+        class Collision(RecordingCalls):
+            def search(self, query):
+                return [{**source(2), 'id': 'src_1'}]
+        calls = Collision()
+        with patch('socket.socket.connect', side_effect=AssertionError('unexpected external socket')):
+            with self.assertRaises(ValueError):
+                asyncio.run(GPTREngine(calls).tier(dict(title='Example founder'),
+                                                  'main', 'India skills', [source(1)]))
+        self.assertFalse(any('Write the ' in m for m in calls.models))

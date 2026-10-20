@@ -158,11 +158,11 @@ class WorkflowTests(StoreFixture):
                 return super().search(query)
         self.body['title'] = 'Research Elon Musk, Tesla and competitor BYD'
         asyncio.run(run_job(self.db, self.claim(), FakeEngine, CaptureCalls))
-        self.assertEqual(len(queries), 3)
+        self.assertEqual(len(queries), 6)
+        self.assertTrue(any('site:youtube.com' in query for query in queries))
         for query in queries:
             self.assertIn(self.body['title'], query)
-            self.assertNotIn('site:youtube.com', query)
-            self.assertNotIn('podcast', query)
+            self.assertNotIn('episode', query)
 
     def test_failed_tier_does_not_erase_others(self):
         FakeEngine.failing = 'appetizers'
@@ -233,8 +233,9 @@ class EvidenceTests(unittest.TestCase):
         text, warnings = validate_report('Growth 20% [invented]. [link](https://bad.com)', [source()])
         self.assertNotIn('invented', text)
         self.assertNotIn('https://bad.com', text)
-        self.assertIn('[unverified]', text)
-        self.assertTrue(any('Numeric' in w for w in warnings))
+        self.assertIn('(supporting source not retained)', text)
+        self.assertNotIn('unverified', text.lower())
+        self.assertTrue(any('figures' in w for w in warnings))
     def test_per_claim_numeric_disagreement_and_forged_quote(self):
         a, b = source(), source(2)
         b['excerpt'] = 'Revenue was 20 INR million in India in 2023.'

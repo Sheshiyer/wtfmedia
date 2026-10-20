@@ -1,5 +1,7 @@
 # WTF OS Research Agent — Provider and Template Plan
 
+> **Current implementation (20 October 2026):** [Research reliability, Indian audience context, and six source channels](docs/superpowers/plans/2026-10-20-research-reliability-and-india-focus.md). The new flow is implemented locally; see its verification record and remaining live acceptance gates. India is context for the entire research process, not a separate section or sole objective. The document below is historical context, not the current deployment status.
+
 Date: 13 October 2026
 Status: local implementation complete and covered by offline source tests. Provider configuration, deployment and live editorial acceptance remain pending. See [runtime setup](docs/RESEARCH-RUNNER.md).
 

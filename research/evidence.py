@@ -5,7 +5,8 @@ import re
 from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
-from .contracts import Source, safe_url
+from .contracts import Source, safe_url, utf16_slice
+from .source_channels import platform_for_url
 
 CITATION = re.compile(r'\[([A-Za-z0-9_-]{1,100})\]')
 NUMBER = re.compile(r'(?<![\w])\d[\d,]*(?:\.\d+)?%?')
@@ -28,8 +29,10 @@ def normalize_results(payload):
             if not isinstance(excerpt, str) or not excerpt.strip():
                 continue
             source = Source(id='src_' + hashlib.sha256(url.encode()).hexdigest()[:24],
-                            title=str(item.get('title', 'Untitled'))[:500], url=url,
-                            excerpt=excerpt[:12000], kind='search_snippet',
+                            title=utf16_slice(str(item.get('title', 'Untitled')), 500), url=url,
+                            excerpt=utf16_slice(excerpt, 12000), kind='search_snippet',
+                            platform=platform_for_url(url), retrievedVia='perplexity.web.search',
+                            evidenceType='search_snippet',
                             retrievedAt=datetime.now(timezone.utc).isoformat(),
                             publishedAt=item.get('date') if isinstance(item.get('date'), str) else None)
             sources.append(source.model_dump(exclude_none=True))
@@ -38,21 +41,39 @@ def normalize_results(payload):
     return sources
 
 
-def merge_sources(existing, incoming):
+def merge_sources(existing, incoming, *, protected_ids=(), query=None):
+    """Default discovery is append-only; tiers may replace uncited, less relevant evidence."""
+    protected_ids = set(protected_ids)
     by_url = {s['url']: s for s in existing}
     ids = {s['id'] for s in existing}
     for source in incoming:
         prior = by_url.get(source['url'])
         if prior:
+            if prior['id'] in protected_ids:
+                # A newer extract must not replace the text supporting a saved citation.
+                continue
             if (not supports(prior) and supports(source)) or (source.get('kind') == 'page_extract' and prior.get('kind') != 'page_extract'):
                 # Retain Alpha's verified timing but upgrade support only with retrieved text.
                 by_url[source['url']] = {**prior, **source, 'id': prior['id']}
             continue
         if source['id'] in ids:
             raise ValueError('source ID collision')
-        if len(by_url) < 80:
+        if len(by_url) < 80 or query is not None:
             by_url[source['url']] = source
             ids.add(source['id'])
+    if query is not None and len(by_url) > 80:
+        protected = [s for s in by_url.values() if s['id'] in protected_ids]
+        if len(protected) > 80:
+            raise ValueError('protected sources exceed limit')
+        terms = set(re.findall(r'\w{3,}', query.lower()))
+        candidates = sorted(
+            (s for s in by_url.values() if s['id'] not in protected_ids),
+            key=lambda s: (supports(s), len(terms & set(re.findall(
+                r'\w{3,}', (s['title'] + ' ' + s['excerpt']).lower())))),
+            reverse=True,
+        )
+        keep = {s['id'] for s in protected + candidates[:80 - len(protected)]}
+        by_url = {url: s for url, s in by_url.items() if s['id'] in keep}
     return list(by_url.values())
 
 
@@ -64,7 +85,7 @@ def numeric_warnings(text, cited):
         publishers = {(s.get('publisher') or urlsplit(s['url']).hostname).lower() for s in matches}
         extracts = {re.sub(r'\W+', '', s['excerpt'].lower()) for s in matches}
         if len(publishers) < 2 or len(extracts) < 2:
-            warnings.append('Numeric claim unverified: fewer than two independent supporting extracts.')
+            warnings.append('Some figures have fewer than two independent supporting extracts.')
         else:
             warnings.append('Numeric cross-check candidate only: verify units, period, geography, definition and publisher independence; matching numbers are not proof.')
     return list(dict.fromkeys(warnings))
@@ -76,14 +97,18 @@ def validate_report(text, sources):
     usable = {s['id']: s for s in sources if supports(s)}
     warnings = []
     # Links/HTML from a model are not part of the evidence contract.
-    text = re.sub(r'!?\[([^\]]*)\]\([^)]*\)', r'\1 [unverified]', text)
+    text = re.sub(r'!?\[([^\]]*)\]\([^)]*\)', r'\1 (source link not retained)', text)
     text = re.sub(r'<[^>]*>', '', text)
-    text = re.sub(r'https?://\S+', '[unverified link]', text)
+    if not text.strip():
+        raise ValueError('empty report after validation')
+    # Retain the caution while replacing a blanket label with neutral evidence-note copy.
+    text = re.sub(r'\bunverified\b', 'Not independently confirmed', text, flags=re.I)
+    text = re.sub(r'https?://\S+', '(source link not retained)', text)
     def citation(match):
         if match[1] in usable:
             return match[0]
         warnings.append('Unsupported citation removed.')
-        return '[unverified]'
+        return '(supporting source not retained)'
     text = CITATION.sub(citation, text)
     paragraphs = []
     for paragraph in re.split(r'\n\s*\n', text.strip()):
@@ -157,11 +182,11 @@ def number_comparison(text, sources, assessments):
         publishers = {urlsplit(r[0]['url']).hostname for r in complete}
         unique_quotes = {re.sub(r'\W+', '', r[1].lower()) for r in complete}
         if disagreement:
-            verdict = 'Unverified: sources disagree on value, units, period, geography or definition.'
+            verdict = 'Sources disagree on value, units, period, geography or definition.'
         elif len(publishers) >= 2 and len(unique_quotes) >= 2:
-            verdict = 'Unverified: extracts agree; original publisher independence and claim meaning need editorial confirmation.'
+            verdict = 'Extracts agree; original publisher independence and claim meaning need editorial confirmation.'
         else:
-            verdict = 'Unverified: insufficient independent extracts with matching measurement context.'
+            verdict = 'Insufficient independent extracts with matching measurement context.'
         warnings.append(verdict)
         def cell(value):
             return re.sub(r'[<>\[\]|\n\r]', ' ', value)[:800]
@@ -177,7 +202,7 @@ def number_comparison(text, sources, assessments):
     for paragraph in re.split(r'\n\s*\n', text):
         missing = set(NUMBER.findall(CITATION.sub('', paragraph))) - seen
         if missing:
-            label = 'Unverified numeric claim: ' + paragraph[:500]
+            label = 'Figure needs source context: ' + paragraph[:500]
             blocks.append(label + '\nValue(s): ' + ', '.join(sorted(missing))
                           + '; unit, period, geography, definition and independent supporting quotes not established.')
             warnings.append('Some numeric claims lack a complete evidence comparison.')

@@ -15,7 +15,7 @@ import httpx
 
 from .evidence import normalize_results
 from .contracts import safe_url
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, urlencode
 from .store import BudgetExceeded, Stopped, digest, encode
 
 MODEL = 'deepseek/deepseek-v4-flash-0731'
@@ -27,7 +27,10 @@ MAX_RESPONSE = 2_000_000
 
 
 class ProviderError(Exception):
-    pass
+    def __init__(self, message='provider unavailable', *, code='provider_unavailable', retry_after=0):
+        super().__init__(message)
+        self.code = code
+        self.retry_after = min(30, max(0, retry_after))
 
 
 def model_endpoint():
@@ -48,6 +51,18 @@ def model_endpoint():
 
 def model_name():
     return 'noesis-research' if os.environ.get('OMNIROUTE_BASE_URL', '').strip() else MODEL
+
+
+def model_info():
+    return {'service': 'omniroute' if os.environ.get('OMNIROUTE_BASE_URL', '').strip() else 'openrouter',
+            'requestedModel': model_name()}
+
+
+def reported_model(value):
+    return value if (isinstance(value, str) and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._/:-]{0,119}', value)
+                     and '://' not in value and not re.search(
+                         r'(?:^|[/:._-])(?:sk|key|token|secret|password|authorization|bearer|credential)(?:$|[/:._-])',
+                         value, re.I)) else None
 
 
 def configured():
@@ -73,7 +88,7 @@ def redact(value):
 
 
 def stream_response(data):
-    text, finish, receipt, usage = [], None, None, {}
+    text, finish, receipt, usage, model = [], None, None, {}, None
     try:
         for line in data.decode('utf-8').splitlines():
             if not line.startswith('data:'):
@@ -86,6 +101,7 @@ def stream_response(data):
                 raise ProviderError('gateway stream failed')
             receipt = event.get('id') or receipt
             usage = event.get('usage') or usage
+            model = reported_model(event.get('model')) or model
             for choice in event.get('choices', []):
                 if choice.get('index', 0) != 0:
                     continue
@@ -97,7 +113,7 @@ def stream_response(data):
                 finish = choice.get('finish_reason') or finish
         if not finish:
             raise ProviderError('incomplete gateway stream')
-        return {'id': receipt, 'usage': usage,
+        return {'id': receipt, 'usage': usage, 'model': model,
                 'choices': [{'finish_reason': finish, 'message': {'content': ''.join(text)}}]}
     except (ValueError, TypeError, AttributeError):
         raise ProviderError('invalid gateway stream') from None
@@ -113,18 +129,27 @@ class Network:
             with httpx.Client(timeout=httpx.Timeout(45, read=read_timeout),
                               follow_redirects=False, trust_env=False) as client:
                 with client.stream(method, url, headers=headers, json=body) as response:
+                    if response.status_code != 200:
+                        code = ('authentication' if response.status_code in (401, 403) else
+                                'rate_limit' if response.status_code == 429 else
+                                'invalid_output' if 400 <= response.status_code < 500 else 'provider_unavailable')
+                        retry = response.headers.get('retry-after', '0')
+                        raise ProviderError('provider request failed', code=code,
+                                            retry_after=int(retry) if str(retry).isdigit() else 0)
                     data = bytearray()
                     for chunk in response.iter_bytes():
                         if time.monotonic() > deadline:
-                            raise ProviderError('provider deadline exceeded')
+                            raise ProviderError('provider deadline exceeded', code='timeout')
                         data.extend(chunk)
                         if len(data) > MAX_RESPONSE:
                             raise ProviderError('provider response too large')
-                    if response.status_code != 200:
-                        raise ProviderError('provider unavailable')
                     payload = stream_response(data) if body and body.get('stream') else json.loads(data)
                     return redact(payload), dict(response.headers)
-        except (httpx.HTTPError, ValueError):
+        except httpx.TimeoutException:
+            raise ProviderError('provider request timed out', code='timeout') from None
+        except ValueError:
+            raise ProviderError('provider returned invalid data', code='invalid_output') from None
+        except httpx.HTTPError:
             raise ProviderError('provider unavailable') from None
 
 
@@ -154,6 +179,10 @@ class Calls:
         self.lock = threading.Lock()
         self.stage_calls = 0
         self.stage_error = None
+        self.model_info = model_info()
+        self.model_receipt_received = False
+        self.usage = {}
+        self.channel_catalogs = set()
 
     def stage(self):
         self.stage_calls = 0
@@ -199,6 +228,52 @@ class Calls:
                 raise BudgetExceeded('provider exceeded reservation')
             return sources
 
+    def social_search(self, channel, request):
+        from .source_channels import TOOLS, dedicated_input, normalize_social
+        tool, method, reserve = TOOLS[channel]
+        body = dedicated_input(channel, request)
+        with self.lock:
+            self.check()
+            if tool not in self.channel_catalogs:
+                catalog, _ = self.network.request('GET', 'https://treg.to/catalog/endpoints/' + tool, {})
+                endpoint = catalog.get('endpoint', {})
+                fields = endpoint.get('input', {}).get('body' if method == 'POST' else 'queryParams', {})
+                price = endpoint.get('cost', {}).get('usd')
+                if (endpoint.get('id') != tool or endpoint.get('method') != method or
+                        endpoint.get('kind') != 'data' or endpoint.get('async') is not None or
+                        endpoint.get('platform_eligible') is not True or
+                        not isinstance(price, (int, float)) or isinstance(price, bool) or
+                        not math.isfinite(price) or not 0 <= price <= reserve / 1_000_000 or
+                        not all(key in fields for key in body) or
+                        any(value.get('required') and key not in body for key, value in fields.items())):
+                    raise ProviderError('social catalog contract changed', code='invalid_output')
+                self.channel_catalogs.add(tool)
+            key = 'social_' + digest(encode({'tool': tool, 'input': body}))
+            cached = self.store.reserve(self.job_id, self.lease, key, 'tool', reserve)
+            if cached is not None:
+                return cached
+            self.stage_calls += 1
+            self.store.started(self.job_id, self.lease, key)
+            url = 'https://treg.to/call/' + tool
+            if method == 'GET':
+                url += '?' + urlencode(body)
+            payload, headers = self.network.request(method, url, {
+                'X-Treg-Token': os.environ.get('TREG_TOKEN', ''),
+                'Idempotency-Key': digest(self.job_id + key),
+                'X-Treg-Route-Max-Cost': str(reserve / 1_000_000),
+                'X-Treg-Meta': 'feature=research',
+            }, body if method == 'POST' else None)
+            raw_cost = headers.get('x-treg-original-cost-micro', headers.get('x-treg-cost-micro'))
+            cost = int(raw_cost) if raw_cost and re.fullmatch(r'\d{1,12}', raw_cost) else None
+            receipt = headers.get('x-treg-call-id', '')
+            receipt = receipt if re.fullmatch(r'[A-Za-z0-9_-]{1,150}', receipt) else None
+            self.store.settle(self.job_id, self.lease, key, cost, receipt, None)
+            if cost is not None and cost > reserve:
+                raise BudgetExceeded('provider exceeded reservation')
+            sources = normalize_social(channel, payload)
+            self.store.settle(self.job_id, self.lease, key, cost, receipt, sources)
+            return sources
+
     def extract(self, source):
         with self.lock:
             self.check()
@@ -237,6 +312,8 @@ class Calls:
                                                               'date': row.get('publishedDate')}]})
                 for item in normalized:
                     item['kind'] = 'page_extract'
+                    item['evidenceType'] = 'page_extract'
+                    item['retrievedVia'] = EXTRACT
                     item['id'] = source['id']
                     if 'timestampSeconds' in source:
                         item['timestampSeconds'] = source['timestampSeconds']
@@ -274,7 +351,16 @@ class Calls:
             payload, _ = self.network.request('POST', base + '/chat/completions', {
                 'Authorization': 'Bearer ' + api_key,
             }, body)
-            cost = payload.get('usage', {}).get('cost')
+            usage = payload.get('usage')
+            if usage is None:
+                usage = {}
+            if not isinstance(usage, dict):
+                raise ProviderError('invalid model usage metadata', code='invalid_output')
+            model = reported_model(payload.get('model'))
+            self.usage = {name: value for name, value in {
+                'inputTokens': usage.get('prompt_tokens'), 'outputTokens': usage.get('completion_tokens')
+            }.items() if type(value) is int and 0 <= value <= 1_000_000_000}
+            cost = usage.get('cost')
             if isinstance(cost, (int, float)) and not isinstance(cost, bool) and math.isfinite(cost) and cost >= 0:
                 billed = int((Decimal(str(cost)) * 1000000).to_integral_value(rounding=ROUND_CEILING))
             else:
@@ -282,15 +368,18 @@ class Calls:
             receipt = payload.get('id')
             receipt = receipt if isinstance(receipt, str) and re.fullmatch(r'[A-Za-z0-9_-]{1,150}', receipt) else None
             self.store.settle(self.job_id, self.lease, key, billed, receipt, {})
+            if model:
+                self.model_info['reportedModel'] = model
+            self.model_receipt_received = True
             if billed is not None and billed > MODEL_RESERVE:
                 raise BudgetExceeded('provider exceeded reservation')
             try:
                 choice = payload['choices'][0]
                 if choice.get('finish_reason') == 'length':
-                    raise ProviderError('model output truncated')
+                    raise ProviderError('model output truncated', code='output_truncated')
                 answer = choice['message']['content']
             except (KeyError, IndexError, TypeError):
-                raise ProviderError('invalid model response') from None
+                raise ProviderError('invalid model response', code='invalid_output') from None
             if not isinstance(answer, str) or not answer.strip():
-                raise ProviderError('empty model response')
+                raise ProviderError('empty model response', code='empty_output')
             return answer

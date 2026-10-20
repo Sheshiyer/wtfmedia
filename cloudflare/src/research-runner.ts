@@ -1,4 +1,4 @@
-import { ResearchError, boundedText } from './research-contract.ts';
+import { ResearchError, boundedText, type ResearchFailure } from './research-contract.ts';
 export type ResearchRunnerEnv = {
     RESEARCH_RUNNER_URL?: string;
     RESEARCH_RUNNER_TOKEN?: string;
@@ -23,8 +23,12 @@ export async function researchRunner(env: ResearchRunnerEnv, path: string, metho
             return {};
         if (response.status === 422 || response.status === 400)
             throw new ResearchError(502, 'invalid_research_request');
-        if (!response.ok)
-            throw new ResearchError(503, 'research_runner_unavailable');
+        if (!response.ok) {
+            const code: ResearchFailure['code'] = [401, 403].includes(response.status) ? 'authentication'
+                : response.status === 429 ? 'rate_limit'
+                : [408, 504].includes(response.status) ? 'timeout' : 'provider_unavailable';
+            throw new ResearchError(503, 'research_runner_unavailable', { stage: 'runner', code, retryable: code !== 'authentication' });
+        }
         const raw = await boundedText(response, 1200000, 502);
         try { return raw ? JSON.parse(raw) : {}; }
         catch { throw new ResearchError(502, 'invalid_research_result'); }
@@ -32,8 +36,9 @@ export async function researchRunner(env: ResearchRunnerEnv, path: string, metho
     catch (e) {
         if (e instanceof ResearchError)
             throw e;
-        if (path === '/chat' && e instanceof Error && ['TimeoutError','AbortError'].includes(e.name)) throw new ResearchError(504,'research_chat_timeout');
-        throw new ResearchError(503, 'research_runner_unavailable');
+        if (e instanceof Error && ['TimeoutError','AbortError'].includes(e.name))
+            throw new ResearchError(path === '/chat' ? 504 : 503, path === '/chat' ? 'research_chat_timeout' : 'research_runner_unavailable', { stage: 'runner', code: 'timeout', retryable: true });
+        throw new ResearchError(503, 'research_runner_unavailable', { stage: 'runner', code: 'provider_unavailable', retryable: true });
     }
 }
 export async function deleteResearchRun(env: ResearchRunnerEnv, runId: string, fetchRunner: typeof fetch = fetch): Promise<void> {

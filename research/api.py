@@ -1,9 +1,11 @@
 """Private token-authenticated service; Edge owns user authorization."""
 import asyncio
 import hmac
+import json
 import os
 import subprocess
 import sys
+import threading
 from contextlib import asynccontextmanager
 from uuid import UUID, uuid4
 
@@ -16,6 +18,21 @@ from .contracts import ChatInput, JobInput
 from .providers import configured
 from .store import Conflict, Gone, QueueFull
 from .worker import state_path
+from .diagnostics import emit
+
+
+def relay_diagnostics(pipe):
+    """Forward only our strict content-free event schema; discard third-party output."""
+    try:
+        while line := pipe.readline(8192):
+            try:
+                event = json.loads(line)
+                if isinstance(event, dict) and event.get('event') == 'research_stage':
+                    emit(event)
+            except (ValueError, UnicodeDecodeError):
+                pass
+    finally:
+        pipe.close()
 
 
 def valid_id(job_id):
@@ -55,8 +72,10 @@ def create_app(store=None, ready=configured, chat_handler=None, start_workers=Fa
             while True:
                 processes[:] = [p for p in processes if p.poll() is None]
                 if not processes:
-                    processes.append(subprocess.Popen([sys.executable, '-m', 'research.worker'],
-                                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL))
+                    process = subprocess.Popen([sys.executable, '-m', 'research.worker'],
+                                               stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+                    processes.append(process)
+                    threading.Thread(target=relay_diagnostics, args=(process.stderr,), daemon=True).start()
                 await asyncio.sleep(1)
         task = asyncio.create_task(supervise()) if start_workers else None
         try:

@@ -1,5 +1,5 @@
 import type { DB } from './db.ts';
-import { boundedText, bounded, sectionsValid, validatedResult, ResearchError, tiers, type ResearchDocument } from './research-contract.ts';
+import { boundedText, bounded, sectionsValid, projectSections, parseResearchInput, researchTitle, resultMetadata, validatedResult, ResearchError, type ResearchDocument } from './research-contract.ts';
 import { researchAvailable, researchRunner, deleteResearchRun, type ResearchRunnerEnv } from './research-runner.ts';
 type Env = ResearchRunnerEnv & {
     DB: DB;
@@ -16,6 +16,12 @@ const reply = (body: unknown, status = 200) => Response.json(body, { status, hea
 const active = (s: string) => s === 'queued' || s === 'running' || s === 'cancel_pending';
 const validId = (s: string) => /^rbrief_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(s);
 const view = (d: ResearchDocument, owner: boolean) => ({ ...d, notes: owner ? d.notes : '', notesApproved: owner ? d.notesApproved : false, messages: owner ? d.messages : [], canEdit: owner });
+function terminalReport(doc: ResearchDocument, result: Partial<ResearchDocument>): Partial<ResearchDocument> {
+    if (!doc.needsResearch) return result;
+    const freshContent = result.sections?.some(s => ['completed', 'partial'].includes(s.status) && s.content.trim());
+    // A failed/empty replacement must not discard the retained report or make it chat-ready.
+    return freshContent ? { ...result, needsResearch: false } : { ...result, sections: doc.sections, sources: doc.sources };
+}
 export async function handleResearch(request: Request, env: Env, memberId: number, deps: {
     fetchRunner?: typeof fetch;
 } = {}): Promise<Response> {
@@ -49,10 +55,13 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
         if (run.submitted)
             return;
         const submitted = await runner('/jobs', 'POST', JSON.parse(run.payload_json));
-        if (submitted.id !== runId || !['queued', 'running', 'completed', 'partial', 'failed', 'cancelled', 'clarification'].includes(submitted.status)) {
+        if (!submitted || submitted.id !== runId || !['queued', 'running', 'completed', 'partial', 'failed', 'cancelled', 'clarification'].includes(submitted.status)) {
             throw new ResearchError(502, 'invalid_research_result');
         }
+        const projection = submitted.status === 'queued' || submitted.status === 'running'
+            ? validatedResult(submitted, runId) : resultMetadata(submitted);
         await db.prepare('UPDATE research_runs SET submitted = 1 WHERE run_id = ?').bind(runId).run();
+        return projection;
     }
     async function finishCancellation(row: Row, doc: ResearchDocument) {
         if (!row.current_run_id) return save(row, {...doc, status:'cancelled'});
@@ -69,38 +78,44 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
             if (result.cost && !active(result.status!)) {
                 cost = {toolMicro:doc.cost.toolMicro+result.cost.toolMicro,modelUsd:doc.cost.modelUsd===null||result.cost.modelUsd===null?null:doc.cost.modelUsd+result.cost.modelUsd};
                 warnings = result.warnings ?? [];
-                produced = {sections:result.sections,sources:result.sources,progress:result.progress,clarification:result.clarification};
+                produced = terminalReport(doc, result);
             }
         } catch {}
         return save(row,{...doc,...produced,status:'cancelled',cost,warnings},null);
     }
     async function start(row: Row, doc: ResearchDocument, input: Record<string, any>, ready = false) {
+        if (input.section !== undefined)
+            throw new ResearchError(400, 'invalid_request');
         if (active(doc.status))
             throw new ResearchError(409, 'research_running');
         if (!ready && !await researchAvailable(env, deps.fetchRunner))
             throw new ResearchError(503, 'research_not_configured');
-        if (input.section !== undefined && !tiers.includes(input.section))
-            throw new ResearchError(400, 'invalid_request');
         if (input.clarification !== undefined && !bounded(input.clarification, 2000))
             throw new ResearchError(400, 'invalid_request');
-        let section = input.section ?? null;
-        if (input.clarification && input.section === undefined && doc.status === 'clarification' && row.current_run_id) {
-            const previous = await db.prepare('SELECT payload_json FROM research_runs WHERE run_id = ? AND brief_id = ?').bind(row.current_run_id,row.id).first<{payload_json:string}>();
-            const priorSection = previous ? JSON.parse(previous.payload_json).section : null;
-            if (tiers.includes(priorSection)) section = priorSection;
-        }
         const runId = 'rrun_' + crypto.randomUUID();
-        const payload = { id: runId, title: doc.title, notes: doc.notes, notesApproved: doc.notesApproved, section, clarification: input.clarification ?? null, sections: section ? doc.sections : [], sources: section ? doc.sources.filter(s => s.kind !== 'alpha_reference').slice(0, 80) : [], budgetMicro: 5000000 };
-        const saved = await save(row, { ...doc, status: 'queued', progress: [], warnings: [], clarification: null }, runId, payload);
+        const payload = { id: runId, title: doc.title, ...(doc.researchInput ? { schemaVersion: 2, researchInput: doc.researchInput } : {}), notes: doc.notes, notesApproved: doc.notesApproved, section: null, clarification: input.clarification ?? null, sections: [], sources: [], budgetMicro: 5000000 };
+        // Diagnostics describe one run, never today's configuration applied to old work.
+        const next = { ...doc, status: 'queued', progress: [], warnings: [], clarification: null };
+        delete next.coverage;
+        delete next.modelInfo;
+        delete next.failure;
+        let saved = await save(row, next, runId, payload);
         // Submission is retried from the identical durable payload on the next poll.
         try {
-            await submit(runId);
+            const receipt = await submit(runId);
+            if (receipt) {
+                const projected = { ...saved, ...receipt };
+                await db.prepare('UPDATE research_briefs SET document_json = ? WHERE id = ? AND member_id = ? AND revision = ? AND current_run_id = ?')
+                    .bind(JSON.stringify(projected), row.id, memberId, saved.revision, runId).run();
+                const fresh = await db.prepare('SELECT * FROM research_briefs WHERE id = ? AND member_id = ?').bind(row.id, memberId).first<Row>();
+                if (fresh) saved = JSON.parse(fresh.document_json);
+            }
         }
         catch (error) {
             if (error instanceof ResearchError && error.status === 502) {
                 const current = await db.prepare('SELECT * FROM research_briefs WHERE id = ?').bind(row.id).first<Row>();
                 if (current && current.revision === saved.revision)
-                    await save(current, { ...saved, status: 'failed', warnings: ['Research runner rejected the job. Please retry after configuration is checked.'] });
+                    await save(current, { ...saved, status: 'failed', failure: error.failure, warnings: ['Research runner rejected the job. Please retry after configuration is checked.'] });
                 throw error;
             }
         }
@@ -120,6 +135,8 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
             }
             if (!input || Array.isArray(input) || typeof input !== 'object')
                 throw new ResearchError(400, 'invalid_request');
+            if (Object.prototype.hasOwnProperty.call(input, 'needsResearch'))
+                throw new ResearchError(400, 'invalid_request');
         }
         if (!id) {
             if (method === 'GET') {
@@ -135,7 +152,7 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
             if (!await researchAvailable(env, deps.fetchRunner))
                 throw new ResearchError(503, 'research_not_configured');
             const now = new Date().toISOString();
-            const doc: ResearchDocument = { id: 'rbrief_' + crypto.randomUUID(), title: input.title.trim(), notes: input.notes ?? '', notesApproved: input.notesApproved === true, episodeId: input.episodeId ?? null, shared: false, status: 'draft', revision: 1, updatedAt: now, sections: [], sources: [], messages: [], progress: [], warnings: [], clarification: null, cost: { toolMicro: 0, modelUsd: 0 } };
+            const doc: ResearchDocument = { id: 'rbrief_' + crypto.randomUUID(), title: input.researchInput ? researchTitle(input.researchInput) : input.title.trim(), ...(input.researchInput ? { schemaVersion: 2, researchInput: input.researchInput } : {}), notes: input.notes ?? '', notesApproved: input.notesApproved === true, episodeId: input.episodeId ?? null, shared: false, status: 'draft', revision: 1, updatedAt: now, sections: [], sources: [], messages: [], progress: [], warnings: [], clarification: null, cost: { toolMicro: 0, modelUsd: 0 } };
             const json = JSON.stringify(doc);
             await db.batch([db.prepare('INSERT INTO research_briefs(id,member_id,revision,document_json,updated_at) VALUES (?,?,1,?,?)').bind(doc.id, memberId, json, now), db.prepare('INSERT INTO research_versions(brief_id,revision,document_json,created_at) VALUES (?,1,?,?)').bind(doc.id, json, now)]);
             try {
@@ -154,6 +171,9 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
         const owner = row.member_id === memberId;
         if (!owner && (!doc.shared || method !== 'GET' || !!action))
             throw new ResearchError(404, 'not_found');
+        // Reject before cancellation recovery or any other mutation/runner call.
+        if (method === 'POST' && action === 'run' && input.section !== undefined)
+            throw new ResearchError(400, 'invalid_request');
         if (owner && doc.status === 'cancel_pending' && ((method === 'GET' && !action) || (method === 'POST' && action === 'run'))) {
             const expectedRevision = row.revision;
             if (method === 'POST' && input.revision !== expectedRevision) throw new ResearchError(409,'research_conflict');
@@ -181,13 +201,13 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
                 }
                 catch (error) {
                     if (error instanceof ResearchError && error.status === 502)
-                        await save(row, { ...doc, status: 'failed', warnings: ['Research runner rejected the saved job.'] });
+                        await save(row, { ...doc, status: 'failed', failure: error.failure, warnings: ['Research runner rejected the saved job.'] });
                     throw error;
                 }
                 const result = validatedResult(await runner('/jobs/' + runId), runId);
                 try {
                     if (!active(result.status!)) {
-                        doc = await save(row, { ...doc, ...result, cost: { toolMicro: doc.cost.toolMicro + result.cost!.toolMicro, modelUsd: doc.cost.modelUsd === null || result.cost!.modelUsd === null ? null : doc.cost.modelUsd + result.cost!.modelUsd } });
+                        doc = await save(row, { ...doc, ...terminalReport(doc, result), failure: result.failure, cost: { toolMicro: doc.cost.toolMicro + result.cost!.toolMicro, modelUsd: doc.cost.modelUsd === null || result.cost!.modelUsd === null ? null : doc.cost.modelUsd + result.cost!.modelUsd } });
                     }
                     else {
                         const next = { ...doc, ...result };
@@ -212,11 +232,21 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
                     const fresh = await load();
                     if (!fresh) throw new ResearchError(404,'not_found');
                     doc = JSON.parse(fresh.document_json);
-                    doc = {...doc,warnings:[...doc.warnings,'The research runner is temporarily unavailable. Showing the last saved brief.']};
+                    doc = {...doc,...(active(doc.status) && error.failure ? {failure:error.failure} : {}),warnings:[...doc.warnings,'The research runner is temporarily unavailable. Showing the last saved brief.']};
                 }
             }
-            const versions = owner ? (await db.prepare(`SELECT revision,created_at AS createdAt FROM research_versions WHERE brief_id = ?
-              AND json_extract(document_json,'$.status') IN ('completed','partial')
+            const versions = owner ? (await db.prepare(`WITH history AS (
+                SELECT revision,created_at,document_json,
+                  LAG(document_json) OVER (ORDER BY revision) AS previous_json
+                FROM research_versions WHERE brief_id = ?
+              )
+              SELECT revision,created_at AS createdAt FROM history
+              WHERE json_extract(document_json,'$.status') IN ('completed','partial')
+              AND (previous_json IS NULL
+                OR json_extract(previous_json,'$.status') NOT IN ('completed','partial')
+                OR json_extract(document_json,'$.title') IS NOT json_extract(previous_json,'$.title')
+                OR json_extract(document_json,'$.sections') IS NOT json_extract(previous_json,'$.sections')
+                OR json_extract(document_json,'$.sources') IS NOT json_extract(previous_json,'$.sources'))
               AND EXISTS (SELECT 1 FROM json_each(document_json,'$.sections')
                 WHERE length(trim(json_extract(value,'$.content'))) > 0)
               ORDER BY revision DESC`).bind(id).all()).results : [];
@@ -249,11 +279,11 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
         if (method === 'POST' && action === 'chat' && !version) {
             if (!bounded(input.question, 2000) || !input.question.trim())
                 throw new ResearchError(400, 'invalid_request');
-            if (active(doc.status) || !doc.sections.length)
+            if (doc.needsResearch || active(doc.status) || !doc.sections.length)
                 throw new ResearchError(409, 'research_not_ready');
             if (doc.messages.length >= 100)
                 throw new ResearchError(409, 'research_chat_limit');
-            const result = await runner('/chat', 'POST', { question: input.question, messages: doc.messages.slice(-12).map(m => ({ role: m.role, content: m.content.slice(0, 6000) })), sections: doc.sections, sources: doc.sources, notes: doc.notes, notesApproved: doc.notesApproved });
+            const result = await runner('/chat', 'POST', { question: input.question, ...(doc.researchInput ? { researchInput: doc.researchInput } : {}), messages: doc.messages.slice(-12).map(m => ({ role: m.role, content: m.content.slice(0, 6000) })), sections: doc.sections, sources: doc.sources, notes: doc.notes, notesApproved: doc.notesApproved });
             if (!bounded(result.answer, 30000) || !result.answer.trim() || !result.cost || !Number.isSafeInteger(result.cost.toolMicro) || result.cost.toolMicro < 0 || !(result.cost.modelUsd === null || Number.isFinite(result.cost.modelUsd) && result.cost.modelUsd >= 0))
                 throw new ResearchError(502, 'invalid_research_result');
             doc = await save(row, { ...doc, messages: [...doc.messages, { role: 'user', content: input.question }, { role: 'assistant', content: result.answer }], cost: { toolMicro: doc.cost.toolMicro + result.cost.toolMicro, modelUsd: doc.cost.modelUsd === null || result.cost.modelUsd === null ? null : doc.cost.modelUsd + result.cost.modelUsd } });
@@ -278,7 +308,17 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
             }
             else {
                 validateEdit(input, false);
-                doc = { ...doc, ...Object.fromEntries(['title', 'notes', 'notesApproved', 'episodeId', 'shared', 'sections'].filter(k => input[k] !== undefined).map(k => [k, input[k]])) };
+                const scopeChanged = input.researchInput !== undefined
+                    ? !doc.researchInput || (['guestName', 'companyName', 'industry'] as const)
+                        .some(k => input.researchInput[k] !== doc.researchInput![k].trim())
+                    : !doc.researchInput && input.title !== undefined && input.title.trim() !== doc.title.trim();
+                const needsResearch = doc.needsResearch || (doc.sections.length > 0 && scopeChanged);
+                doc = { ...doc, ...Object.fromEntries(['title', 'notes', 'notesApproved', 'episodeId', 'shared', 'sections', 'researchInput'].filter(k => input[k] !== undefined).map(k => [k, input[k]])) };
+                if (needsResearch) doc.needsResearch = true;
+                if (input.researchInput) {
+                    doc.schemaVersion = 2;
+                    doc.title = researchTitle(input.researchInput);
+                }
                 if (doc.notes && !doc.notesApproved)
                     throw new ResearchError(400, 'notes_consent_required');
             }
@@ -288,13 +328,19 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
     }
     catch (e) {
         if (e instanceof Error && e.message.includes('research_active_limit')) return reply({error:'research_active_limit'},429);
-        return e instanceof ResearchError ? reply({ error: e.code }, e.status) : reply({ error: 'research_unavailable' }, 503);
+        return e instanceof ResearchError ? reply({ error: e.code, ...(e.failure ? { failure: e.failure } : {}) }, e.status) : reply({ error: 'research_unavailable' }, 503);
     }
 }
 function validateEdit(input: Record<string, any>, create: boolean) {
-    if (input.episodeId != null && (typeof input.episodeId !== 'string' || !/^[A-Za-z0-9_-]{11}$/.test(input.episodeId))) throw new ResearchError(400,'invalid_episode_id');
-    if ((create || input.title !== undefined) && (!bounded(input.title, 200) || input.title.trim().length < 2) || input.notes !== undefined && !bounded(input.notes, 12000) || input.notesApproved !== undefined && typeof input.notesApproved !== 'boolean' || input.episodeId !== undefined && input.episodeId !== null && (!bounded(input.episodeId, 100) || !input.episodeId.trim()) || input.shared !== undefined && typeof input.shared !== 'boolean' || input.sections !== undefined && !sectionsValid(input.sections))
+    if (input.schemaVersion !== undefined && input.schemaVersion !== 2 || input.schemaVersion === 2 && input.researchInput === undefined)
         throw new ResearchError(400, 'invalid_request');
+    if (input.researchInput !== undefined)
+        input.researchInput = parseResearchInput(input.researchInput);
+    if (input.episodeId != null && (typeof input.episodeId !== 'string' || !/^[A-Za-z0-9_-]{11}$/.test(input.episodeId))) throw new ResearchError(400,'invalid_episode_id');
+    if ((create && !input.researchInput || input.title !== undefined) && (!bounded(input.title, 200) || input.title.trim().length < 2) || input.notes !== undefined && !bounded(input.notes, 12000) || input.notesApproved !== undefined && typeof input.notesApproved !== 'boolean' || input.episodeId !== undefined && input.episodeId !== null && (!bounded(input.episodeId, 100) || !input.episodeId.trim()) || input.shared !== undefined && typeof input.shared !== 'boolean' || input.sections !== undefined && !sectionsValid(input.sections))
+        throw new ResearchError(400, 'invalid_request');
+    if (input.sections !== undefined)
+        input.sections = projectSections(input.sections);
     if (create && input.notes && input.notesApproved !== true)
         throw new ResearchError(400, 'notes_consent_required');
 }

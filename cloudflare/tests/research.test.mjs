@@ -255,15 +255,17 @@ test('cancellation keeps validated work even when the job completes before cance
  const brief=(await(await call('POST','/'+created.id+'/cancel',{})).json()).brief;
  assert.deepEqual(brief.sections,sections);assert.deepEqual(brief.sources,[source]);assert.deepEqual(brief.progress,['Finished sections']);assert.equal(brief.cost.modelUsd,0.03);db.sqlite.close();
 });
-test('clarification resumes the requested regeneration tier without a frontend section field',async()=>{
+test('historical section clarification resumes as a full report without reusing old sources',async()=>{
  const db=database();const submitted=[];const call=client(db,async(input,init)=>{if(init.method==='POST'&&!new URL(input).pathname.endsWith('/cancel'))submitted.push(JSON.parse(init.body));return accepted(input,init);});
  let brief=(await(await call('POST','',{title:'Founder'})).json()).brief;const path='/'+brief.id;
  brief=(await(await call('POST',path+'/cancel',{})).json()).brief;
- brief=(await(await call('POST',path+'/run',{revision:brief.revision,section:'main'})).json()).brief;
+ brief=(await(await call('POST',path+'/run',{revision:brief.revision})).json()).brief;
+ const run=db.sqlite.prepare('SELECT run_id,payload_json FROM research_runs ORDER BY rowid DESC LIMIT 1').get();
+ db.sqlite.prepare('UPDATE research_runs SET payload_json=? WHERE run_id=?').run(JSON.stringify({...JSON.parse(run.payload_json),section:'main'}),run.run_id);
  const clarification=client(db,async input=>Response.json({...emptyJob,id:new URL(input).pathname.split('/').pop(),status:'clarification',clarification:'Which industry?'}));
  brief=(await(await clarification('GET',path)).json()).brief;
  assert.equal((await call('POST',path+'/run',{revision:brief.revision,clarification:'Technology'})).status,200);
- assert.equal(submitted.at(-1).section,'main');assert.equal(submitted.at(-1).clarification,'Technology');db.sqlite.close();
+ assert.equal(submitted.at(-1).section,null);assert.deepEqual(submitted.at(-1).sections,[]);assert.deepEqual(submitted.at(-1).sources,[]);assert.equal(submitted.at(-1).clarification,'Technology');db.sqlite.close();
 });
 test('Unicode four-section edits fit the PATCH envelope while POST and oversized PATCH remain bounded',async()=>{
  const db=database();const call=client(db,async(...args)=>accepted(...args));let brief=(await(await call('POST','',{title:'Founder'})).json()).brief;const path='/'+brief.id;
@@ -295,4 +297,266 @@ test('visible version history excludes draft and running bookkeeping snapshots',
  assert.equal(result.versions[0].revision,result.brief.revision);
  assert.equal((await(await finished('GET',path)).json()).versions.length,1);
  db.sqlite.close();
+});
+
+const researchInput={guestName:'दीपिंदर गोयल',companyName:'Zomato',industry:'Food delivery',audienceCountry:'IN'};
+const metadata={
+ coverage:[{channel:'reddit',status:'found',sourceCount:1,method:'web_search'},{channel:'instagram',status:'unavailable',sourceCount:0,method:'web_search'}],
+ modelInfo:{service:'omniroute',requestedModel:'research-route',reportedModel:'vendor/model-v2'},
+ failure:{stage:'desserts',code:'output_truncated',retryable:true},
+};
+
+test('V2 create derives a bounded title and durably retries all trimmed structured inputs',async()=>{
+ const db=database();const submitted=[];let unavailable=true;
+ const call=client(db,async(input,init)=>{
+  if(init.method==='POST'){submitted.push(JSON.parse(init.body));if(unavailable)return new Response('',{status:503});return accepted(input,init);}
+  return Response.json({id:new URL(input).pathname.split('/').pop(),status:'running',progress:[]});
+ });
+ const response=await call('POST','',{schemaVersion:2,researchInput:{...researchInput,guestName:'  '+researchInput.guestName+'  '}});
+ assert.equal(response.status,201);const {brief}=await response.json();
+ assert.equal(brief.schemaVersion,2);assert.deepEqual(brief.researchInput,researchInput);assert.ok(brief.title.includes('Zomato'));assert.ok(brief.title.length<=200);
+ assert.deepEqual(submitted[0].researchInput,researchInput);assert.equal(submitted[0].schemaVersion,2);assert.equal(submitted[0].budgetMicro,5000000);
+ unavailable=false;await call('GET','/'+brief.id);assert.deepEqual(submitted[1],submitted[0]);
+ const version=await(await call('GET','/'+brief.id+'/versions/1')).json();assert.deepEqual(version.brief.researchInput,researchInput);
+ assert.equal((await call('GET','/'+brief.id,undefined,902)).status,404);
+ const long={guestName:'名'.repeat(120),companyName:'社'.repeat(120),industry:'業'.repeat(120),audienceCountry:'IN'};
+ const second=await call('POST','',{schemaVersion:2,researchInput:long});assert.equal(second.status,201);
+ const longBrief=(await second.json()).brief;assert.ok(longBrief.title.length<=200);assert.deepEqual(longBrief.researchInput,long);db.sqlite.close();
+});
+
+test('V2 inputs fail closed before writes, including consent, malformed fields and audience tampering',async()=>{
+ const db=database();const call=client(db,async(...args)=>accepted(...args));
+ const invalid=[{schemaVersion:2,title:'Legacy title'}, {schemaVersion:3,title:'Legacy title'},
+  ...['guestName','companyName','industry'].flatMap(field=>[undefined,null,12,' ', 'x','x'.repeat(121)].map(value=>({schemaVersion:2,researchInput:{...researchInput,[field]:value}}))),
+  ...['US',null,undefined].map(audienceCountry=>({schemaVersion:2,researchInput:{...researchInput,audienceCountry}})),
+  {schemaVersion:2,researchInput,notes:'Private notes',notesApproved:false},
+ ];
+ for(const input of invalid)assert.equal((await call('POST','',input)).status,400,JSON.stringify(input));
+ assert.equal(db.sqlite.prepare('SELECT COUNT(*) AS n FROM research_briefs').get().n,0);
+ assert.equal((await call('POST','',{title:'Legacy research'})).status,201);db.sqlite.close();
+});
+
+test('structured edits survive restore and full rerun; chat uses saved input only with owner and revision fencing',async()=>{
+ const db=database();const payloads=[];const call=client(db,async(input,init)=>{if(init?.body)payloads.push(JSON.parse(init.body));return accepted(input,init);});
+ let response=await call('POST','',{schemaVersion:2,researchInput});assert.equal(response.status,201);
+ let brief=(await response.json()).brief;const path='/'+brief.id;
+ const complete=client(db,async input=>Response.json({...emptyJob,id:new URL(input).pathname.split('/').pop(),...metadata}));
+ brief=(await(await complete('GET',path)).json()).brief;const originalVersion=brief.revision;
+ const updated={...researchInput,industry:'Restaurant technology'};
+ assert.equal((await call('PATCH',path,{revision:brief.revision,researchInput:updated},902)).status,404);
+ response=await call('PATCH',path,{revision:brief.revision,researchInput:updated});assert.equal(response.status,200);brief=(await response.json()).brief;
+ assert.deepEqual(brief.researchInput,updated);assert.ok(brief.title.includes(updated.industry));
+ assert.equal((await call('PATCH',path,{revision:originalVersion,researchInput})).status,409);
+ assert.equal((await call('PATCH',path,{revision:brief.revision,researchInput:null})).status,400);
+ let chatPayload;const chat=client(db,async(_input,init)=>{chatPayload=JSON.parse(init.body);return Response.json({answer:'Saved research scope',cost:{toolMicro:0,modelUsd:null}});});
+ assert.equal((await chat('POST',path+'/chat',{question:'What could a young founder build?'})).status,409);assert.equal(chatPayload,undefined);
+ response=await call('POST',path+'/run',{revision:brief.revision});assert.equal(response.status,200);brief=(await response.json()).brief;
+ assert.deepEqual(payloads.at(-1).researchInput,updated);assert.equal(payloads.at(-1).section,null);assert.deepEqual(payloads.at(-1).sections,[]);assert.deepEqual(payloads.at(-1).sources,[]);
+ for(const key of ['coverage','modelInfo','failure'])assert.equal(key in brief,false,'old run '+key);
+ brief=(await(await complete('GET',path)).json()).brief;
+ response=await chat('POST',path+'/chat',{question:'What could a young founder build?',researchInput:{...researchInput,audienceCountry:'US'}});assert.equal(response.status,200);brief=(await response.json()).brief;
+ assert.deepEqual(chatPayload.researchInput,updated);
+ for(const key of ['schemaVersion','coverage','modelInfo','failure','id','revision','shared','needsResearch'])assert.equal(key in chatPayload,false,key);
+ brief=(await(await call('POST',path+'/restore',{revision:brief.revision,version:originalVersion})).json()).brief;
+ assert.deepEqual(brief.researchInput,researchInput);assert.deepEqual(brief.modelInfo,metadata.modelInfo);db.sqlite.close();
+});
+
+test('new section-specific public runs are rejected without provider calls or changing saved work',async()=>{
+ const db=database();let calls=0;const call=client(db,async(...args)=>{calls++;return accepted(...args);});
+ let brief=(await(await call('POST','',{title:'Legacy founder'})).json()).brief;const path='/'+brief.id;
+ brief=(await(await call('POST',path+'/cancel',{})).json()).brief;
+ const before=db.sqlite.prepare('SELECT document_json FROM research_briefs WHERE id=?').get(brief.id).document_json;calls=0;
+ for(const section of ['main','snacks','unknown',null]){
+  const res=await call('POST',path+'/run',{revision:brief.revision,section});assert.equal(res.status,400);
+ }
+ assert.equal(calls,0);assert.equal(db.sqlite.prepare('SELECT document_json FROM research_briefs WHERE id=?').get(brief.id).document_json,before);
+ assert.equal((await call('POST',path+'/run',{revision:brief.revision})).status,200);db.sqlite.close();
+});
+
+test('active and terminal receipts persist safe diagnostics without metadata-only report versions',async()=>{
+ const db=database();const call=client(db,async(...args)=>accepted(...args));
+ const created=(await(await call('POST','',{title:'Legacy founder'})).json()).brief;const path='/'+created.id;
+ const run=db.sqlite.prepare('SELECT current_run_id FROM research_briefs WHERE id=?').get(created.id).current_run_id;
+ const poll=client(db,async()=>Response.json({id:run,status:'running',progress:['Discovery'],...metadata,member_id:902}));
+ let result=await(await poll('GET',path)).json();assert.deepEqual(result.brief.coverage,metadata.coverage);assert.deepEqual(result.brief.modelInfo,metadata.modelInfo);assert.deepEqual(result.brief.failure,metadata.failure);
+ assert.equal(result.brief.revision,created.revision);assert.deepEqual(result.versions,[]);assert.equal('member_id' in result.brief,false);
+ const terminal=client(db,async()=>Response.json({...emptyJob,id:run,status:'partial',...metadata,sections:[...emptyJob.sections,{key:'desserts',title:'Desserts',content:'',status:'failed',failure:metadata.failure}]}));
+ result=await(await terminal('GET',path)).json();assert.deepEqual(result.brief.sections[1].failure,metadata.failure);assert.equal(result.brief.cost.modelUsd,null);
+ const reopened=await(await call('GET',path)).json();assert.deepEqual(reopened.brief.modelInfo,metadata.modelInfo);assert.equal(reopened.versions.length,1);
+ const shared=(await(await call('PATCH',path,{revision:reopened.brief.revision,shared:true})).json()).brief;
+ assert.deepEqual((await(await call('GET',path,undefined,902)).json()).brief.coverage,metadata.coverage);
+ assert.equal((await call('GET',path+'/versions/'+shared.revision,undefined,902)).status,404);db.sqlite.close();
+});
+
+test('cancel terminal receipts retain diagnostics and clear prior failure on successful replacement',async()=>{
+ const db=database();const call=client(db,async(input,init)=>init.method==='GET'?Response.json({...emptyJob,id:new URL(input).pathname.split('/').pop(),status:'cancelled',...metadata}):accepted(input,init));
+ let brief=(await(await call('POST','',{title:'Founder'})).json()).brief;const path='/'+brief.id;
+ brief=(await(await call('POST',path+'/cancel',{})).json()).brief;
+ assert.deepEqual(brief.failure,metadata.failure);assert.deepEqual(brief.modelInfo,metadata.modelInfo);assert.deepEqual(brief.coverage,metadata.coverage);
+ brief=(await(await call('POST',path+'/run',{revision:brief.revision})).json()).brief;assert.equal('failure' in brief,false);db.sqlite.close();
+});
+
+test('runner transport failures expose safe categories without response bodies or credentials',async()=>{
+ const {researchRunner}=await import('../src/research-runner.ts');
+ const env={RESEARCH_RUNNER_URL:'https://runner.example',RESEARCH_RUNNER_TOKEN:'fixture-credential'};
+ for(const [status,code,retryable] of [[401,'authentication',false],[403,'authentication',false],[429,'rate_limit',true],[503,'provider_unavailable',true],[422,'invalid_output',false]]){
+  await assert.rejects(()=>researchRunner(env,'/jobs','GET',undefined,async()=>new Response('Bearer fixture-credential private-title',{status})),e=>{
+   assert.deepEqual(e.failure,{stage:'runner',code,retryable});assert.doesNotMatch(JSON.stringify(e),/fixture-credential|private-title/);return true;
+  });
+ }
+ await assert.rejects(()=>researchRunner(env,'/jobs','GET',undefined,async()=>{throw new DOMException('private-title','TimeoutError');}),e=>{
+  assert.deepEqual(e.failure,{stage:'runner',code:'timeout',retryable:true});return true;
+ });
+});
+
+test('safe transport failures reach the API while transient poll diagnostics do not mutate saved versions',async()=>{
+ const db=database();const call=client(db,async(...args)=>accepted(...args));
+ const created=(await(await call('POST','',{title:'Founder'})).json()).brief;const path='/'+created.id;
+ const outage=client(db,async()=>new Response('private-provider-body',{status:429}));
+ const response=await outage('GET',path);assert.equal(response.status,200);const {brief,versions}=await response.json();
+ assert.deepEqual(brief.failure,{stage:'runner',code:'rate_limit',retryable:true});assert.deepEqual(versions,[]);assert.equal(brief.revision,created.revision);
+ assert.equal('failure' in JSON.parse(db.sqlite.prepare('SELECT document_json FROM research_briefs').get().document_json),false);
+ const reject=client(db,async()=>new Response('private-provider-body',{status:422}));
+ const failed=await reject('POST','',{title:'Other founder'});assert.equal(failed.status,502);
+ assert.deepEqual((await failed.json()).failure,{stage:'runner',code:'invalid_output',retryable:false});
+ const saved=JSON.parse(db.sqlite.prepare("SELECT document_json FROM research_briefs WHERE json_extract(document_json,'$.title')='Other founder'").get().document_json);
+ assert.deepEqual(saved.failure,{stage:'runner',code:'invalid_output',retryable:false});assert.doesNotMatch(JSON.stringify(saved),/private-provider-body/);db.sqlite.close();
+});
+
+test('successful terminal result clears a transient run failure without rewriting retained model identity',async()=>{
+ const db=database();const call=client(db,async(...args)=>accepted(...args));
+ const created=(await(await call('POST','',{title:'Founder'})).json()).brief;const path='/'+created.id;
+ const active=client(db,async input=>Response.json({id:new URL(input).pathname.split('/').pop(),status:'running',...metadata}));
+ await active('GET',path);
+ const complete=client(db,async input=>Response.json({...emptyJob,id:new URL(input).pathname.split('/').pop(),sections:['snacks','appetizers','main','desserts'].map(key=>({key,title:key,status:'completed',content:'Evidence retained.'}))}));
+ const brief=(await(await complete('GET',path)).json()).brief;assert.equal(brief.status,'completed');assert.equal('failure' in brief,false);assert.deepEqual(brief.modelInfo,metadata.modelInfo);db.sqlite.close();
+});
+
+test('initial active acknowledgement retains validated model and coverage without an extra version',async()=>{
+ const db=database();const call=client(db,async(input,init)=>Response.json({id:JSON.parse(init.body).id,status:'queued',...metadata}));
+ const response=await call('POST','',{title:'Founder'});assert.equal(response.status,201);const {brief}=await response.json();
+ assert.deepEqual(brief.coverage,metadata.coverage);assert.deepEqual(brief.modelInfo,metadata.modelInfo);assert.deepEqual(brief.failure,metadata.failure);
+ assert.equal(brief.revision,2);assert.equal(db.sqlite.prepare('SELECT COUNT(*) AS n FROM research_versions').get().n,2);
+ assert.deepEqual(JSON.parse(db.sqlite.prepare('SELECT document_json FROM research_briefs').get().document_json).modelInfo,metadata.modelInfo);db.sqlite.close();
+});
+
+test('sharing and chat metadata changes do not become additional visible report snapshots',async()=>{
+ const db=database();const call=client(db,async(...args)=>accepted(...args));
+ let brief=(await(await call('POST','',{title:'Founder'})).json()).brief;const path='/'+brief.id;
+ const complete=client(db,async input=>Response.json({...emptyJob,id:new URL(input).pathname.split('/').pop()}));
+ let result=await(await complete('GET',path)).json();brief=result.brief;assert.equal(result.versions.length,1);
+ brief=(await(await call('PATCH',path,{revision:brief.revision,shared:true})).json()).brief;
+ const chat=client(db,async()=>Response.json({answer:'Evidence-based answer',cost:{toolMicro:0,modelUsd:null}}));
+ brief=(await(await chat('POST',path+'/chat',{question:'Explain the evidence'})).json()).brief;
+ result=await(await call('GET',path)).json();assert.equal(result.versions.length,1);
+ brief=(await(await call('PATCH',path,{revision:brief.revision,sections:[{...emptyJob.sections[0],content:'Owner-edited report content'}]})).json()).brief;
+ result=await(await call('GET',path)).json();assert.equal(result.versions.length,2);assert.equal(result.versions[0].revision,brief.revision);db.sqlite.close();
+});
+
+test('changed scope preserves the report but blocks chat until the current run delivers fresh content',async()=>{
+ const db=database();const call=client(db,async(...args)=>accepted(...args));
+ let brief=(await(await call('POST','',{schemaVersion:2,researchInput})).json()).brief;const path='/'+brief.id;
+ const source={id:'s1',title:'Original evidence',url:'https://example.com/original',excerpt:'Original scope evidence',retrievedAt:'2026-10-20T00:00:00Z'};
+ const sections=[{key:'snacks',title:'Profile',content:'Original report [s1]',status:'completed'}];
+ const complete=client(db,async input=>Response.json({...emptyJob,id:new URL(input).pathname.split('/').pop(),sections,sources:[source]}));
+ brief=(await(await complete('GET',path)).json()).brief;const originalVersion=brief.revision;
+ brief=(await(await call('PATCH',path,{revision:brief.revision,researchInput:{...researchInput,companyName:'New company'}})).json()).brief;
+ assert.equal(brief.needsResearch,true);assert.deepEqual(brief.sections,sections);assert.deepEqual(brief.sources,[source]);
+ const staleVersion=brief.revision;
+ let chatCalls=0;const chat=client(db,async()=>{chatCalls++;return Response.json({answer:'New scope answer',cost:{toolMicro:0,modelUsd:null}});});
+ const blocked=await chat('POST',path+'/chat',{question:'Discuss the new company'});assert.equal(blocked.status,409);assert.equal((await blocked.json()).error,'research_not_ready');assert.equal(chatCalls,0);
+ const reopened=(await(await call('GET',path)).json()).brief;assert.equal(reopened.needsResearch,true);
+ assert.equal((await(await call('GET',path+'/versions/'+staleVersion)).json()).brief.needsResearch,true);
+ assert.deepEqual((await(await call('GET',path+'/versions/'+originalVersion)).json()).brief.sections,sections);
+ brief=(await(await call('POST',path+'/run',{revision:brief.revision})).json()).brief;assert.equal(brief.needsResearch,true);
+ const freshSections=[{...sections[0],content:'Fresh report for the new company [s1]'}];
+ const fresh=client(db,async input=>Response.json({...emptyJob,id:new URL(input).pathname.split('/').pop(),sections:freshSections,sources:[source]}));
+ brief=(await(await fresh('GET',path)).json()).brief;assert.equal(brief.needsResearch,false);assert.deepEqual(brief.sections,freshSections);
+ assert.equal((await chat('POST',path+'/chat',{question:'Discuss the new company'})).status,200);assert.equal(chatCalls,1);db.sqlite.close();
+});
+
+test('normalized no-op input and presentation edits do not invalidate research; later edits cannot clear the flag',async()=>{
+ const db=database();const call=client(db,async(...args)=>accepted(...args));
+ let brief=(await(await call('POST','',{schemaVersion:2,researchInput})).json()).brief;const path='/'+brief.id;
+ const complete=client(db,async input=>Response.json({...emptyJob,id:new URL(input).pathname.split('/').pop()}));
+ brief=(await(await complete('GET',path)).json()).brief;
+ brief=(await(await call('PATCH',path,{revision:brief.revision,researchInput:{...researchInput,guestName:' '+researchInput.guestName+' ',industry:' '+researchInput.industry+' '}})).json()).brief;
+ assert.notEqual(brief.needsResearch,true);
+ brief=(await(await call('PATCH',path,{revision:brief.revision,title:'Presentation title',shared:true})).json()).brief;assert.notEqual(brief.needsResearch,true);
+ brief=(await(await call('PATCH',path,{revision:brief.revision,researchInput:{...researchInput,industry:'New industry'}})).json()).brief;assert.equal(brief.needsResearch,true);
+ // Reverting input, editing prose, or changing metadata is not a new research receipt.
+ brief=(await(await call('PATCH',path,{revision:brief.revision,researchInput,sections:emptyJob.sections,notes:'New private note',notesApproved:true})).json()).brief;
+ assert.equal(brief.needsResearch,true);
+ assert.equal((await(await call('GET',path,undefined,902)).json()).brief.needsResearch,true);db.sqlite.close();
+});
+
+test('legacy title changes invalidate existing sections but whitespace and empty drafts do not',async()=>{
+ const db=database();const call=client(db,async(...args)=>accepted(...args));
+ let brief=(await(await call('POST','',{title:'Original founder'})).json()).brief;const path='/'+brief.id;
+ brief=(await(await call('POST',path+'/cancel',{})).json()).brief;
+ brief=(await(await call('PATCH',path,{revision:brief.revision,title:'Other founder'})).json()).brief;assert.notEqual(brief.needsResearch,true);
+ brief=(await(await call('PATCH',path,{revision:brief.revision,sections:emptyJob.sections})).json()).brief;
+ brief=(await(await call('PATCH',path,{revision:brief.revision,title:' Other founder '})).json()).brief;assert.notEqual(brief.needsResearch,true);
+ brief=(await(await call('PATCH',path,{revision:brief.revision,title:'Different founder'})).json()).brief;assert.equal(brief.needsResearch,true);db.sqlite.close();
+});
+
+test('metadata, wrong-run and empty terminal receipts cannot clear stale scope or erase retained work',async()=>{
+ const db=database();const call=client(db,async(...args)=>accepted(...args));
+ let brief=(await(await call('POST','',{title:'Original founder'})).json()).brief;const path='/'+brief.id;
+ const complete=client(db,async input=>Response.json({...emptyJob,id:new URL(input).pathname.split('/').pop()}));
+ brief=(await(await complete('GET',path)).json()).brief;
+ brief=(await(await call('PATCH',path,{revision:brief.revision,title:'Different founder'})).json()).brief;
+ const retained=brief.sections;
+ brief=(await(await call('POST',path+'/run',{revision:brief.revision})).json()).brief;
+ const progress=client(db,async input=>Response.json({id:new URL(input).pathname.split('/').pop(),status:'running',...metadata,needsResearch:false}));
+ brief=(await(await progress('GET',path)).json()).brief;assert.equal(brief.needsResearch,true);assert.deepEqual(brief.sections,retained);
+ const wrongRun=client(db,async()=>Response.json({...emptyJob,id:'rrun_wrong',needsResearch:false}));
+ assert.equal((await wrongRun('GET',path)).status,502);
+ for(const [status,sections] of [['failed',[]],['clarification',[]],['failed',[{key:'snacks',title:'Unavailable',status:'failed',content:'This section could not be completed.'}]]]){
+  const failure=client(db,async input=>Response.json({...emptyJob,id:new URL(input).pathname.split('/').pop(),status,sections,sources:[],needsResearch:false}));
+  brief=(await(await failure('GET',path)).json()).brief;
+  assert.equal(brief.needsResearch,true);assert.deepEqual(brief.sections,retained);
+  brief=(await(await call('POST',path+'/run',{revision:brief.revision})).json()).brief;
+ }
+ brief=(await(await call('POST',path+'/cancel',{})).json()).brief;assert.equal(brief.needsResearch,true);db.sqlite.close();
+});
+
+test('restore uses the snapshot flag and matching scope: clean snapshots allow chat, dirty snapshots block it',async()=>{
+ const db=database();const call=client(db,async(...args)=>accepted(...args));
+ let brief=(await(await call('POST','',{schemaVersion:2,researchInput})).json()).brief;const path='/'+brief.id;
+ const sources=[{id:'s1',title:'Original evidence',url:'https://example.com/original',excerpt:'Original scope evidence',retrievedAt:'2026-10-20T00:00:00Z'}];
+ const complete=client(db,async input=>Response.json({...emptyJob,id:new URL(input).pathname.split('/').pop(),sources}));
+ brief=(await(await complete('GET',path)).json()).brief;const original=brief;
+ const changedInput={...researchInput,companyName:'New company'};
+ brief=(await(await call('PATCH',path,{revision:brief.revision,researchInput:changedInput})).json()).brief;const staleVersion=brief.revision;
+ assert.equal(brief.needsResearch,true);
+ brief=(await(await call('POST',path+'/restore',{revision:brief.revision,version:original.revision})).json()).brief;
+ assert.equal(brief.needsResearch,original.needsResearch);
+ assert.deepEqual(brief.researchInput,original.researchInput);assert.equal(brief.title,original.title);
+ assert.deepEqual(brief.sections,original.sections);assert.deepEqual(brief.sources,original.sources);
+ let chatCalls=0;
+ const chat=client(db,async(input,init)=>{
+  chatCalls++;const payload=JSON.parse(init.body);
+  assert.deepEqual(payload.researchInput,original.researchInput);assert.deepEqual(payload.sections,original.sections);assert.deepEqual(payload.sources,original.sources);
+  return Response.json({answer:'Answer from the original scope',cost:{toolMicro:0,modelUsd:null}});
+ });
+ const allowed=await chat('POST',path+'/chat',{question:'Explain the original scope'});
+ assert.equal(allowed.status,200);brief=(await allowed.json()).brief;assert.equal(chatCalls,1);
+ brief=(await(await call('POST',path+'/restore',{revision:brief.revision,version:staleVersion})).json()).brief;
+ assert.equal(brief.needsResearch,true);assert.deepEqual(brief.researchInput,changedInput);
+ const blocked=await chat('POST',path+'/chat',{question:'Explain the changed scope'});
+ assert.equal(blocked.status,409);assert.equal((await blocked.json()).error,'research_not_ready');assert.equal(chatCalls,1);db.sqlite.close();
+});
+
+test('clients cannot supply needsResearch on creation, edits or action requests',async()=>{
+ const db=database();const call=client(db,async(...args)=>accepted(...args));
+ for(const needsResearch of [false,true,null,'false']){
+  assert.equal((await call('POST','',{title:'Founder',needsResearch})).status,400);
+ }
+ let brief=(await(await call('POST','',{title:'Founder'})).json()).brief;const path='/'+brief.id;
+ brief=(await(await call('POST',path+'/cancel',{})).json()).brief;const revision=brief.revision;
+ for(const [method,suffix,input] of [['PATCH','',{title:'New founder'}],['POST','/run',{}],['POST','/restore',{version:1}],['POST','/chat',{question:'Test'}]]){
+  assert.equal((await call(method,path+suffix,{revision,needsResearch:false,...input})).status,400);
+ }
+ assert.equal((await(await call('GET',path)).json()).brief.revision,revision);db.sqlite.close();
 });
