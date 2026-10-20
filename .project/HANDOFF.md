@@ -1,3 +1,40 @@
+## 2026-10-20 — Research V2 deployed to staging
+
+- Owner authorized staging deployment and will perform the signed-in research
+  trial. Candidate `ee940302451a912a1d1f5c9f3739bc0a1e610560` pins the tested
+  container image; application source is unchanged from `474089e`. No push,
+  production deployment, credential change or shared migration was performed.
+- Staging migration inventory has no pending migrations. Existing secret
+  binding names were preserved across all three Workers. Web binds only to
+  staging Edge/self; Edge retains staging D1 plus the Alpha inference bridge.
+- Deployed versions, each read back at 100% traffic:
+  Edge `1ec66d09-59bc-4563-954c-7b5c5f9d36cf`;
+  Research `c5414d51-13d3-4d3f-8e2e-afef2e817b6b`;
+  Web `cf4c7f99-31fe-4aaf-b74c-ed5092ce7b60`.
+  Custom Domain remains `beta-staging.wtfhq.in`.
+- Runner image:
+  `registry.cloudflare.com/8f380cb5640467030b647e12773efb46/wtfmedia-research-staging@sha256:6b59ea1cbb7f007f449220262ca8fd4f865a8852c6f666e651bb2c03ebf6e1b7`.
+  Containers application API confirms version 2 and completed rollout
+  `bb603334-af96-468f-96fb-a27ea2cadcac`, with no health errors. The dashboard
+  summary briefly returned the old version; the application/rollout API was
+  used for verification. No active research was started for this deployment.
+- VERIFIED: all 13 image Python runtime files match committed source; isolated
+  OpenNext build, three dry-run packages, hosted-store tests and typecheck pass.
+  Compiled/live public Clerk key matches the staging issuer. Live API health
+  reports staging and Alpha corpus authority. Root redirects; sign-in and
+  research page return 200; live research assets contain Guest/Company/Industry.
+  Principal, research status/list and social status reject signed-out access.
+- User chose to test the signed-in flow themselves. This receipt does not claim
+  a new hosted report completed, real-user privacy matrix, Safari acceptance,
+  or a rollback rehearsal. The runner is idle until work is requested.
+- Rollback versions: Edge `83f831ed-9ea8-47e4-8d18-211db91c5c45`;
+  Research `b7cf82e5-4301-494f-99c9-9720d6e10725`;
+  Web `c8e5c646-baef-4853-8d59-3ca5f468cd41`.
+  Prior image digest:
+  `sha256:fc404877fe5b93debbe426e09ed99f7b3f4331292b614f1d53d32365c4874549`.
+  Disable V2 submissions before any old-runner rollback; preserve Durable
+  Object and D1 state. Worker rollback alone is not an image/state rollback.
+
 ## 2026-10-20 — Research V2 implemented locally
 
 - Owner approved the complete research flow. Continued on `feature/pavun`;
