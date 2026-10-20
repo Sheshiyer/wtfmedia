@@ -1,3 +1,40 @@
+## 2026-10-20 — Research model pinned to OpenRouter GLM 5.3 (local)
+
+- Owner stopped their staging research and requested a model-only investigation,
+  then explicitly chose OpenRouter GLM 5.3 instead of OmniRoute auto-routing.
+  No stopped research was resumed or replaced. No deployment, push, shared
+  migration, secret upload, or host OmniRoute configuration change occurred.
+- Bounded synthetic diagnostics observed the old alias returning different
+  model identifiers. One writer began answering around 170 seconds; other calls
+  hit the 180-second client deadline. Reasoning-control probes did not establish
+  a reliable improvement. This shows request/route latency, not proof of an
+  internal provider queue or an infrastructure fault. Historical telemetry access
+  remained unauthorized; saved-run failure metadata was available.
+- Research now always requests `z-ai/glm-5.3` from OpenRouter with low reasoning
+  effort, streaming and existing privacy/price constraints. Legacy OmniRoute
+  settings do not override it. Missing OpenRouter credentials fail before budget
+  reservation. Local launcher, GPTR config, model metadata and container secret
+  forwarding use the same route. Historical saved model receipts remain intact.
+- Live synthetic writer probe with about 24 KB input completed in 19.27 seconds,
+  returned 4,824 characters with source markers, and reported `z-ai/glm-5.3`;
+  usage was 4,931 input / 1,010 output tokens, billed $0.001804. An actual search
+  guidance parser probe returned valid priorities/date constraints in 2.31 seconds,
+  billed $0.000126. Only synthetic evidence/notes were sent. These are model-call
+  checks, not a full report latency or editorial acceptance result.
+- Earlier local performance fixes are retained: whole-brief preparation and
+  summary checkpoints are reused across section writers/retries, large evidence
+  batches are 48 KB, provider success timing is logged, and an answer starting
+  before its deadline gets one bounded 120-second completion window. Reasoning
+  and heartbeats cannot extend the deadline; incomplete/truncated streams fail.
+- VERIFIED-SOURCE: 124 Python tests, hosted-store tests (4), TypeScript and diff
+  checks pass. Regression cases cover legacy gateway settings, missing keys,
+  usage/cost, streaming completion/stalls, durable preparation and full source
+  pools with real call/spend guards. Full live research and staging UI are untested.
+- Before a future authorized staging deploy, add the existing OpenRouter key to
+  the research host's `OPENROUTER_API_KEY` secret (Edge secrets are not inherited),
+  build/test/pin a new runner image, and deploy the matching host source. The
+  current deployed image/Worker still use the preceding OmniRoute implementation.
+
 ## 2026-10-20 — Balanced research runner deployed to staging
 
 - Owner authorized deployment, then reserved the full report timing test for

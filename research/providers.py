@@ -18,7 +18,7 @@ from .contracts import safe_url
 from urllib.parse import urlsplit, urlencode
 from .store import BudgetExceeded, Stopped, digest, encode
 
-MODEL = 'deepseek/deepseek-v4-flash-0731'
+MODEL = 'z-ai/glm-5.3'
 TOOL = 'perplexity.web.search'
 EXTRACT = 'exa.web.contents.get'
 TOOL_RESERVE = 5000
@@ -35,28 +35,15 @@ class ProviderError(Exception):
 
 
 def model_endpoint():
-    base = os.environ.get('OMNIROUTE_BASE_URL', '').strip().rstrip('/')
-    key = os.environ.get('OMNIROUTE_API_KEY', '').strip()
-    if base or key:
-        try:
-            url = urlsplit(base)
-            valid = (url.scheme == 'https' and url.hostname and not url.username
-                     and not url.password and not url.query and not url.fragment)
-        except ValueError:
-            valid = False
-        if not valid or not key:
-            raise ProviderError('incomplete or invalid OmniRoute configuration')
-        return base, key
     return 'https://openrouter.ai/api/v1', os.environ.get('OPENROUTER_API_KEY', '').strip()
 
 
 def model_name():
-    return 'noesis-research' if os.environ.get('OMNIROUTE_BASE_URL', '').strip() else MODEL
+    return MODEL
 
 
 def model_info():
-    return {'service': 'omniroute' if os.environ.get('OMNIROUTE_BASE_URL', '').strip() else 'openrouter',
-            'requestedModel': model_name()}
+    return {'service': 'openrouter', 'requestedModel': model_name()}
 
 
 def reported_model(value):
@@ -135,8 +122,13 @@ class Network:
         provider = 'treg' if host == 'treg.to' else 'openrouter' if host == 'openrouter.ai' else 'omniroute'
         operation = ('catalog' if '/catalog/endpoints/' in url else 'model' if urlsplit(url).path.endswith('/chat/completions')
                      else 'extract' if EXTRACT in url else 'search' if TOOL in url else 'social_search')
+        emit(dict(stage='runner', status='started', provider=provider, operation=operation,
+                  requestBytes=len(encode(body).encode()) if body is not None else 0))
         try:
-            return self._request(method, url, headers, body)
+            result = self._request(method, url, headers, body)
+            emit(dict(stage='runner', status='completed', provider=provider, operation=operation,
+                      elapsedMs=int((time.monotonic() - started) * 1000)))
+            return result
         except ProviderError as error:
             error.details.update(provider=provider, operation=operation)
             emit(dict(stage='runner', status='failed', code=error.code, **error.details,
@@ -148,9 +140,8 @@ class Network:
         data = bytearray()
         try:
             deadline = time.monotonic() + 180
-            omni_base = os.environ.get('OMNIROUTE_BASE_URL', '').strip().rstrip('/')
-            # Gateway reasoning can delay the first content chunk.
-            read_timeout = 180 if omni_base and url == omni_base + '/chat/completions' else 45
+            # Model reasoning can delay the first content chunk.
+            read_timeout = 180 if url == 'https://openrouter.ai/api/v1/chat/completions' else 45
             with httpx.Client(timeout=httpx.Timeout(45, read=read_timeout),
                               follow_redirects=False, trust_env=False) as client:
                 with client.stream(method, url, headers=headers, json=body) as response:
@@ -164,12 +155,47 @@ class Network:
                         error.details['httpStatus'] = response.status_code
                         raise error
                     data = bytearray()
+                    pending = b''
+                    content_started = done = False
                     for chunk in response.iter_bytes():
-                        if time.monotonic() > deadline:
+                        now = time.monotonic()
+                        if now > deadline:
                             raise ProviderError('provider deadline exceeded', code='timeout', reason='deadline')
                         data.extend(chunk)
                         if len(data) > MAX_RESPONSE:
                             raise ProviderError('provider response too large', reason='response_too_large')
+                        if body and body.get('stream'):
+                            pending += chunk
+                            while b'\n' in pending:
+                                line, pending = pending.split(b'\n', 1)
+                                if not line.startswith(b'data:'):
+                                    continue
+                                value = line[5:].strip()
+                                if value == b'[DONE]':
+                                    done = True
+                                    break
+                                try:
+                                    event = json.loads(value)
+                                except ValueError:
+                                    raise ProviderError('invalid gateway stream', reason='stream_invalid') from None
+                                if not isinstance(event, dict):
+                                    raise ProviderError('invalid gateway stream', reason='stream_invalid')
+                                if event.get('error'):
+                                    stream_response(b'data: ' + value)
+                                choices = event.get('choices', [])
+                                if not isinstance(choices, list):
+                                    raise ProviderError('invalid gateway stream', reason='stream_invalid')
+                                if not content_started and any(
+                                    isinstance(c, dict) and c.get('index', 0) == 0
+                                    and isinstance(c.get('delta'), dict)
+                                    and isinstance(c['delta'].get('content'), str) and c['delta']['content']
+                                    for c in choices
+                                ):
+                                    # Give an answer that starts in time one bounded completion window.
+                                    content_started = True
+                                    deadline = max(deadline, now + 120)
+                            if done:
+                                break
                     payload = stream_response(data) if body and body.get('stream') else json.loads(data)
                     return redact(payload), dict(response.headers)
         except ProviderError as error:
@@ -366,7 +392,7 @@ class Calls:
         try:
             return self._model(messages, max_tokens)
         except ProviderError as error:
-            error.details.setdefault('provider', 'runner' if error.details.get('reason') == 'context_limit' else 'omniroute' if os.environ.get('OMNIROUTE_BASE_URL') else 'openrouter')
+            error.details.setdefault('provider', 'runner' if error.details.get('reason') == 'context_limit' else 'openrouter')
             error.details.setdefault('operation', 'model')
             from .diagnostics import emit
             emit(dict(stage='runner', status='failed', code=error.code, **error.details,
@@ -379,6 +405,8 @@ class Calls:
             if len(encode(messages).encode('utf-8')) > 90000:
                 raise ProviderError('model context exceeds bound', reason='context_limit')
             base, api_key = model_endpoint()
+            if not api_key:
+                raise ProviderError('OpenRouter is not configured', code='authentication', reason='missing_api_key')
             # Each model attempt reserves separately; retries are not assumed free.
             key = 'model_' + uuid4().hex
             self.store.reserve(self.job_id, self.lease, key, 'model', MODEL_RESERVE)
@@ -386,17 +414,13 @@ class Calls:
             self.stage_calls += 1
             body = {'model': model_name(), 'messages': messages,
                     'max_tokens': min(max_tokens or 1800, 12000),
-                    'temperature': 0.2, 'stream': False}
-            if model_name() == MODEL:
-                body.update({'reasoning': {'effort': 'low'},
-                             'provider': {'allow_fallbacks': False, 'require_parameters': True,
-                                          'data_collection': 'deny',
-                                          'max_price': {'prompt': 1, 'completion': 10, 'request': 0}},
-                             'usage': {'include': True}})
-            else:
-                body['stream'] = True
-                body['stream_options'] = {'include_usage': True}
-            # OmniRoute owns upstream routing; OpenRouter-specific controls do not apply.
+                    'temperature': 0.2, 'stream': True,
+                    'stream_options': {'include_usage': True},
+                    'reasoning': {'effort': 'low'},
+                    'provider': {'allow_fallbacks': False, 'require_parameters': True,
+                                 'data_collection': 'deny',
+                                 'max_price': {'prompt': 1, 'completion': 10, 'request': 0}},
+                    'usage': {'include': True}}
             payload, _ = self.network.request('POST', base + '/chat/completions', {
                 'Authorization': 'Bearer ' + api_key,
             }, body)

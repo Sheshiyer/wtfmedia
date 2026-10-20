@@ -8,6 +8,19 @@ from research.diagnostics import failure, emit
 from research.api import relay_diagnostics
 
 class FailureDetailsTests(unittest.TestCase):
+    def test_successful_request_logs_duration_without_content(self):
+        capture = io.StringIO()
+        with patch.object(Network, '_request', return_value=({'content': 'PRIVATE_ANSWER'}, {})), \
+                patch('research.providers.time.monotonic', side_effect=[10, 12.5]), \
+                redirect_stderr(capture):
+            Network().request('POST', 'https://gateway.example/v1/chat/completions',
+                              {'Authorization': 'PRIVATE_KEY'}, {'messages': ['PRIVATE_INPUT']})
+        events = [json.loads(line) for line in capture.getvalue().splitlines()]
+        self.assertEqual([e['status'] for e in events], ['started', 'completed'])
+        self.assertEqual(events[-1]['elapsedMs'], 2500)
+        self.assertEqual(events[-1]['operation'], 'model')
+        self.assertNotIn('PRIVATE', capture.getvalue())
+
     def test_http_status_and_operation_survive_without_response_body(self):
         response=MagicMock(status_code=503, headers={})
         response.iter_bytes.return_value=iter([b'PRIVATE_SERVER_TEXT'])

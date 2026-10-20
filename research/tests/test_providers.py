@@ -37,6 +37,9 @@ class Network:
 
 class ProviderTests(unittest.TestCase):
     def setUp(self):
+        credentials = patch.dict(os.environ, {'OPENROUTER_API_KEY': 'fixture-key'})
+        credentials.start()
+        self.addCleanup(credentials.stop)
         self.tmp = tempfile.TemporaryDirectory()
         self.store = Store(Path(self.tmp.name)/'db.sqlite')
         self.body = body()
@@ -46,51 +49,48 @@ class ProviderTests(unittest.TestCase):
         self.calls = Calls(self.store,*self.claim[:2],network=self.net)
     def tearDown(self):
         self.tmp.cleanup()
-    def test_omniroute_routes_only_model_calls_and_keeps_unknown_cost(self):
-        original = self.net.request
-        def gateway(method, url, headers, body=None):
-            if url == 'https://gateway.example/v1/chat/completions':
-                self.assertEqual(headers['Authorization'], 'Bearer omni-test-secret')
-                self.assertEqual(body['model'], 'noesis-research')
-                self.assertTrue(body['stream'])
-                self.assertNotIn('provider', body)
-                self.assertNotIn('usage', body)
-                return {'choices': [{'finish_reason': 'stop', 'message': {'content': 'Answer'}}],
-                        'usage': {'total_tokens': 20}}, {}
-            return original(method, url, headers, body)
-        self.net.request = gateway
+    def test_research_uses_openrouter_even_with_legacy_gateway_settings(self):
+        from research.providers import model_info
         with patch.dict(os.environ, {'OMNIROUTE_BASE_URL': 'https://gateway.example/v1/',
-                                     'OMNIROUTE_API_KEY': 'omni-test-secret'}):
-            self.assertEqual(self.calls.model([{'role': 'user', 'content': 'Public'}]), 'Answer')
-            self.assertIsNone(self.store.get(self.claim[0])['cost']['modelUsd'])
-            self.assertEqual(redact({'text': 'omni-test-secret'}), {'text': '[redacted]'})
+                                     'OMNIROUTE_API_KEY': 'omni-test-secret',
+                                     'OPENROUTER_API_KEY': 'openrouter-test-secret'}):
+            self.calls.model([{'role': 'user', 'content': 'Public'}])
+            _, url, headers, request = self.net.requests[-1]
+            self.assertEqual(url, 'https://openrouter.ai/api/v1/chat/completions')
+            self.assertEqual(headers['Authorization'], 'Bearer openrouter-test-secret')
+            self.assertEqual(request['model'], 'z-ai/glm-5.3')
+            self.assertTrue(request['stream'])
+            self.assertEqual(model_info(), {'service': 'openrouter', 'requestedModel': 'z-ai/glm-5.3'})
             self.calls.search('Public query')
             self.assertTrue(self.net.requests[-1][1].startswith('https://treg.to/'))
+            self.assertEqual(redact({'text': 'omni-test-secret'}), {'text': '[redacted]'})
 
-    def test_incomplete_or_unsafe_gateway_fails_before_network(self):
-        for url, key in [('https://gateway.example/v1', ''), ('', 'secret'),
-                         ('http://gateway.example/v1', 'secret'),
-                         ('https://user:pass@gateway.example/v1', 'secret'),
-                         ('https://gateway.example/v1?key=secret', 'secret')]:
-            with self.subTest(url=url), patch.dict(os.environ, {
-                    'OMNIROUTE_BASE_URL': url, 'OMNIROUTE_API_KEY': key}):
-                with self.assertRaises(ProviderError):
-                    self.calls.model([{'role': 'user', 'content': 'Public'}])
+    def test_missing_openrouter_key_never_falls_back_or_reserves_budget(self):
+        from research.providers import configured
+        with patch.dict(os.environ, {'OPENROUTER_API_KEY': '',
+                                     'OMNIROUTE_BASE_URL': 'https://gateway.example/v1',
+                                     'OMNIROUTE_API_KEY': 'secret'}):
+            self.assertFalse(configured())
+            with self.assertRaises(ProviderError) as caught:
+                self.calls.model([{'role': 'user', 'content': 'Public'}])
+            self.assertEqual(caught.exception.details['provider'], 'openrouter')
+            self.assertEqual(self.store.get(self.claim[0])['cost']['modelUsd'], 0)
         self.assertEqual(self.net.requests, [])
 
-    def test_launcher_loads_gateway_settings_without_unrelated_secrets(self):
+    def test_launcher_loads_openrouter_without_unrelated_secrets(self):
         from research.serve import load_provider_vars
         from research.providers import configured, model_name
         path = Path(self.tmp.name) / 'vars'
-        path.write_text('OMNIROUTE_BASE_URL=https://gateway.example/v1\n'
-                        'OMNIROUTE_API_KEY=omni-test-secret\nTREG_TOKEN=treg-test\n'
-                        'RESEARCH_RUNNER_TOKEN=runner-test\nUNRELATED_SECRET=hidden\n')
+        path.write_text('OPENROUTER_API_KEY=openrouter-test-secret\nTREG_TOKEN=treg-test\n'
+                        'RESEARCH_RUNNER_TOKEN=runner-test\nUNRELATED_SECRET=hidden\n'
+                        'OMNIROUTE_API_KEY=legacy-secret\n')
         with patch.dict(os.environ, {}, clear=True):
             load_provider_vars(path)
-            self.assertEqual(os.environ['OMNIROUTE_API_KEY'], 'omni-test-secret')
-            self.assertEqual(model_name(), 'noesis-research')
+            self.assertEqual(os.environ['OPENROUTER_API_KEY'], 'openrouter-test-secret')
+            self.assertEqual(model_name(), 'z-ai/glm-5.3')
             self.assertTrue(configured())
             self.assertNotIn('UNRELATED_SECRET', os.environ)
+            self.assertNotIn('OMNIROUTE_API_KEY', os.environ)
 
     def test_gateway_stream_requires_finished_text_and_preserves_usage(self):
         from research.providers import stream_response
@@ -110,14 +110,14 @@ class ProviderTests(unittest.TestCase):
             with self.assertRaises(ProviderError):
                 stream_response(invalid)
 
-    def test_gateway_stalls_do_not_wait_ten_minutes(self):
+    def test_openrouter_stalls_do_not_wait_ten_minutes(self):
         response = MagicMock(status_code=200)
         response.iter_bytes.return_value = iter([b'{}'])
         client = MagicMock()
         client.__enter__.return_value.stream.return_value.__enter__.return_value = response
         with patch.dict(os.environ, {'OMNIROUTE_BASE_URL': 'https://gateway.example/v1'}), \
                 patch('research.providers.httpx.Client', return_value=client) as factory:
-            ProviderNetwork().request('POST', 'https://gateway.example/v1/chat/completions', {})
+            ProviderNetwork().request('POST', 'https://openrouter.ai/api/v1/chat/completions', {})
             self.assertEqual(factory.call_args.kwargs['timeout'].read, 180)
             self.assertEqual(factory.call_args.kwargs['timeout'].connect, 45)
 
@@ -129,6 +129,54 @@ class ProviderTests(unittest.TestCase):
         with patch('research.providers.httpx.Client', return_value=client), patch('research.providers.time.monotonic', side_effect=[0, 0, 60, 181, 182]):
             with self.assertRaisesRegex(ProviderError, 'provider deadline exceeded'):
                 ProviderNetwork().request('GET', 'https://treg.to/catalog', {})
+
+    def test_stream_that_starts_in_time_can_finish_without_waiting_for_socket_close(self):
+        def chunks():
+            yield b'data: {"choices":[{"delta":{"con'
+            yield b'tent":"Answer"},"finish_reason":null}]}\n\n'
+            yield b'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n'
+            yield b'data: {"choices":[],"usage":{"total_tokens":20}}\n\ndata: [DONE]\n\n'
+            raise AssertionError('Must not wait for EOF after the SSE completion marker')
+        response = MagicMock(status_code=200)
+        response.iter_bytes.side_effect = chunks
+        client = MagicMock()
+        client.__enter__.return_value.stream.return_value.__enter__.return_value = response
+        with patch('research.providers.httpx.Client', return_value=client), \
+                patch('research.providers.time.monotonic', side_effect=[0, 169, 170, 220, 221]):
+            result, _ = ProviderNetwork()._request('POST', 'https://gateway.example/v1/chat/completions',
+                                                   {}, {'stream': True})
+        self.assertEqual(result['choices'][0]['message']['content'], 'Answer')
+        self.assertEqual(result['usage']['total_tokens'], 20)
+
+    def test_reasoning_and_keepalives_do_not_buy_completion_time(self):
+        for delta in [{'reasoning_content': 'Private reasoning'}, {'content': ''}, {}]:
+            response = MagicMock(status_code=200)
+            response.iter_bytes.return_value = iter([
+                ('data: ' + json.dumps({'choices': [{'delta': delta}]}) + '\n\n').encode(),
+                b': heartbeat\n\n',
+            ])
+            client = MagicMock()
+            client.__enter__.return_value.stream.return_value.__enter__.return_value = response
+            with self.subTest(delta=delta), patch('research.providers.httpx.Client', return_value=client), \
+                    patch('research.providers.time.monotonic', side_effect=[0, 170, 181]):
+                with self.assertRaisesRegex(ProviderError, 'deadline'):
+                    ProviderNetwork()._request('POST', 'https://gateway.example/v1/chat/completions',
+                                               {}, {'stream': True})
+
+    def test_continuous_output_cannot_extend_completion_forever(self):
+        response = MagicMock(status_code=200)
+        response.iter_bytes.return_value = iter([
+            b'data: {"choices":[{"delta":{"content":"Partial"}}]}\n\n',
+            b'data: {"choices":[{"delta":{"content":"Still partial"}}]}\n\n',
+            b'data: {"choices":[{"delta":{"content":"Too late"}}]}\n\n',
+        ])
+        client = MagicMock()
+        client.__enter__.return_value.stream.return_value.__enter__.return_value = response
+        with patch('research.providers.httpx.Client', return_value=client), \
+                patch('research.providers.time.monotonic', side_effect=[0, 170, 250, 291]):
+            with self.assertRaisesRegex(ProviderError, 'deadline'):
+                ProviderNetwork()._request('POST', 'https://gateway.example/v1/chat/completions',
+                                           {}, {'stream': True})
 
     def test_search_contract_cache_and_receipt(self):
         found = self.calls.search('Public query')
@@ -182,7 +230,7 @@ class ProviderTests(unittest.TestCase):
         self.calls.model([{'role':'user','content':'Public question'}],16000)
         paid = self.net.requests[-1][3]
         self.assertEqual(paid['model'],MODEL)
-        self.assertEqual(MODEL,'deepseek/deepseek-v4-flash-0731')
+        self.assertEqual(MODEL,'z-ai/glm-5.3')
         self.assertEqual(paid['max_tokens'],12000)
         self.assertEqual(paid['reasoning'],{'effort':'low'})
         self.assertFalse(paid['provider']['allow_fallbacks'])

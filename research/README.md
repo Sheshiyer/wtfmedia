@@ -3,9 +3,9 @@
 Setup, API, boundaries, recovery and verification: [docs/RESEARCH-RUNNER.md](../docs/RESEARCH-RUNNER.md).
 
 This service reuses pinned GPT Researcher 0.16.1 for planning, conducting research
-and writing. Treg performs allowlisted search/raw page extraction; OmniRoute
-performs generation when its paired settings are supplied; otherwise direct
-OpenRouter is used. It does not access D1, Clerk, the vault or the Alpha corpus.
+and writing. Treg performs allowlisted search/raw page extraction; OpenRouter
+performs generation using `z-ai/glm-5.3` with low reasoning effort. Legacy
+OmniRoute settings do not select a research model. It does not access D1, Clerk, the vault or the Alpha corpus.
 
 Research prepares guests before a shoot. New requests contain guest, company and
 industry fields; India is the audience context throughout global research, not a
@@ -39,9 +39,7 @@ stream or a local context limit; logs also include elapsed time and byte counts.
 private subjects, notes, account identifiers and credentials never enter logs.
 
 Offline source tests, including real upstream conduct/write with fake external
-adapters, are separate from live acceptance. One local four-tier trial completed
-through the `noesis-research` OmniRoute route; the remaining editorial trials
-and hosted acceptance are pending. Without OmniRoute settings, direct OpenRouter
-uses `deepseek/deepseek-v4-flash-0731`. See the implementation plan and handoff for
-actual model receipts, missing billing and platform access/cost limitations.
+adapters, are separate from live acceptance. Historical OmniRoute trial results do
+not establish acceptance for the GLM 5.3 route. See the handoff for bounded live
+model probes; full editorial trials and hosted acceptance remain separate checks.
 Fixture tests do not prove provider quality or full transcript coverage.

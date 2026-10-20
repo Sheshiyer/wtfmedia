@@ -169,14 +169,14 @@ async def synthesis_context(calls, sources, query):
             row = {k: v for k, v in source.items() if k in ('id', 'title', 'url', 'publisher', 'kind', 'publishedAt')}
             row['excerpt'] = excerpt
             length = len(json.dumps(row, ensure_ascii=False).encode())
-            if batch and size + length > 24000:
+            if batch and size + length > 48000:
                 batches.append(batch)
                 batch, size = [], 0
             batch.append(row)
             size += length
     if batch:
         batches.append(batch)
-    if len(batches) <= 1:
+    if len(batches) <= 1 and size <= 24000:
         return {'evidence': batches[0] if batches else []}
     cache = getattr(calls, 'evidence_digests', None)
     if cache is None:
@@ -198,6 +198,7 @@ async def synthesis_context(calls, sources, query):
                 {'role': 'user', 'content': payload},
             ], 1200)
             cache[key], _ = validate_report(response, batch)
+            getattr(calls, 'checkpoint', lambda: None)()
         summary = cache[key]
         summaries.append(summary)
         if len(json.dumps(summaries, ensure_ascii=False).encode()) > 24000:

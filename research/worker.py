@@ -55,6 +55,7 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
     job_id, lease, body, result, state = claim
     calls = calls_factory(store, job_id, lease)
     calls.evidence_digests = state.setdefault('evidenceDigests', {})
+    calls.preparation = state.setdefault('preparation', {})
     engine = engine_factory(calls)
     result.setdefault('coverage', initial_coverage())
     result.setdefault('modelInfo', getattr(calls, 'model_info', model_info()))
@@ -68,6 +69,7 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
             result['modelInfo'] = calls.model_info
         store.save(job_id, lease, result, state, status)
 
+    calls.checkpoint = save
     try:
         if not state.get('resolved'):
             for attempt in range(state.get('resolve_attempts', 0), 2):

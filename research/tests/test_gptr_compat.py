@@ -57,6 +57,83 @@ class RecordingCalls:
 
 @unittest.skipUnless(installed(), 'install research/requirements.lock for real GPTR compatibility check')
 class GPTRCompatibilityTests(unittest.TestCase):
+    def test_four_sections_share_preparation_and_retry_only_failed_writing(self):
+        from research.gptr import GPTREngine
+        from research.contracts import TIERS
+        class WriteTimeout(RecordingCalls):
+            def model(self, messages, max_tokens=1800):
+                if 'Write the ' in json.dumps(messages):
+                    raise ProviderError('writer timeout', code='timeout', reason='deadline')
+                return super().model(messages, max_tokens)
+        calls = WriteTimeout()
+        calls.preparation = {}
+        checkpoints = []
+        calls.checkpoint = lambda: checkpoints.append(json.loads(json.dumps(calls.preparation)))
+        sources = [source(i) for i in range(90)]
+        sources[1]['url'] = 'https://example.com/podcast'
+        body = dict(title='Example founder', notes='PRIVATE_EDITORIAL', notesApproved=True,
+                    searchScope={'focus': 'India jobs', 'dateFrom': None, 'dateTo': None})
+        with patch('socket.socket.connect', side_effect=AssertionError('unexpected external socket')):
+            with self.assertRaises(ProviderError):
+                asyncio.run(GPTREngine(calls).tier(body, 'snacks', TIERS['snacks'][1], sources))
+            self.assertTrue(checkpoints)
+            self.assertIn('context', checkpoints[-1])
+            resumed = RecordingCalls()
+            resumed.preparation = checkpoints[-1]
+            engine = GPTREngine(resumed)
+            for key, (_, description) in TIERS.items():
+                answer, retained = asyncio.run(engine.tier(body, key, description, sources))
+                self.assertIn('[src_1]', answer)
+                self.assertEqual(len(retained), 90)
+        self.assertFalse(resumed.searches)
+        self.assertFalse(resumed.extracts)
+        self.assertEqual(len(resumed.models), 4)
+        self.assertTrue(all('Write the ' in m for m in resumed.models))
+        self.assertNotIn('PRIVATE_EDITORIAL', json.dumps(calls.searches))
+        self.assertTrue(all('PRIVATE_EDITORIAL' in m for m in resumed.models))
+
+    def test_full_source_pool_completes_with_real_call_and_spend_guards(self):
+        from pathlib import Path
+        import tempfile
+        from research.gptr import GPTREngine
+        from research.worker import run_job
+        from research.providers import Calls
+        from research.store import Store
+        from research.tests.test_runner import body
+        from research.tests.test_providers import Network
+        from research.tests.test_source_budget import rows
+        from research.source_channels import CHANNELS
+        recorder = RecordingCalls()
+        class Net(Network):
+            def request(self, method, url, headers, body=None):
+                if url.endswith('/chat/completions'):
+                    answer = recorder.model(body['messages'], body['max_tokens'])
+                    if 'Write the ' in json.dumps(body['messages']):
+                        answer = 'A reported 20 jobs in 2024 [src_web_1].'
+                    return {'choices': [{'message': {'content': answer}, 'finish_reason': 'stop'}]}, {}
+                return super().request(method, url, headers, body)
+        net = Net()
+        pool = [{**s, 'excerpt': 'Company history, competitors, India skills and 20 jobs in 2024. ' * 17}
+                for c in CHANNELS for s in rows(c, 20)]
+        pool[1]['url'] = 'https://example.com/public'
+        def collect(channel, *_):
+            found = [s for s in pool if s['id'].startswith('src_' + channel + '_')]
+            return found, dict(channel=channel, status='found', sourceCount=len(found), method='web_search')
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {'OPENROUTER_API_KEY': 'fixture-key'}, clear=True), \
+                patch('research.worker.collect_channel', side_effect=collect), \
+                patch('socket.socket.connect', side_effect=AssertionError('unexpected external socket')):
+            store = Store(Path(tmp) / 'runner.sqlite')
+            request = body()
+            store.submit(request)
+            asyncio.run(run_job(store, store.claim(), GPTREngine,
+                                lambda *args: Calls(*args, network=net)))
+            result = store.get(request['id'])
+            self.assertEqual(result['status'], 'completed', result.get('failure'))
+            self.assertEqual(len(result['sections']), 4)
+            self.assertTrue(all(s['status'] == 'completed' for s in result['sections']))
+            self.assertLessEqual(len(recorder.models), 16)
+            self.assertIsNone(result['cost']['modelUsd'])
+
     def test_real_conduct_write_four_tiers_80_sources_and_private_notes(self):
         from research.gptr import GPTREngine
         from research.contracts import TIERS

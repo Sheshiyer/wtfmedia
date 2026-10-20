@@ -104,11 +104,9 @@ document:
 
 - `RESEARCH_RUNNER_TOKEN`: shared only with the trusted backend adapter.
 - `TREG_TOKEN`: org-scoped Treg API token.
-- `OMNIROUTE_BASE_URL` and `OMNIROUTE_API_KEY`: optional paired server-only settings.
-  The base URL includes the API prefix (normally `/v1`) and must use HTTPS.
-  When present, Research uses the verified `noesis-research` route. Incomplete
-  settings fail closed; request failures do not fall back to OpenRouter.
-- `OPENROUTER_API_KEY`: used only when neither OmniRoute setting is present.
+- `OPENROUTER_API_KEY`: required for `z-ai/glm-5.3` generation. Research ignores
+  legacy OmniRoute settings and never falls back to another model. GLM 5.3 uses
+  low reasoning effort; reasoning is not disabled.
 - Optional `RESEARCH_RUNNER_DB`: defaults to `research/.state/runner.sqlite`.
 
 Run the loopback service:
@@ -174,7 +172,6 @@ docker run --rm --name wtf-research-runner \
   -p 127.0.0.1:8080:8080 \
   --mount type=volume,source=wtf-research-private,target=/data \
   -e RESEARCH_RUNNER_TOKEN -e TREG_TOKEN -e OPENROUTER_API_KEY \
-  -e OMNIROUTE_BASE_URL -e OMNIROUTE_API_KEY \
   wtf-research-runner:local
 ```
 
@@ -321,22 +318,22 @@ and a model request 250,000. Model requests are limited to 90 KB input and 12,00
 output tokens. Direct OpenRouter calls use low reasoning effort. Report writing receives
 the full 12,000-token allowance; shorter planning and follow-up calls retain their
 existing limits. A response ending because of the token limit is rejected as
-truncated rather than saved as a complete answer. Keep-alive response
-chunks are checked against a 180-second response deadline (an idle read is separately
-bounded to 45 seconds for Treg/direct OpenRouter; OmniRoute
-model requests use streaming transport with a 180-second read window, with a 45-second connection
-timeout). The elapsed deadline is checked when chunks arrive, not an independent
-wall-clock interrupt; a stalled read can finish later. These are per-request bounds,
-not an end-to-end report time guarantee. Retry progress retains the prior safe
+truncated rather than saved as a complete answer. Responses start with a 180-second
+elapsed deadline. A streamed answer that starts within that deadline gets one
+120-second completion window; reasoning and keep-alives do not extend it. The
+client stops reading at the SSE completion marker. Idle reads are bounded to
+180 seconds for OpenRouter models and 45 seconds for Treg, with a 45-second
+connection timeout. Elapsed deadlines are checked when chunks arrive, not by an
+independent wall-clock interrupt; a stalled read can finish later. These are
+per-request bounds, not an end-to-end report time guarantee. Retry progress retains the prior safe
 failure reason until a section succeeds. Direct OpenRouter requests use provider price ceilings of $1/m prompt and $10/m completion
 tokens and no per-request fee. Provider fallback is disabled, supported parameters
 are required, and data collection is denied. These are conservative local holds
 and requested provider constraints, not an independently tested billing guarantee.
 Unknown/timeout charges keep their full reservation; the runner can stop before the
 nominal budget is fully consumed. Configure provider account spend caps separately
-when setup is approved. OmniRoute owns its upstream routing, fallback, privacy and
-pricing policies; OpenRouter-specific controls are not sent to it. Its model catalog
-advertises `noesis-research` as a combo, so the actual model can change server-side.
+when setup is approved. Research pins one model on OpenRouter; it does not use
+OmniRoute model routing.
 Streaming is assembled server-side and requires a finish marker; incomplete or
 malformed streams are rejected. Token-only usage does not establish dollar cost: reservations remain and modelUsd
 is null without a cost receipt. The local reservation is not a gateway price cap.
@@ -374,12 +371,11 @@ provisioned or changed here.
 
 ## Remaining live acceptance
 
-The selected route (**`noesis-research` via OmniRoute**, or direct OpenRouter
-`deepseek/deepseek-v4-flash-0731` when OmniRoute is absent) **must pass the real three-brief trial** before product
+The selected route (**`z-ai/glm-5.3` via OpenRouter**) **must pass the real three-brief trial** before product
 acceptance: availability through the specified provider constraints, planning JSON,
 editorial usefulness, real citation support, extraction coverage, numeric comparison,
-latency, cancellation and settled billing. This source delivery intentionally makes
-no paid calls. An optional managed Linkup comparison is not implemented/defaulted;
+latency, cancellation and settled billing. Bounded synthetic model probes are recorded in the handoff; they do not replace
+a full research acceptance trial. An optional managed Linkup comparison is not implemented/defaulted;
 selecting it would require its own exact schema, retention and cost review.
 
 ## Cloudflare staging container
@@ -390,3 +386,14 @@ runner jobs, provider-call receipts, leases and deletion tombstones transactiona
 missing or failed remote storage never falls back to an ephemeral SQLite file.
 The local launcher still uses its existing SQLite file when neither is configured.
 See `research-host/README.md` for deployment settings and recovery boundaries.
+
+## Shared evidence preparation
+
+A full run prepares its public scope, source discovery and evidence summaries once,
+then reuses the durable checkpoint for all four writers and retries. A section-only
+job prepares its own section scope. Large source pools use 48 KB summary batches;
+small pools up to 24 KB go directly to writing. Original source extracts remain the
+evidence authority. Each successful summary is checkpointed immediately. Stage
+call counters reset between preparation, summaries and writing; the job-wide spend
+ceiling and bounded retries still apply. Provider completion events include safe
+elapsed time and request sizes without prompts, notes or response bodies.
