@@ -1,3 +1,30 @@
+## 2026-10-20 — Summary allowance/retry fix deployed to staging
+
+- Owner authorized this deployment. Application source `ce595900dee7705266897697cae3d92b26595397`;
+  exact image-pin candidate `9b7aa08ce874f4555226de30a5bdaf7ab1018117`.
+  Staging research Worker `21cbc9e3-6757-4f69-b1ae-470f4d864b86` has 100% traffic.
+  Container application version 7 rollout `233c4c4f-b25d-4068-a6c0-a9ef326233e4`
+  completed with no reported health errors. Image digest:
+  `sha256:72f7c184b02248b8de07e591e9e787d784a54a92db1a2976cadab73733f72ac0`.
+- Live bounded preparation check summarized all 120 retained public sources in
+  three batches: 17.58s, 9.14s, 16.99s; total 43.8s. No truncation, 11,654-byte
+  combined context, reported GLM 5.3, recorded model cost $0.008929. This used
+  temporary local diagnostic state and did not restart or modify the saved report.
+- Release checks passed: 126 Python tests, 4 hosted-store tests, TypeScript,
+  architecture freshness (773 inputs), diff/package dry-run, and image import
+  checks. All 14 runtime module hashes match committed source. Existing locked
+  dependency bundle reused; no private state or credentials entered the image.
+- After rollout completion, private health reports configured=true; a synthetic
+  hosted follow-up returned the expected fact/citation in 11.8 seconds, recorded
+  model cost $0.000058. Staging pages return 200, root redirects, and protected
+  principal/research/social APIs return 401 unsigned. Web/Edge versions and all
+  bindings are unchanged. No secrets, migrations, production changes or push.
+- Rollback: previous research Worker `2afc677f-b786-40e4-aabb-10791195124f`, image
+  `sha256:bd890e5f40d578c6a4c31c229bfb4665d01df07661de670183f50cac2fc390f8`.
+  Full live report generation and signed-in UI remain untested for this candidate;
+  owner can use Research again to test a fresh run. Historical per-section timing
+  cannot be recovered from available saved revisions or unauthorized log access.
+
 ## 2026-10-20 — Summary truncation and retry correction (local)
 
 - Owner requested a 4,000-token summary allowance, corrected retries and staging
