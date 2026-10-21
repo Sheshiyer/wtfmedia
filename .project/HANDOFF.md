@@ -1,3 +1,34 @@
+## 2026-10-21 — Ask WTF citation repair deployed and checked
+
+- Owner explicitly approved deploying the shared Alpha citation fix after being
+  informed that staging's shared inference also serves production Ask WTF.
+- Final staging runtime source `9b2a7b5` is deployed as Edge version
+  `88d438be-a6f5-4cd3-8a98-aee5179dda62`; isolated Alpha candidate
+  `746bd86934fe0c115d35c37a60dea9b3efef804a` is deployed as Edge version
+  `375698fc-37da-44bd-a8f7-585b9d388868`. Both read back at 100% traffic.
+  Alpha contains only the two chat runtime and two regression-test file changes
+  over its previous production inference base, not a feature-branch promotion.
+- Final live checks exposed a five-token evidence-verdict budget truncating
+  Claude's response. Increased that classifier budget to 64 and added the
+  regression. VERIFIED-SOURCE: 574/574 staging-source and 485/485 isolated
+  Alpha tests pass; both final deployment dry runs and diff checks pass.
+- Live Alpha web chat adapter: initial answer and two history-bearing follow-ups
+  returned HTTP 200, `claude-sonnet-5-5`, `answered_grounded`, six sources and
+  valid citation indices in 13.83s, 14.64s and 15.68s. No excerpt-only fallback.
+  The unsupported-data question returned `abstained` with no exposed sources or
+  citations in 13.75s. X-Fallback remains true for repaired grounded answers as
+  well as abstention; it does not alone mean synthesis failed.
+- Health confirms Anthropic / Sonnet 5.5 configured on both services. All 26
+  staging and 29 Alpha bindings are unchanged. No web/research deployment,
+  migrations, secret changes, corpus changes or branch push. Only metadata was
+  retained from live conversations; no question, answer or transcript bodies.
+- Full authenticated browser/persona acceptance was not repeated. Public staging
+  remains `https://beta-staging.wtfhq.in`; shared Alpha Web remains unchanged.
+- Pre-task rollback Edge versions: Alpha `3abdfb0b-2223-44f0-bec5-7d131f3952db`,
+  staging `bad7e205-cae7-4b1d-98c6-f3f905a1b25c`. Immediate previous citation
+  rollout versions were Alpha `65884044-6231-4291-9f90-460b41e261a0` and staging
+  `3270dd95-b3e8-487a-991f-8d58a4905a25` (before classifier-budget correction).
+
 ## 2026-10-21 — Ask WTF follow-up citation repair prepared
 
 - Owner requested citation fallback repair, follow-up testing and staging
