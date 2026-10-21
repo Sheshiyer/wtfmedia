@@ -1,3 +1,28 @@
+## 2026-10-21 — Ask WTF follow-up citation repair prepared
+
+- Owner requested citation fallback repair, follow-up testing and staging
+  deployment. Staging continues to delegate inference to shared Alpha; its
+  required inference patch also affects production Ask WTF.
+- Reproduced false rejection of multi-sentence quotations with a single valid
+  trailing citation. The checker now treats a cited quotation as one unit and
+  still rejects uncited surrounding prose and invalid source numbers.
+- Free-form citation repair repeatedly left or introduced uncited opening
+  sentences. Repair now requests structured sentences with explicit source
+  indices, validates the shape/range, renders citations, and reapplies the same
+  coverage guard. Invalid, unsupported or failed repairs retain safe fallback;
+  no blind citation insertion or extra retry loop. Repair receives the rejected
+  span as quoted data, with current evidence and existing conversation context.
+- Temporary diagnostics logged only punctuation shapes, never question, answer
+  or transcript text, and were removed before packaging. No secrets changed.
+- VERIFIED-SOURCE: 573/573 staging-source Edge tests and 484/484 isolated Alpha
+  candidate tests pass, including three-turn history/citation preservation and
+  malformed-repair cases. A real local Claude conversation returned
+  `answered_grounded` with six sources on all three turns (25.46s, 25.45s,
+  18.96s). Live deployment results follow; no full persona/UI matrix claimed.
+- Pre-deploy rollback: shared Edge `3abdfb0b-2223-44f0-bec5-7d131f3952db`,
+  staging Edge `bad7e205-cae7-4b1d-98c6-f3f905a1b25c`. Web/research/UI, existing
+  credentials, migrations and corpus resources are outside this patch. No push.
+
 ## 2026-10-21 — Shared Alpha Ask WTF now uses Claude
 
 - Owner-authorized inference-only candidate

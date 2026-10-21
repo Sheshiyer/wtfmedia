@@ -127,6 +127,9 @@ export function coverageFailure(answer: string, sourceCount: number): string | n
       .replace(/^\s*(?:[-*+]|\d+[.)])\s+/u, "")
       // Bold segment labels ("**Play the numbers.**") are presentational.
       .replace(/^\*\*[^*]+\*\*[.:]?\s*/u, "")
+      // A trailing cite covers a whole quotation; keep surrounding prose separate.
+      .replace(/("[^"\r\n]+"|“[^”\r\n]+”|‘[^’\r\n]+’)([ \t]*(?:\[\d+\][ \t]*)+)/gu,
+        (_, quote: string, markers: string) => `${quote.replace(/[.!?]/gu, "．")}${markers}. `)
       // Associate "A claim. [1]" with its preceding sentence, not the next one.
       .replace(/([.!?])([ \t]+(?:\[\d+\][ \t]*)+)/gu, "$2$1 ")
       // These common titles/abbreviations are not sentence boundaries.

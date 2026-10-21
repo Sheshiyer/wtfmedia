@@ -30,6 +30,18 @@ test("coverage accepts canonical grouped citations without allowing uncited clai
   assert.equal(hasCitationCoverage("A supported statement [1, 2]. Another statement [N].", 2), false);
 });
 
+test("one citation covers a complete quotation, not uncited prose around it", () => {
+  for (const [open, close] of [['"', '"'], ['“', '”'], ['‘', '’']]) {
+    const quote = `${open}Service delivers the order. Hospitality makes the guest feel welcome.${close} [1, 2]`;
+    assert.equal(hasCitationCoverage(`The guest said: ${quote}.`, 2), true);
+    assert.equal(hasCitationCoverage(`${quote} A separate supported point [2].`, 2), true);
+    assert.equal(hasCitationCoverage(`An uncited assertion. ${quote}`, 2), false);
+    assert.equal(hasCitationCoverage(`${quote} An uncited assertion.`, 2), false);
+    assert.equal(hasCitationCoverage(`${open}An uncited quote. Another sentence.${close}\nA cited sentence [1].`, 2), false);
+  }
+  assert.equal(hasCitationCoverage('"First sentence. Second sentence." [99]', 2), false);
+});
+
 // Generation runs on Claude (fetch); Workers AI only serves embeddings.
 function environment(matches, prompts = [], response = "The evidence supports this answer [1] and [2].") {
   globalThis.fetch = async (_url, init) => {

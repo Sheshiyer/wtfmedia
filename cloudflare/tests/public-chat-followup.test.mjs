@@ -130,6 +130,100 @@ test("bare follow-up stays anchored to the conversation topic for retrieval and 
   assert.ok(moments.every((moment) => mockedVideoIds.has(moment.videoId)), "moments must come from the anchored retrieval");
 });
 
+test("cited quotations survive a three-turn Claude conversation without excerpt fallback", async () => {
+  const calls = { reformulate: [], answer: [], enrich: [], embeddings: [] };
+  const env = followUpEnv(calls);
+  const baseFetch = globalThis.fetch;
+  const answers = [
+    'The distinction was: "Service delivers the order. Hospitality makes a guest feel welcome." [1].',
+    'The example was: “The team records meal preferences. It also records drink preferences.” [2].',
+    'A practical interpretation is to use the recorded preferences to personalize service [1, 2].',
+  ];
+  let generations = 0;
+  globalThis.fetch = async (url, init) => {
+    const body = JSON.parse(init.body);
+    if (body.system.startsWith("You are the WTF OS research companion")) {
+      assert.equal(body.model, "claude-sonnet-5-5");
+      const answer = answers[generations++];
+      assert.ok(answer, "valid quoted answers must not trigger a repair call");
+      if (generations > 1) assert.ok(body.messages[0].content.includes(answers[generations - 2]), "follow-up retains the prior answer");
+      return Response.json({ model: "claude-sonnet-5-5", stop_reason: "end_turn", content: [{ type: "text", text: answer }] });
+    }
+    return baseFetch(url, init);
+  };
+  const history = [];
+  for (const question of ["What is service versus hospitality?", "Give one example.", "How could a restaurant use it?"]) {
+    const result = await runPublicChat(env, { question, sourceMode: "published", episodeId: null, history });
+    assert.equal(result.status, 200);
+    assert.equal(result.body.responseState, "answered_grounded");
+    assert.equal(result.body.modelFallback, false);
+    assert.equal(result.body.model, "claude-sonnet-5-5");
+    assert.ok(result.body.citedIndices.length > 0);
+    history.push({ role: "user", content: question }, { role: "assistant", content: result.body.answer });
+  }
+  assert.equal(generations, 3);
+  assert.equal(calls.reformulate.length, 2);
+});
+
+test("citation repair identifies the rejected opening sentence and keeps the follow-up context", async () => {
+  const calls = { reformulate: [], answer: [], enrich: [], embeddings: [] };
+  const env = followUpEnv(calls);
+  const baseFetch = globalThis.fetch;
+  let generations = 0;
+  globalThis.fetch = async (url, init) => {
+    const body = JSON.parse(init.body);
+    if (body.system.startsWith("You are the WTF OS research companion")) {
+      generations++;
+      if (generations === 2) {
+        assert.ok(body.messages.at(-1).content.includes('"The team records guest preferences"'));
+        assert.match(body.messages.at(-1).content, /cite.*remove/i);
+        assert.match(body.messages[0].content, /PRIOR CONVERSATION:/);
+        assert.equal(body.output_config.format.type, "json_schema");
+      }
+      return Response.json({ model: "claude-sonnet-5-5", stop_reason: "end_turn", content: [{ type: "text", text: generations === 1
+        ? 'The team records guest preferences. They record meals and drinks [2].'
+        : JSON.stringify({ sentences: [{ text: 'The team records guest preferences, including meals and drinks.', citations: [2] }] }) }] });
+    }
+    return baseFetch(url, init);
+  };
+  const result = await runPublicChat(env, {
+    question: "Give one practical example.", sourceMode: "published", episodeId: null,
+    history: [{ role: "user", content: "How is hospitality different from service?" }, { role: "assistant", content: "Hospitality is distinct from service [1]." }],
+  });
+  assert.equal(result.body.responseState, "answered_grounded");
+  assert.equal(result.body.model, "claude-sonnet-5-5");
+  assert.equal(generations, 2);
+  assert.deepEqual(result.body.citedIndices, [2]);
+});
+
+for (const malformed of [
+  { sentences: [{ text: 'A supposed fact.', citations: [99] }] },
+  { sentences: [{ text: 'A supposed fact.', citations: ['1'] }] },
+  { sentences: [{ text: 'An uncited assertion. A cited assertion.', citations: [1] }] },
+  { sentences: [] },
+  { answer: 'not the expected structure' },
+]) {
+  test(`invalid structured citation repair retains safe fallback: ${JSON.stringify(malformed)}`, async () => {
+    const env = followUpEnv({ reformulate: [], answer: [], enrich: [], embeddings: [] });
+    const baseFetch = globalThis.fetch;
+    let generationCalls = 0;
+    globalThis.fetch = async (url, init) => {
+      const body = JSON.parse(init.body);
+      if (body.system.startsWith("You are the WTF OS research companion")) {
+        generationCalls++;
+        return Response.json({ model: "claude-sonnet-5-5", stop_reason: "end_turn", content: [{ type: "text", text: generationCalls === 1
+          ? 'An uncited assertion. A cited assertion [1].' : JSON.stringify(malformed) }] });
+      }
+      return baseFetch(url, init);
+    };
+    const result = await runPublicChat(env, { question: 'What was said about hospitality?', sourceMode: 'published', episodeId: null });
+    assert.equal(result.status, 200);
+    assert.equal(result.body.responseState, 'synthesis_invalid');
+    assert.match(result.body.answer, /closest cited excerpts/);
+    assert.equal(generationCalls, 2);
+  });
+}
+
 test("citation-free 'nothing else' answer abstains with no sources", async () => {
   const calls = { reformulate: [], answer: [], enrich: [], embeddings: [] };
   const env = followUpEnv(calls);
