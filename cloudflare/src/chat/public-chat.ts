@@ -139,7 +139,7 @@ async function declaresEvidenceMissing(env: PublicChatEnv, question: string, ans
     const { answer: verdict } = await claudeChat(env, [
       { role: "system", content: "You classify research-assistant answers. Reply with exactly one word: ABSTAIN only when the answer gives no substantive answer to the asked question — its entire substance is that the topic is not covered, not supported, missing, or that nothing exists on it. If any part of the answer presents excerpt-backed content that addresses the asked question — even partially, even alongside caveats about what is NOT covered — reply ANSWERED. Output only ANSWERED or ABSTAIN." },
       { role: "user", content: `QUESTION: ${question}\n\nANSWER:\n${answer}` },
-    ], { maxTokens: 5, signal: env.generationSignal });
+    ], { maxTokens: 64, signal: env.generationSignal });
     return /abstain/i.test(verdict);
   } catch (error) {
     console.warn("wtfmedia abstention classifier failed", { error: error instanceof Error ? error.message : "unknown" });

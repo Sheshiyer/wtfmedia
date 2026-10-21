@@ -261,6 +261,29 @@ test("citation-free 'nothing else' answer abstains with no sources", async () =>
   assert.equal(calls.answer.length, 1, "abstention should skip the repair pass");
 });
 
+test("Claude abstention verdict has enough output budget to avoid unnecessary citation repair", async () => {
+  const calls = { reformulate: [], answer: [], enrich: [], embeddings: [] };
+  const env = followUpEnv(calls);
+  const baseFetch = globalThis.fetch;
+  let generationCalls = 0;
+  globalThis.fetch = async (url, init) => {
+    const body = JSON.parse(init.body);
+    if (body.system.startsWith('You classify research-assistant answers')) {
+      return Response.json({ model: 'claude-sonnet-5-5', stop_reason: body.max_tokens <= 5 ? 'max_tokens' : 'end_turn', content: [{ type: 'text', text: 'ABSTAIN' }] });
+    }
+    if (body.system.startsWith('You are the WTF OS research companion')) {
+      generationCalls++;
+      return Response.json({ model: 'claude-sonnet-5-5', stop_reason: 'end_turn', content: [{ type: 'text', text: "The excerpts do not establish yesterday's customer count." }] });
+    }
+    return baseFetch(url, init);
+  };
+  const result = await runPublicChat(env, { question: "What was yesterday's customer count?", sourceMode: 'published', episodeId: null });
+  assert.equal(result.body.responseState, 'abstained');
+  assert.deepEqual(result.body.sources, []);
+  assert.deepEqual(result.body.citedIndices, []);
+  assert.equal(generationCalls, 1);
+});
+
 test("cited abstention ships no sources or moments", async () => {
   const calls = { reformulate: [], answer: [], enrich: [], embeddings: [] };
   const env = followUpEnv(calls);
