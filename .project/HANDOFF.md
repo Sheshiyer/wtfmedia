@@ -1,3 +1,23 @@
+## 2026-10-21 — No-evidence chat presentation deployed to staging
+
+- Owner-authorized frontend candidate `e77be403eb27f6464bc5c2c0401c530cc73cd30a`
+  deployed to `wtfmedia-web-staging` as
+  `56ab007a-ec01-4932-91cc-7608218c19af`, read back at 100% traffic on
+  `https://beta-staging.wtfhq.in`. All ten existing bindings are unchanged.
+  Staging Edge, shared Alpha, production frontend and research runner unchanged.
+- Isolated source archive used copied existing dependencies (unchanged lockfile)
+  and the verified staging public Clerk key, with no local environment files.
+  OpenNext build, embedded Clerk-domain check and deployment dry run passed.
+  OpenNext required its explicit unsupported-version override for the existing
+  Next.js 15.5.24 release; no dependency upgrade was made. Framework support
+  remains a separate maintenance risk.
+- Live smoke: root 307, sign-in 200, Beta chat shell 200, signed-out principal
+  API 401. Live sign-in key matches staging issuer. No new authenticated persona
+  testing; the prior controlled browser regression covers saved no-data replies.
+- Rollback Web version: `6f816576-4b4b-4b17-b2b2-9a8dd18be40f`. No migrations,
+  credential changes or production deployment. GitHub Actions remains without
+  active registered workflows; local source checks are not hosted CI receipts.
+
 ## 2026-10-21 — Push verification and no-evidence answer presentation
 
 - Owner requested pushing the branch and fixing CI failures, then requested
