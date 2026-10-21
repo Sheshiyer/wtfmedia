@@ -1,3 +1,23 @@
+## 2026-10-21 — Claude staging candidate preparation
+
+- Owner requested staging deployment of the approved reader/flexible-input and
+  Claude implementation. Shared Alpha and production are excluded. Local social
+  analytics now has the same explicit backend feature flag as staging.
+- VERIFIED-SOURCE: edge 563, web unit 418, contracts 101, Python 157, hosted store
+  5; web/host types, lint, privacy (0/433), isolated OpenNext build and staging
+  package checks pass. The build uses the verified staging Clerk issuer and no
+  local environment files. Existing Next 15.5.24 requires OpenNext's explicit
+  unsupported-version override; no framework upgrade is included.
+- Live local calibration before the owner stopped testing: direct Claude access
+  succeeded; YouTube planning with synthetic Google data preserved exact metrics;
+  social planning resolved comparisons and the second post. Local YouTube is
+  disconnected and returns an honest connection message. Local Ask WTF reached
+  Claude but used the citation fallback; this is not full live acceptance.
+- Staging has no pending D1 migrations. Existing staging versions and secret names
+  were recorded before deployment. Only the server-side Anthropic credential is
+  added to the staging Edge and research host; other credentials are preserved.
+- Final deployment versions, image digest and smoke results follow after upload.
+
 ## 2026-10-21 — Research presentation deployed to staging
 
 - Owner authorized deployment of grouped section sources and the single-tilde

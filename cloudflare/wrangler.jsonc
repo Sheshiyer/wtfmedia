@@ -61,6 +61,7 @@
     "local": {
       "name": "wtfmedia-edge",
       "vars": {
+        "SOCIAL_ANALYTICS_ENABLED": "1",
         "ALLOWED_ORIGIN": "http://localhost:3000",
         "RATE_LIMIT_PER_MINUTE": "20",
         // "local" (not "staging") so the dev worker keeps /v1/chat enabled for the
