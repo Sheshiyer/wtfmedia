@@ -327,7 +327,7 @@ test('V2 create derives a bounded title and durably retries all trimmed structur
 test('V2 inputs fail closed before writes, including consent, malformed fields and audience tampering',async()=>{
  const db=database();const call=client(db,async(...args)=>accepted(...args));
  const invalid=[{schemaVersion:2,title:'Legacy title'}, {schemaVersion:3,title:'Legacy title'},
-  ...['guestName','companyName','industry'].flatMap(field=>[undefined,null,12,' ', 'x','x'.repeat(121)].map(value=>({schemaVersion:2,researchInput:{...researchInput,[field]:value}}))),
+  ...['guestName','companyName','industry'].flatMap(field=>[null,12,'x','x'.repeat(121)].map(value=>({schemaVersion:2,researchInput:{...researchInput,[field]:value}}))),
   ...['US',null,undefined].map(audienceCountry=>({schemaVersion:2,researchInput:{...researchInput,audienceCountry}})),
   {schemaVersion:2,researchInput,notes:'Private notes',notesApproved:false},
  ];
@@ -559,4 +559,25 @@ test('clients cannot supply needsResearch on creation, edits or action requests'
   assert.equal((await call(method,path+suffix,{revision,needsResearch:false,...input})).status,400);
  }
  assert.equal((await(await call('GET',path)).json()).brief.revision,revision);db.sqlite.close();
+});
+
+
+test('single-field scope and optional clarification skip survive durable resubmission',async()=>{
+ const db=database();const payloads=[];let unavailable=false;
+ const call=client(db,async(input,init)=>{
+  if(init?.body){payloads.push(JSON.parse(init.body));if(unavailable)return new Response('',{status:503});}
+  return accepted(input,init);
+ });
+ const created=await call('POST','',{schemaVersion:2,researchInput:{industry:'Electric vehicles',audienceCountry:'IN'},notes:'Focus on jobs',notesApproved:true});
+ assert.equal(created.status,201);let brief=(await created.json()).brief;const path='/'+brief.id;
+ assert.equal(brief.title,'Electric vehicles');assert.deepEqual(brief.researchInput,{guestName:'',companyName:'',industry:'Electric vehicles',audienceCountry:'IN'});
+ const clarify=client(db,async input=>Response.json({...emptyJob,id:new URL(input).pathname.split('/').pop(),status:'clarification',sections:[],clarification:'Any company to prioritize?'}));
+ brief=(await(await clarify('GET',path)).json()).brief;
+ assert.equal((await call('POST',path+'/run',{revision:brief.revision,skipClarification:'yes'})).status,400);
+ unavailable=true;
+ brief=(await(await call('POST',path+'/run',{revision:brief.revision,skipClarification:true})).json()).brief;
+ assert.equal(brief.skipClarification,true);const payload=payloads.at(-1);assert.equal(payload.skipClarification,true);
+ unavailable=false;await call('GET',path);assert.deepEqual(payloads.at(-1),payload);
+ assert.equal(payload.researchInput.guestName,'');assert.equal(payload.notesApproved,true);
+ db.sqlite.close();
 });

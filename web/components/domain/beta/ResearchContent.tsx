@@ -2,14 +2,13 @@
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { prepareResearchSection, researchDisplayContent } from "@/lib/research-report";
 import { RESEARCH_SECTIONS, RESEARCH_EVIDENCE_LABELS, replaceResearchCitations, researchFailureSummary, researchSourceLabel, researchSourcePlatform, safeResearchUrl, type ResearchBrief, type ResearchSource } from "@/lib/research";
 import { ResearchCoverageSummary, ResearchSourceBadge } from "./ResearchSourceBadge";
 
 export function ResearchMarkdown({ content, sources, sourcePrefix = "research-source-" }: { content: string; sources: ResearchSource[]; sourcePrefix?: string }) {
   // Relabel only legacy boilerplate in this view. Claims, saved prose and source excerpts stay intact.
-  const displayContent = content
-    .replace(/^(?:Unverified synthesis:[ \t]*)?Unverified:[ \t]*/gmu, "Not independently confirmed: ")
-    .replace(/^Unverified synthesis:[ \t]*/gmu, "Review against sources: ");
+  const displayContent = researchDisplayContent(content);
   const marker = "**Numeric evidence comparisons**";
   const split = displayContent.indexOf(marker);
   if (split >= 0) return <div className="min-w-0 space-y-5">
@@ -71,18 +70,13 @@ export function ResearchContent({ brief, sourcePrefix = `research-version-${brie
       <p className="text-sm">The findings and sources below are retained from the previous scope. Research again to update them. Follow-up is paused until fresh research is available.</p>
     </section>}
     <ResearchCoverageSummary coverage={brief.coverage} />
-    {RESEARCH_SECTIONS.filter(({ key }) => brief.sections.some(s => s.key === key && s.content.trim())).map(({ key, title, description }) => {
+    {RESEARCH_SECTIONS.filter(({ key }) => brief.sections.some(s => s.key === key && s.status !== "skipped" && s.content.trim())).map(({ key, title, description }) => {
       const section = brief.sections.find(s => s.key === key);
-      const citations = new Map<string, ResearchSource>();
-      const content = replaceResearchCitations(section?.content ?? "", brief.sources, source => {
-        citations.set(source.id, source);
-        return "";
-      }).replace(/[ \t]+([.,;:!?])/gu, "$1");
-      const citedSources = [...citations.values()];
+      const { markdown: content, citedSources } = prepareResearchSection(section?.content ?? "", brief.sources);
       const platforms = [...new Set(citedSources.map(researchSourcePlatform))];
       return <section key={key} className="min-w-0 space-y-3 border-2 border-foreground bg-surface-raised p-4 sm:p-5">
         <div><p className="font-label text-xs uppercase text-secondary">{description}</p><h3 className="font-heading text-2xl font-bold">{title}</h3><p className="text-sm">{section?.status ?? "Not started"}</p></div>
-        {section?.content ? <ResearchMarkdown content={content} sources={brief.sources} sourcePrefix={sourcePrefix} /> : <p className="text-sm text-secondary">No findings yet.</p>}
+        {section?.content ? <ResearchMarkdown content={content} sources={[]} sourcePrefix={sourcePrefix} /> : <p className="text-sm text-secondary">No findings yet.</p>}
         {citedSources.length > 0 && <details aria-label={`${title} sources`} className="min-w-0 border-t border-foreground/15 pt-3">
           <summary className="w-fit max-w-full cursor-pointer rounded-full border border-foreground/20 bg-surface-subtle px-3 py-1.5 text-sm focus-visible:outline focus-visible:outline-2">
             <span className="inline-flex flex-wrap items-center gap-2 align-middle">

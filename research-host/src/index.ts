@@ -9,7 +9,7 @@ interface Env {
   RESEARCH_STATE_TOKEN: string;
   RESEARCH_STATE_URL: string;
   TREG_TOKEN: string;
-  OPENROUTER_API_KEY: string;
+  ANTHROPIC_API_KEY: string;
 }
 const canonical = (value: unknown): unknown => Array.isArray(value) ? value.map(canonical) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>[k,canonical(v)])) : value;
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers: {'cache-control':'no-store'} });
@@ -58,7 +58,7 @@ export class ResearchContainer extends Container<Env> {
     RESEARCH_STATE_TOKEN:this.env.RESEARCH_STATE_TOKEN,
     RESEARCH_STATE_URL:this.env.RESEARCH_STATE_URL,
     TREG_TOKEN:this.env.TREG_TOKEN,
-    OPENROUTER_API_KEY:this.env.OPENROUTER_API_KEY,
+    ANTHROPIC_API_KEY:this.env.ANTHROPIC_API_KEY,
   };
 }
 export default {

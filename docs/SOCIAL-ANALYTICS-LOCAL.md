@@ -22,9 +22,7 @@ SOCIAL_ANALYTICS_ENABLED=1
 ZERNIO_API_KEY=
 # Optional verified override; no profile ID is required for automatic discovery.
 ZERNIO_PROFILE_ID=
-OPENROUTER_API_KEY=
-# Optional: inherit the same model configuration as Ask WTF.
-OPENROUTER_ANSWER_MODEL=
+ANTHROPIC_API_KEY=
 ```
 
 Set in ignored `web/.env.local`:
@@ -56,7 +54,7 @@ appropriate capability.
 1. The browser sends the question, visible filters and bounded conversation
    context to `/beta/api/social-analytics/assistant` through the existing proxy.
 2. The Edge verifies the principal and limits chat to ten requests per minute.
-3. The shared Ask WTF OpenRouter helper interprets the request into a validated
+3. The shared Ask WTF direct Claude helper (`claude-sonnet-5-5`) interprets the request into a validated
    query plan. It cannot choose arbitrary tools, URLs, SQL or workspace IDs.
 4. The server reads Zernio evidence under the selected profile. Post references
    are resolved within a bounded profile-scoped catalogue and checked against

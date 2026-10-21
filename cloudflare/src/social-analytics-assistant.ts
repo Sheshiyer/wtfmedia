@@ -1,4 +1,4 @@
-import { openRouterChat, type OpenRouterEnv } from './chat/openrouter.ts';
+import { claudeChat, type ClaudeEnv } from './chat/claude.ts';
 import { SOCIAL_METRICS, SOCIAL_PLATFORMS, isSocialPlatform, validSocialRange, type SocialEntity, type SocialQueryPlan, type SocialScope } from './social-analytics-contracts.ts';
 import { emptySocialAnswer, executeSocialPlan, type SocialWorkspace } from './social-analytics-evidence.ts';
 import type { SocialProvider } from './social-analytics-provider.ts';
@@ -74,7 +74,23 @@ export function resolveSocialDates(question: string, now = new Date()): {
         return { fromDate: iso(today), toDate: iso(today) };
     return null;
 }
-export async function interpretSocialQuestion(input: Record<string, unknown>, env: OpenRouterEnv, planner: typeof openRouterChat = openRouterChat, deadline = Date.now() + 60000): Promise<SocialQueryPlan> {
+const PLAN_SCHEMA = {
+    type: 'object', additionalProperties: false,
+    properties: {
+        intent: { type: 'string', enum: ['summary', 'platform_comparison', 'period_comparison', 'post_comparison', 'ranking', 'trend', 'clarification'] },
+        platforms: { type: 'array', items: { type: 'string', enum: SOCIAL_PLATFORMS } },
+        metrics: { type: 'array', items: { type: 'string', enum: SOCIAL_METRICS } },
+        fromDate: { type: 'string' }, toDate: { type: 'string' },
+        previous: { type: 'object', additionalProperties: false, properties: { fromDate: { type: 'string' }, toDate: { type: 'string' } }, required: ['fromDate', 'toDate'] },
+        posts: { type: 'array', items: { type: 'object', additionalProperties: false, properties: {
+            id: { type: 'string' }, query: { type: 'string' }, platform: { type: 'string', enum: SOCIAL_PLATFORMS }, accountId: { type: 'string' },
+        } } },
+        target: { type: 'string', enum: ['post', 'platform'] }, limit: { type: 'integer' },
+        order: { type: 'string', enum: ['asc', 'desc'] }, basis: { type: 'string', enum: ['received_period', 'lifetime', 'matched_age'] }, clarification: { type: 'string' },
+    },
+    required: ['intent', 'platforms', 'metrics', 'fromDate', 'toDate', 'posts', 'target', 'limit', 'order', 'basis'],
+};
+export async function interpretSocialQuestion(input: Record<string, unknown>, env: ClaudeEnv, planner: typeof claudeChat = claudeChat, deadline = Date.now() + 60000, signal?: AbortSignal): Promise<SocialQueryPlan> {
     const visible = record(input.scope);
     if (!isSocialPlatform(visible.platform) && visible.platform !== 'all')
         throw Error('invalid_scope');
@@ -99,7 +115,7 @@ Return {intent,platforms,metrics,fromDate,toDate,previous?,posts:[{id?,query?,pl
 Intents: summary, platform_comparison, period_comparison, post_comparison, ranking, trend, clarification. Platforms: ${SOCIAL_PLATFORMS.join(',')}. Metrics: ${SOCIAL_METRICS.join(',')}. Maximum 4 platforms,2 posts,10 rows,366 inclusive days. Use only supplied entity IDs or IDs explicitly provided by the user; otherwise use a short title query. Target platform or post. Basis received_period for dashboards, lifetime for posts, matched_age if first-N-day requested. For a post follow-up keep prior post entities; ordinal references select one only. Explicit question overrides prior entities then dashboard. Explicit platform change clears implicit posts. Ranking requires one named metric; 'best' without a metric asks clarification. For causal/improvement questions retrieve relevant observed metrics and compare periods; do not invent causes. Unsupported metrics, competitor-private data and publication actions require clarification. Do not substitute another metric for unavailable ones. Order asc or desc, limit 1..10. previous, if given, has an equal-length range. Do not return markdown.`;
     if (Date.now() >= deadline)
         throw Error('request_deadline');
-    const completion = await planner(env, [{ role: 'system', content: prompt }, { role: 'user', content: JSON.stringify({ question, scope: inheritedScope, entities, history }) }], { maxTokens: 1600, temperature: 0, json: true, signal: AbortSignal.timeout(Math.max(1, Math.min(20000, deadline - Date.now()))) });
+    const completion = await planner(env, [{ role: 'system', content: prompt }, { role: 'user', content: JSON.stringify({ question, scope: inheritedScope, entities, history }) }], { maxTokens: 1600, outputSchema: PLAN_SCHEMA, signal: AbortSignal.any([AbortSignal.timeout(Math.max(1, Math.min(20000, deadline - Date.now()))), ...(signal ? [signal] : [])]) });
     let parsed: unknown;
     try {
         parsed = JSON.parse(completion.answer);
@@ -156,7 +172,7 @@ Intents: summary, platform_comparison, period_comparison, post_comparison, ranki
         throw Error('unresolved_post');
     return validateSocialPlan(plan, scope);
 }
-export async function handleSocialAnalyticsAssistant(request: Request, env: OpenRouterEnv, workspace: SocialWorkspace, provider: SocialProvider, planner?: typeof openRouterChat, deadline = Date.now() + 60000) {
+export async function handleSocialAnalyticsAssistant(request: Request, env: ClaudeEnv, workspace: SocialWorkspace, provider: SocialProvider, planner?: typeof claudeChat, deadline = Date.now() + 60000) {
     const headers = { 'cache-control': 'private, no-store' };
     const raw = await request.text();
     if (new TextEncoder().encode(raw).length > 30000)
@@ -173,7 +189,7 @@ export async function handleSocialAnalyticsAssistant(request: Request, env: Open
         return Response.json({ error: 'invalid_question_or_scope' }, { status: 400, headers });
     const fallback = { fromDate: s.fromDate, toDate: s.toDate, platforms: isSocialPlatform(s.platform) ? [s.platform] : [] };
     try {
-        const plan = await interpretSocialQuestion(input, env, planner, deadline);
+        const plan = await interpretSocialQuestion(input, env, planner, deadline, request.signal);
         const result = await executeSocialPlan(provider, workspace, plan);
         result.summary = `${workspace.profileName ?? "Selected workspace"} · ${result.summary}`;
         if (/\bwhy\b|improve|recommend/i.test(input.question))

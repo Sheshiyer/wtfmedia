@@ -30,7 +30,8 @@
     },
     {
       "path": "web/app/api/chat/route.ts",
-      "sha256": "e6406e63c326946525bac624f18a2dfef9b60a47461582ae4e61d70694a69d5b"
+      "sha256": "7182ba7ab756801d0a500538e101ea1e90a377d9436a8ad17cd1720d7579e5c7",
+      "change_approval_ref": "owner-requested-direct-claude-task4-2026-10-21"
     }
   ],
   "streaming_contract": {

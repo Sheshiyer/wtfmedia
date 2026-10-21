@@ -12,7 +12,7 @@ class SearchScopeTests(unittest.TestCase):
     def test_approved_notes_become_public_focus_and_calendar_date_window(self):
         from research.scope import plan_scope
         class Calls:
-            def model(self, messages, max_tokens):
+            def model(self, messages, max_tokens, **kwargs):
                 self.messages = messages
                 return json.dumps(dict(focus='India hiring and EV supply chains', relativePeriod={'count': 5, 'unit': 'months'}, dateFrom=None, dateTo=None, clarification=None))
         calls = Calls()
@@ -59,7 +59,7 @@ class SearchScopeTests(unittest.TestCase):
     def test_general_editorial_guidance_has_no_implicit_date_filter(self):
         from research.scope import plan_scope
         class Calls:
-            def model(self, messages, max_tokens):
+            def model(self, messages, max_tokens, **kwargs):
                 return json.dumps(dict(focus='Compare India supply chains and job opportunities; exclude stock prices', relativePeriod=None, dateFrom=None, dateTo=None, clarification=None))
         scope=asyncio.run(plan_scope(Calls(),dict(title='Company',notes='Compare competitors and prioritize jobs, not stock prices. Prepare challenging interview questions.',notesApproved=True)))
         self.assertIsNone(scope['dateFrom'])
@@ -75,7 +75,7 @@ class SearchScopeTests(unittest.TestCase):
         import tempfile
         seen=[]
         class Calls(FakeCalls):
-            def model(self,messages,max_tokens=1800):
+            def model(self,messages,max_tokens=1800, **kwargs):
                 if 'Extract research search constraints' in messages[0]['content']:
                     return json.dumps(dict(focus='jobs',relativePeriod=None,dateFrom='2026-01-01',dateTo='2026-02-28',clarification=None))
                 return '{"claims":[]}'

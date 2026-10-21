@@ -8,14 +8,14 @@ import time
 from uuid import uuid4
 
 from .remote_store import open_store
-from .contracts import TIERS, utf16_slice
+from .contracts import TIERS, utf16_slice, section_spec, validate_section_subject
 from .evidence import (NUMBER, merge_sources, number_comparison, select_context,
                        supports, validate_report)
 from .providers import Calls, ProviderError, configured, model_info
 from .store import BudgetExceeded, Stopped
 from .diagnostics import emit, failure
-from .scope import plan_scope
-from .source_channels import CHANNELS, collect_channel, initial_coverage, platform_for_url
+from .scope import plan_scope, validate_resolution, contains_excluded_subject
+from .source_channels import CHANNELS, collect_channel, initial_coverage, platform_for_url, public_subject
 
 
 def state_path():
@@ -79,14 +79,35 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                 emit(dict(stage='resolve', status='started', attempt=attempt + 1))
                 save()
                 try:
-                    question = await engine.resolve(body, result['sources'])
-                    if question:
+                    if 'resolution' not in state:
+                        state['resolution'] = validate_resolution(await engine.resolve(body, result['sources']), body)
+                        save()
+                    resolution = state['resolution']
+                    question = resolution['clarification']
+                    if question and not body.get('skipClarification'):
                         result['clarification'] = question
                         emit(dict(stage='resolve', status='clarification'))
                         save('clarification')
                         return
-                    scope = await plan_scope(calls, body)
-                    if scope.get('clarification'):
+                    if resolution['kind'] == 'identity_conflict':
+                        fields = body.get('researchInput')
+                        narrowed = {**fields, **dict.fromkeys(resolution['ambiguousFields'], '')} if fields else None
+                        if not narrowed or not any(narrowed.get(k) for k in ('guestName', 'companyName', 'industry')):
+                            state['needsIdentityDetail'] = True
+                            state['resolved'] = True
+                            save()
+                            break
+                        state['researchInput'] = narrowed
+                        labels = {'guestName': 'Guest', 'companyName': 'Company', 'industry': 'Industry'}
+                        result['warnings'].append(', '.join(labels[k] for k in resolution['ambiguousFields']) +
+                            ' identity omitted because clarification was skipped; research covers only the remaining supplied scope.')
+                    elif question:
+                        result['warnings'].append('Optional clarification was skipped; the supplied subject scope was retained.')
+                    scoped_body = {**body, **({'researchInput': state['researchInput']} if 'researchInput' in state else {})}
+                    if 'researchInput' in state:
+                        scoped_body = {**scoped_body, 'title': public_subject(scoped_body), 'clarification': None}
+                    scope = await plan_scope(calls, scoped_body)
+                    if scope.get('clarification') and not body.get('skipClarification'):
                         result['clarification'] = scope['clarification']
                         save('clarification')
                         return
@@ -109,16 +130,38 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
             save('failed')
             return
 
+        if state.get('needsIdentityDetail'):
+            result['clarification'] = ('The subject remains ambiguous. Add a distinguishing public role, location, '
+                                       'or profile before person- or company-specific research can proceed.')
+            result['sources'] = []
+            result['sections'] = []
+            save('clarification')
+            return
+        excluded = []
+        if 'researchInput' in state:
+            excluded = [body['researchInput'][key] for key in state['resolution']['ambiguousFields']]
+            body = {**body, 'researchInput': state['researchInput'], 'clarification': None}
+            body['title'] = public_subject(body)
         scope = state.get('searchScope', {})
         if body.get('notesApproved') and body.get('notes') and 'searchScope' not in state:
             # Older in-flight jobs must not silently ignore approved search instructions.
             scope = await plan_scope(calls, body)
-            if scope.get('clarification'):
+            if scope.get('clarification') and not body.get('skipClarification'):
                 result['clarification'] = scope['clarification']
                 save('clarification')
                 return
             state['searchScope'] = scope
             save()
+        if scope.get('clarification'):
+            result['warnings'].append('Optional clarification was skipped; only unambiguous research guidance is applied.')
+            scope = {**scope, 'clarification': None}
+            state['searchScope'] = scope
+        if excluded:
+            scope = {**scope, 'excludedSubjects': excluded}
+            if contains_excluded_subject(scope.get('focus', ''), scope):
+                scope['focus'] = ''
+            state['searchScope'] = scope
+        result['clarification'] = None
         body = {**body, 'searchScope': scope}
         calls.scope = scope
         if scope.get('dateFrom') or scope.get('dateTo'):
@@ -133,21 +176,29 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
             found, coverage = await asyncio.to_thread(collect_channel, channel, body, calls)
             protected = {citation for section in result['sections'] if section.get('status') == 'completed'
                          for citation in re.findall(r'\b(src_[A-Za-z0-9_-]+)\b', section.get('content', ''))}
-            result['sources'] = merge_sources(result['sources'], found, protected_ids=protected, query=body['title'])
+            result['sources'] = merge_sources(result['sources'], found, protected_ids=protected, query=public_subject(body))
             result['coverage'][index] = coverage
             state['channel_index'] = index + 1
             result['progress'].append(f'{channel}: {coverage["status"]}')
             emit(dict(stage='discovery', status='completed' if coverage['status'] in ('found', 'no_results') else 'failed',
                       sourceCount=len(found)))
             save()
+        # Persist every deliberately omitted slot, including after recovery or a single-tier rerun.
+        for key in TIERS:
+            if section_spec(body, key) is None:
+                result['sections'] = [s for s in result['sections'] if s['key'] != key]
+                result['sections'].append(dict(key=key, title=TIERS[key][0] + ' — skipped: outside accepted scope',
+                                               content='', status='skipped'))
+        save()
         selected_keys = [body['section']] if body.get('section') else list(TIERS)
         for key in selected_keys:
             # All writers need shared summaries; a new tier or restart must not reset retries.
             if calls.preparation.get('summaryFailed') and any(s['status'] == 'failed' for s in result['sections']):
                 break
-            if any(s['key'] == key and s['status'] in ('completed', 'partial', 'failed') for s in result['sections']):
+            spec = section_spec(body, key)
+            if spec is None or any(s['key'] == key and s['status'] in ('completed', 'partial', 'failed') for s in result['sections']):
                 continue
-            title, description = TIERS[key]
+            title, description = spec
             succeeded = False
             for attempt in range(state.get(key, 0), 2):
                 state[key] = attempt + 1
@@ -165,6 +216,7 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                     text, sources = await engine.tier(tier_body, key, description, result['sources'])
                     if not isinstance(text, str) or not text.strip():
                         raise ProviderError('empty section', code='empty_output')
+                    validate_section_subject(body, key, text)
                     result['sources'] = sources
                     result['warnings'].extend(getattr(engine, 'warnings', []))
                     checked, warnings = validate_report(text[:16000], sources)
@@ -172,6 +224,12 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                     comparisons, numeric_notes = await numeric_review(calls, text[:16000], sources)
                     if comparisons:
                         checked += '\n\n**Numeric evidence comparisons**\n\n' + comparisons[:5000]
+                    if excluded and key == next(k for k in TIERS if section_spec(body, k) is not None):
+                        names = {'guestName': 'guest', 'companyName': 'company', 'industry': 'industry'}
+                        disputed = state['resolution']['ambiguousFields']
+                        identity = ' and '.join(names[k] for k in disputed) + (' identity' if len(disputed) == 1 else ' identities')
+                        checked = ('> Scope: Research excludes the unresolved ' + identity +
+                                   ' and covers only the remaining supplied subjects.\n\n' + checked)
                     checked = utf16_slice(checked, 24000)
                     result['sections'][-1].update(content=checked, status='completed')
                     result['sections'][-1].pop('failure', None)
@@ -205,8 +263,15 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                 result['failure'] = info
                 result['warnings'].append(f'{title}: {info["code"].replace("_", " ")}.')
                 save()
-        statuses = [s['status'] for s in result['sections'] if s['key'] in selected_keys]
-        final = 'completed' if len(statuses) == len(selected_keys) and all(s == 'completed' for s in statuses) else 'partial' if 'completed' in statuses else 'failed'
+        result['sections'].sort(key=lambda s: list(TIERS).index(s['key']))
+        slots = result['sections']
+        completed = [s for s in slots if s['status'] == 'completed' and s.get('content', '').strip()]
+        complete = (len(slots) == len(TIERS) and {s['key'] for s in slots} == set(TIERS)
+                    and bool(completed) and all(
+                        (s['status'] == 'completed' and bool(s.get('content', '').strip())) or
+                        (s['status'] == 'skipped' and s.get('content') == '' and section_spec(body, s['key']) is None)
+                        for s in slots))
+        final = 'completed' if complete else 'partial' if completed else 'failed'
         if final == 'completed':
             result.pop('failure', None)
         for item in result['coverage']:

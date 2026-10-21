@@ -5,23 +5,23 @@ export type ResearchChannel = typeof RESEARCH_CHANNELS[number];
 export const RESEARCH_TOOLS = ["perplexity.web.search", "exa.web.contents.get", "anyapi.linkedin.search.posts", "youtube.youtube.search.videos", "anyapi.instagram.hashtag.posts", "scrapecreators.reddit.search.posts", "anyapi.x.search.posts"] as const;
 export type ResearchInputV2 = { guestName: string; companyName: string; industry: string; audienceCountry: "IN" };
 export type ResearchCoverage = { channel: ResearchChannel; status: "pending" | "searching" | "found" | "no_results" | "unavailable" | "failed" | "budget_limited"; sourceCount: number; method: "dedicated_tool" | "web_search" };
-export type ResearchModelInfo = { service: "omniroute" | "openrouter"; requestedModel: string; reportedModel?: string };
+export type ResearchModelInfo = { service: "omniroute" | "openrouter" | "anthropic"; requestedModel: string; reportedModel?: string };
 export type ResearchFailure = {
   stage: "resolve" | "discovery" | "snacks" | "appetizers" | "main" | "desserts" | "storage" | "runner";
   code: "timeout" | "rate_limit" | "authentication" | "budget_exhausted" | "output_truncated" | "empty_output" | "invalid_output" | "storage_failure" | "provider_unavailable" | "internal_error";
   retryable: boolean;
     reason?: 'http_error' | 'transport_error' | 'connect_timeout' | 'read_timeout' | 'deadline' | 'stream_error' | 'stream_incomplete' | 'stream_invalid' | 'response_too_large' | 'context_limit' | 'no_matching_sources' | 'invalid_json' | 'invalid_schema' | 'output_truncated' | 'empty_output';
-    provider?: 'treg' | 'omniroute' | 'openrouter' | 'runner';
+    provider?: 'treg' | 'omniroute' | 'openrouter' | 'anthropic' | 'runner';
     operation?: 'catalog' | 'search' | 'social_search' | 'extract' | 'model';
     httpStatus?: number;
 };
 export type ResearchSection = { key: ResearchSectionKey; title: string; content: string; status: string; failure?: ResearchFailure };
-export type ResearchSummary = { id: string; title: string; status: ResearchStatus; updatedAt: string; revision: number; shared: boolean };
+export type ResearchSummary = { id: string; title: string; status: ResearchStatus; updatedAt: string; revision: number; shared: boolean; canEdit?: boolean };
 export type ResearchSource = { id: string; title: string; url: string; excerpt: string; publisher?: string; publishedAt?: string; retrievedAt: string; kind?: string; timestampSeconds?: number;
   platform?: ResearchChannel; retrievedVia?: typeof RESEARCH_TOOLS[number]; evidenceType?: "page_extract" | "search_snippet" | "post" | "transcript" | "video_metadata";
 };
 export type ResearchBrief = ResearchSummary & {
-  notes: string; notesApproved?: boolean; episodeId: string | null; canEdit: boolean; needsResearch?: boolean;
+  notes: string; notesApproved?: boolean; episodeId: string | null; canEdit: boolean; needsResearch?: boolean; skipClarification?: boolean;
   sections: ResearchSection[]; sources: ResearchSource[];
   messages: Array<{ role: string; content: string }>; progress: string[]; warnings: string[];
   clarification: string | null; cost: { toolMicro: number; modelUsd: number | null };
@@ -37,14 +37,19 @@ export const RESEARCH_SECTIONS: ReadonlyArray<{ key: ResearchSectionKey; title: 
 ];
 export const RESEARCH_NOTES_LIMIT = 12_000;
 export function parseResearchInput(value: unknown): ResearchInputV2 {
-  const input = value as ResearchInputV2 | null;
-  if (!input || input.audienceCountry !== "IN" || ![input.guestName, input.companyName, input.industry].every(v => typeof v === "string" && v.trim().length >= 2 && v.trim().length <= 120)) {
-    throw new Error("Enter a guest name, company name and industry, each between 2 and 120 characters.");
+  const input = value as Partial<ResearchInputV2> | null;
+  const fields = [input?.guestName, input?.companyName, input?.industry];
+  if (!input || input.audienceCountry !== "IN" || fields.some(v => v !== undefined && typeof v !== "string")) {
+    throw new Error("Enter a guest, company or industry, each between 2 and 120 characters.");
   }
-  return { guestName: input.guestName.trim(), companyName: input.companyName.trim(), industry: input.industry.trim(), audienceCountry: "IN" };
+  const normalized = fields.map(v => v?.trim() ?? "");
+  if (!normalized.some(Boolean) || normalized.some(v => v.length > 120 || v.length > 0 && v.length < 2)) {
+    throw new Error("Enter a guest, company or industry, each between 2 and 120 characters.");
+  }
+  return { guestName: normalized[0], companyName: normalized[1], industry: normalized[2], audienceCountry: "IN" };
 }
 export function researchTitle(input: ResearchInputV2): string {
-  return `${input.guestName} · ${input.companyName} · ${input.industry}`.slice(0, 200).replace(/[\uD800-\uDBFF]$/u, "");
+  return [input.guestName, input.companyName, input.industry].filter(Boolean).join(" · ").slice(0, 200).replace(/[\uD800-\uDBFF]$/u, "");
 }
 export function researchIsRunning(status: ResearchStatus) { return status === "queued" || status === "running"; }
 export function researchDraft(brief: ResearchBrief): ResearchDraft {
@@ -79,7 +84,7 @@ export function researchSourceLabel(source: ResearchSource): string {
 export const RESEARCH_EVIDENCE_LABELS = { page_extract: "Page extract", search_snippet: "Search snippet", post: "Post", transcript: "Transcript", video_metadata: "Video metadata" } as const;
 export function researchModelSummary(info?: ResearchModelInfo): string {
   if (!info) return "Model identity was not retained for this run.";
-  return `Model service: ${info.service === "omniroute" ? "OmniRoute" : "OpenRouter"} · Requested route: ${info.requestedModel}${info.reportedModel ? ` · Reported model: ${info.reportedModel}` : " · Upstream model not reported"}`;
+  return `Model service: ${info.service === "anthropic" ? "Anthropic" : info.service === "omniroute" ? "OmniRoute" : "OpenRouter"} · Requested route: ${info.requestedModel}${info.reportedModel ? ` · Reported model: ${info.reportedModel}` : " · Upstream model not reported"}`;
 }
 export function researchFailureSummary(failure?: ResearchFailure): string {
   if (!failure) return "Failure cause was not retained for this run.";
@@ -98,7 +103,7 @@ export function researchFailureSummary(failure?: ResearchFailure): string {
     invalid_schema: "The provider response did not match the expected format", output_truncated: "The model output was truncated",
     empty_output: "The model returned no content",
   } satisfies Record<NonNullable<ResearchFailure["reason"]>, string>)[failure.reason] : reasons[failure.code];
-  return `${detail}${failure.provider ? ` (${failure.provider}${failure.operation ? ` / ${failure.operation}` : ""})` : ""} during ${failure.stage}. ${failure.retryable ? "A full research run can be retried." : "Review the failure before starting another run."}`;
+  return `${detail}${failure.provider ? ` (${failure.provider}${failure.operation ? ` / ${failure.operation}` : ""})` : ""} during ${failure.stage}. ${failure.retryable ? "Start a new brief to try again." : "Start a new brief after the issue is resolved."}`;
 }
 /** Only known evidence IDs become citations; unknown references remain visible. */
 export function replaceResearchCitations(content: string, sources: ResearchSource[], render: (source: ResearchSource) => string): string {
@@ -180,7 +185,7 @@ export async function researchRequest<T>(fetcher: ResearchFetch, path: string, o
       : errorData?.error === "research_cancel_pending" ? "Cancellation is not confirmed yet. Retry cancellation to stop remote work."
       : errorData?.error === "notes_consent_required" ? "Approve use of your notes before saving or starting research."
       : errorData?.error === "research_chat_limit" ? "This brief has reached its follow-up limit."
-      : errorData?.error === "research_deletion_pending" ? "Deletion is pending. Editing and research are disabled; retry deletion to finish removing this brief."
+      : errorData?.error === "research_deletion_pending" ? "Deletion is pending. Use the bin beside this saved brief to retry."
       : errorData?.error === "research_running" ? "Research is already running. Wait for it to finish or cancel the run before making changes."
       : errorData?.error === "research_not_ready" ? "This brief is not ready for follow-up questions. Wait for research to finish and return findings."
       : errorData?.error === "research_conflict" || errorData?.error === "revision_conflict" ? "This brief changed since you opened it. Your edits have been kept. Review the latest saved version before saving again."
@@ -201,6 +206,7 @@ export function parseResearchBrief(value: unknown): ResearchBrief {
     || !["draft", "queued", "running", "completed", "partial", "failed", "cancelled", "clarification", "deleting", "cancel_pending"].includes(b.status)
     || typeof b.updatedAt !== "string" || typeof b.notes !== "string" || !(b.episodeId === null || typeof b.episodeId === "string")
     || typeof b.shared !== "boolean" || typeof b.canEdit !== "boolean"
+    || (b.skipClarification !== undefined && typeof b.skipClarification !== "boolean")
     || (b.needsResearch !== undefined && typeof b.needsResearch !== "boolean")
     || !Array.isArray(b.sections) || !b.sections.every(s => s && RESEARCH_SECTIONS.some(k => k.key === s.key) && typeof s.title === "string" && typeof s.content === "string" && typeof s.status === "string")
     || !Array.isArray(b.sources) || !b.sources.every(s => s && [s.id, s.title, s.url, s.excerpt, s.retrievedAt].every(v => typeof v === "string"))
@@ -216,7 +222,7 @@ export function parseResearchBrief(value: unknown): ResearchBrief {
     && ["timeout", "rate_limit", "authentication", "budget_exhausted", "output_truncated", "empty_output", "invalid_output", "storage_failure", "provider_unavailable", "internal_error"].includes(f.code)
     && typeof f.retryable === "boolean"
         && (f.reason == null || ['http_error', 'transport_error', 'connect_timeout', 'read_timeout', 'deadline', 'stream_error', 'stream_incomplete', 'stream_invalid', 'response_too_large', 'context_limit', 'no_matching_sources', 'invalid_json', 'invalid_schema', 'output_truncated', 'empty_output'].includes(f.reason))
-        && (f.provider == null || ['treg', 'omniroute', 'openrouter', 'runner'].includes(f.provider))
+        && (f.provider == null || ['treg', 'omniroute', 'openrouter', 'anthropic', 'runner'].includes(f.provider))
         && (f.operation == null || ['catalog', 'search', 'social_search', 'extract', 'model'].includes(f.operation))
         && (f.httpStatus == null || (typeof f.httpStatus === "number" && Number.isInteger(f.httpStatus) && f.httpStatus >= 100 && f.httpStatus <= 599));
   const boundedModel = (v: unknown) => typeof v === "string" && v.length <= 120;
@@ -225,7 +231,7 @@ export function parseResearchBrief(value: unknown): ResearchBrief {
       && ["pending", "searching", "found", "no_results", "unavailable", "failed", "budget_limited"].includes(c.status)
       && Number.isSafeInteger(c.sourceCount) && c.sourceCount >= 0 && ["dedicated_tool", "web_search"].includes(c.method))
       || new Set(b.coverage.map(c => c.channel)).size !== b.coverage.length))
-    || (b.modelInfo !== undefined && (!b.modelInfo || !["omniroute", "openrouter"].includes(b.modelInfo.service) || !boundedModel(b.modelInfo.requestedModel) || (b.modelInfo.reportedModel !== undefined && !boundedModel(b.modelInfo.reportedModel))))
+    || (b.modelInfo !== undefined && (!b.modelInfo || !["omniroute", "openrouter", "anthropic"].includes(b.modelInfo.service) || !boundedModel(b.modelInfo.requestedModel) || (b.modelInfo.reportedModel !== undefined && !boundedModel(b.modelInfo.reportedModel))))
     || !validFailure(b.failure) || !b.sections.every(s => validFailure(s.failure))
     || !b.sources.every(s => (s.publisher === undefined || typeof s.publisher === "string")
       && (s.publishedAt === undefined || typeof s.publishedAt === "string")

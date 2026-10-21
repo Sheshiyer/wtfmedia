@@ -108,6 +108,7 @@ htmlcov/
 .coverage.*
 playwright-report/
 test-results/
+.vitest-attachments/
 .lighthouseci/
 .phase1-visual-candidates/
 .phase1-tmp/

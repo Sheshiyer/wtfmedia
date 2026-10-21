@@ -77,11 +77,14 @@ held; an approved Frame.io episode URL is not itself a timestamp mapping.
 
 ## Research workspace (local source)
 
-The authenticated `/beta/research` page adds saved four-section briefs, source
-review, private notes with model consent, editing/version restore, section
-regeneration, read-only team sharing, Markdown export, and evidence-based
-follow-up questions. Research uses a private Python runner with GPT Researcher,
-Treg, and OpenRouter; it does not create another Ask WTF transcript corpus.
+The authenticated `/beta/research` page accepts a guest, company or industry
+(any one is sufficient), plus optional Additional info to guide the research.
+It provides scoped reports, expandable section sources, Word export, sidebar
+deletion and private follow-up questions over saved evidence. Optional
+clarification can be skipped without inventing missing subjects. Research uses a
+private Python runner with GPT Researcher, Treg and direct Claude Sonnet 5.5;
+it does not create another Ask WTF transcript corpus. Existing saved versions
+remain stored, but editing/version controls are not part of the report reader.
 
 Activation requires migration `0023_research.sql`, a running private research
 service, and server-side provider configuration. These source changes do not

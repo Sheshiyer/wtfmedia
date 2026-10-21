@@ -11,12 +11,13 @@ import {
   type MomentEnrichment,
   type MomentSource,
 } from "./moments.ts";
-import { openRouterChat, type OpenRouterEnv } from "./openrouter.ts";
+import { claudeChat, type ClaudeEnv } from "./claude.ts";
 
 const MAX_MOMENTS = 25;
 const ENRICH_BATCH_SIZE = 10;
 
-export type MomentPipelineEnvironment = OpenRouterEnv & {
+export type MomentPipelineEnvironment = ClaudeEnv & {
+  generationSignal?: AbortSignal;
   AI: { run(model: string, input: unknown): Promise<unknown> };
   VECTORIZE: Parameters<typeof resolveMomentEnds>[0];
 };
@@ -32,22 +33,22 @@ async function enrichBatch(
   question: string,
   batch: Moment[],
   strict = false,
-): Promise<MomentEnrichment[]> {
+): Promise<MomentEnrichment[] | null> {
   const suffix = strict
     ? "There is 1 MOMENT. Output exactly 1 JSON object labeling it. Every text field (guest, theme, topic, summary, whyRelevant) is REQUIRED — never output empty strings; infer conservatively from the excerpt and episode title."
     : `There are ${batch.length} MOMENTs. Output exactly ${batch.length} JSON objects, one per MOMENT, in order — use empty strings when a text field cannot be honest, but never skip a MOMENT and never default strength.`;
   try {
-    const { answer } = await openRouterChat(env, [
+    const { answer } = await claudeChat(env, [
       { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
       { role: "user", content: `${buildMomentEnrichmentInput(question, batch)}\n\n${suffix}` },
-    ], { maxTokens: 2000, temperature: 0.2 });
+    ], { maxTokens: 2000, signal: env.generationSignal });
     if (!answer.trim()) throw new Error("empty moment enrichment");
     return parseMomentEnrichment(answer, batch.length);
   } catch (error) {
     console.warn("wtfmedia moment enrichment failed", {
       error: error instanceof Error ? error.message : "unknown",
     });
-    return batch.map(() => ({}));
+    return null;
   }
 }
 
@@ -78,9 +79,10 @@ export async function momentsForAnswer(
   const enrichments = visible.map((_, index) =>
     settled[Math.floor(index / ENRICH_BATCH_SIZE)]?.[index % ENRICH_BATCH_SIZE] ?? {});
 
+  const failed = new Set(visible.flatMap((_, index) => settled[Math.floor(index / ENRICH_BATCH_SIZE)] === null ? [index] : []));
   const incomplete = () => enrichments
     .map((enrichment, index) =>
-      (!enrichment.guest || !enrichment.theme || !enrichment.topic || !enrichment.summary || !enrichment.whyRelevant)
+      (!failed.has(index) && (!enrichment.guest || !enrichment.theme || !enrichment.topic || !enrichment.summary || !enrichment.whyRelevant))
         ? index
         : -1)
     .filter((index) => index !== -1);
@@ -90,6 +92,7 @@ export async function momentsForAnswer(
     if (missingIndices.length === 0) break;
     const retried = await Promise.all(missingIndices.map((index) => enrichBatch(env, question, [visible[index]], true)));
     missingIndices.forEach((visibleIndex, retryIndex) => {
+      if (retried[retryIndex] === null) failed.add(visibleIndex);
       const retry = retried[retryIndex]?.[0];
       if (retry && Object.keys(retry).length > 0) enrichments[visibleIndex] = { ...retry, ...enrichments[visibleIndex] };
     });

@@ -30,14 +30,15 @@ def platform_for_url(url):
 def public_subject(body):
     fields = body.get('researchInput')
     if fields:
-        return f"Guest: {fields['guestName']}; company: {fields['companyName']}; industry: {fields['industry']}"
+        return '; '.join(label + ': ' + fields[name] for name, label in
+                         [('guestName', 'Guest'), ('companyName', 'company'), ('industry', 'industry')] if fields.get(name))
     return body['title']
 
 
 def channel_query(channel, body):
     subject = public_subject(body)
     if channel == 'web':
-        return scoped_query(subject + ' background company competitors industry global and India official reports', body.get('searchScope', {}))
+        return scoped_query(subject + ' public background official reports global context and relevance to India', body.get('searchScope', {}))
     domains = ' OR '.join('site:' + domain for domain in DOMAINS[channel])
     return scoped_query(f'{subject} ({domains})', body.get('searchScope', {}))
 
@@ -45,8 +46,8 @@ def channel_query(channel, body):
 def dedicated_input(channel, body):
     fields = body.get('researchInput')
     # Social query engines AND bare words: keep focused queries rather than feeding instructions.
-    company = fields['companyName'] if fields else body['title'][:120]
-    guest = fields['guestName'] if fields else ''
+    company = (fields.get('companyName') or fields.get('industry') or fields.get('guestName')) if fields else body['title'][:120]
+    guest = fields.get('guestName', '') if fields and fields.get('guestName') != company else ''
     scope = body.get('searchScope', {})
     focus = scope.get('focus', '')
     start, end = scope.get('dateFrom'), scope.get('dateTo')

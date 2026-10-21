@@ -14,7 +14,7 @@ RETRYABLE = {'timeout', 'rate_limit', 'output_truncated', 'empty_output', 'inval
 REASONS = {'http_error', 'transport_error', 'connect_timeout', 'read_timeout', 'deadline',
            'stream_error', 'stream_incomplete', 'stream_invalid', 'response_too_large',
            'context_limit', 'no_matching_sources', 'invalid_json', 'invalid_schema', 'output_truncated', 'empty_output'}
-PROVIDERS = {'treg', 'omniroute', 'openrouter', 'runner'}
+PROVIDERS = {'treg', 'anthropic', 'omniroute', 'openrouter', 'runner'}
 OPERATIONS = {'catalog', 'search', 'social_search', 'extract', 'model'}
 
 
@@ -36,9 +36,13 @@ def failure(error, stage):
         code = 'invalid_output'
     if code not in CODES:
         code = 'internal_error'
+    details = safe_details(getattr(error, 'details', {}))
+    status = details.get('httpStatus')
+    retryable = (code in RETRYABLE and getattr(error, 'retryable', True)
+                 and (status is None or status >= 500 or status == 429)
+                 and details.get('reason') not in {'context_limit', 'response_too_large', 'no_matching_sources'})
     return {'stage': stage if stage in STAGES else 'runner',
-            'code': code, 'retryable': code in RETRYABLE and getattr(error, 'details', {}).get('reason') not in {'context_limit', 'response_too_large', 'no_matching_sources'},
-            **safe_details(getattr(error, 'details', {}))}
+            'code': code, 'retryable': retryable, **details}
 
 
 def emit(event):
@@ -54,6 +58,8 @@ def emit(event):
         return
     safe = {'event': 'research_stage', 'stage': stage, 'status': status}
     safe.update(safe_details(event))
+    if event.get('model') == 'claude-sonnet-5-5':
+        safe['model'] = 'claude-sonnet-5-5'
     code, channel = event.get('code'), event.get('channel')
     if isinstance(code, str) and code in CODES:
         safe['code'] = code

@@ -7,10 +7,10 @@ local storage when remote configuration is present. Existing app briefs remain
 in staging D1. No Alpha corpus binding or production resources are introduced.
 
 Required Worker secrets: `RESEARCH_RUNNER_TOKEN`, `RESEARCH_STATE_TOKEN`,
-`RESEARCH_STATE_URL`, `TREG_TOKEN`, `OPENROUTER_API_KEY`.
-Research uses GLM 5.3 directly through OpenRouter. Before deploying this version,
-configure the OpenRouter secret on this Worker; an Edge-only secret is not inherited.
-Existing OmniRoute secrets are not forwarded to the container.
+`RESEARCH_STATE_URL`, `TREG_TOKEN`, `ANTHROPIC_API_KEY`.
+Research uses `claude-sonnet-5-5` directly through Anthropic Messages. Before deploying this version,
+configure the Anthropic secret on this Worker; an Edge-only secret is not inherited.
+Existing OpenRouter/OmniRoute secrets are not forwarded to the container.
 The state URL is this Worker's HTTPS URL followed by `/state`. Use distinct random
 runner/state tokens; the Edge only gets the runner token and base URL. Never put
 provider credentials into the frontend or image.

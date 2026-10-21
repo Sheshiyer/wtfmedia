@@ -92,10 +92,13 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
             throw new ResearchError(503, 'research_not_configured');
         if (input.clarification !== undefined && !bounded(input.clarification, 2000))
             throw new ResearchError(400, 'invalid_request');
+        if (input.skipClarification !== undefined && typeof input.skipClarification !== 'boolean')
+            throw new ResearchError(400, 'invalid_request');
+        const skipClarification = input.skipClarification ?? doc.skipClarification ?? false;
         const runId = 'rrun_' + crypto.randomUUID();
-        const payload = { id: runId, title: doc.title, ...(doc.researchInput ? { schemaVersion: 2, researchInput: doc.researchInput } : {}), notes: doc.notes, notesApproved: doc.notesApproved, section: null, clarification: input.clarification ?? null, sections: [], sources: [], budgetMicro: 5000000 };
+        const payload = { id: runId, title: doc.title, ...(doc.researchInput ? { schemaVersion: 2, researchInput: doc.researchInput } : {}), notes: doc.notes, notesApproved: doc.notesApproved, section: null, skipClarification, clarification: input.clarification ?? null, sections: [], sources: [], budgetMicro: 5000000 };
         // Diagnostics describe one run, never today's configuration applied to old work.
-        const next = { ...doc, status: 'queued', progress: [], warnings: [], clarification: null };
+        const next = { ...doc, skipClarification, status: 'queued', progress: [], warnings: [], clarification: null };
         delete next.coverage;
         delete next.modelInfo;
         delete next.failure;

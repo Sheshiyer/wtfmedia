@@ -9,6 +9,7 @@ from unittest.mock import patch, MagicMock
 from research.providers import Calls, EXTRACT, MODEL, TOOL, ProviderError, redact, Network as ProviderNetwork
 from research.store import BudgetExceeded, Store, Stopped
 from research.tests.test_runner import body, source
+from research.tests.test_claude_migration import events, wire, message
 
 CATALOG = json.loads((Path(__file__).parents[1] / 'catalog-receipt.json').read_text())
 
@@ -29,15 +30,14 @@ class Network:
             return {'results':[{'url':body['urls'][0],'title':'Raw source','text':'Retained raw page text.'}]}, {'x-treg-cost-micro':'1000','x-treg-call-id':'call_extract'}
         if url.endswith(TOOL):
             return {'results':[{'url':'https://example.com/public','title':'Title','snippet':'Retained excerpt.'}]}, {'x-treg-cost-micro':self.cost,'x-treg-call-id':'call_search'}
-        if url == 'https://openrouter.ai/api/v1/chat/completions':
-            return {'id':'gen_test','choices':[{'message':{'content':'Public answer'}}],
-                    'usage':{'cost':self.model_cost}}, {}
+        if url == 'https://api.anthropic.com/v1/messages':
+            return message('Public answer'), {}
         raise AssertionError('endpoint not allowlisted')
 
 
 class ProviderTests(unittest.TestCase):
     def setUp(self):
-        credentials = patch.dict(os.environ, {'OPENROUTER_API_KEY': 'fixture-key'})
+        credentials = patch.dict(os.environ, {'ANTHROPIC_API_KEY': 'fixture-key'})
         credentials.start()
         self.addCleanup(credentials.stop)
         self.tmp = tempfile.TemporaryDirectory()
@@ -49,78 +49,72 @@ class ProviderTests(unittest.TestCase):
         self.calls = Calls(self.store,*self.claim[:2],network=self.net)
     def tearDown(self):
         self.tmp.cleanup()
-    def test_research_uses_openrouter_even_with_legacy_gateway_settings(self):
+    def test_research_uses_anthropic_even_with_legacy_gateway_settings(self):
         from research.providers import model_info
         with patch.dict(os.environ, {'OMNIROUTE_BASE_URL': 'https://gateway.example/v1/',
                                      'OMNIROUTE_API_KEY': 'omni-test-secret',
-                                     'OPENROUTER_API_KEY': 'openrouter-test-secret'}):
+                                     'ANTHROPIC_API_KEY': 'anthropic-test-secret'}):
             self.calls.model([{'role': 'user', 'content': 'Public'}])
             _, url, headers, request = self.net.requests[-1]
-            self.assertEqual(url, 'https://openrouter.ai/api/v1/chat/completions')
-            self.assertEqual(headers['Authorization'], 'Bearer openrouter-test-secret')
-            self.assertEqual(request['model'], 'z-ai/glm-5.3')
+            self.assertEqual(url, 'https://api.anthropic.com/v1/messages')
+            self.assertEqual(headers['x-api-key'], 'anthropic-test-secret')
+            self.assertEqual(request['model'], 'claude-sonnet-5-5')
             self.assertTrue(request['stream'])
-            self.assertEqual(model_info(), {'service': 'openrouter', 'requestedModel': 'z-ai/glm-5.3'})
+            self.assertEqual(model_info(), {'service': 'anthropic', 'requestedModel': 'claude-sonnet-5-5'})
             self.calls.search('Public query')
             self.assertTrue(self.net.requests[-1][1].startswith('https://treg.to/'))
             self.assertEqual(redact({'text': 'omni-test-secret'}), {'text': '[redacted]'})
 
-    def test_missing_openrouter_key_never_falls_back_or_reserves_budget(self):
+    def test_missing_anthropic_key_never_falls_back_or_reserves_budget(self):
         from research.providers import configured
-        with patch.dict(os.environ, {'OPENROUTER_API_KEY': '',
+        with patch.dict(os.environ, {'ANTHROPIC_API_KEY': '',
                                      'OMNIROUTE_BASE_URL': 'https://gateway.example/v1',
                                      'OMNIROUTE_API_KEY': 'secret'}):
             self.assertFalse(configured())
             with self.assertRaises(ProviderError) as caught:
                 self.calls.model([{'role': 'user', 'content': 'Public'}])
-            self.assertEqual(caught.exception.details['provider'], 'openrouter')
+            self.assertEqual(caught.exception.details['provider'], 'anthropic')
             from research.contracts import Failure
             from research.diagnostics import failure
             Failure.model_validate(failure(caught.exception, 'runner'))
             self.assertEqual(self.store.get(self.claim[0])['cost']['modelUsd'], 0)
         self.assertEqual(self.net.requests, [])
 
-    def test_launcher_loads_openrouter_without_unrelated_secrets(self):
+    def test_launcher_loads_anthropic_without_unrelated_secrets(self):
         from research.serve import load_provider_vars
         from research.providers import configured, model_name
         path = Path(self.tmp.name) / 'vars'
-        path.write_text('OPENROUTER_API_KEY=openrouter-test-secret\nTREG_TOKEN=treg-test\n'
+        path.write_text('ANTHROPIC_API_KEY=anthropic-test-secret\nTREG_TOKEN=treg-test\n'
                         'RESEARCH_RUNNER_TOKEN=runner-test\nUNRELATED_SECRET=hidden\n'
                         'OMNIROUTE_API_KEY=legacy-secret\n')
         with patch.dict(os.environ, {}, clear=True):
             load_provider_vars(path)
-            self.assertEqual(os.environ['OPENROUTER_API_KEY'], 'openrouter-test-secret')
-            self.assertEqual(model_name(), 'z-ai/glm-5.3')
+            self.assertEqual(os.environ['ANTHROPIC_API_KEY'], 'anthropic-test-secret')
+            self.assertEqual(model_name(), 'claude-sonnet-5-5')
             self.assertTrue(configured())
             self.assertNotIn('UNRELATED_SECRET', os.environ)
             self.assertNotIn('OMNIROUTE_API_KEY', os.environ)
 
-    def test_gateway_stream_requires_finished_text_and_preserves_usage(self):
+    def test_anthropic_stream_requires_finished_text_and_preserves_usage(self):
         from research.providers import stream_response
-        events = [
-            {'id': 'gen-test', 'choices': [{'delta': {'content': 'Hello '}, 'finish_reason': None}]},
-            {'choices': [{'delta': {'content': 'world'}, 'finish_reason': 'stop'}]},
-            {'choices': [], 'usage': {'total_tokens': 7}},
-        ]
-        raw = ''.join('data: ' + json.dumps(e) + '\n\n' for e in events).encode()
-        result = stream_response(raw + b'data: [DONE]\n\n')
-        self.assertEqual(result['choices'][0]['message']['content'], 'Hello world')
-        self.assertEqual(result['usage'], {'total_tokens': 7})
-        self.assertEqual(result['id'], 'gen-test')
-        for invalid in [b'data: {broken}\n', b'data: [DONE]\n',
-                        b'data: {"error":{"message":"private"}}\n',
-                        b'data: {"choices":[{"delta":{"content":"partial"}}]}\n']:
+        result = stream_response(wire(events('Hello world')))
+        self.assertEqual(result['content'], [{'type': 'text', 'text': 'Hello world'}])
+        self.assertEqual(result['usage'], {'input_tokens': 11, 'output_tokens': 17})
+        self.assertEqual(result['id'], 'msg_fixture')
+        for invalid in [b'data: {broken}\n', wire(events()[:-1]),
+                        wire([{'type': 'error', 'error': {'type': 'api_error', 'message': 'private'}}]),
+                        wire(events()[:6])]:
             with self.assertRaises(ProviderError):
                 stream_response(invalid)
 
-    def test_openrouter_stalls_do_not_wait_ten_minutes(self):
+    def test_anthropic_stalls_do_not_wait_ten_minutes(self):
         response = MagicMock(status_code=200)
         response.iter_bytes.return_value = iter([b'{}'])
         client = MagicMock()
         client.__enter__.return_value.stream.return_value.__enter__.return_value = response
         with patch.dict(os.environ, {'OMNIROUTE_BASE_URL': 'https://gateway.example/v1'}), \
                 patch('research.providers.httpx.Client', return_value=client) as factory:
-            ProviderNetwork().request('POST', 'https://openrouter.ai/api/v1/chat/completions', {})
+            ProviderNetwork().request('POST', 'https://api.anthropic.com/v1/messages', {})
             self.assertEqual(factory.call_args.kwargs['timeout'].read, 180)
             self.assertEqual(factory.call_args.kwargs['timeout'].connect, 45)
 
@@ -135,51 +129,42 @@ class ProviderTests(unittest.TestCase):
 
     def test_stream_that_starts_in_time_can_finish_without_waiting_for_socket_close(self):
         def chunks():
-            yield b'data: {"choices":[{"delta":{"con'
-            yield b'tent":"Answer"},"finish_reason":null}]}\n\n'
-            yield b'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n'
-            yield b'data: {"choices":[],"usage":{"total_tokens":20}}\n\ndata: [DONE]\n\n'
-            raise AssertionError('Must not wait for EOF after the SSE completion marker')
-        response = MagicMock(status_code=200)
+            raw = wire(events('Answer'))
+            cut = raw.index(b'"text": "Answer"')
+            yield raw[:cut + 5]
+            yield raw[cut + 5:]
+            raise AssertionError('Must not wait for EOF after message_stop')
+        response = MagicMock(status_code=200, headers={})
         response.iter_bytes.side_effect = chunks
         client = MagicMock()
         client.__enter__.return_value.stream.return_value.__enter__.return_value = response
         with patch('research.providers.httpx.Client', return_value=client), \
-                patch('research.providers.time.monotonic', side_effect=[0, 169, 170, 220, 221]):
-            result, _ = ProviderNetwork()._request('POST', 'https://gateway.example/v1/chat/completions',
+                patch('research.providers.time.monotonic', side_effect=[0, 169, 170]):
+            result, _ = ProviderNetwork()._request('POST', 'https://api.anthropic.com/v1/messages',
                                                    {}, {'stream': True})
-        self.assertEqual(result['choices'][0]['message']['content'], 'Answer')
-        self.assertEqual(result['usage']['total_tokens'], 20)
+        self.assertEqual(result['content'], [{'type': 'text', 'text': 'Answer'}])
+        self.assertEqual(result['usage']['output_tokens'], 17)
 
     def test_reasoning_and_keepalives_do_not_buy_completion_time(self):
-        for delta in [{'reasoning_content': 'Private reasoning'}, {'content': ''}, {}]:
-            response = MagicMock(status_code=200)
-            response.iter_bytes.return_value = iter([
-                ('data: ' + json.dumps({'choices': [{'delta': delta}]}) + '\n\n').encode(),
-                b': heartbeat\n\n',
-            ])
-            client = MagicMock()
-            client.__enter__.return_value.stream.return_value.__enter__.return_value = response
-            with self.subTest(delta=delta), patch('research.providers.httpx.Client', return_value=client), \
-                    patch('research.providers.time.monotonic', side_effect=[0, 170, 181]):
-                with self.assertRaisesRegex(ProviderError, 'deadline'):
-                    ProviderNetwork()._request('POST', 'https://gateway.example/v1/chat/completions',
-                                               {}, {'stream': True})
+        response = MagicMock(status_code=200)
+        response.iter_bytes.return_value = iter([wire(events()[:4]), b': heartbeat\n\n'])
+        client = MagicMock()
+        client.__enter__.return_value.stream.return_value.__enter__.return_value = response
+        with patch('research.providers.httpx.Client', return_value=client), \
+                patch('research.providers.time.monotonic', side_effect=[0, 170, 181]):
+            with self.assertRaisesRegex(ProviderError, 'deadline'):
+                ProviderNetwork()._request('POST', 'https://api.anthropic.com/v1/messages', {}, {'stream': True})
 
     def test_continuous_output_cannot_extend_completion_forever(self):
+        delta = {'type': 'content_block_delta', 'index': 1, 'delta': {'type': 'text_delta', 'text': 'Partial'}}
         response = MagicMock(status_code=200)
-        response.iter_bytes.return_value = iter([
-            b'data: {"choices":[{"delta":{"content":"Partial"}}]}\n\n',
-            b'data: {"choices":[{"delta":{"content":"Still partial"}}]}\n\n',
-            b'data: {"choices":[{"delta":{"content":"Too late"}}]}\n\n',
-        ])
+        response.iter_bytes.return_value = iter([wire(events()[:6]), wire([delta]), wire([delta])])
         client = MagicMock()
         client.__enter__.return_value.stream.return_value.__enter__.return_value = response
         with patch('research.providers.httpx.Client', return_value=client), \
                 patch('research.providers.time.monotonic', side_effect=[0, 170, 250, 291]):
             with self.assertRaisesRegex(ProviderError, 'deadline'):
-                ProviderNetwork()._request('POST', 'https://gateway.example/v1/chat/completions',
-                                           {}, {'stream': True})
+                ProviderNetwork()._request('POST', 'https://api.anthropic.com/v1/messages', {}, {'stream': True})
 
     def test_search_contract_cache_and_receipt(self):
         found = self.calls.search('Public query')
@@ -233,12 +218,11 @@ class ProviderTests(unittest.TestCase):
         self.calls.model([{'role':'user','content':'Public question'}],16000)
         paid = self.net.requests[-1][3]
         self.assertEqual(paid['model'],MODEL)
-        self.assertEqual(MODEL,'z-ai/glm-5.3')
+        self.assertEqual(MODEL,'claude-sonnet-5-5')
         self.assertEqual(paid['max_tokens'],12000)
-        self.assertEqual(paid['reasoning'],{'effort':'low'})
-        self.assertFalse(paid['provider']['allow_fallbacks'])
-        self.assertEqual(paid['provider']['max_price'],{'prompt':1,'completion':10,'request':0})
-        self.assertEqual(self.store.get(self.claim[0])['cost']['modelUsd'],0.000025)
+        self.assertEqual(paid['output_config'], {'effort': 'medium'})
+        self.assertNotIn('provider', paid)
+        self.assertIsNone(self.store.get(self.claim[0])['cost']['modelUsd'])
         self.net.model_cost = None
         self.calls.model([{'role':'user','content':'Another public question'}])
         self.assertIsNone(self.store.get(self.claim[0])['cost']['modelUsd'])
@@ -246,12 +230,12 @@ class ProviderTests(unittest.TestCase):
         original = self.net.request
         def truncated(*args, **kwargs):
             payload, headers = original(*args, **kwargs)
-            payload['choices'][0]['finish_reason'] = 'length'
+            payload['stop_reason'] = 'max_tokens'
             return payload, headers
         self.net.request = truncated
         with self.assertRaisesRegex(ProviderError, 'model output truncated'):
             self.calls.model([{'role':'user','content':'Public question'}])
-        self.assertEqual(self.store.get(self.claim[0])['cost']['modelUsd'],0.000025)
+        self.assertIsNone(self.store.get(self.claim[0])['cost']['modelUsd'])
 
     def test_unknown_tool_cost_warning(self):
         self.net.cost = None
@@ -260,3 +244,11 @@ class ProviderTests(unittest.TestCase):
     def test_environment_secrets_redacted_from_provider_data(self):
         with patch.dict(os.environ,{'TREG_TOKEN':'secret-test-token'}):
             self.assertEqual(redact({'text':'secret-test-token'}),{'text':'[redacted]'})
+
+    def test_derived_queries_cannot_reintroduce_withheld_identity(self):
+        self.calls.scope = {'excludedSubjects': ['Mukesh Bansal']}
+        with self.assertRaises(ProviderError):
+            self.calls.search('mukesh bansal biography')
+        self.assertEqual(self.net.requests, [])
+        self.calls.search('Zomato company background')
+        self.assertTrue(self.net.requests)

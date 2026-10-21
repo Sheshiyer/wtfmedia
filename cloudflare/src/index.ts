@@ -26,8 +26,8 @@ import {
   runPublicChat,
   parseHistory,
 } from "./chat/public-chat.ts";
-import { answerWithOpenRouter } from "./chat/openrouter.ts";
-export { answerWithOpenRouter };
+import { CLAUDE_MODEL } from "./chat/claude.ts";
+export { claudeChat } from "./chat/claude.ts";
 import {
   admitTranscriptJobs,
   type TranscriptJob,
@@ -53,20 +53,13 @@ export interface Env extends OpsEnv {
   ZERNIO_API_KEY?: string;
   ZERNIO_PROFILE_ID?: string;
   SOCIAL_ANALYTICS_ENABLED?: string;
-  OPENROUTER_API_KEY?: string;
-  OPENROUTER_API_KEY_2?: string;
-  OPENROUTER_ANSWER_MODEL?: string;
+  ANTHROPIC_API_KEY?: string;
 }
 
 // Models a visitor may force for a "retry with model" regeneration. All are
-// served through OpenRouter; the allowlist keeps arbitrary (expensive) model
+// served through direct Claude; the allowlist keeps arbitrary model
 // strings out of a public, rate-limited endpoint.
-const RETRYABLE_OPENROUTER_MODELS = new Set([
-  "google/gemini-3.5-flash",
-  "openai/gpt-5",
-  "poolside/laguna-s-2.1",
-  "thinkingmachines/inkling",
-]);
+const ANSWER_MODELS = new Set([CLAUDE_MODEL]);
 const MAX_BODY_BYTES = 16_000;
 
 function cors(request: Request, env: Env) {
@@ -114,12 +107,10 @@ async function chat(request: Request, env: Env) {
   if (typeof payload.question !== "string" || !payload.question.trim()) {
     return reply(request, env, { error: "question_required" }, 400);
   }
-  let forcedAnswerModel: string | undefined;
   if (payload.answerModel !== undefined) {
-    if (typeof payload.answerModel !== "string" || !RETRYABLE_OPENROUTER_MODELS.has(payload.answerModel)) {
+    if (typeof payload.answerModel !== "string" || !ANSWER_MODELS.has(payload.answerModel)) {
       return reply(request, env, { error: "invalid_answer_model" }, 400);
     }
-    forcedAnswerModel = payload.answerModel;
   }
   const episodeId = parseEpisodeId(payload.episodeId);
   if (payload.episodeId !== undefined && episodeId === null) {
@@ -130,7 +121,7 @@ async function chat(request: Request, env: Env) {
     sourceMode: parseSourceMode(payload.sourceMode),
     episodeId,
     history: parseHistory(payload.history),
-    forcedAnswerModel,
+    signal: request.signal,
   });
   return reply(request, env, body, status);
 }
@@ -268,6 +259,7 @@ export default {
         status: "ok",
         environment: env.DEPLOYMENT_ENVIRONMENT,
         service: env.SERVICE_NAME,
+        localGeneration: { provider: "anthropic", model: CLAUDE_MODEL, configured: !!env.ANTHROPIC_API_KEY?.trim() },
         ...(env.DEPLOYMENT_ENVIRONMENT === "staging"
           ? { inferenceService: "wtfmedia-web", corpusAuthority: "alpha_public_api" }
           : { index: env.CATALOGUE_INDEX_NAME }),

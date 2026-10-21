@@ -13,16 +13,15 @@ import {
   queryEvidenceSourcesForQuestion,
 } from "./evidence-coordinator.ts";
 import { momentsForAnswer } from "./moment-pipeline.ts";
-import { openRouterChat } from "./openrouter.ts";
+import { claudeChat } from "./claude.ts";
 import type { EnrichedMoment, MomentSource } from "./moments.ts";
 
 export type ChatAnswerEnvironment = {
   AI: any;
   DB?: any;
   VECTORIZE: any;
-  OPENROUTER_API_KEY?: string;
-  OPENROUTER_API_KEY_2?: string;
-  OPENROUTER_ANSWER_MODEL?: string;
+  ANTHROPIC_API_KEY?: string;
+  generationSignal?: AbortSignal;
 };
 
 export type ChatAnswerInput = {
@@ -95,21 +94,8 @@ async function vectorFor(env: ChatAnswerEnvironment, text: string): Promise<numb
 }
 
 async function answerWithFallback(env: ChatAnswerEnvironment, messages: unknown[]) {
-  const failures: string[] = [];
-  // All generation runs on OpenRouter glm-5.3-flash — Workers AI's per-minute
-  // inference cap starved the pipeline. Two attempts through key rotation.
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    try {
-      const { answer, model } = await openRouterChat(env, messages, { maxTokens: 2500 });
-      if (failures.length) console.warn("wtfmedia answer model fallback used", { model, failedAttempts: failures.length });
-      return { answer, model, fallback: failures.length > 0 };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "unknown";
-      failures.push(message);
-      console.warn("wtfmedia answer model failed", { message });
-    }
-  }
-  throw new Error(`answer models unavailable: ${failures.length}`);
+  const result = await claudeChat(env, messages, { maxTokens: 2500, signal: env.generationSignal });
+  return { ...result, fallback: false };
 }
 
 function citedEvidenceFallback(sources: Array<{ n: number; title: string; text?: string }>) {
@@ -205,6 +191,7 @@ function insufficientEvidence(resolved: ReturnType<typeof resolveEpisodeScopedSo
 }
 
 export async function runChat(input: ChatAnswerInput, env: ChatAnswerEnvironment): Promise<ChatAnswer> {
+  env = { ...env, generationSignal: AbortSignal.any([AbortSignal.timeout(70000), ...(env.generationSignal ? [env.generationSignal] : [])]) };
   const question = input.question.trim();
   const priorTurns = boundedPriorTurns(input.priorTurns);
   if (!question || question.length > MAX_QUESTION_CHARS) throw new Error("invalid_chat_question");

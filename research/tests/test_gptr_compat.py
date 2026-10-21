@@ -29,7 +29,7 @@ class RecordingCalls:
         self.models, self.searches, self.extracts = [], [], []
     def stage(self):
         self.stage_error = None
-    def model(self, messages, max_tokens=1800):
+    def model(self, messages, max_tokens=1800, **kwargs):
         encoded = json.dumps(messages)
         if len(encoded) > 90000:
             raise AssertionError('oversized context')
@@ -39,12 +39,12 @@ class RecordingCalls:
         if 'Extract findings relevant to the research scope' in encoded:
             return '\n'.join(s['excerpt'][:100] + ' [' + s['id'] + '].' for s in json.loads(messages[-1]['content'])['evidence'])
         if 'Resolve the public entity' in encoded:
-            return '{"clarification":null}'
+            return '{"kind":"resolved","clarification":null,"ambiguousFields":[]}'
         if 'Extract numeric claims' in encoded:
             return '{"claims":[]}'
         if 'Write the ' in encoded or 'Answer only from the supplied evidence' in encoded:
             return 'A bounded editorial observation [src_1].'
-        return '["Example founder background", "Example founder industry"]'
+        return '{"queries":["Example founder background", "Example founder industry"]}'
     def search(self, query):
         self.searches.append(query)
         return [dict(id='src_1', title='Example founder podcast interview',url='https://example.com/podcast',
@@ -68,7 +68,7 @@ class GPTRCompatibilityTests(unittest.TestCase):
             with self.subTest(recover=recover), tempfile.TemporaryDirectory() as tmp:
                 limits = []
                 class SummaryCalls(RecordingCalls):
-                    def model(self, messages, max_tokens=1800):
+                    def model(self, messages, max_tokens=1800, **kwargs):
                         if 'Extract findings relevant' in json.dumps(messages):
                             limits.append(max_tokens)
                             if not recover or len(limits) == 1:
@@ -107,7 +107,7 @@ class GPTRCompatibilityTests(unittest.TestCase):
         from research.gptr import GPTREngine
         from research.contracts import TIERS
         class WriteTimeout(RecordingCalls):
-            def model(self, messages, max_tokens=1800):
+            def model(self, messages, max_tokens=1800, **kwargs):
                 if 'Write the ' in json.dumps(messages):
                     raise ProviderError('writer timeout', code='timeout', reason='deadline')
                 return super().model(messages, max_tokens)
@@ -152,11 +152,12 @@ class GPTRCompatibilityTests(unittest.TestCase):
         recorder = RecordingCalls()
         class Net(Network):
             def request(self, method, url, headers, body=None):
-                if url.endswith('/chat/completions'):
-                    answer = recorder.model(body['messages'], body['max_tokens'])
+                if url.endswith('/messages'):
+                    messages = [{'role': 'system', 'content': b['text']} for b in body.get('system', [])] + body['messages']
+                    answer = recorder.model(messages, body['max_tokens'])
                     if 'Write the ' in json.dumps(body['messages']):
                         answer = 'A reported 20 jobs in 2024 [src_web_1].'
-                    return {'choices': [{'message': {'content': answer}, 'finish_reason': 'stop'}]}, {}
+                    return {'content': [{'type': 'text', 'text': answer}], 'stop_reason': 'end_turn'}, {}
                 return super().request(method, url, headers, body)
         net = Net()
         pool = [{**s, 'excerpt': 'Company history, competitors, India skills and 20 jobs in 2024. ' * 17}
@@ -165,7 +166,7 @@ class GPTRCompatibilityTests(unittest.TestCase):
         def collect(channel, *_):
             found = [s for s in pool if s['id'].startswith('src_' + channel + '_')]
             return found, dict(channel=channel, status='found', sourceCount=len(found), method='web_search')
-        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {'OPENROUTER_API_KEY': 'fixture-key'}, clear=True), \
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {'ANTHROPIC_API_KEY': 'fixture-key'}, clear=True), \
                 patch('research.worker.collect_channel', side_effect=collect), \
                 patch('socket.socket.connect', side_effect=AssertionError('unexpected external socket')):
             store = Store(Path(tmp) / 'runner.sqlite')
@@ -194,7 +195,7 @@ class GPTRCompatibilityTests(unittest.TestCase):
                 'notesApproved':True, 'sections':[dict(key=k,content='prior context ' * 1700) for k in TIERS]}
         async def exercise():
             engine = GPTREngine(calls)
-            self.assertIsNone(await engine.resolve(body,sources))
+            self.assertEqual((await engine.resolve(body,sources))['kind'], 'resolved')
             current = sources
             for key, (_, description) in TIERS.items():
                 answer, current = await engine.tier(body,key,description,current)

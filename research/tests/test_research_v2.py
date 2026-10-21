@@ -50,7 +50,7 @@ class ResearchV2Tests(StoreFixture):
 
     def test_empty_section_is_failed_with_safe_diagnostic_and_other_results_kept(self):
         class Empty(FakeEngine):
-            async def resolve(self, body, sources): return None
+            async def resolve(self, body, sources): return dict(kind='resolved', clarification=None, ambiguousFields=[])
             async def tier(self, body, key, description, sources):
                 return (' ' if key == 'desserts' else 'A supported observation [src_1].'), sources
         capture = io.StringIO()
@@ -80,7 +80,7 @@ class ResearchV2Tests(StoreFixture):
 
     def test_six_channels_and_model_route_metadata_are_persisted(self):
         class Engine(FakeEngine):
-            async def resolve(self, body, sources): return None
+            async def resolve(self, body, sources): return dict(kind='resolved', clarification=None, ambiguousFields=[])
         asyncio.run(run_job(self.db, self.claim(), Engine, FakeCalls))
         result = self.db.get(self.body['id'])
         self.assertEqual({c['channel'] for c in result['coverage']}, {'web','linkedin','youtube','instagram','reddit','x'})
@@ -112,5 +112,8 @@ class NetworkDiagnosticsTests(unittest.TestCase):
         self.assertNotIn('PRIVATE', str(caught.exception))
 
     def test_stream_keeps_reported_model(self):
-        payload=stream_response(b'data: {"model":"actual/model","choices":[{"delta":{"content":"hello"},"finish_reason":"stop"}]}\n\ndata: [DONE]\n')
+        from research.tests.test_claude_migration import events, wire
+        values = events()
+        values[0]['message']['model'] = 'actual/model'
+        payload = stream_response(wire(values))
         self.assertEqual(payload['model'], 'actual/model')

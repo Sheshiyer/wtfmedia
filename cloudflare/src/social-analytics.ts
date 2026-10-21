@@ -5,10 +5,10 @@ import { createSocialProvider, defaultSocialProfile, ZernioError, type SocialPro
 import { isSocialPlatform, validSocialRange } from './social-analytics-contracts.ts';
 import { handleSocialAnalyticsAssistant } from './social-analytics-assistant.ts';
 import { handleSocialAnalyticsInvestigations } from './social-analytics-investigations.ts';
-import type { OpenRouterEnv, openRouterChat } from './chat/openrouter.ts';
+import type { ClaudeEnv, claudeChat } from './chat/claude.ts';
 const headers = { 'cache-control': 'private, no-store', 'x-content-type-options': 'nosniff' };
 const reply = (body: unknown, status = 200) => Response.json(body, { status, headers });
-export type SocialEnv = SocialProviderEnv & OpenRouterEnv & {
+export type SocialEnv = SocialProviderEnv & ClaudeEnv & {
     DB: DB;
     OPS_ORIGIN: string;
 };
@@ -24,7 +24,7 @@ export async function resolveSocialWorkspace(db: DB, env: SocialProviderEnv, pro
 }
 export async function handleSocialAnalytics(request: Request, env: SocialEnv, context: PrincipalContext, memberId: number, dependencies: {
     fetchSocial?: typeof fetch;
-    planSocial?: typeof openRouterChat;
+    planSocial?: typeof claudeChat;
 } = {}) {
     if (env.SOCIAL_ANALYTICS_ENABLED !== '1')
         return reply({ error: 'not_found' }, 404);

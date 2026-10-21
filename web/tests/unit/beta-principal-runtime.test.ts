@@ -44,7 +44,9 @@ describe("Beta principal and admin roster runtime boundaries", () => {
     expect(gate).not.toContain('"revalidating"');
     expect(gate).not.toContain("RouteAdmissionState");
     expect(gate).toContain("/beta/api/principal-context");
-    expect(gate).toContain('<GateState compact heading="checking access"');
+    // Mounted behavior (loading, route reuse and session changes) is covered in
+    // tests/beta-principal-browser/admission.test.tsx with real React/Chromium.
+    expect(gate).not.toContain('heading="checking access"');
     expect(gate).not.toContain("opening your workspace");
     expect(landing).not.toContain("opening your workspace");
     expect(landing).toContain("routing to your workspace");

@@ -60,33 +60,31 @@ test('explicit channel scope overrides a previously selected video',async()=>{
  assert.equal(f.bindings.length,2);
 });
 
-test('analytics uses the shared Ask WTF GLM OpenRouter lane with JSON and backup-key fallback', async () => {
+test('analytics uses direct Claude schema output while Google remains the metric authority', async () => {
  const f=await fixture();
  delete f.deps.planAnalytics;
- f.env.OPENROUTER_API_KEY='test-primary';
- f.env.OPENROUTER_API_KEY_2='test-backup';
+ f.env.ANTHROPIC_API_KEY='test-primary';
  const originalFetch=globalThis.fetch;
  const calls=[];
  globalThis.fetch=async (url, init)=>{
-  assert.equal(url,'https://openrouter.ai/api/v1/chat/completions');
-  const payload=JSON.parse(init.body);calls.push(init.headers.Authorization);
-  assert.equal(payload.model,'z-ai/glm-5.3-flash');
-  assert.deepEqual(payload.response_format,{type:'json_object'});
-  assert.deepEqual(payload.reasoning,{effort:'low'});
+  assert.equal(url,'https://api.anthropic.com/v1/messages');
+  const payload=JSON.parse(init.body);calls.push(init.headers['x-api-key']);
+  assert.equal(payload.model,'claude-sonnet-5-5');
+  assert.equal(payload.output_config.format.type,'json_schema');
+  assert.equal(payload.output_config.format.schema.additionalProperties,false);
   assert.doesNotMatch(init.body,/test-access-token|test-refresh-token|connection-test|test-primary/);
-  if(calls.length===1)return new Response('auth failed',{status:401});
-  return Response.json({choices:[{message:{content:JSON.stringify(plan)}}]});
+  return Response.json({model:'claude-sonnet-5-5',stop_reason:'end_turn',content:[{type:'text',text:JSON.stringify(plan)}]});
  };
  try {
   const response=await handleAnalyticsAssistant(request(),f.env,f.deps);
   const value=await response.json();
   assert.equal(value.status,'answered');
   assert.equal(value.metrics.find(x=>x.key==='netSubscribers').value,75);
-  assert.deepEqual(calls,['Bearer test-primary','Bearer test-backup']);
+  assert.deepEqual(calls,['test-primary']);
  } finally {globalThis.fetch=originalFetch;}
 });
 
-test('missing OpenRouter configuration fails without a Workers AI fallback or Google report',async()=>{
+test('missing Claude configuration fails without a Workers AI fallback or Google report',async()=>{
  const f=await fixture();delete f.deps.planAnalytics;
  f.env.AI={run(){throw new Error('Workers AI must not be used');}};
  const response=await handleAnalyticsAssistant(request(),f.env,f.deps);

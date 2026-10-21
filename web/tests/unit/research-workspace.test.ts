@@ -39,9 +39,13 @@ it("rechecks an unavailable connection and clears its timer on unmount", () => {
   expect(hooks.reload).not.toHaveBeenCalled();
 });
 
-it("requires the guest, company and industry while keeping India as audience context", () => {
+it("accepts any field and Additional info without a consent checkbox", () => {
   const html = renderToStaticMarkup(createElement(ResearchWorkspace));
   for (const label of ["Guest name", "Company name", "Industry", "Audience context: India"]) expect(html).toContain(label);
   expect((html.match(/maxLength="120"/g) ?? []).length).toBe(3);
   expect(html).not.toContain("Research request<input");
+  expect(html).not.toContain('required=""');
+  expect(html).not.toContain('type="checkbox"');
+  expect(html).toContain("Additional info");
+  expect(html).not.toContain("Private notes");
 });

@@ -4,7 +4,12 @@
 
 New jobs carry `schemaVersion: 2` and `researchInput` with `guestName`,
 `companyName`, `industry` and `audienceCountry: "IN"`. India is an audience
-context across global research. It is not a separate report section or an
+context across global research. At least one of the three subject fields must be
+populated (2–120 characters); absent fields stay empty. `skipClarification`
+persists an optional skip without authorizing a guessed person or company.
+Inapplicable section slots use `skipped` with empty content and are omitted from
+the reader/export; at least one section must complete for a completed report.
+India remains audience context across global research. It is not a separate report section or an
 India-only search filter. Title-only historical jobs remain supported.
 
 The runner returns optional `coverage`, `modelInfo`, and safe `failure` metadata.
@@ -41,7 +46,8 @@ A supplementary search failure can use existing retained
 evidence with a visible limitation; model, budget, storage and cancellation
 errors are never swallowed. Content-free social records are not evidence.
 
-Editing the research subject keeps the previous report but sets the server-owned
+The reader hides edit/version controls; historical API compatibility remains.
+Editing the research subject through that API keeps the previous report but sets the server-owned
 `needsResearch` flag and blocks follow-up against mismatched evidence until a
 fresh result arrives. Restoring a saved version restores that version's scope
 and flag. This does not rewrite old report content.
@@ -104,9 +110,9 @@ document:
 
 - `RESEARCH_RUNNER_TOKEN`: shared only with the trusted backend adapter.
 - `TREG_TOKEN`: org-scoped Treg API token.
-- `OPENROUTER_API_KEY`: required for `z-ai/glm-5.3` generation. Research ignores
-  legacy OmniRoute settings and never falls back to another model. GLM 5.3 uses
-  low reasoning effort; reasoning is not disabled.
+- `ANTHROPIC_API_KEY`: required for direct `claude-sonnet-5-5` generation.
+  Research does not fall back to OpenRouter or OmniRoute. Existing report
+  metadata still records the provider that actually generated that report.
 - Optional `RESEARCH_RUNNER_DB`: defaults to `research/.state/runner.sqlite`.
 
 Run the loopback service:
@@ -116,7 +122,7 @@ research/.venv/bin/python -m research.serve
 ```
 
 If these values already live in the owner's existing ignored
-`cloudflare/.dev.vars`, this explicit alternative reads **only the five provider/auth settings listed above**
+`cloudflare/.dev.vars`, this explicit alternative reads **only the three provider/auth settings listed above**
 into the runner process. Existing environment values win. It does not shell-source
 the file, interpolate references, copy it, print values, or load Clerk/D1 values:
 
@@ -171,7 +177,7 @@ only after local setup is approved:
 docker run --rm --name wtf-research-runner \
   -p 127.0.0.1:8080:8080 \
   --mount type=volume,source=wtf-research-private,target=/data \
-  -e RESEARCH_RUNNER_TOKEN -e TREG_TOKEN -e OPENROUTER_API_KEY \
+  -e RESEARCH_RUNNER_TOKEN -e TREG_TOKEN -e ANTHROPIC_API_KEY \
   wtf-research-runner:local
 ```
 
@@ -315,25 +321,22 @@ The global admission limit is 100 queued/running jobs; duplicate replay precedes
 
 `budgetMicro` is at most 5,000,000. Search reserves 5,000 micro-USD, extraction 1,000,
 and a model request 250,000. Model requests are limited to 90 KB input and 12,000
-output tokens. Direct OpenRouter calls use low reasoning effort. Report writing receives
+output tokens. Direct Claude calls use explicit effort and model-compatible thinking settings. Report writing receives
 the full 12,000-token allowance; shorter planning and follow-up calls retain their
 existing limits. A response ending because of the token limit is rejected as
 truncated rather than saved as a complete answer. Responses start with a 180-second
 elapsed deadline. A streamed answer that starts within that deadline gets one
 120-second completion window; reasoning and keep-alives do not extend it. The
 client stops reading at the SSE completion marker. Idle reads are bounded to
-180 seconds for OpenRouter models and 45 seconds for Treg, with a 45-second
+180 seconds for Claude models and 45 seconds for Treg, with a 45-second
 connection timeout. Elapsed deadlines are checked when chunks arrive, not by an
 independent wall-clock interrupt; a stalled read can finish later. These are
 per-request bounds, not an end-to-end report time guarantee. Retry progress retains the prior safe
-failure reason until a section succeeds. Direct OpenRouter requests use provider price ceilings of $1/m prompt and $10/m completion
-tokens and no per-request fee. Provider fallback is disabled, supported parameters
-are required, and data collection is denied. These are conservative local holds
-and requested provider constraints, not an independently tested billing guarantee.
-Unknown/timeout charges keep their full reservation; the runner can stop before the
-nominal budget is fully consumed. Configure provider account spend caps separately
-when setup is approved. Research pins one model on OpenRouter; it does not use
-OmniRoute model routing.
+failure reason until a section succeeds. The runner uses the direct Anthropic
+Messages API with the pinned model ID `claude-sonnet-5-5`. Request budgets and
+reservations are application safeguards, not provider-enforced price ceilings.
+Unknown/timeout charges keep their reservation. Configure provider account
+spend caps separately when setup is approved.
 Streaming is assembled server-side and requires a finish marker; incomplete or
 malformed streams are rejected. Token-only usage does not establish dollar cost: reservations remain and modelUsd
 is null without a cost receipt. The local reservation is not a gateway price cap.
@@ -371,7 +374,7 @@ provisioned or changed here.
 
 ## Remaining live acceptance
 
-The selected route (**`z-ai/glm-5.3` via OpenRouter**) **must pass the real three-brief trial** before product
+The selected route (**`claude-sonnet-5-5` via direct Anthropic API**) **must pass the real three-brief trial** before product
 acceptance: availability through the specified provider constraints, planning JSON,
 editorial usefulness, real citation support, extraction coverage, numeric comparison,
 latency, cancellation and settled billing. Bounded synthetic model probes are recorded in the handoff; they do not replace
@@ -401,3 +404,23 @@ evidence authority. Each successful summary is checkpointed immediately. Stage
 call counters reset between preparation, summaries and writing; the job-wide spend
 ceiling and bounded retries still apply. Provider completion events include safe
 elapsed time and request sizes without prompts, notes or response bodies.
+
+
+## Reader and Additional info
+
+The reader shows the report, its source coverage, grouped section citations,
+expandable sources and private follow-up. A real Word download uses the same
+cleaned report content and source links. Deletion lives in the saved-brief sidebar
+and retains owner checks, confirmation and durable erasure behavior.
+
+Additional info on a newly submitted brief is processing guidance: users do not
+need a separate checkbox. The existing `notes`/`notesApproved` transport remains
+for compatibility. Only the explicit new submission sets approval; historical
+unapproved notes are not retroactively sent to the model. Scope priorities,
+comparisons, exclusions, audience and optional dates guide retrieval and writing.
+Report follow-up performs a bounded model call over saved extracts and recent
+conversation; it never searches or extracts new data.
+
+Direct Claude support is a source change until the relevant services are deployed
+and live credentials/model access verified. Ask WTF uses shared Alpha inference;
+its cutover is a separate deployment boundary from the research runner.

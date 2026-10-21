@@ -104,7 +104,7 @@ describe("Research frontend", () => {
 
   it.each([
     ["research_chat_limit", "This brief has reached its follow-up limit."],
-    ["research_deletion_pending", "Deletion is pending. Editing and research are disabled; retry deletion to finish removing this brief."],
+    ["research_deletion_pending", "Deletion is pending. Use the bin beside this saved brief to retry."],
     ["research_running", "Research is already running. Wait for it to finish or cancel the run before making changes."],
     ["research_not_ready", "This brief is not ready for follow-up questions. Wait for research to finish and return findings."],
     ["research_conflict", "This brief changed since you opened it. Your edits have been kept. Review the latest saved version before saving again."],

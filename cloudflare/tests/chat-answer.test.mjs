@@ -22,16 +22,16 @@ test("hasCitationCoverage accepts glm's labelled-list style and still rejects un
 
 const vector = Array.from({ length: 1024 }, () => 0.1);
 
-// Generation runs on OpenRouter (fetch); Workers AI only serves embeddings.
+// Generation runs on Claude (fetch); Workers AI only serves embeddings.
 function environment(matches, prompts = [], response = "The evidence supports this answer [1] and [2].") {
   globalThis.fetch = async (_url, init) => {
     const body = JSON.parse(init?.body ?? "{}");
-    prompts.push(body.messages);
+    prompts.push([{ role: "system", content: body.system }, ...body.messages]);
     // The abstention classifier is a separate model call; answer it truthfully
     // so the shared pipeline continues under test.
-    const system = body.messages?.[0]?.content ?? "";
+    const system = body.system ?? "";
     const content = system.startsWith("You classify research-assistant answers") ? "ANSWERED" : response;
-    return new Response(JSON.stringify({ choices: [{ message: { content } }] }), {
+    return new Response(JSON.stringify({ model: "claude-sonnet-5-5", stop_reason: "end_turn", content: [{ type: "text", text: content }] }), {
       status: 200,
       headers: { "content-type": "application/json" },
     });
@@ -40,11 +40,11 @@ function environment(matches, prompts = [], response = "The evidence supports th
     AI: {
       async run(model) {
         if (model === "@cf/baai/bge-large-en-v1.5") return { data: [vector] };
-        throw new Error("generation must use OpenRouter, not Workers AI");
+        throw new Error("generation must use Claude, not Workers AI");
       },
     },
     VECTORIZE: { async query() { return { matches }; }, async getByIds() { return []; } },
-    OPENROUTER_API_KEY: "test-openrouter-key",
+    ANTHROPIC_API_KEY: "test-anthropic-key",
   };
 }
 
@@ -52,10 +52,10 @@ test("shared authenticated runner returns the Alpha editor-sheet moment payload"
   const videoId = "abcdefghijk";
   globalThis.fetch = async (_url, init) => {
     const body = JSON.parse(init?.body ?? "{}");
-    const content = body.messages?.[0]?.content?.includes("You label podcast moments")
+    const content = body.system?.includes("You label podcast moments")
       ? JSON.stringify({ m: 1, guest: "Nikhil Kamath", theme: "career path", topic: "building conviction", summary: "Nikhil describes building conviction through repeated work.", whyRelevant: "It directly answers how conviction develops.", strength: 5 })
       : "Nikhil describes the first step [1] and the next step [2].";
-    return new Response(JSON.stringify({ choices: [{ message: { content } }] }), {
+    return new Response(JSON.stringify({ model: "claude-sonnet-5-5", stop_reason: "end_turn", content: [{ type: "text", text: content }] }), {
       status: 200,
       headers: { "content-type": "application/json" },
     });
@@ -64,10 +64,10 @@ test("shared authenticated runner returns the Alpha editor-sheet moment payload"
     AI: {
       async run(model) {
         if (model === "@cf/baai/bge-large-en-v1.5") return { data: [vector] };
-        throw new Error("generation must use OpenRouter, not Workers AI");
+        throw new Error("generation must use Claude, not Workers AI");
       },
     },
-    OPENROUTER_API_KEY: "test-openrouter-key",
+    ANTHROPIC_API_KEY: "test-anthropic-key",
     VECTORIZE: {
       async query() {
         return { matches: [

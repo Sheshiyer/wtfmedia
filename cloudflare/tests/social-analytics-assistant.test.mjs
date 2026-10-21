@@ -52,3 +52,23 @@ test('explicit new post beats pronoun context and contextual platform retains re
  const c=await interpretSocialQuestion(contextual,{},async()=>({answer:JSON.stringify({...defaults,intent:'period_comparison'})}));assert.equal(c.intent,'period_comparison');assert.ok(c.previous);
  const t=await interpretSocialQuestion({...contextual,question:'Show its daily views'},{},async()=>({answer:JSON.stringify({...defaults,intent:'trend'})}));assert.equal(t.intent,'trend');
 });
+
+test('social planning uses direct Claude schema output and keeps plan validation',async()=>{
+ const original=globalThis.fetch;
+ try {
+  globalThis.fetch=async(url,init)=>{
+   assert.equal(url,'https://api.anthropic.com/v1/messages');
+   const body=JSON.parse(init.body);
+   assert.equal(body.model,'claude-sonnet-5-5');
+   assert.equal(body.output_config.format.type,'json_schema');
+   assert.equal(body.output_config.format.schema.additionalProperties,false);
+   assert.equal(body.temperature,undefined);
+   return Response.json({model:body.model,stop_reason:'end_turn',content:[{type:'text',text:JSON.stringify(defaults)}]});
+  };
+  const result=await interpretSocialQuestion({...input,question:'Show Instagram views'},{ANTHROPIC_API_KEY:'test-only-key'});
+  assert.deepEqual(result.platforms,['instagram']);
+  assert.deepEqual(result.metrics,['views']);
+  globalThis.fetch=async()=>Response.json({model:'claude-sonnet-5-5',stop_reason:'end_turn',content:[{type:'text',text:JSON.stringify({...defaults,metrics:['private_metric']})}]});
+  await assert.rejects(interpretSocialQuestion({...input,question:'views'},{ANTHROPIC_API_KEY:'test-only-key'}),/invalid_metric/);
+ } finally {globalThis.fetch=original;}
+});

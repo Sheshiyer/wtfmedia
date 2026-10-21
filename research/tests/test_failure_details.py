@@ -13,7 +13,7 @@ class FailureDetailsTests(unittest.TestCase):
         with patch.object(Network, '_request', return_value=({'content': 'PRIVATE_ANSWER'}, {})), \
                 patch('research.providers.time.monotonic', side_effect=[10, 12.5]), \
                 redirect_stderr(capture):
-            Network().request('POST', 'https://gateway.example/v1/chat/completions',
+            Network().request('POST', 'https://api.anthropic.com/v1/messages',
                               {'Authorization': 'PRIVATE_KEY'}, {'messages': ['PRIVATE_INPUT']})
         events = [json.loads(line) for line in capture.getvalue().splitlines()]
         self.assertEqual([e['status'] for e in events], ['started', 'completed'])
@@ -38,7 +38,7 @@ class FailureDetailsTests(unittest.TestCase):
 
     def test_interrupted_stream_has_distinct_reason(self):
         with self.assertRaises(ProviderError) as caught:
-            stream_response(b'data: {"choices":[{"delta":{"content":"PRIVATE_PARTIAL"}}]}\n')
+            stream_response(b'data: {"type":"message_start","message":{}}\n')
         self.assertEqual(failure(caught.exception,'main')['reason'],'stream_incomplete')
 
     def test_relay_keeps_only_allowlisted_diagnostics(self):
@@ -68,9 +68,20 @@ class FailureDetailsTests(unittest.TestCase):
 
     def test_stream_error_retains_numeric_upstream_status_without_private_message(self):
         with self.assertRaises(ProviderError) as caught:
-            stream_response(b'data: {"error":{"code":429,"message":"PRIVATE"}}\n')
+            stream_response(b'data: {"type":"error","error":{"type":"rate_limit_error","message":"PRIVATE"}}\n')
         info=failure(caught.exception,'appetizers')
         self.assertEqual(info['reason'],'stream_error')
         self.assertEqual(info['httpStatus'],429)
         self.assertEqual(info['code'],'rate_limit')
         self.assertNotIn('PRIVATE',json.dumps(info))
+
+    def test_model_diagnostics_never_accept_arbitrary_text_as_model_id(self):
+        for model in ['PRIVATE_SUBJECT', 'fixture-claude-key', {'private': True}]:
+            capture = io.StringIO()
+            with redirect_stderr(capture):
+                emit(dict(stage='runner', status='completed', provider='anthropic', model=model))
+            self.assertNotIn('model', json.loads(capture.getvalue()))
+        capture = io.StringIO()
+        with redirect_stderr(capture):
+            emit(dict(stage='runner', status='completed', provider='anthropic', model='claude-sonnet-5-5'))
+        self.assertEqual(json.loads(capture.getvalue())['model'], 'claude-sonnet-5-5')

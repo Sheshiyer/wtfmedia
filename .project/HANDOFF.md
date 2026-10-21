@@ -4744,3 +4744,57 @@ DNS, Clerk, queue, ingest, corpus, or production mutation occurred.
 - Local checks passed: 246 web unit tests, TypeScript, ESLint, rendered page,
   CSS asset, and hamburger placement. A signed-in Beta session could not be
   exercised in this checkout because no local Clerk key was configured.
+
+## 2026-10-21 — Direct Claude Task 4 (local, shared checkout)
+
+- Approved Task 4 replaces active Ask WTF/YouTube/social generation with direct
+  `claude-sonnet-5-5` using server-only `ANTHROPIC_API_KEY`. Includes classifier,
+  repair, reformulation, follow-ups, moment labels and the local web generation
+  fallback. Embeddings, evidence authority, calculations and RBAC are preserved.
+- Bounded retry/cancellation, safe provider errors, schema-planned analytics,
+  fixed model allowlists, truthful local-generation readiness, config example
+  and privacy scanning are updated. Failed enrichment no longer multiplies
+  credential failures through per-moment retries. Historical model reads remain.
+- VERIFIED-SOURCE: final non-research edge 508/508, earlier full edge 563/563,
+  web unit 415/415, web contracts 101/101, typecheck/lint pass, privacy 0/433.
+  Restricted-sandbox subprocess/socket stalls disappear with normal local test
+  permissions. No remaining old provider endpoint/key/helper in owned paths.
+- Exact file manifest and integration boundaries: `docs/CLAUDE-GENERATION.md`.
+  Parent owns research/Python integration and final architecture/build checks.
+  Credentials/access and live model calibration remain unverified; staging-only
+  deployment cannot switch shared Alpha Ask WTF. Alpha cutover requires distinct
+  authorization. Self-reviewed source only; no secrets/dev.vars access, commits,
+  push, deployment or research-owned edits by this task.
+
+## 2026-10-21 — Research reader, flexible scope and Claude integration (local)
+
+- Owner-approved plan: `docs/superpowers/plans/2026-10-21-research-ui-claude-migration.md`.
+  Implemented on `feature/pavun`; no push/deployment, secrets, shared migrations,
+  host configuration or corpus changes. Existing unrelated architecture narrative
+  remains outside this delivery.
+- Reader now has real Word export, owner-scoped sidebar deletion, simpler controls
+  and shared citation cleanup. Removed editor/history/diagnostics UI preserves
+  stored data. Additional info replaces new-note checkbox consent; legacy
+  unapproved notes stay unapproved.
+- Any nonempty guest/company/industry combination is accepted through browser,
+  edge and runner. Clarification skip persists, excludes disputed identities and
+  runs only clear scope. Entirely ambiguous subjects require a distinguishing
+  detail. Inapplicable sections are explicitly skipped; no empty completed reports.
+- Direct Claude Sonnet 5.5 transport covers research and all chat generation.
+  Runner forwards only the new model credential; old secrets remain untouched.
+  Typed streams, stop reasons, bounded retries, 4,000/8,000 summary retry and safe
+  token diagnostics are tested. Report follow-ups use saved evidence without
+  fresh searches. Google/Zernio/Treg and Alpha corpus authority are preserved.
+- Session-keyed admission removes checking-access cards; stale responses and
+  account transitions cannot restore previous private state. Controlled browser
+  regression evidence only, not a new live Clerk acceptance claim.
+- VERIFIED-SOURCE: edge 563; web contracts 101; web unit 415 plus 3 additional
+  mixed-reference cases; Python 157; host 5; research browsers 68 (Chromium
+  desktop/mobile, Firefox, WebKit); principal browsers 40. Typecheck, lint,
+  production build and bounded privacy scan pass. DOCX opened in LibreOffice.
+- Independent review fixed mixed reference-link destinations and stale-version
+  clarification recovery. Final architecture artifacts accompany this source.
+- Remaining: key/model-access smoke, full real report/analytics/chat calibration,
+  real Clerk account matrix and actual Mac/iPhone/Word checks. Staging-only
+  deployment cannot migrate shared Alpha Ask WTF; its cutover remains separately
+  authorized. No live inference/deployment success is claimed.

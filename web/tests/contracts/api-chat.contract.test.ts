@@ -1,8 +1,8 @@
 /**
  * Compatibility proof for web/app/api/chat/route.ts.
  *
- * Route source is frozen for Phase 1 (see phase1-baseline-approval.json).
- * These tests assert existing behavior; they never modify route.ts and
+ * Task 4 authorizes the generation transport change; the scoped baseline
+ * records that approval. These tests preserve the public contract and
  * never call a live service — the upstream Worker is replaced by the
  * deterministic local stub in web/tests/support/rag-stub.mjs.
  */
@@ -28,6 +28,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await stub.close();
   vi.doUnmock("@/lib/nvidia");
+  vi.doUnmock("../../../cloudflare/src/chat/claude");
   vi.doUnmock("@/lib/vectors");
   vi.unstubAllEnvs();
   vi.resetModules();
@@ -61,15 +62,6 @@ const LOCAL_HITS = [
   },
 ];
 
-function localStream(text: string): ReadableStream<Uint8Array> {
-  return new ReadableStream({
-    start(controller) {
-      controller.enqueue(new TextEncoder().encode(text));
-      controller.close();
-    },
-  });
-}
-
 async function importLocalRoute(opts: {
   ready?: boolean;
   hits?: typeof LOCAL_HITS;
@@ -80,15 +72,16 @@ async function importLocalRoute(opts: {
     if (opts.embedError) throw opts.embedError;
     return new Float32Array([1, 0, 0]);
   });
-  const chatStream = vi.fn(async () => {
+  const claudeChat = vi.fn(async () => {
     if (opts.chatError) throw opts.chatError;
-    return localStream("Local grounded answer.");
+    return { answer: "Local grounded answer.", model: "claude-sonnet-5-5" };
   });
   vi.resetModules();
   vi.stubEnv("EDGE_SHARED_SECRET", "");
   vi.stubEnv("CLOUDFLARE_EDGE_SHARED_SECRET", "");
   vi.stubEnv("WTFMEDIA_LOCAL_RAG_ENABLED", "true");
   vi.stubEnv("NVIDIA_API_KEY", "local-test-key");
+  vi.stubEnv("ANTHROPIC_API_KEY", "dummy-claude-key");
   vi.doMock("@opennextjs/cloudflare", () => ({
     getCloudflareContext: async () => ({ env: {} }),
   }));
@@ -96,9 +89,10 @@ async function importLocalRoute(opts: {
     isReady: () => opts.ready ?? true,
     search: () => opts.hits ?? LOCAL_HITS,
   }));
-  vi.doMock("@/lib/nvidia", () => ({ embedQuery, chatStream }));
+  vi.doMock("@/lib/nvidia", () => ({ embedQuery }));
+  vi.doMock("../../../cloudflare/src/chat/claude", () => ({ claudeChat }));
   const route = await import("@/app/api/chat/route");
-  return { ...route, embedQuery, chatStream };
+  return { ...route, embedQuery, claudeChat };
 }
 
 function chatRequest(body: unknown, headers: Record<string, string> = {}) {
@@ -345,11 +339,12 @@ describe("POST /api/chat — successful upstream answer", () => {
 
 describe("POST /api/chat — approved local development fallback", () => {
   it("answers from the local published catalogue with cited metadata", async () => {
-    const { POST } = await importLocalRoute();
+    const { POST, claudeChat } = await importLocalRoute();
     const res = await POST(chatRequest({ messages: [userMessage("local question")] }));
+    expect(claudeChat).toHaveBeenCalledWith({ ANTHROPIC_API_KEY: "dummy-claude-key" }, expect.any(Array), expect.objectContaining({ maxTokens: 600, signal: expect.any(AbortSignal) }));
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("Local grounded answer.");
-    expect(res.headers.get("X-Model")).toBe("nvidia-local");
+    expect(res.headers.get("X-Model")).toBe("claude-sonnet-5-5");
     expect(res.headers.get("X-Source-Mode")).toBe("published");
     expect(res.headers.get("X-Fallback")).toBe("false");
     const sources = JSON.parse(decodeURIComponent(res.headers.get("X-Sources")!));
@@ -374,7 +369,7 @@ describe("POST /api/chat — approved local development fallback", () => {
   });
 
   it("returns an explicit unavailable response for local uncut mode", async () => {
-    const { POST, embedQuery, chatStream } = await importLocalRoute();
+    const { POST, embedQuery, claudeChat } = await importLocalRoute();
     const res = await POST(chatRequest({ messages: [userMessage("uncut question")], sourceMode: "uncut" }));
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("uncut is unavailable in local mode; switch to published.");
@@ -382,7 +377,7 @@ describe("POST /api/chat — approved local development fallback", () => {
     expect(res.headers.get("X-Uncut-Unavailable")).toBe("true");
     expect(decodeURIComponent(res.headers.get("X-Sources")!)).toBe("[]");
     expect(embedQuery).not.toHaveBeenCalled();
-    expect(chatStream).not.toHaveBeenCalled();
+    expect(claudeChat).not.toHaveBeenCalled();
   });
 
   it("uses published evidence and marks uncut unavailable for local both mode", async () => {
@@ -437,5 +432,21 @@ describe("route.ts compatibility freeze", () => {
     expect(expected).toBeDefined();
     const actual = crypto.createHash("sha256").update(fs.readFileSync(path.join(WEB_ROOT, "app/api/chat/route.ts"))).digest("hex");
     expect(actual).toBe(expected.sha256);
+  });
+});
+
+describe('direct Claude model allowlist', () => {
+  it.each(['google/gemini-3.5-flash', 'openai/gpt-5', 'z-ai/glm-5.3-flash'])('rejects legacy model %s before inference', async answerModel => {
+    const { POST } = await importRoute();
+    const res = await POST(chatRequest({ messages: [userMessage('hello')], answerModel }));
+    expect(res.status).toBe(400);
+    expect(await res.text()).toBe('invalid answer model');
+  });
+  it('accepts the direct Claude model while preserving source headers', async () => {
+    const { POST } = await importRoute();
+    const res = await POST(chatRequest({ messages: [userMessage('hello')], answerModel: 'claude-sonnet-5-5' }));
+    expect(res.status).toBe(200);
+    expect(res.headers.has('X-Sources')).toBe(true);
+    expect(res.headers.has('X-Fallback')).toBe(true);
   });
 });

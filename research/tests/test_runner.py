@@ -39,7 +39,7 @@ class FakeCalls:
         self.stage_error = None
     def search(self, query):
         return [source(i) for i in range(1, 7)]
-    def model(self, messages, max_tokens=1800):
+    def model(self, messages, max_tokens=1800, **kwargs):
         return '{"claims":[]}'
 
 
@@ -50,7 +50,8 @@ class FakeEngine:
     def __init__(self, calls):
         self.calls = calls
     async def resolve(self, body, sources):
-        return self.clarification
+        return dict(kind='optional_guidance' if self.clarification else 'resolved',
+                    clarification=self.clarification, ambiguousFields=[])
     async def tier(self, body, key, description, sources):
         self.attempts[key] = self.attempts.get(key, 0) + 1
         if key == self.failing:

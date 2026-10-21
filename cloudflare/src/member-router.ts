@@ -20,7 +20,7 @@ import { handleAnalyticsRequest, type AnalyticsDependencies } from "./analytics.
 import { handleAnalyticsAssistant } from "./analytics-assistant.ts";
 import { syncSelectedAnalytics, syncYouTubeRetention } from "./analytics-sync.ts";
 
-type Dependencies = { fetchSocial?: typeof fetch; planSocial?: typeof import("./chat/openrouter.ts").openRouterChat; verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer>; fetchRunner?: typeof fetch } & AnalyticsDependencies;
+type Dependencies = { fetchSocial?: typeof fetch; planSocial?: typeof import("./chat/claude.ts").claudeChat; verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer>; fetchRunner?: typeof fetch } & AnalyticsDependencies;
 const headers = { "cache-control": "private, no-store", "x-content-type-options": "nosniff" };
 const denied = () => Response.json({ error: "ops_unavailable" }, { status: 404, headers });
 const unauthorized = () => Response.json({ error: "unauthorized" }, { status: 401, headers });

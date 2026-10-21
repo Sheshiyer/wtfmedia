@@ -38,8 +38,7 @@ class ModelReceiptRegressions(unittest.TestCase):
         self.addCleanup(endpoint.stop)
         self.payload = {
             'id': 'receipt_fixture', 'model': 'vendor/observed-model',
-            'choices': [{'finish_reason': 'stop',
-                         'message': {'content': 'Retained public answer.'}}],
+            'content': [{'type': 'text', 'text': 'Retained public answer.'}], 'stop_reason': 'end_turn',
             'usage': None,
         }
         self.network = ResponseNetwork(self.payload)
@@ -47,7 +46,7 @@ class ModelReceiptRegressions(unittest.TestCase):
 
     def test_null_usage_returns_answer_and_settles_unknown_cost(self):
         self.calls.usage = {'inputTokens': 99, 'outputTokens': 40}
-        self.assertEqual(self.calls.model([]), 'Retained public answer.')
+        self.assertEqual(self.calls.model([{'role': 'user', 'content': 'Public question'}]), 'Retained public answer.')
         self.assertIsNone(self.store.get(self.claim[0])['cost']['modelUsd'])
         self.assertEqual(self.calls.usage, {})
         with self.store.db() as db:
@@ -62,40 +61,40 @@ class ModelReceiptRegressions(unittest.TestCase):
         self.assertFalse(self.calls.model_receipt_received)
         self.network.payload = ProviderError('provider unavailable', code='timeout')
         with self.assertRaises(ProviderError):
-            self.calls.model([])
+            self.calls.model([{'role': 'user', 'content': 'Public question'}])
         self.assertFalse(self.calls.model_receipt_received)
 
-    def test_valid_billing_and_tokens_are_retained(self):
-        self.payload['usage'] = {'prompt_tokens': 12, 'completion_tokens': 8,
+    def test_tokens_retained_without_trusting_undocumented_cost_field(self):
+        self.payload['usage'] = {'input_tokens': 12, 'output_tokens': 8,
                                  'cost': 0.000025}
-        self.assertEqual(self.calls.model([]), 'Retained public answer.')
+        self.assertEqual(self.calls.model([{'role': 'user', 'content': 'Public question'}]), 'Retained public answer.')
         self.assertTrue(self.calls.model_receipt_received)
         self.assertEqual(self.calls.usage, {'inputTokens': 12, 'outputTokens': 8})
-        self.assertEqual(self.store.get(self.claim[0])['cost']['modelUsd'], 0.000025)
+        self.assertIsNone(self.store.get(self.claim[0])['cost']['modelUsd'])
 
     def test_truncated_output_keeps_valid_receipt_metadata(self):
         self.payload['usage'] = {'cost': 0.000025}
-        self.payload['choices'][0]['finish_reason'] = 'length'
+        self.payload['stop_reason'] = 'max_tokens'
         with self.assertRaises(ProviderError) as error:
-            self.calls.model([])
+            self.calls.model([{'role': 'user', 'content': 'Public question'}])
         self.assertEqual(error.exception.code, 'output_truncated')
         self.assertTrue(self.calls.model_receipt_received)
         self.assertEqual(self.calls.model_info['reportedModel'], 'vendor/observed-model')
-        self.assertEqual(self.store.get(self.claim[0])['cost']['modelUsd'], 0.000025)
+        self.assertIsNone(self.store.get(self.claim[0])['cost']['modelUsd'])
 
     def test_malformed_metadata_is_safe_and_does_not_mark_a_receipt(self):
         for usage in [['private-provider-body'], 'private-provider-body', 7, True]:
             with self.subTest(usage=usage):
                 self.payload['usage'] = usage
                 with self.assertRaises(ProviderError) as error:
-                    self.calls.model([])
+                    self.calls.model([{'role': 'user', 'content': 'Public question'}])
                 self.assertEqual(error.exception.code, 'invalid_output')
                 self.assertNotIn('private-provider-body', str(error.exception))
                 self.assertFalse(self.calls.model_receipt_received)
 
     def test_missing_usage_is_unknown_billing_not_zero(self):
         del self.payload['usage']
-        self.assertEqual(self.calls.model([]), 'Retained public answer.')
+        self.assertEqual(self.calls.model([{'role': 'user', 'content': 'Public question'}]), 'Retained public answer.')
         self.assertTrue(self.calls.model_receipt_received)
         self.assertIsNone(self.store.get(self.claim[0])['cost']['modelUsd'])
 

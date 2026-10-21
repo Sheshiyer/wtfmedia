@@ -147,8 +147,8 @@ requires Google consent, the required APIs enabled, and the analytics migration.
 The production workspace chat posts to `/beta/api/analytics/assistant` behind
 active-principal admission and `analytics:read` for members and operators.
 Channel connection, selection, disconnection, and sync require admin or super-admin
-`analytics:manage`. It uses the shared Ask WTF OpenRouter client (`z-ai/glm-5.3-flash` by default)
-for natural-language query planning, validates the plan against allowed metrics
+`analytics:manage`. It uses the shared Ask WTF direct Claude client (`claude-sonnet-5-5`)
+with JSON schema output for natural-language query planning, validates the plan against allowed metrics
 and dates, resolves a channel-scoped video from the synchronized catalogue, and
 requests totals from YouTube Analytics. This is structured-data retrieval,
 separate from transcript Ask WTF; it creates no new corpus or vector index.
@@ -164,7 +164,7 @@ Supported questions cover views, watch time, average view duration/percentage,
 subscriber gains/losses, likes, comments, and shares for one video or channel.
 Comparisons, rankings, causal explanations, reach metrics, and transcript
 questions currently return an explicit unsupported response. This is not full
-spreadsheet parity. Environments without an OpenRouter API key fail truthfully;
+spreadsheet parity. Environments without a server-side `ANTHROPIC_API_KEY` fail truthfully;
 no deployment bindings were changed by this local implementation.
 
 Live acceptance remains blocked until the owner connects Google, selects the

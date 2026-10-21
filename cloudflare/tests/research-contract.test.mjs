@@ -1,11 +1,35 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {validatedResult,sectionsValid,sourcesValid,researchTitle} from '../src/research-contract.ts';
+import {validatedResult,sectionsValid,sourcesValid,researchTitle,parseResearchInput} from '../src/research-contract.ts';
 const section={key:'snacks',title:'Guest profile',content:'Retained evidence.',status:'completed'};
 const source={id:'s1',title:'Public discussion',url:'https://www.reddit.com/r/ev/comments/abc',excerpt:'Anecdotal discussion',retrievedAt:'2026-10-20T00:00:00Z'};
 const base={id:'rrun_test',status:'partial',sections:[section],sources:[source],progress:[],warnings:[],clarification:null,cost:{toolMicro:5,modelUsd:null}};
 const parse=value=>validatedResult(value,'rrun_test');
 const failure={stage:'desserts',code:'output_truncated',retryable:true};
+
+test('one or more populated fields are sufficient and omitted fields remain empty',()=>{
+ const keys=['guestName','companyName','industry'];
+ for(let mask=1;mask<8;mask++){
+  const input={audienceCountry:'IN',...Object.fromEntries(keys.filter((_,i)=>mask&(1<<i)).map(k=>[k,'  Example  ']))};
+  const result=parseResearchInput(input);
+  for(let i=0;i<3;i++)assert.equal(result[keys[i]],mask&(1<<i)?'Example':'');
+  assert.equal(researchTitle(result),Array(keys.filter((_,i)=>mask&(1<<i)).length).fill('Example').join(' — '));
+ }
+ for(const input of [{audienceCountry:'IN'},{guestName:'  ',audienceCountry:'IN'},{guestName:'Person',companyName:42,audienceCountry:'IN'},{guestName:'a',audienceCountry:'IN'},{industry:'a'.repeat(121),audienceCountry:'IN'}])assert.throws(()=>parseResearchInput(input));
+});
+
+test('explicitly skipped empty sections allow scoped completion, but no report cannot complete',()=>{
+ const sections=['snacks','appetizers','main','desserts'].map(key=>({...section,key,status:key==='desserts'?'completed':'skipped',content:key==='desserts'?'Industry findings':''}));
+ assert.equal(parse({...base,status:'completed',sections}).status,'completed');
+ assert.equal(parse({...base,status:'completed',sections:sections.map(s=>({...s,status:'skipped',content:''}))}).status,'partial');
+ assert.equal(sectionsValid([{...section,status:'skipped'}]),false);
+ assert.equal(parse({...base,status:'completed',sections:sections.slice(1)}).status,'partial');
+});
+
+test('Anthropic model receipts and safe errors remain readable beside historical providers',()=>{
+ const modelInfo={service:'anthropic',requestedModel:'claude-sonnet-5-5',reportedModel:'claude-sonnet-5-5'};
+ assert.deepEqual(parse({...base,modelInfo,failure:{...failure,provider:'anthropic'}}).modelInfo,modelInfo);
+});
 
 test('derived titles preserve complete emoji without leaving a surrogate at the length boundary',()=>{
  const input={guestName:'a'.repeat(100),companyName:'b'.repeat(96)+'😀',industry:'Industry',audienceCountry:'IN'};

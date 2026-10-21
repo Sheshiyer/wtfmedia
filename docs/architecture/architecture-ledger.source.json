@@ -396,12 +396,12 @@
       "number": "21",
       "title": "Authenticated research workspace and private runner",
       "status": "implemented_source",
-      "summary": "Research uses the existing Beta shell and principal policy. D1 stores private briefs and versions; a separate token-authenticated Python runner reuses GPT Researcher with allowlisted Treg tools and OpenRouter.",
+      "summary": "Research uses the existing Beta shell and principal policy. D1 stores private briefs and versions; a separate token-authenticated Python runner reuses GPT Researcher with allowlisted Treg tools and direct Claude generation.",
       "facts": [
-        { "label": "Workspace", "value": "Four-tier briefs, notes consent, versions, regeneration, Markdown export, follow-up and explicit read-only sharing", "evidence": ["web/components/domain/beta/ResearchWorkspace.tsx", "cloudflare/src/research.ts"] },
+        { "label": "Workspace", "value": "Flexible guest/company/industry inputs, Additional info guidance, scoped reports, Word export, sidebar deletion and saved-evidence follow-ups. Historical versions remain stored.", "evidence": ["web/components/domain/beta/ResearchWorkspace.tsx", "cloudflare/src/research.ts", "web/lib/research-docx.ts"] },
         { "label": "Persistence", "value": "Owner-scoped D1 records, durable SQLite runner jobs, fenced cancellation and retryable erasure", "evidence": ["cloudflare/migrations/0023_research.sql", "cloudflare/src/research-erasure.ts", "research/store.py"] },
-        { "label": "Evidence boundary", "value": "External public extracts are separate from Ask WTF. Alpha supplies validated episode references, never a copied transcript corpus", "evidence": ["cloudflare/src/research-alpha.ts", "research/evidence.py", "research/gptr.py"] },
-        { "label": "Activation", "value": "Provider token, private runner hosting, shared migration and live editorial acceptance remain pending", "evidence": ["docs/RESEARCH-RUNNER.md"] }
+        { "label": "Evidence boundary", "value": "Six-channel public extracts remain separate from Ask WTF transcripts. Report follow-ups use retained evidence without new searches.", "evidence": ["research/chat.py", "research/evidence.py", "research/gptr.py"] },
+        { "label": "Activation", "value": "Direct Claude credentials, live calibration and deployment require separate verification; shared Alpha Ask WTF is a distinct cutover.", "evidence": ["docs/RESEARCH-RUNNER.md", "docs/CLAUDE-GENERATION.md"] }
       ],
       "body": ["Local automated checks are source evidence only. The managed-research comparison, real provider billing, retrieval quality and three-guest editorial trial remain open; no deployment is implied."]
     },
@@ -410,7 +410,7 @@
       "number": "22",
       "title": "Social metrics and private analytics chat",
       "status": "implemented_source",
-      "summary": "Authenticated Beta uses one environment-specific Zernio workspace, validated OpenRouter query plans, and deterministic metric evidence. Hosted activation remains default-off.",
+      "summary": "Authenticated Beta uses one environment-specific Zernio workspace, validated direct Claude query plans, and deterministic metric evidence. Deployment and credentials remain separately verified.",
       "facts": [
         {
           "label": "Authority",

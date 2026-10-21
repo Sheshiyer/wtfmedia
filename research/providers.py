@@ -8,7 +8,6 @@ import ipaddress
 import socket
 import threading
 import time
-from decimal import Decimal, ROUND_CEILING
 from uuid import uuid4
 
 import httpx
@@ -18,7 +17,7 @@ from .contracts import safe_url
 from urllib.parse import urlsplit, urlencode
 from .store import BudgetExceeded, Stopped, digest, encode
 
-MODEL = 'z-ai/glm-5.3'
+MODEL = 'claude-sonnet-5-5'
 TOOL = 'perplexity.web.search'
 EXTRACT = 'exa.web.contents.get'
 TOOL_RESERVE = 5000
@@ -27,7 +26,8 @@ MAX_RESPONSE = 2_000_000
 
 
 class ProviderError(Exception):
-    def __init__(self, message='provider unavailable', *, code='provider_unavailable', retry_after=0, reason=None):
+    def __init__(self, message='provider unavailable', *, code='provider_unavailable', retry_after=0, reason=None, retryable=True):
+        self.retryable = retryable
         super().__init__(message)
         self.details = {'reason': reason} if reason else {}
         self.code = code
@@ -35,7 +35,7 @@ class ProviderError(Exception):
 
 
 def model_endpoint():
-    return 'https://openrouter.ai/api/v1', os.environ.get('OPENROUTER_API_KEY', '').strip()
+    return 'https://api.anthropic.com/v1', os.environ.get('ANTHROPIC_API_KEY', '').strip()
 
 
 def model_name():
@@ -43,7 +43,7 @@ def model_name():
 
 
 def model_info():
-    return {'service': 'openrouter', 'requestedModel': model_name()}
+    return {'service': 'anthropic', 'requestedModel': model_name()}
 
 
 def reported_model(value):
@@ -68,50 +68,88 @@ def configured():
 
 def redact(value):
     text = encode(value)
-    for name in ('RESEARCH_RUNNER_TOKEN', 'TREG_TOKEN', 'OPENROUTER_API_KEY', 'OMNIROUTE_API_KEY'):
+    for name in ('RESEARCH_RUNNER_TOKEN', 'TREG_TOKEN', 'ANTHROPIC_API_KEY', 'OPENROUTER_API_KEY', 'OMNIROUTE_API_KEY'):
         secret = os.environ.get(name, '')
         if secret:
             text = text.replace(secret, '[redacted]')
     return json.loads(text)
 
 
-def stream_response(data):
-    text, finish, receipt, usage, model = [], None, None, {}, None
-    try:
-        for line in data.decode('utf-8').splitlines():
-            if not line.startswith('data:'):
-                continue
-            value = line[5:].strip()
-            if value == '[DONE]':
-                break
-            event = json.loads(value)
-            if event.get('error'):
-                error = ProviderError('gateway stream failed', reason='stream_error')
-                upstream = event['error']
-                status = upstream.get('status', upstream.get('code')) if isinstance(upstream, dict) else None
-                if type(status) is int and 400 <= status <= 599:
-                    error.details['httpStatus'] = status
-                    if status == 429: error.code = 'rate_limit'
-                    if status in (401, 403): error.code = 'authentication'
+class MessageStream:
+    """Retain text and safe receipts only; thinking is never application evidence."""
+    def __init__(self):
+        self.message = None
+        self.blocks = {}
+        self.open_blocks = set()
+        self.done = self.text_started = False
+
+    def line(self, line):
+        if not line.startswith(b'data:'):
+            return
+        try:
+            event = json.loads(line[5:].strip())
+            kind = event['type']
+            if kind == 'error':
+                status = {'authentication_error': 401, 'permission_error': 403, 'rate_limit_error': 429,
+                          'invalid_request_error': 400, 'overloaded_error': 529}.get(event['error'].get('type'), 500)
+                code = ('authentication' if status in (401, 403) else 'rate_limit' if status == 429
+                        else 'invalid_output' if status == 400 else 'provider_unavailable')
+                error = ProviderError('model stream failed', code=code, reason='stream_error')
+                error.details['httpStatus'] = status
                 raise error
-            receipt = event.get('id') or receipt
-            usage = event.get('usage') or usage
-            model = reported_model(event.get('model')) or model
-            for choice in event.get('choices', []):
-                if choice.get('index', 0) != 0:
-                    continue
-                content = choice.get('delta', {}).get('content')
-                if content is not None:
-                    if not isinstance(content, str):
-                        raise ProviderError('invalid gateway text', reason='stream_invalid')
-                    text.append(content)
-                finish = choice.get('finish_reason') or finish
-        if not finish:
-            raise ProviderError('incomplete gateway stream', reason='stream_incomplete')
-        return {'id': receipt, 'usage': usage, 'model': model,
-                'choices': [{'finish_reason': finish, 'message': {'content': ''.join(text)}}]}
-    except (ValueError, TypeError, AttributeError):
-        raise ProviderError('invalid gateway stream', reason='stream_invalid') from None
+            if kind == 'message_start':
+                if self.message is not None:
+                    raise ValueError()
+                value = event['message']
+                self.message = {'id': value.get('id'), 'model': reported_model(value.get('model')),
+                                'usage': dict(value.get('usage', {})), 'stop_reason': None}
+            elif kind == 'content_block_start':
+                index, block = event['index'], event['content_block']
+                if self.message is None or type(index) is not int or index in self.blocks:
+                    raise ValueError()
+                self.blocks[index] = {'type': block['type']}
+                if block['type'] == 'text':
+                    if not isinstance(block.get('text'), str):
+                        raise ValueError()
+                    self.blocks[index]['text'] = block['text']
+                    self.text_started |= bool(block['text'])
+                elif block['type'] not in ('thinking', 'redacted_thinking'):
+                    raise ValueError()
+                self.open_blocks.add(index)
+            elif kind == 'content_block_delta':
+                index, delta = event['index'], event['delta']
+                if index not in self.open_blocks:
+                    raise ValueError()
+                if delta['type'] == 'text_delta':
+                    if self.blocks[index]['type'] != 'text' or not isinstance(delta.get('text'), str):
+                        raise ValueError()
+                    self.blocks[index]['text'] += delta['text']
+                    self.text_started |= bool(delta['text'])
+            elif kind == 'content_block_stop':
+                self.open_blocks.remove(event['index'])
+            elif kind == 'message_delta':
+                self.message['stop_reason'] = event['delta'].get('stop_reason') or self.message['stop_reason']
+                self.message['usage'].update(event.get('usage', {}))
+            elif kind == 'message_stop':
+                if self.message is None or self.open_blocks or not self.message['stop_reason']:
+                    raise ValueError()
+                self.done = True
+        except (ValueError, TypeError, KeyError, AttributeError, UnicodeError):
+            raise ProviderError('invalid model stream', reason='stream_invalid') from None
+
+    def result(self):
+        if not self.done:
+            raise ProviderError('incomplete model stream', reason='stream_incomplete')
+        return {**self.message, 'content': [block for block in self.blocks.values() if block['type'] == 'text']}
+
+
+def stream_response(data):
+    stream = MessageStream()
+    for line in data.splitlines():
+        stream.line(line)
+        if stream.done:
+            break
+    return stream.result()
 
 
 class Network:
@@ -119,8 +157,8 @@ class Network:
         from .diagnostics import emit
         started = time.monotonic()
         host = urlsplit(url).hostname
-        provider = 'treg' if host == 'treg.to' else 'openrouter' if host == 'openrouter.ai' else 'omniroute'
-        operation = ('catalog' if '/catalog/endpoints/' in url else 'model' if urlsplit(url).path.endswith('/chat/completions')
+        provider = 'treg' if host == 'treg.to' else 'anthropic' if host == 'api.anthropic.com' else 'runner'
+        operation = ('catalog' if '/catalog/endpoints/' in url else 'model' if urlsplit(url).path.endswith('/messages')
                      else 'extract' if EXTRACT in url else 'search' if TOOL in url else 'social_search')
         emit(dict(stage='runner', status='started', provider=provider, operation=operation,
                   requestBytes=len(encode(body).encode()) if body is not None else 0))
@@ -141,7 +179,7 @@ class Network:
         try:
             deadline = time.monotonic() + 180
             # Model reasoning can delay the first content chunk.
-            read_timeout = 180 if url == 'https://openrouter.ai/api/v1/chat/completions' else 45
+            read_timeout = 180 if url == 'https://api.anthropic.com/v1/messages' else 45
             with httpx.Client(timeout=httpx.Timeout(45, read=read_timeout),
                               follow_redirects=False, trust_env=False) as client:
                 with client.stream(method, url, headers=headers, json=body) as response:
@@ -156,7 +194,8 @@ class Network:
                         raise error
                     data = bytearray()
                     pending = b''
-                    content_started = done = False
+                    content_started = False
+                    stream = MessageStream() if body and body.get('stream') else None
                     for chunk in response.iter_bytes():
                         now = time.monotonic()
                         if now > deadline:
@@ -164,39 +203,25 @@ class Network:
                         data.extend(chunk)
                         if len(data) > MAX_RESPONSE:
                             raise ProviderError('provider response too large', reason='response_too_large')
-                        if body and body.get('stream'):
+                        if stream is not None:
                             pending += chunk
                             while b'\n' in pending:
                                 line, pending = pending.split(b'\n', 1)
-                                if not line.startswith(b'data:'):
-                                    continue
-                                value = line[5:].strip()
-                                if value == b'[DONE]':
-                                    done = True
-                                    break
-                                try:
-                                    event = json.loads(value)
-                                except ValueError:
-                                    raise ProviderError('invalid gateway stream', reason='stream_invalid') from None
-                                if not isinstance(event, dict):
-                                    raise ProviderError('invalid gateway stream', reason='stream_invalid')
-                                if event.get('error'):
-                                    stream_response(b'data: ' + value)
-                                choices = event.get('choices', [])
-                                if not isinstance(choices, list):
-                                    raise ProviderError('invalid gateway stream', reason='stream_invalid')
-                                if not content_started and any(
-                                    isinstance(c, dict) and c.get('index', 0) == 0
-                                    and isinstance(c.get('delta'), dict)
-                                    and isinstance(c['delta'].get('content'), str) and c['delta']['content']
-                                    for c in choices
-                                ):
-                                    # Give an answer that starts in time one bounded completion window.
+                                stream.line(line)
+                                if not content_started and stream.text_started:
+                                    # Only the first text block buys one bounded completion window.
                                     content_started = True
                                     deadline = max(deadline, now + 120)
-                            if done:
+                                if stream.done:
+                                    break
+                            if stream.done:
                                 break
-                    payload = stream_response(data) if body and body.get('stream') else json.loads(data)
+                    if stream is not None:
+                        if pending and not stream.done:
+                            stream.line(pending)
+                        payload = stream.result()
+                    else:
+                        payload = json.loads(data)
                     return redact(payload), dict(response.headers)
         except ProviderError as error:
             error.details['responseBytes'] = len(data)
@@ -257,6 +282,9 @@ class Calls:
             self.check()
             if not isinstance(query, str) or not 1 <= len(query) <= 1200:
                 raise ProviderError('invalid public query')
+            from .scope import contains_excluded_subject
+            if contains_excluded_subject(query, self.scope):
+                raise ProviderError('query includes unresolved identity', code='invalid_output', retryable=False)
             if not self.catalog_checked:
                 catalog, _ = self.network.request('GET', 'https://treg.to/catalog/endpoints/' + TOOL, {})
                 validate_catalog(catalog)
@@ -291,6 +319,9 @@ class Calls:
         from .source_channels import TOOLS, dedicated_input, normalize_social
         tool, method, reserve = TOOLS[channel]
         body = dedicated_input(channel, request)
+        from .scope import contains_excluded_subject
+        if contains_excluded_subject(encode(body), self.scope):
+            raise ProviderError('query includes unresolved identity', code='invalid_output', retryable=False)
         with self.lock:
             self.check()
             if tool not in self.channel_catalogs:
@@ -388,42 +419,54 @@ class Calls:
                 raise BudgetExceeded('provider exceeded reservation')
             return normalized
 
-    def model(self, messages, max_tokens=1800):
+    def model(self, messages, max_tokens=1800, *, effort='medium', output_schema=None):
         try:
-            return self._model(messages, max_tokens)
+            return self._model(messages, max_tokens, effort=effort, output_schema=output_schema)
         except ProviderError as error:
-            error.details.setdefault('provider', 'runner' if error.details.get('reason') == 'context_limit' else 'openrouter')
+            error.details.setdefault('provider', 'runner' if error.details.get('reason') == 'context_limit' else 'anthropic')
             error.details.setdefault('operation', 'model')
             from .diagnostics import emit
             emit(dict(stage='runner', status='failed', code=error.code, **error.details,
                       requestBytes=len(encode(messages).encode())))
             raise
 
-    def _model(self, messages, max_tokens=1800):
+    def _model(self, messages, max_tokens=1800, *, effort='medium', output_schema=None):
         with self.lock:
             self.check()
             if len(encode(messages).encode('utf-8')) > 90000:
                 raise ProviderError('model context exceeds bound', reason='context_limit')
             base, api_key = model_endpoint()
             if not api_key:
-                raise ProviderError('OpenRouter is not configured', code='authentication')
+                raise ProviderError('Anthropic is not configured', code='authentication')
+            if effort not in ('low', 'medium'):
+                raise ProviderError('invalid effort', code='invalid_output', retryable=False)
+            system, conversation = [], []
+            for message in messages:
+                if message.get('role') not in ('system', 'user', 'assistant') or not isinstance(message.get('content'), str):
+                    raise ProviderError('invalid model input', code='invalid_output', retryable=False)
+                if message['role'] == 'system':
+                    system.append({'type': 'text', 'text': message['content']})
+                else:
+                    conversation.append({'role': message['role'], 'content': message['content']})
+            if not conversation or conversation[-1]['role'] != 'user':
+                raise ProviderError('invalid model input', code='invalid_output', retryable=False)
             # Each model attempt reserves separately; retries are not assumed free.
             key = 'model_' + uuid4().hex
             self.store.reserve(self.job_id, self.lease, key, 'model', MODEL_RESERVE)
             self.store.started(self.job_id, self.lease, key)
             self.stage_calls += 1
-            body = {'model': model_name(), 'messages': messages,
-                    'max_tokens': min(max_tokens or 1800, 12000),
-                    'temperature': 0.2, 'stream': True,
-                    'stream_options': {'include_usage': True},
-                    'reasoning': {'effort': 'low'},
-                    'provider': {'allow_fallbacks': False, 'require_parameters': True,
-                                 'data_collection': 'deny',
-                                 'max_price': {'prompt': 1, 'completion': 10, 'request': 0}},
-                    'usage': {'include': True}}
-            payload, _ = self.network.request('POST', base + '/chat/completions', {
-                'Authorization': 'Bearer ' + api_key,
+            body = {'model': model_name(), 'messages': conversation,
+                    'max_tokens': min(max_tokens or 1800, 12000), 'stream': True,
+                    'thinking': {'type': 'between_tools'}, 'output_config': {'effort': effort}}
+            if system:
+                body['system'] = system
+            if output_schema is not None:
+                body['output_config']['format'] = {'type': 'json_schema', 'schema': output_schema}
+            payload, _ = self.network.request('POST', base + '/messages', {
+                'x-api-key': api_key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json',
             }, body)
+            if not isinstance(payload, dict):
+                raise ProviderError('invalid model response', code='invalid_output')
             usage = payload.get('usage')
             if usage is None:
                 usage = {}
@@ -431,28 +474,32 @@ class Calls:
                 raise ProviderError('invalid model usage metadata', code='invalid_output')
             model = reported_model(payload.get('model'))
             self.usage = {name: value for name, value in {
-                'inputTokens': usage.get('prompt_tokens'), 'outputTokens': usage.get('completion_tokens')
+                'inputTokens': usage.get('input_tokens'), 'outputTokens': usage.get('output_tokens')
             }.items() if type(value) is int and 0 <= value <= 1_000_000_000}
-            cost = usage.get('cost')
-            if isinstance(cost, (int, float)) and not isinstance(cost, bool) and math.isfinite(cost) and cost >= 0:
-                billed = int((Decimal(str(cost)) * 1000000).to_integral_value(rounding=ROUND_CEILING))
-            else:
-                billed = None
+            # Messages API returns token usage, not a charge. Keep the reservation and unknown cost.
             receipt = payload.get('id')
             receipt = receipt if isinstance(receipt, str) and re.fullmatch(r'[A-Za-z0-9_-]{1,150}', receipt) else None
-            self.store.settle(self.job_id, self.lease, key, billed, receipt, {})
+            self.store.settle(self.job_id, self.lease, key, None, receipt, {})
             if model:
                 self.model_info['reportedModel'] = model
             self.model_receipt_received = True
-            if billed is not None and billed > MODEL_RESERVE:
-                raise BudgetExceeded('provider exceeded reservation')
+            from .diagnostics import emit
+            emit(dict(stage='runner', status='completed', provider='anthropic', operation='model',
+                      model=model or model_name(), **self.usage))
+            stop = payload.get('stop_reason')
+            if stop == 'max_tokens':
+                raise ProviderError('model output truncated', code='output_truncated', reason='output_truncated')
+            if stop == 'refusal':
+                raise ProviderError('model refused request', code='invalid_output', reason='invalid_schema', retryable=False)
+            if stop != 'end_turn':
+                raise ProviderError('incomplete model response', code='invalid_output', reason='invalid_schema')
             try:
-                choice = payload['choices'][0]
-                if choice.get('finish_reason') == 'length':
-                    raise ProviderError('model output truncated', code='output_truncated', reason='output_truncated')
-                answer = choice['message']['content']
-            except (KeyError, IndexError, TypeError):
+                blocks = payload['content']
+                if not isinstance(blocks, list) or any(b.get('type') not in ('text', 'thinking', 'redacted_thinking') for b in blocks):
+                    raise ValueError()
+                answer = ''.join(b['text'] for b in blocks if b['type'] == 'text')
+            except (KeyError, TypeError, ValueError, AttributeError):
                 raise ProviderError('invalid model response', code='invalid_output') from None
-            if not isinstance(answer, str) or not answer.strip():
+            if not answer.strip():
                 raise ProviderError('empty model response', code='empty_output', reason='empty_output')
             return answer

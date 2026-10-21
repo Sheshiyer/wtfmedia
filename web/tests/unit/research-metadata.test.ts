@@ -34,7 +34,7 @@ describe("bounded research metadata", () => {
     expect(researchDraft(parsed)).toMatchObject({ researchInput: { ...researchInput, guestName: "दीपा मेहता" } });
   });
   it.each([
-    { schemaVersion: 3 }, { researchInput: { ...researchInput, guestName: " " } },
+    { schemaVersion: 3 }, { researchInput: { guestName: " ", companyName: "", industry: "", audienceCountry: "IN" } },
     { researchInput: { ...researchInput, companyName: "x".repeat(121) } },
     { researchInput: { ...researchInput, industry: "x" } },
     { researchInput: { ...researchInput, audienceCountry: "US" } },
@@ -209,4 +209,22 @@ it("loads every retained source and explains precise failure metadata", () => {
   expect(brief.sources).toHaveLength(125);
   expect(researchMarkdown(brief)).toContain("HTTP 503 (omniroute / model)");
   expect(() => parseResearchBrief({ ...brief, failure: { ...brief.failure, reason: "PRIVATE" } })).toThrow();
+});
+
+
+it("accepts all seven nonempty field combinations without inventing missing inputs", () => {
+  const keys = ["guestName", "companyName", "industry"] as const;
+  for (let mask = 1; mask < 8; mask++) {
+    const input = { audienceCountry: "IN", ...Object.fromEntries(keys.filter((_, i) => mask & (1 << i)).map(key => [key, " Example "])) };
+    const parsed = parseResearchInput(input);
+    keys.forEach((key, i) => expect(parsed[key]).toBe(mask & (1 << i) ? "Example" : ""));
+    expect(researchTitle(parsed)).not.toMatch(/^[ ·]|[ ·]$/);
+  }
+  for (const value of [{ audienceCountry: "IN" }, { ...researchInput, companyName: 3 }, { ...researchInput, industry: null }]) expect(() => parseResearchInput(value)).toThrow();
+});
+
+it("reads Claude metadata and persisted skipped clarification without changing old provider records", () => {
+ const modelInfo = { service: "anthropic", requestedModel: "claude-sonnet-5-5" };
+ const parsed = parseResearchBrief({ ...legacy, modelInfo, skipClarification: true });
+ expect(parsed.modelInfo).toEqual(modelInfo); expect(parsed.skipClarification).toBe(true);
 });

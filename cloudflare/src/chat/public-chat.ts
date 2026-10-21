@@ -33,8 +33,8 @@ import {
   parseFollowUpCandidates,
   selectAnswerableFollowUps,
 } from "./skills/wtf-os-conversation.ts";
-import { coverageFailure, hasCitationCoverage } from "./answer.ts";
-import { answerWithOpenRouter, openRouterChat } from "./openrouter.ts";
+import { hasCitationCoverage } from "./answer.ts";
+import { claudeChat } from "./claude.ts";
 
 /**
  * The single Ask WTF answering pipeline. The public /v1/chat route and the
@@ -48,9 +48,8 @@ export type PublicChatEnv = {
   DB: any;
   VECTORIZE: any;
   WTFMEDIA_STATE?: any;
-  OPENROUTER_API_KEY?: string;
-  OPENROUTER_API_KEY_2?: string;
-  OPENROUTER_ANSWER_MODEL?: string;
+  ANTHROPIC_API_KEY?: string;
+  generationSignal?: AbortSignal;
 };
 
 export type HistoryTurn = { role: "user" | "assistant"; content: string };
@@ -60,7 +59,7 @@ export type PublicChatInput = {
   sourceMode: SourceMode;
   episodeId: string | null;
   history?: HistoryTurn[];
-  forcedAnswerModel?: string;
+  signal?: AbortSignal;
   /** Private member memory: context only, never evidence. Omit on public. */
   memory?: readonly string[];
 };
@@ -70,8 +69,8 @@ export type PublicChatResult = { status: number; body: Record<string, unknown> }
 const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
 // Embeddings stay on Workers AI (the vector index is bge-large and cannot
 // move without re-embedding the corpus). Every generation call — answers,
-// reformulation, follow-ups, moment enrichment — runs on OpenRouter
-// glm-5.3-flash via src/chat/openrouter.ts.
+// reformulation, follow-ups, moment enrichment — runs on direct Claude
+// via src/chat/claude.ts.
 export const MAX_QUESTION_CHARS = 2_000;
 export const MAX_HISTORY_TURNS = 6;
 const MIN_SCORE = 0.45;
@@ -92,29 +91,9 @@ async function vectorFor(env: PublicChatEnv, text: string): Promise<number[]> {
 }
 
 
-async function answerWithFallback(env: PublicChatEnv, messages: unknown[], forcedOpenRouterModel?: string) {
-  const failures: string[] = [];
-  // All generation runs on OpenRouter glm-5.3-flash — Workers AI's per-minute
-  // inference cap starved the pipeline. A forced retry model jumps the queue;
-  // otherwise glm gets two attempts (key rotation lives inside openRouterChat).
-  const providers: Array<() => Promise<{ answer: string; model: string }>> = [];
-  if (forcedOpenRouterModel) {
-    providers.push(() => answerWithOpenRouter(env, messages, forcedOpenRouterModel));
-  }
-  providers.push(() => openRouterChat(env, messages, { maxTokens: 3000 }));
-  providers.push(() => openRouterChat(env, messages, { maxTokens: 3000 }));
-  for (const provider of providers) {
-    try {
-      const { answer, model } = await provider();
-      if (failures.length) console.warn("wtfmedia answer model fallback used", { model, failedAttempts: failures.length });
-      return { answer, model, fallback: failures.length > 0 };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "unknown";
-      failures.push(message);
-      console.warn("wtfmedia answer model failed", { message });
-    }
-  }
-  throw new Error(`answer models unavailable: ${failures.length}`);
+async function answerWithFallback(env: PublicChatEnv, messages: unknown[]) {
+  const result = await claudeChat(env, messages, { maxTokens: 3000, signal: env.generationSignal });
+  return { ...result, fallback: false };
 }
 
 /**
@@ -127,10 +106,10 @@ async function answerWithFallback(env: PublicChatEnv, messages: unknown[], force
  */
 async function declaresEvidenceMissing(env: PublicChatEnv, question: string, answer: string): Promise<boolean> {
   try {
-    const { answer: verdict } = await openRouterChat(env, [
+    const { answer: verdict } = await claudeChat(env, [
       { role: "system", content: "You classify research-assistant answers. Reply with exactly one word: ABSTAIN only when the answer gives no substantive answer to the asked question — its entire substance is that the topic is not covered, not supported, missing, or that nothing exists on it. If any part of the answer presents excerpt-backed content that addresses the asked question — even partially, even alongside caveats about what is NOT covered — reply ANSWERED. Output only ANSWERED or ABSTAIN." },
       { role: "user", content: `QUESTION: ${question}\n\nANSWER:\n${answer}` },
-    ], { maxTokens: 5, temperature: 0 });
+    ], { maxTokens: 5, signal: env.generationSignal });
     return /abstain/i.test(verdict);
   } catch (error) {
     console.warn("wtfmedia abstention classifier failed", { error: error instanceof Error ? error.message : "unknown" });
@@ -191,10 +170,10 @@ async function reformulateQuery(env: PublicChatEnv, question: string, history: H
   if (history.length === 0) return question;
   const ctx = history.slice(-4).map((t) => `${t.role}: ${t.content.slice(0, 200)}`).join("\n");
   try {
-    const { answer } = await openRouterChat(env, [
+    const { answer } = await claudeChat(env, [
       { role: "system", content: "Rewrite the follow-up question as a standalone search query. Resolve pronouns and references using the conversation. Output ONLY the rewritten query, nothing else. Keep it under 60 words." },
       { role: "user", content: `CONVERSATION:\n${ctx}\n\nFOLLOW-UP: ${question}` },
-    ], { maxTokens: 80, temperature: 0 });
+    ], { maxTokens: 80, signal: env.generationSignal });
     return answer.trim().length > 5 ? answer.trim() : question;
   } catch {
     return question;
@@ -380,10 +359,10 @@ async function generateFollowUps(
   episodeId: string | null,
 ): Promise<string[]> {
   try {
-    const { answer: followUpText } = await openRouterChat(env, [
+    const { answer: followUpText } = await claudeChat(env, [
       { role: "system", content: WTF_OS_CONVERSATION_SKILL.followUpPrompt },
       { role: "user", content: buildFollowUpGenerationInput(question, answer, sources) },
-    ], { maxTokens: 220, temperature: 0.2 });
+    ], { maxTokens: 220, signal: env.generationSignal });
     if (!followUpText.trim()) return [];
     const normalizedQuestion = question.toLocaleLowerCase("en-US");
     const candidates = parseFollowUpCandidates(followUpText).filter(
@@ -440,26 +419,26 @@ async function momentsForAnswer(
   // its own moments unlabeled. Strict mode (single-moment retries) forbids
   // empty text fields — the excerpt always supports a conservative label,
   // and the sheet must not ship blank columns.
-  const enrichBatch = async (batch: Moment[], strict = false): Promise<MomentEnrichment[]> => {
+  const enrichBatch = async (batch: Moment[], strict = false): Promise<MomentEnrichment[] | null> => {
     const suffix = strict
       ? `There is 1 MOMENT. Output exactly 1 JSON object labeling it. Every text field (guest, theme, topic, summary, whyRelevant) is REQUIRED — never output empty strings; infer conservatively from the excerpt and episode title.`
       : `There are ${batch.length} MOMENTs. Output exactly ${batch.length} JSON objects, one per MOMENT, in order — use empty strings when a text field cannot be honest, but never skip a MOMENT and never default strength.`;
     try {
       // Same provider and model as answer generation: moment labels and
       // strength scores drive what the reel shows, so they get the big model.
-      const { answer: enrichmentText } = await openRouterChat(env, [
+      const { answer: enrichmentText } = await claudeChat(env, [
         { role: "system", content: MOMENT_ENRICHMENT_PROMPT },
         // The model silently skips moments it can't label unless the exact
         // object count is demanded — a short count costs the tail slots.
         { role: "user", content: `${buildMomentEnrichmentInput(question, batch)}\n\n${suffix}` },
-      ], { maxTokens: 2000, temperature: 0.2 });
+      ], { maxTokens: 2000, signal: env.generationSignal });
       if (!enrichmentText.trim()) throw new Error("empty moment enrichment");
       return parseMomentEnrichment(enrichmentText, batch.length);
     } catch (error) {
       console.warn("wtfmedia moment enrichment failed", {
         error: error instanceof Error ? error.message : "unknown",
       });
-      return batch.map(() => ({}));
+      return null;
     }
   };
   const ENRICH_BATCH = 10;
@@ -473,9 +452,10 @@ async function momentsForAnswer(
   // ones. Single-moment strict calls are tiny and can't truncate; fields the
   // batch already found survive the merge. Two rounds: the fast model
   // occasionally ignores the no-empty-fields rule once, almost never twice.
+  const failed = new Set(visible.flatMap((_, index) => settled[Math.floor(index / ENRICH_BATCH)] === null ? [index] : []));
   const incomplete = () => enrichments
     .map((enrichment, index) =>
-      (!enrichment.guest || !enrichment.theme || !enrichment.topic || !enrichment.summary || !enrichment.whyRelevant)
+      (!failed.has(index) && (!enrichment.guest || !enrichment.theme || !enrichment.topic || !enrichment.summary || !enrichment.whyRelevant))
         ? index
         : -1)
     .filter((index) => index !== -1);
@@ -484,6 +464,7 @@ async function momentsForAnswer(
     if (missingIndices.length === 0) break;
     const retried = await Promise.all(missingIndices.map((index) => enrichBatch([visible[index]], true)));
     missingIndices.forEach((visibleIndex, retryIndex) => {
+      if (retried[retryIndex] === null) failed.add(visibleIndex);
       const retry = retried[retryIndex]?.[0];
       if (retry && Object.keys(retry).length > 0) {
         enrichments[visibleIndex] = { ...retry, ...enrichments[visibleIndex] };
@@ -526,6 +507,7 @@ async function momentsForAnswer(
  * any surface calling this renders identically.
  */
 export async function runPublicChat(env: PublicChatEnv, input: PublicChatInput): Promise<PublicChatResult> {
+  env = { ...env, generationSignal: AbortSignal.any([AbortSignal.timeout(70000), ...(input.signal ? [input.signal] : [])]) };
   const question = normalizeHostAttribution(input.question.trim());
   const sourceMode = input.sourceMode;
   const episodeId = input.episodeId;
@@ -617,7 +599,7 @@ export async function runPublicChat(env: PublicChatEnv, input: PublicChatInput):
     const answered = await answerWithFallback(env, [
         { role: "system", content: WTF_OS_CONVERSATION_SKILL.systemPrompt },
         { role: "user", content: userContent },
-      ], input.forcedAnswerModel);
+      ]);
     // Abstention is decided by the classifier, not keyword lists — the verdict
     // call overlaps the still-running moments enrichment, so it hides behind
     // latency the response already pays.
@@ -654,13 +636,13 @@ export async function runPublicChat(env: PublicChatEnv, input: PublicChatInput):
     if (!citationValidation.valid || !hasCitationCoverage(answered.answer, sources.length)) {
       // One repair pass: the model answered but dropped/mangled citations. Ask
       // it to rewrite the same answer with valid [n] citations before giving up.
-      console.warn("wtfmedia answer missing valid citations; attempting repair", { sourceCount: sources.length, citations: citationValidation.indices, failingSentence: coverageFailure(answered.answer, sources.length) });
+      console.warn("wtfmedia answer missing valid citations; attempting repair", { sourceCount: sources.length, citations: citationValidation.indices });
       const repairedRaw = await answerWithFallback(env, [
         { role: "system", content: WTF_OS_CONVERSATION_SKILL.systemPrompt },
         { role: "user", content: userContent },
         { role: "assistant", content: answered.answer },
         { role: "user", content: `Your answer has no valid citations. Rewrite it: cite every factual sentence with [n], using only numbers 1 to ${sources.length}. Output ONLY the rewritten answer — no preamble like "Here's the rewrite". If the excerpts do not answer the question, say plainly what is not supported instead.` },
-      ], input.forcedAnswerModel);
+      ]);
       // The model often prefixes the rewrite with a meta line; strip it.
       const repaired = { ...repairedRaw, answer: repairedRaw.answer.replace(/^\s*here(?:'|’)s the rewrite[^\n]*\n+/i, "") };
       if (await declaresEvidenceMissing(env, question, repaired.answer)) {
@@ -689,7 +671,7 @@ export async function runPublicChat(env: PublicChatEnv, input: PublicChatInput):
           },
         };
       }
-      console.warn("wtfmedia answer rejected: invalid citations after repair", { sourceCount: sources.length, citations: repairedValidation.indices, failingSentence: coverageFailure(repaired.answer, sources.length) });
+      console.warn("wtfmedia answer rejected: invalid citations after repair", { sourceCount: sources.length, citations: repairedValidation.indices });
       const fallbackCited = sources.slice(0, 3).map((s) => s.n);
       return {
         status: 200,

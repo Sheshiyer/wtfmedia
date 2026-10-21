@@ -12,7 +12,7 @@ export type ResearchFailure = {
     code: 'timeout' | 'rate_limit' | 'authentication' | 'budget_exhausted' | 'output_truncated' | 'empty_output' | 'invalid_output' | 'storage_failure' | 'provider_unavailable' | 'internal_error';
     retryable: boolean;
     reason?: 'http_error' | 'transport_error' | 'connect_timeout' | 'read_timeout' | 'deadline' | 'stream_error' | 'stream_incomplete' | 'stream_invalid' | 'response_too_large' | 'context_limit' | 'no_matching_sources' | 'invalid_json' | 'invalid_schema' | 'output_truncated' | 'empty_output';
-    provider?: 'treg' | 'omniroute' | 'openrouter' | 'runner';
+    provider?: 'treg' | 'omniroute' | 'openrouter' | 'anthropic' | 'runner';
     operation?: 'catalog' | 'search' | 'social_search' | 'extract' | 'model';
     httpStatus?: number;
 };
@@ -23,7 +23,7 @@ export type ChannelCoverage = {
     method: 'dedicated_tool' | 'web_search';
 };
 export type ResearchModelInfo = {
-    service: 'omniroute' | 'openrouter';
+    service: 'omniroute' | 'openrouter' | 'anthropic';
     requestedModel: string;
     reportedModel?: string;
 };
@@ -60,6 +60,7 @@ export type ResearchDocument = {
     modelInfo?: ResearchModelInfo;
     failure?: ResearchFailure;
     needsResearch?: boolean;
+    skipClarification?: boolean;
     id: string;
     title: string;
     status: string;
@@ -100,20 +101,22 @@ export function parseResearchInput(value: unknown): ResearchInputV2 {
     if (!record(value) || value.audienceCountry !== 'IN')
         throw new ResearchError(400, 'invalid_request');
     const names = ['guestName', 'companyName', 'industry'] as const;
+    if (names.some(k => value[k] !== undefined && typeof value[k] !== 'string'))
+        throw new ResearchError(400, 'invalid_request');
     const fields = names.map(k => typeof value[k] === 'string' ? value[k].trim() : '');
-    if (fields.some(s => s.length < 2 || s.length > 120))
+    if (!fields.some(Boolean) || fields.some(s => s.length > 120 || s.length > 0 && s.length < 2))
         throw new ResearchError(400, 'invalid_request');
     return { guestName: fields[0], companyName: fields[1], industry: fields[2], audienceCountry: 'IN' };
 }
 export function researchTitle(input: ResearchInputV2): string {
-    return `${input.guestName} — ${input.companyName} — ${input.industry}`.slice(0, 200).replace(/[\uD800-\uDBFF]$/, '').trim();
+    return [input.guestName, input.companyName, input.industry].filter(Boolean).join(' — ').slice(0, 200).replace(/[\uD800-\uDBFF]$/, '').trim();
 }
 export function failureValid(v: unknown): v is ResearchFailure {
     return record(v) && ['resolve', 'discovery', ...tiers, 'storage', 'runner'].includes(v.stage as string)
         && ['timeout', 'rate_limit', 'authentication', 'budget_exhausted', 'output_truncated', 'empty_output', 'invalid_output', 'storage_failure', 'provider_unavailable', 'internal_error'].includes(v.code as string)
         && typeof v.retryable === 'boolean'
         && (v.reason == null || ['http_error', 'transport_error', 'connect_timeout', 'read_timeout', 'deadline', 'stream_error', 'stream_incomplete', 'stream_invalid', 'response_too_large', 'context_limit', 'no_matching_sources', 'invalid_json', 'invalid_schema', 'output_truncated', 'empty_output'].includes(v.reason as string))
-        && (v.provider == null || ['treg', 'omniroute', 'openrouter', 'runner'].includes(v.provider as string))
+        && (v.provider == null || ['treg', 'omniroute', 'openrouter', 'anthropic', 'runner'].includes(v.provider as string))
         && (v.operation == null || ['catalog', 'search', 'social_search', 'extract', 'model'].includes(v.operation as string))
         && (v.httpStatus == null || (typeof v.httpStatus === "number" && Number.isInteger(v.httpStatus) && v.httpStatus >= 100 && v.httpStatus <= 599));
 }
@@ -145,7 +148,7 @@ export function resultMetadata(v: Record<string, unknown>): Pick<ResearchDocumen
     }
     if (v.modelInfo != null) {
         const m = v.modelInfo;
-        if (!record(m) || !['omniroute', 'openrouter'].includes(m.service as string) || !modelNameValid(m.requestedModel) || (m.reportedModel != null && !modelNameValid(m.reportedModel)))
+        if (!record(m) || !['omniroute', 'openrouter', 'anthropic'].includes(m.service as string) || !modelNameValid(m.requestedModel) || (m.reportedModel != null && !modelNameValid(m.reportedModel)))
             throw new ResearchError(502, 'invalid_research_result');
         result.modelInfo = { service: m.service as ResearchModelInfo['service'], requestedModel: m.requestedModel, ...(m.reportedModel != null ? { reportedModel: m.reportedModel as string } : {}) };
     }
@@ -156,7 +159,7 @@ export function resultMetadata(v: Record<string, unknown>): Pick<ResearchDocumen
     }
     return result;
 }
-export function sectionsValid(v: unknown): v is ResearchSection[] { return Array.isArray(v) && v.length <= 4 && new Set(v.map(s => s?.key)).size === v.length && v.every(s => s && tiers.includes(s.key) && bounded(s.title, 200) && bounded(s.content, 24000) && ['queued', 'running', 'completed', 'partial', 'failed', 'cancelled'].includes(s.status) && (s.status !== 'completed' || s.content.trim().length > 0) && (s.failure == null || failureValid(s.failure))); }
+export function sectionsValid(v: unknown): v is ResearchSection[] { return Array.isArray(v) && v.length <= 4 && new Set(v.map(s => s?.key)).size === v.length && v.every(s => s && tiers.includes(s.key) && bounded(s.title, 200) && bounded(s.content, 24000) && ['queued', 'running', 'completed', 'partial', 'failed', 'cancelled', 'skipped'].includes(s.status) && (s.status !== 'skipped' || s.content === '') && (s.status !== 'completed' || s.content.trim().length > 0) && (s.failure == null || failureValid(s.failure))); }
 export function projectSections(sections: ResearchSection[]): ResearchSection[] {
     return sections.map(s => ({ key: s.key, title: s.title, content: s.content, status: s.status, ...(s.failure != null ? { failure: projectFailure(s.failure) } : {}) }));
 }
@@ -203,7 +206,7 @@ export function validatedResult(value: unknown, id: string): Partial<ResearchDoc
     if (!sectionsValid(v.sections) || !sourcesValid(v.sources) || ![v.progress, v.warnings].every(a => Array.isArray(a) && a.length <= 100 && a.every(s => bounded(s, 2000))) || !(v.clarification === null || bounded(v.clarification, 2000)) || !v.cost || !Number.isSafeInteger(v.cost.toolMicro) || v.cost.toolMicro < 0 || !(v.cost.modelUsd === null || (Number.isFinite(v.cost.modelUsd) && v.cost.modelUsd >= 0)))
         throw new ResearchError(502, 'invalid_research_result');
     const sources = v.sources.map(s => ({ id: s.id, title: s.title, url: s.url, excerpt: s.excerpt, retrievedAt: s.retrievedAt, ...(s.publisher ? { publisher: s.publisher } : {}), ...(s.publishedAt ? { publishedAt: s.publishedAt } : {}), ...(s.kind ? { kind: s.kind } : {}), ...(s.timestampSeconds != null ? { timestampSeconds: s.timestampSeconds } : {}), ...(s.platform != null ? { platform: s.platform } : {}), ...(s.retrievedVia != null ? { retrievedVia: s.retrievedVia } : {}), ...(s.evidenceType != null ? { evidenceType: s.evidenceType } : {}) }));
-    return { status: v.status === 'completed' && (v.sections.length !== 4 || v.sections.some(s => s.status !== 'completed')) ? 'partial' : v.status, sections: projectSections(v.sections), sources, progress: v.progress, warnings: v.warnings, clarification: v.clarification, cost: { toolMicro: v.cost.toolMicro, modelUsd: v.cost.modelUsd }, ...metadata };
+    return { status: v.status === 'completed' && (v.sections.length !== 4 || v.sections.some(s => !['completed', 'skipped'].includes(s.status)) || !v.sections.some(s => s.status === 'completed')) ? 'partial' : v.status, sections: projectSections(v.sections), sources, progress: v.progress, warnings: v.warnings, clarification: v.clarification, cost: { toolMicro: v.cost.toolMicro, modelUsd: v.cost.modelUsd }, ...metadata };
 }
 export async function boundedText(body: Request | Response, limit: number, status: number): Promise<string> {
     const reader = body.body?.getReader();

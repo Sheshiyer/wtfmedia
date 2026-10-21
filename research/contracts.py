@@ -65,15 +65,22 @@ ToolId = Literal['perplexity.web.search', 'exa.web.contents.get', 'anyapi.linked
 
 
 class ResearchInput(DTO):
-    guestName: str = Field(min_length=2, max_length=120)
-    companyName: str = Field(min_length=2, max_length=120)
-    industry: str = Field(min_length=2, max_length=120)
+    guestName: str = Field(default='', max_length=120)
+    companyName: str = Field(default='', max_length=120)
+    industry: str = Field(default='', max_length=120)
     audienceCountry: Literal['IN'] = 'IN'
 
     @field_validator('guestName', 'companyName', 'industry', mode='before')
     @classmethod
     def trim(cls, value):
         return value.strip() if isinstance(value, str) else value
+
+    @model_validator(mode='after')
+    def supplied_scope(self):
+        values = (self.guestName, self.companyName, self.industry)
+        if not any(values) or any(value and len(value.encode('utf-16-le')) < 4 for value in values):
+            raise ValueError('enter a guest, company or industry; populated fields need 2–120 characters')
+        return self
 
 
 class Failure(DTO):
@@ -84,7 +91,7 @@ class Failure(DTO):
     reason: Literal['http_error', 'transport_error', 'connect_timeout', 'read_timeout', 'deadline',
                     'stream_error', 'stream_incomplete', 'stream_invalid', 'response_too_large',
                     'context_limit', 'no_matching_sources', 'invalid_json', 'invalid_schema', 'output_truncated', 'empty_output'] | None = None
-    provider: Literal['treg', 'omniroute', 'openrouter', 'runner'] | None = None
+    provider: Literal['treg', 'anthropic', 'omniroute', 'openrouter', 'runner'] | None = None
     operation: Literal['catalog', 'search', 'social_search', 'extract', 'model'] | None = None
     httpStatus: int | None = Field(default=None, ge=100, le=599)
 
@@ -110,8 +117,14 @@ class Section(DTO):
     key: Tier
     title: str = Field(max_length=200)
     content: str = Field(max_length=24000)
-    status: Literal['queued', 'running', 'completed', 'partial', 'failed', 'cancelled'] = 'completed'
+    status: Literal['queued', 'running', 'completed', 'partial', 'failed', 'cancelled', 'skipped'] = 'completed'
     failure: Failure | None = None
+
+    @model_validator(mode='after')
+    def skipped_is_empty(self):
+        if self.status == 'skipped' and (self.content != '' or self.failure is not None):
+            raise ValueError('skipped sections must have empty content and no failure')
+        return self
 
 
 class Context(DTO):
@@ -136,6 +149,7 @@ class JobInput(Context):
     title: str = Field(min_length=2, max_length=400)
     section: Tier | None = None
     clarification: str | None = Field(default=None, max_length=2000)
+    skipClarification: bool = False
     budgetMicro: int = Field(default=5000000, ge=0, le=5000000)
 
     @model_validator(mode='after')
@@ -160,3 +174,34 @@ class Message(DTO):
 class ChatInput(Context):
     question: str = Field(min_length=1, max_length=2000)
     messages: list[Message] = Field(default_factory=list, max_length=12)
+
+
+def section_spec(body, key):
+    """Four stable wire slots, with scope chosen from supplied fields only."""
+    fields = body.get('researchInput')
+    if not fields:
+        return TIERS[key]
+    guest, company, industry = (fields.get(n, '') for n in ('guestName', 'companyName', 'industry'))
+    if key == 'snacks':
+        return (f'Guest profile: {guest}', TIERS[key][1]) if guest else None
+    if key in ('appetizers', 'main') and not (company or industry):
+        return None
+    if key == 'appetizers':
+        if company:
+            return (f'Company and industry: {company}' if industry else f'Company: {company}', TIERS[key][1])
+        return (f'Industry: {industry}', 'Industry economics, competitors, market structure, related industries, '
+                'regulation and barriers. Distinguish global and Indian figures. Do not invent a focal company or guest.')
+    if key == 'main':
+        return TIERS[key]
+    return (TIERS[key][0], 'Takeaways, outlook and 8–12 interview questions with follow-ups about only the supplied '
+            'subjects. For a guest-only request focus on that person; for company/industry-only requests ask '
+            'questions about that scope without inventing a guest or biographical section.')
+
+
+def validate_section_subject(body, key, content):
+    if body.get('researchInput') and key in ('snacks', 'appetizers'):
+        spec = section_spec(body, key)
+        # Require the requested identity in the lead heading before accepting person/company claims.
+        expected = '# ' + spec[0] if spec else None
+        if expected is None or content.splitlines()[0].strip().casefold() != expected.casefold():
+            raise ValueError('section identity does not match requested scope')

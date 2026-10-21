@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { chatStream, embedQuery, type ChatMessage } from "@/lib/nvidia";
+import { embedQuery, type ChatMessage } from "@/lib/nvidia";
 import {
   parseSourceMode,
   type SourceMode,
@@ -12,6 +12,8 @@ import {
   type EdgeSource,
 } from "@/lib/provenance/public-answer-projection";
 import { isReady, search } from "@/lib/vectors";
+import { claudeChat } from "../../../../cloudflare/src/chat/claude";
+import { DEFAULT_MODEL } from "@/lib/models";
 
 export const runtime = "nodejs";
 export const maxDuration = 90;
@@ -88,7 +90,7 @@ function momentHeader(answer: EdgeAnswer): string {
 }
 
 /** Local-only RAG path for `next dev`; production remains Cloudflare-only. */
-async function localAnswer(question: string, sourceMode: SourceMode, episodeId: string | null): Promise<Response> {
+async function localAnswer(question: string, sourceMode: SourceMode, episodeId: string | null, signal: AbortSignal): Promise<Response> {
   if (!isReady()) return Response.json({ error: "local_catalogue_unavailable" }, { status: 503 });
   if (sourceMode === "uncut") {
     return new Response("uncut is unavailable in local mode; switch to published.", {
@@ -101,7 +103,7 @@ async function localAnswer(question: string, sourceMode: SourceMode, episodeId: 
         "X-Source-Mode": "uncut",
         "X-Source-Fallback-Reason": "requested_mode_insufficient",
         "X-Uncut-Unavailable": "true",
-        "X-Model": "nvidia-local",
+        "X-Model": "none",
         "X-Fallback": "true",
       },
     });
@@ -123,11 +125,11 @@ async function localAnswer(question: string, sourceMode: SourceMode, episodeId: 
     segmentId: `local:${hit.video_id}:${hit.chunk_idx}`,
   }));
   const context = hits.map((hit, index) => `[${index + 1}] ${hit.title}\n${hit.text}`).join("\n\n---\n\n");
-  const stream = await chatStream([
+  const generated = await claudeChat({ ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY }, [
     { role: "system", content: "Answer only from the supplied transcript excerpts. Cite every factual sentence with [1], [2], etc. If the excerpts do not answer the question, say so plainly." },
     { role: "user", content: `CONTEXT:\n${context}\n\nQUESTION: ${question}` },
-  ], { maxTokens: 600, temperature: 0.1 });
-  return new Response(stream, {
+  ], { maxTokens: 600, signal });
+  return new Response(generated.answer, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       "X-Sources": encodeURIComponent(sourceHeader(sources, "published")),
@@ -138,7 +140,7 @@ async function localAnswer(question: string, sourceMode: SourceMode, episodeId: 
         ? { "X-Source-Fallback-Reason": "requested_mode_insufficient" }
         : {}),
       "X-Uncut-Unavailable": sourceMode === "both" ? "true" : "false",
-      "X-Model": "nvidia-local",
+      "X-Model": generated.model,
       "X-Fallback": "false",
       "Cache-Control": "no-store",
     },
@@ -156,13 +158,7 @@ export async function POST(req: NextRequest) {
   const last = [...messages].reverse().find((message) => message.role === "user");
   if (!last?.content?.trim()) return new Response("no user message", { status: 400 });
   if (last.content.length > MAX_QUESTION_CHARS) return new Response("question too long", { status: 400 });
-  // Must mirror RETRYABLE_OPENROUTER_MODELS in the edge worker.
-  const RETRYABLE_MODELS = new Set([
-    "google/gemini-3.5-flash",
-    "openai/gpt-5",
-    "poolside/laguna-s-2.1",
-    "thinkingmachines/inkling",
-  ]);
+  const RETRYABLE_MODELS = new Set([DEFAULT_MODEL]);
   let answerModel: string | undefined;
   if (body.answerModel !== undefined) {
     if (typeof body.answerModel !== "string" || !RETRYABLE_MODELS.has(body.answerModel)) {
@@ -178,10 +174,10 @@ export async function POST(req: NextRequest) {
     return new Response("invalid episode id", { status: 400 });
   }
   if (!EDGE_SHARED_SECRET) {
-    if (process.env.NODE_ENV !== "production" && LOCAL_RAG_ENABLED && process.env.NVIDIA_API_KEY) {
-      try { return await localAnswer(last.content, sourceMode, episodeId); }
-      catch (error) {
-        console.error("local NVIDIA RAG failed", error instanceof Error ? error.message : "unknown");
+    if (process.env.NODE_ENV !== "production" && LOCAL_RAG_ENABLED && process.env.NVIDIA_API_KEY && process.env.ANTHROPIC_API_KEY) {
+      try { return await localAnswer(last.content, sourceMode, episodeId, req.signal); }
+      catch {
+        console.error("local RAG failed", { code: "local_answer_unavailable" });
         return Response.json({ error: "local_answer_unavailable" }, { status: 503 });
       }
     }
@@ -206,7 +202,7 @@ export async function POST(req: NextRequest) {
         history: messages.slice(0, -1).map((m) => ({ role: m.role, content: m.content })),
       }),
       cache: "no-store",
-      signal: AbortSignal.timeout(75_000),
+      signal: AbortSignal.any([req.signal, AbortSignal.timeout(75_000)]),
     }));
   } catch (error) {
     console.error("wtfmedia web chat transport failed", {
