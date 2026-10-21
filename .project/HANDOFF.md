@@ -1,3 +1,34 @@
+## 2026-10-21 — Claude and research reader deployed to staging
+
+- Owner-authorized candidate `aed119b4d597d7d060c7cc8b1787e54d4698a830` is deployed:
+  Edge `bad7e205-cae7-4b1d-98c6-f3f905a1b25c`, research host
+  `511a56ad-2176-47e4-aaac-935b4de31071`, Web
+  `6f816576-4b4b-4b17-b2b2-9a8dd18be40f`. Deployment readbacks show 100% traffic.
+  Public staging remains `https://beta-staging.wtfhq.in`.
+- Research image is pinned to
+  `sha256:f2f94dae049046a6eb7244cb2eb5a6dd6a949ee4274a31af42839b5dbc5587f8`.
+  Registry upload of a rebuilt dependency layer failed, so the existing pinned
+  dependency image was reused after exact requirements-lock hash comparison.
+  All 14 Python runtime module hashes match current source; image imports pass.
+  No private state, local environment file or credential was included in the image.
+- The existing local Anthropic key was uploaded only as a server secret on the
+  staging Edge and research host. Existing runner/state tokens and other secrets
+  remain unchanged. No database migrations, production/Alpha changes or push.
+- Live smoke: staging Edge reports Anthropic/Sonnet 5.5 configured and retains
+  Alpha corpus delegation. Hosted runner authenticated health reports configured
+  true after rollout (an initial transitional check returned false). Root returns
+  307; sign-in/research return 200; unsigned principal/research/social APIs return
+  401. Live Clerk issuer and research JavaScript match the isolated staging build.
+- Previous rollback versions: Edge `1686db84-f7e8-4c39-b760-d00e61dc44fd`, host
+  `21cbc9e3-6757-4f69-b1ae-470f4d864b86`, Web
+  `ea504264-795e-4532-96d1-b7789dcc463e`; prior image
+  `sha256:72f7c184b02248b8de07e591e9e787d784a54a92db1a2976cadab73733f72ac0`.
+  Rollback does not restore data; do not remove state namespaces.
+- Per owner instruction, no new staging report or signed-in chat test was run.
+  End-to-end user testing and the full persona matrix remain unverified. Shared
+  Alpha Ask WTF still uses its existing deployed generation; this staging rollout
+  does not migrate that production-affecting inference service.
+
 ## 2026-10-21 — Claude staging candidate preparation
 
 - Owner requested staging deployment of the approved reader/flexible-input and
