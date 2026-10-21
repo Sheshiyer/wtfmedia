@@ -14,6 +14,7 @@ import {
 } from "./evidence-coordinator.ts";
 import { momentsForAnswer } from "./moment-pipeline.ts";
 import { claudeChat } from "./claude.ts";
+import { parseCitationMarkers } from "./skills/wtf-os-conversation.ts";
 import type { EnrichedMoment, MomentSource } from "./moments.ts";
 
 export type ChatAnswerEnvironment = {
@@ -111,6 +112,10 @@ function citedEvidenceFallback(sources: Array<{ n: number; title: string; text?:
 
 /** A conservative attribution check, not a claim of semantic entailment. */
 export function coverageFailure(answer: string, sourceCount: number): string | null {
+  if (!parseCitationMarkers(answer, sourceCount).valid) return "invalid citations";
+  // Use the same grouped-citation contract as the public answer validator.
+  answer = answer.replace(/\[(\d+(?:\s*,\s*\d+)+)\]/gu, (_, group: string) =>
+    group.split(",").map((index) => `[${index.trim()}]`).join(""));
   const citations = [...answer.matchAll(/\[(\d+)\]/gu)].map((match) => Number(match[1]));
   if (!citations.length) return "no citations";
   if (citations.some((citation) => citation < 1 || citation > sourceCount)) return "citation out of range";

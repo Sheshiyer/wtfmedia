@@ -22,6 +22,14 @@ test("hasCitationCoverage accepts glm's labelled-list style and still rejects un
 
 const vector = Array.from({ length: 1024 }, () => 0.1);
 
+test("coverage accepts canonical grouped citations without allowing uncited claims", () => {
+  assert.equal(hasCitationCoverage("A supported statement [1, 2]. Another supported statement [2].", 2), true);
+  assert.equal(hasCitationCoverage("A supported statement. [1, 2] Another supported statement [2].", 2), true);
+  assert.equal(hasCitationCoverage("A supported statement [1, 3].", 2), false);
+  assert.equal(hasCitationCoverage("A supported statement [1, 2]. An uncited statement.", 2), false);
+  assert.equal(hasCitationCoverage("A supported statement [1, 2]. Another statement [N].", 2), false);
+});
+
 // Generation runs on Claude (fetch); Workers AI only serves embeddings.
 function environment(matches, prompts = [], response = "The evidence supports this answer [1] and [2].") {
   globalThis.fetch = async (_url, init) => {
@@ -328,4 +336,23 @@ test("public generation shares scoped evidence and citation coverage while keepi
   assert.equal(answer.sources.length, 2);
   assert.equal(answer.modelFallback, true);
   assert.match(answer.answer, /closest cited excerpts/);
+});
+
+test("legacy retry hints stay compatible but every public answer uses Claude", async () => {
+  const { default: worker } = await import("../src/index.ts");
+  for (const answerModel of ["claude-sonnet-5-5", "google/gemini-3.5-flash", "openai/gpt-5", "poolside/laguna-s-2.1", "thinkingmachines/inkling", "unknown-model"]) {
+    const env = {
+      ...environment([excerpt("a"), excerpt("b")]),
+      EDGE_SHARED_SECRET: "local-contract-only", ALLOWED_ORIGIN: "https://public.test",
+      WTFMEDIA_STATE: { get: async () => null, put: async () => {} },
+    };
+    const response = await worker.fetch(new Request("https://edge.test/v1/chat", {
+      method: "POST", headers: { "content-type": "application/json", "x-edge-secret": env.EDGE_SHARED_SECRET },
+      body: JSON.stringify({ question: "What was said about batteries?", episodeId, sourceMode: "published", answerModel }),
+    }), env);
+    const body = await response.json();
+    assert.equal(response.status, answerModel === "unknown-model" ? 400 : 200);
+    if (response.ok) assert.equal(body.model, "claude-sonnet-5-5");
+    else assert.equal(body.error, "invalid_answer_model");
+  }
 });

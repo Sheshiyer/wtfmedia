@@ -56,10 +56,11 @@ export interface Env extends OpsEnv {
   ANTHROPIC_API_KEY?: string;
 }
 
-// Models a visitor may force for a "retry with model" regeneration. All are
-// served through direct Claude; the allowlist keeps arbitrary model
-// strings out of a public, rate-limited endpoint.
-const ANSWER_MODELS = new Set([CLAUDE_MODEL]);
+// Older deployed clients send these retry hints; accept them but always use Claude.
+const ANSWER_MODELS = new Set([
+  CLAUDE_MODEL, "google/gemini-3.5-flash", "openai/gpt-5",
+  "poolside/laguna-s-2.1", "thinkingmachines/inkling",
+]);
 const MAX_BODY_BYTES = 16_000;
 
 function cors(request: Request, env: Env) {

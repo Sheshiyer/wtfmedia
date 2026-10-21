@@ -1,3 +1,26 @@
+## 2026-10-21 — Shared Ask WTF Claude cutover prepared
+
+- Owner explicitly requested shared Ask WTF generation use direct Anthropic
+  Claude Sonnet 5.5. This affects both staging and production through the existing
+  Alpha web bridge; no second corpus is introduced.
+- Isolated production candidate `bf88ccedffbabd8c413099ed01ea55b3dcb6c0c3`
+  has parent deployed source `89c122c5559a4a1bcd4798d1b13065b2df58aa9c`.
+  Only ten inference/runtime/test files differ. Production identity, analytics,
+  ingest, resource configuration and web builds remain at their deployed base.
+- Old retry hints are accepted for client compatibility but cannot select another
+  model. Grouped citations use the canonical parser; uncited claims, invalid
+  placeholders and out-of-range references still fail. Sentence-level citation
+  instructions are explicit. No diagnostic chat/transcript bodies were logged.
+- VERIFIED-SOURCE: isolated candidate Edge 476/476, current branch Edge 565/565,
+  production package dry run and diff whitespace checks pass. Live local probe
+  reports `claude-sonnet-5-5`, `answered_grounded`, six sources, 14.27 seconds;
+  one citation repair was needed. This is not a deployed receipt.
+- Rollback target recorded before upload: production Edge
+  `bad9782e-6844-400a-bdfb-1992ffadface`; Alpha web
+  `3d5a5965-14f3-486a-a608-330d539dec81` is not changed. Anthropic key upload
+  is limited to the shared Edge under this model-change authorization. No push,
+  migrations, UI promotion or new research run. Deployment result follows.
+
 ## 2026-10-21 — Claude and research reader deployed to staging
 
 - Owner-authorized candidate `aed119b4d597d7d060c7cc8b1787e54d4698a830` is deployed:
