@@ -1,3 +1,32 @@
+## 2026-10-21 — Push verification and no-evidence answer presentation
+
+- Owner requested pushing the branch and fixing CI failures, then requested
+  no-data chat replies show only their explanation without a cited-source card
+  or duplicate warning. Shared member/operator presentation now omits stale
+  sources, citations, moments and follow-ups on ungrounded/unavailable answers;
+  public chat also respects retrieval-weak/abstention state. Grounded answers
+  and cited-excerpt synthesis fallbacks retain evidence. Saved records are not
+  mutated, and this change does not deploy a new web bundle.
+- Reproduced and fixed the Phase 2 disposable build losing sibling Cloudflare
+  source imports; its isolated workspace now preserves web/cloudflare/src
+  layout while excluding Worker credentials/state. Corrected old browser tests
+  to enforce the owner-requested production analytics removal (hidden menu and
+  404), while staging remains visible. Regenerated architecture fingerprints.
+- Initial push through `e9d57c1` was confirmed remotely. GitHub reports zero
+  runs/checks for that SHA, Phase 2 and Architecture workflows as `deleted`, and
+  no registered Research workflow. Workflow files exist on feature/pavun;
+  Actions policy inspection returns 403 for the current non-admin account.
+  No repository Actions settings or default branch were changed. Local gates
+  are source verification, not a claim that hosted GitHub CI passed.
+- Local verification: web unit 425/425, contracts 101/101, Python research
+  157/157, typecheck and lint pass. Final Phase 2 gate passes with 574 Edge
+  tests, 20 browser tests (including both saved no-data-answer regressions),
+  audit-filter checks and zero privacy violations across 433 bounded files.
+  A public journey attempted with the signed-in Phase 2 adapter redirected to
+  Beta and was not an acceptance result; the matching Beta regression is used.
+- The unrelated untracked architecture/user-flow draft remains untouched.
+  No deployment, database, credentials or model configuration change.
+
 ## 2026-10-21 — Ask WTF citation repair deployed and checked
 
 - Owner explicitly approved deploying the shared Alpha citation fix after being

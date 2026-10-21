@@ -164,14 +164,10 @@ describe("member chat client contract", () => {
 
     expect(memberAnswerPresentation(parsed!.messages[0]!)).toEqual({
       abstained: true,
-      uncutUnavailable: true,
-      sources: [{ n: 4, title: "Cited episode", timeSec: 42, sourceMode: "published", mappingStatus: "mapped", timestampStatus: "verified" }],
-      moments: {
-        moments: [expect.objectContaining({ videoId: "abcdefghijk", topic: "evidence practice", startSec: 42, endSec: 72 })],
-        totalDurationSec: 30,
-        budgetSec: null,
-      },
-      citedIndices: [4],
+      uncutUnavailable: false,
+      sources: [],
+      citedIndices: [],
+      followUps: [],
     });
     expect(parsed!.messages[0]).not.toHaveProperty("model");
     expect(parsed!.messages[0]).not.toHaveProperty("requestId");

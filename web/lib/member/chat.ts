@@ -288,6 +288,9 @@ export type MemberAnswerPresentation = {
 };
 
 export function memberAnswerPresentation(message: MemberMessage): MemberAnswerPresentation {
+  if (message.role === "assistant" && (message.groundingState === "ungrounded" || message.groundingState === "unavailable" || message.responseState === "abstained" || message.responseState === "retrieval_weak")) {
+    return { abstained: true, uncutUnavailable: false, sources: [], citedIndices: [], followUps: [], ...(message.responseState ? { responseState: message.responseState } : {}) };
+  }
   return {
     abstained: message.role === "assistant" && (message.groundingState === "ungrounded" || message.responseState === "abstained"),
     uncutUnavailable: message.uncutUnavailable === true,

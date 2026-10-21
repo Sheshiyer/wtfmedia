@@ -5,12 +5,15 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 const source = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const target = mkdtempSync(path.join(tmpdir(), "wtf-phase2-"));
+const workspace = mkdtempSync(path.join(tmpdir(), "wtf-phase2-"));
+const target = path.join(workspace, "web");
 const excluded = new Set(["node_modules", ".next", ".open-next", ".wrangler", "test-results", "playwright-report", "storybook-static"]);
 cpSync(source, target, { recursive: true, filter: (file) => {
   const name = path.basename(file);
   return !excluded.has(name) && !name.startsWith(".env") && !name.startsWith(".dev.vars");
 } });
+// Preserve sibling imports without copying Worker credentials or local state.
+cpSync(path.join(source, "../cloudflare/src"), path.join(workspace, "cloudflare/src"), { recursive: true });
 symlinkSync(path.join(source, "node_modules"), path.join(target, "node_modules"), "dir");
 renameSync(path.join(target, "next.config.mjs"), path.join(target, "next.base.mjs"));
 writeFileSync(path.join(target, "next.config.mjs"), `import base from './next.base.mjs';

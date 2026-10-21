@@ -44,9 +44,11 @@ for (const role of ["member", "admin"] as const) {
       await authenticate(page, role, environment);
       await page.goto("/beta/settings");
       const nav = await openNavigation(page);
-      await expect(nav.getByRole("link", { name: "youtube analytics", exact: true })).toHaveCount(1);
+      const visible = environment !== "production";
+      await expect(nav.getByRole("link", { name: "youtube analytics", exact: true })).toHaveCount(visible ? 1 : 0);
       await page.goto("/beta/analytics");
-      await expect(page.locator('iframe[src*="analytics-demo"]')).toHaveCount(1);
+      await expect(page.locator('iframe[src*="analytics-demo"]')).toHaveCount(visible ? 1 : 0);
+      if (!visible) await expect(page.getByRole("heading", { name: "404", exact: true })).toBeVisible();
     });
   }
 }
@@ -57,6 +59,22 @@ test("legacy operator URLs redirect into the Beta shell", async ({ page }) => {
   await expect(page).toHaveURL(/\/beta\/settings\/users$/);
   await expect(page.getByRole("heading", { name: "users & access" })).toBeVisible();
 });
+
+for (const responseState of ["retrieval_weak", "abstained"]) {
+  test(`saved ${responseState} chat shows only the no-data answer`, async ({ page }) => {
+    await authenticate(page, "member");
+    const conversation = { id: "mcnv_12345678", title: "Evidence question", source_mode: "published", lifecycle_state: "active" };
+    const content = "We don’t have enough information about that in the catalogue.";
+    await page.route("**/beta/api/chat**", (route) => route.fulfill({ json: new URL(route.request().url()).pathname.endsWith(conversation.id)
+      ? { conversation, messages: [{ id: "mmsg_12345678", role: "assistant", content, created_at: "2026-10-21T00:00:00Z", grounding_state: "ungrounded", source_metadata_json: JSON.stringify({ responseState, sources: [{ n: 1, title: "Uncited candidate", video_id: "abcdefghijk", source_mode: "published" }], citedIndices: [1] }) }] }
+      : { conversations: [conversation], nextCursor: null } }));
+    await page.goto(`/beta/chat/${conversation.id}`);
+    await expect(page.getByText(content, { exact: true })).toBeVisible();
+    await expect(page.getByTestId("source-panel")).toHaveCount(0);
+    await expect(page.getByTestId("abstention-label")).toHaveCount(0);
+    await expect(page.getByText("Uncited candidate", { exact: true })).toHaveCount(0);
+  });
+}
 
 test("denied principal cannot render a protected page even with old proof headers", async ({ page }) => {
   await page.setExtraHTTPHeaders({ "x-wtf-ops-context": "retired-fixture", "x-wtf-ops-proof": "retired-proof" });

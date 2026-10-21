@@ -103,7 +103,9 @@ function mockGroundedAnswer(
 /** Mock /api/chat with an abstention response. */
 function mockAbstention(page: import("@playwright/test").Page) {
   mockChatStream(page, ["I don't have enough information to answer that."], {
-    "X-Sources": "[]",
+    "X-Sources": encodeURIComponent(JSON.stringify([{ n: 1, title: "Uncited candidate episode", video_id: "abcdefghijk", source_mode: "published" }])),
+    "X-Response-State": "retrieval_weak",
+    "X-Cited-Indices": "[]",
     "X-Model": "test-model",
     "X-Fallback": "false",
   });
@@ -523,7 +525,7 @@ test.describe("/chat journey — migrated variant", () => {
 
   /* ── abstention ────────────────────────────────────────────────────── */
 
-  test("shows abstention label when response has no grounded content", async ({
+  test("shows only the answer when response has no grounded content", async ({
     page,
   }) => {
     mockAbstention(page);
@@ -538,10 +540,9 @@ test.describe("/chat journey — migrated variant", () => {
       timeout: 10000,
     });
 
-    await expect(page.locator('[data-testid="abstention-label"]')).toBeVisible();
-    await expect(page.locator('[data-testid="abstention-label"]')).toContainText(
-      "the catalogue doesn't support that claim",
-    );
+    await expect(page.getByTestId("message-1")).toContainText("I don't have enough information to answer that.");
+    await expect(page.getByTestId("abstention-label")).toHaveCount(0);
+    await expect(page.getByTestId("source-panel")).toHaveCount(0);
   });
 
   /* ── error recovery ────────────────────────────────────────────────── */

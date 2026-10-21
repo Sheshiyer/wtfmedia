@@ -282,7 +282,11 @@ export function ConversationThread({
             </div>
             ) : (
             <div className="max-w-2xl mx-auto space-y-6">
-              {messages.map((msg, i) => (
+              {messages.map((msg, i) => {
+                const noEvidence = msg.responseState
+                  ? msg.responseState === "abstained" || msg.responseState === "retrieval_weak"
+                  : msg.abstained;
+                return (
                 <div key={i} className="space-y-2" data-testid={`message-${i}`}>
                   {msg.role === "user" ? (
                     <div className="flex justify-end">
@@ -293,10 +297,10 @@ export function ConversationThread({
                   ) : (
                     <div className="space-y-2">
                       <div className="prose-chat border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary">
-                        <ChatAnswerMarkdown content={msg.content} sources={msg.sources ?? []} />
+                        <ChatAnswerMarkdown content={msg.content} sources={noEvidence ? [] : msg.sources ?? []} />
                       </div>
 
-                      {msg.sources && msg.sources.length > 0 && (
+                      {!noEvidence && msg.sources && msg.sources.length > 0 && (
                         <SourcePanel
                           sources={msg.sources}
                           citedIndices={msg.citedIndices}
@@ -307,13 +311,7 @@ export function ConversationThread({
                         />
                       )}
 
-                      {msg.abstained && (
-                        <p className="text-xs font-medium italic text-secondary" data-testid="abstention-label">
-                          the catalogue doesn&apos;t support that claim
-                        </p>
-                      )}
-
-                      {msg.followUps && msg.followUps.length > 0 && !loading && i === messages.length - 1 && (
+                      {!noEvidence && msg.followUps && msg.followUps.length > 0 && !loading && i === messages.length - 1 && (
                         <div className="flex flex-wrap gap-2 pt-2" data-testid="follow-up-chips">
                           {msg.followUps.map((q, fi) => (
                             <button
@@ -330,7 +328,8 @@ export function ConversationThread({
                     </div>
                   )}
                 </div>
-              ))}
+                );
+              })}
 
               {loading && (
                 <div
