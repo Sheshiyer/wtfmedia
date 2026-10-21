@@ -1,3 +1,28 @@
+## 2026-10-21 — Shared Alpha Ask WTF now uses Claude
+
+- Owner-authorized inference-only candidate
+  `bf88ccedffbabd8c413099ed01ea55b3dcb6c0c3` is deployed to `wtfmedia-edge` as
+  version `3abdfb0b-2223-44f0-bec5-7d131f3952db`, read back at 100% traffic.
+  Both Beta environments use this shared Alpha inference authority.
+- Existing Anthropic key added as the shared Edge server secret. Version binding
+  comparison shows only `ANTHROPIC_API_KEY` added: zero removed or changed
+  existing bindings. Temporary credential file removed. No web/research/analytics
+  promotion, migrations, corpus changes, credential rotation or push.
+- Live health confirms Anthropic, `claude-sonnet-5-5`, configured true. Through
+  the actual Alpha web `/api/chat` adapter, initial question: HTTP 200, model
+  `claude-sonnet-5-5`, `answered_grounded`, six sources, 13.67 seconds. It needed
+  citation repair, so X-Fallback remained true. Follow-up: HTTP 200, same model,
+  six sources, 14.82 seconds, but `synthesis_invalid`; the existing safe cited
+  excerpt fallback was returned. Model migration is confirmed; consistently
+  successful synthesis across follow-ups is not claimed and needs calibration.
+- Both production and staging principal APIs still return 401 signed out.
+  Direct Python HTTP probes received 403 in this host environment; curl reached
+  the same endpoints successfully. No authenticated user-session UI matrix was
+  repeated. No question/answer or transcript bodies retained in receipts.
+- Rollback: Edge `bad9782e-6844-400a-bdfb-1992ffadface`; shared Alpha Web remains
+  `3d5a5965-14f3-486a-a608-330d539dec81`. Previous provider secrets are preserved.
+  Rollback restores the old model route, not data or independently changed state.
+
 ## 2026-10-21 — Shared Ask WTF Claude cutover prepared
 
 - Owner explicitly requested shared Ask WTF generation use direct Anthropic
