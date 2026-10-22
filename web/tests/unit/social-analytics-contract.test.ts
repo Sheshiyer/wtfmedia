@@ -170,6 +170,28 @@ describe("authenticated social workspace", () => {
     await vi.waitFor(() => expect(assign).toHaveBeenCalledWith("https://zernio.com/connect"));
   });
 
+  it("distinguishes unavailable metrics, pending sync and reported zero activity", () => {
+    harness.state[0] = { ...adminStatus, configured: true, selectionRequired: false, accounts: [activeAccount] };
+    harness.state[2] = "instagram";
+    harness.state[4] = false;
+    harness.state[5] = false;
+    const totals = { impressions: null, reach: null, likes: null, comments: null, shares: null, saves: null, clicks: null, views: null, engagementRate: null };
+    const dashboard = { totals, followers: { current: null, gained: null }, daily: [], topPosts: [], dateRange: { fromDate: "2026-10-01", toDate: "2026-10-02" }, dataAsOf: null };
+    harness.state[1] = dashboard;
+    expect(renderWorkspace()).not.toContain("No activity in this range.");
+    expect(renderWorkspace()).toContain("Performance data is unavailable");
+    harness.state[1] = { ...dashboard, totals: { ...totals, views: 0 } };
+    expect(renderWorkspace()).toContain("No activity reported in this range.");
+    harness.state[0] = { ...adminStatus, configured: true, accounts: [{ ...activeAccount, analyticsSyncStatus: "never_synced" }] };
+    expect(renderWorkspace()).toContain("Analytics sync is pending.");
+    expect(renderWorkspace()).not.toContain("No activity reported");
+    harness.state[1] = { ...dashboard, totals: { ...totals, views: 42 } };
+    expect(renderWorkspace()).not.toContain("No activity reported");
+    harness.state[1] = { ...dashboard, topPosts: [{ postId: "opaque-id", platform: "instagram", publishedAt: "invalid", text: null, metrics: totals }] };
+    expect(renderWorkspace()).toContain("Instagram post");
+    expect(renderWorkspace()).not.toContain("opaque-id");
+  });
+
   it("clears old dashboard data on a failed request and ignores a late aborted result", async () => {
     harness.state[0] = { ...adminStatus, configured: true, selectionRequired: false, accounts: [activeAccount] };
     harness.state[2] = "instagram";

@@ -16,9 +16,6 @@ export const discoverZernioProfileId = () => profile(provider());
 export function socialAnalyticsConfigured() { return Boolean(process.env.ZERNIO_API_KEY?.trim()); }
 export function socialAnalyticsLocalEnabled() { return process.env.NODE_ENV !== "production" && process.env.SOCIAL_ANALYTICS_LOCAL_ENABLED === "1"; }
 export const listSocialAccounts = async () => { const client = provider(); return client.accounts(await profile(client), true); };
-export const listLinkedInOrganizations = async (accountId: string) => { const client = provider(); return client.linkedInOrganizations(await profile(client), accountId); };
-export const selectLinkedInOrganization = async (accountId: string, organizationId: string) => { const client = provider(); return client.selectLinkedInOrganization(await profile(client), accountId, organizationId); };
-export const disconnectSocialAccount = async (accountId: string) => { const client = provider(); return client.disconnectAccount(await profile(client), accountId); };
 export const createConnectionUrl = async (platform: SocialPlatform, redirectUrl: string) => { const client = provider(); return client.connect(await profile(client), platform, redirectUrl); };
 export const getSocialDashboard = async (input: {
     platform: SocialPlatform | "all";

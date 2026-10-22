@@ -44,7 +44,8 @@ function accountLabel(account: SocialAccount): string {
 }
 function postFallback(platform: SocialPlatform, publishedAt: string | null): string {
   const name = platform === "twitter" ? "X" : platform[0].toUpperCase() + platform.slice(1);
-  return publishedAt ? `${name} post · ${new Intl.DateTimeFormat("en", { day: "numeric", month: "short", year: "numeric" }).format(new Date(publishedAt))}` : `${name} post`;
+  const date = publishedAt ? new Date(publishedAt) : null;
+  return date && Number.isFinite(date.getTime()) ? `${name} post · ${new Intl.DateTimeFormat("en", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(date)}` : `${name} post`;
 }
 
 async function responseJson<T>(response: Response): Promise<T> {
@@ -267,7 +268,9 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
   };
 
   const chartMaximum = Math.max(1, ...(dashboard?.daily.map((day) => day.impressions ?? 0) ?? [1]));
-  const hasPerformance = Boolean(dashboard && [dashboard.totals.impressions, dashboard.totals.reach, dashboard.totals.likes, dashboard.totals.comments, dashboard.totals.shares, dashboard.totals.saves, dashboard.totals.clicks, dashboard.totals.views].some(value => value !== null && value !== 0));
+  const performance = dashboard ? [dashboard.totals.impressions, dashboard.totals.reach, dashboard.totals.likes, dashboard.totals.comments, dashboard.totals.shares, dashboard.totals.saves, dashboard.totals.clicks, dashboard.totals.views] : [];
+  const hasPerformance = performance.some(value => value !== null && value !== 0);
+  const hasReportedPerformance = performance.some(value => value !== null);
   const metricCards = dashboard ? [
     { label: "impressions", value: compact(dashboard.totals.impressions), note: "content shown" },
     { label: "reach", value: compact(dashboard.totals.reach), note: "reported reach across days" },
@@ -408,7 +411,11 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
           : activeAccounts.length === 0 ? <div className="grid min-h-[360px] place-items-center p-8 text-center"><div className="max-w-lg"><p className="font-editorial text-3xl italic">The dashboard is ready for its first signal.</p><p className="mt-4 font-body text-secondary">{canManage ? "Connect any platform above. Once OAuth returns, the totals, trend line, and strongest posts will populate here automatically." : "An administrator can connect platforms for this workspace. Analytics will appear here when data is available."}</p></div></div>
           : dashboard ? <div>
             {selectedAccount?.analyticsNote && <div className="border-b-2 border-foreground bg-attention/10 px-5 py-4 font-body text-sm leading-relaxed sm:px-6"><strong className="font-label">Platform coverage:</strong> {selectedAccount.analyticsNote}</div>}
-            {!hasPerformance && <div className="border-b-2 border-foreground bg-information/10 px-5 py-4 font-body text-sm leading-relaxed sm:px-6"><strong className="font-label">No activity in this range.</strong> The connection is available{selectedAccount?.analyticsSyncStatus === "never_synced" ? ", but Zernio has not completed its first analytics sync yet" : ", but Zernio returned no performance events for these dates"}. Try a wider date range.</div>}
+            {!hasPerformance && <div className="border-b-2 border-foreground bg-information/10 px-5 py-4 font-body text-sm leading-relaxed sm:px-6">
+              {selectedAccount?.analyticsSyncStatus === "never_synced" ? <><strong className="font-label">Analytics sync is pending.</strong> Zernio has not completed its first analytics sync yet. Refresh after synchronization.</>
+                : hasReportedPerformance ? <><strong className="font-label">No activity reported in this range.</strong> Available metrics are zero; missing metrics remain unavailable. Try a wider date range.</>
+                : <><strong className="font-label">Performance data is unavailable.</strong> Zernio returned no metrics for these dates. Try a wider date range or check the connection’s analytics access.</>}
+            </div>}
             <div className={beta ? "grid sm:grid-cols-2" : "grid sm:grid-cols-2 lg:grid-cols-4"}>
               {metricCards.map((metric) => <article key={metric.label} className="min-w-0 border-b-2 border-foreground p-5">
                 <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{metric.label}</p>

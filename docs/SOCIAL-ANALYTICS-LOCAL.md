@@ -145,8 +145,8 @@ unchanged.
 The standalone `/social-analytics` lab retains its loopback-only,
 `SOCIAL_ANALYTICS_LOCAL_ENABLED=1`, non-production guards and old server-only
 `web/.env.local` Zernio configuration, with API-key-only discovery. It exposes
-no private chat/history API and cannot initiate connections: its connect route
-returns 403 and the UI links to the signed-in workspace. Use authenticated Beta
+no private chat/history API and cannot manage connections: its connect,
+LinkedIn Page and account-removal routes return 403 and the UI links to the signed-in workspace. Use authenticated Beta
 to connect accounts and test chat. Reader status responses omit profile IDs and
 profile lists; admins retain the identifiers required by the profile selector.
 

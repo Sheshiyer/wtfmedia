@@ -1,3 +1,20 @@
+## 2026-10-22 — PR #86 reviewed and integrated for staging
+
+- Merged PR #86 (`92db8365accea61cb793678ef32ae1cc4b8986d3`) into
+  `feature/pavun`: administered LinkedIn Page selection, confirmed connection
+  removal, coverage/sync messaging, 365-day filters and richer post previews.
+- Review fixes: blocked unauthenticated local Page/account management, removed
+  unused provider mutation wrappers, distinguished missing metrics from reported
+  zero activity, and guarded malformed post dates. Authenticated Beta management
+  retains server-side admin capability and selected-workspace checks.
+- VERIFIED-SOURCE: 429 web unit, 101 contract, 576 Edge and 20 Phase 2 browser
+  tests pass; typecheck/lint pass; privacy scan has zero violations across 435
+  bounded files. Controlled tests do not prove live LinkedIn mutations or
+  connected-account accuracy. No real account was switched or removed.
+- Staging Web/Edge deployment authorized; no migration, credential change,
+  production/shared Alpha or research deployment. No branch push requested.
+  The unrelated untracked architecture/user-flow draft remains untouched.
+
 ## 2026-10-21 — No-evidence chat presentation deployed to staging
 
 - Owner-authorized frontend candidate `e77be403eb27f6464bc5c2c0401c530cc73cd30a`

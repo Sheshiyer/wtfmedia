@@ -4,6 +4,9 @@ import { getSocialDashboard, createConnectionUrl, socialAnalyticsLocalEnabled } 
 import { GET as dashboardRoute } from "../../app/api/social-analytics/dashboard/route";
 import { POST as connectRoute } from "../../app/api/social-analytics/connect/route";
 
+import { GET as listPages, PUT as selectPage } from "../../app/api/social-analytics/linkedin-pages/route";
+import { DELETE as removeAccount } from "../../app/api/social-analytics/accounts/[accountId]/route";
+
 const scope = { platform: "instagram" as const, fromDate: "2026-09-01", toDate: "2026-09-02" };
 beforeEach(() => {
   vi.stubEnv("ZERNIO_API_KEY", "test-key");
@@ -50,6 +53,16 @@ describe("Zernio local adapter", () => {
     const response = await connectRoute(request);
     expect(response.status).toBe(403);
     expect(await response.json()).toMatchObject({error:"admin_sign_in_required"});
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it.each(["GET", "PUT", "DELETE"])("requires admin admission for local %s connection management", async method => {
+    const fetcher = vi.fn(); vi.stubGlobal("fetch", fetcher);
+    const route = method === "GET" ? listPages : method === "PUT" ? selectPage : removeAccount;
+    const request = (host = "localhost:3000") => new NextRequest(`http://${host}/api/social-analytics/linkedin-pages?accountId=account-a`, { method, headers: { host, "content-type": "application/json" }, ...(method === "PUT" ? { body: JSON.stringify({ accountId: "account-a", organizationId: "page-a" }) } : {}) });
+    expect((await route(request())).status).toBe(403);
+    expect((await route(request("app.example"))).status).toBe(404);
+    vi.stubEnv("NODE_ENV", "production");
+    expect((await route(request())).status).toBe(404);
     expect(fetcher).not.toHaveBeenCalled();
   });
   it("rejects cross-origin connection requests", async () => {
