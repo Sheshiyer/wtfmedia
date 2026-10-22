@@ -31,7 +31,7 @@ export async function handleSocialAnalytics(request: Request, env: SocialEnv, co
     const url = new URL(request.url);
     const action = url.pathname.slice('/beta/api/social-analytics/'.length);
     const canManage = decide(context.role, 'analytics', 'manage', { environment: context.environment });
-    if (['connect', 'selection'].includes(action) && !canManage)
+    if (['connect', 'selection', 'linkedin-pages'].includes(action) && !canManage || action.startsWith('accounts/') && !canManage)
         return reply({ error: 'forbidden' }, 403);
     try {
         if (action === 'investigations' || action.startsWith('investigations/'))
@@ -72,7 +72,7 @@ export async function handleSocialAnalytics(request: Request, env: SocialEnv, co
             }
             throw error;
         }
-        const accounts = selected.profileId ? await provider.accounts(selected.profileId) : [];
+        const accounts = selected.profileId ? await provider.accounts(selected.profileId, action === 'status') : [];
         if (action === 'status' && request.method === 'GET')
             return reply({ configured: Boolean(selected.profileId), profileName: selected.profile?.name, accounts, checkedAt: new Date().toISOString(), canManage, ...(canManage ? { profiles: selected.profiles, profileId: selected.profileId } : {}), selectionRequired: !selected.profileId, configuredOverride: Boolean(env.ZERNIO_PROFILE_ID?.trim()) });
         if (!selected.profileId)
@@ -84,6 +84,22 @@ export async function handleSocialAnalytics(request: Request, env: SocialEnv, co
             if (!isSocialPlatform(input?.platform))
                 return reply({ error: 'invalid_platform' }, 400);
             return reply({ authUrl: await provider.connect(selected.profileId, input.platform, new URL('/beta/social-analytics', env.OPS_ORIGIN).href) });
+        }
+        if (action === 'linkedin-pages' && request.method === 'GET') {
+            const accountId = url.searchParams.get('accountId') ?? '';
+            if (!accountId) return reply({ error: 'invalid_account' }, 400);
+            return reply({ organizations: await provider.linkedInOrganizations(selected.profileId, accountId) });
+        }
+        if (action === 'linkedin-pages' && request.method === 'PUT') {
+            const input = await request.json().catch(() => null) as { accountId?: unknown; organizationId?: unknown } | null;
+            if (typeof input?.accountId !== 'string' || typeof input.organizationId !== 'string') return reply({ error: 'invalid_selection' }, 400);
+            return reply(await provider.selectLinkedInOrganization(selected.profileId, input.accountId, input.organizationId));
+        }
+        if (action.startsWith('accounts/') && request.method === 'DELETE') {
+            const accountId = decodeURIComponent(action.slice('accounts/'.length));
+            if (!accountId || accountId.includes('/')) return reply({ error: 'invalid_account' }, 400);
+            await provider.disconnectAccount(selected.profileId, accountId);
+            return reply({ removed: true });
         }
         if (action === 'dashboard' && request.method === 'GET') {
             const platform = url.searchParams.get('platform') ?? 'all', fromDate = url.searchParams.get('fromDate') ?? '', toDate = url.searchParams.get('toDate') ?? '';

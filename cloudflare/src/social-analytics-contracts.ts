@@ -33,6 +33,7 @@ export function isSocialPlatform(value: unknown): value is SocialPlatform {
 export type SocialAccount = {
     id: string;
     platform: SocialPlatform;
+    accountType: "personal" | "organization" | null;
     username: string | null;
     displayName: string | null;
     profileUrl: string | null;
@@ -40,7 +41,10 @@ export type SocialAccount = {
     hasAnalyticsAccess: boolean | null;
     health: "connected" | "attention" | "unknown";
     healthMessage: string | null;
+    analyticsSyncStatus: string | null;
+    analyticsNote: string | null;
 };
+export type LinkedInOrganization = { id: string; name: string; vanityName: string | null };
 export type SocialStatusResponse = {
     configured: boolean;
     profileId?: string | null;
@@ -82,6 +86,8 @@ export type SocialDashboard = {
         platform: SocialPlatform;
         publishedAt: string | null;
         text: string | null;
+        thumbnailUrl: string | null;
+        postUrl: string | null;
         metrics: SocialMetricTotals;
     }>;
     dataAsOf: string | null;

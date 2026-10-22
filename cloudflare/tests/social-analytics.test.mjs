@@ -7,6 +7,36 @@ test('social management denied to members; readers can chat',()=>{
  assert.deepEqual(policyForPath('/beta/api/social-analytics/selection','POST'),['analytics','manage']);
  assert.equal(decide('member','analytics','manage',{environment:'local'}),false);
  assert.deepEqual(policyForPath('/beta/api/social-analytics/assistant','POST'),['analytics','read']);
+ assert.deepEqual(policyForPath('/beta/api/social-analytics/linkedin-pages','PUT'),['analytics','manage']);
+ assert.deepEqual(policyForPath('/beta/api/social-analytics/accounts/account1','DELETE'),['analytics','manage']);
+});
+test('provider offers only administered LinkedIn pages and validates mutations', async()=>{
+ const calls=[];
+ const provider=createSocialProvider({ZERNIO_API_KEY:'test'},async(url,init)=>{
+  const path=new URL(url).pathname;calls.push({path,method:init.method,body:init.body});
+  if(path.endsWith('/accounts'))return Response.json({accounts:[{_id:'linkedin-one',platform:'linkedin',isActive:true,metadata:{accountType:'personal'}}]});
+  if(path.endsWith('/linkedin-organizations'))return Response.json({organizations:[{id:'123',name:'Company Page',vanityName:'company-page'}]});
+  if(path.endsWith('/linkedin-organization'))return Response.json({accountType:'organization'});
+  if(path.endsWith('/posts/sync-external'))return Response.json({synced:{postsFound:2,postsSynced:2}});
+  if(path.endsWith('/accounts/linkedin-one'))return Response.json({removed:true});
+  throw Error(`Unexpected path ${path}`);
+ });
+ assert.deepEqual(await provider.linkedInOrganizations('profile','linkedin-one'),[{id:'123',name:'Company Page',vanityName:'company-page'}]);
+ await assert.rejects(()=>provider.selectLinkedInOrganization('profile','linkedin-one','wrong'),{code:'organization_not_found'});
+ assert.equal(calls.filter(call=>call.method==='PUT').length,0);
+ assert.deepEqual(await provider.selectLinkedInOrganization('profile','linkedin-one','123'),{postsSync:'complete'});
+ assert.equal(JSON.parse(calls.find(call=>call.method==='PUT').body).selectedOrganization.urn,'urn:li:organization:123');
+ await assert.rejects(()=>provider.disconnectAccount('profile','wrong'),{code:'account_not_found'});
+ await provider.disconnectAccount('profile','linkedin-one');
+ assert.equal(calls.find(call=>call.method==='DELETE').path.endsWith('/accounts/linkedin-one'),true);
+});
+test('post summaries are enriched without hiding dashboard metrics',async()=>{
+ const provider=createSocialProvider({ZERNIO_API_KEY:'test'},async url=>Response.json(String(url).includes('/analytics/dashboard')?{totals:{impressions:27},topPosts:[{postId:'post-one',platform:'instagram',metrics:{impressions:27}}]}:{posts:[{_id:'post-one',content:'A useful caption',thumbnailUrl:'https://cdninstagram.com/p.jpg',platformPostUrl:'https://instagram.com/p/example'}]}));
+ const dashboard=await provider.dashboard('profile',{platform:'instagram',fromDate:'2026-01-01',toDate:'2026-01-02'});
+ assert.equal(dashboard.totals.impressions,27);
+ assert.equal(dashboard.topPosts[0].text,'A useful caption');
+ assert.equal(dashboard.topPosts[0].thumbnailUrl,'https://cdninstagram.com/p.jpg');
+ assert.equal(dashboard.topPosts[0].postUrl,'https://instagram.com/p/example');
 });
 test('profile discovery does not require a hardcoded ID and values preserve missing versus zero',async()=>{
  const paths=[];
@@ -29,12 +59,14 @@ import {handleSocialAnalytics,resolveSocialWorkspace} from '../src/social-analyt
 const identity={ok:true,email:'social@example.test',userId:'user_social'};
 const env={OPS_HOSTNAME:'app.test',OPS_ORIGIN:'https://app.test',OPS_ENVIRONMENT:'staging',CLERK_ISSUER:'https://clerk.test',CLERK_JWKS_URL:'https://clerk.test/jwks',CLERK_AUTHORIZED_PARTIES:'https://app.test',SOCIAL_ANALYTICS_ENABLED:'1',ZERNIO_API_KEY:'test'};
 function db(role='member',active=true){return {prepare(sql){return {bind(){return this},async first(){if(sql.includes('member_beta_releases'))return {state:'stable'};if(sql.includes('sqlite_master'))return {ready:1};if(sql.includes('FROM operators'))return role==='member'?null:{id:1,email:identity.email,display_name:'Admin',role,active:active?1:0};if(sql.includes('FROM member_users'))return {id:1,email:identity.email,clerk_user_id:identity.userId,lifecycle_state:active?'active':'suspended',pilot_cohort:'company'};return null},async all(){return {results:[]}},async run(){return {}}}},async batch(){return []}}}
-const req=(path='status',method='GET',body)=>new Request(`https://app.test/beta/api/social-analytics/${path}`,{method,...(body?{headers:{'content-type':'application/json'},body:JSON.stringify(body)}:{})});
+const req=(path='status',method='GET',body)=>new Request(`https://app.test/beta/api/social-analytics/${path}`,{method,...(body?{headers:{'content-type':'application/json','origin':'https://app.test'},body:JSON.stringify(body)}:method==='DELETE'?{headers:{origin:'https://app.test'}}:{})});
 test('router enforces signed-out, suspended, roles and default-off before provider access',async()=>{
  const fetchSocial=async()=>{throw Error('provider should not be reached')};
  assert.equal((await handleMemberRequest(req(),{...env,DB:db()},{verifyClerk:async()=>({ok:false}),fetchSocial})).status,401);
  assert.equal((await handleMemberRequest(req(),{...env,DB:db('member',false)},{verifyClerk:async()=>identity,fetchSocial})).status,403);
  assert.equal((await handleMemberRequest(req('selection','POST',{profileId:'foreign'}),{...env,DB:db()},{verifyClerk:async()=>identity,fetchSocial})).status,403);
+ assert.equal((await handleMemberRequest(req('linkedin-pages','PUT',{accountId:'a',organizationId:'b'}),{...env,DB:db()},{verifyClerk:async()=>identity,fetchSocial})).status,403);
+ assert.equal((await handleMemberRequest(req('accounts/a','DELETE'),{...env,DB:db()},{verifyClerk:async()=>identity,fetchSocial})).status,403);
  assert.equal((await handleMemberRequest(req(),{...env,SOCIAL_ANALYTICS_ENABLED:'0',DB:db()},{verifyClerk:async()=>identity,fetchSocial})).status,404);
 });
 test('admin discovers profiles without selecting; stale selection never silently changes',async()=>{

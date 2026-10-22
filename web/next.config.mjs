@@ -3,6 +3,8 @@ const nextConfig = {  images: {
     remotePatterns: [
       { protocol: "https", hostname: "img.youtube.com" },
       { protocol: "https", hostname: "i.ytimg.com" },
+      { protocol: "https", hostname: "**.cdninstagram.com" },
+      { protocol: "https", hostname: "**.fbcdn.net" },
     ],
   },
   // Baseline hardening on every page response. (No CSP here yet — Clerk's

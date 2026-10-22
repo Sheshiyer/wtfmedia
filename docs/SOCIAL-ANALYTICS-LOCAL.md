@@ -4,6 +4,10 @@ The authenticated workspace is `/beta/social-analytics`. Members can read and
 ask questions; admins and super-admins can select the shared Zernio workspace
 and connect/reconnect LinkedIn, Instagram, Facebook and X. Saved chats belong
 to the signed-in account, not everyone using the shared connection.
+Admins can also select a LinkedIn company Page administered by the connected
+login and remove a connection after an explicit confirmation. Selecting a Page
+uses Zernio's account-type switch and requests an external-post sync; merely
+opening the picker changes nothing.
 
 Implementation is local source only. Hosted flags are off by default. No shared
 migration, provider configuration, push or deployment is implied.
@@ -78,6 +82,15 @@ not retry automatically. Incomplete coverage is disclosed.
 ## Reading the results
 
 - Missing values remain **Unavailable**; a reported zero remains **0**.
+- LinkedIn personal-profile analytics only cover posts published through
+  Zernio or individually imported by URL. Choose a company Page for Page
+  analytics. A healthy connection with no observations is not a zero-reach
+  diagnosis. Facebook may similarly need a completed external-post sync;
+  the 90- and 365-day filters help distinguish sparse recent activity from
+  absent historical data.
+- Strongest posts use provider captions, image thumbnails and outbound post
+  links where supplied. If enrichment fails, aggregate dashboard totals remain
+  available and an opaque provider post ID is not displayed as a title.
 - Dashboard totals measure activity received during the selected inclusive UTC
   dates. Post totals are **lifetime-to-date** for posts published in those dates.
 - Post searches cover the selected publication dates. If an older post cannot
@@ -116,6 +129,8 @@ All private routes are below `/beta/api/social-analytics`:
 | GET `/status` | Analytics read | Connection state; admins also see available profiles |
 | POST `/selection` | Analytics manage | Confirm a profile from the server's discovery list |
 | POST `/connect` | Analytics manage | Zernio-hosted OAuth URL for the selected profile |
+| GET/PUT `/linkedin-pages` | Analytics manage | List administered Pages; switch the selected LinkedIn account to a verified Page |
+| DELETE `/accounts/:id` | Analytics manage | Remove an active account in the selected profile |
 | GET `/dashboard` | Analytics read | Normalized dashboard for validated platform/dates |
 | POST `/assistant` | Analytics read | Validated plan and structured evidence answer |
 | GET/POST `/investigations` | Owner | List/save private chat snapshots |

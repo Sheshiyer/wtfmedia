@@ -137,6 +137,8 @@ function betaApiRequirement(pathname: string, method: string): readonly [Resourc
     const action = pathname.slice('/beta/api/social-analytics/'.length);
     if (['status','dashboard'].includes(action) && requestMethod === 'GET') return ['analytics','read'];
     if (['selection','connect'].includes(action) && requestMethod === 'POST') return ['analytics','manage'];
+    if (action === 'linkedin-pages' && ['GET','PUT'].includes(requestMethod)) return ['analytics','manage'];
+    if (/^accounts\/[^/]+$/u.test(action) && requestMethod === 'DELETE') return ['analytics','manage'];
     if (action === 'assistant' && requestMethod === 'POST') return ['analytics','read'];
     if (action === 'investigations' && ['GET','POST'].includes(requestMethod)) return ['analytics','read'];
     if (/^investigations\/sinv_[0-9a-f-]{36}$/.test(action) && ['GET','DELETE'].includes(requestMethod)) return ['analytics','read'];
