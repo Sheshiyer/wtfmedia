@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { useBetaPrincipal, useMemberFetch } from "@/components/domain/beta/BetaPrincipalGate";
 import { SocialAnalyticsChat } from "@/components/domain/social/SocialAnalyticsChat";
 import { PlatformLogo } from "@/components/domain/social/PlatformLogo";
 import {
   PLATFORM_DEFINITIONS,
+  type LinkedInOrganization,
   type SocialAccount,
   type SocialDashboard,
   type SocialPlatform,
@@ -15,7 +17,7 @@ import {
 } from "@/lib/social-analytics/contracts";
 
 type PlatformFilter = SocialPlatform | "all";
-type RangeDays = 7 | 28 | 90;
+type RangeDays = 7 | 28 | 90 | 365;
 
 function isoDate(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -39,6 +41,10 @@ function percent(value: number | null): string {
 
 function accountLabel(account: SocialAccount): string {
   return account.displayName ?? account.username ?? "Connected account";
+}
+function postFallback(platform: SocialPlatform, publishedAt: string | null): string {
+  const name = platform === "twitter" ? "X" : platform[0].toUpperCase() + platform.slice(1);
+  return publishedAt ? `${name} post · ${new Intl.DateTimeFormat("en", { day: "numeric", month: "short", year: "numeric" }).format(new Date(publishedAt))}` : `${name} post`;
 }
 
 async function responseJson<T>(response: Response): Promise<T> {
@@ -87,6 +93,13 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
   const [profileId, setProfileId] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileNotice, setProfileNotice] = useState<string | null>(null);
+  const [pagePicker, setPagePicker] = useState<string | null>(null);
+  const [linkedinPages, setLinkedinPages] = useState<LinkedInOrganization[]>([]);
+  const [loadingPages, setLoadingPages] = useState(false);
+  const [switchingPage, setSwitchingPage] = useState(false);
+  const [removeConfirm, setRemoveConfirm] = useState<string | null>(null);
+  const [removing, setRemoving] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const mutationPending = useRef(false);
   const dashboardRequest = useRef<AbortController | null>(null);
   const statusRequest = useRef<AbortController | null>(null);
@@ -97,7 +110,9 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
 
   const callbackPlatform = searchParams.get("connected");
   const accounts = useMemo(() => status?.accounts ?? [], [status?.accounts]);
-  const connectedPlatforms = useMemo(() => new Set(accounts.filter((account) => account.isActive).map((account) => account.platform)), [accounts]);
+  const activeAccounts = useMemo(() => accounts.filter((account) => account.isActive), [accounts]);
+  const connectedPlatforms = useMemo(() => new Set(activeAccounts.map((account) => account.platform)), [activeAccounts]);
+  const selectedAccount = useMemo(() => platform === "all" ? null : activeAccounts.find((account) => account.platform === platform) ?? null, [activeAccounts, platform]);
 
   const loadStatus = useCallback(async () => {
     dashboardRequest.current?.abort();
@@ -129,7 +144,7 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
 
   useEffect(() => {
     setDashboard(null);
-    if (!status?.configured || status.selectionRequired || accounts.length === 0) {
+    if (!status?.configured || status.selectionRequired || activeAccounts.length === 0) {
       setLoadingDashboard(false);
       return;
     }
@@ -157,7 +172,7 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
     };
     void load();
     return () => controller.abort();
-  }, [accounts.length, apiBase, connectedPlatforms, platform, request, scope, status]);
+  }, [activeAccounts.length, apiBase, connectedPlatforms, platform, request, scope, status]);
 
   const confirmProfile = async () => {
     if (!beta || !canManage || status?.configuredOverride || !profiles.some((profile) => profile.id === selectedProfileId) || mutationPending.current) return;
@@ -208,7 +223,51 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
     }
   };
 
+  const openLinkedInPages = async (accountId: string) => {
+    if (!canManage || mutationPending.current) return;
+    if (pagePicker === accountId) { setPagePicker(null); return; }
+    setLoadingPages(true);
+    setError(null);
+    try {
+      const response = await request(`${apiBase}/linkedin-pages?accountId=${encodeURIComponent(accountId)}`, { cache: "no-store" });
+      const payload = await responseJson<{ organizations: LinkedInOrganization[] }>(response);
+      setLinkedinPages(payload.organizations);
+      setPagePicker(accountId);
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Could not list company pages."); }
+    finally { setLoadingPages(false); }
+  };
+  const switchLinkedInPage = async (accountId: string, organizationId: string) => {
+    if (!canManage || mutationPending.current) return;
+    mutationPending.current = true;
+    setSwitchingPage(true);
+    setError(null);
+    try {
+      const response = await request(`${apiBase}/linkedin-pages`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ accountId, organizationId }) });
+      const result = await responseJson<{ postsSync: "complete" | "pending" }>(response);
+      setPagePicker(null);
+      setNotice(result.postsSync === "complete" ? "LinkedIn company page selected and posts imported. Analytics may take a moment to refresh." : "LinkedIn company page selected. Zernio is still syncing posts; refresh shortly.");
+      await loadStatus();
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Could not select this company page."); }
+    finally { mutationPending.current = false; setSwitchingPage(false); }
+  };
+  const removeConnection = async (account: SocialAccount) => {
+    if (!canManage || mutationPending.current) return;
+    mutationPending.current = true;
+    setRemoving(account.id);
+    setError(null);
+    try {
+      const response = await request(`${apiBase}/accounts/${encodeURIComponent(account.id)}`, { method: "DELETE" });
+      await responseJson(response);
+      setRemoveConfirm(null);
+      setPagePicker(null);
+      setNotice(`${accountLabel(account)} was removed from this workspace.`);
+      await loadStatus();
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Could not remove this connection."); }
+    finally { mutationPending.current = false; setRemoving(null); }
+  };
+
   const chartMaximum = Math.max(1, ...(dashboard?.daily.map((day) => day.impressions ?? 0) ?? [1]));
+  const hasPerformance = Boolean(dashboard && [dashboard.totals.impressions, dashboard.totals.reach, dashboard.totals.likes, dashboard.totals.comments, dashboard.totals.shares, dashboard.totals.saves, dashboard.totals.clicks, dashboard.totals.views].some(value => value !== null && value !== 0));
   const metricCards = dashboard ? [
     { label: "impressions", value: compact(dashboard.totals.impressions), note: "content shown" },
     { label: "reach", value: compact(dashboard.totals.reach), note: "reported reach across days" },
@@ -250,6 +309,7 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
       {error && <div className="mb-6 border-2 border-editorial bg-editorial/10 p-4 font-body text-sm text-foreground" role="alert">
         <strong className="font-label">Needs attention:</strong> {error}
       </div>}
+      {notice && <div className="mb-6 border-2 border-foreground bg-live/10 p-4 font-body text-sm" role="status">{notice}</div>}
 
       {beta && status?.profileName && <p className="mb-4 font-body text-sm">Workspace: <strong>{status.profileName}</strong></p>}
       {!beta && <p className="mb-4 text-sm"><a className="underline" href="/beta/social-analytics">Open the signed-in workspace</a> to connect accounts as an admin and ask questions about your metrics.</p>}
@@ -281,20 +341,40 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {PLATFORM_DEFINITIONS.map((definition) => {
             const account = accounts.find((candidate) => candidate.platform === definition.id && candidate.isActive);
+            const syncPending = account?.analyticsSyncStatus === "never_synced";
             return <article key={definition.id} className="flex min-h-[260px] flex-col border-2 border-foreground bg-surface-raised p-5 shadow-[6px_6px_0_var(--wtf-surface-structure)]">
               <div className="flex items-start justify-between gap-3">
                 <PlatformLogo platform={definition.id} />
                 <span className="inline-flex items-center gap-2 font-label text-[11px] font-bold uppercase tracking-wide text-muted">
-                  <span className={`h-2.5 w-2.5 rounded-full ${account ? account.health === "connected" ? "bg-live" : "bg-attention" : "bg-muted"}`} aria-hidden="true" />
-                  {account ? account.health === "connected" ? "connected" : account.health === "attention" ? "attention" : "check unavailable" : "not connected"}
+                  <span className={`h-2.5 w-2.5 rounded-full ${account ? account.health === "connected" && !syncPending ? "bg-live" : "bg-attention" : "bg-muted"}`} aria-hidden="true" />
+                  {account ? account.health === "connected" ? syncPending ? "sync pending" : "connected" : account.health === "attention" ? "attention" : "check unavailable" : "not connected"}
                 </span>
               </div>
               <h3 className="mt-5 font-display text-2xl font-bold">{definition.label}</h3>
               <p className="mt-2 flex-1 font-body text-sm leading-relaxed text-secondary">{account ? accountLabel(account) : definition.description}</p>
               {account?.healthMessage && <p className="mb-3 text-xs text-editorial">{account.healthMessage}</p>}
-              {canManage && <Button variant={account ? "secondary" : "attention"} loading={connecting === definition.id} disabled={!status?.configured || status.selectionRequired || savingProfile || connecting !== null} onClick={() => void connect(definition.id)}>
+              {account?.analyticsNote && <p className="mb-3 text-xs leading-relaxed text-muted">{account.analyticsNote}</p>}
+              {canManage && account?.platform === "linkedin" && <Button variant={account.accountType === "organization" ? "secondary" : "attention"} loading={loadingPages} disabled={savingProfile || connecting !== null || switchingPage || removing !== null} onClick={() => void openLinkedInPages(account.id)}>
+                {account.accountType === "organization" ? "change company page" : "choose company page"}
+              </Button>}
+              {canManage && (!account || account.platform !== "linkedin") && <Button variant={account ? "secondary" : "attention"} loading={connecting === definition.id} disabled={!status?.configured || status.selectionRequired || savingProfile || connecting !== null} onClick={() => void connect(definition.id)}>
                 {account ? "reconnect" : `connect ${definition.label}`}
               </Button>}
+              {canManage && account?.platform === "linkedin" && pagePicker === account.id && <div className="mt-4 border-t-2 border-foreground pt-3">
+                <p className="font-label text-xs font-bold">Pages you administer</p>
+                {linkedinPages.length ? <div className="mt-3 grid gap-2">{linkedinPages.map(page => <button key={page.id} type="button" disabled={switchingPage} onClick={() => void switchLinkedInPage(account.id, page.id)} className="min-w-0 rounded-[var(--wtf-radius-control)] border-2 border-foreground bg-canvas px-3 py-2 text-left font-body text-sm font-semibold hover:bg-attention/20 disabled:opacity-50">{page.name}{page.vanityName && <span className="block break-all text-xs font-normal text-muted">linkedin.com/company/{page.vanityName}</span>}</button>)}</div>
+                  : <p className="mt-2 font-body text-xs leading-relaxed text-secondary">No company pages were returned. Make sure this LinkedIn login administers the Page, then reconnect and try again.</p>}
+              </div>}
+              {canManage && account && <details className="mt-3 border-t border-foreground/20 pt-2">
+                <summary className="cursor-pointer font-label text-xs font-semibold text-secondary underline-offset-4 hover:underline">Manage connection</summary>
+                <div className="mt-3 grid gap-2">
+                  {account.platform === "linkedin" && <button type="button" className="text-left font-body text-xs underline underline-offset-4" onClick={() => void connect("linkedin")}>Reconnect LinkedIn login</button>}
+                  {removeConfirm === account.id ? <div className="rounded-[var(--wtf-radius-control)] border border-editorial/60 bg-editorial/5 p-3 font-body text-xs leading-relaxed">
+                    <p>Remove {accountLabel(account)} from Zernio? Its analytics will disappear here until you connect it again.</p>
+                    <div className="mt-3 flex flex-wrap gap-3"><button type="button" disabled={removing === account.id} onClick={() => void removeConnection(account)} className="font-semibold text-editorial underline underline-offset-4 disabled:opacity-50">{removing === account.id ? "Removing…" : "Yes, remove connection"}</button><button type="button" onClick={() => setRemoveConfirm(null)} className="underline underline-offset-4">Cancel</button></div>
+                  </div> : <button type="button" className="text-left font-body text-xs text-secondary underline underline-offset-4" onClick={() => setRemoveConfirm(account.id)}>Remove this connection</button>}
+                </div>
+              </details>}
             </article>;
           })}
         </div>
@@ -318,15 +398,17 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
             <label className="grid gap-1 font-label text-[10px] font-bold uppercase tracking-wide text-muted">
               date range
               <select className="min-h-11 rounded-[var(--wtf-radius-control)] border-2 border-foreground bg-canvas px-3 font-body text-sm text-foreground" value={rangeDays} onChange={(event) => setRangeDays(Number(event.target.value) as RangeDays)}>
-                <option value={7}>Last 7 days</option><option value={28}>Last 28 days</option><option value={90}>Last 90 days</option>
+                <option value={7}>Last 7 days</option><option value={28}>Last 28 days</option><option value={90}>Last 90 days</option><option value={365}>Last 365 days</option>
               </select>
             </label>
           </div>
         </div>
 
         {loadingDashboard ? <div className="grid min-h-[360px] place-items-center p-8"><p className="font-label text-sm font-bold uppercase tracking-widest text-muted">loading live analytics…</p></div>
-          : accounts.length === 0 ? <div className="grid min-h-[360px] place-items-center p-8 text-center"><div className="max-w-lg"><p className="font-editorial text-3xl italic">The dashboard is ready for its first signal.</p><p className="mt-4 font-body text-secondary">{canManage ? "Connect any platform above. Once OAuth returns, the totals, trend line, and strongest posts will populate here automatically." : "An administrator can connect platforms for this workspace. Analytics will appear here when data is available."}</p></div></div>
+          : activeAccounts.length === 0 ? <div className="grid min-h-[360px] place-items-center p-8 text-center"><div className="max-w-lg"><p className="font-editorial text-3xl italic">The dashboard is ready for its first signal.</p><p className="mt-4 font-body text-secondary">{canManage ? "Connect any platform above. Once OAuth returns, the totals, trend line, and strongest posts will populate here automatically." : "An administrator can connect platforms for this workspace. Analytics will appear here when data is available."}</p></div></div>
           : dashboard ? <div>
+            {selectedAccount?.analyticsNote && <div className="border-b-2 border-foreground bg-attention/10 px-5 py-4 font-body text-sm leading-relaxed sm:px-6"><strong className="font-label">Platform coverage:</strong> {selectedAccount.analyticsNote}</div>}
+            {!hasPerformance && <div className="border-b-2 border-foreground bg-information/10 px-5 py-4 font-body text-sm leading-relaxed sm:px-6"><strong className="font-label">No activity in this range.</strong> The connection is available{selectedAccount?.analyticsSyncStatus === "never_synced" ? ", but Zernio has not completed its first analytics sync yet" : ", but Zernio returned no performance events for these dates"}. Try a wider date range.</div>}
             <div className={beta ? "grid sm:grid-cols-2" : "grid sm:grid-cols-2 lg:grid-cols-4"}>
               {metricCards.map((metric) => <article key={metric.label} className="min-w-0 border-b-2 border-foreground p-5">
                 <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{metric.label}</p>
@@ -352,8 +434,12 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
                 <p className="mt-2 text-xs text-muted">Published in this range · lifetime metrics</p>
                 <div className="mt-5 divide-y-2 divide-foreground">
                   {dashboard.topPosts.length ? dashboard.topPosts.slice(0, 5).map((post, index) => <div key={`${post.postId}-${index}`} className="py-4 first:pt-0">
-                    <div className="flex items-center justify-between gap-3"><span className="font-label text-[10px] font-bold uppercase tracking-wide text-information">{post.platform === "twitter" ? "X" : post.platform}</span><span className="font-label text-[10px] text-muted">{compact(post.metrics.impressions)} impressions</span></div>
-                    <p className="mt-2 line-clamp-2 text-sm font-medium leading-relaxed">{post.text ?? `Post ${post.postId}`}</p>
+                    <div className="flex gap-3">{post.thumbnailUrl && <Image src={post.thumbnailUrl} alt="" width={72} height={72} className="h-[72px] w-[72px] shrink-0 rounded object-cover" unoptimized />}
+                      <div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-3"><span className="font-label text-[10px] font-bold uppercase tracking-wide text-information">{post.platform === "twitter" ? "X" : post.platform}</span><span className="font-label text-[10px] text-muted">{compact(post.metrics.impressions)} impressions</span></div>
+                        <p className="mt-2 line-clamp-3 text-sm font-medium leading-relaxed">{post.text ?? postFallback(post.platform, post.publishedAt)}</p>
+                        {post.postUrl && <a href={post.postUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block font-label text-[10px] font-bold uppercase tracking-wide underline underline-offset-4">open post ↗</a>}
+                      </div>
+                    </div>
                   </div>) : <p className="py-6 text-sm leading-relaxed text-muted">No post-level analytics returned yet. Zernio may need the analytics add-on or a completed first data sync.</p>}
                 </div>
               </article>
