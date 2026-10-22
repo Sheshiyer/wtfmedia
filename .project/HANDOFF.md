@@ -1,3 +1,26 @@
+## 2026-10-22 — PR #86 staging deployment receipt
+
+- Exact runtime candidate `9990e5e8eb01640a94425080d74dee9e270f2a07`
+  deployed to staging Edge `8271bf46-d7c2-451a-9935-8822bcbc832e` and
+  Web `dbaf9988-4994-4ab8-992f-32d6827ea36d`; both read back at 100%
+  traffic. Public ingress: `https://beta-staging.wtfhq.in`.
+- All 26 Edge and 10 Web bindings unchanged. Rollback versions are Edge
+  `88d438be-a6f5-4cd3-8a98-aee5179dda62` and Web
+  `56ab007a-ec01-4932-91cc-7608218c19af`. No migration or secret change.
+- Isolated archive build used copied dependencies and verified staging public
+  Clerk configuration, without local environment files. Compiled and live
+  sign-in keys match the staging issuer. OpenNext build and both dry runs pass.
+  Existing Next.js 15.5.24 still requires OpenNext's unsupported-version
+  override; a framework upgrade remains a separate maintenance risk.
+- Live smoke: root 307, sign-in 200, social analytics shell 200; signed-out
+  principal and GET/PUT Page-management plus DELETE account APIs return 401.
+  Standalone local-management routes return 404 on staging. No real provider
+  connection was switched or deleted; signed-in persona and OAuth checks were
+  not repeated. Production/shared Alpha and research services remain unchanged.
+- Merge and review-fix commits remain local on `feature/pavun`; no push was
+  requested for this deployment. Existing GitHub Actions availability limits
+  are unchanged; checks above are local source checks and live smoke receipts.
+
 ## 2026-10-22 — PR #86 reviewed and integrated for staging
 
 - Merged PR #86 (`92db8365accea61cb793678ef32ae1cc4b8986d3`) into
