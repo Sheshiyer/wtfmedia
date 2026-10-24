@@ -1,3 +1,34 @@
+## 2026-10-24 — Final Alpha and staging verification receipt
+
+- Final runtime source is `6155c2e` on `feature/pavun`, pushed after review.
+  Shared Alpha `b0b59cfc-7152-4dcd-b606-5bcbb58fb3de` and staging Edge
+  `181597c7-7196-49a1-96b7-43544ebf42b2` read back at 100% traffic.
+  All 29 Alpha and 26 staging bindings remain unchanged. Both health endpoints
+  report configured Anthropic generation; staging retains Alpha corpus authority.
+- Downloaded live Alpha exactly matches the tested minimal artifact, SHA-256
+  `22ec8afd3d8f10d8addea95c2fff06432375344d6c526214b45d5c73012a2327`.
+  It is reproducible with the committed patch builder, the original live
+  baseline, a pre-fix bundle from `4eaaf95`, and the bundle from `6155c2e`.
+  The original pre-task rollback versions recorded below remain available;
+  intermediate `53cf8a7d`/`627e9c96` lack the final repair constraint.
+- Final live test through the actual Alpha web `/api/chat` adapter, after
+  synthetic prior-topic history: HTTP 200, six sources, 16 in-range citation
+  markers, complete sentence coverage, `answered_grounded`, Sonnet 5.5,
+  20.34 seconds. `X-Fallback=true` indicates the successful citation repair;
+  it does not mean excerpt fallback or missing evidence. This is a bounded
+  successful test, not a guarantee that all future model outputs are valid.
+- Staging Web remains the verified `7a6ad43` artifact at
+  `2c07fdac-0752-4a57-9a36-bf7a0453f3e1`; the final correction changes Edge
+  code only. Research remains secret-update version
+  `e467a19f-acaa-4c41-b993-adbf037634ef` with the validated new Treg key.
+  Public testing URL: `https://beta-staging.wtfhq.in/beta/chat`.
+- Final checks: 584 Edge tests, 55 compiled Alpha tests, web typecheck,
+  architecture freshness (790 inputs), bundle/diff checks. Both added repair
+  regressions fail on the previous source. Earlier 429 web unit/101 contracts,
+  lint, privacy, five research-host tests and isolated staging build also pass.
+  Local vars files remain present, ignored and untracked; no values enter Git.
+  No full authenticated persona matrix or hosted research report was rerun.
+
 ## 2026-10-24 — Citation repair contract tightened after live verification
 
 - Owner explicitly authorized the live quick-commerce test, including sending
