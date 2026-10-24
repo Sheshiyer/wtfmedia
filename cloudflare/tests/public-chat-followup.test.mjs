@@ -130,6 +130,52 @@ test("bare follow-up stays anchored to the conversation topic for retrieval and 
   assert.ok(moments.every((moment) => mockedVideoIds.has(moment.videoId)), "moments must come from the anchored retrieval");
 });
 
+test("an explicit new topic cannot be replaced by the earlier conversation's rewrite", async () => {
+  const calls = { reformulate: [], answer: [], enrich: [], embeddings: [] };
+  const env = followUpEnv(calls);
+  const question = "tell me about quick commerce that is discussed";
+  const relevant = HOSPITALITY_MATCHES.map((match, i) => ({ ...match, id: `commerce:${i}`,
+    metadata: { ...match.metadata, title: "Synthetic delivery discussion", text: "Quick commerce depends on local demand and delivery costs." } }));
+  env.VECTORIZE.query = async () => ({ matches: calls.embeddings.at(-1) === question ? relevant : HOSPITALITY_MATCHES });
+  const baseFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init) => {
+    const body = JSON.parse(init.body);
+    if (body.system.startsWith("You are the WTF OS research companion")) {
+      assert.match(body.messages[0].content.split("CONTEXT:\n")[1], /Quick commerce/);
+      return Response.json({ model: "claude-sonnet-5-5", stop_reason: "end_turn", content: [{ type: "text", text: "Quick commerce depends on local demand and delivery costs [1, 2]." }] });
+    }
+    return baseFetch(url, init);
+  };
+  const result = await runPublicChat(env, { question, sourceMode: "published", episodeId: null,
+    history: [{ role: "user", content: "Tell me about hospitality" }, { role: "assistant", content: "The supplied excerpts do not establish that topic." }] });
+  assert.equal(result.body.responseState, "answered_grounded");
+  assert.equal(calls.reformulate.length, 0);
+  assert.deepEqual(calls.embeddings, [question]);
+  assert.ok(result.body.sources.every(s => s.segmentId.startsWith("commerce:")));
+});
+
+test("structured citation repair accepts a cited rupee amount instead of falling back again", async () => {
+  const env = followUpEnv({ reformulate: [], answer: [], enrich: [], embeddings: [] });
+  env.VECTORIZE.query = async () => ({ matches: HOSPITALITY_MATCHES.map(match => ({ ...match,
+    metadata: { ...match.metadata, text: "A hypothetical order generates Rs. 100 in revenue. This is an invented example." } })) });
+  const baseFetch = globalThis.fetch;
+  let generations = 0;
+  globalThis.fetch = async (url, init) => {
+    const body = JSON.parse(init.body);
+    if (body.system.startsWith("You are the WTF OS research companion")) {
+      generations++;
+      return Response.json({ model: "claude-sonnet-5-5", stop_reason: "end_turn", content: [{ type: "text", text: generations === 1
+        ? "A hypothetical order generates Rs. 100 in revenue."
+        : JSON.stringify({ sentences: [{ text: "A hypothetical order generates Rs. 100 in revenue.", citations: [1] }] }) }] });
+    }
+    return baseFetch(url, init);
+  };
+  const result = await runPublicChat(env, { question: "Explain the example.", sourceMode: "published", episodeId: null });
+  assert.equal(result.body.responseState, "answered_grounded");
+  assert.deepEqual(result.body.citedIndices, [1]);
+  assert.equal(generations, 2);
+});
+
 test("cited quotations survive a three-turn Claude conversation without excerpt fallback", async () => {
   const calls = { reformulate: [], answer: [], enrich: [], embeddings: [] };
   const env = followUpEnv(calls);

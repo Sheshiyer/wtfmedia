@@ -132,6 +132,12 @@ export function coverageFailure(answer: string, sourceCount: number): string | n
         (_, quote: string, markers: string) => `${quote.replace(/[.!?]/gu, "．")}${markers}. `)
       // Associate "A claim. [1]" with its preceding sentence, not the next one.
       .replace(/([.!?])([ \t]+(?:\[\d+\][ \t]*)+)/gu, "$2$1 ")
+      // Currency abbreviations before amounts and continuation abbreviations
+      // are not sentence ends. Keep real boundaries (e.g. "U.S. Sales rose")
+      // intact so a later citation cannot cover a preceding uncited claim.
+      .replace(/\b(?:Rs|Re)\.(?=\s*\d)/giu, (abbreviation) => abbreviation.replace(".", "．"))
+      .replace(/\b(?:e\.g|i\.e)\.(?=\s*\S)/giu, (abbreviation) => abbreviation.replaceAll(".", "．"))
+      .replace(/\b(?:[A-Z]\.){2,}(?=\s+[a-z])/gu, (abbreviation) => abbreviation.replaceAll(".", "．"))
       // These common titles/abbreviations are not sentence boundaries.
       .replace(/\b(?:Mr|Mrs|Ms|Dr|Prof|Sr|Jr|vs|etc)\./giu, (abbreviation) => abbreviation.replace(".", "．"));
     for (const sentence of line.split(/[.!?]+(?=[ \t]+|$)/u)) {

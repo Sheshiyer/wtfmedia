@@ -1,3 +1,129 @@
+## 2026-10-24 — Alpha topic retrieval and citation validation fixes
+
+- Owner requested tracing and fixing the quick-commerce failure in shared
+  Alpha, then pushing all local changes only to `feature/pavun`. Subsequently
+  authorized staging deployment, replacement of staging's Treg key from the
+  local Cloudflare vars file, and shared Alpha deployment with its production
+  impact. Runtime deployment receipts will be recorded separately below.
+- Read-only source tracing found unconditional history rewrites changed the
+  embedding query and the speech-dependent phrase-anchor/deduplication path.
+  The original question selected six passages mentioning the topic; synthetic
+  earlier-topic rewrites selected three and two. This demonstrates a failure
+  mechanism, not recovery of the original turn's unavailable internal trace.
+- Explicit standalone topic requests now retain their current wording.
+  Referential follow-ups still resolve from history, with a prompt that
+  preserves new topics. Direct passage mentions are promoted before the
+  citation cap, independently of speech verbs; episode and person scope,
+  source-mode filters and score floors remain enforced. Semantic alternatives
+  are retained, and no relevance filter, corpus mutation or new provider is added.
+- Citation validation incorrectly split amounts and continuation abbreviations
+  such as rupee amounts, examples and lowercase continuations of initialisms.
+  The same defect rejected structured repairs. Corrected those boundaries,
+  retaining rejection of uncited preceding/following claims, actual new
+  sentences, malformed repair structures and out-of-range citations.
+- VERIFIED-SOURCE: three targeted regressions fail on the previous source and
+  pass with the fix; full Edge suite 583/583, web contracts 101/101, web
+  typecheck, privacy scan (0 violations), Worker bundle dry run and diff check
+  pass. Contract tests require local HTTP binding permission; the sandboxed
+  attempt timed out and was replaced by the passing permitted run.
+- Live read-only retrieval through the fixed source selected six topic-bearing
+  passages both standalone and after synthetic prior-topic history, with all
+  generation calls stubbed. Real Claude with invented evidence reproduced the
+  old citation failure and returned `answered_grounded` after the fix. A live
+  corpus-to-Claude synthesis probe was blocked by automatic approval review;
+  no new full end-to-end live-corpus synthesis acceptance is claimed.
+- Includes the earlier requested local-credential untracking, context handoff
+  and architecture refresh. Local secret values remain outside Git; no
+  credentials, private history, prompt/answer bodies or transcript excerpts
+  are included in this checkpoint.
+- Release preparation: web unit 429/429, web lint and research host 5/5 plus
+  typecheck pass. The new Treg key passed a bounded public search (HTTP 200).
+  Recorded Alpha source commit is unavailable locally and on the remote.
+  `scripts/build-alpha-topic-patch.mjs` instead checks the downloaded live
+  bundle's exact hash and pre-fix chat modules before replacing only the
+  reviewed answer, query-topic and public-chat modules. The resulting artifact
+  passes 54/54 chat tests against its compiled functions and route adapter.
+  This preserves other deployed Alpha code rather than promoting staging code.
+
+## 2026-10-24 — Read-only Ask WTF evidence diagnosis
+
+- Confirmed the published-only local chat uses the shared Alpha web service,
+  whose recorded web version binds to `wtfmedia-edge`. Inspected the current
+  deployed Alpha source through a temporary download; no runtime was changed.
+- Read-only Alpha corpus checks: D1 has 6,354 active transcript chunks
+  (5,742 published, 612 uncut). A quick-commerce phrase search matched 28
+  active chunks. Direct published Vectorize retrieval returned relevant
+  excerpts, including Craft Beverages, Next Gen, Nandan Nilekani and Uber.
+- In-memory checks of 57 published and 57 uncut stored R2 text objects found
+  quick-commerce phrases in both sets, but no matches for the checked
+  astrology/horoscope/zodiac/jyotish/kundli terms. Stored-object counts do not
+  establish ingest approval or completeness; keyword absence does not prove
+  the subject was never discussed. No corpus text was retained locally.
+- Shared Alpha probes returned quick-commerce sources for a standalone query
+  and synthetic topic switches based on the owner's screenshot. One standalone
+  response reported `synthesis_invalid`; subsequent history-bearing probes
+  reported `answered_grounded`. The local source pipeline also answered the
+  synthetic sequence with a topic-preserving rewrite. These checks do not
+  reproduce or fix the screenshot's original missing-evidence response, nor
+  establish whether that turn failed during reformulation, ranking or synthesis.
+- An unscoped private-history diagnostic was rejected before execution.
+  Continued with synthetic history only. No private conversation bodies or
+  identifiers were retained in this checkpoint. No source-option, application
+  code, corpus, credential, deployment, commit or push change in this diagnosis.
+
+## 2026-10-24 — Keep local Edge credentials outside Git
+
+- Owner requested removing `cloudflare/.dev.vars.local` from Git tracking
+  while preserving its local contents and working services. Added a root
+  ignore rule for `cloudflare/.dev.vars.*` and removed only the index entry.
+- Local file integrity and service health were checked without logging keys.
+  The removal is staged locally; no commit or push is part of this task.
+  This does not erase the file from existing Git history or rotate credentials.
+
+## 2026-10-23 — Cross-machine context pickup and flow verification
+
+- Read the owner's `WTF_OS_Chat_Memory_Handoff_2026-10-23.md` and repository
+  operating guides; reconciled the checkout from `main` to the existing
+  `feature/pavun` branch. Fetched origin and confirmed HEAD and upstream both
+  resolve to `4eaaf9515296ac116ee0a731c022898a54ae96cb`, with zero divergence.
+  The owner's plural branch spelling refers to this existing singular branch.
+  Future work stays here; any requested push must target only `feature/pavun`.
+  No push, commit, deployment, migration or provider mutation in this pickup.
+- The Oct 22 statements below that PR #86 changes were still local are
+  historical: the merge, review fixes and receipts are present on origin at
+  `4eaaf95`. Last recorded staging runtime remains `9990e5e`; this check did
+  not read back Worker versions or establish a new deployment receipt.
+- Context correction from current source: `BetaChatWorkspace` always uses
+  `createMemberChatAdapter` and `/beta/api/chat`. `memberIdForPrincipal` maps
+  operators into owner-scoped member chat storage while operator admission and
+  authority still resolve through the operator roster. Older separate-store/
+  adapter descriptions do not describe this current Beta chat path. Legacy
+  operator routes/storage must not be removed merely because of this finding.
+- Preserve Alpha-only transcript authority, direct Claude generation,
+  authenticated owner-scoped saved work, admin-only analytics connection
+  management, and production YouTube page/navigation guards. Research remains
+  pre-shoot guest/company/industry work; any subject field suffices. Six-channel
+  discovery targets up to 120 sources; report follow-ups use retained evidence
+  without new discovery. Keep the accepted reader and genuine Word export.
+- Fresh VERIFIED-SOURCE at this runtime tree: 576 Edge tests, 429 web unit
+  tests, 101 web contracts, 157 Python research tests, five research-host tests,
+  20 Phase 2 browser tests, and 34 research reader browser tests pass. Research
+  browser coverage is desktop and 320px Chromium, not Safari/Firefox. Web and
+  research-host typechecks, web lint, architecture freshness (787 inputs), and
+  privacy (zero violations across 435 bounded files) pass. Locked dependencies
+  were installed locally; sandbox socket restrictions and a missing browser
+  were resolved without changing source, dependency versions or lockfiles.
+- Fresh read-only staging smoke: root 307, sign-in 200, signed-out principal,
+  research and LinkedIn Page-management reads 401. An initial principal probe
+  timed out at 20 seconds; one retry returned 401 in about 1.13 seconds.
+  These checks do not prove authenticated role isolation, real OAuth/metrics,
+  a new live report, or production parity. No real account was modified.
+- GitHub still reports zero active workflows, zero runs and zero check-runs
+  for `4eaaf95`. Hosted CI is not green; repository administration remains a
+  separate task. Older README/onboarding/planning and architecture narrative
+  contains historical model/topology/state claims; use current source and exact
+  dated receipts. The supplied memory file remains preserved and untracked.
+
 ## 2026-10-22 — PR #86 staging deployment receipt
 
 - Exact runtime candidate `9990e5e8eb01640a94425080d74dee9e270f2a07`

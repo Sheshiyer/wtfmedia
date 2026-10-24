@@ -42,6 +42,23 @@ test("one citation covers a complete quotation, not uncited prose around it", ()
   assert.equal(hasCitationCoverage('"First sentence. Second sentence." [99]', 2), false);
 });
 
+test("currency and continuation abbreviations do not split a supported sentence", () => {
+  for (const sentence of [
+    "An example order generates Rs. 100 in revenue [1].",
+    "The hypothetical margin is Re. 1 per order [1, 2].",
+    "Products include groceries, e.g. milk and bread [1].",
+    "The speaker describes proximity, i.e. short delivery routes [2].",
+    "The speaker compared the U.S. market with India [1].",
+  ]) {
+    assert.equal(hasCitationCoverage(sentence, 2), true, sentence);
+    assert.equal(hasCitationCoverage(`Revenue increased. ${sentence}`, 2), false, "preceding factual claims still need their own citation");
+    assert.equal(hasCitationCoverage(`${sentence} Revenue increased.`, 2), false);
+  }
+  assert.equal(hasCitationCoverage("The company expanded in the U.S. Revenue increased [1].", 2), false);
+  assert.equal(hasCitationCoverage("An order generates Rs. 100. Revenue increased [1].", 2), false);
+  assert.equal(hasCitationCoverage("An order generates Rs. 100 in revenue [99].", 2), false);
+});
+
 // Generation runs on Claude (fetch); Workers AI only serves embeddings.
 function environment(matches, prompts = [], response = "The evidence supports this answer [1] and [2].") {
   globalThis.fetch = async (_url, init) => {
