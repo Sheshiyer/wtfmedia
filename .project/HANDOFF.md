@@ -1,3 +1,65 @@
+## 2026-10-24 — Citation repair contract tightened after live verification
+
+- Owner explicitly authorized the live quick-commerce test, including sending
+  retrieved production excerpts to the existing Anthropic service, after
+  automatic approval review required that specific consent. The initial
+  blocked probe did not run; subsequent diagnostics retain metadata only.
+- Live topic-switch retrieval now returns six sources and can produce
+  `answered_grounded`, but some attempts still return `synthesis_invalid`.
+  Server diagnostics show valid citation numbers with rejected coverage, not
+  a provider timeout. Local in-memory tracing also found uncited opening prose
+  and an intermittently rejected repair; no original response text is retained.
+- Tightened repair generation and validation: every returned finding requires
+  a nonempty source-index array. An empty findings array explicitly abstains,
+  exposes no sources or citations, and never forces citations onto unsupported
+  content. The sentence-coverage guard still rejects multiple unsupported
+  claims in one item. No extra model retry or request-budget increase.
+- VERIFIED-SOURCE: Edge 584/584, compiled minimal Alpha artifact 55/55,
+  web typecheck, bundle and diff checks pass. A real Anthropic test with invented
+  evidence accepts the stricter schema and returns a grounded repaired answer.
+  Final runtime receipts follow when this correction is deployed.
+
+## 2026-10-24 — Initial staging release, shared Alpha patch and Treg update
+
+- Owner authorized staging deployment and branch push, then explicitly approved
+  the shared Alpha production impact. Source candidate
+  `7a6ad4314a55a3aa2a3fe6ad5cba45092b048319` is pushed to `feature/pavun`.
+  Production frontend, databases, corpus, ingest and DNS are unchanged.
+- Staging Edge `627e9c96-abff-4754-b17f-11c90a6fea1f` and Web
+  `2c07fdac-0752-4a57-9a36-bf7a0453f3e1` read back at 100% traffic.
+  All 26 Edge and 10 Web bindings and runtime settings match the baseline.
+  Public ingress remains `https://beta-staging.wtfhq.in`.
+- Shared Alpha Edge is `53cf8a7d-f739-47ef-a93c-d4cb9e3a9d56` at 100%.
+  All 29 bindings and runtime settings are unchanged. The downloaded live
+  bundle exactly matches the tested minimal artifact, SHA-256
+  `e1be3fcc044e6f27d3d59a36990e2ef19cfd655e99dd3bb8e6b844560591799b`.
+  Only answer, query-topic and public-chat modules replace the former live
+  bundle; its pre-patch SHA-256 is
+  `d2f90e02129b0698f3530d998f159966cdf6230419b0b34bee0d1bb5176265c9`.
+  The committed patch builder verifies that baseline and equivalence to
+  pre-fix chat code at `4eaaf95`. No staging-only application code is promoted.
+- Replaced only `TREG_TOKEN` on `wtfmedia-research-staging`, using the owner's
+  new local Cloudflare vars value through protected stdin. Secret-update
+  version `e467a19f-acaa-4c41-b993-adbf037634ef` reads back at 100%, with
+  the same ten binding names and runtime settings. The new key passed one
+  bounded public Treg search (HTTP 200, provider receipt present). The runner
+  was inactive, so its next start loads the new environment. Existing local
+  runner credentials return 401 against staging; no separate runner token
+  was changed and no authenticated research run is claimed.
+- Isolated committed-source OpenNext build and staging/Alpha dry runs pass.
+  Compiled and live sign-in configuration match the staging Clerk issuer.
+  Existing Next.js 15.5.24 still needs OpenNext's unsupported-version override;
+  dependency upgrades remain separate. Source checks are recorded below.
+- Live smoke: staging root 307, sign-in 200; staging principal/research and
+  production principal return 401 signed out. Alpha and staging `/v1/health`
+  return healthy Anthropic/Sonnet configuration; staging identifies Alpha as
+  its corpus authority. No full signed-in persona matrix was repeated.
+- Rollback versions: Alpha `375698fc-37da-44bd-a8f7-585b9d388868`, staging
+  Edge `8271bf46-d7c2-451a-9935-8822bcbc832e`, staging Web
+  `dbaf9988-4994-4ab8-992f-32d6827ea36d`. Research before the key update:
+  `511a56ad-2176-47e4-aaac-935b4de31071`; do not undo the approved secret
+  update as part of an unrelated code rollback. Durable state is unchanged.
+
 ## 2026-10-24 — Alpha topic retrieval and citation validation fixes
 
 - Owner requested tracing and fixing the quick-commerce failure in shared

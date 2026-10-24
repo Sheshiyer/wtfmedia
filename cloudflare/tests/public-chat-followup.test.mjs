@@ -225,6 +225,8 @@ test("citation repair identifies the rejected opening sentence and keeps the fol
         assert.match(body.messages.at(-1).content, /cite.*remove/i);
         assert.match(body.messages[0].content, /PRIOR CONVERSATION:/);
         assert.equal(body.output_config.format.type, "json_schema");
+        assert.equal(body.output_config.format.schema.properties.sentences.items.properties.citations.minItems, 1,
+          "the provider schema must not permit uncited findings in a repair");
       }
       return Response.json({ model: "claude-sonnet-5-5", stop_reason: "end_turn", content: [{ type: "text", text: generations === 1
         ? 'The team records guest preferences. They record meals and drinks [2].'
@@ -246,7 +248,7 @@ for (const malformed of [
   { sentences: [{ text: 'A supposed fact.', citations: [99] }] },
   { sentences: [{ text: 'A supposed fact.', citations: ['1'] }] },
   { sentences: [{ text: 'An uncited assertion. A cited assertion.', citations: [1] }] },
-  { sentences: [] },
+  { sentences: [{ text: 'An unsupported opening.', citations: [] }, { text: 'A cited finding.', citations: [1] }] },
   { answer: 'not the expected structure' },
 ]) {
   test(`invalid structured citation repair retains safe fallback: ${JSON.stringify(malformed)}`, async () => {
@@ -269,6 +271,28 @@ for (const malformed of [
     assert.equal(generationCalls, 2);
   });
 }
+
+test("an explicit empty repair abstains instead of inventing citations or dumping excerpts", async () => {
+  const env = followUpEnv({ reformulate: [], answer: [], enrich: [], embeddings: [] });
+  const baseFetch = globalThis.fetch;
+  let generations = 0;
+  globalThis.fetch = async (url, init) => {
+    const body = JSON.parse(init.body);
+    if (body.system.startsWith("You are the WTF OS research companion")) {
+      generations++;
+      return Response.json({ model: "claude-sonnet-5-5", stop_reason: "end_turn", content: [{ type: "text", text: generations === 1
+        ? 'An unsupported assertion. A cited statement [1].' : JSON.stringify({ sentences: [] }) }] });
+    }
+    return baseFetch(url, init);
+  };
+  const result = await runPublicChat(env, { question: 'What was said about hospitality?', sourceMode: 'published', episodeId: null });
+  assert.equal(result.body.responseState, 'abstained');
+  assert.equal(result.body.grounded, false);
+  assert.deepEqual(result.body.sources, []);
+  assert.deepEqual(result.body.citedIndices, []);
+  assert.doesNotMatch(result.body.answer, /\[\d+\]|closest cited excerpts/);
+  assert.equal(generations, 2);
+});
 
 test("citation-free 'nothing else' answer abstains with no sources", async () => {
   const calls = { reformulate: [], answer: [], enrich: [], embeddings: [] };
