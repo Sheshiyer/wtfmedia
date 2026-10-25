@@ -143,6 +143,27 @@ Start with [docs/AGENT-ONBOARDING.md](docs/AGENT-ONBOARDING.md), then read
 current release receipts, Cloudflare resource names, source-mode chat contract,
 deferred corpus rows, and gated actions.
 
+### WTF production-calendar handoff (2026-10-25)
+
+The latest local calendar, board, dubbing tracker, import code, and additive D1
+migrations are on the [`codex/release-beta-calendar-local`](https://github.com/Sheshiyer/wtfmedia/tree/codex/release-beta-calendar-local)
+branch, **not** on `main`. A collaborator continuing this work should clone
+that branch explicitly:
+
+```bash
+git clone --branch codex/release-beta-calendar-local https://github.com/Sheshiyer/wtfmedia.git
+cd wtfmedia
+```
+
+Read [the calendar pickup guide](scripts/production-calendar/README.md) and
+the newest `.project/HANDOFF.md` checkpoint before editing. The repository is
+public, so the client's workbook, its guest contacts and notes, the generated
+import snapshot, and the local SQLite database are deliberately **not** in
+GitHub. The application source is reproducible from this branch, but the
+populated local calendar is not reproducible from the clone alone: the
+authorized teammate needs the workbook through a separate secure channel.
+This branch has not been merged, deployed, or accepted for client-facing use.
+
 ---
 
 <!-- readme-gen:start:architecture -->

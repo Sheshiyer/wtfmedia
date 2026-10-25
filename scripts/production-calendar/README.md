@@ -1,5 +1,52 @@
 # Local workbook import
 
+## Pick up this branch on another computer
+
+Clone `codex/release-beta-calendar-local`, not the repository's default `main`
+branch. The source code, migrations, tests, and this guide are on that branch.
+Install the web dependencies with `npm --prefix web ci`. The local calendar
+preview was verified with Node.js 26 and Python 3; it uses `node:sqlite` and
+Node's TypeScript stripping support. For the workbook import, create a local
+Python environment and install the pinned dependency:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r scripts/production-calendar/requirements.txt
+```
+
+The public GitHub repository intentionally contains **no real workbook data**.
+The WTF workbook contains guest contacts and internal notes; do not commit the
+`.xlsx`, the generated JSON, `.local/`, SQLite files, screenshots, credentials,
+or copied contact lists. Obtain the workbook privately from the owner and
+keep the generated files in `.local/`, which is ignored by Git. Without that
+private workbook, a clone can run the code but cannot display the same
+populated calendar that was reviewed on Nikhai's computer.
+
+From the repository root, after obtaining the workbook, use three terminals:
+
+```bash
+# Terminal 1: creates/updates only the ignored local SQLite schema and runs the API
+node scripts/local-production-api.mjs
+
+# Terminal 2: one-time source import into that local database
+.venv/bin/python scripts/production-calendar/import_workbook.py \
+  '/private/path/WTF Pod_ Live Calendar.xlsx' \
+  --output .local/wtf-calendar-import.json --summary
+node scripts/production-calendar/load_local.mjs \
+  --input .local/wtf-calendar-import.json \
+  --db .local/production-calendar.sqlite
+
+# Terminal 3: local web UI
+npm --prefix web run dev:production
+```
+
+Open `http://127.0.0.1:3001/ops/production`. Start the API before the loader
+so the local schema exists. `load_local.mjs` is idempotent for the same workbook
+hash; a revised workbook needs the documented reconciliation review rather
+than an assumed overwrite. This preview uses a local super-admin context; it
+does not verify deployed Clerk roles or remote Cloudflare D1. No remote
+migration or production deployment is part of this pickup procedure.
+
 `import_workbook.py` reads the supplied WTF calendar workbook without changing
 it. It writes a deterministic private JSON snapshot with every populated cell,
 fill-bearing blank cell, formula, cached value, source coordinate, and the
@@ -101,10 +148,11 @@ Open [the local production calendar](http://127.0.0.1:3001/ops/production).
 The local API and web server bind to `127.0.0.1`. The web development route
 forwards only `/ops/api/production` to this local SQLite-backed API when
 `WTF_PRODUCTION_LOCAL_PREVIEW=1`; other app routes retain their normal behavior.
-Local preview assumes one super-admin operator and is for this computer only.
+Local preview assumes one super-admin operator and is for the developer's computer only.
 It is **not** deployed authentication. The deployed edge route still checks
-the real operator role and uses Cloudflare D1, but this task neither applied
-the migration to remote D1 nor wrote data there. Nothing is pushed to GitHub.
+the real operator role and uses Cloudflare D1, but this calendar change has
+neither applied the migration to remote D1 nor written data there. Only its
+source-code branch has been pushed to GitHub; private workbook data has not.
 
 The manager-only workbook reference shows the Production Tracker, Calendar,
 Dubbing Tracker, and IP worksheets with their original cell references,

@@ -1,5 +1,21 @@
 # Project handoff
 
+## 2026-10-25 Shareable production-calendar branch pickup
+
+The GitHub feature branch `codex/release-beta-calendar-local` contains the
+calendar/board/dubbing UI, importer and loader, local API, tests, migrations
+`0016`–`0019`, and documentation. A new collaborator must explicitly clone
+this branch; `main` does not contain this calendar work. See the pickup steps
+in `scripts/production-calendar/README.md`.
+
+The repository is public. The client's source XLSX, guest contacts/notes,
+generated snapshot, local SQLite, and browser screenshots remain private and
+ignored. Therefore a clone without a separately and securely supplied workbook
+will have the code but not Nikhai's populated local calendar. Do not describe
+the branch as a complete data transfer or a client-facing release. Staging D1,
+auth, and unresolved source-review flags remain outstanding. No merge or
+deployment was authorized by the request to share the code branch.
+
 ## 2026-10-25 Calendar source branch handoff
 
 Nikhai authorized pushing this local production-calendar work to GitHub. The
