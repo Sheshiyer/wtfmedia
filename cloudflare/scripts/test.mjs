@@ -1,8 +1,9 @@
 import { spawnSync } from "node:child_process";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
 const selectors = process.argv.slice(2).filter((value) => !value.startsWith("--") && value !== "audit" && value !== "super_admin");
 const tests = readdirSync(join(root, "tests"))
   .filter((file) => file.endsWith(".test.mjs"))

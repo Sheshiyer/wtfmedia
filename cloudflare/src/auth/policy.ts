@@ -1,5 +1,5 @@
 export const roles = ["super_admin", "admin", "editor", "member"] as const;
-export const resources = ["beta", "control_room", "operators", "members", "audit", "chat", "memory", "assets", "episodes", "ingest", "transcripts", "release"] as const;
+export const resources = ["beta", "control_room", "production", "operators", "members", "audit", "chat", "memory", "assets", "episodes", "ingest", "transcripts", "release"] as const;
 export const actions = ["read", "write", "export", "manage", "transfer", "approve", "create", "upload", "confirm"] as const;
 export type Role = typeof roles[number];
 export type Resource = typeof resources[number];
@@ -7,7 +7,7 @@ export type Action = typeof actions[number];
 
 const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
   super_admin: new Set([
-    "beta:read", "control_room:read", "operators:read", "operators:manage", "operators:transfer", "operators:approve", "members:read", "members:manage", "release:manage",
+    "beta:read", "control_room:read", "production:read", "production:write", "production:manage", "operators:read", "operators:manage", "operators:transfer", "operators:approve", "members:read", "members:manage", "release:manage",
     "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm", "assets:manage",
     "episodes:read", "episodes:write", "episodes:create", "episodes:manage",
@@ -15,14 +15,14 @@ const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
     "transcripts:read", "transcripts:write", "transcripts:create", "transcripts:manage",
   ]),
   admin: new Set([
-    "beta:read", "control_room:read", "operators:read", "operators:manage", "members:read", "members:manage", "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
+    "beta:read", "control_room:read", "production:read", "production:write", "production:manage", "operators:read", "operators:manage", "members:read", "members:manage", "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm", "assets:manage",
     "episodes:read", "episodes:write", "episodes:create", "episodes:manage",
     "ingest:read", "ingest:write", "ingest:create", "ingest:manage",
     "transcripts:read", "transcripts:write", "transcripts:create", "transcripts:manage",
   ]),
   editor: new Set([
-    "beta:read", "control_room:read", "chat:read", "chat:write", "memory:read", "memory:write",
+    "beta:read", "control_room:read", "production:read", "production:write", "chat:read", "chat:write", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm",
     "episodes:read", "ingest:read",
     "transcripts:read", "transcripts:write",
@@ -48,6 +48,8 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/ops/api/members": ["members", "read"],
   "/api/ops/members": ["members", "read"],
   "/ops/production": ["control_room", "read"],
+  "/ops/api/production": ["production", "read"],
+  "/api/ops/production": ["production", "read"],
   "/ops/operators": ["operators", "read"],
   "/ops/audit": ["audit", "read"],
   "/ops/ingest": ["ingest", "read"],
@@ -102,6 +104,11 @@ export function decide(role: unknown, resource: unknown, action: unknown, option
 
 export function policyForPath(pathname: string, method = "GET"): readonly [Resource, Action] | null {
   if (pathname.startsWith("/beta/api/")) return betaApiRequirement(pathname, method);
+  if (pathname === "/ops/api/production" || pathname === "/api/ops/production") {
+    if (method.toUpperCase() === "GET") return ["production", "read"];
+    if (method.toUpperCase() === "POST") return ["production", "write"];
+    return null;
+  }
   if (routeRequirements[pathname]) return routeRequirements[pathname];
   if (pathname === "/ops/settings/access") return ["operators", "read"];
   if (pathname === "/ops/settings/users") return ["members", "read"];

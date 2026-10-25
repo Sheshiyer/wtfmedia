@@ -1,5 +1,166 @@
 # Project handoff
 
+## 2026-10-25 Calendar source branch handoff
+
+Nikhai authorized pushing this local production-calendar work to GitHub. The
+reviewed source, migrations, tests, and documentation are intended for the
+`codex/release-beta-calendar-local` feature branch only. The private workbook,
+import snapshot, local SQLite database, and UI screenshots are not part of the
+commit. Branch push is not a merge, Cloudflare migration, deployment, or
+client-facing acceptance. The outstanding review and test limits in the next
+checkpoint still apply.
+
+## 2026-10-25 Add Episode and calendar navigation check
+
+**Status:** LOCAL-ONLY UI CHANGE. No GitHub push, remote Cloudflare write,
+migration, or deployment.
+
+- Add episode now opens a dedicated form in the visible main content area
+  rather than a details panel below the calendar at laptop widths. It starts
+  with no IP selected, requires an explicit IP and title, and returns to the
+  board after a confirmed API save. Cancel returns to the previous view without
+  creating a record.
+- The redundant Month/Week switch and Week mode were removed. Calendar is a
+  month view with previous/next and direct month selection.
+- Browser interaction confirmed the form appears immediately, requires a
+  chosen IP, enables Create episode only after required fields, and cancels
+  without saving. The isolated edge API test covers record creation; no test
+  item was added to the user's local workbook database.
+- The source snapshot and local SQLite reconcile at 79 items (9 Production
+  Tracker, 13 IP-sheet, 57 Dubbing Tracker), 39 calendar action marks (7
+  shoots, 7 main posts, 7 IP posts, 18 dubbed go-lives), and 46 separately
+  retained original-video dates. The local DB integrity check is `ok`.
+  Eleven review flags remain within the four in-scope sheets; seven older
+  pipeline-sheet flags remain in the private archive but are excluded from
+  the production API's review count and UI.
+- Web typecheck, lint, all 165 web unit tests, focused production edge tests,
+  and the supplied-workbook import integration test passed. The full edge
+  suite does not pass in this checkout: the edge `jose` dependency is absent,
+  and older test fixtures use URL-encoded file paths that fail on this
+  space-containing checkout under the current Node runtime. These failures
+  are outside this calendar change and must be resolved before release CI.
+- This remains a local preview, not client-facing sign-off. Remote D1
+  migration/auth, workbook-owner review of unresolved source ambiguities,
+  and staging acceptance remain outstanding.
+
+## 2026-10-25 Local calendar scope and usability pass
+
+**Status:** LOCAL-ONLY UI AND IMPORT-SCOPE CHANGE. No GitHub push,
+Cloudflare write, remote migration, or deployment.
+
+- The production area now has three working views: Calendar (month),
+  Board, and Dubbing. The literal Production Tracker grid and dated-mark list
+  are no longer primary navigation. The manager-only Workbook reference and
+  episode details retain source evidence and exact H/I/J checkbox states.
+- The main board includes the 9 named Production Tracker episodes plus 13
+  named BTS, Stitched, and Ways Of The World IP-sheet rows. Dubbing Tracker
+  source records stay in the Dubbing view and their 18 actual blue-mic go-live
+  dates remain on the calendar. Blank numbered POV/Animated slots are not
+  episodes. Board lanes use explicit production stages and actual release
+  dates; unknown source stages remain unknown in item details.
+- Pod Pipeline 2026–27 and Pipeline are deferred to a separate future page.
+  Their original cells remain in the private local database, but the working
+  source reference and import-review summary expose only Production Tracker,
+  Calendar, Dubbing Tracker, and WTF & Nikhil Kamath IPs. Future imports no
+  longer create production-calendar review issues from the two deferred sheets.
+- The local API was refreshed on `127.0.0.1:8788`; the local page at
+  `http://127.0.0.1:3001/ops/production` visually shows the three views,
+  22 board items, 18 dubbed releases, 39 unpublished dubbing jobs, and four
+  in-scope source sheets. Web typecheck/lint, focused web unit, edge API, and
+  workbook integration tests pass. This is not a client-facing acceptance or
+  a verified remote Cloudflare mapping.
+
+## 2026-10-25 Production Tracker local fidelity follow-up
+
+**Status:** LOCAL-ONLY. No GitHub push, Cloudflare write, remote migration, or deployment.
+
+- The workbook owner confirmed `Payments EP` belongs to `WTF Is`. The local
+  production item now uses that IP; its Post Production stage and 21 August
+  shoot mark remain unchanged.
+- Unnamed Production Tracker rows 17–19 are excluded from operational records,
+  review flags, and the working source-row view. Their imported raw cells remain
+  in the private database archive so the original workbook is not altered.
+- Episode shoot location and per-source-row guest role are structured, editable
+  fields. Names, roles, H/I/J checkbox states, and agreement notes retain their
+  original row positions; the pharma row's checked box and adjacent no-contract
+  note are displayed separately without an inferred legal/permission outcome.
+- A dedicated `Production tracker` tab reproduces columns A–J in workbook
+  order, merged episode/guest/status groupings, the source pink/green/yellow
+  fills, H/I/J boxes, and agreement text. It is horizontally scrollable on
+  narrow screens and opens each episode's editable details.
+- The Dubbing view now displays Production Tracker H/I/J checkbox counts for
+  those podcast items rather than calling every source guest permission
+  “pending.” The original Dubbing Tracker permission workflow remains separate.
+- The local snapshot was regenerated from the supplied workbook, migration
+  `0019` applied to the local SQLite database after a backup, and reconciliation
+  resolved 10 stale Production Tracker review flags. Source import, API and
+  web checks pass; SQLite integrity is `ok`. The local API is running on
+  `127.0.0.1:8788` for the dashboard at `127.0.0.1:3001`.
+
+## 2026-10-25 Dubbing Tracker full-page local cross-check
+
+**Status:** LOCAL-ONLY REVIEW, not a client-facing release. No GitHub push,
+Cloudflare write, remote migration, or deployment occurred.
+
+- Compared the complete Dubbing Tracker screenshot set with the source XLSX
+  through row 117, including merged panels. The local import contains 57
+  dubbing jobs, 109 guest-permission rows, 18 dated dubbed go-lives and 39
+  without a go-live date. Eleven undated jobs have a tick in source column G;
+  they correctly remain *not published* under the client's clarification.
+- The dashboard now separates column B original-video history from column C
+  blue-mic publication marks. Original-video dates no longer inflate month,
+  week, list, board, day-sheet, or headline action-mark counts. All 46 B dates
+  remain preserved and visible in item details.
+- Clear "WTF is …" dubbing titles now map to WTF Is. Source solo/panel order,
+  raw posted-checkbox state, per-guest permission, manager-only contact and
+  follow-up notes, and workbook row references are visible in the Dubbing view
+  or item details. Source notes remain visible even for row 63, where no guest
+  is linked. Contact-shaped guest fields are flagged and masked for editors.
+- Open source exceptions remain: shifted row 30 ("Brain Armstrong" appears in
+  column C), and guest-name cells containing contact text at rows 61–62.
+  These are preserved in the raw source; no person or episode is invented.
+- Regenerated the private source snapshot, backed up local SQLite before
+  reconciliation, resolved 14 stale import-review flags, and verified local
+  integrity plus focused import/API/web tests. The local browser shows 39
+  calendar action marks, 57 workbook dubbing jobs, 18 live and 39 unpublished.
+
+## 2026-10-24 Local production-calendar workbook fidelity checkpoint
+
+**Status:** LOCAL-ONLY WORK IN PROGRESS on `codex/release-beta-calendar-local`.
+No GitHub push, PR, remote D1 migration, or Cloudflare deployment occurred.
+
+- The six-sheet workbook remains preserved cell-for-cell in the private local
+  import/database. Its Calendar action marks are now consistent across month,
+  week, list, board, and detail views: blue 🎙️ dubbed episode live, green 📤
+  episode live, yellow 🎥 main episode shot. IP color is a separate legend.
+- The ⭕️ Not Live BTS entry remains undated. Source tracker ☑/☐ boxes are
+  operational checklist rows, with original source cells unchanged. Unchecked
+  means not ticked in the workbook, not a confirmed negative outcome.
+- Merged podcast statuses apply across rows 2–13 and 14–19. Clear title-based
+  IP matches are assigned; past typed shoot/post/dub-go-live dates are actuals.
+  Five unnamed POV/Animated planning slots are retained only in source cells.
+- Editable targets display named-item progress from the IP sheet: BTS 12,
+  Stitched 20+, POV 15, and Animated IP 20.
+- Local SQLite was backed up before reconciliation and before adding target
+  columns. `PRAGMA integrity_check` returned `ok`. Focused import, local API,
+  web typecheck, lint, and calendar unit tests pass. The local dashboard is
+  available at `http://127.0.0.1:3001/ops/production` while its servers run.
+
+**Client clarification (2026-10-25):** Dubbing Tracker column C is the dubbed
+episode publication receipt. All 39 imported dubbing jobs without a column-C
+date are **not published**, including 11 with `Posted? = Yes` in column G.
+Publication is derived from an actual dated event in the API and displayed
+separately from dubbing work status. The original column-G tick is preserved.
+Workbook integration (18 dated, 39 undated, 11 ticked-but-undated), edge API
+tests, web typecheck/lint/unit tests, local SQLite integrity, and the live
+local Dubbing view were checked after the clarification. No new schema or
+remote write was needed.
+
+**Deferred client question:** The transcript explains green
+prospect-pipeline fill but does not fully define remaining pink/yellow fills.
+Ask Nikhai after the other local changes are complete. Full staging/persona
+acceptance and remote database migration remain unapproved.
+
 ## 2026-09-11 Beta single-shell RBAC convergence checkpoint
 
 **Status:** LOCAL SOURCE AND BUILD VERIFIED through `00e8267` — no remote

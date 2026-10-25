@@ -19,6 +19,26 @@ function unavailable() {
  * edge can enforce its configured hostname and verify the per-request JWT.
  */
 async function proxy(request: Request): Promise<Response> {
+  // Next's local dev server has no Cloudflare service binding. Keep the
+  // production calendar interactive against the loopback-only local SQLite/D1
+  // schema while leaving deployed requests on the Clerk-verified edge path.
+  if (process.env.NODE_ENV === "development" && process.env.WTF_PRODUCTION_LOCAL_PREVIEW === "1" && new URL(request.url).pathname === "/ops/api/production") {
+    try {
+      const target = new URL(request.url);
+      target.protocol = "http:";
+      target.hostname = "127.0.0.1";
+      target.port = "8788";
+      const response = await fetch(target, {
+        method: request.method,
+        headers: { "content-type": request.headers.get("content-type") ?? "application/json" },
+        ...(request.method === "POST" ? { body: await request.text() } : {}),
+        cache: "no-store",
+      });
+      return new Response(response.body, response);
+    } catch {
+      return Response.json({ error: "local_production_api_unavailable" }, { status: 503, headers: unavailableHeaders });
+    }
+  }
   try {
     const { env } = await getCloudflareContext({ async: true });
     if (!env.WTFMEDIA_EDGE) return unavailable();

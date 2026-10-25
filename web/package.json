@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:ops": "WTF_PUBLIC_UI_VARIANT=migrated WTFMEDIA_OPS_ORIGIN_PROOF=phase2-e2e-test-key WTFMEDIA_OPS_LOCAL_ROLE=super_admin next dev",
+    "dev:production": "WTF_PUBLIC_UI_VARIANT=migrated WTFMEDIA_OPS_ORIGIN_PROOF=phase2-e2e-test-key WTFMEDIA_OPS_LOCAL_ROLE=super_admin WTF_PRODUCTION_LOCAL_PREVIEW=1 next dev -H 127.0.0.1 -p 3001",
     "build": "next build",
     "start": "next start",
     "cf:build": "opennextjs-cloudflare build",

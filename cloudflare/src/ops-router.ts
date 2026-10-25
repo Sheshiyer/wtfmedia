@@ -38,6 +38,7 @@ import {
 } from "./chat/memory.ts";
 import { runChat, type ChatAnswer, type ChatAnswerInput } from "./chat/answer.ts";
 import { parseSourceMode } from "./chat/source-mode.ts";
+import { handleProductionCalendarRequest } from "./production-calendar.ts";
 import {
   canMutateAuthenticatedChatRelease,
   isAuthenticatedChatEnabled,
@@ -84,6 +85,7 @@ function protectedPath(pathname: string): string | null {
   if (pathname === "/ops/api/assets/upload-stream" || pathname === "/api/ops/assets/upload-stream") return "/ops/api/assets/upload-stream";
   if (pathname === "/ops/api/assets/confirm-upload" || pathname === "/api/ops/assets/confirm-upload") return "/ops/api/assets/confirm-upload";
   if (pathname === "/ops/api/episodes" || pathname === "/api/ops/episodes") return "/ops/api/episodes";
+  if (pathname === "/ops/api/production" || pathname === "/api/ops/production") return "/ops/api/production";
   if (pathname === "/ops/api/ingest/jobs" || pathname === "/api/ops/ingest/jobs") return "/ops/api/ingest/jobs";
   if (pathname === "/ops/api/ingest/youtube-sync" || pathname === "/api/ops/ingest/youtube-sync") return "/ops/api/ingest/youtube-sync";
   if (pathname.startsWith("/ops/api/episodes/") || pathname.startsWith("/api/ops/episodes/")) return pathname;
@@ -441,7 +443,7 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
     const release = await resolveAuthenticatedChatRelease(env.DB, env.OPS_ENVIRONMENT, env.CHAT_HISTORY_ENABLED);
     if (!isAuthenticatedChatEnabled(release)) return denied();
   }
-  const requirement = policyForPath(path);
+  const requirement = policyForPath(path, request.method);
   if (!requirement) return denied();
   const authorizedParties = env.CLERK_AUTHORIZED_PARTIES?.split(",").map((value) => value.trim()).filter(Boolean);
   if (!env.CLERK_ISSUER || !env.CLERK_JWKS_URL || !authorizedParties?.length) return denied();
@@ -485,6 +487,9 @@ export async function handleOpsRequest(request: Request, env: OpsEnv, dependenci
     }
     if (url.pathname === "/ops/api/episodes" || url.pathname === "/api/ops/episodes") {
       return handleGetEpisodes(request, env, context);
+    }
+    if (url.pathname === "/ops/api/production" || url.pathname === "/api/ops/production") {
+      return handleProductionCalendarRequest(request, env, context);
     }
     if (url.pathname === "/ops/api/ingest/jobs" || url.pathname === "/api/ops/ingest/jobs") {
       return handleListIngestionJobs(request, env, context);

@@ -8,7 +8,7 @@ export default async function ProductionPage() {
         size="page"
         eyebrow="calendar and board"
         title="production"
-        summary="same records, two views. delete is unavailable. owners stay empty until assigned."
+        summary="shoots, releases, dubbing and dependencies in one shared calendar."
         accent="attention"
       />
       <div className="mx-auto max-w-[var(--wtf-content-max)] px-4 py-8 sm:px-8 xl:px-12">
