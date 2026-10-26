@@ -1,3 +1,38 @@
+## 2026-10-26 — Production receipt: YouTube Analytics and Social Analytics only
+
+- Owner-authorized release source aa72b98 deployed with the bounded release
+  builder. Apex Web 48912c66-e223-41b1-a6d9-22fdee5a12a2 and Edge
+  4f21894f-9ecd-40d5-afae-dad24890a843 read back at 100% traffic.
+  Public routes: https://wtfhq.in/beta/analytics and
+  https://wtfhq.in/beta/social-analytics .
+- Production Edge content downloaded after publication exactly matches artifact
+  e5faca8f3e488e2e854bccd1025029f3f68f14a263d14ab9d5c3602dac8aa435.
+  The scoped overlay preserves all non-analytics baseline code; the separately
+  deployed shared Alpha Web was not touched. Web preserves its six production
+  bindings/runtime settings, production Edge/self binding and apex Custom Domain.
+- Owner separately approved migration 0024 and the existing local Zernio key.
+  Recorded pre-migration D1 recovery bookmark:
+  00000242-00000000-00005110-62ff7bc175336ff71382cfdae7808519.
+  Only 0024 was applied: social_analytics_workspace, social_analytics_investigations,
+  social_analytics_rate_limits. Migration 0023 remains absent. No Research or
+  new Production Calendar code/data was promoted; the prior production placeholder
+  remains byte-identical to the recorded frontend ancestor.
+- All previous 29 Edge bindings/runtime settings are preserved. The only added
+  bindings are SOCIAL_ANALYTICS_ENABLED=1 and secret_text ZERNIO_API_KEY. The key
+  was passed in a permission-restricted temporary file, deleted after deployment.
+  No token values were logged or committed; Google configuration is unchanged.
+- Packaging included built-in Next lint/types and production Clerk identity
+  checks. Publication readback: sign-in HTTP 200, production Clerk identity
+  clerk.wtfhq.in, signed-out Social Analytics API HTTP 401. No signed-in browser,
+  Google/Zernio query, model call or test suite was executed. Account data and
+  editorial acceptance remain for owner testing.
+- Rollback: previous apex version e0a702a0-a19b-4445-9473-335c8fa539af and
+  pre-overlay Edge artifact/version b0b59cfc-7152-4dcd-b606-5bcbb58fb3de.
+  Preserve the approved new key and additive tables during code rollback; do not
+  erase private state or replace unrelated production settings. Staging unchanged.
+- Candidate and this receipt are local commits on feature/pavun. This task asked
+  for production deployment, not another branch push or merge.
+
 ## 2026-10-26 — Analytics-only production candidate prepared and authorized
 
 - Owner requested only YouTube Analytics and Social Analytics on wtfhq.in,
