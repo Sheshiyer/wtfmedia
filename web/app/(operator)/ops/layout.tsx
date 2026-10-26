@@ -13,7 +13,9 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
   const dto = verified ? operatorContextDto(verified) : ungatedReleaseContextDto(opsEnvironmentForHost(requestHeaders.get("host")));
   const nav = currentReleaseNavigation.map((item) => ({
     label: item.label,
-    href: item.href,
+    href: item.href === "/beta/workspace/production" && process.env.NODE_ENV === "development" && process.env.WTF_PRODUCTION_LOCAL_PREVIEW === "1"
+      ? "/ops/production"
+      : item.href,
     section: item.section,
   }));
   return (

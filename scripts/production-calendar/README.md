@@ -41,8 +41,9 @@ node scripts/production-calendar/load_local.mjs \
 npm --prefix web run dev:production
 ```
 
-Open `http://127.0.0.1:3001/beta/workspace/production` (the legacy
-`/ops/production` route redirects there). Start the API before the loader
+Open `http://127.0.0.1:3001/ops/production`. In local preview mode this
+route renders the calendar directly; deployed operator access stays under
+the Beta gate. Start the API before the loader
 so the local schema exists. `load_local.mjs` is idempotent for the same workbook
 hash; a revised workbook needs the documented reconciliation review rather
 than an assumed overwrite. This preview uses a local super-admin context; it

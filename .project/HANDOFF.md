@@ -4,8 +4,9 @@
   production calendar and the branch name `futures/nikhai`. The remote has
   `feature/pavun` (not `futures/pavun`); that is the source merged here.
 - Preserve the four production surfaces: calendar/month, board, dubbing, and
-  source-workbook review. The local preview uses the Beta workspace route
-  `/beta/workspace/production`; `/ops/production` redirects there. The
+  source-workbook review. The local-only preview uses `/ops/production`
+  because the merged Beta gate requires deployed Clerk configuration;
+  deployed operator access remains `/beta/workspace/production`. The
   production API remains `/ops/api/production` and the local SQLite preview
   remains `scripts/local-production-api.mjs` on port 8788.
 - Pavun already owned migration ordinals 0016–0024. The local-only production

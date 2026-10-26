@@ -28,7 +28,13 @@ async function routeMiddleware(request: NextRequest) {
   // /ops/api/* endpoints stay (chat transport) and /ops/recover stays for
   // session recovery.
   const opsPage = pathname === "/ops" || (pathname.startsWith("/ops/") && !pathname.startsWith("/ops/api") && pathname !== "/ops/recover");
-  if (pathname === "/beta/ops" || pathname.startsWith("/beta/ops/") || opsPage) {
+  // The private workbook preview is the one exception: it runs on loopback
+  // without deployed Clerk configuration and must never be enabled remotely.
+  const localProductionPreview = process.env.NODE_ENV === "development"
+    && process.env.WTF_PRODUCTION_LOCAL_PREVIEW === "1"
+    && ["127.0.0.1", "localhost"].includes(request.nextUrl.hostname)
+    && pathname === "/ops/production";
+  if (pathname === "/beta/ops" || pathname.startsWith("/beta/ops/") || (opsPage && !localProductionPreview)) {
     const source = opsPage ? pathname : pathname.slice("/beta/ops".length);
     const suffix = opsPage ? pathname.slice("/ops".length) : source;
     const target = request.nextUrl.clone();
