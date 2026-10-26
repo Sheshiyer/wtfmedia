@@ -1,3 +1,13 @@
+## 2026-10-26 — Staging build preparation
+
+- Owner authorized staging deployment and installing Docker Desktop for the
+  research image build. The isolated committed-source OpenNext build exposed a
+  prior navigation lint error: the auth-frame public chat anchor now uses the
+  existing Next Link import, preserving its destination and presentation.
+- Staging migration inventory has no outstanding migrations. No database change
+  is needed. Build preparation uses the verified public staging Clerk issuer;
+  local environment files are excluded. Runtime receipts follow after deployment.
+
 ## 2026-10-26 — Research visuals branch delivery
 
 - Owner requested committing and pushing all research visual changes to

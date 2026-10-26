@@ -263,12 +263,12 @@ export function OperatorAuthFrame({
           </p>
           <WtfMotionList items={copy.proof} />
           <div className="mt-8 border-t border-on-structure/30 pt-5">
-            <a
+            <Link
               href="/chat"
               className="inline-flex border border-on-structure/50 px-2 py-1 font-label text-[10px] font-bold uppercase tracking-[0.12em] transition-colors hover:border-on-structure hover:bg-canvas hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-canvas focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
             >
               public alpha
-            </a>
+            </Link>
           </div>
         </section>
 
