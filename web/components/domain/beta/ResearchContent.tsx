@@ -2,18 +2,38 @@
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { prepareResearchSection, researchDisplayContent } from "@/lib/research-report";
+import { prepareResearchSection, researchDisplayContent, splitResearchVisuals } from "@/lib/research-report";
+import { renderResearchVisual, researchVisualDataUrl, type ResearchVisual } from "@/lib/research-visuals";
 import { RESEARCH_SECTIONS, RESEARCH_EVIDENCE_LABELS, replaceResearchCitations, researchFailureSummary, researchSourceLabel, researchSourcePlatform, safeResearchUrl, type ResearchBrief, type ResearchSource } from "@/lib/research";
 import { ResearchCoverageSummary, ResearchSourceBadge } from "./ResearchSourceBadge";
 
-export function ResearchMarkdown({ content, sources, sourcePrefix = "research-source-" }: { content: string; sources: ResearchSource[]; sourcePrefix?: string }) {
+function ResearchFigure({ visual, sources, sourcePrefix }: { visual: ResearchVisual; sources: ResearchSource[]; sourcePrefix: string }) {
+  const rendered = renderResearchVisual(visual);
+  return <figure className="my-6 min-w-0 overflow-hidden break-words rounded-control border border-foreground/20 bg-surface-subtle p-3 [overflow-wrap:anywhere] sm:p-4">
+    {/* Fixed local SVG primitives; this data image does not use Next's remote image optimizer. */}
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img src={researchVisualDataUrl(rendered.svg)} width={rendered.width} height={rendered.height} alt={`${visual.title}. ${visual.items.map(item => `${item.label}: ${item.detail}`).join(visual.kind === "flow" ? " Then, " : ". ")}`} className="h-auto w-full rounded-control" />
+    <figcaption className="mt-3 space-y-2 text-sm"><p className="font-bold">{visual.title}</p><p>{visual.explanation}</p><p className="text-secondary">Editorial schematic from the cited sources. Review the interpretation against the supporting extracts.</p></figcaption>
+    <details className="mt-3 text-sm"><summary className="cursor-pointer font-bold">Diagram explanation and evidence</summary><ol className="mt-3 space-y-4">{visual.items.map((item, index) => {
+      const source = sources.find(source => source.id === item.sourceId)!;
+      return <li key={index} className="space-y-2"><p><strong>{index + 1}. {item.label}</strong> — {item.detail}</p><blockquote className="border-l-2 border-foreground/20 pl-3">{item.quote}</blockquote><ResearchMarkdown content={`[source](#${sourcePrefix}${encodeURIComponent(source.id)})`} sources={[source]} sourcePrefix={sourcePrefix} /></li>;
+    })}</ol></details>
+  </figure>;
+}
+
+export function ResearchMarkdown({ content, sources, visualSources = sources, sourcePrefix = "research-source-" }: { content: string; sources: ResearchSource[]; visualSources?: ResearchSource[]; sourcePrefix?: string }) {
+  const parts = splitResearchVisuals(content, visualSources);
+  if (parts.some(part => part.kind === "visual")) return <div className="min-w-0 space-y-5">{parts.map((part, index) => part.kind === "markdown"
+    ? <ResearchMarkdown key={index} content={part.content} sources={sources} visualSources={visualSources} sourcePrefix={sourcePrefix} />
+    : part.visual ? <ResearchFigure key={index} visual={part.visual} sources={visualSources} sourcePrefix={sourcePrefix} />
+      : <p key={index} className="text-sm text-secondary">Diagram unavailable: supporting evidence could not be validated.</p>)}</div>;
   // Relabel only legacy boilerplate in this view. Claims, saved prose and source excerpts stay intact.
   const displayContent = researchDisplayContent(content);
   const marker = "**Numeric evidence comparisons**";
   const split = displayContent.indexOf(marker);
   if (split >= 0) return <div className="min-w-0 space-y-5">
-    <ResearchMarkdown content={displayContent.slice(0, split)} sources={sources} sourcePrefix={sourcePrefix} />
-    <details className="min-w-0 rounded-control border border-foreground/20 p-4"><summary className="cursor-pointer font-bold">Check numeric evidence</summary><div className="mt-4 min-w-0"><ResearchMarkdown content={displayContent.slice(split + marker.length)} sources={sources} sourcePrefix={sourcePrefix} /></div></details>
+    <ResearchMarkdown content={displayContent.slice(0, split)} sources={sources} visualSources={visualSources} sourcePrefix={sourcePrefix} />
+    <details className="min-w-0 rounded-control border border-foreground/20 p-4"><summary className="cursor-pointer font-bold">Check numeric evidence</summary><div className="mt-4 min-w-0"><ResearchMarkdown content={displayContent.slice(split + marker.length)} sources={sources} visualSources={visualSources} sourcePrefix={sourcePrefix} /></div></details>
   </div>;
   const cited = replaceResearchCitations(displayContent, sources, source => `[source](#${sourcePrefix}${encodeURIComponent(source.id)})`);
   return <div className="prose-chat min-w-0 break-words [overflow-wrap:anywhere] [&_pre]:overflow-x-auto [&_p]:my-3 [&_ul]:my-3 [&_ol]:my-3 [&_h2]:mt-6 [&_h3]:mt-5"><ReactMarkdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]} components={{
@@ -76,7 +96,7 @@ export function ResearchContent({ brief, sourcePrefix = `research-version-${brie
       const platforms = [...new Set(citedSources.map(researchSourcePlatform))];
       return <section key={key} className="min-w-0 space-y-3 border-2 border-foreground bg-surface-raised p-4 sm:p-5">
         <div><p className="font-label text-xs uppercase text-secondary">{description}</p><h3 className="font-heading text-2xl font-bold">{title}</h3><p className="text-sm">{section?.status ?? "Not started"}</p></div>
-        {section?.content ? <ResearchMarkdown content={content} sources={[]} sourcePrefix={sourcePrefix} /> : <p className="text-sm text-secondary">No findings yet.</p>}
+        {section?.content ? <ResearchMarkdown content={content} sources={[]} visualSources={brief.sources} sourcePrefix={sourcePrefix} /> : <p className="text-sm text-secondary">No findings yet.</p>}
         {citedSources.length > 0 && <details aria-label={`${title} sources`} className="min-w-0 border-t border-foreground/15 pt-3">
           <summary className="w-fit max-w-full cursor-pointer rounded-full border border-foreground/20 bg-surface-subtle px-3 py-1.5 text-sm focus-visible:outline focus-visible:outline-2">
             <span className="inline-flex flex-wrap items-center gap-2 align-middle">

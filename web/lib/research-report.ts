@@ -3,9 +3,39 @@ import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import type { Nodes } from "mdast";
 import type { ResearchSource } from "./research";
+import { parseResearchVisual, type ResearchVisual } from "./research-visuals";
 
 const parser = unified().use(remarkParse).use(remarkGfm, { singleTilde: false });
 export function parseResearchMarkdown(content: string) { return parser.parse(content); }
+
+type ResearchPart = { kind: "markdown"; content: string } | { kind: "visual"; visual: ResearchVisual | null };
+
+/** Split generated top-level figure fences before touching prose citations. */
+export function splitResearchVisuals(content: string, sources: ResearchSource[]): ResearchPart[] {
+  const parts: ResearchPart[] = [];
+  let cursor = 0;
+  for (const node of parseResearchMarkdown(content).children) {
+    if (node.type !== "code" || node.lang !== "research-visual") continue;
+    const start = node.position!.start.offset!;
+    const end = node.position!.end.offset!;
+    if (start > cursor) parts.push({ kind: "markdown", content: content.slice(cursor, start) });
+    parts.push({ kind: "visual", visual: parseResearchVisual(node.value, sources) });
+    cursor = end;
+  }
+  if (cursor < content.length) parts.push({ kind: "markdown", content: content.slice(cursor) });
+  return parts;
+}
+
+/** Portable Markdown gets a readable text alternative, not raw figure JSON. */
+export function researchVisualText(content: string, sources: ResearchSource[]): string {
+  const plain = (value: string) => value.replace(/[\\`*_{}\[\]()<>#!|~]/gu, "\\$&");
+  return splitResearchVisuals(content, sources).map(part => {
+    if (part.kind === "markdown") return part.content;
+    if (!part.visual) return "\n\nDiagram unavailable: supporting evidence could not be validated.\n\n";
+    const figure = part.visual;
+    return `\n\n### ${plain(figure.title)}\n\nEditorial ${figure.kind === "flow" ? "process diagram (text alternative; steps in order)" : "comparison (text alternative)"}.\n\n${plain(figure.explanation)}\n\n${figure.items.map((item, index) => `${index + 1}. **${plain(item.label)}** — ${plain(item.detail)}\n\n   Supporting extract: “${plain(item.quote)}” [${item.sourceId}]`).join("\n\n")}\n\n`;
+  }).join("");
+}
 
 export function researchDisplayContent(content: string): string {
   if (!/^Unverified(?: synthesis)?:/mu.test(content)) return content;
@@ -30,7 +60,10 @@ export function prepareResearchSection(content: string, sources: ResearchSource[
     const start = node.position?.start.offset;
     const end = node.position?.end.offset;
     if (start === undefined || end === undefined) return;
-    if (node.type === "text") {
+    if (node.type === "code" && node.lang === "research-visual") {
+      const visual = parseResearchVisual(node.value, sources);
+      for (const item of visual?.items ?? []) cited.set(item.sourceId, known.get(item.sourceId)!);
+    } else if (node.type === "text") {
       eligible.fill(1, start, end);
       const raw = content.slice(start, end);
       for (const match of raw.matchAll(/\\\[[^\n]*?\\?\]|\\./gu)) {

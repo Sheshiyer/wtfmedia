@@ -2,6 +2,7 @@ import type { Definition, Nodes } from "mdast";
 import type { INumberingOptions, IParagraphOptions, IRunOptions, ParagraphChild } from "docx";
 import { RESEARCH_CHANNELS, RESEARCH_CHANNEL_LABELS, RESEARCH_EVIDENCE_LABELS, RESEARCH_SECTIONS, researchSourceLabel, researchSourcePlatform, safeResearchUrl, type ResearchBrief, type ResearchChannel, type ResearchCoverage, type ResearchSource } from "./research";
 import { parseResearchMarkdown, prepareResearchSection } from "./research-report";
+import { parseResearchVisual, researchVisualPng, type ResearchVisual } from "./research-visuals";
 
 /** Builds only the authorized report snapshot; the writer loads on download. */
 export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
@@ -19,6 +20,17 @@ export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
     const platform = researchSourcePlatform(source);
     return new Paragraph({ children: [icon(platform), new TextRun(` ${RESEARCH_CHANNEL_LABELS[platform]} · `),
       new InternalHyperlink({ anchor: `source_${sourceIndex.get(source.id)}`, children: [new TextRun({ text: `${researchSourceLabel(source)} — ${source.title}`, style: "Hyperlink" })] })] });
+  }
+  const figures = new Map<string, { visual: ResearchVisual; image: Awaited<ReturnType<typeof researchVisualPng>> }>();
+  const rawFigures = new Set<string>();
+  function collectFigures(node: Nodes) {
+    if (node.type === "code" && node.lang === "research-visual") rawFigures.add(node.value);
+    if ("children" in node) node.children.forEach(collectFigures);
+  }
+  for (const section of brief.sections) if (section.status !== "skipped") collectFigures(parseResearchMarkdown(section.content));
+  for (const raw of rawFigures) {
+    const visual = parseResearchVisual(raw, brief.sources);
+    if (visual) figures.set(raw, { visual, image: await researchVisualPng(visual) });
   }
   function markdownBlocks(markdown: string) {
     const root = parseResearchMarkdown(markdown);
@@ -53,7 +65,22 @@ export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
         switch (node.type) {
           case "paragraph": return [new Paragraph({ children: inline(node) })];
           case "heading": return [new Paragraph({ heading: [HeadingLevel.HEADING_2, HeadingLevel.HEADING_3, HeadingLevel.HEADING_4, HeadingLevel.HEADING_5, HeadingLevel.HEADING_6, HeadingLevel.HEADING_6][node.depth - 1], children: inline(node) })];
-          case "code": return node.value.split("\n").map(line => new Paragraph({ children: [new TextRun({ text: line, font: "Consolas", size: 20 })], spacing: { after: 0 } }));
+          case "code": {
+            if (node.lang === "research-visual") {
+              const figure = figures.get(node.value);
+              if (!figure) return [paragraph("Diagram unavailable: supporting evidence could not be validated.")];
+              const { visual, image } = figure;
+              return [new Paragraph({ keepNext: true, children: [new ImageRun({ type: "png", data: image.data,
+                transformation: { width: image.width, height: image.height },
+                altText: { title: visual.title, description: visual.explanation, name: "Research diagram" },
+              })] }), paragraph(visual.title, { keepNext: true }), paragraph(visual.explanation),
+                paragraph("Editorial schematic from the cited sources. Review the interpretation against the supporting extracts."),
+                ...visual.items.flatMap((item, index) => [paragraph(`Evidence ${index + 1}: ${item.label} — ${item.detail}`),
+                  paragraph(`Supporting extract: “${item.quote}”`), sourceReference(brief.sources.find(source => source.id === item.sourceId)!)]),
+              ];
+            }
+            return node.value.split("\n").map(line => new Paragraph({ children: [new TextRun({ text: line, font: "Consolas", size: 20 })], spacing: { after: 0 } }));
+          }
           case "blockquote": return blocks(node.children, depth);
           case "list": {
             const level = Math.min(depth, 8);

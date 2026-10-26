@@ -421,6 +421,45 @@ expandable sources and private follow-up. A real Word download uses the same
 cleaned report content and source links. Deletion lives in the saved-brief sidebar
 and retains owner checks, confirmation and durable erasure behavior.
 
+### Explanatory report visuals
+
+New runs attempt one editorial process diagram or comparison graphic per applicable
+section, using the existing metered Claude transport after numeric review. Each
+figure has two to four labelled steps/cards, an explanation, source IDs and
+supporting quotations. This adds at most one model request per section through the
+existing provider retry policy, within the job's existing spend ceiling. It does
+not enable GPT Researcher's image generator or introduce an image provider.
+
+`research/visuals.py` validates bounded figure specifications against retained
+page extracts, transcripts or attributed posts. Search snippets, video metadata
+and Alpha reference summaries cannot substantiate a figure. Supporting quotes
+must match the retained extract after whitespace/case normalization, and number
+tokens must occur in the associated quote. These checks validate provenance,
+not semantic entailment: editorial interpretation, units, period, geography and
+process order still need review against the displayed evidence.
+
+Figures are additive `research-visual` fences in existing section Markdown, within
+the unchanged 24,000 UTF-16-unit limit; only whole figures are inserted. Source
+IDs remain protected during subsequent research. Invalid output, absent evidence,
+provider limits or insufficient section space omit the figure with a warning and
+preserve the report prose. Cancellation still propagates. Old reports are not
+rewritten; a fresh research run is required to generate visuals.
+
+The reader and Word exporter revalidate the same specification and source quotes.
+Fixed SVG drawing primitives render escaped text as diagrams, with captions and
+expandable source evidence in the reader. Word downloads rasterize those same
+diagrams locally to embedded high-resolution PNGs, with explanations, evidence
+and source links. No source-site images, remote fonts or model-supplied SVG/HTML
+are fetched or executed. Word image-encoding failures stop the download with an
+error instead of silently dropping the image. Markdown downloads contain a
+readable text alternative. Reference documents inform the visual format only;
+their images and private contents are not stored in the repository or seeded as
+research evidence.
+
+This visual extension is local source implementation, not runtime acceptance.
+Automated tests, live research, browser rendering and Word layout checks have not
+been run for it, in accordance with the owner's request to test personally.
+
 Additional info on a newly submitted brief is processing guidance: users do not
 need a separate checkbox. The existing `notes`/`notesApproved` transport remains
 for compatibility. Only the explicit new submission sets approval; historical

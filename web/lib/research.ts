@@ -1,3 +1,5 @@
+import { researchVisualText } from "./research-report";
+
 export type ResearchStatus = "draft" | "queued" | "running" | "completed" | "partial" | "failed" | "cancelled" | "clarification" | "deleting" | "cancel_pending";
 export type ResearchSectionKey = "snacks" | "appetizers" | "main" | "desserts";
 export const RESEARCH_CHANNELS = ["web", "linkedin", "youtube", "instagram", "reddit", "x"] as const;
@@ -126,7 +128,7 @@ export function researchMarkdown(brief: ResearchBrief): string {
     `# ${brief.title}`, `Status: ${brief.status} · Revision ${brief.revision}`, `Updated: ${brief.updatedAt}`,
     ...(brief.needsResearch ? ["Previous report no longer matches the edited inputs. Retained findings and sources belong to the previous scope; run research again before using them for the new inputs."] : []),
     ...(brief.researchInput ? [`Guest: ${brief.researchInput.guestName}\n\nCompany: ${brief.researchInput.companyName}\n\nIndustry: ${brief.researchInput.industry}\n\nAudience context: India`] : []),
-    ...brief.sections.map(section => `## ${section.title}\n\nStatus: ${section.status}\n\n${replaceResearchCitations(section.content, brief.sources, source => {
+    ...brief.sections.map(section => `## ${section.title}\n\nStatus: ${section.status}\n\n${replaceResearchCitations(researchVisualText(section.content, brief.sources), brief.sources, source => {
       const url = safeResearchUrl(source.url);
       return url ? `[${quoteLabel(researchSourceLabel(source))}](${url.replace(/\(/gu, "%28").replace(/\)/gu, "%29")})` : researchSourceLabel(source);
     })}${section.failure ? `\n\n${researchFailureSummary(section.failure)}` : ""}`),

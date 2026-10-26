@@ -1,3 +1,36 @@
+## 2026-10-26 — Research visuals branch delivery
+
+- Owner requested committing and pushing all research visual changes to
+  `feature/pavun` and merging into `futures/nikhai`. Fresh fetch confirms both
+  remote branches start at `5599d2f`; delivery can fast-forward both to the same
+  new commit without merge conflicts or rewriting history.
+- Includes report diagram generation, source validation, reader rendering,
+  embedded Word images, Markdown alternatives and accompanying documentation.
+  Tests remain deferred to the owner. No deployment, migrations, credentials,
+  corpus changes or private reference files are included in this delivery.
+
+## 2026-10-26 — Research report diagrams (local source only)
+
+- On `feature/pavun`, added explanatory process diagrams and comparison graphics
+  inspired by the owner's reference report formats. Reference files/images remain
+  outside the repository and are not research evidence or provider input.
+- New runs attempt one figure per applicable section through the existing metered
+  model transport after numeric review. Bounded specifications require retained
+  source extracts and matching quotations; unsupported numeric tokens are rejected.
+  No new image provider, remote image fetching, evidence store or migration.
+- The reader displays fixed SVG images, captions and expandable evidence. Word
+  downloads embed the same figures as PNGs with explanations and linked sources;
+  Markdown gets text alternatives. Existing reports require a fresh research run
+  for visuals. Figure provenance is checked, but editorial entailment/order still
+  requires human review. Unsupported/oversized figures leave the text intact.
+- Owner requested personal testing: no tests, typecheck, build, browser checks,
+  live model calls or Word rendering performed for this change. Architecture
+  metadata regenerated. No commit, push, deployment, credentials or corpus changes.
+- Reloaded the idle localhost research worker after confirming no queued/active
+  local jobs; its existing supervisor starts the updated worker. No report launched.
+- Remaining acceptance: generate a real report, inspect diagram relevance/source
+  links at desktop/mobile sizes, download Word and review pagination/image clarity.
+
 ## 2026-10-26 — Owner-requested branch delivery
 
 - Owner accepted the local result and requested pushing all current changes to

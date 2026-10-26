@@ -18,6 +18,7 @@ from .scope import plan_scope, validate_resolution, contains_excluded_subject
 from .source_channels import CHANNELS, collect_channel, initial_coverage, platform_for_url, public_subject
 from .interview import dossier_queries, historical_sources, historical_appendix
 from .scope import filter_sources
+from .visuals import build_visual
 
 
 def state_path():
@@ -247,6 +248,9 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                     checked, warnings = validate_report(text[:16000], sources)
                     calls.stage()
                     comparisons, numeric_notes = await numeric_review(calls, text[:16000], sources)
+                    result['progress'].append(key + ': preparing evidence-backed visual')
+                    save()
+                    visual, visual_notes = await build_visual(calls, checked, sources)
                     if comparisons:
                         checked += '\n\n**Numeric evidence comparisons**\n\n' + comparisons[:5000]
                     if key == 'desserts':
@@ -263,9 +267,19 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                         checked = ('> Scope: Research excludes the unresolved ' + identity +
                                    ' and covers only the remaining supplied subjects.\n\n' + checked)
                     checked = utf16_slice(checked, 24000)
+                    # Insert whole fences before numeric-review disclosures, never slice JSON.
+                    if visual and len((checked + visual).encode('utf-16-le')) // 2 <= 24000:
+                        marker = '\n\n**Numeric evidence comparisons**'
+                        if marker in checked:
+                            before, after = checked.split(marker, 1)
+                            checked = before + visual + marker + after
+                        else:
+                            checked += visual
+                    elif visual:
+                        visual_notes.append('Visual omitted: section length limit reached.')
                     result['sections'][-1].update(content=checked, status='completed')
                     result['sections'][-1].pop('failure', None)
-                    result['warnings'].extend(warnings + numeric_notes)
+                    result['warnings'].extend(warnings + numeric_notes + visual_notes)
                     result['progress'].append(key + ': saved')
                     emit(dict(stage=key, status='completed', attempt=attempt + 1,
                               elapsedMs=int((time.monotonic() - started) * 1000),
