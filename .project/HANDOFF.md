@@ -1,3 +1,25 @@
+## 2026-10-26 — Owner-authorized staging candidate preparation
+
+- Owner requested pushing all changes to feature/pavun and deploying staging.
+  Research/web/Edge runtime source is committed as 82b64d7 and pushed.
+- Built that committed Python source with the existing locked dependencies and
+  Dockerfile for linux/amd64, without local data or environment files. Published
+  image digest ca1555b1b1434df0c527af29f14459e7969edfe025647909580bf97183b0d01a
+  is pinned in the staging research configuration.
+- Staging Edge configuration enables RESEARCH_BUDGET_POLICY_VERSION=1 for new
+  jobs. Deployment order must publish the compatible store/container and web
+  readers before the Edge flag. Existing jobs keep their recorded policy.
+- Isolated web packaging uses staging public Clerk configuration; the current
+  public sign-in key matches the configured staging issuer. No local secret env
+  file is copied. OpenNext requires its unsupported-Next-version override for
+  the existing pinned Next release; dependency upgrades are outside this task.
+- Rollback targets before this release: Edge b6ed68ac-a6c2-4f9b-95ad-e1b0239b853f,
+  Web 24f40836-70b9-41ad-874d-0b4fefb89cac, Research
+  816729d0-3fcb-4108-87a5-d7eb38f318a6 with prior image
+  e0e12e3f5142330aae14ce8616e336700e0f5fe14931e6b5549630d036d2bc62.
+- Test suites, browser automation and paid research runs remain excluded by owner
+  instruction. Deployment receipts follow publication; this entry is not acceptance.
+
 ## 2026-10-26 — Visuals as a report requirement, with retained-evidence recovery
 
 - Owner reported continued model-null diagrams. The prompt previously permitted
