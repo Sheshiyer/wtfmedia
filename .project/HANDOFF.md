@@ -1,3 +1,52 @@
+## 2026-10-26 — Interview research dossiers and one published episode
+
+- Owner requested research grounded in earlier podcast question context, using
+  the Payments panel and Hotels/Hospitality Word examples as editorial structure.
+  Source changes remain local on `feature/pavun`; this task does not deploy the
+  new research code or push the branch. The one new episode ingest was explicitly
+  authorized and completed in shared Alpha.
+- The authenticated research edge obtains a bounded published Alpha answer/source
+  projection using only the supplied public subject. Private notes, identity and
+  credentials do not cross the bridge. The identical projection is retained in
+  the durable job payload for submission retries. No second corpus or raw
+  transcript export is introduced. The runner uses historical question themes
+  in GPTR planning and writing, and retains a labelled cited appendix. These are
+  Alpha summaries, not verified verbatim questions or speaker-attribution receipts;
+  unavailable context and unresolved identities fail closed with visible limits.
+- Four compatible report slots now contain guest dossiers/timelines, industry and
+  economic comparisons, thematic deep dives, and a proposed interview sequence
+  with follow-ups. Two guest and/or four industry topic searches precede channel
+  discovery and have recovery checkpoints. Twenty is now a provider page size;
+  retention ranks relevance/extract quality within 120 current sources with a
+  small diversity floor. At most twelve separate Alpha references accompany the
+  report. Eight page extracts, existing spend limits and bounded model contexts
+  remain enforced. The Word examples inform structure, not factual evidence.
+- LIVE-VERIFIED: `YU-RrDdyx34`, published 2026-10-23, “Who’s Paying for the AI
+  Boom—and Can It Last? | WTF is AI?”, was absent from the catalogue. Downloaded
+  original English auto-captions yielded 4,576 timed segments (duration 8,937s).
+  Uploaded transcript and timestamp objects were downloaded and hash-compared
+  before registering one episode/external identity and two available source assets.
+  Canonical job admission validated the D1 receipt; exactly one job was accepted
+  by the existing Alpha queue. No credential rotation or runtime deployment.
+- Transcript SHA-256:
+  `571bc5b359a4e08332fc129a3538976daf862b9070ef98bb84614a5ebc915d70`.
+  Timestamp sidecar SHA-256:
+  `b5a2a90da84d571a1703e60548817b48f93b9ee7723c7b1b863700bc394557fb`.
+  KV v2 receipt content hash:
+  `c3a22d338612e8de27023dacf694017a7540388452020396a153cbf6098ab0ba`,
+  `chunkCount=129`, `timingOrigin=published_sidecar`. All 129 vector records
+  read back with the correct published video identity and verified native timing.
+  A scoped semantic query returned five matching passages (top score 0.7217493).
+  The live historical-context bridge through shared Alpha returned available
+  cited synthesis with six references to this exact video in about 34 seconds.
+  Only metadata was logged. Auto-captions do not establish speaker diarization.
+- VERIFIED-SOURCE: 163 Python tests, 586 full Edge tests plus the subsequently
+  added durable-context integration test (58/58 focused research tests), 112 web
+  research/Word-renderer tests, web typecheck and privacy scan (0/435) pass.
+  Real pinned GPTR tests use fake external adapters and prove planning/writing
+  context propagation; a live full research dossier/editorial quality review and
+  hosted deployment are not claimed. Architecture/diff checks accompany delivery.
+
 ## 2026-10-24 — Final Alpha and staging verification receipt
 
 - Final runtime source is `6155c2e` on `feature/pavun`, pushed after review.

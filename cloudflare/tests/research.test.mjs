@@ -59,6 +59,35 @@ test('terminal runner results save once and cannot overwrite a cancellation',asy
  const cancelled=(await(await call('GET','/'+created.id)).json()).brief;assert.equal(cancelled.status,'cancelled');assert.equal(calls,1);db.sqlite.close();
 });
 const accepted=(input,init)=>new URL(input).pathname.endsWith('/cancel')?Response.json({id:new URL(input).pathname.split('/').at(-2),status:'cancelled'}):Response.json({id:init?.body?JSON.parse(init.body).id:new URL(input).pathname.split('/').pop(),status:'queued'});
+test('Alpha historical context is acquired once and retained in the durable retry payload without private input',async()=>{
+ const db=database();let alphaCalls=0;let publicRequest;const submitted=[];
+ const env={DB:db,OPS_ENVIRONMENT:'local',RESEARCH_RUNNER_URL:'http://localhost:8091',RESEARCH_RUNNER_TOKEN:'test-runner',
+  WTFMEDIA_ALPHA_WEB:{fetch:async request=>{
+   alphaCalls++;publicRequest=await request.json();
+   assert.equal(request.headers.get('authorization'),null);
+   return new Response('Earlier discussion explored costs [1].',{headers:{
+    'x-sources':JSON.stringify([{n:1,video_id:'abcdefghijk',title:'Episode',source_mode:'published'}]),'x-cited-indices':'[1]',
+   }});
+  }}};
+ const fetchRunner=async(url,init)=>{
+  if(new URL(url).pathname==='/health')return Response.json({configured:true});
+  if(init.method==='POST'){
+   submitted.push(JSON.parse(init.body));
+   if(submitted.length===1)return new Response('',{status:503});
+   return accepted(url,init);
+  }
+  return Response.json({id:new URL(url).pathname.split('/').pop(),status:'running'});
+ };
+ const created=await handleResearch(new Request('https://e.test/beta/api/research',{method:'POST',body:JSON.stringify({title:'Hotel economics',notes:'PRIVATE_EDITORIAL_NOTE',notesApproved:true})}),env,901,{fetchRunner});
+ const {brief}=await created.json();
+ assert.equal(created.status,201);
+ assert.equal(submitted[0].historicalContext.status,'available');
+ assert.ok(!JSON.stringify(publicRequest).includes('PRIVATE_EDITORIAL_NOTE'));
+ assert.ok(!JSON.stringify(publicRequest).includes('901'));
+ await handleResearch(new Request('https://e.test/beta/api/research/'+brief.id),env,901,{fetchRunner});
+ assert.equal(alphaCalls,1);assert.deepEqual(submitted[0],submitted[1]);
+ db.sqlite.close();
+});
 test('polling is version-stable, retry payload is identical, all historical run receipts remain',async()=>{
  const db=database();let submitted=[];let unavailable=true;
  const call=client(db,async(input,init)=>{

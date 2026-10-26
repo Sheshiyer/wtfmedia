@@ -18,11 +18,16 @@ def rows(channel, count):
 
 
 class SourceBudgetTests(unittest.TestCase):
-    def test_twenty_per_channel_with_a_full_pool(self):
+    def test_report_relevance_wins_over_twenty_per_channel_quota(self):
         found = [s for c in CHANNELS for s in rows(c, 30)]
+        for s in found:
+            if platform_for_url(s['url']) == 'web':
+                s['title'] = 'Company market economics India'
         retained = merge_sources([], found, query='Company')
-        self.assertEqual(Counter(platform_for_url(s['url']) for s in retained),
-                         {c: 20 for c in CHANNELS})
+        counts = Counter(platform_for_url(s['url']) for s in retained)
+        self.assertEqual(len(retained), 120)
+        self.assertEqual(counts['web'], 30)
+        self.assertTrue(all(counts[c] >= 2 for c in CHANNELS))
 
     def test_unused_slots_transfer_to_other_channels_without_duplicates(self):
         found = rows('web', 70) + [s for c in CHANNELS[1:] for s in rows(c, 10)]
@@ -36,7 +41,7 @@ class SourceBudgetTests(unittest.TestCase):
         retained = merge_sources(existing, rows('reddit', 30), protected_ids={'src_web_119'})
         self.assertEqual(len(retained), 120)
         self.assertIn(existing[-1], retained)
-        self.assertGreaterEqual(sum(platform_for_url(s['url']) == 'reddit' for s in retained), 20)
+        self.assertGreaterEqual(sum(platform_for_url(s['url']) == 'reddit' for s in retained), 2)
 
     def test_all_saved_citations_survive_even_in_a_legacy_oversized_report(self):
         existing = rows('web', 130)
@@ -47,10 +52,10 @@ class SourceBudgetTests(unittest.TestCase):
         self.assertEqual(merge_sources([], rows('web', 3)), rows('web', 3))
         class Calls:
             def social_search(self, *_): return rows('reddit', 7)
-            def search(self, *_): return rows('reddit', 15) + rows('web', 5)
+            def search(self, *_): raise AssertionError('Do not pad a useful channel just to reach twenty.')
         found, coverage = collect_channel('reddit', {'title': 'Company'}, Calls())
-        self.assertEqual(len(found), 15)
-        self.assertEqual(coverage['sourceCount'], 15)
+        self.assertEqual(len(found), 7)
+        self.assertEqual(coverage['sourceCount'], 7)
         self.assertTrue(all(platform_for_url(s['url']) == 'reddit' for s in found))
 
     def test_supported_social_page_sizes_target_twenty(self):

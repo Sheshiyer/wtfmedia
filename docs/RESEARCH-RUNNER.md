@@ -33,9 +33,17 @@ that channel as budget-limited; it did not raise the limit or claim coverage.
 The per-call maximum header is a requested provider limit, not a guarantee of
 upstream billing. Review this discrepancy before expanding live acceptance.
 
-Source retention targets 20 sources per channel across six channels (120 total).
-Unused slots are shared across channels with additional evidence, ranked against
-the public research scope. This is a ceiling, not a promise of 120 relevant results.
+Source retention uses a 120-source current-evidence ceiling, with a two-source
+diversity floor per available channel and remaining slots ranked by report relevance
+and extract quality. Twenty is a provider page size, not a quota. Two guest topics
+and/or four industry topics are searched before the six channel probes; recovery
+checkpoints each topic. The report follows interview-dossier needs rather than hit counts.
+Up to twelve separate Alpha episode references can accompany the historical appendix.
+The edge obtains this bounded public synthesis through the existing published Alpha
+chat contract; private notes and owner identity never cross that bridge. The runner
+has no Alpha corpus credentials or raw transcript access. Historical synthesis informs
+research planning and proposed follow-ups, never current-fact validation or verified
+verbatim/speaker claims. Missing context is disclosed and narrowed identity scope drops it.
 Sources cited in completed sections, including numeric comparisons, are never
 evicted; legacy reports with more than 120 protected sources remain readable.
 Larger evidence sets are read in bounded synthesis batches with original source

@@ -12,7 +12,7 @@ TIERS = {
     'snacks': ('Guest profile', 'Who the guest is: expanded background, career, major decisions, public views and documented leadership traits. Do not invent personality judgments.'),
     'appetizers': ('Company and industry', 'Company strategy, products, competitors, industry economics, market size and GDP contribution where supported, related industries, regulation and barriers. Distinguish global and Indian figures.'),
     'main': ('Industry positioning and opportunities', 'Competitive positioning, market gaps, skills, employment and supply chains. Explain realistic opportunities for a 20–24-year-old in India, requirements, risks and constraints without assuming the company will create local jobs.'),
-    'desserts': ('Takeaways and interview preparation', 'Biggest takeaway, outlook, and 8–12 tailored interview questions with follow-ups grounded in the full report. Cover guest decisions, company and industry, and relevant gaps, jobs and entrepreneurship for Indian listeners.'),
+    'desserts': ('Takeaways and interview preparation', 'Biggest takeaway, outlook, and a thematic sequence of 12–18 proposed interview questions when evidence supports that depth, with follow-ups grounded in the full report. Cover guest decisions, company and industry, and relevant gaps, jobs and entrepreneurship for Indian listeners.'),
 }
 
 
@@ -127,6 +127,36 @@ class Section(DTO):
         return self
 
 
+class HistoricalSource(Source):
+    citationNumber: int = Field(ge=1, le=100)
+    kind: Literal['alpha_reference'] = 'alpha_reference'
+    excerpt: Literal[''] = ''
+
+    @model_validator(mode='after')
+    def alpha_reference(self):
+        if not re.fullmatch(r'https://www\.youtube\.com/watch\?v=[A-Za-z0-9_-]{11}', self.url):
+            raise ValueError('expected canonical Alpha episode reference')
+        if self.evidenceType is not None:
+            raise ValueError('historical synthesis is not transcript evidence')
+        return self
+
+
+class HistoricalContext(DTO):
+    status: Literal['available', 'unavailable']
+    summary: str = Field(max_length=6000)
+    sources: list[HistoricalSource] = Field(max_length=12)
+
+    @model_validator(mode='after')
+    def consistent(self):
+        if self.status == 'available' and (not self.summary.strip() or not self.sources):
+            raise ValueError('historical context requires public citations')
+        if self.status == 'unavailable' and (self.summary or self.sources):
+            raise ValueError('unavailable context must be empty')
+        if len({s.id for s in self.sources}) != len(self.sources) or len({s.citationNumber for s in self.sources}) != len(self.sources):
+            raise ValueError('duplicate historical citation')
+        return self
+
+
 class Context(DTO):
     researchInput: ResearchInput | None = None
     notes: str = Field(default='', max_length=12000)
@@ -144,6 +174,7 @@ class Context(DTO):
 
 
 class JobInput(Context):
+    historicalContext: HistoricalContext | None = None
     schemaVersion: Literal[2] | None = None
     id: str
     title: str = Field(min_length=2, max_length=400)
@@ -193,7 +224,7 @@ def section_spec(body, key):
                 'regulation and barriers. Distinguish global and Indian figures. Do not invent a focal company or guest.')
     if key == 'main':
         return TIERS[key]
-    return (TIERS[key][0], 'Takeaways, outlook and 8–12 interview questions with follow-ups about only the supplied '
+    return (TIERS[key][0], 'Takeaways, outlook and a thematic sequence of proposed interview questions with follow-ups about only the supplied '
             'subjects. For a guest-only request focus on that person; for company/industry-only requests ask '
             'questions about that scope without inventing a guest or biographical section.')
 

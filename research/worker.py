@@ -16,6 +16,8 @@ from .store import BudgetExceeded, Stopped
 from .diagnostics import emit, failure
 from .scope import plan_scope, validate_resolution, contains_excluded_subject
 from .source_channels import CHANNELS, collect_channel, initial_coverage, platform_for_url, public_subject
+from .interview import dossier_queries, historical_sources, historical_appendix
+from .scope import filter_sources
 
 
 def state_path():
@@ -163,10 +165,33 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
             state['searchScope'] = scope
         result['clarification'] = None
         body = {**body, 'searchScope': scope}
+        if excluded:
+            body = {**body, 'historicalContext': None}
+        history = body.get('historicalContext')
+        if not history or history.get('status') != 'available':
+            result['warnings'].append('Earlier episode question context unavailable; no historical question or speaker attribution is assumed.')
+        else:
+            result['warnings'].append('Earlier episode context is Alpha public synthesis, not verified verbatim questions; confirm speakers and wording in the linked episodes.')
         calls.scope = scope
         if scope.get('dateFrom') or scope.get('dateTo'):
             result['warnings'].append(f"Publication-date filter: {scope.get('dateFrom') or 'any start'} through {scope.get('dateTo') or 'today'}. Undated and out-of-range sources are excluded; report figures must also refer to the requested period.")
 
+        # Topic coverage precedes social discovery; checkpoints prevent replay after restart.
+        queries = dossier_queries(body)
+        for index in range(state.get('dossier_index', 0), len(queries)):
+            calls.stage()
+            try:
+                found = filter_sources(await asyncio.to_thread(calls.search, queries[index]), scope)
+                protected = {c for s in result['sections'] for c in re.findall(r'\b((?:src_|alpha_)[A-Za-z0-9_-]+)\b', s.get('content', ''))}
+                result['sources'] = merge_sources(result['sources'], found, protected_ids=protected, query=queries[index])
+                if not found:
+                    result['warnings'].append(f'Dossier topic {index + 1}: no matching evidence returned; report must identify the gap.')
+            except (ProviderError, ValueError, BudgetExceeded) as error:
+                result['warnings'].append(f'Dossier topic {index + 1}: search unavailable; coverage is incomplete.')
+                emit(dict(status='failed', **failure(error, 'discovery')))
+            state['dossier_index'] = index + 1
+            result['progress'].append(f'Dossier topic {index + 1}/{len(queries)} checked')
+            save()
         # Each channel has a durable checkpoint and calls have idempotent receipts.
         for index in range(state.get('channel_index', 0), len(CHANNELS)):
             calls.stage()
@@ -175,7 +200,7 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
             save()
             found, coverage = await asyncio.to_thread(collect_channel, channel, body, calls)
             protected = {citation for section in result['sections'] if section.get('status') == 'completed'
-                         for citation in re.findall(r'\b(src_[A-Za-z0-9_-]+)\b', section.get('content', ''))}
+                         for citation in re.findall(r'\b((?:src_|alpha_)[A-Za-z0-9_-]+)\b', section.get('content', ''))}
             result['sources'] = merge_sources(result['sources'], found, protected_ids=protected, query=public_subject(body))
             result['coverage'][index] = coverage
             state['channel_index'] = index + 1
@@ -224,6 +249,13 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                     comparisons, numeric_notes = await numeric_review(calls, text[:16000], sources)
                     if comparisons:
                         checked += '\n\n**Numeric evidence comparisons**\n\n' + comparisons[:5000]
+                    if key == 'desserts':
+                        # These references support only the labelled Alpha summary, never current claims.
+                        appendix = historical_appendix(history)
+                        checked = utf16_slice(checked, 24000 - len(appendix.encode('utf-16-le')) // 2) + appendix
+                        refs = historical_sources(history)
+                        # Keep distinct reference identities even if discovery found the same video URL.
+                        result['sources'] = [s for s in result['sources'] if s['id'] not in {r['id'] for r in refs}] + refs
                     if excluded and key == next(k for k in TIERS if section_spec(body, k) is not None):
                         names = {'guestName': 'guest', 'companyName': 'company', 'industry': 'industry'}
                         disputed = state['resolution']['ambiguousFields']

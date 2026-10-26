@@ -7,7 +7,9 @@ from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
 from .contracts import Source, safe_url, utf16_slice
-from .source_channels import CHANNELS, SOURCES_PER_CHANNEL, platform_for_url
+from .source_channels import CHANNELS, platform_for_url
+
+MAX_RETAINED_SOURCES = 120
 
 CITATION = re.compile(r'\[([A-Za-z0-9_-]{1,100})\]')
 NUMBER = re.compile(r'(?<![\w])\d[\d,]*(?:\.\d+)?%?')
@@ -43,7 +45,7 @@ def normalize_results(payload):
 
 
 def merge_sources(existing, incoming, *, protected_ids=(), query=None):
-    """Balance a 120-source pool without replacing or evicting saved citations."""
+    """Retain relevant evidence within a ceiling, not a twenty-per-platform quota."""
     protected_ids = set(protected_ids)
     by_url = {s['url']: s for s in existing}
     ids = {s['id'] for s in existing}
@@ -62,25 +64,26 @@ def merge_sources(existing, incoming, *, protected_ids=(), query=None):
         by_url[source['url']] = source
         ids.add(source['id'])
     sources = list(by_url.values())
-    total = SOURCES_PER_CHANNEL * len(CHANNELS)
+    total = MAX_RETAINED_SOURCES
     if len(sources) <= total:
         return sources
     selected = {s['id'] for s in sources if s['id'] in protected_ids}
     terms = set(re.findall(r'\w{3,}', (query or '').lower()))
     ranked = sorted(sources, key=lambda s: (
-        supports(s), len(terms & set(re.findall(r'\w{3,}', (s['title'] + ' ' + s['excerpt']).lower())))
+        supports(s), len(terms & set(re.findall(r'\w{3,}', (s['title'] + ' ' + s['excerpt']).lower()))),
+        s.get('kind') == 'page_extract'
     ), reverse=True)
     pools = {c: [s for s in ranked if platform_for_url(s['url']) == c and s['id'] not in selected]
              for c in CHANNELS}
     for channel, pool in pools.items():
         used = sum(s['id'] in selected and platform_for_url(s['url']) == channel for s in sources)
-        for _ in range(min(max(0, SOURCES_PER_CHANNEL - used), len(pool), max(0, total - len(selected)))):
+        for _ in range(min(max(0, 2 - used), len(pool), max(0, total - len(selected)))):
             selected.add(pool.pop(0)['id'])
-    # Share unused slots across channels that still have relevant evidence.
-    while len(selected) < total and any(pools.values()):
-        for pool in pools.values():
-            if pool and len(selected) < total:
-                selected.add(pool.pop(0)['id'])
+    # A small diversity floor; remaining capacity follows report relevance and evidence quality.
+    for source in ranked:
+        if len(selected) >= total:
+            break
+        selected.add(source['id'])
     # Stable ordering lets unchanged evidence batches reuse their summaries.
     return [s for s in sources if s['id'] in selected]
 

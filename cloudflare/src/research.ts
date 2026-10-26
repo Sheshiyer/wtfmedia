@@ -1,7 +1,9 @@
 import type { DB } from './db.ts';
+import { readAlphaInterviewContext } from './research-alpha.ts';
+import type { AlphaGatewayEnvironment } from './chat/alpha-gateway.ts';
 import { boundedText, bounded, sectionsValid, projectSections, parseResearchInput, researchTitle, resultMetadata, validatedResult, ResearchError, type ResearchDocument } from './research-contract.ts';
 import { researchAvailable, researchRunner, deleteResearchRun, type ResearchRunnerEnv } from './research-runner.ts';
-type Env = ResearchRunnerEnv & {
+type Env = ResearchRunnerEnv & AlphaGatewayEnvironment & {
     DB: DB;
 };
 type Row = {
@@ -96,7 +98,9 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
             throw new ResearchError(400, 'invalid_request');
         const skipClarification = input.skipClarification ?? doc.skipClarification ?? false;
         const runId = 'rrun_' + crypto.randomUUID();
-        const payload = { id: runId, title: doc.title, ...(doc.researchInput ? { schemaVersion: 2, researchInput: doc.researchInput } : {}), notes: doc.notes, notesApproved: doc.notesApproved, section: null, skipClarification, clarification: input.clarification ?? null, sections: [], sources: [], budgetMicro: 5000000 };
+        // Only the supplied public subject crosses to Alpha; notes and identity never do.
+        const historicalContext = await readAlphaInterviewContext(env, doc.researchInput ? researchTitle(doc.researchInput) : doc.title, doc.episodeId);
+        const payload = { id: runId, title: doc.title, ...(doc.researchInput ? { schemaVersion: 2, researchInput: doc.researchInput } : {}), historicalContext, notes: doc.notes, notesApproved: doc.notesApproved, section: null, skipClarification, clarification: input.clarification ?? null, sections: [], sources: [], budgetMicro: 5000000 };
         // Diagnostics describe one run, never today's configuration applied to old work.
         const next = { ...doc, skipClarification, status: 'queued', progress: [], warnings: [], clarification: null };
         delete next.coverage;

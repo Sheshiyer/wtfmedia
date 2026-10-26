@@ -57,6 +57,20 @@ class RecordingCalls:
 
 @unittest.skipUnless(installed(), 'install research/requirements.lock for real GPTR compatibility check')
 class GPTRCompatibilityTests(unittest.TestCase):
+    def test_historical_question_context_reaches_planner_and_writer_as_editorial_data(self):
+        from research.gptr import GPTREngine
+        from research.tests.test_interview import history
+        calls = RecordingCalls()
+        body = dict(title='Example founder', sections=[], historicalContext=history())
+        output, sources = asyncio.run(GPTREngine(calls).tier(body, 'desserts', 'Interview preparation', []))
+        self.assertIn('[src_1]', output)
+        planning = [m for m in calls.models if 'Write the ' not in m and 'Extract findings' not in m]
+        writing = [m for m in calls.models if 'Write the ' in m]
+        self.assertTrue(any('A discussion explored costs' in m for m in planning))
+        self.assertTrue(any('historicalEditorialContext' in m for m in writing))
+        self.assertTrue(any('not a verbatim transcript' in m for m in writing))
+        self.assertTrue(all(s['kind'] != 'alpha_reference' for s in sources))
+
     def test_summary_truncation_has_one_larger_retry_not_eight_section_retries(self):
         from pathlib import Path
         import tempfile
