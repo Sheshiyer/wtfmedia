@@ -4,7 +4,6 @@ import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, before, describe, test } from "node:test";
-import { fileURLToPath } from "node:url";
 
 import {
   extractGuestAndShow,
@@ -20,7 +19,7 @@ import {
 } from "../src/ingest/youtube-adapter.ts";
 import { syncYouTubeChannels } from "../src/scheduled.ts";
 
-const root = fileURLToPath(new URL("..", import.meta.url));
+const root = new URL("..", import.meta.url).pathname;
 const persistTo = mkdtempSync(join(tmpdir(), "wtfmedia-youtube-test-"));
 const database = join(persistTo, "youtube_test.sqlite");
 const migrations = [

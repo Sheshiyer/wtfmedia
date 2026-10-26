@@ -48,8 +48,8 @@ export function AppRail({
   disclosureGroups,
 }: AppRailProps) {
   const pathname = usePathname() ?? "/";
-  const utilityHrefs = new Set(["/beta/workspace", "/beta/workspace/production", "/beta/workspace/episodes", "/beta/social-analytics", "/social-analytics", "/beta/settings"]);
-  const utilityOrder = ["/beta/workspace", "/beta/workspace/production", "/beta/workspace/episodes", "/beta/social-analytics", "/social-analytics", "/beta/settings"];
+  const utilityHrefs = new Set(["/beta/workspace", "/beta/workspace/episodes", "/beta/settings"]);
+  const utilityOrder = ["/beta/workspace", "/beta/workspace/episodes", "/beta/settings"];
   const utilityNavigation = navigation
     .filter((item) => item.section === "administration" || utilityHrefs.has(item.href))
     .sort((a, b) => {
@@ -68,7 +68,7 @@ export function AppRail({
   const disclosureNavigation = mode === "operator"
     ? [...primaryNavigation, ...utilityNavigation]
     : mode === "public"
-      ? [...primaryNavigation, ...utilityNavigation.filter((item) => item.href === "/social-analytics")]
+      ? primaryNavigation
       : primaryNavigation;
   const resolvedBottomNavigation = bottomNavigation ?? primaryNavigation;
   const hideBottomDock = shouldHideBottomDock(mode, pathname);
@@ -200,7 +200,7 @@ export function AppRail({
           {mode === "public" && (pathname === "/" || pathname === "/chat") ? (
             // eslint-disable-next-line @next/next/no-html-link-for-pages -- deliberate full reload: starts a new chat
             <a
-              href="/"
+              href="/chat"
               aria-label="WTF OS"
               className="shrink-0 rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
             >

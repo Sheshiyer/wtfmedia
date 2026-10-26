@@ -169,7 +169,7 @@ export function OperatorAuthFrame({
         />
         <header className="relative z-10 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5">
           <Link
-            href="https://wtfhq.in"
+            href="/chat"
             aria-label="return to public wtf os"
             className="inline-flex rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
           >
@@ -198,7 +198,7 @@ export function OperatorAuthFrame({
                 <>
                   <WtfMotionList items={copy.proof} surface="light" />
                   <Link
-                    href="https://wtfhq.in"
+                    href="/chat"
                     className="mt-8 inline-flex min-h-11 items-center border-b-2 border-knowledge font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-knowledge"
                   >
                     return to public alpha ↗
@@ -242,7 +242,7 @@ export function OperatorAuthFrame({
       <div className="relative mx-auto grid min-h-screen w-full max-w-[1240px] items-center gap-8 px-4 py-6 sm:px-6 sm:py-10 lg:grid-cols-[minmax(0,1fr)_minmax(360px,440px)] lg:gap-20 lg:px-12">
         <section className="max-w-xl" aria-labelledby="operator-auth-title">
           <Link
-            href="/"
+            href="/chat"
             aria-label="return to wtf os"
             className="inline-flex rounded-control focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-canvas focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
           >
@@ -264,7 +264,7 @@ export function OperatorAuthFrame({
           <WtfMotionList items={copy.proof} />
           <div className="mt-8 border-t border-on-structure/30 pt-5">
             <a
-              href="https://wtfhq.in"
+              href="/chat"
               className="inline-flex border border-on-structure/50 px-2 py-1 font-label text-[10px] font-bold uppercase tracking-[0.12em] transition-colors hover:border-on-structure hover:bg-canvas hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-canvas focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
             >
               public alpha

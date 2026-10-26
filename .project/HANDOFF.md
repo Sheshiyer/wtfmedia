@@ -1,3 +1,53 @@
+## 2026-10-26 — Owner-requested branch delivery
+
+- Owner accepted the local result and requested pushing all current changes to
+  `feature/pavun` and merging them into `futures/nikhai`. Both remote tips were
+  `0decb12` before delivery, so one new commit can fast-forward both branches
+  without another merge conflict or history rewrite.
+- Delivery includes the requested login entry/public Ask WTF navigation,
+  signed-in Production/Social Media links, Social Media page 404 correction,
+  Production migration compatibility fix, and removal of unrelated incoming
+  test/tooling changes. Local environment files remain ignored and untracked.
+- No tests rerun at the owner's request. Architecture metadata is regenerated
+  for the final source. This is source delivery, not application deployment;
+  the separately authorized staging migration receipt is recorded below.
+
+## 2026-10-26 — Social Media page 404 correction
+
+- Removed the duplicate frontend feature-flag `notFound()` check from
+  `/beta/social-analytics`. The common Beta admission/capability gate remains;
+  the backend retains its integration availability and authorization checks.
+  This aligns the page with the signed-in navigation. Local source change only;
+  no tests, push or deployment, per the owner's current instructions.
+
+## 2026-10-26 — Local navigation and entry-flow correction
+
+- Owner requested visible signed-in Social Media and Production navigation,
+  a login entry at `/`, and Ask WTF as the only signed-out workspace. Root
+  defaults to `/sign-in`; the existing server-verified signed-in redirect to
+  `/beta` remains. Public Ask WTF stays at `/chat` with a single workspace link
+  and sign-in utility. Auth-frame return links point to `/chat`.
+- Added Production to the operator menu under its existing `production:read`
+  capability. Social Media remains under `analytics:read`; removed its separate
+  client-build visibility switch. Both appear in the operator workspace nav.
+  Existing member/operator permissions and backend feature gates remain intact.
+  Old public Connections, Episodes and Social Media page URLs enter their
+  authenticated Beta destinations rather than displaying signed-out workspaces.
+- Owner explicitly requested no further testing. These navigation edits have
+  not been tested or pushed; prior check results do not cover this change.
+- Earlier scope cleanup restored ten unrelated test/tooling files to Pavun
+  `0d28392`. Login source had not changed in the merge; localhost lacked its
+  Clerk publishable key. Restored only the matching public staging key in the
+  ignored frontend config and restarted the local services. No secret key was
+  copied, rotated or committed.
+- Owner-authorized staging migrations 0025–0028 are now applied. The first
+  attempt failed on D1's GLOB pattern limit and left no Production tables or
+  migration receipts. The equivalent bounded hex check was corrected; retry
+  receipts and new columns were read back, with nine IP categories, zero items
+  and zero source cells. Recovery bookmark before migration:
+  `000001d9-00000000-00005110-426c55197d1b4b4c29a05346137e590e`.
+  No private workbook import or application deployment was performed.
+
 ## 2026-10-26 — Production merged into the shared Beta flow
 
 - Owner requested the Production feature from `futures/nikhai` (the actual

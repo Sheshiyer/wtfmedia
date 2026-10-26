@@ -1,7 +1,7 @@
 import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { isBetaDestinationVisible } from "@/lib/beta/navigation";
-import { BETA_PRODUCTION_HOSTNAME, normalizedRequestHostname, betaRootRedirectForHost } from "@/lib/beta/hosts";
+import { BETA_PRODUCTION_HOSTNAME, normalizedRequestHostname } from "@/lib/beta/hosts";
 import { legacyAuthenticatedChatConversationId } from "@/lib/ops/chat-route";
 import { maybeLocalDevOpsHeaders } from "@/lib/ops/local-dev-headers";
 
@@ -9,14 +9,16 @@ const recoveryPaths = new Set(["/ops/recover", "/sign-in", "/request-access", "/
 
 async function routeMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  if (pathname === "/") return NextResponse.redirect(new URL("/sign-in", request.url));
+  // Non-chat workspaces enter the existing Beta admission gate, including in
+  // local development where Clerk verification happens in the browser/Edge.
+  const privateDestination = pathname === "/connections" ? "/beta/connections"
+    : pathname === "/social-analytics" ? "/beta/social-analytics"
+    : pathname === "/episodes" || pathname.startsWith("/episodes/") ? "/beta/workspace/episodes"
+    : null;
+  if (privateDestination) return NextResponse.redirect(new URL(privateDestination, request.url));
   if (normalizedRequestHostname(request.nextUrl.hostname) === BETA_PRODUCTION_HOSTNAME && !isBetaDestinationVisible(pathname, "production")) {
     return NextResponse.redirect(new URL("/beta/chat", request.url));
-  }
-  const betaRoot = betaRootRedirectForHost(request.nextUrl.hostname, pathname);
-  if (betaRoot) {
-    const target = request.nextUrl.clone();
-    target.pathname = betaRoot;
-    return NextResponse.redirect(target);
   }
   const legacyConversationId = legacyAuthenticatedChatConversationId(pathname);
   if (legacyConversationId) {
@@ -77,7 +79,7 @@ async function routeMiddleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/ops/:path*", "/api/ops/:path*", "/beta/:path*", "/chat/:path*", "/sign-in/:path*", "/sign-up/:path*", "/request-access"],
+  matcher: ["/", "/ops/:path*", "/api/ops/:path*", "/beta/:path*", "/chat/:path*", "/episodes/:path*", "/connections", "/social-analytics", "/sign-in/:path*", "/sign-up/:path*", "/request-access"],
 };
 
 const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim();

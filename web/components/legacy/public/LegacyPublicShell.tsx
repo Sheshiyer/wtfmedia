@@ -10,9 +10,6 @@ import { WordmarkMini } from "@/components/Wordmark";
  */
 
 const nav = [
-  { href: "/", label: "Control Room" },
-  { href: "/episodes", label: "Episodes" },
-  { href: "/connections", label: "Connections" },
   { href: "/chat", label: "Ask WTF" },
 ];
 
@@ -23,7 +20,7 @@ export function LegacyPublicShell({ children }: { children: React.ReactNode }) {
 
       <header className="sticky top-0 z-50 border-b-2 border-ink bg-cream/85 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
-          <Link href="/" data-cursor="home" className="shrink-0">
+          <Link href="/chat" data-cursor="home" className="shrink-0">
             <WordmarkMini />
           </Link>
           <nav className="flex items-center gap-1 sm:gap-2">
