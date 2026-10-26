@@ -1,3 +1,32 @@
+## 2026-10-26 — Staging deployment receipt: research report visuals
+
+- Owner-authorized staging candidate `82224ba2cb63ac7c36e63791121753592558acff`
+  deployed. Web/Edge/research application source is unchanged from the successful
+  `5f0ecad` build; the candidate adds the pinned research image and documentation.
+- All three deployed versions read back at 100% traffic:
+  Edge `b6ed68ac-a6c2-4f9b-95ad-e1b0239b853f`,
+  Web `24f40836-70b9-41ad-874d-0b4fefb89cac`,
+  Research `1f02701e-9b34-4a23-b316-4777faf04bbe`.
+  Container application version 9 reports ready and the exact pinned image
+  `e0e12e3f5142330aae14ce8616e336700e0f5fe14931e6b5549630d036d2bc62`.
+- Readback confirms all 26 Edge, 10 Web and 10 Research bindings plus runtime
+  settings are unchanged. Web retains the staging Edge binding and the existing
+  `beta-staging.wtfhq.in` Custom Domain. No production/shared Alpha deployment,
+  database migration, credential rotation or new scheduled task occurred.
+- Public research URL: `https://beta-staging.wtfhq.in/beta/research`.
+  Start a new report to generate figures; existing reports remain unchanged.
+- Deployment packaging included Next's lint/type validation, isolated public
+  staging Clerk identity verification and locked container dependencies. Owner
+  explicitly requested no computer/UI testing: no browser acceptance matrix,
+  Word visual checks, test suites or live research/model jobs were run. Version,
+  binding, image and traffic readback prove publication, not editorial acceptance.
+- Rollback targets: Edge `181597c7-7196-49a1-96b7-43544ebf42b2`, Web
+  `2c07fdac-0752-4a57-9a36-bf7a0453f3e1`, Research
+  `e467a19f-acaa-4c41-b993-adbf037634ef` with prior image
+  `f2f94dae049046a6eb7244cb2eb5a6dd6a949ee4274a31af42839b5dbc5587f8`.
+  Preserve Durable Object state and secrets during any rollback; never delete
+  namespaces. This documentation receipt does not change the deployed candidate.
+
 ## 2026-10-26 — Staging research image prepared
 
 - Built the committed `5f0ecad` research source with its unchanged Dockerfile and
