@@ -1,3 +1,21 @@
+## 2026-10-26 — Staging research image prepared
+
+- Built the committed `5f0ecad` research source with its unchanged Dockerfile and
+  hash-locked dependencies for `linux/amd64`, using Wrangler's prescribed
+  `--provenance=false` format. Published and pinned digest
+  `e0e12e3f5142330aae14ce8616e336700e0f5fe14931e6b5549630d036d2bc62`.
+  The first upload with Docker's default attestation manifest failed; the
+  compatible-format retry succeeded. No private state or local env files enter
+  the archived build context.
+- Docker Desktop was installed with owner approval; direct app installation
+  avoided Homebrew's administrator-only system symlink step. Engine is running.
+- Isolated OpenNext build (including its lint/type checks), compiled staging
+  Clerk identity check and Edge/Web packaging completed. No test suites, browser
+  checks or live research jobs run. Owner reiterated no computer/UI testing.
+- The only runtime change after `5f0ecad` is the research image pin. Existing
+  durable namespaces, secrets and staging database remain in place. Deployment
+  version receipts follow separately after publication.
+
 ## 2026-10-26 — Staging build preparation
 
 - Owner authorized staging deployment and installing Docker Desktop for the
