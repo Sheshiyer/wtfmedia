@@ -1,3 +1,33 @@
+## 2026-10-26 — Analytics-only production candidate prepared and authorized
+
+- Owner requested only YouTube Analytics and Social Analytics on wtfhq.in,
+  then explicitly approved production migration 0024 and adding the existing
+  local ZERNIO_API_KEY to production Edge. No key rotation or account connection
+  changes are included. Research and Production Calendar are excluded.
+- Live rollback targets: apex Web e0a702a0-a19b-4445-9473-335c8fa539af;
+  Edge b0b59cfc-7152-4dcd-b606-5bcbb58fb3de. Internal Alpha Web is unchanged.
+- The downloaded live Edge code matches the recorded baseline hash
+  22ec8afd3d8f10d8addea95c2fff06432375344d6c526214b45d5c73012a2327.
+  The release builder adds an isolated analytics module, social policy/dispatch
+  after existing admission/CSRF checks, and the current YouTube assistant. Reversing
+  those replacements restores the baseline byte-for-byte. Initial artifact hash:
+  e5faca8f3e488e2e854bccd1025029f3f68f14a263d14ab9d5c3602dac8aa435.
+- Frontend is reconstructed from the recorded production analytics ancestor
+  ded0b4c, retaining its non-analytics application. Later production analytics
+  connection/layout fixes are included through the current analytics assets.
+  The detached historical production commits are unavailable in this checkout;
+  this is a source-lineage reconstruction, not a byte-identical Web baseline claim.
+  New Social Analytics files and bounded navigation, capability and image-host
+  adaptations are listed by scripts/prepare-production-analytics.mjs.
+- Production already has migrations through 0022 and Google/Anthropic settings.
+  Only 0024 adds three social tables; Research migration 0023 and calendar
+  migrations are excluded from the separate migration directory. A migration
+  receipt/recovery bookmark and runtime receipts follow execution.
+- Isolated OpenNext build (with its built-in lint/types) and Edge packaging
+  succeeded. Production public Clerk identity matches clerk.wtfhq.in. No test
+  suites, browser automation, model calls or provider analytics queries were run.
+  Changes remain on feature/pavun; no new delivery branch is created.
+
 ## 2026-10-26 — Staging deployment receipt: research reliability and visual recovery
 
 - Owner-requested changes pushed to feature/pavun. Exact deployed candidate:

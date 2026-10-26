@@ -44,7 +44,7 @@ for (const role of ["member", "admin"] as const) {
       await authenticate(page, role, environment);
       await page.goto("/beta/settings");
       const nav = await openNavigation(page);
-      const visible = environment !== "production";
+      const visible = true;
       await expect(nav.getByRole("link", { name: "youtube analytics", exact: true })).toHaveCount(visible ? 1 : 0);
       await page.goto("/beta/analytics");
       await expect(page.locator('iframe[src*="analytics-demo"]')).toHaveCount(visible ? 1 : 0);

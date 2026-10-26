@@ -56,7 +56,6 @@ export function audienceForRole(role: string): BetaAudience {
 }
 
 export function isBetaDestinationVisible(href: string, environment: string): boolean {
-  // Social Media uses the principal's analytics capability and the backend's
-  // service configuration, not a separate client-build visibility switch.
-  return environment !== "production" || !["/beta/analytics", "/beta/settings/workspace/analytics"].includes(href.replace(/\/$/, ""));
+  // Both analytics workspaces are released; the principal and Edge enforce access.
+  return href.startsWith("/beta") && ["local", "staging", "production"].includes(environment);
 }
