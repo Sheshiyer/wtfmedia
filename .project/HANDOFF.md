@@ -1,3 +1,33 @@
+## 2026-10-26 — Staging deployment receipt: research reliability and visual recovery
+
+- Owner-requested changes pushed to feature/pavun. Exact deployed candidate:
+  f3394a461f63a1aa96337e3ae8f95e9d2f3d5c98; runtime source is 82b64d7,
+  followed only by the pinned image and documentation/architecture checkpoint.
+- Deployed versions read back at 100% traffic:
+  Edge e13c0fdd-30b9-46de-810f-d4fa8cb101f5,
+  Web b0aef305-da90-43ef-a7ca-de5111342a99,
+  Research 1df3de38-a1da-4933-82d2-ef43f8d25749.
+- Detailed container info confirms application version 10 and image
+  ca1555b1b1434df0c527af29f14459e7969edfe025647909580bf97183b0d01a,
+  no health errors or failed instances. The aggregate containers-list endpoint
+  briefly returned the previous version/image; the specific application readback
+  confirms the published configuration. No paid research job was initiated.
+- All prior 26 Edge, 10 Web and 10 Research bindings and runtime settings are
+  unchanged. Edge has one new plain-text binding: RESEARCH_BUDGET_POLICY_VERSION=1.
+  New staging jobs use policy 1; existing jobs retain their recorded policy.
+  Web binds only to staging Edge and retains beta-staging.wtfhq.in. Live public
+  sign-in and compiled assets both contain the expected staging Clerk identity.
+- Isolated OpenNext deployment build completed, including built-in lint/types.
+  No test suites, browser acceptance, Word visual checks or live model probes were
+  run, per owner preference. Publication receipts are not editorial acceptance.
+- Public test URL: https://beta-staging.wtfhq.in/beta/research . Refresh saved
+  completed reports for evidence-map/table presentation; new reports use the
+  revised generation and budget behavior. No saved report was rewritten.
+- No production/shared Alpha deployment, secret rotation, database migration or
+  new scheduled task. Rollback targets are in the immediately preceding candidate
+  entry. Disable new policy-1 submissions before rolling back admission/store code;
+  preserve Durable Object data and secrets, and never delete namespaces.
+
 ## 2026-10-26 — Owner-authorized staging candidate preparation
 
 - Owner requested pushing all changes to feature/pavun and deploying staging.
