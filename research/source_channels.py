@@ -183,6 +183,8 @@ def collect_channel(channel, body, calls):
                     method = 'web_search'
                 found = list({s['url']: s for s in found + supplemental}.values())
             except (ProviderError, ValueError, BudgetExceeded) as error:
+                if isinstance(error, BudgetExceeded):
+                    calls.discovery_error = error
                 if not found:
                     raise
                 emit(dict(status='failed', channel=channel, **failure(error, 'discovery')))
@@ -190,7 +192,8 @@ def collect_channel(channel, body, calls):
             found = [s for s in found if platform_for_url(s['url']) == channel]
         return found, dict(channel=channel, status='found' if found else 'no_results',
                            sourceCount=len(found), method=method)
-    except BudgetExceeded:
+    except BudgetExceeded as error:
+        calls.discovery_error = error
         emit(dict(stage='discovery', channel=channel, status='failed', code='budget_exhausted'))
         return [], dict(channel=channel, status='budget_limited', sourceCount=0, method=method)
     except (ProviderError, ValueError) as error:

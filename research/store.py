@@ -7,6 +7,7 @@ import time
 from contextlib import contextmanager
 from pathlib import Path
 from uuid import uuid4
+from .budget import BudgetExceeded, STATE_KEY, PHASE_MAX, PHASES, MODEL_RESERVE, admission_spec
 
 
 class Conflict(Exception):
@@ -18,10 +19,6 @@ class Gone(Exception):
 
 
 class Stopped(Exception):
-    pass
-
-
-class BudgetExceeded(Exception):
     pass
 
 
@@ -76,6 +73,10 @@ class Store:
             db.execute('BEGIN IMMEDIATE')
             yield db
             db.commit()
+        except BudgetExceeded:
+            # Admission may persist the global circuit breaker before denying dispatch.
+            db.commit()
+            raise
         except BaseException:
             db.rollback()
             raise
@@ -111,15 +112,16 @@ class Store:
             result = json.loads(row['result'])
             result['status'] = row['status']
             result['cost'] = self.cost(db, job_id)
-            if db.execute("SELECT 1 FROM calls WHERE job=? AND kind='tool' AND billed IS NULL", (job_id,)).fetchone():
+            if db.execute("SELECT 1 FROM calls WHERE job=? AND kind='tool' AND (billed IS NULL OR (?=1 AND tries>1))", (job_id, json.loads(row['body']).get('budgetPolicyVersion') == 1)).fetchone():
                 result['warnings'].append('Tool cost includes reserved estimates where receipts unavailable')
             return result
 
     @staticmethod
     def cost(db, job_id):
-        rows = db.execute('SELECT kind,billed,reserve FROM calls WHERE job=?', (job_id,)).fetchall()
+        rows = db.execute('SELECT kind,billed,reserve,tries FROM calls WHERE job=?', (job_id,)).fetchall()
+        versioned = json.loads(db.execute('SELECT body FROM jobs WHERE id=?', (job_id,)).fetchone()[0]).get('budgetPolicyVersion') == 1
         # Unknown charges keep their full reservation; never report them as free.
-        return {'toolMicro': sum(r['billed'] if r['billed'] is not None else r['reserve']
+        return {'toolMicro': sum(r['billed'] if r['billed'] is not None and (not versioned or r['tries'] <= 1) else max(r['reserve'], r['billed'] or 0)
                                  for r in rows if r['kind'] == 'tool'),
                 'modelUsd': None if any(r['kind'] == 'model' and r['billed'] is None for r in rows)
                 else sum(r['billed'] or 0 for r in rows if r['kind'] == 'model') / 1000000}
@@ -176,36 +178,109 @@ class Store:
 
     def save(self, job_id, lease, result, state, status='running'):
         with self.db() as db:
-            self.guard(db, job_id, lease)
+            row = self.guard(db, job_id, lease)
+            owned = json.loads(row['state']).get(STATE_KEY)
+            state = {k: v for k, v in state.items() if k != STATE_KEY}
+            if owned is not None:
+                state[STATE_KEY] = owned
             db.execute('UPDATE jobs SET result=?,state=?,status=? WHERE id=?',
                        (encode(result), encode(state), status, job_id))
+
+    @staticmethod
+    def budget_state(row):
+        if json.loads(row['body']).get('budgetPolicyVersion') != 1:
+            raise ValueError('versioned budget requires recorded policy')
+        state = json.loads(row['state'])
+        budget = state.setdefault(STATE_KEY, {'version': 1, 'phases': {}, 'calls': {}})
+        return state, budget
+
+    def allowance(self, job_id, lease, phase, needed=0, hold=0, keys=None):
+        if phase not in PHASES or any(type(v) is not int or not 0 <= v <= 5000000 for v in (needed, hold)):
+            raise ValueError('invalid allowance')
+        keys = keys or []
+        if not isinstance(keys, list) or len(keys) > 256 or any(not isinstance(k, str) or len(k) > 100 for k in keys):
+            raise ValueError('invalid planned calls')
+        with self.db() as db:
+            row = self.guard(db, job_id, lease)
+            _, budget = self.budget_state(row)
+            spent = db.execute('SELECT COALESCE(SUM(MAX(reserve,COALESCE(billed,0))),0) FROM calls WHERE job=?', (job_id,)).fetchone()[0]
+            maximum = json.loads(row['body'])['budgetMicro']
+            if budget.get('stopped'):
+                raise BudgetExceeded(limit=budget['stopped'])
+            cached = sum(db.execute('SELECT 1 FROM calls WHERE job=? AND key=? AND response IS NOT NULL', (job_id, key)).fetchone() is not None for key in set(keys))
+            needed = max(0, needed - cached * MODEL_RESERVE)
+            if spent + needed + hold > maximum:
+                raise BudgetExceeded(kind='job_reservation', phase=phase, used=spent, maximum=maximum)
+            return {'remaining': maximum - spent, 'cachedCount': cached, 'callsRemaining': max(0, PHASE_MAX - budget['phases'].get(phase, 0))}
+
+    def admit(self, job_id, lease, key, spec):
+        """One lease-fenced transaction owns cache lookup, reservation and dispatched count."""
+        spec = admission_spec(spec)
+        with self.db() as db:
+            row = self.guard(db, job_id, lease)
+            state, budget = self.budget_state(row)
+            prior = db.execute('SELECT * FROM calls WHERE job=? AND key=?', (job_id, key)).fetchone()
+            if budget.get('stopped'):
+                raise BudgetExceeded(limit=budget['stopped'])
+            if prior and prior['response'] is not None:
+                return json.loads(prior['response'])
+            phase, amount = spec['phase'], spec['amount']
+            if prior and prior['tries'] >= 2:
+                raise BudgetExceeded(kind='call_retries', phase=phase, used=prior['tries'], maximum=2)
+            used = budget['phases'].get(phase, 0)
+            if used >= PHASE_MAX:
+                raise BudgetExceeded(kind='stage_calls', phase=phase, used=used, maximum=PHASE_MAX)
+            spent = db.execute('SELECT COALESCE(SUM(MAX(reserve,COALESCE(billed,0))),0) FROM calls WHERE job=?', (job_id,)).fetchone()[0]
+            maximum = json.loads(row['body'])['budgetMicro']
+            if spent + amount + spec['hold'] > maximum:
+                budget['stopped'] = dict(kind='job_reservation', phase=phase, used=spent, maximum=maximum)
+                db.execute('UPDATE jobs SET state=? WHERE id=?', (encode(state), job_id))
+                raise BudgetExceeded(limit=budget['stopped'])
+            if prior:
+                db.execute('UPDATE calls SET reserve=reserve+?,tries=tries+1 WHERE job=? AND key=?', (amount, job_id, key))
+            else:
+                db.execute('INSERT INTO calls(job,key,kind,reserve,tries) VALUES(?,?,?,?,1)', (job_id, key, spec['kind'], amount))
+            budget['phases'][phase] = used + 1
+            budget['calls'][key] = {'phase': phase, 'amount': amount}
+            db.execute('UPDATE jobs SET state=? WHERE id=?', (encode(state), job_id))
+        return None
 
     def reserve(self, job_id, lease, key, kind, amount):
         with self.db() as db:
             row = self.guard(db, job_id, lease)
+            if json.loads(row['body']).get('budgetPolicyVersion') == 1:
+                raise ValueError('atomic admission required')
             prior = db.execute('SELECT * FROM calls WHERE job=? AND key=?', (job_id, key)).fetchone()
             if prior:
                 if prior['response'] is not None:
                     return json.loads(prior['response'])
                 if prior['tries'] >= 2:
-                    raise BudgetExceeded('call retry limit')
+                    raise BudgetExceeded(kind='call_retries', used=2, maximum=2)
                 return None
             spent = db.execute('SELECT COALESCE(SUM(MAX(reserve,COALESCE(billed,0))),0) FROM calls WHERE job=?', (job_id,)).fetchone()[0]
             if spent + amount > json.loads(row['body'])['budgetMicro']:
-                raise BudgetExceeded('budget reserved')
+                raise BudgetExceeded(kind='job_reservation', used=spent, maximum=json.loads(row['body'])['budgetMicro'])
             db.execute('INSERT INTO calls(job,key,kind,reserve) VALUES(?,?,?,?)', (job_id, key, kind, amount))
         return None
 
     def started(self, job_id, lease, key):
         with self.db() as db:
-            self.guard(db, job_id, lease)
+            job = self.guard(db, job_id, lease)
+            if json.loads(job['body']).get('budgetPolicyVersion') == 1:
+                raise ValueError('atomic admission required')
             row = db.execute('SELECT tries FROM calls WHERE job=? AND key=?', (job_id, key)).fetchone()
             if row is None or row['tries'] >= 2:
-                raise BudgetExceeded('call retry limit')
+                raise BudgetExceeded(kind='call_retries', used=2, maximum=2)
             db.execute('UPDATE calls SET tries=tries+1 WHERE job=? AND key=?', (job_id, key))
 
     def settle(self, job_id, lease, key, billed, receipt, response):
         with self.db() as db:
-            self.guard(db, job_id, lease)
+            row = self.guard(db, job_id, lease)
+            state = json.loads(row['state'])
+            budget = state.get(STATE_KEY)
+            entry = budget.get('calls', {}).get(key) if budget else None
+            if entry and billed is not None and billed > entry['amount']:
+                budget['stopped'] = dict(kind='provider_cost_overrun', phase=entry['phase'], used=billed, maximum=entry['amount'])
+                db.execute('UPDATE jobs SET state=? WHERE id=?', (encode(state), job_id))
             db.execute('UPDATE calls SET billed=?,receipt=?,response=? WHERE job=? AND key=?',
                        (billed, receipt, encode(response) if response is not None else None, job_id, key))

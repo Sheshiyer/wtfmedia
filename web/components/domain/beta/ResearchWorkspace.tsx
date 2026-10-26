@@ -240,10 +240,11 @@ function ResearchEditor({ id, configured, canWrite, blocked, onChange }: {
     {(running || cancellationPending) && <ResearchRunProgress brief={brief} cancellationPending={cancellationPending}>
       {owner && <Button variant="secondary" disabled={busy || deleting} onClick={() => void mutate("/cancel")}>{cancellationPending ? "Retry cancellation" : "Cancel research"}</Button>}
     </ResearchRunProgress>}
-    {brief.status === "partial" && <div role="status" className="space-y-2 border-2 border-foreground bg-attention p-4"><h3 className="font-bold">This report is incomplete</h3><p>Completed findings are retained below.</p><p className="text-sm">{researchFailureSummary(failure)}</p></div>}
+    {brief.status === "partial" && <div role="status" className="space-y-2 border-2 border-foreground bg-attention p-4"><h3 className="font-bold">This report is incomplete</h3><p>{brief.sections.filter(s => s.status === "completed").length} of {RESEARCH_SECTIONS.length - brief.sections.filter(s => s.status === "skipped").length} sections complete. Available findings are retained below.</p><p className="text-sm">{researchFailureSummary(failure)}</p></div>}
     {brief.status === "failed" && <div role="status" className="space-y-2 border-2 border-foreground p-4"><h3 className="font-bold">Research failed</h3><p>{researchFailureSummary(failure)}</p>{hasReport && <p>Available findings remain below; they are not a completed report.</p>}</div>}
     {brief.status === "cancelled" && <p role="status">Research was cancelled. Any returned findings remain below.</p>}
     {deleting && <p role="status">Deletion is pending. Use the bin beside this saved brief to retry if needed.</p>}
+    {brief.status === "completed" && brief.warnings.some(warning => warning.endsWith("Some diagrams could not be generated within the remaining allowance.")) && <p role="status" className="border-2 border-foreground p-4">The written report is complete. Some diagrams could not be generated within the remaining allowance.</p>}
     {brief.status === "completed" && !hasReport && <p role="status">No report content was returned. Start a new brief to try again.</p>}
     <ResearchContent brief={brief} sourcePrefix={sourcePrefix} />
     {editable && hasReport && !needsClarification && <section className="space-y-3 border-2 border-foreground p-4" aria-label="Private research follow-up"><h3 className="font-heading text-xl font-bold">Follow-up</h3><p className="text-sm text-secondary">Ask about this report and its saved sources. Follow-ups do not search for new information.</p>

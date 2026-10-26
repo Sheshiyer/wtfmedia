@@ -106,6 +106,7 @@
       "ai": { "binding": "AI" },
       "vars": {
         "SOCIAL_ANALYTICS_ENABLED": "1",
+        "RESEARCH_BUDGET_POLICY_VERSION": "1",
         "ALLOWED_ORIGIN": "https://beta-staging.wtfhq.in",
         "RATE_LIMIT_PER_MINUTE": "20",
         "DEPLOYMENT_ENVIRONMENT": "staging",

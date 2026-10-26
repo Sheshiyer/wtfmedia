@@ -7,7 +7,22 @@ export type ResearchInputV2 = {
     industry: string;
     audienceCountry: 'IN';
 };
+export const RESEARCH_BUDGET_PHASES = ["runner", "resolve", "dossier", "channels", "preparation", "extraction", "summaries", "visuals",
+  "write_snacks", "write_appetizers", "write_main", "write_desserts",
+  "numeric_snacks", "numeric_appetizers", "numeric_main", "numeric_desserts",
+  "visual_snacks", "visual_appetizers", "visual_main", "visual_desserts"] as const;
+export type ResearchLimit = { kind: "stage_calls" | "job_reservation" | "call_retries" | "provider_cost_overrun";
+  phase: typeof RESEARCH_BUDGET_PHASES[number]; used?: number; maximum?: number };
+export function researchLimitValid(value: unknown): value is ResearchLimit {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const v = value as Record<string, unknown>;
+  return Object.keys(v).every(k => ["kind", "phase", "used", "maximum"].includes(k))
+    && ["stage_calls", "job_reservation", "call_retries", "provider_cost_overrun"].includes(v.kind as string)
+    && (RESEARCH_BUDGET_PHASES as readonly unknown[]).includes(v.phase)
+    && [v.used, v.maximum].every(n => n === undefined || typeof n === "number" && Number.isSafeInteger(n) && n >= 0 && n <= 1_000_000_000_000);
+}
 export type ResearchFailure = {
+  limit?: ResearchLimit;
     stage: 'resolve' | 'discovery' | typeof tiers[number] | 'storage' | 'runner';
     code: 'timeout' | 'rate_limit' | 'authentication' | 'budget_exhausted' | 'output_truncated' | 'empty_output' | 'invalid_output' | 'storage_failure' | 'provider_unavailable' | 'internal_error';
     retryable: boolean;
@@ -115,12 +130,14 @@ export function failureValid(v: unknown): v is ResearchFailure {
     return record(v) && ['resolve', 'discovery', ...tiers, 'storage', 'runner'].includes(v.stage as string)
         && ['timeout', 'rate_limit', 'authentication', 'budget_exhausted', 'output_truncated', 'empty_output', 'invalid_output', 'storage_failure', 'provider_unavailable', 'internal_error'].includes(v.code as string)
         && typeof v.retryable === 'boolean'
+        && (v.limit == null || v.code === 'budget_exhausted' && researchLimitValid(v.limit))
         && (v.reason == null || ['http_error', 'transport_error', 'connect_timeout', 'read_timeout', 'deadline', 'stream_error', 'stream_incomplete', 'stream_invalid', 'response_too_large', 'context_limit', 'no_matching_sources', 'invalid_json', 'invalid_schema', 'output_truncated', 'empty_output'].includes(v.reason as string))
         && (v.provider == null || ['treg', 'omniroute', 'openrouter', 'anthropic', 'runner'].includes(v.provider as string))
         && (v.operation == null || ['catalog', 'search', 'social_search', 'extract', 'model'].includes(v.operation as string))
         && (v.httpStatus == null || (typeof v.httpStatus === "number" && Number.isInteger(v.httpStatus) && v.httpStatus >= 100 && v.httpStatus <= 599));
 }
 const projectFailure = (v: ResearchFailure): ResearchFailure => ({ stage: v.stage, code: v.code, retryable: v.retryable,
+    ...(v.limit != null ? { limit: { ...v.limit } } : {}),
     ...(v.reason != null ? { reason: v.reason } : {}), ...(v.provider != null ? { provider: v.provider } : {}),
     ...(v.operation != null ? { operation: v.operation } : {}), ...(v.httpStatus != null ? { httpStatus: v.httpStatus } : {}) });
 function modelNameValid(v: unknown): v is string {

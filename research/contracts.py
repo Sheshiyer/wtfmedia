@@ -83,7 +83,23 @@ class ResearchInput(DTO):
         return self
 
 
+class ResearchLimit(DTO):
+    kind: Literal['stage_calls', 'job_reservation', 'call_retries', 'provider_cost_overrun']
+    phase: str
+    used: int | None = Field(default=None, ge=0, le=1_000_000_000_000, strict=True)
+    maximum: int | None = Field(default=None, ge=0, le=1_000_000_000_000, strict=True)
+
+    @field_validator('phase')
+    @classmethod
+    def valid_phase(cls, value):
+        from .budget import PHASES
+        if value not in PHASES:
+            raise ValueError('invalid budget phase')
+        return value
+
+
 class Failure(DTO):
+    limit: ResearchLimit | None = None
     stage: Literal['resolve', 'discovery', 'snacks', 'appetizers', 'main', 'desserts', 'storage', 'runner']
     code: Literal['timeout', 'rate_limit', 'authentication', 'budget_exhausted', 'output_truncated',
                   'empty_output', 'invalid_output', 'storage_failure', 'provider_unavailable', 'internal_error']
@@ -94,6 +110,12 @@ class Failure(DTO):
     provider: Literal['treg', 'anthropic', 'omniroute', 'openrouter', 'runner'] | None = None
     operation: Literal['catalog', 'search', 'social_search', 'extract', 'model'] | None = None
     httpStatus: int | None = Field(default=None, ge=100, le=599)
+
+    @model_validator(mode='after')
+    def consistent_limit(self):
+        if self.limit is not None and self.code != 'budget_exhausted':
+            raise ValueError('limit requires budget failure')
+        return self
 
 
 class Source(DTO):
@@ -174,6 +196,7 @@ class Context(DTO):
 
 
 class JobInput(Context):
+    budgetPolicyVersion: Literal[1] | None = None
     historicalContext: HistoricalContext | None = None
     schemaVersion: Literal[2] | None = None
     id: str

@@ -117,3 +117,22 @@ Local checks: `research/.venv/bin/python -m unittest discover -s research/tests 
 `npm --prefix research-host test`, and `npm --prefix research-host run typecheck`.
 Live model access, latency, report quality and cost calibration remain separate
 owner-authorized checks. No credentials or deployment state changed here.
+
+## Budget reliability policy
+
+Shared preparation now precedes section writing; diagrams follow all core sections.
+Policy-1 admission is atomic and survives worker restarts in local or hosted storage.
+It distinguishes phase counts, whole-job reservations, retry limits and provider
+cost overruns, while preserving completed text and the earliest causal failure.
+The 5,000,000 micro-unit ceiling and 250,000 model reservation are unchanged.
+
+New job activation is explicitly gated by Edge `RESEARCH_BUDGET_POLICY_VERSION=1`
+after compatible hosted storage and the runner are deployed. Existing jobs keep
+their recorded policy. See [rollout and recovery](../docs/RESEARCH-RUNNER.md#policy-1-rollout-not-activated-by-this-source-change).
+This local implementation has not been tested or deployed; added offline regression
+cases are pending execution, consistent with the owner's instruction.
+
+Visuals share one bounded model request after core writing. Provider-compatible
+schemas leave item-count bounds to local validation. Table references are preserved
+as links in both the reader and Word export; existing reports need no paid rerun
+for this display correction. Diagram changes still need owner runtime acceptance.

@@ -2,6 +2,7 @@
 import json
 import sys
 from .store import BudgetExceeded
+from .budget import validate_limit
 
 CODES = {
     'timeout', 'rate_limit', 'authentication', 'budget_exhausted',
@@ -25,6 +26,11 @@ def safe_details(value):
             safe[key] = value[key]
     if type(value.get('httpStatus')) is int and 100 <= value['httpStatus'] <= 599:
         safe['httpStatus'] = value['httpStatus']
+    if value.get('limit') is not None:
+        try:
+            safe['limit'] = validate_limit(value['limit'])
+        except ValueError:
+            pass
     return safe
 
 
@@ -37,6 +43,8 @@ def failure(error, stage):
     if code not in CODES:
         code = 'internal_error'
     details = safe_details(getattr(error, 'details', {}))
+    if isinstance(error, BudgetExceeded) and error.limit:
+        details['limit'] = error.limit
     status = details.get('httpStatus')
     retryable = (code in RETRYABLE and getattr(error, 'retryable', True)
                  and (status is None or status >= 500 or status == 429)

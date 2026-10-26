@@ -2,6 +2,8 @@ import { ResearchError, boundedText, type ResearchFailure } from './research-con
 export type ResearchRunnerEnv = {
     RESEARCH_RUNNER_URL?: string;
     RESEARCH_RUNNER_TOKEN?: string;
+    // Enable only after the hosted store and runner both support policy 1.
+    RESEARCH_BUDGET_POLICY_VERSION?: string;
     OPS_ENVIRONMENT?: string;
     DEPLOYMENT_ENVIRONMENT?: string;
 };

@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ResearchContent, ResearchMarkdown, ResearchSources } from "@/components/domain/beta/ResearchContent";
 import { ResearchCoverageSummary } from "@/components/domain/beta/ResearchSourceBadge";
-import { parseResearchBrief, parseResearchInput, researchDraft, researchMarkdown, researchTitle, type ResearchBrief } from "@/lib/research";
+import { parseResearchBrief, parseResearchInput, researchFailureSummary, researchDraft, researchMarkdown, researchTitle, type ResearchBrief } from "@/lib/research";
 
 const legacy: ResearchBrief = {
   id: "rb_contract", title: "Guest research", status: "completed", revision: 1,
@@ -227,4 +227,25 @@ it("reads Claude metadata and persisted skipped clarification without changing o
  const modelInfo = { service: "anthropic", requestedModel: "claude-sonnet-5-5" };
  const parsed = parseResearchBrief({ ...legacy, modelInfo, skipClarification: true });
  expect(parsed.modelInfo).toEqual(modelInfo); expect(parsed.skipClarification).toBe(true);
+});
+
+it("explains exact research limits while keeping unknown historical causes neutral", () => {
+  const failure = { stage: "discovery", code: "budget_exhausted", retryable: false } as const;
+  expect(researchFailureSummary(failure)).toContain("did not record which limit");
+  const kinds = ["stage_calls", "job_reservation", "call_retries", "provider_cost_overrun"] as const;
+  const messages = ["request limit", "configured research allowance", "retry limit", "reserved allowance"];
+  kinds.forEach((kind, i) => {
+    const limit = {kind, phase: "summaries", used: 12, maximum: 12} as const;
+    const parsed = parseResearchBrief({...legacy, failure: {...failure, limit}});
+    expect(parsed.failure?.limit).toEqual(limit);
+    expect(researchFailureSummary(parsed.failure)).toContain(messages[i]);
+    expect(() => parseResearchBrief({...legacy, failure: {...failure, limit: {...limit, used: -1}}})).toThrow();
+  });
+});
+
+it("shows a section's visual omission reason without hiding completed prose", () => {
+  const warning = "Guest profile: Visual omitted: a supporting quote did not match the retained evidence.";
+  const html = renderToStaticMarkup(createElement(ResearchContent, {brief: {...legacy, warnings: [warning]}}));
+  expect(html).toContain("a supporting quote did not match the retained evidence");
+  expect(html).toContain("A disputed claim");
 });

@@ -119,3 +119,15 @@ test('failure reasons and operation survive projection but arbitrary diagnostic 
  for(const bad of [{reason:'PRIVATE'},{provider:'PRIVATE'},{operation:'PRIVATE'},{httpStatus:99},{httpStatus:'503'}])
   assert.throws(()=>parse({...base,failure:{...details,...bad}}));
 });
+
+test('budget limit metadata survives projection and rejects unbounded or private fields',()=>{
+ for(const kind of ['stage_calls','job_reservation','call_retries','provider_cost_overrun']){
+  const limit={kind,phase:'summaries',used:12,maximum:12};
+  const value={...failure,stage:'discovery',code:'budget_exhausted',retryable:false,limit};
+  assert.deepEqual(parse({...base,failure:value}).failure,value);
+  for(const bad of [{...limit,used:-1},{...limit,used:1.5},{...limit,phase:'PRIVATE'},{...limit,raw:'PRIVATE'}]){
+   assert.throws(()=>parse({...base,failure:{...value,limit:bad}}));
+  }
+ }
+ assert.equal(parse({...base,failure:{...failure,code:'budget_exhausted'}}).failure.limit,undefined);
+});

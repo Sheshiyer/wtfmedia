@@ -8,7 +8,22 @@ export const RESEARCH_TOOLS = ["perplexity.web.search", "exa.web.contents.get", 
 export type ResearchInputV2 = { guestName: string; companyName: string; industry: string; audienceCountry: "IN" };
 export type ResearchCoverage = { channel: ResearchChannel; status: "pending" | "searching" | "found" | "no_results" | "unavailable" | "failed" | "budget_limited"; sourceCount: number; method: "dedicated_tool" | "web_search" };
 export type ResearchModelInfo = { service: "omniroute" | "openrouter" | "anthropic"; requestedModel: string; reportedModel?: string };
+export const RESEARCH_BUDGET_PHASES = ["runner", "resolve", "dossier", "channels", "preparation", "extraction", "summaries", "visuals",
+  "write_snacks", "write_appetizers", "write_main", "write_desserts",
+  "numeric_snacks", "numeric_appetizers", "numeric_main", "numeric_desserts",
+  "visual_snacks", "visual_appetizers", "visual_main", "visual_desserts"] as const;
+export type ResearchLimit = { kind: "stage_calls" | "job_reservation" | "call_retries" | "provider_cost_overrun";
+  phase: typeof RESEARCH_BUDGET_PHASES[number]; used?: number; maximum?: number };
+export function researchLimitValid(value: unknown): value is ResearchLimit {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const v = value as Record<string, unknown>;
+  return Object.keys(v).every(k => ["kind", "phase", "used", "maximum"].includes(k))
+    && ["stage_calls", "job_reservation", "call_retries", "provider_cost_overrun"].includes(v.kind as string)
+    && (RESEARCH_BUDGET_PHASES as readonly unknown[]).includes(v.phase)
+    && [v.used, v.maximum].every(n => n === undefined || typeof n === "number" && Number.isSafeInteger(n) && n >= 0 && n <= 1_000_000_000_000);
+}
 export type ResearchFailure = {
+  limit?: ResearchLimit;
   stage: "resolve" | "discovery" | "snacks" | "appetizers" | "main" | "desserts" | "storage" | "runner";
   code: "timeout" | "rate_limit" | "authentication" | "budget_exhausted" | "output_truncated" | "empty_output" | "invalid_output" | "storage_failure" | "provider_unavailable" | "internal_error";
   retryable: boolean;
@@ -90,6 +105,20 @@ export function researchModelSummary(info?: ResearchModelInfo): string {
 }
 export function researchFailureSummary(failure?: ResearchFailure): string {
   if (!failure) return "Failure cause was not retained for this run.";
+  if (failure.code === "budget_exhausted") {
+    if (!failure.limit) return "A research limit was reached. This older run did not record which limit.";
+    const phase = failure.limit.phase;
+    const section = RESEARCH_SECTIONS.find(s => phase.endsWith(`_${s.key}`));
+    const affected = section ? `${phase.startsWith("numeric_") ? "Numeric review for " : phase.startsWith("visual_") ? "Diagram for " : ""}${section.title.toLowerCase()}`
+      : ({ runner: "Research", resolve: "Subject resolution", dossier: "Topic discovery", channels: "Source discovery", preparation: "Research preparation", extraction: "Evidence extraction", summaries: "Evidence summaries", visuals: "Report diagrams" } as Record<string, string>)[phase];
+    if (failure.limit.kind === "stage_calls") return `${affected} reached its request limit. Available findings have been retained.`;
+    if (failure.limit.kind === "job_reservation") return "This run reached its configured research allowance. Available findings have been retained.";
+    if (failure.limit.kind === "call_retries") return `A provider request reached its retry limit during ${affected.toLowerCase()}.`;
+    return "A provider request exceeded its reserved allowance, so further work was stopped.";
+  }
+  if (failure.code === "authentication" && failure.provider === "treg") {
+    return "Research search could not authenticate. Update the search provider configuration before starting another brief.";
+  }
   const reasons: Record<ResearchFailure["code"], string> = {
     timeout: "The request timed out", rate_limit: "The provider rate limit was reached", authentication: "Provider authentication failed",
     budget_exhausted: "The research budget was exhausted", output_truncated: "The model output was truncated", empty_output: "The model returned no content",
@@ -105,7 +134,9 @@ export function researchFailureSummary(failure?: ResearchFailure): string {
     invalid_schema: "The provider response did not match the expected format", output_truncated: "The model output was truncated",
     empty_output: "The model returned no content",
   } satisfies Record<NonNullable<ResearchFailure["reason"]>, string>)[failure.reason] : reasons[failure.code];
-  return `${detail}${failure.provider ? ` (${failure.provider}${failure.operation ? ` / ${failure.operation}` : ""})` : ""} during ${failure.stage}. ${failure.retryable ? "Start a new brief to try again." : "Start a new brief after the issue is resolved."}`;
+  const stage = RESEARCH_SECTIONS.find(s => s.key === failure.stage)?.title.toLowerCase()
+    ?? ({ resolve: "subject resolution", discovery: "research preparation", storage: "saving findings", runner: "research" } as Record<string, string>)[failure.stage];
+  return `${detail}${failure.provider ? ` (${failure.provider}${failure.operation ? ` / ${failure.operation}` : ""})` : ""} during ${stage}. ${failure.retryable ? "Start a new brief to try again." : "Start a new brief after the issue is resolved."}`;
 }
 /** Only known evidence IDs become citations; unknown references remain visible. */
 export function replaceResearchCitations(content: string, sources: ResearchSource[], render: (source: ResearchSource) => string): string {
@@ -223,6 +254,7 @@ export function parseResearchBrief(value: unknown): ResearchBrief {
     && ["resolve", "discovery", "snacks", "appetizers", "main", "desserts", "storage", "runner"].includes(f.stage)
     && ["timeout", "rate_limit", "authentication", "budget_exhausted", "output_truncated", "empty_output", "invalid_output", "storage_failure", "provider_unavailable", "internal_error"].includes(f.code)
     && typeof f.retryable === "boolean"
+    && (f.limit == null || f.code === "budget_exhausted" && researchLimitValid(f.limit))
         && (f.reason == null || ['http_error', 'transport_error', 'connect_timeout', 'read_timeout', 'deadline', 'stream_error', 'stream_incomplete', 'stream_invalid', 'response_too_large', 'context_limit', 'no_matching_sources', 'invalid_json', 'invalid_schema', 'output_truncated', 'empty_output'].includes(f.reason))
         && (f.provider == null || ['treg', 'omniroute', 'openrouter', 'anthropic', 'runner'].includes(f.provider))
         && (f.operation == null || ['catalog', 'search', 'social_search', 'extract', 'model'].includes(f.operation))

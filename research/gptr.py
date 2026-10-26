@@ -133,13 +133,21 @@ class GPTREngine:
         except (ValueError, KeyError, TypeError):
             raise ProviderError('invalid clarification response', code='invalid_output', reason='invalid_schema') from None
 
+    async def prepare(self, body, sources):
+        description = ' '.join(spec[1] for key in TIERS if (spec := section_spec(body, key)))
+        return await self._run(body, None, description, sources, prepare_only=True)
+
     async def tier(self, body, key, description, sources):
+        if 'context' not in self.calls.preparation:
+            raise ProviderError('shared preparation unavailable', code='empty_output', reason='no_matching_sources')
+        return await self._run(body, key, description, sources)
+
+    async def _run(self, body, key, description, sources, prepare_only=False):
         from gpt_researcher import GPTResearcher
         scope = body.get('searchScope', {})
         self.sources = filter_sources(list(sources), scope)
         engine = self
         evidence_lock = threading.Lock()
-        extracted = set()
         # Read full saved content, including numeric comparisons, before compacting model context.
         protected_ids = {citation for section in body.get('sections', [])
                          if section.get('status', 'completed') == 'completed'
@@ -169,7 +177,11 @@ class GPTREngine:
                         raise engine.calls.stage_error
                     context = None
                     try:
-                        found = filter_sources(engine.calls.search(scoped_query(self.query, scope)), scope)
+                        if preparation.get('searchDisabled'):
+                            context = select_context(engine.sources, self.query, 16000)
+                            found = []
+                        else:
+                            found = filter_sources(engine.calls.search(scoped_query(self.query, scope)), scope)
                     except (ProviderError, ValueError) as error:
                         # Calls.check may be rethrowing a model failure through search.
                         if engine.calls.stage_error is not None:
@@ -178,6 +190,9 @@ class GPTREngine:
                             context = select_context(engine.sources, self.query, 16000)
                         if not context:
                             raise
+                        if getattr(error, 'code', None) == 'authentication':
+                            preparation['searchDisabled'] = True
+                            checkpoint()
                         warning = 'Additional search unavailable; this section uses retained evidence and may miss newer findings.'
                         if warning not in engine.warnings:
                             engine.warnings.append(warning)
@@ -186,23 +201,8 @@ class GPTREngine:
                         with evidence_lock:
                             engine.sources = merge_sources(engine.sources, found,
                                                            protected_ids=protected_ids, query=public_query)
-                            retained = {s['url']: s for s in engine.sources}
-                            urls = dict.fromkeys(s['url'] for s in found + engine.sources)
-                            candidates = [retained[url] for url in urls if url in retained
-                                          and retained[url].get('kind') != 'page_extract'
-                                          and retained[url]['id'] not in protected_ids and url not in extracted]
-                            for source in candidates:
-                                if len(extracted) >= 8:
-                                    break
-                                extracted.add(source['url'])
-                                try:
-                                    pages = filter_sources(engine.calls.extract(source), scope)
-                                    engine.sources = merge_sources(engine.sources, pages,
-                                                                   protected_ids=protected_ids, query=public_query)
-                                except ProviderError:
-                                    if engine.calls.stage_error is not None:
-                                        raise engine.calls.stage_error
-                                    engine.warnings.append('Some page extracts unavailable; retained snippets remain explicitly limited evidence.')
+                            preparation['sources'] = engine.sources
+                            checkpoint()
                             context = select_context(engine.sources, self.query, 16000)
                     # Supplied Alpha references with empty excerpts never enter evidence context.
                     return [{'title': s['title'], 'href': s['url'], 'body': s['excerpt'],
@@ -233,6 +233,8 @@ class GPTREngine:
             researcher.cfg.max_iterations = 2
             original_plan = researcher.research_conductor.plan_research
             async def bounded_plan(*args, **kwargs):
+                if preparation.get('queries'):
+                    return preparation['queries']
                 planning = PLANNING.set(True)
                 historical_plan = PLANNING_HISTORY.set(historical if historical.get('status') == 'available' else None)
                 try:
@@ -240,24 +242,64 @@ class GPTREngine:
                     if not isinstance(queries, list) or not queries or any(
                             not isinstance(q, str) or not 1 <= len(q.strip()) <= 1200 for q in queries):
                         raise ProviderError('invalid search plan', code='invalid_output', reason='invalid_schema')
-                    return queries[:2]
+                    preparation['queries'] = queries[:2]
+                    checkpoint()
+                    return preparation['queries']
                 finally:
                     PLANNING_HISTORY.reset(historical_plan)
                     PLANNING.reset(planning)
             researcher.research_conductor.plan_research = bounded_plan
-            if 'sources' not in preparation:
-                await researcher.conduct_research()
-                if self.calls.stage_error:
-                    raise self.calls.stage_error
-                preparation['sources'] = self.sources
+            if prepare_only:
+                self.calls.stage('preparation')
+                if preparation.get('sources'):
+                    self.sources = preparation['sources']
+                if not preparation.get('searched') and 'context' not in preparation:
+                    if not preparation.get('searchDisabled'):
+                        await researcher.conduct_research()
+                        if self.calls.stage_error:
+                            raise self.calls.stage_error
+                    preparation['sources'] = self.sources
+                    preparation['searched'] = True
+                    preparation['warnings'] = list(self.warnings)
+                    checkpoint()
+                # Extraction is its own bounded, restartable phase, never charged to a writer.
+                self.calls.stage('extraction')
+                selected = preparation.setdefault('extractTargets', [s['id'] for s in self.sources
+                    if s.get('kind') != 'page_extract' and s['id'] not in protected_ids][:8])
+                done = preparation.setdefault('extracted', [])
+                checkpoint()
+                for source_id in selected:
+                    if source_id in done or preparation.get('searchDisabled'):
+                        continue
+                    source = next((s for s in self.sources if s['id'] == source_id), None)
+                    if source is None:
+                        continue
+                    try:
+                        pages = filter_sources(await asyncio.to_thread(self.calls.extract, source), scope)
+                        self.sources = merge_sources(self.sources, pages, protected_ids=protected_ids, query=public_query)
+                    except ProviderError as error:
+                        if error.code == 'authentication':
+                            preparation['searchDisabled'] = True
+                        self.warnings.append('Some page extracts unavailable; retained snippets remain explicitly limited evidence.')
+                    done.append(source_id)
+                    preparation['sources'] = self.sources
+                    preparation['warnings'] = list(self.warnings)
+                    checkpoint()
+                evidence = [s for s in self.sources if supports(s)]
+                if not evidence:
+                    raise ProviderError('no supporting extracts', code='empty_output', reason='no_matching_sources')
+                synthesis_query = scoped_query(public_subject(body), scope)
+                if body.get('clarification'):
+                    synthesis_query += '. Public entity clarification: ' + body['clarification']
+                self.calls.stage('summaries')
+                if 'context' not in preparation:
+                    preparation['context'] = await synthesis_context(self.calls, evidence, synthesis_query)
+                preparation.pop('summaryFailed', None)
                 preparation['warnings'] = list(self.warnings)
                 checkpoint()
-            else:
-                self.sources = preparation['sources']
-                self.warnings = list(preparation.get('warnings', []))
-            evidence = [s for s in self.sources if supports(s)]
-            if not evidence:
-                raise ProviderError('no supporting extracts', code='empty_output', reason='no_matching_sources')
+                return self.sources
+            self.sources = preparation['sources']
+            self.warnings = list(preparation.get('warnings', []))
             prompt = (f'Write the {key} tier: {description}. Use only source ID citations [id] from '
                       'the retained evidence below, never URL citations or invented timing. '
                       'Prepare pre-shoot research only for supplied subjects. Never substitute an identity or fill omitted fields. '
@@ -283,20 +325,6 @@ class GPTREngine:
                       'Maximum 2000 words and 16000 characters including citations.\n' + DOSSIER[key])
             if body.get('researchInput') and key in ('snacks', 'appetizers'):
                 prompt += 'Begin with this exact identity heading: # ' + section_spec(body, key)[0] + '\n'
-            # Use one public scope across tiers so unchanged evidence summaries can be reused.
-            synthesis_query = scoped_query(public_subject(body), scope)
-            if body.get('clarification'):
-                synthesis_query += '. Public entity clarification: ' + body['clarification']
-            if 'context' not in preparation:
-                self.calls.stage()
-                try:
-                    preparation['context'] = await synthesis_context(self.calls, evidence, synthesis_query)
-                except ProviderError:
-                    preparation['summaryFailed'] = True
-                    checkpoint()
-                    raise
-                preparation.pop('summaryFailed', None)
-                checkpoint()
             context = {'researchInput': body.get('researchInput'), 'searchScope': scope, **preparation['context'],
                        'previousSections': compact_sections(body.get('sections', []))}
             if (body.get('historicalContext') or {}).get('status') == 'available':
@@ -304,7 +332,6 @@ class GPTREngine:
             if body.get('notesApproved'):
                 context['privateEditorialNotes'] = body.get('notes', '')
             # Search planning uses approved public guidance; full private notes stay in synthesis.
-            self.calls.stage()
             report = await researcher.write_report(custom_prompt=prompt,
                                                    ext_context=json.dumps(context, ensure_ascii=False))
             if self.calls.stage_error:

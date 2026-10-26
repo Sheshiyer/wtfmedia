@@ -16,12 +16,12 @@ from .evidence import normalize_results
 from .contracts import safe_url
 from urllib.parse import urlsplit, urlencode
 from .store import BudgetExceeded, Stopped, digest, encode
+from .budget import PHASES, PHASE_MAX, MODEL_RESERVE
 
 MODEL = 'claude-sonnet-5-5'
 TOOL = 'perplexity.web.search'
 EXTRACT = 'exa.web.contents.get'
 TOOL_RESERVE = 5000
-MODEL_RESERVE = 250000
 MAX_RESPONSE = 2_000_000
 
 
@@ -260,24 +260,82 @@ class Calls:
         self.lock = threading.Lock()
         self.stage_calls = 0
         self.stage_error = None
+        self.budget_policy = None
+        self.phase = 'runner'
+        self.hold = 0
+        self.operation_attempt = 0
+        self.fatal_error = None
         self.model_info = model_info()
         self.model_receipt_received = False
         self.usage = {}
         self.channel_catalogs = set()
         self.scope = {}
 
-    def stage(self):
-        self.stage_calls = 0
+    def stage(self, phase='runner'):
+        if phase not in PHASES:
+            raise ValueError('invalid budget phase')
+        self.phase = phase
+        self.stage_calls = 0  # Legacy jobs only; versioned admission lives in storage.
         self.stage_error = None
+        self.operation_attempt = 0
 
     def check(self):
         self.store.heartbeat(self.job_id, self.lease)
+        if self.fatal_error:
+            raise self.fatal_error
         if self.stage_error:
             raise self.stage_error
-        if self.stage_calls >= 12:
-            raise BudgetExceeded('stage call limit')
+        if self.budget_policy != 1 and self.stage_calls >= PHASE_MAX:
+            raise BudgetExceeded(kind='stage_calls', phase=self.phase, used=self.stage_calls, maximum=PHASE_MAX)
+
+    def allowance(self, needed=0, calls=0, keys=None):
+        self.check()
+        if self.budget_policy != 1:
+            return
+        available = self.store.allowance(self.job_id, self.lease, self.phase, 0, 0, keys)
+        if calls - available.get('cachedCount', 0) > available['callsRemaining']:
+            raise BudgetExceeded(kind='stage_calls', phase=self.phase,
+                                 used=PHASE_MAX - available['callsRemaining'], maximum=PHASE_MAX)
+        self.store.allowance(self.job_id, self.lease, self.phase, needed, self.hold, keys)
+
+    def model_key(self, messages, max_tokens, effort='medium', output_schema=None):
+        return 'model_' + digest(encode([self.phase, self.operation_attempt, messages, max_tokens, effort, output_schema]))
+
+    def admit(self, key, kind, amount):
+        try:
+            if self.budget_policy == 1:
+                return self.store.admit(self.job_id, self.lease, key,
+                    dict(kind=kind, amount=amount, phase=self.phase, hold=self.hold))
+            cached = self.store.reserve(self.job_id, self.lease, key, kind, amount)
+            if cached is not None:
+                return cached
+            if self.stage_calls >= PHASE_MAX:
+                raise BudgetExceeded(kind='stage_calls', phase=self.phase, used=self.stage_calls, maximum=PHASE_MAX)
+            self.store.started(self.job_id, self.lease, key)
+            self.stage_calls += 1
+        except BudgetExceeded as error:
+            if error.limit and error.limit['kind'] in ('job_reservation', 'provider_cost_overrun'):
+                self.fatal_error = error
+            raise
+        return None
+
+    def overrun(self, cost, maximum):
+        error = BudgetExceeded(kind='provider_cost_overrun', phase=self.phase, used=cost, maximum=maximum)
+        self.fatal_error = error
+        raise error
 
     def search(self, query):
+        try:
+            return self._search(query)
+        except ProviderError as error:
+            error.details.setdefault('provider', 'treg')
+            error.details.setdefault('operation', 'search')
+            self.discovery_error = error
+            if error.code == 'authentication' and hasattr(self, 'preparation'):
+                self.preparation['searchDisabled'] = True
+            raise
+
+    def _search(self, query):
         with self.lock:
             self.check()
             if not isinstance(query, str) or not 1 <= len(query) <= 1200:
@@ -291,12 +349,10 @@ class Calls:
                 self.catalog_checked = True
             body = {'query': query, 'search_type': 'web', 'max_results': 20}
             key = 'tool_' + digest(encode(body))
-            cached = self.store.reserve(self.job_id, self.lease, key, 'tool', TOOL_RESERVE)
+            cached = self.admit(key, 'tool', TOOL_RESERVE)
             if cached is not None:
                 from .scope import filter_sources
                 return filter_sources(cached, self.scope)
-            self.stage_calls += 1
-            self.store.started(self.job_id, self.lease, key)
             payload, headers = self.network.request('POST', 'https://treg.to/call/' + TOOL, {
                 'X-Treg-Token': os.environ.get('TREG_TOKEN', ''),
                 'Idempotency-Key': digest(self.job_id + key),
@@ -312,7 +368,7 @@ class Calls:
             sources = filter_sources(normalize_results(payload), self.scope)
             self.store.settle(self.job_id, self.lease, key, cost, receipt, sources)
             if cost is not None and cost > TOOL_RESERVE:
-                raise BudgetExceeded('provider exceeded reservation')
+                self.overrun(cost, TOOL_RESERVE)
             return sources
 
     def social_search(self, channel, request):
@@ -339,12 +395,10 @@ class Calls:
                     raise ProviderError('social catalog contract changed', code='invalid_output')
                 self.channel_catalogs.add(tool)
             key = 'social_' + digest(encode({'tool': tool, 'input': body}))
-            cached = self.store.reserve(self.job_id, self.lease, key, 'tool', reserve)
+            cached = self.admit(key, 'tool', reserve)
             if cached is not None:
                 from .scope import filter_sources
                 return filter_sources(cached, self.scope)
-            self.stage_calls += 1
-            self.store.started(self.job_id, self.lease, key)
             url = 'https://treg.to/call/' + tool
             if method == 'GET':
                 url += '?' + urlencode(body)
@@ -360,7 +414,7 @@ class Calls:
             receipt = receipt if re.fullmatch(r'[A-Za-z0-9_-]{1,150}', receipt) else None
             self.store.settle(self.job_id, self.lease, key, cost, receipt, None)
             if cost is not None and cost > reserve:
-                raise BudgetExceeded('provider exceeded reservation')
+                self.overrun(cost, reserve)
             from .scope import filter_sources
             sources = filter_sources(normalize_social(channel, payload), self.scope)
             self.store.settle(self.job_id, self.lease, key, cost, receipt, sources)
@@ -382,12 +436,10 @@ class Calls:
                 self.extract_checked = True
             body = {'urls': [url], 'text': {'maxCharacters': 12000}}
             key = 'extract_' + digest(encode(body))
-            cached = self.store.reserve(self.job_id, self.lease, key, 'tool', 1000)
+            cached = self.admit(key, 'tool', 1000)
             if cached is not None:
                 from .scope import filter_sources
                 return filter_sources(cached, self.scope)
-            self.stage_calls += 1
-            self.store.started(self.job_id, self.lease, key)
             payload, headers = self.network.request('POST', 'https://treg.to/call/' + EXTRACT, {
                 'X-Treg-Token': os.environ.get('TREG_TOKEN', ''),
                 'Idempotency-Key': digest(self.job_id + key),
@@ -416,7 +468,7 @@ class Calls:
             receipt = receipt if re.fullmatch(r'[A-Za-z0-9_-]{1,150}', receipt) else None
             self.store.settle(self.job_id, self.lease, key, cost, receipt, normalized)
             if cost is not None and cost > 1000:
-                raise BudgetExceeded('provider exceeded reservation')
+                self.overrun(cost, 1000)
             return normalized
 
     def model(self, messages, max_tokens=1800, *, effort='medium', output_schema=None):
@@ -451,10 +503,12 @@ class Calls:
             if not conversation or conversation[-1]['role'] != 'user':
                 raise ProviderError('invalid model input', code='invalid_output', retryable=False)
             # Each model attempt reserves separately; retries are not assumed free.
-            key = 'model_' + uuid4().hex
-            self.store.reserve(self.job_id, self.lease, key, 'model', MODEL_RESERVE)
-            self.store.started(self.job_id, self.lease, key)
-            self.stage_calls += 1
+            key = self.model_key(messages, max_tokens, effort, output_schema) if self.budget_policy == 1 else 'model_' + uuid4().hex
+            cached = self.admit(key, 'model', MODEL_RESERVE)
+            if cached is not None:
+                if not isinstance(cached, dict) or not isinstance(cached.get('answer'), str):
+                    raise ProviderError('invalid cached model response', code='invalid_output', retryable=False)
+                return cached['answer']
             body = {'model': model_name(), 'messages': conversation,
                     'max_tokens': min(max_tokens or 1800, 12000), 'stream': True,
                     'thinking': {'type': 'between_tools'}, 'output_config': {'effort': effort}}
@@ -479,7 +533,7 @@ class Calls:
             # Messages API returns token usage, not a charge. Keep the reservation and unknown cost.
             receipt = payload.get('id')
             receipt = receipt if isinstance(receipt, str) and re.fullmatch(r'[A-Za-z0-9_-]{1,150}', receipt) else None
-            self.store.settle(self.job_id, self.lease, key, None, receipt, {})
+            self.store.settle(self.job_id, self.lease, key, None, receipt, None)
             if model:
                 self.model_info['reportedModel'] = model
             self.model_receipt_received = True
@@ -502,4 +556,5 @@ class Calls:
                 raise ProviderError('invalid model response', code='invalid_output') from None
             if not answer.strip():
                 raise ProviderError('empty model response', code='empty_output', reason='empty_output')
+            self.store.settle(self.job_id, self.lease, key, None, receipt, {'answer': answer} if self.budget_policy == 1 else {})
             return answer

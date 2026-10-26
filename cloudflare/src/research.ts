@@ -100,7 +100,7 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
         const runId = 'rrun_' + crypto.randomUUID();
         // Only the supplied public subject crosses to Alpha; notes and identity never do.
         const historicalContext = await readAlphaInterviewContext(env, doc.researchInput ? researchTitle(doc.researchInput) : doc.title, doc.episodeId);
-        const payload = { id: runId, title: doc.title, ...(doc.researchInput ? { schemaVersion: 2, researchInput: doc.researchInput } : {}), historicalContext, notes: doc.notes, notesApproved: doc.notesApproved, section: null, skipClarification, clarification: input.clarification ?? null, sections: [], sources: [], budgetMicro: 5000000 };
+        const payload = { id: runId, title: doc.title, ...(doc.researchInput ? { schemaVersion: 2, researchInput: doc.researchInput } : {}), historicalContext, notes: doc.notes, notesApproved: doc.notesApproved, section: null, skipClarification, clarification: input.clarification ?? null, sections: [], sources: [], budgetMicro: 5000000, ...(env.RESEARCH_BUDGET_POLICY_VERSION === '1' ? { budgetPolicyVersion: 1 } : {}) };
         // Diagnostics describe one run, never today's configuration applied to old work.
         const next = { ...doc, skipClarification, status: 'queued', progress: [], warnings: [], clarification: null };
         delete next.coverage;

@@ -3,7 +3,7 @@ import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import type { Nodes } from "mdast";
 import type { ResearchSource } from "./research";
-import { parseResearchVisual, type ResearchVisual } from "./research-visuals";
+import { parseResearchVisual, retainedEvidenceMap, type ResearchVisual } from "./research-visuals";
 
 const parser = unified().use(remarkParse).use(remarkGfm, { singleTilde: false });
 export function parseResearchMarkdown(content: string) { return parser.parse(content); }
@@ -33,7 +33,7 @@ export function researchVisualText(content: string, sources: ResearchSource[]): 
     if (part.kind === "markdown") return part.content;
     if (!part.visual) return "\n\nDiagram unavailable: supporting evidence could not be validated.\n\n";
     const figure = part.visual;
-    return `\n\n### ${plain(figure.title)}\n\nEditorial ${figure.kind === "flow" ? "process diagram (text alternative; steps in order)" : "comparison (text alternative)"}.\n\n${plain(figure.explanation)}\n\n${figure.items.map((item, index) => `${index + 1}. **${plain(item.label)}** — ${plain(item.detail)}\n\n   Supporting extract: “${plain(item.quote)}” [${item.sourceId}]`).join("\n\n")}\n\n`;
+    return `\n\n### ${plain(figure.title)}\n\nEditorial ${figure.kind === "flow" ? "process diagram (text alternative; steps in order)" : figure.kind === "evidence" ? "evidence map (text alternative; no implied order)" : "comparison (text alternative)"}.\n\n${plain(figure.explanation)}\n\n${figure.items.map((item, index) => `${index + 1}. **${plain(item.label)}** — ${plain(item.detail)}\n\n   Supporting extract: “${plain(item.quote)}” [${item.sourceId}]`).join("\n\n")}\n\n`;
   }).join("");
 }
 
@@ -51,15 +51,17 @@ export function researchDisplayContent(content: string): string {
 }
 
 /** Edit only prose/citation AST ranges, leaving raw Markdown, escapes and code intact. */
-export function prepareResearchSection(content: string, sources: ResearchSource[]): { markdown: string; citedSources: ResearchSource[] } {
+export function prepareResearchSection(content: string, sources: ResearchSource[], options: { sourceHref?: (source: ResearchSource) => string; evidenceMap?: boolean } = {}): { markdown: string; citedSources: ResearchSource[]; derivedVisual: boolean } {
   const known = new Map(sources.map(source => [source.id, source]));
   const cited = new Map<string, ResearchSource>();
   const eligible = new Uint8Array(content.length);
+  const tableContent = new Uint8Array(content.length);
   const links = new Map<number, { end: number; suffix: string; ids: string[] }>();
   function visit(node: Nodes) {
     const start = node.position?.start.offset;
     const end = node.position?.end.offset;
     if (start === undefined || end === undefined) return;
+    if (node.type === "tableCell") tableContent.fill(1, start, end);
     if (node.type === "code" && node.lang === "research-visual") {
       const visual = parseResearchVisual(node.value, sources);
       for (const item of visual?.items ?? []) cited.set(item.sourceId, known.get(item.sourceId)!);
@@ -123,6 +125,16 @@ export function prepareResearchSection(content: string, sources: ResearchSource[
     const citation = bracket || bare ? item(cursor) : null;
     if (citation?.ids.length) {
       for (const id of citation.ids) cited.set(id, known.get(id)!);
+      if (tableContent[cursor]) {
+        const references = [...new Set(citation.ids)].map(id => {
+          const source = known.get(id)!;
+          const href = options.sourceHref?.(source) ?? `#research-source-${encodeURIComponent(id)}`;
+          return `[Source ${sources.indexOf(source) + 1}](${href})`;
+        }).join(", ");
+        edits.push({ start: cursor, end: citation.end, value: [references, citation.remaining].filter(Boolean).join(", ") });
+        cursor = citation.end;
+        continue;
+      }
       const previous = edits.at(-1);
       if (previous && !previous.value && !citation.remaining && /^[ \t]*[,;]?[ \t]*$/u.test(content.slice(previous.end, cursor))) previous.end = citation.end;
       else edits.push({ start: cursor, end: citation.end, value: citation.remaining });
@@ -140,5 +152,14 @@ export function prepareResearchSection(content: string, sources: ResearchSource[
     }
     markdown = markdown.slice(0, start) + edit.value + markdown.slice(end);
   }
-  return { markdown: researchDisplayContent(markdown), citedSources: [...cited.values()] };
+  const citedSources = [...cited.values()];
+  const fallback = options.evidenceMap && !splitResearchVisuals(content, sources).some(part => part.kind === "visual")
+    ? retainedEvidenceMap(content.split("**Numeric evidence comparisons**")[0], citedSources) : null;
+  if (fallback) {
+    const fence = `\n\n\`\`\`research-visual\n${JSON.stringify(fallback)}\n\`\`\`\n\n`;
+    const marker = "**Numeric evidence comparisons**";
+    const index = markdown.indexOf(marker);
+    markdown = index < 0 ? markdown + fence : markdown.slice(0, index) + fence + markdown.slice(index);
+  }
+  return { markdown: researchDisplayContent(markdown), citedSources, derivedVisual: !!fallback };
 }

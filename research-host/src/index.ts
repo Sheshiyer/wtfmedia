@@ -42,10 +42,17 @@ export class ResearchState extends DurableObject<Env> {
       if(body.method!=='claim'&&(typeof id!=='string'||!/^rrun_[0-9a-f-]{36}$/.test(id)))return json({error:'invalid_request'},400);
       const hex=async(value:string)=>Array.from(await digest(value),b=>b.toString(16).padStart(2,'0')).join('');
       const hashes={id:await hex(id||''),body:body.method==='submit'?await hex(JSON.stringify(canonical(body.args[0]))):''};
-      const value=this.ctx.storage.transactionSync(()=>dispatch(this.ctx.storage.sql,body.method,body.args,hashes));
-      return json({value});
+      const reply=this.ctx.storage.transactionSync(()=>{
+        try {return {value:dispatch(this.ctx.storage.sql,body.method,body.args,hashes)};}
+        catch(error) {
+          // Budget denial can durably close admission. Unexpected errors still roll back.
+          if(error instanceof StoreError && error.message==='BudgetExceeded')return {error:error.message,...(error.limit?{limit:error.limit}:{})};
+          throw error;
+        }
+      });
+      return json(reply);
     } catch(error) {
-      return error instanceof StoreError?json({error:error.message}):json({error:'state_unavailable'},503);
+      return error instanceof StoreError?json({error:error.message,...(error.limit ? {limit:error.limit} : {})}):json({error:'state_unavailable'},503);
     }
   }
 }

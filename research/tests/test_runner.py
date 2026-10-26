@@ -35,8 +35,11 @@ def source(n=1, **changes):
 class FakeCalls:
     def __init__(self, *args):
         self.stage_error = None
-    def stage(self):
+    def stage(self, phase='runner'):
+        self.phase = phase
         self.stage_error = None
+    def allowance(self, needed=0, calls=0, keys=None):
+        pass
     def search(self, query):
         return [source(i) for i in range(1, 7)]
     def model(self, messages, max_tokens=1800, **kwargs):

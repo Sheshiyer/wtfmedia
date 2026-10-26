@@ -41,7 +41,7 @@ export function ResearchMarkdown({ content, sources, visualSources = sources, so
     th: ({ children }) => <th className="min-w-32 border-b border-foreground/30 bg-surface-subtle p-3 align-top font-bold">{children}</th>,
     td: ({ children }) => <td className="min-w-32 border-b border-foreground/15 p-3 align-top">{children}</td>,
     a: ({ href, children }) => {
-      const citation = sources.find(source => href === `#${sourcePrefix}${encodeURIComponent(source.id)}`);
+      const citation = visualSources.find(source => href === `#${sourcePrefix}${encodeURIComponent(source.id)}`);
       const safe = href ? safeResearchUrl(href) : null;
       return citation ? <a href={href} aria-label={`View source: ${researchSourceLabel(citation)} — ${citation.title}`} title={citation.title} className="inline-block max-w-full rounded-control px-1 align-baseline text-sm underline focus-visible:outline focus-visible:outline-2" onClick={event => {
           event.preventDefault();
@@ -90,10 +90,14 @@ export function ResearchContent({ brief, sourcePrefix = `research-version-${brie
       <p className="text-sm">The findings and sources below are retained from the previous scope. Research again to update them. Follow-up is paused until fresh research is available.</p>
     </section>}
     <ResearchCoverageSummary coverage={brief.coverage} />
+    {(brief.warnings ?? []).filter(warning => warning.startsWith("Visual ")).map(warning => <p key={warning} role="status" className="border border-foreground/20 bg-surface-subtle p-3 text-sm">{warning}</p>)}
     {RESEARCH_SECTIONS.filter(({ key }) => brief.sections.some(s => s.key === key && s.status !== "skipped" && s.content.trim())).map(({ key, title, description }) => {
       const section = brief.sections.find(s => s.key === key);
-      const { markdown: content, citedSources } = prepareResearchSection(section?.content ?? "", brief.sources);
+      const { markdown: content, citedSources, derivedVisual } = prepareResearchSection(section?.content ?? "", brief.sources, { evidenceMap: section?.status === "completed", sourceHref: source => `#${sourcePrefix}${encodeURIComponent(source.id)}` });
       const platforms = [...new Set(citedSources.map(researchSourcePlatform))];
+      const visualNotes = (brief.warnings ?? []).filter(warning => warning.startsWith(`${title}: `))
+        .map(warning => warning.slice(title.length + 2))
+        .filter(warning => warning.startsWith("Visual ") || warning.startsWith("Some diagrams"));
       return <section key={key} className="min-w-0 space-y-3 border-2 border-foreground bg-surface-raised p-4 sm:p-5">
         <div><p className="font-label text-xs uppercase text-secondary">{description}</p><h3 className="font-heading text-2xl font-bold">{title}</h3><p className="text-sm">{section?.status ?? "Not started"}</p></div>
         {section?.content ? <ResearchMarkdown content={content} sources={[]} visualSources={brief.sources} sourcePrefix={sourcePrefix} /> : <p className="text-sm text-secondary">No findings yet.</p>}
@@ -106,6 +110,8 @@ export function ResearchContent({ brief, sourcePrefix = `research-version-${brie
           </summary>
           <ResearchMarkdown content={citedSources.map(source => `- [source](#${sourcePrefix}${encodeURIComponent(source.id)})`).join("\n")} sources={citedSources} sourcePrefix={sourcePrefix} />
         </details>}
+        {derivedVisual && <p className="text-sm text-secondary">Evidence map assembled from saved source excerpts. The original report is unchanged.</p>}
+        {!derivedVisual && visualNotes.map(note => <p key={note} role="status" className="border-l-2 border-foreground/30 pl-3 text-sm text-secondary">{note}</p>)}
         {section?.failure && <p className="text-sm text-secondary">{researchFailureSummary(section.failure)}</p>}
       </section>;
     })}

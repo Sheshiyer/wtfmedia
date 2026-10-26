@@ -5,7 +5,7 @@ import httpx
 from .store import Conflict, Gone, QueueFull, Stopped, BudgetExceeded
 from .diagnostics import StorageError
 
-METHODS = ('submit', 'get', 'cancel', 'delete', 'claim', 'claim_id', 'heartbeat', 'save', 'reserve', 'started', 'settle')
+METHODS = ('submit', 'get', 'cancel', 'delete', 'claim', 'claim_id', 'heartbeat', 'save', 'reserve', 'started', 'settle', 'admit', 'allowance')
 ERRORS = {c.__name__: c for c in (Conflict, Gone, QueueFull, Stopped, BudgetExceeded)}
 
 class RemoteStore:
@@ -34,6 +34,13 @@ class RemoteStore:
                 data = response.json()
             except (httpx.HTTPError, ValueError):
                 raise StorageError('durable research state unavailable') from None
+            if not isinstance(data, dict):
+                raise StorageError('invalid durable response')
+            if data.get('error') == 'BudgetExceeded':
+                try:
+                    raise BudgetExceeded(limit=data.get('limit'))
+                except ValueError:
+                    raise StorageError('invalid durable limit metadata') from None
             if data.get('error'):
                 raise ERRORS.get(data['error'], StorageError)('durable research operation failed')
             return data['value']

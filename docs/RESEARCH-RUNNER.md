@@ -319,13 +319,61 @@ numbers alone never produce a verified claim. Publisher independence, syndicatio
 meaning still require editorial review. Uncovered numeric claims receive an explicit
 missing-comparison note rather than a false certification.
 
-Before each paid call, SQLite durably reserves budget in one transaction. Treg calls
-carry a stable idempotency key and route max-cost header; tool responses/receipts are
-cached privately. Retries retain reservations and use the same key; at most two
-attempts for the same tool payload. Model retries receive distinct reservations
-because model replay is not assumed free. Each stage caps paid attempts at 12,
-each research tier has two durable attempts, and completed tiers survive restarts.
-The global admission limit is 100 queued/running jobs; duplicate replay precedes it.
+New policy-1 jobs use atomic `admit` in either local SQLite or hosted Durable Object
+storage. Cache lookup, the 12-dispatch phase ceiling, retry ceiling, remaining core
+reservation and whole-job reservation are checked under the live lease before
+recording an attempt. Successful cached calls are free of new reservations and
+counts. Every dispatched retry adds its conservative reservation; a key permits two
+attempts. Treg retains its idempotency and max-cost headers. Successful model output
+has a private deterministic cache keyed by phase, attempt and bounded request; an
+interrupted unreceipted dispatch is never assumed free.
+
+The store owns `jobs.state._budget` (policy, per-phase counters, call mapping and a
+global admission breaker). Worker checkpoints cannot replace it. No migration or
+extra evidence store is introduced. Resolution, dossier discovery, channel discovery,
+shared planning/search, extraction and summaries each have one 12-call allowance.
+Each section has separate writing, numeric-review and optional-visual phases. GPTR
+plans up to two queries; extraction selects up to eight pages. Phase changes and
+recovery never reset policy-1 counters. Summaries plan all 48 KB batches before
+purchase, reuse settled responses/checkpointed digests, and fail explicitly when the
+bounded workload cannot fit. Core writer/numeric reservations take priority over
+preparation extras and visuals. Completed core drafts survive numeric-review errors.
+
+Missing `budgetPolicyVersion` retains legacy admission/reservation behavior; old
+phase usage is not invented or zeroed into policy 1. Existing reservations persist.
+The global admission limit remains 100 queued/running jobs; duplicate replay precedes it.
+
+The top-level `budget_exhausted` failure code remains compatible. Optional `limit`
+metadata contains an allowlisted phase and kind (`stage_calls`, `job_reservation`,
+`call_retries`, `provider_cost_overrun`) plus bounded `used`/`maximum` integers when
+known. Call limits use counts; allowance/cost limits use micro-units. This is not a
+provider invoice. Private RPC, DTOs, Edge projection, logs and reader preserve the
+same fields. Malformed RPC metadata fails closed without local-storage fallback.
+Old failures without this information remain explicitly unknown.
+
+Common search authentication failures with no usable evidence stop dependent work.
+When usable evidence exists, further search/extraction is disabled and bounded
+writing can use that evidence with a coverage limitation. A dedicated social tool
+failure alone can still fall back to working web search. Shared preparation errors
+are reported as discovery/preparation failures, and later failures do not replace
+the earliest causal report failure.
+
+### Policy-1 rollout (not activated by this source change)
+
+1. Publish compatible failure readers and hosted `admit`/`allowance` RPC support,
+   then deploy a pinned compatible runner image under a separate deployment task.
+2. Only afterward set the Edge variable `RESEARCH_BUDGET_POLICY_VERSION` to `1`.
+   It adds `budgetPolicyVersion: 1` to newly persisted job payloads only. It is
+   independent of report `schemaVersion: 2`; poll/retry reuses the recorded payload.
+   For a local-only setup, the same variable belongs in the ignored Edge vars file
+   once the local runner has this source. No configuration was edited here.
+3. Do not rewrite queued/running jobs to the new policy or reset their state.
+   Rollback must retain readers for new failure metadata. Disable new-policy
+   submissions before rolling back; drain or owner-authorize cancellation of
+   policy-1 jobs before using a runner that rejects the new field.
+
+Current implementation and regression cases have not been executed for acceptance:
+the owner requested code changes and will perform application testing.
 
 `budgetMicro` is at most 5,000,000. Search reserves 5,000 micro-USD, extraction 1,000,
 and a model request 250,000. Model requests are limited to 90 KB input and 12,000
@@ -423,11 +471,13 @@ and retains owner checks, confirmation and durable erasure behavior.
 
 ### Explanatory report visuals
 
-New runs attempt one editorial process diagram or comparison graphic per applicable
-section, using the existing metered Claude transport after numeric review. Each
+New runs request up to one editorial process diagram or comparison graphic per
+applicable section in a single shared model request, only after required section
+writing and numeric reviews have been attempted and saved. One remaining-reservation
+check covers the batch; each returned figure is validated independently. Each
 figure has two to four labelled steps/cards, an explanation, source IDs and
-supporting quotations. This adds at most one model request per section through the
-existing provider retry policy, within the job's existing spend ceiling. It does
+supporting quotations. This adds at most one model request for the report, under
+the existing job reservation ceiling, with durable attempted/omitted checkpoints. It does
 not enable GPT Researcher's image generator or introduce an image provider.
 
 `research/visuals.py` validates bounded figure specifications against retained
@@ -442,8 +492,30 @@ Figures are additive `research-visual` fences in existing section Markdown, with
 the unchanged 24,000 UTF-16-unit limit; only whole figures are inserted. Source
 IDs remain protected during subsequent research. Invalid output, absent evidence,
 provider limits or insufficient section space omit the figure with a warning and
-preserve the report prose. Cancellation still propagates. Old reports are not
+preserve the report prose. Attempted, completed and intentionally omitted visuals
+are checkpointed; an interrupted visual is omitted rather than purchased again.
+A visual-only limitation cannot change a completed core report to failed.
+Cancellation still propagates. Old reports are not
 rewritten; a fresh research run is required to generate visuals.
+
+The visual request now uses the existing structured-output transport and asks for
+exact evidence quotes before drafting labels. Unsupported generated dates/numbers
+can be repaired locally without another model request: a heading is replaced with
+neutral wording, while an affected item may use its complete verified quote only
+when that quote fits the existing 180-character detail limit. Item repairs become
+an evidence comparison rather than preserving a potentially misleading flow.
+Quotes are never shortened to fit or invented; source/quote failures remain fatal
+to the figure. Every repaired figure passes the original strict validation again,
+including the independent reader/export validation. The shared request uses a
+250,000 micro-unit reservation instead of up to four separate reservations. Its
+context contains bounded report orientation and shared source excerpts; it does
+not reduce the retained source pool or change the whole-job ceiling.
+
+No-figure recommendations, invalid structure, unsupported quotes/numbers, truncated
+responses and provider failures have distinct visible omission messages. New messages
+are labelled by section; older generic visual warnings remain visible without
+retroactively assigning a cause. A completed report need not contain a diagram.
+Photograph retrieval and separate AI-generated illustrations are not implemented.
 
 The reader and Word exporter revalidate the same specification and source quotes.
 Fixed SVG drawing primitives render escaped text as diagrams, with captions and
@@ -471,3 +543,44 @@ conversation; it never searches or extracts new data.
 Direct Claude support is a source change until the relevant services are deployed
 and live credentials/model access verified. Ask WTF uses shared Alpha inference;
 its cutover is a separate deployment boundary from the research runner.
+
+
+### Diagram request compatibility and table citations
+
+Visual schemas sent to Anthropic omit `maxItems` and `minItems: 2`; the API supports
+only `minItems` values 0 or 1. Figure item counts remain enforced locally and in the
+reader/export validator. Reference: [Anthropic structured-output limits](https://platform.claude.com/docs/en/build-with-claude/structured-outputs).
+Batch requests preserve distinct per-section omission reasons and store allowlisted
+provider failure metadata; a failed batch does not repeat the same invalid request
+for each section or change completed report text to failed.
+
+The shared Markdown preparation preserves recognized citations inside GFM table
+cells as source links. Source-only cells remain populated, and caveats retain their
+reference instead of being left with leading punctuation. The browser uses the
+current report's source anchors; Word uses matching source bookmarks. Prose source
+collection, unknown references, raw Markdown/code and saved report content retain
+their existing behavior. Existing reports gain table links on refresh/export without
+a paid rerun; missing figures cannot be retroactively recovered from failed API calls.
+
+
+### Required visual treatment and saved-report recovery (local source)
+
+Visual generation now chooses a documented process, a supported comparison, or an
+attributed evidence map. It should return null only when there are too few supported
+items, not merely because the section lacks a process. The single batch selects
+bounded evidence separately for each section, prioritizing its cited extracts.
+Policy-1 jobs protect one model reservation for this batch during preparation and
+writing; the total allowance is unchanged. This supersedes the earlier optional,
+remaining-budget-only visual scheduling description.
+
+If synthesis fails or returns null, a local evidence map can use complete short
+sentences from cited full extracts. It carries source links and explicitly avoids
+claims of causality, equivalence or independent verification. No extra AI call or
+image service is required. Snippets, uncited sources, overlong/truncated statements
+and Alpha reference summaries cannot populate this fallback. Two distinct supported
+statements from cited sources are required.
+
+Completed saved reports can receive this same presentation in the browser and Word
+export, without changing stored content. Existing valid diagrams remain preferred.
+This is an evidence map, not a generated photograph or a claim that a flow was found.
+Source changes are local; automated and live acceptance remain unrun by owner request.

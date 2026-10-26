@@ -27,7 +27,10 @@ export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
     if (node.type === "code" && node.lang === "research-visual") rawFigures.add(node.value);
     if ("children" in node) node.children.forEach(collectFigures);
   }
-  for (const section of brief.sections) if (section.status !== "skipped") collectFigures(parseResearchMarkdown(section.content));
+  const preparedSections = new Map(brief.sections.map(section => [section.key,
+    prepareResearchSection(section.content, brief.sources, { evidenceMap: section.status === "completed",
+      sourceHref: source => `#source_${sourceIndex.get(source.id)}` })]));
+  for (const section of brief.sections) if (section.status !== "skipped") collectFigures(parseResearchMarkdown(preparedSections.get(section.key)!.markdown));
   for (const raw of rawFigures) {
     const visual = parseResearchVisual(raw, brief.sources);
     if (visual) figures.set(raw, { visual, image: await researchVisualPng(visual) });
@@ -50,6 +53,9 @@ export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
         case "footnoteReference": return [new TextRun({ ...style, text: `[${node.identifier}]`, superScript: true })];
         case "link": case "linkReference": {
           const url = node.type === "link" ? node.url : definitions.get(node.identifier)?.url;
+          if (url && /^#source_\d+$/u.test(url) && Number(url.slice(8)) < brief.sources.length) {
+            return [new InternalHyperlink({ anchor: url.slice(1), children: node.children.flatMap(child => inline(child, { ...style, style: "Hyperlink" })) })];
+          }
           const safe = url ? safeResearchUrl(url) : null;
           const children = node.children.flatMap(child => inline(child, { ...style, ...(safe ? { style: "Hyperlink" } : {}) }));
           return safe ? [new ExternalHyperlink({ link: safe, children })] : children;
@@ -126,7 +132,7 @@ export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
   for (const { key, title } of RESEARCH_SECTIONS) {
     const section = brief.sections.find(item => item.key === key);
     if (!section || section.status === "skipped" || !section.content.trim()) continue;
-    const prepared = prepareResearchSection(section.content, brief.sources);
+    const prepared = preparedSections.get(section.key)!;
     children.push(heading(title, HeadingLevel.HEADING_1), paragraph(`Status: ${section.status}`), ...markdownBlocks(prepared.markdown));
     if (section.status !== "completed") children.push(paragraph("This section is incomplete."));
     if (prepared.citedSources.length) children.push(heading("Section sources", HeadingLevel.HEADING_2), ...prepared.citedSources.map(sourceReference));

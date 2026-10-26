@@ -1,3 +1,125 @@
+## 2026-10-26 — Visuals as a report requirement, with retained-evidence recovery
+
+- Owner reported continued model-null diagrams. The prompt previously permitted
+  omission when a graphic added no value and supported only flows/comparisons.
+  It now requests an evidence map when the sources cannot establish a process or
+  compatible comparison. Model evidence is selected separately per section,
+  prioritizing that section's cited extracts within the existing bounded batch.
+- Policy-1 preparation and writing protect one shared diagram reservation alongside
+  remaining core calls. The total job ceiling and model request count are unchanged.
+- A deterministic fallback builds an explicitly attributed evidence map from short,
+  complete statements in cited full extracts. It never draws invented flow arrows,
+  treats snippets as full evidence, or truncates a statement to fit. The existing
+  quote/source/numeric validators still apply. Fewer than two eligible statements
+  means no map; this is not a promise of diagrams for unsupported evidence.
+- Browser and Word export can derive the same map for completed saved sections
+  without another provider request or a persisted report rewrite. Stored diagrams
+  remain preferred. Derived maps replace obsolete omission notices in that section
+  with an explanation of their source. Word collects derived figures before rasterizing.
+- Added focused source regression cases, not executed at the owner's request.
+  No tests, build, browser automation, paid run, push or deployment. Local source
+  changes remain on feature/pavun and preserve preceding uncommitted work.
+
+## 2026-10-26 — Diagram schema regression and table source links
+
+- Owner's subsequent local report exposed a regression in the previous visual
+  change: three Anthropic diagram requests returned HTTP 400, then the last visual
+  lacked reservation capacity. The new schema included `minItems: 2`/`maxItems`,
+  which official Anthropic structured-output docs list as unsupported. These
+  constraints are removed from request schemas; local item validation remains.
+- Shared visual generation now makes one bounded request for all applicable saved
+  sections, reducing the maximum visual reservation from 1,000,000 to 250,000
+  micro-units without increasing the job ceiling. Each figure is validated and
+  omitted independently; safe batch failure details persist in runner state.
+- The reader previously removed recognized citations from table cells along with
+  prose citations. Source-only cells became blank and caveats began with punctuation.
+  Shared AST preparation now retains table citations as links; browser anchors and
+  Word source bookmarks are both wired. Saved report bodies are not rewritten.
+- Added/updated offline regression cases for unsupported schema constraints, a
+  single visual batch, independent figure rejection and table citations. They were
+  not executed. No browser tests, paid requests, automatic report reruns, push or
+  deployment. Changes remain local on `feature/pavun`; prior local work is preserved.
+- Existing table links update on refresh/export. Diagram request fixes affect
+  future generation; a completed report with failed visual requests remains intact.
+
+## 2026-10-26 — Recover supported diagrams and explain omissions
+
+- Read-only inspection of the owner's latest completed local report found four
+  attempted visuals, no budget breaker, two model-null responses and two rejected
+  diagrams containing unsupported dates/numbers. No report text or private source
+  excerpts were copied into this checkpoint; the saved report remains unchanged.
+- Visual requests now use the existing structured JSON transport and quote-first
+  instructions. Local recovery replaces unsupported headings with neutral wording
+  or an affected item with its complete verified quote only when it fits; repaired
+  items use a comparison layout. Strict source, quote and numeric validation remains
+  mandatory. There is no extra model request or larger allowance.
+- Distinct omission reasons are saved with section labels and displayed in the
+  report reader. Older generic warnings now display too. Photographs and separate
+  generated illustrations remain outside the implemented diagram capability.
+- Added offline recovery/reader regressions, not executed per owner instruction.
+  No paid run, provider probe, push, deployment or report rewrite. Changes remain
+  local on `feature/pavun`; existing uncommitted budget-reliability work is preserved.
+
+## 2026-10-26 — Research budget reliability implemented locally
+
+- Owner authorized full implementation of the research budget reliability plan.
+  Work remains local on `feature/pavun`; prior credential and planning notes are
+  preserved. No push, deployment, credential update or shared database operation.
+- Shared GPTR preparation now precedes section writers. Query/extraction/summary
+  checkpoints and core drafts survive recovery. Optional evidence-backed diagrams
+  run after core sections and have durable attempted/omitted outcomes.
+- Policy-1 `admit` and `allowance` work across local SQLite and hosted store RPC.
+  Lease-fenced phase counters, retry reservations, cache-aware summary preflight,
+  core reservation priority and global admission breakers live in store-owned
+  `jobs.state._budget`; ordinary saves preserve it. No schema migration.
+- Safe limit metadata survives Python validation, RPC, Edge projection, reader and
+  export summaries. Earliest causal failures are retained; shared search auth errors
+  stop dependent work without disabling web because of one social endpoint failure.
+- Activation is gated: deploy compatible readers/store/runner first, then separately
+  set Edge `RESEARCH_BUDGET_POLICY_VERSION=1` for new jobs. No flag or environment was
+  changed. Existing jobs keep their recorded admission policy and reservations.
+- Added offline regression coverage and adjusted GPTR fixtures. Per owner instruction,
+  no tests, browser automation, live research, provider probes or build were run.
+  Source implementation is not acceptance evidence. Owner testing and any future
+  staging image build/deployment remain outstanding.
+- Regenerated architecture documentation from the updated source ledger. Git diff
+  whitespace inspection is clean; this is not a runtime or test acceptance claim.
+- Details and rollout: `docs/RESEARCH-RUNNER.md` and
+  `docs/superpowers/plans/2026-10-26-research-budget-reliability.md`.
+
+## 2026-10-26 — Research budget reliability plan
+
+- Owner requested an implementation plan after a newer report retained 125
+  sources, failed its first section before diagram generation, and completed
+  three subsequent sections. A per-phase call limit is the leading explanation;
+  the saved generic failure does not prove which specific limit fired.
+- Plan: `docs/superpowers/plans/2026-10-26-research-budget-reliability.md`.
+  Covers typed limit metadata, separate shared preparation, durable atomic call
+  admission, required-work priority, optional diagrams after core writing,
+  preservation of authentication/first failures, compatible reader messages,
+  acceptance criteria and staged rollout without increasing the spending ceiling.
+- Planning only: no application edits, tests, provider calls, push or deployment.
+  Owner continues to perform application testing. Prior local credential-update
+  documentation and generated architecture changes remain intact.
+
+## 2026-10-26 — Owner-supplied staging TREG credential update
+
+- Read-only diagnosis of the owner-identified failed brief found TREG search
+  HTTP 401 failures and zero retained sources before later budget exhaustion.
+  The runner's final failure overwrote the earlier authentication cause. The
+  saved failure predates the research-visuals deployment; no report was rerun.
+- Owner supplied a replacement in the ignored Cloudflare vars file. Updated
+  only `TREG_TOKEN` on `wtfmedia-research-staging` through protected stdin;
+  no key value was printed or committed. Local credential files remain intact.
+- Secret-change version `816729d0-3fcb-4108-87a5-d7eb38f318a6` reads back at
+  100% traffic. All ten binding definitions and runtime settings are unchanged.
+  The container is inactive and staging has zero active briefs, so its next
+  startup will load the replacement credential without interrupting a job.
+- No provider authentication test, browser use, new research run, application
+  code deployment, database mutation or production credential change performed.
+  Existing failed reports remain failed. Preserving the first error and stopping
+  earlier on authentication failures remain source follow-up work.
+
 ## 2026-10-26 — Staging deployment receipt: research report visuals
 
 - Owner-authorized staging candidate `82224ba2cb63ac7c36e63791121753592558acff`

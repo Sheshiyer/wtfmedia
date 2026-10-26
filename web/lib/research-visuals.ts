@@ -2,7 +2,7 @@ import type { ResearchSource } from "./research";
 
 export type ResearchVisual = {
   version: 1;
-  kind: "flow" | "comparison";
+  kind: "flow" | "comparison" | "evidence";
   title: string;
   explanation: string;
   items: Array<{ label: string; detail: string; sourceId: string; quote: string }>;
@@ -22,7 +22,7 @@ export function parseResearchVisual(raw: string, sources: ResearchSource[]): Res
   if (raw.length > 8000) return null;
   let value: unknown;
   try { value = JSON.parse(raw); } catch { return null; }
-  if (!object(value) || !keys(value, ["version", "kind", "title", "explanation", "items"]) || value.version !== 1 || (value.kind !== "flow" && value.kind !== "comparison") || !text(value.title, 120) || !text(value.explanation, 500) || !Array.isArray(value.items) || value.items.length < 2 || value.items.length > 4) return null;
+  if (!object(value) || !keys(value, ["version", "kind", "title", "explanation", "items"]) || value.version !== 1 || (value.kind !== "flow" && value.kind !== "comparison" && value.kind !== "evidence") || !text(value.title, 120) || !text(value.explanation, 500) || !Array.isArray(value.items) || value.items.length < 2 || value.items.length > 4) return null;
   const items: ResearchVisual["items"] = [];
   for (const item of value.items) {
     if (!object(item) || !keys(item, ["label", "detail", "sourceId", "quote"]) || !text(item.label, 70) || !text(item.detail, 180) || !text(item.sourceId, 100) || !text(item.quote, 600)) return null;
@@ -33,6 +33,26 @@ export function parseResearchVisual(raw: string, sources: ResearchSource[]): Res
   }
   if (!numbersSupported(`${value.title} ${value.explanation}`, items.map(item => normalize(item.quote)).join(" "))) return null;
   return { version: 1, kind: value.kind, title: value.title, explanation: value.explanation, items };
+}
+
+/** An honest visual for saved reports: attributed excerpts, not invented relationships. */
+export function retainedEvidenceMap(report: string, citedSources: ResearchSource[]): ResearchVisual | null {
+  const terms = new Set(report.toLowerCase().match(/\w{4,}/gu) ?? []);
+  const score = (sentence: string) => new Set((sentence.toLowerCase().match(/\w{4,}/gu) ?? []).filter(word => terms.has(word))).size;
+  const items: ResearchVisual["items"] = [];
+  const seen = new Set<string>();
+  for (const source of citedSources) {
+    if (source.kind === "alpha_reference" || !["page_extract", "transcript", "post"].includes(source.evidenceType ?? "")) continue;
+    const quote = source.excerpt.trim().replace(/\s+/gu, " ").split(/(?<=[.!?])\s+/u)
+      .filter(sentence => /[.!?]$/u.test(sentence) && sentence.length >= 30 && text(sentence, 180) && !seen.has(normalize(sentence)))
+      .sort((a, b) => score(b) - score(a))[0];
+    if (!quote) continue;
+    seen.add(normalize(quote));
+    items.push({ label: "Source statement", detail: quote, quote, sourceId: source.id });
+    if (items.length === 4) break;
+  }
+  return parseResearchVisual(JSON.stringify({ version: 1, kind: "evidence", title: "Evidence map",
+    explanation: "Selected statements from sources cited in this section. These are attributed excerpts, not independently verified facts or an ordered process. Read each statement in its source context.", items }), citedSources);
 }
 
 const XML_ENTITIES: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" };
@@ -92,7 +112,7 @@ export function renderResearchVisual(visual: ResearchVisual): { svg: string; wid
       + `<text x="${p.x + 24}" y="${p.y + p.height - 16}" font-size="17" fill="#56504b">Evidence ${index + 1}</text>`
       + (flow && index < cards.length - 1 ? `<path d="M480 ${p.y + p.height + 5} v22 m-7 -7 l7 7 l7 -7" stroke="#67539c" stroke-width="3" fill="none"/>` : "");
   }).join("");
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img"><title>${escapeXml(visual.title)}</title><desc>${escapeXml(visual.explanation)}</desc><rect width="${width}" height="${height}" fill="#fffaf0"/><g font-family="Arial, sans-serif" fill="#25221f"><text x="48" y="34" font-size="16" fill="#67539c">EDITORIAL ${flow ? "PROCESS DIAGRAM" : "COMPARISON"}</text>${lines(titleLines, 48, 74, 30, 36, true)}${nodes}<text x="48" y="${height - 18}" font-size="16" fill="#56504b">Schematic · Supporting extracts accompany this figure</text></g></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img"><title>${escapeXml(visual.title)}</title><desc>${escapeXml(visual.explanation)}</desc><rect width="${width}" height="${height}" fill="#fffaf0"/><g font-family="Arial, sans-serif" fill="#25221f"><text x="48" y="34" font-size="16" fill="#67539c">EDITORIAL ${flow ? "PROCESS DIAGRAM" : visual.kind === "evidence" ? "EVIDENCE MAP" : "COMPARISON"}</text>${lines(titleLines, 48, 74, 30, 36, true)}${nodes}<text x="48" y="${height - 18}" font-size="16" fill="#56504b">Schematic · Supporting extracts accompany this figure</text></g></svg>`;
   return { svg, width, height };
 }
 
