@@ -1,5 +1,5 @@
 export const roles = ["super_admin", "admin", "editor", "member"] as const;
-export const resources = ["beta", "control_room", "production", "operators", "members", "audit", "chat", "memory", "assets", "episodes", "ingest", "transcripts", "release"] as const;
+export const resources = ["beta", "control_room", "production", "operators", "members", "audit", "chat", "memory", "assets", "episodes", "ingest", "transcripts", "analytics", "research", "release"] as const;
 export const actions = ["read", "write", "export", "manage", "transfer", "approve", "create", "upload", "confirm"] as const;
 export type Role = typeof roles[number];
 export type Resource = typeof resources[number];
@@ -7,36 +7,39 @@ export type Action = typeof actions[number];
 
 const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
   super_admin: new Set([
+    "research:read", "research:write",
     "beta:read", "control_room:read", "production:read", "production:write", "production:manage", "operators:read", "operators:manage", "operators:transfer", "operators:approve", "members:read", "members:manage", "release:manage",
     "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm", "assets:manage",
     "episodes:read", "episodes:write", "episodes:create", "episodes:manage",
     "ingest:read", "ingest:write", "ingest:create", "ingest:manage",
     "transcripts:read", "transcripts:write", "transcripts:create", "transcripts:manage",
+    "analytics:read", "analytics:manage",
   ]),
   admin: new Set([
+    "research:read", "research:write",
     "beta:read", "control_room:read", "production:read", "production:write", "production:manage", "operators:read", "operators:manage", "members:read", "members:manage", "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm", "assets:manage",
     "episodes:read", "episodes:write", "episodes:create", "episodes:manage",
     "ingest:read", "ingest:write", "ingest:create", "ingest:manage",
     "transcripts:read", "transcripts:write", "transcripts:create", "transcripts:manage",
+    "analytics:read", "analytics:manage",
   ]),
   editor: new Set([
+    "research:read", "research:write",
     "beta:read", "control_room:read", "production:read", "production:write", "chat:read", "chat:write", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm",
     "episodes:read", "ingest:read",
     "transcripts:read", "transcripts:write",
+    "analytics:read",
   ]),
-  member: new Set(["beta:read", "chat:read", "chat:write", "memory:read", "memory:write"]),
+  member: new Set(["research:read", "research:write", "analytics:read", "beta:read", "chat:read", "chat:write", "memory:read", "memory:write"]),
 };
 
 const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/ops": ["control_room", "read"],
   "/ops/settings": ["control_room", "read"],
   "/ops/profile": ["control_room", "read"],
-  "/ops/chat": ["chat", "read"],
-  "/ops/api/chat": ["chat", "read"],
-  "/api/ops/chat": ["chat", "read"],
   "/ops/api/memory": ["memory", "read"],
   "/api/ops/memory": ["memory", "read"],
   "/ops/api/release/authenticated-chat": ["control_room", "read"],
@@ -67,6 +70,7 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/api/ops/assets/upload-stream": ["assets", "upload"],
   "/api/ops/assets/confirm-upload": ["assets", "confirm"],
   "/beta": ["beta", "read"],
+  "/beta/connections": ["beta", "read"],
   "/beta/chat": ["chat", "read"],
   "/beta/settings": ["beta", "read"],
   "/beta/settings/account": ["beta", "read"],
@@ -76,16 +80,21 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/beta/workspace/production": ["control_room", "read"],
   "/beta/workspace": ["control_room", "read"],
   "/beta/workspace/episodes": ["episodes", "read"],
-  "/beta/workspace/ingest": ["ingest", "read"],
   "/beta/settings/workspace": ["control_room", "read"],
   "/beta/settings/workspace/readiness": ["control_room", "read"],
   "/beta/settings/workspace/release": ["control_room", "read"],
   "/beta/settings/workspace/ai": ["control_room", "read"],
-  "/beta/settings/workspace/analytics": ["control_room", "read"],
+  "/beta/analytics": ["analytics", "read"],
+  "/beta/social-analytics": ["analytics", "read"],
+  "/beta/research": ["research", "read"],
+  "/beta/settings/workspace/analytics": ["analytics", "read"],
   "/beta/settings/workspace/sessions": ["control_room", "read"],
   "/beta/settings/workspace/memory": ["control_room", "read"],
   "/beta/settings/workspace/sources": ["transcripts", "read"],
+  "/beta/settings/users": ["members", "read"],
+  "/beta/settings/user-sessions": ["members", "read"],
   "/beta/admin/users": ["members", "read"],
+  "/beta/admin/sessions": ["members", "read"],
   "/beta/admin/audit": ["audit", "read"],
   "/beta/admin/release": ["release", "manage"],
 };
@@ -113,8 +122,6 @@ export function policyForPath(pathname: string, method = "GET"): readonly [Resou
   if (pathname === "/ops/settings/access") return ["operators", "read"];
   if (pathname === "/ops/settings/users") return ["members", "read"];
   if (pathname.startsWith("/ops/settings/")) return ["control_room", "read"];
-  if (/^\/chat\/cnv_[A-Za-z0-9-]{8,88}-[a-z0-9][a-z0-9_-]*$/u.test(pathname)) return ["chat", "read"];
-  if (pathname.startsWith("/ops/api/chat/") || pathname.startsWith("/api/ops/chat/") || pathname.startsWith("/ops/chat/")) return ["chat", "read"];
   if (pathname.startsWith("/ops/api/memory/") || pathname.startsWith("/api/ops/memory/")) return ["memory", "read"];
   if (/^\/beta\/chat\/(?:mcnv|cnv)_[A-Za-z0-9-]{8,88}$/u.test(pathname)) return ["chat", "read"];
   if (pathname.startsWith("/ops/episodes/") || pathname.startsWith("/api/ops/episodes/") || pathname.startsWith("/ops/api/episodes/")) {
@@ -129,6 +136,31 @@ export function policyForPath(pathname: string, method = "GET"): readonly [Resou
 
 function betaApiRequirement(pathname: string, method: string): readonly [Resource, Action] | null {
   const requestMethod = method.toUpperCase();
+  if (pathname === "/beta/api/research") return requestMethod === "GET" ? ["research", "read"] : requestMethod === "POST" ? ["research", "write"] : null;
+  if (/^\/beta\/api\/research\/rbrief_[0-9a-f-]{36}$/u.test(pathname)) return ["GET", "PATCH", "DELETE"].includes(requestMethod) ? ["research", requestMethod === "GET" ? "read" : "write"] : null;
+  if (/^\/beta\/api\/research\/rbrief_[0-9a-f-]{36}\/versions\/[1-9][0-9]{0,8}$/u.test(pathname)) return requestMethod === "GET" ? ["research", "read"] : null;
+  if (/^\/beta\/api\/research\/rbrief_[0-9a-f-]{36}\/(?:run|cancel|chat|restore)$/u.test(pathname)) return requestMethod === "POST" ? ["research", "write"] : null;
+  if (pathname.startsWith('/beta/api/social-analytics/')) {
+    const action = pathname.slice('/beta/api/social-analytics/'.length);
+    if (['status','dashboard'].includes(action) && requestMethod === 'GET') return ['analytics','read'];
+    if (['selection','connect'].includes(action) && requestMethod === 'POST') return ['analytics','manage'];
+    if (action === 'linkedin-pages' && ['GET','PUT'].includes(requestMethod)) return ['analytics','manage'];
+    if (/^accounts\/[^/]+$/u.test(action) && requestMethod === 'DELETE') return ['analytics','manage'];
+    if (action === 'assistant' && requestMethod === 'POST') return ['analytics','read'];
+    if (action === 'investigations' && ['GET','POST'].includes(requestMethod)) return ['analytics','read'];
+    if (/^investigations\/sinv_[0-9a-f-]{36}$/.test(action) && ['GET','DELETE'].includes(requestMethod)) return ['analytics','read'];
+    return null;
+  }
+  if (["/beta/api/analytics/status", "/beta/api/analytics/youtube", "/beta/api/analytics/ga4", "/beta/api/analytics/youtube/retention", "/beta/api/analytics/youtube/episodes/compare"].includes(pathname) && requestMethod === "GET") {
+    return ["analytics", "read"];
+  }
+  if (pathname === "/beta/api/analytics/investigations") return ["GET", "POST"].includes(requestMethod) ? ["analytics", "read"] : null;
+  if (/^\/beta\/api\/analytics\/investigations\/ainv_[0-9a-f-]{36}$/u.test(pathname)) return ["GET", "DELETE"].includes(requestMethod) ? ["analytics", "read"] : null;
+  if (pathname === "/beta/api/analytics/assistant") return requestMethod === "POST" ? ["analytics", "read"] : null;
+  if (pathname === "/beta/api/analytics/oauth/callback") return requestMethod === "GET" ? ["analytics", "manage"] : null;
+  if (["/beta/api/analytics/oauth/start", "/beta/api/analytics/selection", "/beta/api/analytics/disconnect", "/beta/api/analytics/sync", "/beta/api/analytics/youtube/retention"].includes(pathname)) {
+    return requestMethod === "POST" ? ["analytics", "manage"] : null;
+  }
   if (pathname === "/beta/api/principal-context" || pathname === "/beta/api/context") return requestMethod === "GET" ? ["beta", "read"] : null;
   if (pathname === "/beta/api/chat") {
     if (requestMethod === "GET") return ["chat", "read"];
@@ -142,6 +174,11 @@ function betaApiRequirement(pathname: string, method: string): readonly [Resourc
     if (requestMethod === "GET") return ["memory", "read"];
     return requestMethod === "POST" ? ["memory", "write"] : null;
   }
+  if (pathname === "/beta/api/admin/users") return requestMethod === "GET" ? ["members", "read"] : requestMethod === "POST" ? ["members", "manage"] : null;
+  // Admin read-only view over every member's chat sessions; members:read keeps
+  // it admin+ and matches the /beta/admin/users surface grant.
+  if (pathname === "/beta/api/admin/chat-sessions") return requestMethod === "GET" ? ["members", "read"] : null;
+  if (/^\/beta\/api\/admin\/chat-sessions\/mcnv_[A-Za-z0-9-]{8,88}$/u.test(pathname)) return requestMethod === "GET" ? ["members", "read"] : null;
   if (/^\/beta\/api\/memory\/mmem_[A-Za-z0-9-]{8,88}\/archive$/u.test(pathname)) return requestMethod === "POST" ? ["memory", "write"] : null;
   return null;
 }
@@ -149,6 +186,11 @@ function betaApiRequirement(pathname: string, method: string): readonly [Resourc
 export function capabilitiesForRole(role: unknown): string[] {
   if (!includes(roles, role)) return [];
   return [...grants[role]].sort();
+}
+
+/** Beta is an identity/persistence overlay and never projects Alpha ingest authority. */
+export function betaCapabilitiesForRole(role: unknown): string[] {
+  return capabilitiesForRole(role).filter((capability) => !capability.startsWith("ingest:"));
 }
 
 export function canAccessPath(role: unknown, pathname: string): boolean {

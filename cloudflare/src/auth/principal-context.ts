@@ -1,15 +1,15 @@
 import type { ClerkVerification } from "./clerk.ts";
 import type { OperatorRole, DB } from "../db.ts";
-import { capabilitiesForRole, type Role } from "./policy.ts";
+import { betaCapabilitiesForRole, type Role } from "./policy.ts";
 
 type Environment = "local" | "staging" | "production";
 type MemberLifecycle = "invited" | "active" | "suspended" | "revoked";
 type MemberRow = { id: number; email: string; clerk_user_id: string | null; lifecycle_state: MemberLifecycle; pilot_cohort: "bangalore" | "company" };
-type OperatorRow = { id: number; email: string; display_name: string; role: OperatorRole; active: number };
+type OperatorRow = { id: number; email: string; display_name: string; role: OperatorRole; active: number; member_only?: number };
 
 export type PrincipalContext =
   | { kind: "operator"; operatorId: number; role: OperatorRole; email: string; firstName?: string; lastName?: string; displayName: string; environment: Environment; correlationId: string }
-  | { kind: "member"; memberId: number; role: "member"; email: string; firstName?: string; lastName?: string; displayName: string | null; workspace: "wtfmedia"; pilotCohort: "bangalore" | "company"; environment: Exclude<Environment, "production">; correlationId: string };
+  | { kind: "member"; memberId: number; role: "member"; email: string; firstName?: string; lastName?: string; displayName: string | null; workspace: "wtfmedia"; pilotCohort: "bangalore" | "company"; environment: Environment; correlationId: string };
 
 export type PrincipalContextDto = {
   kind: PrincipalContext["kind"];
@@ -48,7 +48,7 @@ function operatorContext(row: OperatorRow, identity: Extract<ClerkVerification, 
   return { kind: "operator", operatorId: row.id, role: row.role, email: row.email, ...(identity.firstName ? { firstName: identity.firstName } : {}), ...(identity.lastName ? { lastName: identity.lastName } : {}), displayName: row.display_name || displayName(identity.firstName, identity.lastName) || "Operator", environment, correlationId };
 }
 
-function memberContext(row: MemberRow, identity: Extract<ClerkVerification, { ok: true }>, environment: Exclude<Environment, "production">, correlationId: string): PrincipalContext {
+function memberContext(row: MemberRow, identity: Extract<ClerkVerification, { ok: true }>, environment: Environment, correlationId: string): PrincipalContext {
   return { kind: "member", memberId: row.id, role: "member", email: row.email, ...(identity.firstName ? { firstName: identity.firstName } : {}), ...(identity.lastName ? { lastName: identity.lastName } : {}), displayName: displayName(identity.firstName, identity.lastName), workspace: "wtfmedia", pilotCohort: row.pilot_cohort, environment, correlationId };
 }
 
@@ -58,10 +58,10 @@ function memberContext(row: MemberRow, identity: Extract<ClerkVerification, { ok
  * cannot downgrade an operator lifecycle denial into member access.
  */
 export async function resolvePrincipalContext(db: DB, identity: ClerkVerification, environment: Environment, correlationId: string, now = new Date().toISOString()): Promise<PrincipalContext | null> {
-  if (!identity.ok || environment === "production" || !validCorrelationId(correlationId)) return null;
+  if (!identity.ok || !validCorrelationId(correlationId)) return null;
   try {
-    const operator = await db.prepare("SELECT id, email, display_name, role, active FROM operators WHERE email = ?").bind(identity.email).first<OperatorRow>();
-    if (operator) {
+    const operator = await db.prepare("SELECT * FROM operators WHERE email = ?").bind(identity.email).first<OperatorRow>();
+    if (operator && operator.member_only !== 1) {
       if (!operatorRow(operator) || operator.active !== 1) return null;
       const context = operatorContext(operator, identity, environment, correlationId);
       await mirrorProfile(db, context);
@@ -94,7 +94,16 @@ export async function resolvePrincipalContext(db: DB, identity: ClerkVerificatio
       await mirrorProfile(db, context);
       return context;
     }
-    if (existing.lifecycle_state !== "active" || existing.clerk_user_id !== identity.userId) return null;
+    if (existing.lifecycle_state !== "active") return null;
+    if (existing.clerk_user_id !== identity.userId) {
+      // Issuer migration (e.g. dev -> live Clerk instance): the provider has
+      // already verified this email, so rebind the member row to the verified
+      // identity's user id instead of denying.
+      await db.batch([
+        db.prepare("UPDATE member_users SET clerk_user_id = ?, updated_at = ? WHERE id = ?").bind(identity.userId, now, existing.id),
+        db.prepare("INSERT INTO member_audit_events (id, actor_operator_id, member_id, invitation_id, action, outcome, correlation_id, metadata_json, occurred_at) VALUES (?, NULL, ?, NULL, 'member_activate', 'succeeded', ?, '{\"source\":\"issuer_rebind\"}', ?)").bind(`mevt_${crypto.randomUUID()}`, existing.id, correlationId, now),
+      ]);
+    }
     const context = memberContext(existing, identity, environment, correlationId);
     await mirrorProfile(db, context);
     return context;
@@ -111,8 +120,8 @@ export function principalContextDto(context: PrincipalContext): PrincipalContext
     ...(context.firstName ? { firstName: context.firstName } : {}),
     ...(context.lastName ? { lastName: context.lastName } : {}),
     displayName: context.displayName,
-    landingRoute: context.kind === "operator" ? "/beta/workspace" : "/beta/chat",
-    capabilities: capabilitiesForRole(context.role),
+    landingRoute: "/beta/chat",
+    capabilities: betaCapabilitiesForRole(context.role),
     environment: context.environment,
   };
 }

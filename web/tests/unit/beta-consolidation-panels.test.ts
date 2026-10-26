@@ -5,16 +5,37 @@ import { describe, expect, it } from "vitest";
 const source = (file: string) => readFileSync(resolve(process.cwd(), file), "utf8");
 
 describe("Beta consolidation admin panels", () => {
+  it("uses the imported decision workspace as the OAuth-backed primary YouTube UI", () => {
+    const workspace = source("components/domain/ops/YouTubeAnalyticsWorkspace.tsx");
+    const document = source("public/analytics-demo/index.html");
+    const bridge = source("public/analytics-demo/production-bridge.js");
+
+    expect(workspace).toContain("/analytics-demo/index.html?mode=production");
+    expect(workspace).not.toContain("demo reference");
+    expect(document).toContain("production-bridge.js");
+    expect(document).toContain("auth-bridge.js");
+    expect(document).not.toContain("PRODUCTION DATA CONTRACT");
+    expect(document).not.toContain("Frontend rule:");
+    for (const route of [
+      "/beta/api/analytics/status",
+      "/beta/api/analytics/oauth/start",
+      "/beta/api/analytics/selection",
+      "/beta/api/analytics/sync",
+      "/beta/api/analytics/youtube?",
+      "/beta/api/analytics/youtube/episodes/compare?",
+      "/beta/api/analytics/youtube/retention",
+    ]) expect(bridge).toContain(route);
+    expect(bridge).toContain("clearProviderData");
+    expect(bridge).not.toMatch(/CLIENT_SECRET|access[_-]?token|refresh[_-]?token/i);
+  });
+
   it("projects explicit memory as separate from durable history", () => {
     const panel = source("components/domain/ops/MemoryGovernancePanel.tsx");
 
     expect(panel).toMatch(/automatic extraction/i);
-    expect(panel).toContain("explicit only");
-    expect(panel).toContain("data-memory-workspace");
+    expect(panel).toContain("not conversation history");
     expect(panel).toContain("/ops/api/memory");
-    expect(panel).toContain("durable account history");
-    expect(panel).toContain("saved memory");
-    for (const control of ["explicit save", "source provenance", "owner scope", "retention", "archive", "export", "audit"]) {
+    for (const control of ["explicit save", "custom instructions", "owner scope", "immutable entries", "replacement", "archive", "audit"]) {
       expect(panel).toContain(control);
     }
     for (const sensitiveField of ["prompt", "answer", "token", "secret", "private payload"]) {
@@ -45,7 +66,6 @@ describe("Beta consolidation admin panels", () => {
     const youtube = source("components/domain/ops/YouTubeAnalyticsSettingsPanel.tsx");
     const chat = source("app/(operator)/ops/chat/ChatWorkspace.tsx");
     const sessionNavigator = source("app/(operator)/ops/chat/ChatSessionNavigator.tsx");
-    const publicChat = source("components/domain/public/MigratedChatPage.tsx");
     const settings = source("app/(operator)/ops/settings/page.tsx");
     const settingsLayout = source("app/(operator)/ops/settings/layout.tsx");
     const settingsNavigation = source("components/domain/ops/SettingsNavigation.tsx");
@@ -74,7 +94,7 @@ describe("Beta consolidation admin panels", () => {
     for (const value of ["global primary model", "fallback order", "add fallback", "OpenRouter API key", "KV projection", "write-only", "save local policy"]) {
       expect(ai).toContain(value);
     }
-    for (const value of ["YouTube Analytics", "OAuth-first", "local preview", "mock dashboard", "fixture data", "no analytics observation"]) {
+    for (const value of ["analytics", "YouTube", "Website (GA4)", "connect Google", "last successful refresh", "unavailable"]) {
       expect(youtube).toContain(value);
     }
     expect(ai).not.toContain("process.env");
@@ -85,8 +105,13 @@ describe("Beta consolidation admin panels", () => {
     for (const value of ["data-chat-session-navigator", "data-chat-session-link", "data-chat-new-session", "load more", "Session navigation is unavailable right now."]) {
       expect(sessionNavigator).toContain(value);
     }
+    const publicShell = source("components/patterns/PublicShell.tsx");
+    const publicChat = source("components/domain/public/MigratedChatPage.tsx");
+    // Public signup is activated: the shell exposes sign-in on public routes
+    // and still bypasses public chrome on protected routes.
+    expect(publicShell).toContain("data-public-sign-in");
+    expect(appRail).toContain("data-navigation-utilities");
     expect(publicChat).toContain('data-chat-frame="alpha"');
-    expect(publicChat).toContain('placement="inline"');
     expect(publicChat).not.toContain("WorkspaceHeader");
     for (const href of ["/beta/settings/workspace/readiness", "/beta/settings/workspace/release", "/beta/settings/workspace/ai", "/beta/settings/workspace/analytics", "/beta/settings/workspace/sessions", "/beta/settings/workspace/memory", "/beta/settings/workspace/sources", "/beta/admin/users"]) {
       expect(settingsContract + settingsLayout + settingsNavigation + settings).toContain(href);
@@ -123,7 +148,7 @@ describe("Beta consolidation admin panels", () => {
       ["readiness", "BetaReadinessLedger"],
       ["release", "ReleaseControl"],
       ["ai", "AIProviderSettingsPanel"],
-      ["analytics", "YouTubeAnalyticsSettingsPanel"],
+      ["analytics", "YouTubeAnalyticsWorkspace"],
       ["sessions", "SessionHistoryPolicyPanel"],
       ["memory", "MemoryGovernancePanel"],
       ["sources", "RagSourceHealthPanel"],

@@ -21,9 +21,40 @@
     }
   ],
   "images": { "binding": "IMAGES" },
+  // Alpha remains reachable through its service binding for chat inference.
+  "routes": [],
   "env": {
+    // The approved authenticated app is the apex ingress; keep its existing
+    // worker identity and secrets. Alpha stays the internal inference service.
+    "beta": {
+      "name": "wtfmedia-web-beta",
+      "routes": [
+        {
+          "pattern": "wtfhq.in",
+          "custom_domain": true
+        }
+      ],
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "wtfmedia-web-beta"
+        },
+        {
+          "binding": "WTFMEDIA_EDGE",
+          "service": "wtfmedia-edge"
+        }
+      ],
+      "images": { "binding": "IMAGES" }
+    },
     "staging": {
       "name": "wtfmedia-web-staging",
+      "vars": { "SOCIAL_ANALYTICS_ENABLED": "1", "NEXT_PUBLIC_SOCIAL_ANALYTICS_ENABLED": "1" },
+      "routes": [
+        {
+          "pattern": "beta-staging.wtfhq.in",
+          "custom_domain": true
+        }
+      ],
       "services": [
         {
           "binding": "WORKER_SELF_REFERENCE",

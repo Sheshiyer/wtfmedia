@@ -70,20 +70,38 @@ test("the browser principal DTO contains safe display fields and no stable inter
   });
   assert.deepEqual(dto, {
     kind: "member", role: "member", email: identity.email, firstName: "Person", lastName: "Example", displayName: "Person Example",
-    landingRoute: "/beta/chat", capabilities: ["beta:read", "chat:read", "chat:write", "memory:read", "memory:write"], environment: "staging",
+    landingRoute: "/beta/chat", capabilities: ["analytics:read", "beta:read", "chat:read", "chat:write", "memory:read", "memory:write", "research:read", "research:write"], environment: "staging",
   });
   assert.doesNotMatch(JSON.stringify(dto), /memberId|operatorId|correlationId|user_|hash|digest/i);
 });
 
-test("operator principals land on the canonical Beta workspace root", () => {
+test("operator principals land on the chat surface like everyone else", () => {
   const dto = principalContextDto({
     kind: "operator", operatorId: 7, role: "editor", email: "operator@example.test", displayName: "Operator", environment: "staging", correlationId: "corr-principal-operator",
   });
-  assert.equal(dto.landingRoute, "/beta/workspace");
+  assert.equal(dto.landingRoute, "/beta/chat");
+  assert.equal(dto.capabilities.some((capability) => capability.startsWith("ingest:")), false);
 });
 
 test("principal DTO type permits only canonical Beta landing routes", () => {
   const source = readFileSync(new URL("../src/auth/principal-context.ts", import.meta.url), "utf8");
   assert.match(source, /landingRoute: "\/beta\/chat" \| "\/beta\/workspace";/);
   assert.doesNotMatch(source, /landingRoute: "\/beta\/chat" \| "\/beta\/workspace\/production";/);
+});
+
+test("production environment resolves the same as staging; the release manifest is the gate", async () => {
+  const db = contextDb({
+    operator: { id: 8, email: identity.email, display_name: "Prod Operator", role: "admin", active: 1 },
+  });
+  const context = await resolvePrincipalContext(db, identity, "production", "corr-principal-prod");
+  assert.equal(context?.kind, "operator");
+  assert.equal(context?.role, "admin");
+  assert.equal(context?.environment, "production");
+});
+
+test("an active member with a stale clerk id rebinds to the verified identity instead of denying", async () => {
+  const db = contextDb({ member: { id: 9, email: identity.email, clerk_user_id: "user_old_instance", lifecycle_state: "active", pilot_cohort: "company" } });
+  const context = await resolvePrincipalContext(db, identity, "production", "corr-principal-rebind");
+  assert.equal(context?.kind, "member");
+  assert.equal(db.calls.some((call) => call.sql.includes("UPDATE member_users SET clerk_user_id") && call.args.includes(identity.userId)), true);
 });

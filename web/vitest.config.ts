@@ -15,6 +15,7 @@ export default defineConfig({
     passWithNoTests: true,
     projects: [
       {
+        extends: true,
         resolve: { alias },
         test: {
           name: "unit",

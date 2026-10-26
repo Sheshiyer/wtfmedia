@@ -15,7 +15,7 @@ if (args.has("--negative-fixtures")) {
   console.log("negative fixture passed: absent staging receipt blocks verification"); process.exit(0);
 }
 console.log("Phase 2 deterministic verification");
-for (const [label, command] of [["threat definitions", "node scripts/lib/phase2-threat-results.mjs --check-definitions"], ["typecheck", "npm run typecheck"], ["Cloudflare tests", "npm --prefix ../cloudflare test"], ["operator UI", "npm run test:browser -- tests/phase2/control-room.spec.ts tests/phase2/operators.spec.ts tests/phase2/audit-ui.spec.ts"], ["audit filter unit", "npm run test:unit -- audit-filters"], ["privacy", "npm run test:privacy -- --check"]]) run(command, label);
+for (const [label, command] of [["threat definitions", "node scripts/lib/phase2-threat-results.mjs --check-definitions"], ["typecheck", "npm run typecheck"], ["Cloudflare tests", "npm --prefix ../cloudflare test"], ["operator UI", "npm run test:browser -- --config=playwright.phase2.config.ts tests/phase2/control-room.spec.ts tests/phase2/operators.spec.ts tests/phase2/audit-ui.spec.ts"], ["audit filter unit", "npm run test:unit -- audit-filters"], ["privacy", "npm run test:privacy -- --check"]]) run(command, label);
 if (args.has("--staging") || args.has("--final")) receipt(path.join(root, ".runtime/preflight/phase2-staging.json"), "staging");
 if (args.has("--final")) { receipt(path.join(webRoot, "tests/visual/phase2-approval.json"), "owner approval"); receipt(path.join(root, ".runtime/preflight/phase2-production-smoke.json"), "production smoke"); }
 console.log("Phase 2 deterministic verification passed");

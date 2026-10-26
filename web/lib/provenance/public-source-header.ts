@@ -7,7 +7,14 @@
  * client components.
  */
 
-import { isMappingStatus, parseSourceMode, type MappingStatus, type SourceMode } from "./source-mode";
+import {
+  isMappingStatus,
+  isTimestampStatus,
+  parseSourceMode,
+  type MappingStatus,
+  type SourceMode,
+  type TimestampStatus,
+} from "./source-mode";
 
 export interface PublicSourceCitation {
   n?: number;
@@ -15,10 +22,17 @@ export interface PublicSourceCitation {
   videoId?: string;
   title?: string;
   url?: string;
+  /** Calibrated display confidence (0–1); see lib/provenance/confidence. */
   score?: number;
+  /** Raw vector similarity, kept for transparency/debugging. */
+  scoreRaw?: number;
   timeSec?: number;
   sourceMode?: SourceMode;
   mappingStatus?: MappingStatus;
+  timestampStatus?: TimestampStatus;
+  timestampReason?: string;
+  /** Timestamp certainty (0–1) — what the confidence badge reports. */
+  timestampConfidence?: number;
   segmentId?: string;
 }
 
@@ -76,6 +90,7 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
   const title = textField(raw.title);
   const url = textField(raw.url);
   const score = nonNegativeNumber(raw.score);
+  const scoreRaw = nonNegativeNumber(raw.scoreRaw ?? raw.score_raw);
   const timeSec =
     nonNegativeNumber(raw.timeSec) ??
     nonNegativeNumber(raw.timestampSec) ??
@@ -88,6 +103,13 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
     : isMappingStatus(raw.mapping_status)
       ? raw.mapping_status
       : undefined;
+  const timestampStatus = isTimestampStatus(raw.timestampStatus)
+    ? raw.timestampStatus
+    : isTimestampStatus(raw.timestamp_status)
+      ? raw.timestamp_status
+      : undefined;
+  const timestampReason = textField(raw.timestampReason ?? raw.timestamp_reason)?.slice(0, 320);
+  const timestampConfidence = nonNegativeNumber(raw.timestampConfidence ?? raw.timestamp_confidence);
   const segmentId = textField(raw.segmentId ?? raw.segment_id);
 
   if (n !== undefined) source.n = n;
@@ -96,9 +118,13 @@ function normalizeSource(value: unknown): PublicSourceCitation | null {
   if (title) source.title = title;
   if (url) source.url = url;
   if (score !== undefined) source.score = score;
+  if (scoreRaw !== undefined) source.scoreRaw = scoreRaw;
   if (timeSec !== undefined) source.timeSec = timeSec;
   if (raw.sourceMode != null || raw.source_mode != null) source.sourceMode = sourceMode;
   if (mappingStatus) source.mappingStatus = mappingStatus;
+  if (timestampStatus) source.timestampStatus = timestampStatus;
+  if (timestampReason) source.timestampReason = timestampReason;
+  if (timestampConfidence !== undefined) source.timestampConfidence = Math.min(1, timestampConfidence);
   if (segmentId) source.segmentId = segmentId;
 
   return Object.keys(source).length > 0 ? source : null;

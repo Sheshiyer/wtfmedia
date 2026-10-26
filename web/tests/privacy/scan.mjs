@@ -79,12 +79,12 @@ const OPERATOR_VOCAB = [
 ];
 const operatorKeyPattern = new RegExp(`["'](${OPERATOR_VOCAB.join("|")})["']\\s*:`, "i");
 
-const EXTENDED_FORBIDDEN = {
+export const EXTENDED_FORBIDDEN = {
   // Secret-shaped literal values: Bearer tokens, sk-/ghp_ style keys, AWS access key ids.
-  credentialValue: /\b(Bearer\s+[A-Za-z0-9._-]{10,}|sk-[A-Za-z0-9]{10,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16})\b/,
+  credentialValue: /\b(Bearer\s+[A-Za-z0-9._-]{10,}|sk-(?:ant-[A-Za-z0-9_-]{10,}|[A-Za-z0-9]{10,})|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16})\b/,
   // ALL_CAPS SECRET/TOKEN/PASSWORD/CREDENTIAL identifier assigned to a quoted literal of 6+ chars.
   // Skips process.env reads (no literal there) and camelCase identifiers (dummy test doubles).
-  assignedSecretLiteral: /\b[A-Z][A-Z0-9_]*(?:SECRET|TOKEN|PASSWORD|CREDENTIAL)[A-Z0-9_]*\s*[:=]\s*["']([^"']{6,})["']/,
+  assignedSecretLiteral: /\b[A-Z][A-Z0-9_]*(?:SECRET|TOKEN|PASSWORD|CREDENTIAL|API_KEY)[A-Z0-9_]*\s*[:=]\s*["']([^"']{6,})["']/,
   operatorKey: operatorKeyPattern,
   machinePath: /\/(Users|home|root|Volumes|private\/tmp)\/[^\s"']+/i,
 };
@@ -236,4 +236,4 @@ function main() {
   process.exit(0);
 }
 
-main();
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

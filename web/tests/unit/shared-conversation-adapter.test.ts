@@ -12,6 +12,8 @@ describe("shared Alpha conversation frame", () => {
     expect(conversationThread).toContain("export interface ConversationThreadFrameProps");
     expect(conversationThread).toContain("export function ConversationThreadFrame");
     expect(conversationThread).toContain("renderFooter?: (placement: ConversationComposerPlacement) => ReactNode");
-    expect(conversationThread).toContain('data-composer-placement={isOverflowing ? "inline" : "fixed"}');
+    expect(conversationThread).toContain('data-composer-placement={placement}');
+    expect(conversationThread).toContain('composerPlacement = "auto"');
+    expect(conversationThread).toContain('composerPlacement === "fixed"');
   });
 });

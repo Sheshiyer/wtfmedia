@@ -21,7 +21,7 @@ for (const key of ["CF_API_TOKEN", "CLOUDFLARE_API_TOKEN", "CF_ACCOUNT_ID", "CLO
   delete env[key];
 }
 
-const result = spawnSync(binary, ["--profile", profile, ...args], {
+const result = spawnSync(binary, [`--profile=${profile}`, ...args], {
   env,
   stdio: "inherit",
 });

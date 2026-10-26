@@ -12,6 +12,8 @@ export type PrincipalContext = {
   environment: "local" | "staging" | "production";
 };
 
+const betaChatPath = /^\/beta\/chat(?:\/(?:mcnv|cnv)_[A-Za-z0-9-]{8,88})?$/u;
+
 /** Browser DTO boundary. Unknown or operator-only fields are discarded. */
 export function parsePrincipalContext(value: unknown): PrincipalContext | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
@@ -24,9 +26,8 @@ export function parsePrincipalContext(value: unknown): PrincipalContext | null {
   if (!role || typeof raw.email !== "string" || !raw.email.includes("@")) return null;
   if ((kind === "member" && role !== "member") || (kind === "operator" && role === "member")) return null;
   const landingValue = raw.canonicalLanding ?? raw.landingRoute;
-  const landing = landingValue === "/beta/chat"
-    ? "/beta/chat"
-    : kind === "member" ? "/beta/chat" : "/beta/workspace";
+  // Everyone lands on chat; the control room is reachable but never the landing.
+  const landing = landingValue === "/beta/workspace" ? "/beta/workspace" : "/beta/chat";
   const environment = raw.environment === "staging" || raw.environment === "production" ? raw.environment : "local";
   const capabilities = Array.isArray(raw.capabilities)
     ? raw.capabilities.filter((entry): entry is string => typeof entry === "string").slice(0, 128)
@@ -45,8 +46,13 @@ export function parsePrincipalContext(value: unknown): PrincipalContext | null {
 
 export function principalCanAccess(context: PrincipalContext, pathname: string): boolean {
   if (pathname === "/beta" || pathname === "/beta/api/principal-context") return true;
+  if (pathname === "/beta/social-analytics") return context.capabilities.includes("analytics:read");
+  if (pathname === "/beta/research") return context.capabilities.includes("research:read");
   if (context.kind === "member") {
-    return pathname === "/beta/chat" || /^\/beta\/chat\/(?:mcnv|cnv)_[A-Za-z0-9-]{8,88}$/u.test(pathname) || [
+    return betaChatPath.test(pathname) || [
+      "/beta/analytics",
+      "/beta/settings/workspace/analytics",
+      "/beta/connections",
       "/beta/settings",
       "/beta/settings/account",
       "/beta/settings/memory",
@@ -54,16 +60,17 @@ export function principalCanAccess(context: PrincipalContext, pathname: string):
       "/beta/settings/appearance",
     ].includes(pathname);
   }
-  return pathname.startsWith("/beta/workspace") || pathname.startsWith("/beta/settings") || pathname.startsWith("/beta/admin") || pathname.startsWith("/beta/api/");
+  return pathname === "/beta/connections" || pathname === "/beta/analytics" || betaChatPath.test(pathname) || pathname.startsWith("/beta/workspace") || pathname.startsWith("/beta/settings") || pathname.startsWith("/beta/admin") || pathname.startsWith("/beta/api/");
 }
 
 export function capabilityForPath(pathname: string): string | null {
+  if (pathname === "/beta/research") return "research:read";
   if (pathname.startsWith("/beta/admin/release")) return "release:manage";
   if (pathname.startsWith("/beta/admin/users")) return "members:read";
   if (pathname.startsWith("/beta/admin/audit")) return "audit:read";
-  if (pathname.startsWith("/beta/workspace/ingest")) return "ingest:read";
   if (pathname.startsWith("/beta/workspace/episodes")) return "episodes:read";
   if (pathname.startsWith("/beta/workspace")) return "control_room:read";
+  if (pathname === "/beta/analytics" || pathname === "/beta/social-analytics" || pathname === "/beta/settings/workspace/analytics") return "analytics:read";
   if (pathname.startsWith("/beta/settings/workspace")) return "control_room:read";
   return null;
 }

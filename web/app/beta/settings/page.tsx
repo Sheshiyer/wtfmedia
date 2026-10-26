@@ -1,6 +1,7 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
+import { ClerkLogoutButton } from "@/components/domain/ops/ClerkLogoutButton";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
 
 export default function MemberAccountSettingsPage() {
@@ -20,6 +21,14 @@ export default function MemberAccountSettingsPage() {
           </dl>
         )}
         <p className="mt-5 text-sm leading-relaxed text-secondary">These details are shown for orientation only. Account changes are not available from this page.</p>
+      </section>
+      <section className="mt-6 flex flex-col gap-4 border-2 border-foreground bg-surface-subtle p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6" aria-labelledby="settings-session-title" data-settings-account>
+        <div>
+          <p className="font-label text-[10px] font-bold uppercase tracking-[0.14em] text-muted">account actions</p>
+          <h2 id="settings-session-title" className="mt-1 font-heading text-xl font-bold lowercase">leave this workspace</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-secondary">End this protected session and return to public Alpha.</p>
+        </div>
+        <ClerkLogoutButton />
       </section>
     </div>
   );

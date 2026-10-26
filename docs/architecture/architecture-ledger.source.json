@@ -16,6 +16,7 @@
     ".project/HANDOFF.md",
     "docs/PHASE2-OPERATIONS-RUNBOOK.md",
     "docs/wtf-os-agentic-settings.md",
+    "docs/RESEARCH-RUNNER.md",
     "docs/CLOUDFLARE-INFRASTRUCTURE.md",
     "cloudflare/config/ops-environments.schema.json",
     "CHANGELOG.md",
@@ -37,6 +38,7 @@
     "cloudflare/migrations",
     "cloudflare/config",
     "cloudflare/tests",
+    "research",
     "plugins/wtf-os",
     ".github/workflows",
     "scripts"
@@ -387,6 +389,67 @@
       "body": [
         "When architecture-affecting code, bindings, migrations, workflows, version metadata, or release metadata changes, update this source ledger for semantic claims and regenerate before review.",
         "Runtime changes remain human-attested: an owner may append a redacted receipt after a separately approved action. CI must never configure Cloudflare, OAuth, calendar, MCP, or OTA state."
+      ]
+    },
+    {
+      "id": "research-workspace",
+      "number": "21",
+      "title": "Authenticated research workspace and private runner",
+      "status": "implemented_source",
+      "summary": "Research uses the existing Beta shell and principal policy. D1 stores private briefs and versions; a separate token-authenticated Python runner reuses GPT Researcher with allowlisted Treg tools and direct Claude generation.",
+      "facts": [
+        { "label": "Workspace", "value": "Flexible guest/company/industry inputs, Additional info guidance, scoped reports, Word export, sidebar deletion and saved-evidence follow-ups. Historical versions remain stored.", "evidence": ["web/components/domain/beta/ResearchWorkspace.tsx", "cloudflare/src/research.ts", "web/lib/research-docx.ts"] },
+        { "label": "Persistence", "value": "Owner-scoped D1 records, durable SQLite runner jobs, fenced cancellation and retryable erasure", "evidence": ["cloudflare/migrations/0023_research.sql", "cloudflare/src/research-erasure.ts", "research/store.py"] },
+        { "label": "Evidence boundary", "value": "Six-channel public extracts remain separate from Ask WTF transcripts. Report follow-ups use retained evidence without new searches.", "evidence": ["research/chat.py", "research/evidence.py", "research/gptr.py"] },
+        { "label": "Activation", "value": "Direct Claude credentials, live calibration and deployment require separate verification; shared Alpha Ask WTF is a distinct cutover.", "evidence": ["docs/RESEARCH-RUNNER.md", "docs/CLAUDE-GENERATION.md"] }
+      ],
+      "body": ["Local automated checks are source evidence only. The managed-research comparison, real provider billing, retrieval quality and three-guest editorial trial remain open; no deployment is implied."]
+    },
+    {
+      "id": "social-analytics-chat",
+      "number": "22",
+      "title": "Social metrics and private analytics chat",
+      "status": "implemented_source",
+      "summary": "Authenticated Beta uses one environment-specific Zernio workspace, validated direct Claude query plans, and deterministic metric evidence. Deployment and credentials remain separately verified.",
+      "facts": [
+        {
+          "label": "Authority",
+          "value": "Clerk/D1 admission and analytics read/manage capabilities protect all private routes; admins confirm profiles.",
+          "evidence": [
+            "cloudflare/src/social-analytics.ts",
+            "cloudflare/src/auth/policy.ts",
+            "cloudflare/src/member-router.ts"
+          ]
+        },
+        {
+          "label": "Evidence",
+          "value": "Shared provider normalizers preserve unavailable metrics and distinguish period activity from lifetime post data; one bounded planner call selects allowed queries.",
+          "evidence": [
+            "cloudflare/src/social-analytics-provider.ts",
+            "cloudflare/src/social-analytics-assistant.ts",
+            "cloudflare/src/social-analytics-evidence.ts"
+          ]
+        },
+        {
+          "label": "Privacy",
+          "value": "Owner-scoped snapshots have deletion tombstones and account-erasure integration.",
+          "evidence": [
+            "cloudflare/migrations/0024_social_analytics.sql",
+            "cloudflare/src/social-analytics-investigations.ts",
+            "cloudflare/src/user-deletion.ts"
+          ]
+        },
+        {
+          "label": "Interface",
+          "value": "Structured chat answers, explicit scope, source freshness, cancellation/retry and private saved chats.",
+          "evidence": [
+            "web/components/domain/social/SocialAnalyticsChat.tsx",
+            "docs/SOCIAL-ANALYTICS-LOCAL.md"
+          ]
+        }
+      ],
+      "body": [
+        "Local automated checks are source evidence only. Live Zernio validation, shared migration and deployment require separate completion; Ask WTF and Research retain their existing authority."
       ]
     }
   ],

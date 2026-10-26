@@ -1,0 +1,334 @@
+import assert from "node:assert/strict";
+import { describe, test } from "node:test";
+
+import {
+  applyDurationBudget,
+  buildMomentEnrichmentInput,
+  buildMoments,
+  formatClock,
+  parseDurationBudget,
+  parseMomentEnrichment,
+  reelRelevant,
+  resolveMomentEnds,
+} from "../src/chat/moments.ts";
+
+function source(overrides) {
+  return {
+    n: 1,
+    videoId: "abc123def45",
+    title: "Ep 1",
+    url: "https://www.youtube.com/watch?v=abc123def45",
+    score: 0.8,
+    start: 300,
+    segmentId: "abc123def45:5",
+    ...overrides,
+  };
+}
+
+describe("buildMoments", () => {
+  test("emits one moment per chunk so an episode yields several distinct timestamps", () => {
+    const moments = buildMoments([
+      source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
+      source({ n: 2, start: 360, segmentId: "abc123def45:6" }),
+      source({ n: 3, start: 420, segmentId: "abc123def45:7" }),
+    ]);
+    assert.equal(moments.length, 3);
+    assert.deepEqual(moments.map((m) => m.chunkStart).sort((a, b) => a - b), [5, 6, 7]);
+    assert.deepEqual(moments.map((m) => m.citationNumbers), [[1], [2], [3]]);
+  });
+
+  test("keeps chunk-gap moments in the same episode separate", () => {
+    const moments = buildMoments([
+      source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
+      source({ n: 2, start: 900, segmentId: "abc123def45:15" }),
+    ]);
+    assert.equal(moments.length, 2);
+    assert.deepEqual(moments.map((m) => m.chunkStart).sort((a, b) => a - b), [5, 15]);
+  });
+
+  test("keeps episodes separate and orders moments by score", () => {
+    const moments = buildMoments([
+      source({ n: 1, videoId: "aaa111bbb22", segmentId: "aaa111bbb22:3", start: 100, score: 0.6, title: "Low" }),
+      source({ n: 2, videoId: "ccc333ddd44", segmentId: "ccc333ddd44:8", start: 200, score: 0.9, title: "High" }),
+    ]);
+    assert.equal(moments.length, 2);
+    assert.equal(moments[0].title, "High");
+    assert.equal(moments[1].title, "Low");
+  });
+
+  test("skips sources without a start or with unparseable segment IDs", () => {
+    const moments = buildMoments([
+      source({ n: 1, start: null }),
+      source({ n: 2, segmentId: "uncut:abc123def45" }),
+      source({ n: 3, segmentId: undefined }),
+      source({ n: 4, start: 300, segmentId: "abc123def45:5" }),
+    ]);
+    assert.equal(moments.length, 1);
+    assert.deepEqual(moments[0].citationNumbers, [4]);
+  });
+
+  test("carries each chunk's own timestamp confidence", () => {
+    const moments = buildMoments([
+      source({ n: 1, start: 300, segmentId: "abc123def45:5", timestampConfidence: 0.9 }),
+      source({ n: 2, start: 360, segmentId: "abc123def45:6", timestampConfidence: 0.4 }),
+    ]);
+    assert.equal(moments.length, 2);
+    assert.deepEqual(moments.map((m) => m.timestampConfidence).sort(), [0.4, 0.9]);
+  });
+});
+
+describe("resolveMomentEnds", () => {
+  test("fills end and duration from the next chunk's start, batched", async () => {
+    const requested = [];
+    // Real env.VECTORIZE.getByIds resolves to a plain VectorizeVector[] array.
+    const vectorize = {
+      async getByIds(ids) {
+        requested.push(ids);
+        return ids
+          .filter((id) => id === "abc123def45:6")
+          .map((id) => ({ id, metadata: { start: 420 } }));
+      },
+    };
+    const [moment] = await resolveMomentEnds(vectorize, buildMoments([
+      source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
+    ]));
+    assert.deepEqual(requested, [["abc123def45:6", "abc123def45:5"]]);
+    assert.equal(moment.endSec, 420);
+    assert.equal(moment.durationSec, 120);
+  });
+
+  test("leaves duration null when the next chunk is missing or lookup fails", async () => {
+    const empty = { async getByIds() { return []; } };
+    const failing = { async getByIds() { throw new Error("boom"); } };
+    const base = buildMoments([source({ n: 1, start: 300, segmentId: "abc123def45:5" })]);
+    assert.equal((await resolveMomentEnds(empty, base))[0].durationSec, null);
+    assert.equal((await resolveMomentEnds(failing, base))[0].durationSec, null);
+  });
+
+  test("also accepts the wrapped { matches } shape from SDK-style mocks", async () => {
+    const wrapped = {
+      async getByIds() { return { matches: [{ id: "abc123def45:6", metadata: { start: 420 } }] }; },
+    };
+    const [moment] = await resolveMomentEnds(wrapped, buildMoments([
+      source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
+    ]));
+    assert.equal(moment.endSec, 420);
+  });
+
+  test("splits lookups into batches of 20 — the Vectorize getByIds ceiling", async () => {
+    const requested = [];
+    const vectorize = {
+      async getByIds(ids) {
+        requested.push(ids);
+        return ids.map((id) => ({ id, metadata: { start: 1000 } }));
+      },
+    };
+    // 25 moments across distinct episodes → 50 ids (next + own) → 3 batches.
+    const sources = Array.from({ length: 25 }, (_, index) => {
+      const videoId = `video${String(index).padStart(5, "0")}x`;
+      return source({ n: index + 1, videoId, start: 100, segmentId: `${videoId}:3` });
+    });
+    const moments = await resolveMomentEnds(vectorize, buildMoments(sources));
+    assert.equal(requested.length, 3);
+    assert.equal(requested[0].length, 20);
+    assert.equal(requested[2].length, 10);
+    assert.ok(moments.every((moment) => moment.durationSec === 900));
+  });
+
+  test("estimates the end from the final chunk's transcript when no next chunk exists", async () => {
+    const transcript = Array.from({ length: 150 }, () => "word").join(" "); // 150 words ≈ 60s
+    const vectorize = {
+      async getByIds(ids) {
+        // Only the moment's own last chunk exists — it is the episode's end.
+        return ids
+          .filter((id) => id === "abc123def45:5")
+          .map((id) => ({ id, metadata: { start: 300, text: transcript } }));
+      },
+    };
+    const [moment] = await resolveMomentEnds(vectorize, buildMoments([
+      source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
+    ]));
+    assert.equal(moment.endSec, 360);
+    assert.equal(moment.durationSec, 60);
+    assert.equal(moment.durationEstimated, true);
+  });
+
+  test("exact next-chunk ends are never flagged as estimates", async () => {
+    const vectorize = {
+      async getByIds(ids) {
+        return ids.map((id) => ({ id, metadata: { start: 420, text: "some words here" } }));
+      },
+    };
+    const [moment] = await resolveMomentEnds(vectorize, buildMoments([
+      source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
+    ]));
+    assert.equal(moment.endSec, 420);
+    assert.equal(moment.durationEstimated, undefined);
+  });
+
+  test("clamps estimates and leaves duration null when the final chunk has no text", async () => {
+    const longText = Array.from({ length: 5000 }, () => "word").join(" "); // way past the cap
+    const vectorize = {
+      async getByIds(ids) {
+        return ids
+          .filter((id) => id === "abc123def45:5")
+          .map((id) => ({ id, metadata: { start: 300, text: longText } }));
+      },
+    };
+    const [clamped] = await resolveMomentEnds(vectorize, buildMoments([
+      source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
+    ]));
+    assert.equal(clamped.durationSec, 300);
+    const noText = { async getByIds() { return [{ id: "abc123def45:5", metadata: { start: 300 } }]; } };
+    const [unresolved] = await resolveMomentEnds(noText, buildMoments([
+      source({ n: 1, start: 300, segmentId: "abc123def45:5" }),
+    ]));
+    assert.equal(unresolved.durationSec, null);
+  });
+});
+
+describe("parseDurationBudget", () => {
+  test("parses minutes, hours, and half an hour", () => {
+    assert.equal(parseDurationBudget("give me relationship moments in 30 min"), 1800);
+    assert.equal(parseDurationBudget("45 minutes of dating advice"), 2700);
+    assert.equal(parseDurationBudget("1.5 hours on grief"), 5400);
+    assert.equal(parseDurationBudget("half an hour of trust"), 1800);
+  });
+
+  test("returns null without a duration phrase", () => {
+    assert.equal(parseDurationBudget("what did guests say about relationships"), null);
+    assert.equal(parseDurationBudget("episode 30 highlights"), null);
+  });
+});
+
+describe("applyDurationBudget", () => {
+  const withDurations = [
+    { ...buildMoments([source({ n: 1, score: 0.9, start: 0, segmentId: "abc123def45:1" })])[0], endSec: 600, durationSec: 600 },
+    { ...buildMoments([source({ n: 2, score: 0.8, start: 900, segmentId: "abc123def45:16" })])[0], endSec: 1500, durationSec: 600 },
+    { ...buildMoments([source({ n: 3, score: 0.7, start: 2000, segmentId: "abc123def45:34" })])[0], endSec: 2600, durationSec: 600 },
+  ];
+
+  test("selects by score until the budget fills, overflow marked out of budget", () => {
+    const { moments, totalDurationSec, budgetSec } = applyDurationBudget(withDurations, 1500);
+    assert.equal(budgetSec, 1500);
+    assert.equal(totalDurationSec, 1200);
+    assert.deepEqual(moments.map((m) => m.withinBudget), [true, true, false]);
+  });
+
+  test("unknown-duration moments stay visible without spending budget", () => {
+    const unknown = buildMoments([source({ n: 4, score: 0.6, start: 50, segmentId: "abc123def45:2" })]);
+    const { moments, totalDurationSec } = applyDurationBudget([...withDurations.slice(0, 1), ...unknown], 600);
+    assert.equal(totalDurationSec, 600);
+    assert.deepEqual(moments.map((m) => m.withinBudget), [true, true]);
+  });
+
+  test("weak matches never pad the budget — the sheet shows what we have", () => {
+    const weak = { ...withDurations[2], score: 0.5 };
+    const { moments, totalDurationSec } = applyDurationBudget([withDurations[0], weak], 3600);
+    assert.equal(totalDurationSec, 600);
+    assert.deepEqual(moments.map((m) => m.withinBudget), [true, false]);
+  });
+
+  test("no budget keeps everything and reports the total", () => {
+    const { moments, totalDurationSec, budgetSec } = applyDurationBudget(withDurations, null);
+    assert.equal(budgetSec, null);
+    assert.equal(totalDurationSec, 1800);
+    assert.ok(moments.every((m) => m.withinBudget));
+  });
+});
+
+describe("reelRelevant", () => {
+  test("drops moments the enrichment judged off-topic, keeps the rest", () => {
+    assert.equal(reelRelevant({ strength: 1 }), false);
+    assert.equal(reelRelevant({ strength: 2 }), false);
+    assert.equal(reelRelevant({ strength: 3 }), true);
+    assert.equal(reelRelevant({ strength: 5 }), true);
+    // A failed enrichment (no strength) must not erase timestamped evidence.
+    assert.equal(reelRelevant({}), true);
+  });
+});
+
+describe("moment enrichment", () => {
+  test("parses one JSON object per line and ignores commentary and fences", () => {
+    const output = [
+      "```json",
+      '{"guest":"Ranbir Kapoor","theme":"Grief / father","topic":"guilt of not being there","summary":"He recounts missing his father.","whyRelevant":"Raw host grief.","strength":5}',
+      "some stray model commentary",
+      '{"guest":"Kiran Shaw","theme":"Loss","topic":"an elder verdict","summary":"She relays a dying instruction.","whyRelevant":"Oldest voice lands it.","strength":4}',
+      "```",
+    ].join("\n");
+    const parsed = parseMomentEnrichment(output, 2);
+    assert.equal(parsed[0].guest, "Ranbir Kapoor");
+    assert.equal(parsed[0].strength, 5);
+    assert.equal(parsed[1].guest, "Kiran Shaw");
+  });
+
+  test("malformed lines skip their slot instead of shifting later moments", () => {
+    const output = [
+      "not json at all",
+      '{"guest":"B","topic":"t","summary":"s","whyRelevant":"w","strength":3}',
+    ].join("\n");
+    const parsed = parseMomentEnrichment(output, 2);
+    // First line is junk, so the first valid object lands in slot 0 (model
+    // ordering is positional — partial parse is still better than none).
+    assert.equal(parsed[0].guest, "B");
+    assert.deepEqual(parsed[1], {});
+  });
+
+  test("clamps strength and drops out-of-range values", () => {
+    const parsed = parseMomentEnrichment('{"guest":"G","strength":9}', 1);
+    assert.equal(parsed[0].guest, "G");
+    assert.equal(parsed[0].strength, undefined);
+  });
+
+  test("recovers objects the model split across lines", () => {
+    const output = [
+      '{"guest":"A","topic":"t1","summary":"s","whyRelevant":"w","strength":2}',
+      '{"guest":"B","topic":"t2",',
+      '"summary":"split across lines","whyRelevant":"w","strength":4}',
+      '{"guest":"C","topic":"t3","summary":"s","whyRelevant":"w","strength":1}',
+    ].join("\n");
+    const parsed = parseMomentEnrichment(output, 3);
+    assert.equal(parsed[0].guest, "A");
+    assert.equal(parsed[1].guest, "B");
+    assert.equal(parsed[1].strength, 4);
+    assert.equal(parsed[2].guest, "C");
+  });
+
+  test("a token-cut object does not swallow the following one", () => {
+    const output = [
+      '{"guest":"A","topic":"t1","summary":"never closes',
+      '{"guest":"B","topic":"t2","summary":"s","whyRelevant":"w","strength":3}',
+    ].join("\n");
+    const parsed = parseMomentEnrichment(output, 2);
+    assert.equal(parsed[0].guest, "B");
+    assert.deepEqual(parsed[1], {});
+  });
+
+  test("the m key anchors objects so a skipped MOMENT leaves a gap, not a shift", () => {
+    const output = [
+      '{"m":1,"guest":"A","topic":"t1","summary":"s","whyRelevant":"w","strength":2}',
+      '{"m":3,"guest":"C","topic":"t3","summary":"s","whyRelevant":"w","strength":4}',
+    ].join("\n");
+    const parsed = parseMomentEnrichment(output, 3);
+    assert.equal(parsed[0].guest, "A");
+    assert.deepEqual(parsed[1], {});
+    assert.equal(parsed[2].guest, "C");
+  });
+
+  test("enrichment input carries the question, title, range, and excerpt", () => {
+    const [moment] = buildMoments([source({ n: 1, start: 305, segmentId: "abc123def45:5", text: "hello world" })]);
+    const input = buildMomentEnrichmentInput("relationships?", [{ ...moment, endSec: 425, durationSec: 120 }]);
+    assert.match(input, /QUESTION: relationships\?/);
+    assert.match(input, /MOMENT 1 \| Ep 1 \| 05:05-07:05/);
+    assert.match(input, /hello world/);
+  });
+});
+
+describe("formatClock", () => {
+  test("formats mm:ss under an hour and h:mm:ss above", () => {
+    assert.equal(formatClock(305), "05:05");
+    assert.equal(formatClock(3785), "1:03:05");
+    assert.equal(formatClock(0), "00:00");
+  });
+});

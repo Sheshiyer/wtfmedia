@@ -48,6 +48,8 @@ test.describe("Home page journey", () => {
     await expect(primaryCta).toBeVisible();
     await expect(primaryCta).toContainText("ask the catalogue");
     await expect(primaryCta).toHaveAttribute("href", "/chat");
+    await expect(primaryCta).toHaveCSS("background-color", "rgb(241, 179, 51)");
+    await expect(primaryCta).toHaveCSS("color", "rgb(26, 26, 26)");
   });
 
   test("active workspace destinations are visible", async ({ page }) => {

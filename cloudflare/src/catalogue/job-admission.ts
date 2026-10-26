@@ -13,6 +13,7 @@ export type TranscriptJob = {
   sourceContentHash?: string;
   contentHash: string;
   sourceMode?: "published" | "uncut";
+  replaceExisting?: boolean;
   metadata?: Record<string, unknown>;
 };
 

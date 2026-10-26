@@ -2,37 +2,46 @@
 
 ## Status
 
-Partial gate receipt. The owner-authorized repository-local compatibility wave
-is complete for the reviewed source-mode, citation, and legacy-ingest slices.
-The 03-00 entry gate remains open for release-channel and authenticated-history
-activation; Phase 3 is not marked complete.
+Historical partial gate receipt. The owner-authorized repository-local
+compatibility wave is complete for the reviewed source-mode, citation, and
+legacy-ingest slices. The 03-00 entry gate remains open and Phase 3 is not
+marked complete. This summary is not authority for the later Beta 0.1
+single-shell route, Clerk/D1 policy, migration state, staging, or production.
 
-## Owner decisions recorded
+## Historical decisions and current supersession
 
-- Cloudflare Zero Trust Access remains the sole authentication/session
-  authority.
-- The Worker must resolve the normalized Access identity to one active D1
-  operator with a recognized role before protected access.
+- **[TOMBSTONED]** Cloudflare Zero Trust Access as the sole
+  authentication/session authority. The current Beta authority is Clerk
+  identity verified at the edge, followed by edge principal resolution and D1
+  lifecycle/RBAC; Clerk claims and browser navigation never grant authority.
+- **[TOMBSTONED]** The Access-normalized `/ops` identity and route contract.
+  Canonical Beta entry is `/beta`: members land at `/beta/chat`, operators at
+  `/beta/workspace` for the control room, and both admitted kinds can open
+  `/beta/chat` for their role-safe owner-scoped history view in the same Beta
+  gate/AppShell. Nested Settings stays under `/beta/settings/*`, and
+  `/beta/ops/*` is redirect compatibility only. Legacy `/ops/*` and public
+  `/chat` remain separate Alpha surfaces.
 - Public `/chat` and `/api/chat` remain anonymous, stateless, and compatible.
-- Future authenticated history is additive behind the `/ops` authorization
-  system, with an `/ops/chat` history shell, a
-  `/chat/{conversation_id}-{username}` conversation deep link, and
-  `/ops/api/chat/*`; there is no second WTF auth cookie or long-lived
-  application token.
-- The Access application and matching policy target a 720-hour (30-day)
-  session to avoid daily OTP prompts, subject to global/MFA precedence proof.
-- Authenticated chat may use browser-local cache with idempotent
-  activity-epoch synchronization; D1 remains canonical and browser storage is
-  never authorization or rollout authority.
+- **[TOMBSTONED]** The old `/ops/chat`, username-bearing deep-link, and
+  `/ops/api/chat/*` authenticated-history assumptions. Beta conversation routes
+  expose only established prefixed UUIDs, and member/operator stores remain
+  separately owner-scoped.
+- **[DEFERRED-VERIFY]** Clerk session policy, recovery, and production
+  configuration require environment-specific receipts; no historic Access
+  duration/MFA target is evidence of the current configuration.
+- D1 remains canonical and browser storage is never authorization or rollout
+  authority.
 - Authorized administrative visibility includes conversation metadata, content,
   and call history; administrative reads, exports, and lifecycle actions stay
   audited.
-- Production Access configuration, remote D1 migration, deployment, queue or
-  ingest mutation, secrets, DNS, and live activation were not authorized.
+- **[CURRENT BOUNDARY]** Any Beta staging or production migration, deployment,
+  Clerk change, queue/ingest action, secret, DNS/domain, or traffic mutation is
+  governed by the Beta 0.1 production-readiness checklist, not this historical
+  local-wave receipt.
 - Chat lifecycle is archive-only and non-destructive in this wave: no
-  hard-delete or automatic purge is introduced. `admin` and `super_admin` may
-  export or archive across operator scope; ordinary operator access remains
-  owner-scoped. These rules are not inferred from audit-ledger policy.
+  hard-delete or automatic purge was introduced in this 03-00 wave. Later Beta
+  permanent Delete and its owner-scoped lifecycle have separate evidence; long
+  context compaction remains deferred and may not be implied by history.
 
 ## Reconciled findings
 
@@ -76,12 +85,12 @@ made here.
 
 ## Remaining gate
 
-The owner has recorded the route shape, `/ops` boundary, 720-hour Access
-session target, browser-cache synchronization, authorized-admin content
-visibility, archive-only lifecycle, and `admin`/`super_admin` export/archive
-scope. Persistent-history and staging release-control implementation may
-proceed locally behind the feature-off release gate. The local slice now
-includes `0006_chat_history.sql`, `0007_release_manifest.sql`, the server
-release read/write API, and the settings projection. Global/MFA session
-precedence and staging pause/restore evidence remain required before any live
-activation.
+For Phase 3, this summary retains only its bounded provenance/source-mode
+evidence; the canonical operator workspace, version inspection, trusted
+alignment, source access, and owner authorization remain open. For Beta 0.1,
+use `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md`:
+commit the post-merge fixes, select and test one exact candidate, capture
+staging backup/migration/binding receipts, run the real Clerk/D1 IAB
+persona/viewport matrix, then seek a separate production authorization. The
+reported later D1/runtime result remains reported evidence until those receipts
+exist.

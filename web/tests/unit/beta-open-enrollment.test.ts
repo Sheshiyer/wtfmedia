@@ -12,6 +12,7 @@ const sessionNavigator = readFileSync(new URL("../../components/domain/member/Me
 const askComposer = readFileSync(new URL("../../components/domain/public/AskComposer.tsx", import.meta.url), "utf8");
 const appRail = readFileSync(new URL("../../components/shells/AppRail.tsx", import.meta.url), "utf8");
 const conversationThread = readFileSync(new URL("../../components/domain/public/ConversationThread.tsx", import.meta.url), "utf8");
+const middleware = readFileSync(new URL("../../middleware.ts", import.meta.url), "utf8");
 
 describe("Beta open-enrollment copy", () => {
   it("permanently removes the temporary browser-only preview route", () => {
@@ -19,9 +20,9 @@ describe("Beta open-enrollment copy", () => {
   });
 
   it("offers verified account creation without invitation-only language", () => {
-    expect(authFrame).toContain('eyebrow: "company beta"');
-    expect(authFrame).toContain("We create your private member account.");
-    expect(memberWorkspace).toContain("company beta · private workspace");
+    expect(authFrame).toContain('eyebrow: "ask wtf · members"');
+    expect(authFrame).toContain("ask the catalogue and keep every conversation");
+    expect(memberWorkspace).toContain("ask wtf");
     expect(memberWorkspace).not.toContain("Finish the emailed invitation");
   });
 
@@ -67,8 +68,21 @@ describe("Beta open-enrollment copy", () => {
     expect(askComposer).toContain('placement?: "fixed" | "inline"');
     expect(askComposer).toContain('bottom-[calc(1rem+env(safe-area-inset-bottom))]');
     expect(conversationThread).toContain("ResizeObserver");
-    expect(conversationThread).toContain('data-composer-placement={isOverflowing ? "inline" : "fixed"}');
+    expect(conversationThread).toContain('data-composer-placement={placement}');
+    expect(conversationThread).toContain('composerPlacement?: "auto" | "fixed"');
     expect(conversationThread).toContain("data-fixed-composer");
+  });
+
+  it("keeps canonical Beta chat and Settings routes out of the bottom dock", () => {
+    expect(appRail).toContain('pathname.startsWith("/beta/chat")');
+    expect(appRail).toContain('pathname.startsWith("/beta/settings")');
+  });
+
+  it("keeps the social analytics destination in the hamburger rather than the bottom dock", () => {
+    const gate = readFileSync(new URL("../../components/domain/beta/BetaPrincipalGate.tsx", import.meta.url), "utf8");
+    expect(gate).toContain('href: "/beta/social-analytics"');
+    expect(gate).toContain('item.href !== "/beta/social-analytics"');
+    expect(gate).not.toContain('href: "/beta/workspace/ingest"');
   });
 
   it("fails closed before mounting Clerk hooks when the publishable key is absent", () => {
@@ -77,6 +91,12 @@ describe("Beta open-enrollment copy", () => {
     expect(betaLayout).toContain("<MemberBetaUnavailable />");
     expect(memberUnavailable).not.toContain("useAuth");
     expect(memberUnavailable).toContain("No conversation, history, or saved note has been shown.");
+  });
+
+  it("allows local browser-token admission without copying a Clerk server secret", () => {
+    expect(middleware).toContain('const clerkSecretKey = process.env.CLERK_SECRET_KEY?.trim()');
+    expect(middleware).toContain('clerkSecretKey || process.env.NODE_ENV !== "development"');
+    expect(middleware).toContain("Deployed builds keep the server middleware fail-closed");
   });
 
   it("keeps member admission, recovered chat, and mobile session navigation bounded to the live route", () => {
@@ -90,10 +110,10 @@ describe("Beta open-enrollment copy", () => {
     expect(memberWorkspace).toContain("triggerRef={drawerTriggerRef}");
     expect(sessionNavigator).toContain("paginationError");
     expect(sessionNavigator).toContain("retry loading more");
-    expect(sessionNavigator).toContain("refreshKey");
+    expect(sessionNavigator).toContain("subscribeConversationStore");
     expect(sessionNavigator).toContain("grid min-w-0 grid-cols-1");
-    expect(sessionNavigator).toContain("line-clamp-2");
-    expect(memberWorkspace).toContain("max-h-[calc(100dvh-27rem)]");
+    expect(sessionNavigator).toContain("truncate font-body text-sm");
+    expect(memberWorkspace).toContain("min-h-0 flex-1 overflow-y-auto p-3 pt-0");
   });
 
   it("keeps answer and archive completion state in independent operation generations", () => {
@@ -107,10 +127,8 @@ describe("Beta open-enrollment copy", () => {
     expect(submitSection).toContain("loadEpoch.current += 1");
   });
 
-  it("locks the shared composer textarea while an answer is pending", () => {
-    const textarea = askComposer.split("<textarea")[1]?.split("/>")[0] ?? "";
-    expect(textarea).toContain("disabled={disabled || loading}");
-    const compactInput = askComposer.split("<input")[1]?.split("/>")[0] ?? "";
-    expect(compactInput).toContain("disabled={disabled || loading}");
+  it("locks the shared pill composer input while an answer is pending", () => {
+    const input = askComposer.split("<input")[1]?.split("/>")[0] ?? "";
+    expect(input).toContain("disabled={disabled || loading}");
   });
 });

@@ -12,16 +12,11 @@ export const memberDisclosureGroups: readonly AppNavGroup[] = [
     label: "Beta workspace",
     items: [
       memberBottomNavigation[0],
+      { href: "/beta/connections", label: "connections" },
+      { href: "/beta/analytics", label: "youtube analytics" },
+      { href: "/beta/social-analytics", label: "social media analytics" },
+      { href: "/beta/research", label: "research" },
       memberBottomNavigation[1],
-    ],
-  },
-  {
-    label: "Public Alpha",
-    items: [
-      { href: "/", label: "room", match: ["/"] },
-      { href: "/episodes", label: "episodes", match: ["/episodes*"] },
-      { href: "/connections", label: "connections", match: ["/connections*"] },
-      { href: "/chat", label: "ask wtf", match: ["/chat*"] },
     ],
   },
 ];

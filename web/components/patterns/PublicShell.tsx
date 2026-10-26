@@ -33,10 +33,15 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
 
   if (isProtectedRoute) return <>{children}</>;
 
+  const navigation = process.env.NODE_ENV === "development"
+    ? [...currentReleaseNavigation, { href: "/social-analytics", label: "social media analytics", section: "workspace" as const }]
+    : currentReleaseNavigation;
+
+  // Public signup is activated: public routes expose the sign-in utility.
   return (
     <AppShell
       mode="public"
-      navigation={currentReleaseNavigation}
+      navigation={navigation}
       utility={
         <Link
           href="/sign-in"

@@ -14,11 +14,17 @@ adds episode ingestion and provenance, exact-moment retrieval, research briefs,
 production scheduling, read-only source adapters, analytics/reporting, clip
 intelligence, and migration closure.
 
+**Progress accounting:** The broader roadmap inventory is 36/43 items complete
+(84%), with repository Phases 1 and 2 complete and Phases 3–10 still active or
+planned. The 35/35 authorized-plan cohort is a narrower historical execution
+count, not a v1.0 completion percentage. Beta 0.1 is a separately-gated
+authenticated release lane and does not change either count.
+
 ## Execution Authorization
 
-- **Implementation-authorized now:** Phase 1 and Phase 2 only. Phase 1 has 23
-  committed plans and is ready to execute. Phase 2 remains authorized but
-  depends on Phase 1 acceptance and its recorded prerequisite decisions.
+- **Completed foundation:** Phase 1 and Phase 2 are completed bounded
+  foundation phases. Their 35/35 authorized-plan cohort does not authorize or
+  complete the remaining roadmap phases.
 
 - **Planned and inactive:** Phases 3–10. None may enter implementation until
   Phases 1–2 pass their acceptance gates and the owner explicitly authorizes
@@ -32,6 +38,12 @@ intelligence, and migration closure.
 - Reconciliation of the client specification changes planning scope only. It
   does not authorize dependency installation, implementation, deployment,
   domains, accounts, provider spend, source access, or external-service writes.
+
+- **Beta 0.1 source exception:** the local `beta_0.1` integration is verified
+  as merge `d3b4590` on `rag/alpha-answer-accuracy`, not as a staging or
+  production release. The exact source-to-staging-to-production gates are
+  maintained in
+  `.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md`.
 
 ## Client Delivery Tracks
 
@@ -49,19 +61,19 @@ source-access, language, evaluation, and workflow blockers below are resolved.
 | Input or decision | Owner | Blocks |
 |---|---|---|
 | Deployment architecture | Existing Vercel public application plus the existing Cloudflare edge estate | WTF | Resolved |
-| Protected operator hostname and routing boundary | Cloudflare-controlled operator endpoint enforces Access and routes to the existing Vercel application; public traffic remains unchanged | WTF | Resolved |
-| Authentication | Cloudflare Zero Trust Access; owner clarification supersedes the unpersisted Clerk decision | WTF | Resolved |
+| Protected operator hostname and routing boundary | Cloudflare-controlled operator endpoint enforces the Clerk-backed operator boundary and routes to the existing Vercel application; public traffic remains unchanged | WTF | Resolved for beta migration |
+| Authentication | Clerk development instance verifies the operator session at the edge; issuer/JWKS/authorized-party checks are required; the public Alpha remains anonymous | WTF | Resolved for beta migration |
 | Operator and audit persistence | Cloudflare D1 | WTF | Resolved |
 | Temporary Cloudflare account authority | Personal `9d9d` Wrangler account may own Phase 2 resources; keep repository artifacts portable and all credentials/account identifiers out of source control | WTF | Resolved for Phase 2; final account migration deferred |
 | Identity-to-operator mapping | Access-authenticated normalized email must match an active D1 operator with a recognized `super_admin`, `admin`, or `editor` role; missing, inactive, and unknown-role records fail closed | WTF | Resolved |
-| Session recovery behavior | Expiry, revocation, or operator deactivation discards protected client state immediately; recovery reveals no protected data, preserves only a validated intended `/ops` destination, and rechecks Access plus D1 before restoring access | WTF | Resolved |
-| Authoritative session and sign-out | Verified Cloudflare Access token is the only authentication session; no WTF authentication cookie; every protected server request rechecks active D1 authorization; sign-out clears protected state and uses Access logout | WTF | Resolved |
+| Session recovery behavior | Expiry, revocation, or operator deactivation discards protected client state immediately; recovery reveals no protected data, preserves only a validated intended `/ops` destination, and rechecks Clerk plus D1 before restoring access | WTF | Resolved |
+| Authoritative session and sign-out | Verified Clerk session credential is the only authentication session; no WTF authentication cookie; every protected server request rechecks active D1 authorization; sign-out clears protected state and uses Clerk sign-out | WTF | Resolved |
 | Capability enforcement | One shared deny-by-default server policy governs pages, APIs, queries, exports, record/field projections, safe errors, and cache boundaries; UI visibility never grants authority | WTF | Resolved |
 | Bootstrap super administrator | Single temporary `super_admin` seat belongs to the current personal 9d9d account owner and may move only through an atomic audited handoff | WTF | Resolved |
 | Team roster and application-role mapping | 9d9d owner email is `super_admin`; Aditi Raj is `admin`; Sai Date, Naisthika Rathod, Amal Vinayan, Akash Pandey, and Yash Majithia are `editor`; Yash's supplied job title and screenshot completeness remain unknown metadata | WTF | Resolved for visible-roster seeding |
 | Audit event coverage and privacy | Append-only D1 ledger covers authentication outcomes, expiry/logout, protected searches/views/exports, operator/role/settings changes, and super-admin handoffs; only allowlisted metadata and correlation IDs are stored, never tokens, raw queries, prompts, responses, or private payloads | WTF | Resolved |
 | Audit retention and visibility | 365 days production, 30 days staging, ephemeral local; only `super_admin` and `admin` may view/export; every export and automated purge is audited; no silent archival | WTF | Resolved |
-| Environment and data isolation | Separate D1 databases, Access applications/policies, secrets, and cache namespaces for local, staging, and production; never copy production data downward; promote repository-owned migrations forward; previews have no protected backend unless explicitly bound | WTF | Resolved |
+| Environment and data isolation | Separate D1 databases, Clerk instances/authorized-party configuration, secrets, and cache namespaces for local, staging, and production; never copy production data downward; promote repository-owned migrations forward; previews have no protected backend unless explicitly bound | WTF | Resolved |
 | Truthful initial Control Room shell | First authenticated `/ops` release shows current environment, workspace, effective role, authorized navigation, live-derived service status, and one dominant setup action; missing systems use explicit unknown/offline/unavailable/permission-denied states, never fabricated health or misleading zeroes | WTF | Resolved |
 | Phase 2 production release gate | Staging proves the full identity/role matrix, lifecycle, isolation, audit, environment, accessibility, responsive, rollback, and runbook surfaces through deterministic CI; owner approves the evidence packet; production smoke is read-only; failed or unknown gates block release | WTF | Resolved |
 | Both-channel YouTube Data/Analytics access, approved episode inventory, IP/language/content-bucket tagging | WTF | Phases 3–4 |
@@ -102,6 +114,30 @@ timeline alignment, synchronized uncut playback, the ten-episode alignment
 evaluation, the twenty-query editorial search evaluation, hybrid search
 filters, and daily YouTube performance observations remain open work.
 
+## Beta 0.1 separately-gated release lane
+
+Beta 0.1 is an authenticated release candidate carried by a local merge rather
+than an additional v1.0 phase. The host verifies `d3b4590` with parents
+`d4e45b4` and `7ec8298`; the user-reported merge `3eebf57` is unavailable in
+this host's object database. The recorded Edge 376/376, web unit 188/188, web
+contracts 96/96, TypeScript, lint, and architecture results are local source
+evidence only.
+
+The user has also reported later local runtime behavior and remote D1
+migrations 0011–0015. Those reports are not host-visible staging/production
+receipts and cannot close a release gate. Before any staging request, the
+post-merge runtime and release/migration source fixes must be committed and the
+exact candidate SHA must be selected
+and locally reverified. Staging requires backup/migration/binding/deployment
+receipts plus the real Clerk persona and viewport matrix in the in-app browser.
+Production separately requires owner authorization, production Clerk and D1
+backup/migration evidence, exact web/edge/domain attribution, smoke, and
+rollback receipts.
+
+Provider/YouTube persistence, scheduled jobs, long-context compaction, and
+full Alpha alignment are explicitly deferred from the Beta 0.1 exit decision.
+They remain roadmap work and may not be inferred from any Beta deployment.
+
 ## Milestone Invariants
 
 - `/`, `/episodes`, `/connections`, `/chat`, and `/api/chat` remain protected
@@ -132,8 +168,8 @@ filters, and daily YouTube performance observations remain open work.
 
 ## Phases
 
-- [ ] **Phase 1: Compatibility + Component Proof Harness** — Preserve the 23-plan proof harness and visibly migrate every protected public route without changing its contract.
-- [ ] **Phase 2: Platform Foundation + Authenticated Policy Boundary** — Establish separated environments, managed access, auditability, observability, and a truthful deny-by-default operator shell.
+- [x] **Phase 1: Compatibility + Component Proof Harness** — Preserve the 23-plan proof harness and visibly migrate every protected public route without changing its contract.
+- [x] **Phase 2: Platform Foundation + Authenticated Policy Boundary** — Establish separated environments, managed access, auditability, observability, and a truthful deny-by-default operator shell.
 - [ ] **Phase 3: Episode Ingestion + Provenance Spine** — Idempotently ingest both channels and supplied uncut sources into versioned episode, asset, transcript, and timeline truth.
 - [ ] **Phase 4: Podcast Brain Search + Dual Playback** — Deliver evaluated exact-moment retrieval, reconciled YouTube/Uncut playback, and daily YouTube performance.
 - [ ] **Phase 5: Cited Research Brief Agent** — Produce editable, versioned four-tier briefs from governed human, corpus, web, and structured sources.
@@ -149,7 +185,7 @@ filters, and daily YouTube performance observations remain open work.
 
 **Goal**: Maintainers can visibly migrate `/`, `/episodes`, `/connections`, and `/chat` through the repository-owned WTF design system while preserving their URLs, meaning, data, navigation, accessibility, and behavior, and while preserving the complete `/api/chat` contract.
 **Depends on**: Nothing (first phase)
-**Execution authorization**: Authorized now; 23 plans preserved and ready to execute
+**Execution authorization**: Completed bounded foundation phase; 23 plans preserved as evidence
 **Requirements**: COMP-01, COMP-02, COMP-03, COMP-04, COMP-05, DSYS-01, DSYS-02, DSYS-03, DSYS-04, DSYS-05, DSYS-06, DSYS-07, DSYS-08, DSYS-09, DSYS-10, QUAL-01, QUAL-02, QUAL-03, QUAL-04, QUAL-05, QUAL-06
 **Success Criteria**:
 
@@ -189,7 +225,7 @@ filters, and daily YouTube performance observations remain open work.
 
 **Goal**: Approved WTF operators enter a dependable `/ops` shell through managed identity while server-enforced policy, environment separation, audit logs, observability, and secret boundaries fail closed.
 **Depends on**: Phase 1 acceptance plus deployment, identity, team-roster, and capability-matrix decisions
-**Execution authorization**: Authorized next; dependent decisions must resolve before implementation
+**Execution authorization**: Completed bounded foundation phase; later release work remains separately gated
 **Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-06, AUTH-07, AUTH-08, AUTH-09, AUTH-10, QUAL-07, QUAL-09, QUAL-10, QUAL-12, QUAL-13
 **Success Criteria**:
 
@@ -205,7 +241,7 @@ filters, and daily YouTube performance observations remain open work.
 
 - **Wave 1**: `02-01` — Establish the Phase 2 evidence and threat harness.
 - **Wave 2**: `02-02` — Define portable D1 migrations, bootstrap data, and environment contracts.
-- **Wave 3**: `02-03`, `02-04`, `02-05` — Implement Access identity, deny-by-default policy, and typed audit foundations.
+- **Wave 3**: `02-03`, `02-04`, `02-05` — Implement Clerk identity, deny-by-default policy, and typed audit foundations.
 - **Wave 4**: `02-06` — Compose the protected edge router, projections, audit, and cache isolation.
 - **Wave 5**: `02-07` — Replace the unsigned local-session draft with the server-only DAL and recovery lifecycle.
 - **Wave 6**: `02-08`, `02-09`, `02-10` — Build the approved Control Room, Operators, and Audit surfaces.
@@ -359,12 +395,15 @@ timeline alignment, synchronized playback, and cached YouTube observations.
 
 ## Progress
 
-**Execution order:** Phase 1 → Phase 2 → owner authorization gate → Phases 3–10 in numeric order.
+**Execution order:** completed Phase 1 → completed Phase 2 → owner authorization gate → Phases 3–10 in numeric order. Beta 0.1 follows its separate release checklist and cannot advance the broader phase status.
+
+**Roadmap inventory:** 36/43 items complete (84%). The separate 35/35
+authorized-plan cohort is retained below only as its own historical measure.
 
 | Phase | Plans Complete | Status | Completed |
 |---|---:|---|---|
 | 1. Compatibility + Component Proof Harness | 23/23 | Complete | ✓ |
-| 2. Platform Foundation + Authenticated Policy Boundary | 0/TBD | Authorized / queued after Phase 1 and prerequisite decisions | - |
+| 2. Platform Foundation + Authenticated Policy Boundary | 12/12 | Complete bounded foundation phase | ✓ |
 | 3. Episode Ingestion + Provenance Spine | 0/TBD | Planned / inactive | - |
 | 4. Podcast Brain Search + Dual Playback | 0/TBD | Planned / inactive | - |
 | 5. Cited Research Brief Agent | 0/TBD | Planned / inactive | - |

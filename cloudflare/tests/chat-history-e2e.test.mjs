@@ -4,6 +4,7 @@ import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { before, test } from "node:test";
+import { fileURLToPath } from "node:url";
 
 import { handleOpsRequest } from "../src/ops-router.ts";
 import { handleMemberRequest } from "../src/member-router.ts";
@@ -16,6 +17,7 @@ import {
 import {
   appendMessage,
   archiveConversation,
+  deleteConversation,
   createConversation,
   exportConversationsCsv,
   getConversationForActor,
@@ -25,7 +27,7 @@ import { archiveMemberConversation, createMemberConversation, deleteMemberConver
 import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "../src/chat/member-memory.ts";
 import { resolveOperatorContext } from "../src/auth/operator-context.ts";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
 const persistTo = mkdtempSync(join(tmpdir(), "wtfmedia-auth-chat-"));
 const database = join(persistTo, "ops.sqlite");
 const migrations = [
@@ -44,6 +46,8 @@ const migrations = [
   "0013_member_chat_context.sql",
   "0014_principal_profiles.sql",
   "0015_principal_profiles_email_guard.sql",
+  "0016_rich_chat_source_metadata.sql",
+  "0017_chat_delete.sql",
 ];
 
 function sqlite(input, json = false) {
@@ -164,6 +168,21 @@ test("D1 history is durable, idempotent, owner-scoped, and archive-only", async 
     role: "assistant", content: "private answer", sourceMetadata: { sources: [] }, groundingState: "grounded", idempotencyKey: "answer-operator-three",
   }, "assistant", "2026-09-02T00:01:00.000Z"))?.id, appended.id);
 
+  const richCitationMetadata = {
+    sources: [{ title: "Published episode", url: "https://www.youtube.com/watch?v=abcdefghijk" }],
+    moments: [{ summary: "evidence ".repeat(4_500), strength: 5 }],
+    citedIndices: [1],
+  };
+  assert.ok(JSON.stringify(richCitationMetadata).length > 30_000);
+  const richAnswer = await appendMessage(db, 3, first.conversation.id, {
+    role: "assistant",
+    content: "rich cited answer [1]",
+    sourceMetadata: richCitationMetadata,
+    groundingState: "grounded",
+    idempotencyKey: "rich-answer-operator-three",
+  }, "assistant", "2026-09-02T00:01:30.000Z");
+  assert.ok(richAnswer, "rich Alpha citation metadata must survive Beta history persistence");
+
   const second = await createConversation(db, 4, { userMessage: { content: "other operator", sourceMetadata: {} }, now: "2026-09-02T00:02:00.000Z" });
   assert.ok(second);
   assert.equal((await listConversationsForActor(db, { operatorId: 4, role: "editor" })).conversations.length, 1);
@@ -177,136 +196,35 @@ test("D1 history is durable, idempotent, owner-scoped, and archive-only", async 
   const archived = await archiveConversation(db, { operatorId: 3, role: "editor" }, first.conversation.id, "2026-09-02T00:03:00.000Z");
   assert.equal(archived?.lifecycle_state, "archived");
   assert.equal((await archiveConversation(db, { operatorId: 3, role: "editor" }, first.conversation.id))?.lifecycle_state, "archived");
-  const deleteAttempt = sqlite(`DELETE FROM chat_conversations WHERE id = '${first.conversation.id}';`);
-  assert.notEqual(deleteAttempt.status, 0);
+  assert.equal((await listConversationsForActor(db, { operatorId: 3, role: "editor" })).conversations.length, 0);
+  assert.equal((await listConversationsForActor(db, { operatorId: 3, role: "editor" }, undefined, 25, true)).conversations[0]?.lifecycle_state, "archived");
+  // Delete is owner-scoped at the DAL; the schema no longer hard-blocks it.
+  assert.equal(await deleteConversation(db, { operatorId: 2, role: "admin" }, first.conversation.id), false);
+  assert.equal(await deleteConversation(db, { operatorId: 3, role: "editor" }, first.conversation.id), true);
+  assert.equal(await getConversationForActor(db, { operatorId: 3, role: "editor" }, first.conversation.id), null);
+  assert.equal(sqlite(`SELECT COUNT(*) FROM chat_messages WHERE conversation_id = '${first.conversation.id}';`).stdout.trim(), "0");
 });
 
-test("Clerk/D1 context is rechecked on every protected request and cannot cross owners", async () => {
+test("the retired ops chat route fails closed on every method", async () => {
   const db = d1();
-  const request = (email, path, init = {}, dependencies = {}) => handleOpsRequest(new Request(`https://ops.staging.test${path}`, {
+  const request = (email, path, init = {}) => handleOpsRequest(new Request(`https://ops.staging.test${path}`, {
     ...init,
     headers: { authorization: "Bearer verified", "x-request-id": "corr-e2e-1234", ...(init.headers ?? {}) },
-  }), { ...env, DB: db }, { verifyClerk: async () => ({ ok: true, email, userId: "user_test_123" }), ...dependencies });
-  const own = await request("sai@allthingswtf.com", "/ops/api/chat", {
-    method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ question: "owner-only", idempotencyKey: "owner-question-1" }),
-  });
-  assert.equal(own.status, 201);
-  const ownBody = await own.json();
-  const id = ownBody.conversation.id;
-
-  let answerInput;
-  let runCalls = 0;
-  const generated = await request("sai@allthingswtf.com", "/ops/api/chat", {
-    method: "POST",
-    headers: { "content-type": "application/json", "idempotency-key": "server-answer-1" },
-    body: JSON.stringify({
-      question: "What did the guest say about evidence?",
-      sourceMode: "both",
-      assistant: { content: "client spoof must never persist", grounded: true },
-      idempotencyKey: "server-answer-1",
-    }),
-  }, {
-    runChat: async (input) => {
-      runCalls += 1;
-      answerInput = input;
-      return {
-        answer: "The guest described evidence [1].",
-        sources: [{ n: 1, title: "Published episode", videoId: "yt-1", start: 42 }],
-        grounded: true,
-        sourceMode: "both",
-        uncutUnavailable: false,
-        model: "test-model",
-        modelFallback: true,
-        requestId: "rag-request-1",
-      };
-    },
-  });
-  assert.equal(generated.status, 201);
-  const generatedBody = await generated.json();
-  const generatedId = generatedBody.conversation.id;
-  assert.equal(answerInput.question, "What did the guest say about evidence?");
-  assert.equal(generatedBody.messages.at(-1).content, "The guest described evidence [1].");
-  assert.equal(JSON.parse(generatedBody.messages.at(-1).source_metadata_json).sources[0].title, "Published episode");
-  assert.equal(generatedBody.messages.at(-1).grounding_state, "grounded");
-  assert.equal(generatedBody.messages.at(-1).model, "test-model");
-  assert.equal(generatedBody.messages.at(-1).model_fallback, 1);
-
-  const queryAudit = await request("aditi@allthingswtf.com", "/api/ops/audit?action=protected_search");
-  assert.equal(queryAudit.status, 200);
-  const queryAuditBody = await queryAudit.json();
-  assert.ok(queryAuditBody.records.some((record) => record.action === "protected_search" && record.entityId === generatedId));
-
-  const generatedRetry = await request("sai@allthingswtf.com", "/ops/api/chat", {
-    method: "POST",
-    headers: { "content-type": "application/json", "idempotency-key": "server-answer-1" },
-    body: JSON.stringify({ question: "a different question must not replace an idempotent turn" }),
-  }, { runChat: async () => { runCalls += 1; throw new Error("retry_should_not_run"); } });
-  assert.equal(generatedRetry.status, 201);
-  assert.equal((await generatedRetry.json()).messages.length, 2);
-  assert.equal(runCalls, 1);
-
-  let continuationMode;
-  const continued = await request("sai@allthingswtf.com", `/ops/api/chat/conversations/${generatedId}`, {
-    method: "POST",
-    headers: { "content-type": "application/json", "idempotency-key": "server-answer-2" },
-    body: JSON.stringify({ question: "What was in the approved uncut recording?", sourceMode: "uncut" }),
-  }, {
-    runChat: async (input) => {
-      continuationMode = input.sourceMode;
-      return {
-        answer: "The approved uncut recording adds context [1].",
-        sources: [{ n: 1, title: "Uncut episode", videoId: "uncut-1", start: null, sourceMode: "uncut" }],
-        grounded: true,
-        sourceMode: "uncut",
-        uncutUnavailable: false,
-        model: "test-model",
-        modelFallback: false,
-        requestId: "rag-request-2",
-      };
-    },
-  });
-  assert.equal(continued.status, 201);
-  const continuedBody = await continued.json();
-  assert.equal(continuationMode, "uncut");
-  assert.equal(JSON.parse(continuedBody.messages.at(-2).source_metadata_json).sourceMode, "uncut");
-  assert.equal(JSON.parse(continuedBody.messages.at(-1).source_metadata_json).sourceMode, "uncut");
-
-  const listed = await request("sai@allthingswtf.com", "/ops/api/chat/conversations");
-  const listedBody = await listed.json();
-  const generatedSummary = listedBody.conversations.find((item) => item.id === generatedBody.conversation.id);
-  assert.equal(generatedSummary.message_count, 4);
-  for (const payload of [generatedBody, listedBody]) {
-    assert.doesNotMatch(JSON.stringify(payload), /\b(?:operator_id|member_id|create_idempotency_key|idempotency_key|request_id)\b/);
+  }), { ...env, DB: db }, { verifyClerk: async () => ({ ok: true, email, userId: "user_test_123" }) });
+  for (const [path, init] of [
+    ["/ops/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ question: "owner-only" }) }],
+    ["/ops/api/chat", { method: "GET" }],
+    ["/ops/api/chat/conversations/cnv_12345678", { method: "GET" }],
+    ["/ops/api/chat/conversations/cnv_12345678", { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ confirmation: "DELETE" }) }],
+    ["/api/ops/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ question: "owner-only" }) }],
+  ]) {
+    const response = await request("sai@allthingswtf.com", path, init);
+    assert.equal(response.status, 404, `${init.method} ${path}`);
   }
-  const ownerRead = await request("sai@allthingswtf.com", `/ops/api/chat/conversations/${generatedId}`);
-  assert.equal(ownerRead.status, 200);
-  assert.doesNotMatch(JSON.stringify(await ownerRead.json()), /\b(?:operator_id|member_id|create_idempotency_key|idempotency_key|request_id)\b/);
-
-  const memoryCreate = await request("aditi@allthingswtf.com", "/ops/api/memory", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ content: "prefers evidence-first answers" }),
-  });
-  assert.equal(memoryCreate.status, 201);
-  const memoryBody = await memoryCreate.json();
-  assert.equal(memoryBody.memory.content, "prefers evidence-first answers");
-  const memoryList = await request("aditi@allthingswtf.com", "/ops/api/memory");
-  assert.equal(memoryList.status, 200);
-  assert.equal((await memoryList.json()).memories.length, 1);
-
-  const crossOwner = await request("naisthika@allthingswtf.com", `/ops/api/chat/conversations/${id}`);
-  assert.equal(crossOwner.status, 404);
-  const adminRead = await request("aditi@allthingswtf.com", `/ops/api/chat/conversations/${id}`);
-  assert.equal(adminRead.status, 404);
-
-  const expired = await handleOpsRequest(new Request(`https://ops.staging.test/ops/api/chat/conversations/${id}`, { headers: { authorization: "Bearer expired" } }), { ...env, DB: db }, { verifyClerk: async () => ({ ok: false }) });
-  assert.equal(expired.status, 404);
+  // Operator context itself is still rechecked: a deactivated operator resolves to nothing.
   const editor = await db.prepare("SELECT id FROM operators WHERE email = ?").bind("sai@allthingswtf.com").first();
   const deactivated = sqlite(`UPDATE operators SET active = 0 WHERE id = ${editor.id};`);
   assert.equal(deactivated.status, 0, deactivated.stderr);
-  const inactive = await request("sai@allthingswtf.com", `/ops/api/chat/conversations/${id}`);
-  assert.equal(inactive.status, 404);
   const context = await resolveOperatorContext(db, { ok: true, email: "sai@allthingswtf.com" }, "staging", "corr-e2e-1234");
   assert.equal(context, null);
 });
@@ -346,6 +264,9 @@ test("member beta history and explicit memory are durable, private, and archive-
   assert.equal(await archiveMemberConversation(db, 92, first.conversation.id), null);
   assert.equal((await archiveMemberConversation(db, 91, first.conversation.id, "2026-09-09T00:03:00.000Z"))?.lifecycle_state, "archived");
   assert.equal((await listMemberConversations(db, 91))?.conversations.length, 0);
+  const completeHistory = await listMemberConversations(db, 91, undefined, true);
+  assert.equal(completeHistory?.conversations.length, 1);
+  assert.equal(completeHistory?.conversations[0]?.lifecycle_state, "archived");
   const saved = await createMemberMemory(db, 91, "explicit member one preference", "2026-09-09T00:04:00.000Z");
   assert.ok(saved);
   assert.equal((await listMemberMemories(db, 92))?.length, 0);
@@ -744,6 +665,7 @@ test("member history keyset pagination preserves ties, owner scope and archived 
   await archiveMemberConversation(db, 106, first.conversations[0].id);
   const refreshed = await listMemberConversations(db, 106);
   assert.ok(!refreshed.conversations.some(({ id }) => id === first.conversations[0].id));
+  assert.ok((await listMemberConversations(db, 106, undefined, true)).conversations.some(({ id }) => id === first.conversations[0].id));
   const terminal = await listMemberConversations(db, 106, refreshed.nextCursor);
   assert.equal(terminal.conversations.length, 25);
   assert.equal(terminal.nextCursor, null);

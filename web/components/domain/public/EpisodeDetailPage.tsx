@@ -7,7 +7,6 @@ import Link from "next/link";
 import type { Episode } from "@/lib/episodes";
 import { fmtDuration, fmtViews, thumbnailUrl } from "@/lib/episodes";
 import { WorkspaceHeader } from "@/components/patterns/WorkspaceHeader";
-import { resolvePublicEpisodeUncutState } from "@/lib/catalogue/public-episode-uncut";
 
 export type EpisodeIdea = {
   id: string;
@@ -110,7 +109,6 @@ export function EpisodeDetailPage({ episode, ideas }: EpisodeDetailPageProps) {
   const transcript = useTranscript(episode);
   const [seekSeconds, setSeekSeconds] = useState(0);
   const [playerOpen, setPlayerOpen] = useState(false);
-  const uncutState = resolvePublicEpisodeUncutState(episode.title, episode.video_id);
   const askDefault = `About the episode "${episode.title}": map the transcript, key moments, and WTF OS connections.`;
   const transcriptBlocks = transcript.blocks ?? [];
   const visibleTranscriptBlocks = transcriptBlocks.slice(0, 3);
@@ -131,7 +129,6 @@ export function EpisodeDetailPage({ episode, ideas }: EpisodeDetailPageProps) {
             <span>{fmtDuration(episode.duration)}</span>
             <span>{fmtViews(episode.view_count)} views</span>
             <span>{ideas.length} mapped ideas</span>
-            <span>{uncutState.label}</span>
           </div>
         }
         primaryAction={
@@ -177,19 +174,6 @@ export function EpisodeDetailPage({ episode, ideas }: EpisodeDetailPageProps) {
               </button>
             )}
           </SourceCard>
-          <div
-            className="mt-3 rounded-control border border-foreground/20 bg-surface-raised p-4 sm:p-5"
-            role="status"
-            aria-label="uncut evidence status"
-          >
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="chip border-live bg-canvas text-foreground">{uncutState.label}</span>
-              <span className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
-                source coverage
-              </span>
-            </div>
-            <p className="mt-2 text-sm leading-relaxed text-secondary">{uncutState.detail}</p>
-          </div>
         </section>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.65fr)]">

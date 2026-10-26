@@ -35,6 +35,12 @@ The public product is the WTF OS web app plus Ask WTF. Ask WTF is the live
 evidence-backed chat path over the approved published YouTube corpus and the
 approved uncut transcript corpus.
 
+The authenticated Beta is an identity and persistence overlay on that Alpha
+Ask WTF authority. Alpha continues to own corpus ingestion, retrieval,
+inference, grounding, citations, timestamps, and enriched moments. Beta owns
+Clerk/D1 admission, RBAC/admin, owner-scoped sessions, and history; it has no
+separate corpus, Vectorize index, transcript bucket, state KV, or ingest queue.
+
 - Public URL: `https://wtfhq.in`
 - Chat API path: `https://wtfhq.in/api/chat`
 - Web worker: `wtfmedia-web`
@@ -75,3 +81,21 @@ exercises the Cloudflare/D1/provenance path, but a stale generated `.next`
 tree in a checkout can make the web TypeScript portion fail for generated
 route references; report that as a checkout artifact unless a fresh clean web
 build reproduces it.
+
+## Staging frontend build identity
+
+Do not copy `web/.env.local` into staging build directories: it may contain
+production Clerk configuration. Supply the verified staging public key explicitly
+through the build environment. Next.js embeds this key in browser assets.
+Before deployment, decode the compiled key and compare its domain with
+`cloudflare/wrangler.jsonc` → `env.staging.vars.CLERK_ISSUER`; reject a mismatch.
+Repeat that comparison against the live sign-in page after deployment.
+Use copied dependency files, not an external node_modules symlink, for isolated
+OpenNext builds so framework manifest patches resolve inside the build directory.
+
+For local Beta testing, start Next with `--hostname localhost` and set
+`WTFMEDIA_EDGE_LOCAL_ORIGIN=http://localhost:8787`, matching the local Edge
+`OPS_HOSTNAME=localhost`. Binding Next to `0.0.0.0` changes its internal request
+hostname and skips the localhost forwarder; using `127.0.0.1` as the upstream
+fails the backend hostname check. Verify an invalid bearer returns 401 through
+`http://localhost:3000/beta/api/principal-context` before handing off testing.

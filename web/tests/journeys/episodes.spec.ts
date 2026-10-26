@@ -21,6 +21,31 @@ test.describe("Episodes route journeys", () => {
     await expect(cards.first()).toHaveAttribute("href", /\/episodes\/[A-Za-z0-9_-]+/);
   });
 
+  test("duration badge keeps inverse text visible on its structural fill", async ({ page }) => {
+    await page.goto("/episodes", { waitUntil: "domcontentloaded" });
+
+    const badge = page.locator('[data-cursor="open"]:visible').first().locator(".chip");
+    await expect(badge).toBeVisible();
+
+    const colors = await badge.evaluate((element) => {
+      const style = getComputedStyle(element);
+      const expectedChannels = getComputedStyle(document.documentElement)
+        .getPropertyValue("--wtf-text-on-structure-rgb")
+        .trim()
+        .split(/\s+/)
+        .join(", ");
+
+      return {
+        actual: style.color,
+        expected: `rgb(${expectedChannels})`,
+        background: style.backgroundColor,
+      };
+    });
+
+    expect(colors.background).not.toBe(colors.expected);
+    expect(colors.actual).toBe(colors.expected);
+  });
+
   test("clicking an episode opens the dedicated episode page", async ({ page }) => {
     await page.goto("/episodes", { waitUntil: "domcontentloaded" });
 

@@ -4,6 +4,7 @@ import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, before, describe, test } from "node:test";
+import { fileURLToPath } from "node:url";
 
 import {
   decodeUlidTime,
@@ -39,7 +40,7 @@ import {
 } from "../src/db/provenance.ts";
 import { encodeAudit, queryAuditEvents } from "../src/audit.ts";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
 const persistTo = mkdtempSync(join(tmpdir(), "wtfmedia-phase3-d1-"));
 const database = join(persistTo, "provenance.sqlite");
 const migrations = [

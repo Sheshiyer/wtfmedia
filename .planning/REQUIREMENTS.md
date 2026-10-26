@@ -9,10 +9,10 @@ without losing provenance.
 
 ## Execution Authorization
 
-All twelve requirement families are accepted for the v1.0 roadmap. Only the
-requirements assigned to **Phase 1** and **Phase 2** may be executed first.
-Phases 3–10 remain planned, not implementation-authorized, until Phases 1–2 pass
-their acceptance gates and the owner explicitly proceeds.
+All twelve requirement families are accepted for the v1.0 roadmap. The
+requirements assigned to **Phase 1** and **Phase 2** form the completed bounded
+foundation; Phases 3–10 remain planned, not implementation-authorized, until a
+new owner authorization proceeds.
 
 **Bounded release note (2026-08-31):** The owner-approved episode-scoped Ask
 WTF slice was released as a narrow exception over the existing public contract:
@@ -22,6 +22,16 @@ receipt does not activate the remaining Phase 3–10 requirements or change any
 requirement checkbox. Trusted timeline alignment, synchronized uncut playback,
 evaluated search, daily YouTube observations, and the broader operator
 workspaces remain separately gated.
+
+**Beta 0.1 release note (2026-09-11):** Beta 0.1 is a separately-gated
+authenticated release lane, not a new requirement family or a completion claim
+for the v1.0 requirements below. This host verifies its local integration merge
+as `d3b4590`; the user-reported `3eebf57` object is unavailable here. Local
+test counts and later reported runtime/D1 results are classified in
+`.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md` and
+cannot change requirement checkboxes without the named staging or production
+evidence. The 36/43 roadmap-item accounting is distinct from this 103-item
+stable requirement catalog.
 
 Client-facing “Phase 1” and “Phase 2” are delivery tracks, not aliases for the
 repository's numbered execution phases. Client Phase 1 closes across repository
@@ -164,7 +174,7 @@ permissions, components, and phase boundaries are governed by `DESIGN.md`,
 - [x] **QUAL-07**: A security reviewer can verify anonymous, cross-role, ID-tampering, cache-mixing, session-expiry, and privilege-escalation probes fail closed.
 - [ ] **QUAL-08**: A maintainer can rehearse rollback and prove the previous reader, style, or route remains available until replacement evidence is accepted.
 - [x] **QUAL-09**: Structured application, ingestion, search, and agent telemetry records latency, errors, tokens, and cost without storing credentials or prohibited private payloads.
-- [x] **QUAL-10**: Local, staging, and production use separate D1 databases, Cloudflare Access applications and policies, secrets, and cache namespaces; production data is never copied to a lower environment; repository-owned migrations promote forward through environments; preview deployments receive no protected backend unless explicitly bound; and the runbook defines local/environment/ingestion operation plus an explicitly scheduled staging demonstration gate.
+- [x] **QUAL-10**: Local, staging, and production use separate D1 databases, Clerk instances and authorized-party configurations, secrets, and cache namespaces; production data is never copied to a lower environment; repository-owned migrations promote forward through environments; preview deployments receive no protected backend unless explicitly bound; and the runbook defines local/environment/ingestion operation plus an explicitly scheduled staging demonstration gate.
 - [ ] **QUAL-11**: Search median remains below three seconds, search p95 remains below six seconds, dashboards serve cached data, and ingestion exposes asynchronous status.
 - [x] **QUAL-12**: Guest-confidential material is protected by server-side authorization and managed, rotatable secrets that do not require source changes or repository commits.
 - [x] **QUAL-13**: Production remains blocked until staging deterministically proves the complete anonymous, expired, inactive, `editor`, `admin`, and `super_admin` authorization matrix; Access and D1 recovery/logout; tampering, DTO, and cache isolation; audit coverage, retention, export, and purge; environment and secret separation; keyboard, focus, accessibility, and 320/768/1440 responsive behavior; and rollback plus runbook rehearsal. These checks block CI, the owner approves the staging evidence packet, the production smoke test is read-only, and every failed or unknown gate blocks release.

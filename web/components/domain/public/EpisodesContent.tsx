@@ -59,7 +59,7 @@ function EpisodeSelectCard({
   episode: Episode;
   compact?: boolean;
 }) {
-  const uncutState = resolvePublicEpisodeUncutState(episode.title, episode.video_id);
+  const uncutState = resolvePublicEpisodeUncutState(episode.title);
 
   return (
     <Link
@@ -78,7 +78,7 @@ function EpisodeSelectCard({
           sizes={compact ? "300px" : "(min-width: 1280px) 28vw, (min-width: 768px) 44vw, 300px"}
           className="object-cover"
         />
-        <span className="absolute bottom-2 right-2 chip bg-surface-structure text-on-structure">
+        <span className="absolute bottom-2 right-2 chip bg-surface-structure !text-on-structure">
           {fmtDuration(episode.duration)}
         </span>
       </div>
@@ -87,11 +87,9 @@ function EpisodeSelectCard({
           {episode.title}
         </h3>
         <div className="mt-3 text-[11px] leading-snug text-secondary line-clamp-2">
-          {uncutState.kind === "active"
-            ? "approved uncut evidence indexed for episode-scoped Ask WTF."
-            : uncutState.kind === "candidate"
-              ? "clean-cut pointer tracked. activation held."
-              : uncutState.detail}
+          {uncutState.kind === "candidate"
+            ? "clean-cut pointer tracked. activation held."
+            : uncutState.detail}
         </div>
         <div className="mt-3 flex items-center justify-between text-xs text-secondary">
           <span>{fmtViews(episode.view_count)} views</span>

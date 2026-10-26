@@ -7,10 +7,10 @@ import { dirname, resolve } from "node:path";
 import { loadSnapshot } from "./load_local.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const migration = readFileSync(resolve(here, "../../cloudflare/migrations/0016_production_calendar.sql"), "utf8");
-const checksMigration = readFileSync(resolve(here, "../../cloudflare/migrations/0017_production_source_checks.sql"), "utf8");
-const targetsMigration = readFileSync(resolve(here, "../../cloudflare/migrations/0018_production_ip_targets.sql"), "utf8");
-const trackerDetailsMigration = readFileSync(resolve(here, "../../cloudflare/migrations/0019_production_tracker_details.sql"), "utf8");
+const migration = readFileSync(resolve(here, "../../cloudflare/migrations/0025_production_calendar.sql"), "utf8");
+const checksMigration = readFileSync(resolve(here, "../../cloudflare/migrations/0026_production_source_checks.sql"), "utf8");
+const targetsMigration = readFileSync(resolve(here, "../../cloudflare/migrations/0027_production_ip_targets.sql"), "utf8");
+const trackerDetailsMigration = readFileSync(resolve(here, "../../cloudflare/migrations/0028_production_tracker_details.sql"), "utf8");
 
 test("local import preserves source data and is idempotent", () => {
   const db = new DatabaseSync(":memory:");

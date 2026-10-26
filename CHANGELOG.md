@@ -5,9 +5,30 @@ versioning; the web application version is held in `web/package.json`.
 
 ## [Unreleased]
 
-- Added the source-only `beta_0.1` integration and Cloudflare promotion map,
-  separating web assets, catalogue objects, D1 authority, derived retrieval
-  state, environment bindings, pending migrations, and production gates.
+- Added validated native published timing for the thirteen previously absent
+  or structurally incompatible episodes, completing 56/56 published sidecars.
+- Added grouped evidence presentation that separates answer citations from
+  secondary retrieval candidates without changing their original identities.
+- Reconciled the beta release documentation with the Clerk session-token flow:
+  the custom email claim is read from the session token, `sub` remains the
+  default Clerk subject, D1 remains the role authority, and no JWT template or
+  live environment activation is implied.
+- Repaired private Beta chat presentation for #78: reuse Alpha Markdown and
+  citation rendering, keep the composer at the viewport bottom while messages
+  scroll, constrain the conversation column and long titles, and contain menu
+  utility controls at narrow widths. Locally verified; staging acceptance is
+  pending.
+- Removed the duplicate Beta ingest destination while preserving Alpha's
+  existing ingest and evidence authority; repaired the real Clerk logout path,
+  recorded exact staging rollback receipts, and reconciled `v0.3.3-beta.2` as
+  immutable historical provenance rather than a current release receipt.
+
+- Recorded the local source-only `beta_0.1` integration as merge `d3b4590`
+  (parents `d4e45b4` and `7ec8298`) and added a production-readiness checklist
+  separating exact source candidates, web assets, catalogue objects, D1
+  authority, derived retrieval state, environment bindings, staging evidence,
+  production gates, and explicit deferrals. The reported `3eebf57` object and
+  later runtime/D1 results remain unaccepted without environment receipts.
 
 - Replaced the operator Cloudflare Access boundary with Clerk verification
   while preserving the D1 email-to-role mapping and deny-by-default RBAC.

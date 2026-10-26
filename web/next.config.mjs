@@ -7,11 +7,41 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "img.youtube.com" },
       { protocol: "https", hostname: "i.ytimg.com" },
+      { protocol: "https", hostname: "**.cdninstagram.com" },
+      { protocol: "https", hostname: "**.fbcdn.net" },
     ],
   },
+  // Baseline hardening on every page response. (No CSP here yet — Clerk's
+  // script requirements need a nonce-based policy, tracked separately.)
+  headers: async () => [
+    {
+      source: "/:path*",
+      headers: [
+        { key: "X-Content-Type-Options", value: "nosniff" },
+        { key: "X-Frame-Options", value: "DENY" },
+        { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      ],
+    },
+    {
+      // The authenticated analytics workspace embeds this same-origin dashboard.
+      // Keep other pages non-embeddable and prohibit external sites here too.
+      source: "/analytics-demo/index.html",
+      headers: [
+        { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+      ],
+    },
+  ],
   // Ensure the prebuilt vector store is traced into the /api/chat serverless function
   outputFileTracingIncludes: {
     "/api/chat": ["./src/data/vectors.json"],
   },
 };
 export default nextConfig;
+
+// Local dev: expose the wrangler.jsonc bindings (incl. the WTFMEDIA_EDGE
+// service binding to the local edge worker) to `next dev` route handlers.
+if (process.env.NODE_ENV === "development") {
+  const { initOpenNextCloudflareForDev } = await import("@opennextjs/cloudflare");
+  initOpenNextCloudflareForDev();
+}

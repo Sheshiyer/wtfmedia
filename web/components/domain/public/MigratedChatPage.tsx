@@ -5,7 +5,9 @@ import { useSearchParams } from "next/navigation";
 import { AskComposer } from "./AskComposer";
 import { ConversationThread, type Message, type Source } from "./ConversationThread";
 import { parsePublicSourceHeader } from "@/lib/provenance/public-source-header";
-import { parseSourceMode, type SourceMode } from "@/lib/provenance/source-mode";
+import { parsePublicMomentsHeader } from "@/lib/provenance/public-moment-header";
+import { parseSourceMode } from "@/lib/provenance/source-mode";
+import type { AnswerQueryScope } from "@/lib/public/source-panel-model";
 
 /* ------------------------------------------------------------------ */
 /* ChatInner (migrated — uses extracted components)                    */
@@ -19,7 +21,8 @@ function ChatInner() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [autoSubmitted, setAutoSubmitted] = useState(false);
-  const [sourceMode, setSourceMode] = useState<SourceMode>("published");
+  // Published-only for the beta — the uncut/both selector is hidden.
+  const sourceMode = "published" as const;
 
   /* Auto-submit from ?q= param (once) */
   useEffect(() => {
@@ -35,11 +38,20 @@ function ChatInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, autoSubmitted, messages.length]);
 
-  async function sendWithQuery(query: string) {
+  async function sendWithQuery(
+    query: string,
+    options: { history?: Message[]; appendUser?: boolean; answerModel?: string } = {},
+  ) {
     if (loading) return;
 
     const userMessage: Message = { role: "user", content: query };
-    setMessages((prev) => [...prev, userMessage]);
+    const history = options.history ?? messages;
+    const requestMessages = options.appendUser === false ? history : [...history, userMessage];
+    const queryScope: AnswerQueryScope = {
+      sourceMode,
+      episodeId,
+    };
+    setMessages(requestMessages);
     setInput("");
     setLoading(true);
 
@@ -48,12 +60,13 @@ function ChatInner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [...messages, userMessage].map((m) => ({
+          messages: requestMessages.map((m) => ({
             role: m.role,
             content: m.content,
           })),
-          sourceMode,
+          sourceMode: queryScope.sourceMode,
           ...(episodeId ? { episodeId } : {}),
+          ...(options.answerModel ? { answerModel: options.answerModel } : {}),
         }),
       });
 
@@ -64,13 +77,26 @@ function ChatInner() {
       const sourcesHeader = response.headers.get("X-Sources");
       const modelHeader = response.headers.get("X-Model");
       const fallbackHeader = response.headers.get("X-Fallback");
-      const responseSourceMode = parseSourceMode(response.headers.get("X-Source-Mode"));
+      const responseModeHeader = response.headers.get("X-Source-Mode");
+      // Requests are always published; the header only describes what came back.
+      const responseSourceMode = responseModeHeader
+        ? parseSourceMode(responseModeHeader)
+        : queryScope.sourceMode;
+      const momentsPayload = parsePublicMomentsHeader(response.headers.get("X-Moments"));
+      const responseState = response.headers.get("X-Response-State") || undefined;
+      let citedIndices: number[] | undefined;
+      try {
+        const raw = response.headers.get("X-Cited-Indices");
+        if (raw) citedIndices = JSON.parse(raw);
+      } catch { /* ignore malformed header */ }
+      let followUps: string[] | undefined;
+      try {
+        const raw = response.headers.get("X-Follow-Ups");
+        if (raw) followUps = JSON.parse(raw);
+      } catch { /* ignore malformed header */ }
 
       const sources: Source[] = parsePublicSourceHeader(sourcesHeader).map((source) => ({
         ...source,
-        // Keep the per-source mode from X-Sources when present. The response
-        // mode can describe a fallback or mixed result and must not relabel
-        // published evidence as uncut (or vice versa).
         sourceMode: source.sourceMode ?? responseSourceMode,
       }));
 
@@ -80,7 +106,6 @@ function ChatInner() {
       let accumulated = "";
 
       if (reader) {
-        // Add empty assistant message to fill
         setMessages((prev) => [
           ...prev,
           {
@@ -89,6 +114,12 @@ function ChatInner() {
             sources,
             model: modelHeader || undefined,
             fallback: fallbackHeader === "true",
+            responseState,
+            citedIndices,
+            followUps,
+            queryScope,
+            effectiveSourceMode: responseSourceMode,
+            moments: momentsPayload.moments.length > 0 ? momentsPayload : undefined,
           },
         ]);
 
@@ -143,7 +174,7 @@ function ChatInner() {
     await sendWithQuery(query);
   }
 
-  async function retry() {
+  async function retry(model?: string) {
     // Find last user message and resend
     const lastUserIdx = [...messages]
       .reverse()
@@ -151,15 +182,13 @@ function ChatInner() {
     if (lastUserIdx === -1) return;
 
     const lastUserMessage = [...messages].reverse()[lastUserIdx];
-    // Remove last assistant message
-    setMessages((prev) => {
-      const updated = [...prev];
-      if (updated[updated.length - 1]?.role === "assistant") {
-        updated.pop();
-      }
-      return updated;
+    const userIndex = messages.length - 1 - lastUserIdx;
+    const historyThroughUser = messages.slice(0, userIndex + 1);
+    await sendWithQuery(lastUserMessage.content, {
+      history: historyThroughUser,
+      appendUser: false,
+      answerModel: model,
     });
-    await sendWithQuery(lastUserMessage.content);
   }
 
   return (
@@ -168,14 +197,13 @@ function ChatInner() {
         messages={messages}
         loading={loading}
         onRetry={retry}
+        onFollowUp={sendWithQuery}
         footer={
           <AskComposer
             value={input}
             onChange={setInput}
             onSubmit={send}
             loading={loading}
-            sourceMode={sourceMode}
-            onSourceModeChange={setSourceMode}
             placement="inline"
           />
         }

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { handleOpsRequest } from "../src/ops-router.ts";
 import {
@@ -12,7 +13,7 @@ import {
 import { isMemberBetaEnabled, resolveMemberBetaRelease } from "../src/member-release.ts";
 import { policyForPath } from "../src/auth/policy.ts";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
 const baseEnv = {
   OPS_HOSTNAME: "ops.local.test",
   OPS_ORIGIN: "https://origin.local.test",
@@ -37,7 +38,7 @@ function releaseDb({ row = null, role = "super_admin" } = {}) {
         async first() {
           if (sql.includes("sqlite_master")) return { ready: 1 };
           if (sql.includes("release_manifests")) return row;
-          if (sql.includes("SELECT id, email")) return { id: 7, email: "operator@example.test", role, active: 1 };
+          if (sql.includes("FROM operators")) return { id: 7, email: "operator@example.test", role, active: 1 };
           return null;
         },
         async run() {
@@ -74,10 +75,12 @@ test("release migration is environment-scoped, paused by default, and excludes p
   assert.deepEqual(RELEASE_TRACKS, ["alpha", "beta"]);
 });
 
-test("member beta is an independently paused staging-only release gate", async () => {
+test("member beta release follows the manifest in every environment, paused by default", async () => {
   const db = { prepare() { return { bind() { return this; }, async first() { return null; } }; } };
   assert.equal(isMemberBetaEnabled(await resolveMemberBetaRelease(db, "staging")), false);
-  assert.equal(isMemberBetaEnabled({ environment: "production", state: "stable", source: "manifest" }), false);
+  // No manifest row: production stays paused. The row is the only gate.
+  assert.equal(isMemberBetaEnabled(await resolveMemberBetaRelease(db, "production")), false);
+  assert.equal(isMemberBetaEnabled({ environment: "production", state: "stable", source: "manifest" }), true);
   assert.match(readFileSync(join(root, "migrations", "0010_member_beta.sql"), "utf8"), /CREATE TABLE member_beta_releases/);
 });
 

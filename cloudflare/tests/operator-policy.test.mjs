@@ -51,3 +51,22 @@ test("transfer is super-admin-only, atomic, audited, and checks the final invari
   assert.ok(statements.some((entry) => entry.batch === 5));
   assert.ok(statements.some((entry) => entry.args?.includes("super_admin_handoff")));
 });
+
+test("the retired ops chat route has no policy requirement and fails closed", () => {
+  for (const method of ["GET", "POST", "PATCH", "DELETE"]) {
+    assert.equal(policyForPath("/ops/api/chat", method), null);
+    assert.equal(policyForPath("/ops/api/chat/conversations/cnv_12345678", method), null);
+    assert.equal(policyForPath("/api/ops/chat", method), null);
+  }
+});
+
+test("list limits clamp negatives, zero, NaN, and oversize values", async () => {
+  const { boundedListLimit } = await import("../src/db/provenance.ts");
+  assert.equal(boundedListLimit(undefined), 50);
+  assert.equal(boundedListLimit(-1), 1);
+  assert.equal(boundedListLimit(-500), 1);
+  assert.equal(boundedListLimit(0), 1);
+  assert.equal(boundedListLimit(Number.NaN), 50);
+  assert.equal(boundedListLimit(25), 25);
+  assert.equal(boundedListLimit(5000), 100);
+});

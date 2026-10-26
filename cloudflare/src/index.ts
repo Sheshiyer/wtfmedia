@@ -15,7 +15,7 @@ import {
 } from "./db.ts";
 import { handleOpsRequest, type OpsEnv } from "./ops-router.ts";
 import { handleMemberRequest } from "./member-router.ts";
-import { runChat, vectorFor } from "./chat/answer.ts";
+import { syncConfiguredAnalytics } from "./analytics-sync.ts";
 import { createRemoteClerkVerifier } from "./auth/clerk.ts";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar.ts";
 import {
@@ -23,18 +23,16 @@ import {
   parseSourceMode,
 } from "./chat/source-mode.ts";
 import {
-  ingestStateKey,
-  parseJobSourceMode,
-  resolveCatalogueJobIdentity,
-  vectorRecordId,
-  vectorSourceRef,
-} from "./catalogue/asset-map.ts";
+  runPublicChat,
+  parseHistory,
+} from "./chat/public-chat.ts";
+import { CLAUDE_MODEL } from "./chat/claude.ts";
+export { claudeChat } from "./chat/claude.ts";
 import {
   admitTranscriptJobs,
-  assertCatalogueJobSourceAsset,
   type TranscriptJob,
 } from "./catalogue/job-admission.ts";
-import { extractTimestampLines } from "./catalogue/timestamps.ts";
+import { ingestTranscriptJob } from "./catalogue/transcript-ingest.ts";
 
 export interface Env extends OpsEnv {
   AI: any;
@@ -45,19 +43,25 @@ export interface Env extends OpsEnv {
   DB: DB;
   ALLOWED_ORIGIN: string;
   RATE_LIMIT_PER_MINUTE: string;
+  DEPLOYMENT_ENVIRONMENT: "production" | "staging" | "local";
+  SERVICE_NAME: string;
+  CATALOGUE_INDEX_NAME: string;
   INGEST_TOKEN: string;
   EDGE_SHARED_SECRET: string;
   CALENDAR_READ_RATE_LIMIT_PER_MINUTE?: string;
   CALENDAR_WRITE_RATE_LIMIT_PER_MINUTE?: string;
+  ZERNIO_API_KEY?: string;
+  ZERNIO_PROFILE_ID?: string;
+  SOCIAL_ANALYTICS_ENABLED?: string;
+  ANTHROPIC_API_KEY?: string;
 }
 
+// Older deployed clients send these retry hints; accept them but always use Claude.
+const ANSWER_MODELS = new Set([
+  CLAUDE_MODEL, "google/gemini-3.5-flash", "openai/gpt-5",
+  "poolside/laguna-s-2.1", "thinkingmachines/inkling",
+]);
 const MAX_BODY_BYTES = 16_000;
-const MAX_QUESTION_CHARS = 2_000;
-const MAX_CHUNK_CHARS = 1_100;
-const UPSERT_BATCH_SIZE = 8;
-const UPSERT_ATTEMPTS = 5;
-type Passage = { text: string; start?: number };
-type TimestampLine = { t: number; x: string };
 
 function cors(request: Request, env: Env) {
   const origin = request.headers.get("Origin");
@@ -66,60 +70,20 @@ function cors(request: Request, env: Env) {
     : {};
 }
 
+// Constant-time compare for static service secrets (length equality leaks at
+// most the secret length, which is not sensitive here).
+function secretMatches(provided: string | null, expected: string | undefined): boolean {
+  if (!provided || !expected || provided.length !== expected.length) return false;
+  let diff = 0;
+  for (let index = 0; index < provided.length; index += 1) diff |= provided.charCodeAt(index) ^ expected.charCodeAt(index);
+  return diff === 0;
+}
+
 function reply(request: Request, env: Env, body: unknown, status = 200) {
   return Response.json(body, {
     status,
     headers: { ...cors(request, env), "Cache-Control": "no-store", "X-Request-ID": request.headers.get("X-Request-ID") || crypto.randomUUID() },
   });
-}
-
-function chunks(text: string): Passage[] {
-  const words = text.replace(/\s+/g, " ").trim().split(" ");
-  const result: Passage[] = [];
-  let current = "";
-  for (const word of words) {
-    if (current.length && current.length + word.length + 1 > MAX_CHUNK_CHARS) {
-      result.push({ text: current });
-      current = word;
-    } else {
-      current += `${current ? " " : ""}${word}`;
-    }
-  }
-  if (current) result.push({ text: current });
-  return result;
-}
-
-function timestampedChunks(lines: TimestampLine[]): Passage[] {
-  const result: Passage[] = [];
-  let text = "";
-  let start: number | undefined;
-  for (const line of lines) {
-    const words = typeof line.x === "string" ? line.x.replace(/\s+/g, " ").trim() : "";
-    if (!words || !Number.isFinite(line.t)) continue;
-    if (text && text.length + words.length + 1 > MAX_CHUNK_CHARS) {
-      result.push({ text, start });
-      text = "";
-      start = undefined;
-    }
-    if (start == null) start = line.t;
-    text += `${text ? " " : ""}${words}`;
-  }
-  if (text) result.push({ text, start });
-  return result;
-}
-
-async function upsertWithRetry(env: Env, vectors: unknown[]) {
-  let lastError: unknown;
-  for (let attempt = 0; attempt < UPSERT_ATTEMPTS; attempt++) {
-    try {
-      await env.VECTORIZE.upsert(vectors);
-      return;
-    } catch (error) {
-      lastError = error;
-      await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** attempt + Math.floor(Math.random() * 150)));
-    }
-  }
-  throw lastError;
 }
 
 async function rateLimit(request: Request, env: Env) {
@@ -132,76 +96,6 @@ async function rateLimit(request: Request, env: Env) {
   return true;
 }
 
-async function ingest(job: TranscriptJob, env: Env) {
-  const sourceMode = parseJobSourceMode(job.sourceMode);
-  const identity = resolveCatalogueJobIdentity(
-    job.videoId,
-    job.transcriptKey,
-    sourceMode,
-    job.sourceAssetId,
-  );
-  if (!identity) throw new Error(`${sourceMode}_identity_invalid`);
-  await assertCatalogueJobSourceAsset(job, env.DB);
-  const stateKey = ingestStateKey(identity.sourceAssetId, sourceMode);
-  const previousHash = await env.WTFMEDIA_STATE.get(stateKey);
-  if (previousHash === job.contentHash) return;
-  const object = await env.CATALOGUE.get(job.transcriptKey);
-  if (!object) throw new Error(`missing transcript object: ${job.transcriptKey}`);
-  const text = await object.text();
-  let parts = chunks(text);
-  if (job.timestampsKey) {
-    const timestamps = await env.CATALOGUE.get(job.timestampsKey);
-    if (timestamps) {
-      try {
-        const parsed = await timestamps.json<TimestampLine[]>();
-        if (Array.isArray(parsed)) parts = timestampedChunks(parsed);
-      } catch {
-        console.warn("wtfmedia timestamp sidecar unreadable", { videoId: job.videoId });
-      }
-    }
-  } else if (sourceMode === "uncut") {
-    const inline = extractTimestampLines(text);
-    if (inline.length >= 3) parts = timestampedChunks(inline);
-  }
-  const source = vectorSourceRef(identity.sourceAssetId, sourceMode);
-  const frameIoUrl = sourceMode === "uncut"
-    ? normalizeFrameIoUrl(job.metadata?.frameIoFinalEpUrl ?? job.metadata?.frame_io_final_ep_url)
-    : null;
-  for (let offset = 0; offset < parts.length; offset += UPSERT_BATCH_SIZE) {
-    const batch = parts.slice(offset, offset + UPSERT_BATCH_SIZE);
-    const vectors = await Promise.all(batch.map(async (part, index) => ({
-      id: vectorRecordId(identity.sourceAssetId, offset + index, sourceMode),
-      values: await vectorFor(env, part.text),
-      metadata: {
-        video_id: identity.publicVideoId,
-        source_asset_id: identity.sourceAssetId,
-        title: job.title.slice(0, 500),
-        chunk: offset + index,
-        text: part.text,
-        source,
-        start: part.start ?? null,
-        timestamped: part.start != null,
-        source_mode: sourceMode,
-        ...(frameIoUrl ? { frame_io_url: frameIoUrl } : {}),
-      },
-    })));
-    await upsertWithRetry(env, vectors);
-  }
-  await env.WTFMEDIA_STATE.put(stateKey, job.contentHash);
-}
-
-function normalizeFrameIoUrl(value: unknown): string | null {
-  if (typeof value !== "string" || !value.trim()) return null;
-  try {
-    const parsed = new URL(value);
-    const hostname = parsed.hostname.toLowerCase();
-    const allowedHost = hostname === "f.io" || hostname === "frame.io" || hostname.endsWith(".frame.io");
-    return parsed.protocol === "https:" && allowedHost ? parsed.toString() : null;
-  } catch {
-    return null;
-  }
-}
-
 async function chat(request: Request, env: Env) {
   if (request.headers.get("Content-Type")?.split(";", 1)[0] !== "application/json") return reply(request, env, { error: "content_type_required" }, 415);
   if (!(await rateLimit(request, env))) {
@@ -209,36 +103,28 @@ async function chat(request: Request, env: Env) {
   }
   const contentLength = Number(request.headers.get("Content-Length") || "0");
   if (contentLength > MAX_BODY_BYTES) return reply(request, env, { error: "body_too_large" }, 413);
-  let payload: { question?: unknown; sourceMode?: unknown; episodeId?: unknown };
+  let payload: { question?: unknown; sourceMode?: unknown; episodeId?: unknown; history?: unknown; answerModel?: unknown };
   try { payload = await request.json(); } catch { return reply(request, env, { error: "invalid_json" }, 400); }
   if (typeof payload.question !== "string" || !payload.question.trim()) {
     return reply(request, env, { error: "question_required" }, 400);
   }
-  const question = payload.question.trim();
-  const sourceMode = parseSourceMode(payload.sourceMode);
+  if (payload.answerModel !== undefined) {
+    if (typeof payload.answerModel !== "string" || !ANSWER_MODELS.has(payload.answerModel)) {
+      return reply(request, env, { error: "invalid_answer_model" }, 400);
+    }
+  }
   const episodeId = parseEpisodeId(payload.episodeId);
   if (payload.episodeId !== undefined && episodeId === null) {
     return reply(request, env, { error: "invalid_episode_id" }, 400);
   }
-  if (question.length > MAX_QUESTION_CHARS) return reply(request, env, { error: "question_too_long" }, 400);
-  try {
-    const result = await runChat({ question, sourceMode, ...(episodeId ? { episodeId } : {}), requestId: request.headers.get("X-Request-ID") }, env);
-    // Public chat remains stateless and keeps its existing JSON projection.
-    return reply(request, env, {
-      answer: result.answer,
-      sources: result.sources,
-      grounded: result.grounded,
-      sourceMode: result.sourceMode,
-      uncutUnavailable: result.uncutUnavailable,
-      ...(result.model ? { model: result.model, modelFallback: result.modelFallback } : {}),
-    });
-  } catch (error) {
-    console.error("wtfmedia chat failed", {
-      message: error instanceof Error ? error.message : "unknown",
-      sourceMode,
-    });
-    return reply(request, env, { error: "retrieval_unavailable" }, 503);
-  }
+  const { status, body } = await runPublicChat(env, {
+    question: payload.question,
+    sourceMode: parseSourceMode(payload.sourceMode),
+    episodeId,
+    history: parseHistory(payload.history),
+    signal: request.signal,
+  });
+  return reply(request, env, body, status);
 }
 
 async function requireAuth(request: Request, env: Env): Promise<Operator | null> {
@@ -370,14 +256,22 @@ export default {
       return new Response(null, { status: 204, headers: { ...cors(request, env), "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization, Cookie, X-Request-ID, Idempotency-Key" } });
     }
     if (request.method === "GET" && url.pathname === "/v1/health") {
-      return reply(request, env, { status: "ok", service: "wtfmedia-edge", index: "wtfmedia-catalogue-v1" });
+      return reply(request, env, {
+        status: "ok",
+        environment: env.DEPLOYMENT_ENVIRONMENT,
+        service: env.SERVICE_NAME,
+        localGeneration: { provider: "anthropic", model: CLAUDE_MODEL, configured: !!env.ANTHROPIC_API_KEY?.trim() },
+        ...(env.DEPLOYMENT_ENVIRONMENT === "staging"
+          ? { inferenceService: "wtfmedia-web", corpusAuthority: "alpha_public_api" }
+          : { index: env.CATALOGUE_INDEX_NAME }),
+      });
     }
     if (url.pathname === "/ops" || url.pathname.startsWith("/ops/") || url.pathname === "/api/ops" || url.pathname.startsWith("/api/ops/")) {
       return handleOpsRequest(request, env);
     }
     if (url.pathname.startsWith("/beta/api/")) return handleMemberRequest(request, env);
     if (url.pathname === "/v1/calendar" || url.pathname.startsWith("/v1/calendar/")) {
-      if (!env.EDGE_SHARED_SECRET || request.headers.get("X-Edge-Secret") !== env.EDGE_SHARED_SECRET) {
+      if (!secretMatches(request.headers.get("X-Edge-Secret"), env.EDGE_SHARED_SECRET)) {
         return reply(request, env, { error: "unauthorized" }, 401);
       }
       try {
@@ -390,11 +284,17 @@ export default {
       return handleCalendarRequest(request, env);
     }
     if (request.method === "POST" && url.pathname === "/v1/chat") {
-      if (!env.EDGE_SHARED_SECRET || request.headers.get("X-Edge-Secret") !== env.EDGE_SHARED_SECRET) return reply(request, env, { error: "unauthorized" }, 401);
+      // Beta chat is authenticated-only. Its member/operator routers call the
+      // Alpha service binding, so the staging public adapter stays disabled.
+      if (env.DEPLOYMENT_ENVIRONMENT === "staging") return reply(request, env, { error: "not_found" }, 404);
+      if (!secretMatches(request.headers.get("X-Edge-Secret"), env.EDGE_SHARED_SECRET)) return reply(request, env, { error: "unauthorized" }, 401);
       return chat(request, env);
     }
     if (request.method === "POST" && url.pathname === "/v1/admin/enqueue") {
-      if (request.headers.get("X-Ingest-Token") !== env.INGEST_TOKEN) return reply(request, env, { error: "unauthorized" }, 401);
+      // No staging ingest binding exists: never turn the Beta worker into a
+      // producer for either its former isolated corpus or Alpha's corpus.
+      if (env.DEPLOYMENT_ENVIRONMENT === "staging") return reply(request, env, { error: "not_found" }, 404);
+      if (!secretMatches(request.headers.get("X-Ingest-Token"), env.INGEST_TOKEN)) return reply(request, env, { error: "unauthorized" }, 401);
       let payload: { jobs?: TranscriptJob[] };
       try { payload = await request.json(); } catch { return reply(request, env, { error: "invalid_json" }, 400); }
       const admission = await admitTranscriptJobs(payload.jobs, env.INGEST_QUEUE, env.DB);
@@ -406,8 +306,13 @@ export default {
   },
   async queue(batch: any, env: Env) {
     for (const message of batch.messages) {
-      try { await ingest(message.body as TranscriptJob, env); message.ack(); }
+      try { await ingestTranscriptJob(message.body as TranscriptJob, env); message.ack(); }
       catch (error) { console.error("wtfmedia ingest failed", { message: error instanceof Error ? error.message : "unknown" }); message.retry(); }
     }
+  },
+  async scheduled(event: { scheduledTime: number }, env: Env, context: { waitUntil(promise: Promise<unknown>): void }) {
+    // Source-only handler: a cron trigger is intentionally not declared until
+    // staging configuration and quota cadence receive separate owner approval.
+    context.waitUntil(syncConfiguredAnalytics(env, new Date(event.scheduledTime)));
   },
 };

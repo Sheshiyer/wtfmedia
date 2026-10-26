@@ -1,22 +1,175 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { runChat } from "../src/chat/answer.ts";
+import { hasCitationCoverage, runChat } from "../src/chat/answer.ts";
 import { prepareMemberTurn } from "../src/chat/member-history.ts";
+
+test("hasCitationCoverage accepts glm's labelled-list style and still rejects uncited claims", () => {
+  const glmStyle = [
+    "Across the catalogue, guests offered a few distinct pieces of dating advice:",
+    "",
+    "- **Play the numbers.** Martin Escobari framed approaching someone as a maths problem [1].",
+    "- **Wingman etiquette.** Tanmay said a wingman should cue and leave, not oversell [3].",
+    "The restaurant episode's point about word-of-mouth is about dining referrals, not dating [2].",
+  ].join("\n");
+  assert.equal(hasCitationCoverage(glmStyle, 6), true);
+  const withCoverageNote = glmStyle + "\nThat's what the excerpts support, and no other excerpt here gives dating guidance.";
+  assert.equal(hasCitationCoverage(withCoverageNote, 6), true);
+  const withCatalogueNote = "Honest answer up front: the catalogue doesn't contain much structured dating advice.\n\n- Tanmay said cue and leave [1].";
+  assert.equal(hasCitationCoverage(withCatalogueNote, 6), true);
+  assert.equal(hasCitationCoverage("Guests gave advice.\n\n- Tanmay said cue and leave [1].", 6), false);
+  assert.equal(hasCitationCoverage("No citations anywhere.", 6), false);
+});
 
 const vector = Array.from({ length: 1024 }, () => 0.1);
 
+test("coverage accepts canonical grouped citations without allowing uncited claims", () => {
+  assert.equal(hasCitationCoverage("A supported statement [1, 2]. Another supported statement [2].", 2), true);
+  assert.equal(hasCitationCoverage("A supported statement. [1, 2] Another supported statement [2].", 2), true);
+  assert.equal(hasCitationCoverage("A supported statement [1, 3].", 2), false);
+  assert.equal(hasCitationCoverage("A supported statement [1, 2]. An uncited statement.", 2), false);
+  assert.equal(hasCitationCoverage("A supported statement [1, 2]. Another statement [N].", 2), false);
+});
+
+test("one citation covers a complete quotation, not uncited prose around it", () => {
+  for (const [open, close] of [['"', '"'], ['“', '”'], ['‘', '’']]) {
+    const quote = `${open}Service delivers the order. Hospitality makes the guest feel welcome.${close} [1, 2]`;
+    assert.equal(hasCitationCoverage(`The guest said: ${quote}.`, 2), true);
+    assert.equal(hasCitationCoverage(`${quote} A separate supported point [2].`, 2), true);
+    assert.equal(hasCitationCoverage(`An uncited assertion. ${quote}`, 2), false);
+    assert.equal(hasCitationCoverage(`${quote} An uncited assertion.`, 2), false);
+    assert.equal(hasCitationCoverage(`${open}An uncited quote. Another sentence.${close}\nA cited sentence [1].`, 2), false);
+  }
+  assert.equal(hasCitationCoverage('"First sentence. Second sentence." [99]', 2), false);
+});
+
+test("currency and continuation abbreviations do not split a supported sentence", () => {
+  for (const sentence of [
+    "An example order generates Rs. 100 in revenue [1].",
+    "The hypothetical margin is Re. 1 per order [1, 2].",
+    "Products include groceries, e.g. milk and bread [1].",
+    "The speaker describes proximity, i.e. short delivery routes [2].",
+    "The speaker compared the U.S. market with India [1].",
+  ]) {
+    assert.equal(hasCitationCoverage(sentence, 2), true, sentence);
+    assert.equal(hasCitationCoverage(`Revenue increased. ${sentence}`, 2), false, "preceding factual claims still need their own citation");
+    assert.equal(hasCitationCoverage(`${sentence} Revenue increased.`, 2), false);
+  }
+  assert.equal(hasCitationCoverage("The company expanded in the U.S. Revenue increased [1].", 2), false);
+  assert.equal(hasCitationCoverage("An order generates Rs. 100. Revenue increased [1].", 2), false);
+  assert.equal(hasCitationCoverage("An order generates Rs. 100 in revenue [99].", 2), false);
+});
+
+// Generation runs on Claude (fetch); Workers AI only serves embeddings.
 function environment(matches, prompts = [], response = "The evidence supports this answer [1] and [2].") {
+  globalThis.fetch = async (_url, init) => {
+    const body = JSON.parse(init?.body ?? "{}");
+    prompts.push([{ role: "system", content: body.system }, ...body.messages]);
+    // The abstention classifier is a separate model call; answer it truthfully
+    // so the shared pipeline continues under test.
+    const system = body.system ?? "";
+    const content = system.startsWith("You classify research-assistant answers") ? "ANSWERED" : response;
+    return new Response(JSON.stringify({ model: "claude-sonnet-5-5", stop_reason: "end_turn", content: [{ type: "text", text: content }] }), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  };
   return {
     AI: {
-      async run(model, input) {
+      async run(model) {
         if (model === "@cf/baai/bge-large-en-v1.5") return { data: [vector] };
-        prompts.push(input?.messages);
-        return { response };
+        throw new Error("generation must use Claude, not Workers AI");
       },
     },
-    VECTORIZE: { async query() { return { matches }; } },
+    VECTORIZE: { async query() { return { matches }; }, async getByIds() { return []; } },
+    ANTHROPIC_API_KEY: "test-anthropic-key",
   };
 }
+
+test("shared authenticated runner returns the Alpha editor-sheet moment payload", async () => {
+  const videoId = "abcdefghijk";
+  globalThis.fetch = async (_url, init) => {
+    const body = JSON.parse(init?.body ?? "{}");
+    const content = body.system?.includes("You label podcast moments")
+      ? JSON.stringify({ m: 1, guest: "Nikhil Kamath", theme: "career path", topic: "building conviction", summary: "Nikhil describes building conviction through repeated work.", whyRelevant: "It directly answers how conviction develops.", strength: 5 })
+      : "Nikhil describes the first step [1] and the next step [2].";
+    return new Response(JSON.stringify({ model: "claude-sonnet-5-5", stop_reason: "end_turn", content: [{ type: "text", text: content }] }), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  };
+  const env = {
+    AI: {
+      async run(model) {
+        if (model === "@cf/baai/bge-large-en-v1.5") return { data: [vector] };
+        throw new Error("generation must use Claude, not Workers AI");
+      },
+    },
+    ANTHROPIC_API_KEY: "test-anthropic-key",
+    VECTORIZE: {
+      async query() {
+        return { matches: [
+          { id: `${videoId}:4`, score: 0.94, metadata: { video_id: videoId, source_mode: "published", title: "Nikhil Kamath on building", text: "Nikhil describes the first step.", timestamped: true, start: 120 } },
+          { id: `${videoId}:5`, score: 0.92, metadata: { video_id: videoId, source_mode: "published", title: "Nikhil Kamath on building", text: "Nikhil explains the next step.", timestamped: true, start: 150 } },
+        ] };
+      },
+      async getByIds(ids) {
+        return ids.flatMap((id) => id === `${videoId}:6`
+          ? [{ id, metadata: { start: 180, text: "The following passage." } }]
+          : id === `${videoId}:5`
+            ? [{ id, metadata: { start: 150, text: "Nikhil explains the next step." } }]
+            : []);
+      },
+    },
+  };
+
+  const answer = await runChat({ question: "What did Nikhil Kamath say about building conviction?", sourceMode: "published" }, env);
+
+  // Contiguous chunks stay separate moments: distinct timestamps per episode.
+  assert.equal(answer.moments?.length, 2);
+  assert.deepEqual(answer.citedIndices, [1, 2]);
+  assert.deepEqual(answer.moments?.[0], {
+    videoId,
+    title: "Nikhil Kamath on building",
+    url: `https://www.youtube.com/watch?v=${videoId}&t=120s`,
+    chunkStart: 4,
+    chunkEnd: 4,
+    startSec: 120,
+    endSec: 150,
+    durationSec: 30,
+    score: 0.94,
+    timestampConfidence: null,
+    citationNumbers: [1],
+    withinBudget: true,
+    guest: "Nikhil Kamath",
+    theme: "career path",
+    topic: "building conviction",
+    summary: "Nikhil describes building conviction through repeated work.",
+    whyRelevant: "It directly answers how conviction develops.",
+    strength: 5,
+  });
+  assert.deepEqual(answer.moments?.[1], {
+    videoId,
+    title: "Nikhil Kamath on building",
+    url: `https://www.youtube.com/watch?v=${videoId}&t=150s`,
+    chunkStart: 5,
+    chunkEnd: 5,
+    startSec: 150,
+    endSec: 180,
+    durationSec: 30,
+    score: 0.92,
+    timestampConfidence: null,
+    citationNumbers: [2],
+    withinBudget: true,
+    guest: "Nikhil Kamath",
+    theme: "career path",
+    topic: "building conviction",
+    summary: "Nikhil describes building conviction through repeated work.",
+    whyRelevant: "It directly answers how conviction develops.",
+    strength: 5,
+  });
+  assert.equal(answer.totalMomentDurationSec, 60);
+  assert.equal(answer.durationBudgetSec, null);
+});
 
 test("shared authenticated runner preserves published YouTube and uncut provenance", async () => {
   const answer = await runChat({ question: "What did the guest say?", sourceMode: "both", requestId: "rag-test-1" }, environment([
@@ -212,4 +365,23 @@ test("public generation shares scoped evidence and citation coverage while keepi
   assert.equal(answer.sources.length, 2);
   assert.equal(answer.modelFallback, true);
   assert.match(answer.answer, /closest cited excerpts/);
+});
+
+test("legacy retry hints stay compatible but every public answer uses Claude", async () => {
+  const { default: worker } = await import("../src/index.ts");
+  for (const answerModel of ["claude-sonnet-5-5", "google/gemini-3.5-flash", "openai/gpt-5", "poolside/laguna-s-2.1", "thinkingmachines/inkling", "unknown-model"]) {
+    const env = {
+      ...environment([excerpt("a"), excerpt("b")]),
+      EDGE_SHARED_SECRET: "local-contract-only", ALLOWED_ORIGIN: "https://public.test",
+      WTFMEDIA_STATE: { get: async () => null, put: async () => {} },
+    };
+    const response = await worker.fetch(new Request("https://edge.test/v1/chat", {
+      method: "POST", headers: { "content-type": "application/json", "x-edge-secret": env.EDGE_SHARED_SECRET },
+      body: JSON.stringify({ question: "What was said about batteries?", episodeId, sourceMode: "published", answerModel }),
+    }), env);
+    const body = await response.json();
+    assert.equal(response.status, answerModel === "unknown-model" ? 400 : 200);
+    if (response.ok) assert.equal(body.model, "claude-sonnet-5-5");
+    else assert.equal(body.error, "invalid_answer_model");
+  }
 });

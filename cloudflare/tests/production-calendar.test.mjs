@@ -46,10 +46,10 @@ function request(method = "GET", payload, query = "") {
 before(() => {
   database.exec("CREATE TABLE operators (id INTEGER PRIMARY KEY); CREATE TABLE episodes (id TEXT PRIMARY KEY)");
   database.exec("INSERT INTO operators(id) VALUES (1), (2)");
-  database.exec(readFileSync(new URL("../migrations/0016_production_calendar.sql", import.meta.url), "utf8"));
-  database.exec(readFileSync(new URL("../migrations/0017_production_source_checks.sql", import.meta.url), "utf8"));
-  database.exec(readFileSync(new URL("../migrations/0018_production_ip_targets.sql", import.meta.url), "utf8"));
-  database.exec(readFileSync(new URL("../migrations/0019_production_tracker_details.sql", import.meta.url), "utf8"));
+  database.exec(readFileSync(new URL("../migrations/0025_production_calendar.sql", import.meta.url), "utf8"));
+  database.exec(readFileSync(new URL("../migrations/0026_production_source_checks.sql", import.meta.url), "utf8"));
+  database.exec(readFileSync(new URL("../migrations/0027_production_ip_targets.sql", import.meta.url), "utf8"));
+  database.exec(readFileSync(new URL("../migrations/0028_production_tracker_details.sql", import.meta.url), "utf8"));
 });
 after(() => database.close());
 

@@ -26,23 +26,35 @@ describe("member conversation lifecycle", () => {
     expect(linkedSavedPreferenceDeletionNotice(2)).toBe("2 saved preferences stay separate and will not be deleted.");
   });
 
-  it("requires an exact typed deletion acknowledgement before enabling permanent deletion", () => {
+  it("accepts a typed deletion acknowledgement in any casing before enabling permanent deletion", () => {
     expect(canConfirmMemberConversationDeletion("DELETE")).toBe(true);
-    expect(canConfirmMemberConversationDeletion("delete")).toBe(false);
-    expect(canConfirmMemberConversationDeletion("DELETE ")).toBe(false);
+    expect(canConfirmMemberConversationDeletion("delete")).toBe(true);
+    expect(canConfirmMemberConversationDeletion("DELETE ")).toBe(true);
+    expect(canConfirmMemberConversationDeletion("DELET")).toBe(false);
+    expect(canConfirmMemberConversationDeletion("")).toBe(false);
     expect(workspace).toContain('Type DELETE to confirm');
     expect(workspace).toContain("deleteConfirmation");
   });
 
-  it("allows the active heading to wrap while preserving two-line rail titles", () => {
-    expect(workspace).not.toContain("line-clamp-2 font-display");
-    expect(navigator).toContain("line-clamp-2");
+  it("keeps the active heading bounded while preserving two-line rail titles", () => {
+    expect(workspace).toContain('title={view.conversation.title}');
+    expect(workspace).toContain("truncate font-display text-lg");
+    expect(navigator).toContain("truncate font-body text-sm");
   });
 
   it("uses the shared Alpha conversation frame instead of a private thread fork", () => {
     expect(workspace).toContain("ConversationThreadFrame");
     expect(workspace).toContain("renderFooter={() =>");
+    expect(workspace).toContain('composerPlacement="fixed"');
     expect(workspace).toContain('placement="inline"');
+  });
+
+  it("keeps the selected conversation inside the viewport frame", () => {
+    expect(workspace).toContain('flex h-[100dvh] min-h-0');
+    expect(workspace).toContain('flex min-h-0 min-w-0 flex-1 flex-col');
+    expect(workspace).toContain('section className="min-h-0 min-w-0 flex-1"');
+    expect(workspace).toContain('flex h-full min-h-0 flex-col');
+    expect(workspace).not.toContain('section className="min-w-0 pb-60"');
   });
 
   it("keeps reverse-keyset pages chronological while retaining the next older cursor", () => {

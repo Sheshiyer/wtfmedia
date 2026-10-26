@@ -1,5 +1,4 @@
 import {
-  buildVectorQueryOptions,
   extractNamedEntityPhrases,
   parseEpisodeId,
   parseSourceMode,
@@ -9,10 +8,21 @@ import {
   type SourceMode,
   type VectorMatchLike,
 } from "./source-mode.ts";
+import {
+  queryEvidenceSources,
+  queryEvidenceSourcesForQuestion,
+} from "./evidence-coordinator.ts";
+import { momentsForAnswer } from "./moment-pipeline.ts";
+import { claudeChat } from "./claude.ts";
+import { parseCitationMarkers } from "./skills/wtf-os-conversation.ts";
+import type { EnrichedMoment, MomentSource } from "./moments.ts";
 
 export type ChatAnswerEnvironment = {
   AI: any;
+  DB?: any;
   VECTORIZE: any;
+  ANTHROPIC_API_KEY?: string;
+  generationSignal?: AbortSignal;
 };
 
 export type ChatAnswerInput = {
@@ -47,13 +57,18 @@ export type ChatAnswer = {
   model: string | null;
   modelFallback: boolean;
   requestId: string;
+  /**
+   * Direct Alpha retrieval has chunk bounds; the public Alpha transport
+   * intentionally does not expose those internal identifiers. Both retain
+   * the same user-facing moment projection.
+   */
+  moments?: Array<Omit<EnrichedMoment, "excerpt" | "chunkStart" | "chunkEnd"> & Partial<Pick<EnrichedMoment, "chunkStart" | "chunkEnd">>>;
+  totalMomentDurationSec?: number;
+  durationBudgetSec?: number | null;
+  citedIndices?: number[];
 };
 
 const EMBEDDING_MODEL = "@cf/baai/bge-large-en-v1.5";
-const ANSWER_MODELS = [
-  "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-  "@cf/meta/llama-3.1-8b-instruct-fast",
-];
 const MAX_QUESTION_CHARS = 2_000;
 const MIN_SCORE = 0.45;
 const REQUEST_ID_PATTERN = /^[A-Za-z0-9._:-]{1,160}$/u;
@@ -80,21 +95,8 @@ async function vectorFor(env: ChatAnswerEnvironment, text: string): Promise<numb
 }
 
 async function answerWithFallback(env: ChatAnswerEnvironment, messages: unknown[]) {
-  const failures: string[] = [];
-  for (const model of ANSWER_MODELS) {
-    try {
-      const result = await env.AI.run(model, { messages, max_tokens: 600, temperature: 0.1 });
-      const answer = typeof result === "string" ? result : result?.response;
-      if (typeof answer !== "string" || !answer.trim()) throw new Error("empty answer response");
-      if (failures.length) console.warn("wtfmedia answer model fallback used", { model, failedAttempts: failures.length });
-      return { answer, model, fallback: failures.length > 0 };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "unknown";
-      failures.push(`${model}:${message}`);
-      console.warn("wtfmedia answer model failed", { model, message });
-    }
-  }
-  throw new Error(`answer models unavailable: ${failures.length}`);
+  const result = await claudeChat(env, messages, { maxTokens: 2500, signal: env.generationSignal });
+  return { ...result, fallback: false };
 }
 
 function citedEvidenceFallback(sources: Array<{ n: number; title: string; text?: string }>) {
@@ -109,31 +111,82 @@ function citedEvidenceFallback(sources: Array<{ n: number; title: string; text?:
 }
 
 /** A conservative attribution check, not a claim of semantic entailment. */
-function hasCitationCoverage(answer: string, sourceCount: number): boolean {
+export function coverageFailure(answer: string, sourceCount: number): string | null {
+  if (!parseCitationMarkers(answer, sourceCount).valid) return "invalid citations";
+  // Use the same grouped-citation contract as the public answer validator.
+  answer = answer.replace(/\[(\d+(?:\s*,\s*\d+)+)\]/gu, (_, group: string) =>
+    group.split(",").map((index) => `[${index.trim()}]`).join(""));
   const citations = [...answer.matchAll(/\[(\d+)\]/gu)].map((match) => Number(match[1]));
-  if (!citations.length || citations.some((citation) => citation < 1 || citation > sourceCount)) return false;
+  if (!citations.length) return "no citations";
+  if (citations.some((citation) => citation < 1 || citation > sourceCount)) return "citation out of range";
   let hasProse = false;
   for (const rawLine of answer.split(/\r?\n/u)) {
     // Only neutral section labels are exempt; a factual heading still needs a cite.
     if (/^\s{0,3}#{1,6}\s+(?:answer|summary|findings|evidence|sources|conclusion)\s*$/iu.test(rawLine)) continue;
     const line = rawLine
       .replace(/^\s*(?:[-*+]|\d+[.)])\s+/u, "")
+      // Bold segment labels ("**Play the numbers.**") are presentational.
+      .replace(/^\*\*[^*]+\*\*[.:]?\s*/u, "")
+      // A trailing cite covers a whole quotation; keep surrounding prose separate.
+      .replace(/("[^"\r\n]+"|“[^”\r\n]+”|‘[^’\r\n]+’)([ \t]*(?:\[\d+\][ \t]*)+)/gu,
+        (_, quote: string, markers: string) => `${quote.replace(/[.!?]/gu, "．")}${markers}. `)
       // Associate "A claim. [1]" with its preceding sentence, not the next one.
       .replace(/([.!?])([ \t]+(?:\[\d+\][ \t]*)+)/gu, "$2$1 ")
+      // Currency abbreviations before amounts and continuation abbreviations
+      // are not sentence ends. Keep real boundaries (e.g. "U.S. Sales rose")
+      // intact so a later citation cannot cover a preceding uncited claim.
+      .replace(/\b(?:Rs|Re)\.(?=\s*\d)/giu, (abbreviation) => abbreviation.replace(".", "．"))
+      .replace(/\b(?:e\.g|i\.e)\.(?=\s*\S)/giu, (abbreviation) => abbreviation.replaceAll(".", "．"))
+      .replace(/\b(?:[A-Z]\.){2,}(?=\s+[a-z])/gu, (abbreviation) => abbreviation.replaceAll(".", "．"))
       // These common titles/abbreviations are not sentence boundaries.
       .replace(/\b(?:Mr|Mrs|Ms|Dr|Prof|Sr|Jr|vs|etc)\./giu, (abbreviation) => abbreviation.replace(".", "．"));
     for (const sentence of line.split(/[.!?]+(?=[ \t]+|$)/u)) {
       if (!/[\p{L}\p{N}]/u.test(sentence.replace(/\[\d+\]/gu, ""))) continue;
-      hasProse = true;
-      if (!/\[\d+\]/u.test(sentence)) return false;
+      // A cited sentence is always fine.
+      if (/\[\d+\]/u.test(sentence)) { hasProse = true; continue; }
+      // Uncited list lead-ins ("…a few distinct pieces of dating advice:")
+      // frame the cited items below them; they are not claims of their own.
+      if (sentence.trim().endsWith(":")) continue;
+      // Uncited meta-commentary about the evidence itself — coverage notes
+      // ("no other excerpt gives dating guidance", "the catalogue doesn't
+      // contain much"), attribution disclaimers ("I can't attribute these
+      // lines"), and abstention hedges. These cannot carry a citation.
+      if (/\b(?:excerpts?|catalogue|the material|the evidence|attribut\w*|not supported|no one else)\b/i.test(sentence)
+        || /\bi (?:can't|cannot|don't|do not|can't|am not|'m not)\b/i.test(sentence)) continue;
+      return sentence.trim().slice(0, 200);
     }
   }
-  return hasProse;
+  return hasProse ? null : "no prose";
+}
+
+/** A conservative attribution check, not a claim of semantic entailment. */
+export function hasCitationCoverage(answer: string, sourceCount: number): boolean {
+  return coverageFailure(answer, sourceCount) === null;
 }
 
 function hasUsableExcerpt(match: VectorMatchLike): boolean {
   return typeof match.score === "number" && Number.isFinite(match.score)
     && typeof match.metadata?.text === "string" && match.metadata.text.trim().length > 0;
+}
+
+function momentSourcesFromMatches(matches: readonly VectorMatchLike[], episodeId: string | null): MomentSource[] {
+  const published = resolveEpisodeScopedSources(matches, "published", episodeId, MIN_SCORE, 48, { dedupeByEpisode: false });
+  return published.citations.map((source) => {
+    const match = matches.find((item) => item.id === source.segmentId)
+      ?? matches.find((item) => item.metadata?.video_id === source.videoId);
+    return { ...source, text: typeof match?.metadata?.text === "string" ? match.metadata.text : undefined };
+  });
+}
+
+async function projectedMoments(
+  promise: ReturnType<typeof momentsForAnswer>,
+): Promise<Pick<ChatAnswer, "moments" | "totalMomentDurationSec" | "durationBudgetSec">> {
+  const payload = await promise;
+  return {
+    moments: payload.moments.map(({ excerpt: _excerpt, ...moment }) => moment),
+    totalMomentDurationSec: payload.totalDurationSec,
+    durationBudgetSec: payload.budgetSec,
+  };
 }
 
 function requiresVerifiedMetadata(question: string) {
@@ -152,6 +205,7 @@ function insufficientEvidence(resolved: ReturnType<typeof resolveEpisodeScopedSo
 }
 
 export async function runChat(input: ChatAnswerInput, env: ChatAnswerEnvironment): Promise<ChatAnswer> {
+  env = { ...env, generationSignal: AbortSignal.any([AbortSignal.timeout(70000), ...(env.generationSignal ? [env.generationSignal] : [])]) };
   const question = input.question.trim();
   const priorTurns = boundedPriorTurns(input.priorTurns);
   if (!question || question.length > MAX_QUESTION_CHARS) throw new Error("invalid_chat_question");
@@ -175,12 +229,22 @@ export async function runChat(input: ChatAnswerInput, env: ChatAnswerEnvironment
     const anchorQuestion = currentNames.length ? question : priorNamedQuestion ?? question;
     const priorContext = currentNames.length ? undefined : priorNamedQuestion ?? priorQuestion;
     const retrievalQuestion = priorContext ? `${priorContext.slice(0, 1_000)}\nFollow-up question: ${question}` : question;
-    const matches = await env.VECTORIZE.query(await vectorFor(env, retrievalQuestion), buildVectorQueryOptions(episodeId));
-    const relevantMatches = prioritizeMatchesForQuestion((matches.matches ?? []).filter(hasUsableExcerpt), anchorQuestion);
+    const vector = await vectorFor(env, retrievalQuestion);
+    // Same retrieval flow as the public chat: one filtered query per enabled
+    // timeline, catalogue-anchored when a database is available. A bare
+    // single-mode filter is wrong here — Vectorize rejects an empty/absent
+    // source_mode value (40030), which surfaced as "no transcript evidence".
+    const queried = env.DB
+      ? await queryEvidenceSourcesForQuestion(env.DB, env.VECTORIZE, vector, retrievalQuestion, sourceMode, episodeId)
+      : { matches: await queryEvidenceSources(env.VECTORIZE, vector, sourceMode, episodeId), episodeId };
+    const scopedEpisodeId = queried.episodeId;
+    const relevantMatches = prioritizeMatchesForQuestion((queried.matches ?? []).filter(hasUsableExcerpt), anchorQuestion);
     const namedEntityQuestion = extractNamedEntityPhrases(anchorQuestion).length > 0;
-    const resolved = resolveEpisodeScopedSources(relevantMatches, sourceMode, episodeId, MIN_SCORE, 6, {
-      dedupeByEpisode: episodeId === null && !namedEntityQuestion,
+    const resolved = resolveEpisodeScopedSources(relevantMatches, sourceMode, scopedEpisodeId, MIN_SCORE, sourceMode === "both" ? 40 : 6, {
+      dedupeByEpisode: scopedEpisodeId === null && !namedEntityQuestion,
     });
+    const momentsPromise = momentsForAnswer(env, question, momentSourcesFromMatches(relevantMatches, episodeId))
+      .catch(() => ({ moments: [], totalDurationSec: 0, budgetSec: null }));
     const sources = resolved.citations.map((source) => {
       const match = relevantMatches.find((item: { id?: string; metadata?: { video_id?: string } }) => item.id === source.segmentId)
         ?? relevantMatches.find((item: { metadata?: { video_id?: string } }) => item.metadata?.video_id === source.videoId);
@@ -188,10 +252,10 @@ export async function runChat(input: ChatAnswerInput, env: ChatAnswerEnvironment
     });
     if (sources.length < 2) {
       return {
-        answer: insufficientEvidence(resolved, episodeId),
+        answer: insufficientEvidence(resolved, scopedEpisodeId),
         sources: sources.map(({ text: _text, ...source }) => source),
         grounded: false, sourceMode: resolved.sourceMode, uncutUnavailable: resolved.uncutUnavailable,
-        model: null, modelFallback: false, requestId: resolvedRequestId,
+        model: null, modelFallback: false, requestId: resolvedRequestId, citedIndices: [],
       };
     }
     const context = sources.map((source: any) => `[${source.n}] ${source.title}\n${source.text}`).join("\n\n---\n\n");
@@ -214,12 +278,16 @@ export async function runChat(input: ChatAnswerInput, env: ChatAnswerEnvironment
         answer: citedEvidenceFallback(sources), sources: projectedSources, grounded: true,
         sourceMode: resolved.sourceMode, uncutUnavailable: resolved.uncutUnavailable,
         model: answered.model, modelFallback: true, requestId: resolvedRequestId,
+        citedIndices: sources.slice(0, 3).map((source) => source.n),
+        ...(await projectedMoments(momentsPromise)),
       };
     }
     return {
       answer: answered.answer, sources: projectedSources, grounded: true,
       sourceMode: resolved.sourceMode, uncutUnavailable: resolved.uncutUnavailable,
       model: answered.model, modelFallback: answered.fallback, requestId: resolvedRequestId,
+      citedIndices: [...new Set(citations)],
+      ...(await projectedMoments(momentsPromise)),
     };
   } catch (error) {
     console.error("wtfmedia chat failed", { message: error instanceof Error ? error.message : "unknown", sourceMode });

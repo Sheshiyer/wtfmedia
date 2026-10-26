@@ -29,6 +29,23 @@ implementation wave. The following decisions remain binding:
 - Production Clerk configuration, remote D1 migration, deployment, queue or
   ingest mutation, secrets, DNS, and live activation remain out of scope.
 
+### Clerk session-token receipt — 2026-09-09
+
+Read-only Clerk CLI verification against the linked development instance
+confirmed that the session-token claims editor contains exactly:
+
+```json
+{ "email": "{{user.primary_email_address}}" }
+```
+
+No custom JWT templates are configured in that instance. The runtime therefore
+uses the Clerk session token: the edge verifies its signature, issuer, expiry,
+authorized party, and default `sub`, then reads the custom `email` claim,
+normalizes it, resolves the active D1 operator, and applies D1-backed RBAC.
+The claim never carries role, operator id, or permissions. This is a development
+configuration receipt only; staging and production keys/configuration remain
+separate activation gates.
+
 ### Invite-only company member Beta — 2026-09-09
 
 This is a separate staging-only lane, with Bangalore as the first rollout
@@ -44,7 +61,7 @@ archive-only; memory is explicit-save only and never automatically extracted.
 The dedicated `member_beta_releases` manifest starts paused and rejects
 production unconditionally; it does not inherit the operator chat-release flag.
 
-The owner has set a 720-hour (30-day) Access application/policy session target,
+The owner has set a 720-hour (30-day) Clerk session target,
 approved browser-local caching with idempotent activity-epoch synchronization,
 and approved authorized-admin visibility of conversation metadata, content, and
 call history. Global/MFA Access precedence still requires activation proof.
@@ -68,7 +85,7 @@ chat release. The toggle is a control-plane projection, not the authority:
   alive after a pause;
 - the staging manifest has explicit `paused`, `preview`, `stable`, and
   `rolled_back` states, with `paused` as the safe default; and
-- staging uses its own Access application/policy, D1 database, secrets, and
+- staging uses its own Clerk instance/authorized-party configuration, D1 database, secrets, and
   cache namespace. No production manifest, public route, or production data
   is part of this toggle.
 
@@ -128,8 +145,8 @@ receipt for each state transition, plus the public-route invariance probe.
 
 ### Wave 4 — auth, RBAC, sessions, history, and memory
 
-Cloudflare Access authenticates; D1 authorizes operators and records allowlisted
-audit metadata. The additive `03-07` mini-phase may add an Access-protected
+Clerk authenticates; D1 authorizes operators and records allowlisted
+audit metadata. The additive `03-07` mini-phase may add a Clerk-protected
 `/ops/chat` history shell plus a `/chat/{conversation_id}-{username}`
 conversation deep link, with conversations keyed to server-resolved operator
 IDs and persisted in D1. Separate auth session, conversation session, agent

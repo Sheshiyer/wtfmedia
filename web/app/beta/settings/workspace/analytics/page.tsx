@@ -1,2 +1,3 @@
-import { BetaWorkspaceSettingPage } from "@/components/domain/beta/BetaWorkspaceSettingPage";
-export default function Page() { return <BetaWorkspaceSettingPage section="analytics" />; }
+import { redirect } from "next/navigation";
+
+export default function Page() { redirect("/beta/analytics"); }

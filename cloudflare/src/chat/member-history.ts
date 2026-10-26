@@ -54,13 +54,14 @@ async function allMemberMessages(db: DB, conversationId: string): Promise<Member
   return messages.results;
 }
 
-export async function listMemberConversations(db: DB, memberId: number, cursor?: unknown) {
+export async function listMemberConversations(db: DB, memberId: number, cursor?: unknown, includeArchived = false) {
   if (!member(memberId)) return null;
   const decoded = cursor === undefined ? null : decodeCursor(cursor);
   if (cursor !== undefined && !decoded) return null;
+  const lifecycle = includeArchived ? "" : " AND lifecycle_state = 'active'";
   const rows = decoded
-    ? await db.prepare(`SELECT ${columns} FROM member_chat_conversations WHERE member_id = ? AND lifecycle_state = 'active' AND (updated_at < ? OR (updated_at = ? AND id < ?)) ORDER BY updated_at DESC, id DESC LIMIT 26`).bind(memberId, decoded.updatedAt, decoded.updatedAt, decoded.id).all<MemberConversation>()
-    : await db.prepare(`SELECT ${columns} FROM member_chat_conversations WHERE member_id = ? AND lifecycle_state = 'active' ORDER BY updated_at DESC, id DESC LIMIT 26`).bind(memberId).all<MemberConversation>();
+    ? await db.prepare(`SELECT ${columns} FROM member_chat_conversations WHERE member_id = ?${lifecycle} AND (updated_at < ? OR (updated_at = ? AND id < ?)) ORDER BY updated_at DESC, id DESC LIMIT 26`).bind(memberId, decoded.updatedAt, decoded.updatedAt, decoded.id).all<MemberConversation>()
+    : await db.prepare(`SELECT ${columns} FROM member_chat_conversations WHERE member_id = ?${lifecycle} ORDER BY updated_at DESC, id DESC LIMIT 26`).bind(memberId).all<MemberConversation>();
   const conversations = rows.results.slice(0, 25);
   const last = rows.results.length > 25 ? conversations.at(-1) : undefined;
   const nextCursor = last ? btoa(JSON.stringify({ updatedAt: last.updated_at, id: last.id })).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/u, "") : null;
@@ -77,6 +78,33 @@ export async function getMemberConversation(db: DB, memberId: number, conversati
   const rows = beforeSequence === null
     ? await db.prepare(`SELECT ${messageColumns} FROM member_chat_messages WHERE conversation_id = ? ORDER BY sequence DESC LIMIT ?`).bind(conversation.id, MESSAGE_PAGE_SIZE + 1).all<MemberMessage>()
     : await db.prepare(`SELECT ${messageColumns} FROM member_chat_messages WHERE conversation_id = ? AND sequence < ? ORDER BY sequence DESC LIMIT ?`).bind(conversation.id, beforeSequence, MESSAGE_PAGE_SIZE + 1).all<MemberMessage>();
+  const page = rows.results.slice(0, MESSAGE_PAGE_SIZE).reverse();
+  const oldest = page[0];
+  return memberConversationView(conversation, page, rows.results.length > MESSAGE_PAGE_SIZE && oldest ? encodeMessageCursor(conversation.id, oldest.sequence) : null);
+}
+
+export type AdminMemberSession = MemberConversation & { member_email: string };
+
+/** Admin read-only session audit: every member's conversations with the owner email attached. */
+export async function listAllMemberSessions(db: DB, cursor?: unknown): Promise<{ conversations: AdminMemberSession[]; nextCursor: string | null } | null> {
+  const decoded = cursor === undefined ? null : decodeCursor(cursor);
+  if (cursor !== undefined && !decoded) return null;
+  const select = `SELECT ${columns}, (SELECT email FROM member_users WHERE id = member_chat_conversations.member_id) AS member_email FROM member_chat_conversations`;
+  const rows = decoded
+    ? await db.prepare(`${select} WHERE (updated_at < ? OR (updated_at = ? AND id < ?)) ORDER BY updated_at DESC, id DESC LIMIT 26`).bind(decoded.updatedAt, decoded.updatedAt, decoded.id).all<AdminMemberSession>()
+    : await db.prepare(`${select} ORDER BY updated_at DESC, id DESC LIMIT 26`).all<AdminMemberSession>();
+  const conversations = rows.results.slice(0, 25);
+  const last = rows.results.length > 25 ? conversations.at(-1) : undefined;
+  const nextCursor = last ? btoa(JSON.stringify({ updatedAt: last.updated_at, id: last.id })).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/u, "") : null;
+  return { conversations, nextCursor };
+}
+
+/** Admin read of a single session regardless of owner; no mutation path exists here. */
+export async function getMemberSessionForAdmin(db: DB, conversationId: unknown): Promise<MemberConversationView | null> {
+  if (!id(conversationId)) return null;
+  const conversation = await db.prepare(`SELECT ${columns} FROM member_chat_conversations WHERE id = ?`).bind(conversationId).first<MemberConversation>();
+  if (!conversation) return null;
+  const rows = await db.prepare(`SELECT ${messageColumns} FROM member_chat_messages WHERE conversation_id = ? ORDER BY sequence DESC LIMIT ?`).bind(conversation.id, MESSAGE_PAGE_SIZE + 1).all<MemberMessage>();
   const page = rows.results.slice(0, MESSAGE_PAGE_SIZE).reverse();
   const oldest = page[0];
   return memberConversationView(conversation, page, rows.results.length > MESSAGE_PAGE_SIZE && oldest ? encodeMessageCursor(conversation.id, oldest.sequence) : null);

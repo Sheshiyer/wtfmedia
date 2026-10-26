@@ -49,11 +49,27 @@ test.describe("Public shell journey", () => {
         await expect(main).toHaveAttribute("tabindex", "-1");
 
         // Primary nav present
-        const nav = page.locator('nav[aria-label="Application"]');
-        await expect(nav).toBeAttached();
+        const nav = page.locator("#wtf-application-navigation");
+        await expect(nav).toBeVisible();
+        // Alpha keeps the compact four-link application pill; Beta/operator
+        // may add its longer workspace/operator treatment.
+        await expect(page.locator(".wtf-bottom-pill")).toHaveCount(1);
 
-        // Every active application route presents a workspace header.
-        await expect(page.locator("[data-workspace-header]")).toBeVisible();
+        // Public Alpha never renders the operator context strip, and public
+        // header metadata stays in normal flow beneath the shared rail.
+        await expect(page.locator("[data-ops-context-strip]")).toHaveCount(0);
+        const workspaceContext = page.locator("[data-workspace-context]").first();
+        if (await workspaceContext.count()) {
+          await expect(workspaceContext).toHaveCSS("position", "static");
+        }
+
+        // Chat intentionally drops the redundant intro panel to preserve
+        // room for answers; catalogue routes retain their page headers.
+        if (route === "/chat") {
+          await expect(page.locator("[data-workspace-header]")).toHaveCount(0);
+        } else {
+          await expect(page.locator("[data-workspace-header]")).toBeVisible();
+        }
 
         await expect(page.getByRole("button", { name: "open navigation", exact: true })).toHaveCount(0);
       });
@@ -86,50 +102,50 @@ test.describe("Public shell journey", () => {
     await page.keyboard.press("Tab"); // application toggle
     await page.keyboard.press("Enter");
 
-    await expect(page.locator('nav[aria-label="Application"] a').first()).toBeFocused();
+    const focused = page.locator("#wtf-application-navigation-menu :focus");
+    await expect(focused).toBeVisible();
+
+    // Should be within the nav
+    const inNav = await focused.count();
+    expect(inNav).toBeGreaterThan(0);
   });
 
   test("application disclosure exposes a labelled relationship and restores focus", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     const toggle = page.locator("[data-navigation-toggle]");
-    const navigation = page.locator('nav[aria-label="Application"]');
-    await expect(toggle).toHaveAttribute("aria-controls", "wtf-application-navigation");
+    const application = page.locator("#wtf-application-navigation-menu");
+    await expect(toggle).toHaveAttribute("aria-controls", "wtf-application-navigation-menu");
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
-    await expect(navigation).toBeHidden();
+    await expect(application).toBeHidden();
 
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
-    await expect(navigation).toBeVisible();
-    await expect(navigation.getByRole("link").first()).toBeFocused();
+    await expect(application).toBeVisible();
+    await expect(application.getByRole("link").first()).toBeFocused();
 
     await page.keyboard.press("Escape");
-    await expect(navigation).toBeHidden();
+    await expect(application).toBeHidden();
     await expect(toggle).toBeFocused();
 
     await toggle.click();
-    await expect(navigation).toBeVisible();
+    await expect(application).toBeVisible();
     await page.mouse.click(8, 300);
-    await expect(navigation).toBeHidden();
+    await expect(application).toBeHidden();
   });
 
   for (const route of ROUTES) {
     test(`aria-current=page on active route ${route}`, async ({ page }) => {
       await page.goto(route, { waitUntil: "domcontentloaded" });
 
-      const headerActiveLinks = page.locator(
-        '#wtf-application-navigation a[aria-current="page"]',
-      );
-      const bottomActiveLinks = page.locator(
-        '#wtf-bottom-navigation a[aria-current="page"]',
-      );
+      const activeLinks = page.locator('#wtf-application-navigation a[aria-current="page"]');
+      const count = await activeLinks.count();
 
-      // Each navigation landmark has exactly one active link per route.
-      expect(await headerActiveLinks.count()).toBe(1);
-      expect(await bottomActiveLinks.count()).toBe(1);
+      // Exactly one active link per route
+      expect(count).toBe(1);
 
       // The active link href should match the route
-      const href = await headerActiveLinks.first().getAttribute("href");
+      const href = await activeLinks.first().getAttribute("href");
       if (route === "/") {
         expect(href).toBe("/");
       } else {
@@ -141,13 +157,13 @@ test.describe("Public shell journey", () => {
   test("focus-visible indicators on nav links", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    // Tab through the header controls, then open the application menu.
+    // Tab through the header controls to the application disclosure
     await page.keyboard.press("Tab"); // skip link
     await page.keyboard.press("Tab"); // wordmark
     await page.keyboard.press("Tab"); // application toggle
     await page.keyboard.press("Enter");
 
-    const focused = page.locator('nav[aria-label="Application"] :focus');
+    const focused = page.locator("#wtf-application-navigation-menu :focus");
     const boxShadow = await focused.evaluate(
       (el) => window.getComputedStyle(el).boxShadow
     );
@@ -232,9 +248,7 @@ test.describe("Public shell journey", () => {
     await expect(wtfos).toBeAttached();
 
     // The rail uses the converged control-room wordmark link.
-    await expect(page.locator('header a[aria-label="WTF OS"]')).toBeAttached();
-    await expect(
-      page.locator('#wtf-bottom-navigation a[data-bottom-wordmark][aria-label="WTF OS"]'),
-    ).toBeAttached();
+    const wordmark = page.locator('a[aria-label="WTF OS"]');
+    await expect(wordmark).toBeAttached();
   });
 });

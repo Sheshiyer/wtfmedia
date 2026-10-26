@@ -39,8 +39,9 @@ jobs:
       - name: Verify tag and package versions
         shell: bash
         run: |
-          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-alpha\.[0-9]+$ ]]; then
-            echo "Release tags must use vMAJOR.MINOR.PATCH-alpha.N" >&2
+          release_tag_pattern='^v[0-9]+\.[0-9]+\.[0-9]+-(alpha|beta)\.[0-9]+$'
+          if [[ ! "$RELEASE_TAG" =~ $release_tag_pattern ]]; then
+            echo "Release tags must use vMAJOR.MINOR.PATCH-(alpha|beta).N" >&2
             exit 1
           fi
           expected="${RELEASE_TAG#v}"

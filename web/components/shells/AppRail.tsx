@@ -36,7 +36,8 @@ export function shouldHideBottomDock(
   mode: AppRailProps["mode"],
   pathname: string,
 ): boolean {
-  return mode === "member" || (mode === "public" && (pathname === "/" || pathname === "/chat"));
+  const betaChatOrSettings = pathname.startsWith("/beta/chat") || pathname.startsWith("/beta/settings");
+  return pathname === "/beta/research" || pathname === "/beta/connections" || pathname === "/beta/analytics" || pathname === "/beta/social-analytics" || pathname === "/social-analytics" || mode === "member" || betaChatOrSettings || (mode === "public" && (pathname === "/" || pathname === "/chat"));
 }
 
 export function AppRail({
@@ -47,8 +48,8 @@ export function AppRail({
   disclosureGroups,
 }: AppRailProps) {
   const pathname = usePathname() ?? "/";
-  const utilityHrefs = new Set(["/beta/workspace", "/beta/workspace/production", "/beta/workspace/episodes", "/beta/settings"]);
-  const utilityOrder = ["/beta/workspace", "/beta/workspace/production", "/beta/workspace/episodes", "/beta/settings"];
+  const utilityHrefs = new Set(["/beta/workspace", "/beta/workspace/production", "/beta/workspace/episodes", "/beta/social-analytics", "/social-analytics", "/beta/settings"]);
+  const utilityOrder = ["/beta/workspace", "/beta/workspace/production", "/beta/workspace/episodes", "/beta/social-analytics", "/social-analytics", "/beta/settings"];
   const utilityNavigation = navigation
     .filter((item) => item.section === "administration" || utilityHrefs.has(item.href))
     .sort((a, b) => {
@@ -64,7 +65,11 @@ export function AppRail({
       const bIndex = primaryOrder.indexOf(b.href);
       return (aIndex === -1 ? primaryOrder.length : aIndex) - (bIndex === -1 ? primaryOrder.length : bIndex);
     });
-  const disclosureNavigation = mode === "operator" ? utilityNavigation : primaryNavigation;
+  const disclosureNavigation = mode === "operator"
+    ? [...primaryNavigation, ...utilityNavigation]
+    : mode === "public"
+      ? [...primaryNavigation, ...utilityNavigation.filter((item) => item.href === "/social-analytics")]
+      : primaryNavigation;
   const resolvedBottomNavigation = bottomNavigation ?? primaryNavigation;
   const hideBottomDock = shouldHideBottomDock(mode, pathname);
   const disclosureId = mode === "operator"
@@ -75,6 +80,9 @@ export function AppRail({
   const [utilityOpen, setUtilityOpen] = useState(false);
   const utilityToggleRef = useRef<HTMLButtonElement>(null);
   const utilityNavRef = useRef<HTMLElement>(null);
+  // Beta chat renders its own full-height sidebar with the wordmark on
+  // desktop, so the rail wordmark steps aside there (mobile keeps it).
+  const betaChatSurface = pathname === "/beta/chat" || pathname.startsWith("/beta/chat/");
 
   useEffect(() => {
     setUtilityOpen(false);
@@ -185,16 +193,29 @@ export function AppRail({
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5">
+      <header className={`fixed inset-x-0 top-0 z-50 px-3 sm:px-5 ${pathname === "/beta/research" ? "border-b border-foreground/20 bg-canvas pb-3" : ""} ${betaChatSurface ? "pt-[max(1.25rem,env(safe-area-inset-top))]" : "pt-[max(0.75rem,env(safe-area-inset-top))]"}`}>
         <div className="mx-auto flex max-w-[92rem] items-start justify-between gap-3">
+          {/* On the chat surface the wordmark means "new chat": client nav to
+              the same route never remounts, so force a full reload there. */}
+          {mode === "public" && (pathname === "/" || pathname === "/chat") ? (
+            // eslint-disable-next-line @next/next/no-html-link-for-pages -- deliberate full reload: starts a new chat
+            <a
+              href="/"
+              aria-label="WTF OS"
+              className="shrink-0 rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
+            >
+              <MigratedWordmarkMini plate />
+            </a>
+          ) : (
           <Link
             href={mode === "operator" ? "/beta/workspace" : mode === "member" ? "/beta" : "/"}
             aria-label="WTF OS"
-            className="shrink-0 rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
+            className={`shrink-0 rounded-xl border-2 border-foreground bg-surface-raised px-2 py-1 shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention${betaChatSurface ? " hidden" : ""}`}
           >
             <MigratedWordmarkMini plate />
           </Link>
-          <div className="relative flex min-w-0 items-start justify-end gap-2">
+          )}
+          <div className="relative ml-auto flex min-w-0 items-start justify-end gap-2">
             <button
               ref={utilityToggleRef}
               type="button"
@@ -206,7 +227,7 @@ export function AppRail({
               aria-haspopup="true"
               data-navigation-toggle
               onClick={() => setUtilityOpen((open) => !open)}
-              className="mt-1 grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 border-foreground bg-surface-raised text-foreground shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+              className={`${betaChatSurface ? "mt-0.5" : "mt-1"} grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 border-foreground bg-surface-raised text-foreground shadow-[3px_3px_0_rgb(var(--wtf-foreground-rgb)/0.18)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention focus-visible:ring-offset-2 focus-visible:ring-offset-canvas`}
             >
               <span aria-hidden="true" className="grid gap-1">
                 <span className="h-0.5 w-4 bg-current" />
@@ -220,13 +241,13 @@ export function AppRail({
               aria-label={mode === "operator" ? "Operations" : mode === "member" ? "Member workspace" : "Application"}
               data-navigation-disclosure
               data-state={utilityOpen ? "open" : "closed"}
-              className={`${utilityOpen ? "flex" : "hidden"} absolute right-0 top-14 w-[min(15rem,calc(100vw-2rem))] flex-col gap-1.5 rounded-[1.75rem] border-2 border-foreground bg-surface-raised/95 p-2 shadow-[5px_5px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md`}
+              className={`${utilityOpen ? "flex" : "hidden"} absolute right-0 top-14 max-h-[calc(100dvh-5.5rem)] w-[min(15rem,calc(100vw-2rem))] flex-col gap-1.5 overflow-y-auto rounded-[1.75rem] border-2 border-foreground bg-surface-raised/95 p-2 shadow-[5px_5px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md`}
             >
               <div
                 role="group"
                 aria-label="Account and display"
                 data-navigation-utilities
-                className="flex items-center justify-center gap-1 border-b-2 border-foreground/20 pb-2"
+                className="flex min-w-0 flex-wrap items-center justify-center gap-1 border-b-2 border-foreground/20 pb-2"
               >
                 {mode === "operator" ? (
                   <Link
@@ -236,6 +257,17 @@ export function AppRail({
                     data-shell-profile
                     aria-current={routeIsActive(pathname, "/beta/settings/account") ? "page" : undefined}
                     className={iconLinkClass(routeIsActive(pathname, "/beta/settings/account"))}
+                  >
+                    <ProfileIcon />
+                  </Link>
+                ) : mode === "member" ? (
+                  <Link
+                    href="/beta/settings"
+                    aria-label="profile"
+                    title="profile"
+                    data-shell-profile
+                    aria-current={routeIsActive(pathname, "/beta/settings") ? "page" : undefined}
+                    className={iconLinkClass(routeIsActive(pathname, "/beta/settings"))}
                   >
                     <ProfileIcon />
                   </Link>
@@ -268,8 +300,8 @@ export function AppRail({
           </div>
         </div>
       </header>
-      {hideBottomDock ? null : <div className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
-        <div className="wtf-bottom-pill mx-auto flex w-fit max-w-[min(74rem,calc(100vw-1.5rem))] items-center overflow-x-auto rounded-full border-2 border-foreground bg-surface-raised/95 px-1.5 py-1 shadow-[0_10px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md sm:px-3 sm:py-2">
+      {hideBottomDock ? null : <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
+        <div className="wtf-bottom-pill pointer-events-auto mx-auto flex w-fit max-w-[min(74rem,calc(100vw-1.5rem))] items-center overflow-x-auto rounded-full border-2 border-foreground bg-surface-raised/95 px-1.5 py-1 shadow-[0_10px_0_rgb(var(--wtf-foreground-rgb)/0.16)] backdrop-blur-md sm:px-3 sm:py-2">
           <nav
             id="wtf-application-navigation"
             aria-label={mode === "operator" ? "Workspace" : mode === "member" ? "Member workspace" : "Application"}

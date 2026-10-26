@@ -25,16 +25,16 @@ if (!installed) {
   // here; normal Wrangler migrations remain the Cloudflare schema authority.
   database.exec("CREATE TABLE IF NOT EXISTS operators (id INTEGER PRIMARY KEY); CREATE TABLE IF NOT EXISTS episodes (id TEXT PRIMARY KEY)");
   database.exec("INSERT OR IGNORE INTO operators(id) VALUES (1)");
-  database.exec(readFileSync(`${root}/cloudflare/migrations/0016_production_calendar.sql`, "utf8"));
+  database.exec(readFileSync(`${root}/cloudflare/migrations/0025_production_calendar.sql`, "utf8"));
 }
 if (!database.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'production_source_checks'").get()) {
-  database.exec(readFileSync(`${root}/cloudflare/migrations/0017_production_source_checks.sql`, "utf8"));
+  database.exec(readFileSync(`${root}/cloudflare/migrations/0026_production_source_checks.sql`, "utf8"));
 }
 if (!database.prepare("PRAGMA table_info(production_ips)").all().some((entry) => entry.name === "target_count")) {
-  database.exec(readFileSync(`${root}/cloudflare/migrations/0018_production_ip_targets.sql`, "utf8"));
+  database.exec(readFileSync(`${root}/cloudflare/migrations/0027_production_ip_targets.sql`, "utf8"));
 }
 if (!database.prepare("PRAGMA table_info(production_items)").all().some((entry) => entry.name === "shoot_location")) {
-  database.exec(readFileSync(`${root}/cloudflare/migrations/0019_production_tracker_details.sql`, "utf8"));
+  database.exec(readFileSync(`${root}/cloudflare/migrations/0028_production_tracker_details.sql`, "utf8"));
 }
 for (const column of ["raw_ooxml", "cached_value", "style_id"]) {
   const existing = database.prepare("PRAGMA table_info(production_source_cells)").all().some((entry) => entry.name === column);

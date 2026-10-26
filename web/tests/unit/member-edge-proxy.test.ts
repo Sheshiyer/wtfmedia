@@ -22,6 +22,10 @@ import { GET, POST } from "@/app/beta/api/[...path]/route";
 
 describe("same-origin member API edge proxy", () => {
   beforeEach(() => {
+    // The tests exercise the deployed service-binding path; the local HTTP
+    // forwarder is opted into via WTFMEDIA_EDGE_LOCAL_ORIGIN in .env.local.
+    vi.stubEnv("WTFMEDIA_EDGE_LOCAL_ORIGIN", "");
+    vi.unstubAllGlobals();
     state.hasBinding = true;
     state.contextFailure = false;
     state.edgeFetch.mockReset();
@@ -37,6 +41,18 @@ describe("same-origin member API edge proxy", () => {
     expect(response.status).toBe(200);
     expect(state.getToken).toHaveBeenCalledOnce();
     expect(forwarded.headers.get("authorization")).toBe("Bearer member-session-token");
+  });
+
+  it("returns OAuth redirects to the browser instead of following them inside the backend", async () => {
+    const destination = "https://beta-staging.wtfhq.in/beta/analytics?oauth=connected&provider=youtube";
+    state.edgeFetch.mockImplementation(async (request: Request) => request.redirect === "manual"
+      ? new Response(null, { status: 303, headers: { location: destination, "cache-control": "private, no-store" } })
+      : Response.json({ error: "not_found" }, { status: 404 }));
+    const response = await GET(new Request("https://beta-staging.wtfhq.in/beta/api/analytics/oauth/callback?code=test-code&state=test-state"));
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe(destination);
+    expect(state.edgeFetch).toHaveBeenCalledOnce();
+    expect((state.edgeFetch.mock.calls[0][0] as Request).redirect).toBe("manual");
   });
 
   it("preserves a supplied bearer credential without replacing it", async () => {
@@ -111,4 +127,26 @@ describe("same-origin member API edge proxy", () => {
     expect(forwarded.headers.has("authorization")).toBe(false);
     expect(response.headers.get("cache-control")).toBe("private, no-store");
   });
+  it("maps a verified local browser origin to the edge port for mutations", async () => {
+    vi.stubEnv("WTFMEDIA_EDGE_LOCAL_ORIGIN", "http://localhost:8787");
+    const fetchMock = vi.fn().mockResolvedValue(new Response("{}", { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const response = await POST(new Request("http://localhost:3000/beta/api/analytics/oauth/start", {
+      method: "POST", headers: { origin: "http://localhost:3000", "content-type": "application/json" }, body: JSON.stringify({ provider: "youtube" }),
+    }));
+    expect(response.status).toBe(200);
+    expect(fetchMock.mock.calls[0][1].headers.get("origin")).toBe("http://localhost:8787");
+  });
+
+  it("rejects a foreign origin before forwarding local mutations", async () => {
+    vi.stubEnv("WTFMEDIA_EDGE_LOCAL_ORIGIN", "http://localhost:8787");
+    const fetchMock = vi.fn().mockResolvedValue(new Response("{}", { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const response = await POST(new Request("http://localhost:3000/beta/api/analytics/oauth/start", {
+      method: "POST", headers: { origin: "https://foreign.test", "content-type": "application/json" }, body: "{}",
+    }));
+    expect(response.status).toBe(403);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
 });

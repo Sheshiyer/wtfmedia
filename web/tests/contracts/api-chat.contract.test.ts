@@ -1,8 +1,8 @@
 /**
  * Compatibility proof for web/app/api/chat/route.ts.
  *
- * Route source is frozen for Phase 1 (see phase1-baseline-approval.json).
- * These tests assert existing behavior; they never modify route.ts and
+ * Task 4 authorizes the generation transport change; the scoped baseline
+ * records that approval. These tests preserve the public contract and
  * never call a live service — the upstream Worker is replaced by the
  * deterministic local stub in web/tests/support/rag-stub.mjs.
  */
@@ -28,6 +28,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await stub.close();
   vi.doUnmock("@/lib/nvidia");
+  vi.doUnmock("../../../cloudflare/src/chat/claude");
   vi.doUnmock("@/lib/vectors");
   vi.unstubAllEnvs();
   vi.resetModules();
@@ -61,15 +62,6 @@ const LOCAL_HITS = [
   },
 ];
 
-function localStream(text: string): ReadableStream<Uint8Array> {
-  return new ReadableStream({
-    start(controller) {
-      controller.enqueue(new TextEncoder().encode(text));
-      controller.close();
-    },
-  });
-}
-
 async function importLocalRoute(opts: {
   ready?: boolean;
   hits?: typeof LOCAL_HITS;
@@ -80,15 +72,16 @@ async function importLocalRoute(opts: {
     if (opts.embedError) throw opts.embedError;
     return new Float32Array([1, 0, 0]);
   });
-  const chatStream = vi.fn(async () => {
+  const claudeChat = vi.fn(async () => {
     if (opts.chatError) throw opts.chatError;
-    return localStream("Local grounded answer.");
+    return { answer: "Local grounded answer.", model: "claude-sonnet-5-5" };
   });
   vi.resetModules();
   vi.stubEnv("EDGE_SHARED_SECRET", "");
   vi.stubEnv("CLOUDFLARE_EDGE_SHARED_SECRET", "");
   vi.stubEnv("WTFMEDIA_LOCAL_RAG_ENABLED", "true");
   vi.stubEnv("NVIDIA_API_KEY", "local-test-key");
+  vi.stubEnv("ANTHROPIC_API_KEY", "dummy-claude-key");
   vi.doMock("@opennextjs/cloudflare", () => ({
     getCloudflareContext: async () => ({ env: {} }),
   }));
@@ -96,9 +89,10 @@ async function importLocalRoute(opts: {
     isReady: () => opts.ready ?? true,
     search: () => opts.hits ?? LOCAL_HITS,
   }));
-  vi.doMock("@/lib/nvidia", () => ({ embedQuery, chatStream }));
+  vi.doMock("@/lib/nvidia", () => ({ embedQuery }));
+  vi.doMock("../../../cloudflare/src/chat/claude", () => ({ claudeChat }));
   const route = await import("@/app/api/chat/route");
-  return { ...route, embedQuery, chatStream };
+  return { ...route, embedQuery, claudeChat };
 }
 
 function chatRequest(body: unknown, headers: Record<string, string> = {}) {
@@ -231,6 +225,56 @@ describe("POST /api/chat — upstream failure branches", () => {
 });
 
 describe("POST /api/chat — successful upstream answer", () => {
+  it.each(["uncut", "both"] as const)(
+    "projects requested %s mode separately from published fallback evidence",
+    async (requestedMode) => {
+      const { POST } = await importRoute();
+      const res = await POST(chatRequest({
+        messages: [userMessage(triggerQuestion("mode-fallback"))],
+        sourceMode: requestedMode,
+      }));
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get("X-Requested-Source-Mode")).toBe(requestedMode);
+      expect(res.headers.get("X-Evidence-Source-Mode")).toBe("published");
+      expect(res.headers.get("X-Source-Mode")).toBe("published");
+      expect(res.headers.get("X-Source-Fallback-Reason")).toBe("requested_mode_not_competitive");
+      expect(res.headers.get("X-Uncut-Unavailable")).toBe("false");
+    },
+  );
+
+  it("reports insufficient requested evidence separately from no effective evidence", async () => {
+    const { POST } = await importRoute();
+    const res = await POST(chatRequest({
+      messages: [userMessage(triggerQuestion("mode-insufficient"))],
+      sourceMode: "uncut",
+    }));
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("X-Requested-Source-Mode")).toBe("uncut");
+    expect(res.headers.get("X-Evidence-Source-Mode")).toBe("none");
+    expect(res.headers.get("X-Source-Mode")).toBe("uncut");
+    expect(res.headers.get("X-Source-Fallback-Reason")).toBe("requested_mode_insufficient");
+    expect(res.headers.get("X-Uncut-Unavailable")).toBe("true");
+  });
+
+  it("fails closed to public source metadata when upstream enums are invalid", async () => {
+    const { POST } = await importRoute();
+    const res = await POST(chatRequest({
+      messages: [userMessage(triggerQuestion("invalid-source-metadata"))],
+      sourceMode: "both",
+    }));
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("X-Requested-Source-Mode")).toBe("both");
+    expect(res.headers.get("X-Evidence-Source-Mode")).toBe("published");
+    expect(res.headers.get("X-Source-Mode")).toBe("published");
+    expect(res.headers.has("X-Source-Fallback-Reason")).toBe(false);
+    expect(res.headers.get("X-Response-State")).toBe("answered_grounded");
+    const sources = JSON.parse(decodeURIComponent(res.headers.get("X-Sources")!));
+    expect(sources[0].mapping_status).toBe("mapped");
+  });
+
   it("preserves an approved Frame.io URL for uncut citations", async () => {
     const { POST } = await importRoute();
     const res = await POST(chatRequest({ messages: [userMessage(triggerQuestion("uncut-frame-io"))], sourceMode: "uncut" }));
@@ -254,18 +298,22 @@ describe("POST /api/chat — successful upstream answer", () => {
     expect(res.headers.get("X-Source-Mode")).toBe("published");
     const sources = JSON.parse(decodeURIComponent(res.headers.get("X-Sources")!));
     expect(sources).toEqual([
-      { n: 1, video_id: "RSB58m7Xwhg", title: "Public Episode One", score: 0.91, t: 125, time: "02:05", url: "https://www.youtube.com/watch?v=RSB58m7Xwhg", source_mode: "published", mapping_status: "mapped", segment_id: null },
-      { n: 2, video_id: "QdWHGjReLUo", title: "Public Episode Two", score: 0.77, t: null, time: "", url: "https://www.youtube.com/watch?v=QdWHGjReLUo", source_mode: "published", mapping_status: "unmapped", segment_id: null },
+      { n: 1, video_id: "RSB58m7Xwhg", title: "Public Episode One", score: 0.99, score_raw: 0.91, t: 125, time: "02:05", url: "https://www.youtube.com/watch?v=RSB58m7Xwhg", source_mode: "published", mapping_status: "mapped", timestamp_status: "verified", timestamp_reason: null, timestamp_confidence: 0.97, segment_id: null },
+      { n: 2, video_id: "QdWHGjReLUo", title: "Public Episode Two", score: 0.99, score_raw: 0.77, t: null, time: "", url: "https://www.youtube.com/watch?v=QdWHGjReLUo", source_mode: "published", mapping_status: "unmapped", timestamp_status: "source_timing_unavailable", timestamp_reason: "This published transcript was ingested without timestamp data; the link opens the full episode.", timestamp_confidence: null, segment_id: null },
     ]);
     for (const source of sources) {
       expect(Object.keys(source).sort()).toEqual([
         "mapping_status",
         "n",
         "score",
+        "score_raw",
         "segment_id",
         "source_mode",
         "t",
         "time",
+        "timestamp_confidence",
+        "timestamp_reason",
+        "timestamp_status",
         "title",
         "url",
         "video_id",
@@ -291,11 +339,12 @@ describe("POST /api/chat — successful upstream answer", () => {
 
 describe("POST /api/chat — approved local development fallback", () => {
   it("answers from the local published catalogue with cited metadata", async () => {
-    const { POST } = await importLocalRoute();
+    const { POST, claudeChat } = await importLocalRoute();
     const res = await POST(chatRequest({ messages: [userMessage("local question")] }));
+    expect(claudeChat).toHaveBeenCalledWith({ ANTHROPIC_API_KEY: "dummy-claude-key" }, expect.any(Array), expect.objectContaining({ maxTokens: 600, signal: expect.any(AbortSignal) }));
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("Local grounded answer.");
-    expect(res.headers.get("X-Model")).toBe("nvidia-local");
+    expect(res.headers.get("X-Model")).toBe("claude-sonnet-5-5");
     expect(res.headers.get("X-Source-Mode")).toBe("published");
     expect(res.headers.get("X-Fallback")).toBe("false");
     const sources = JSON.parse(decodeURIComponent(res.headers.get("X-Sources")!));
@@ -304,19 +353,23 @@ describe("POST /api/chat — approved local development fallback", () => {
         n: 1,
         video_id: "LOCAL123",
         title: "Local Episode",
-        score: 0.88,
+        score: 0.99,
+        score_raw: 0.88,
         t: 42,
         time: "00:42",
         url: "https://www.youtube.com/watch?v=LOCAL123",
         source_mode: "published",
         mapping_status: "mapped",
+        timestamp_status: "verified",
+        timestamp_reason: null,
+        timestamp_confidence: null,
         segment_id: "local:LOCAL123:4",
       },
     ]);
   });
 
   it("returns an explicit unavailable response for local uncut mode", async () => {
-    const { POST, embedQuery, chatStream } = await importLocalRoute();
+    const { POST, embedQuery, claudeChat } = await importLocalRoute();
     const res = await POST(chatRequest({ messages: [userMessage("uncut question")], sourceMode: "uncut" }));
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("uncut is unavailable in local mode; switch to published.");
@@ -324,7 +377,7 @@ describe("POST /api/chat — approved local development fallback", () => {
     expect(res.headers.get("X-Uncut-Unavailable")).toBe("true");
     expect(decodeURIComponent(res.headers.get("X-Sources")!)).toBe("[]");
     expect(embedQuery).not.toHaveBeenCalled();
-    expect(chatStream).not.toHaveBeenCalled();
+    expect(claudeChat).not.toHaveBeenCalled();
   });
 
   it("uses published evidence and marks uncut unavailable for local both mode", async () => {
@@ -379,5 +432,21 @@ describe("route.ts compatibility freeze", () => {
     expect(expected).toBeDefined();
     const actual = crypto.createHash("sha256").update(fs.readFileSync(path.join(WEB_ROOT, "app/api/chat/route.ts"))).digest("hex");
     expect(actual).toBe(expected.sha256);
+  });
+});
+
+describe('direct Claude model allowlist', () => {
+  it.each(['google/gemini-3.5-flash', 'openai/gpt-5', 'z-ai/glm-5.3-flash'])('rejects legacy model %s before inference', async answerModel => {
+    const { POST } = await importRoute();
+    const res = await POST(chatRequest({ messages: [userMessage('hello')], answerModel }));
+    expect(res.status).toBe(400);
+    expect(await res.text()).toBe('invalid answer model');
+  });
+  it('accepts the direct Claude model while preserving source headers', async () => {
+    const { POST } = await importRoute();
+    const res = await POST(chatRequest({ messages: [userMessage('hello')], answerModel: 'claude-sonnet-5-5' }));
+    expect(res.status).toBe(200);
+    expect(res.headers.has('X-Sources')).toBe(true);
+    expect(res.headers.has('X-Fallback')).toBe(true);
   });
 });

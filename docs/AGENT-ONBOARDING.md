@@ -116,23 +116,65 @@ resolved and receipted.
 - Root version: `package.json` tracks the latest pre-release.
 - Web version: `web/package.json` tracks the web app version independently.
 
-The beta track adds authenticated features (server-side RAG, persisted chat,
-consolidation panels) that do not regress the public production path. The
-alpha track adds retrieval and UI improvements to the public surface.
+The beta track adds authenticated identity, RBAC/admin, and owner-scoped
+persisted chat/history around the canonical Alpha server-side RAG contract.
+Alpha remains the only corpus, ingest, retrieval, inference, grounding,
+citation, timestamp, and enriched-moment authority; Beta has no second corpus
+or ingest lane.
+
+### Beta 0.1 source and live-evidence discipline
+
+Beta 0.1 is not a version bump or deployed release. This checkout verifies a
+local integration merge `d3b4590` (parents `d4e45b4` and `7ec8298`) on
+`rag/alpha-answer-accuracy`; the user-reported `3eebf57` object is unavailable
+here. The integration handoff's Edge 376/376, web unit 188/188, web contracts
+96/96, typecheck, lint, and architecture results are local source/build
+evidence only.
+
+Treat later reported full-stack behavior, D1 migrations, and release-row seeds
+as `REPORTED` until the environment-specific receipts are present. They never
+replace the exact-candidate staging migration, paired edge/web deployment,
+binding, real Clerk/D1 IAB persona/viewport, production Clerk configuration,
+backup/migration, domain/traffic, smoke, or rollback gates. The authoritative
+checklist is
+`.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md`.
+
+The Beta single-shell boundary remains: `/beta` resolves a safe edge principal;
+members use `/beta/chat`, operators use `/beta/workspace` for the control room,
+and both admitted principal kinds may use `/beta/chat` for their role-safe,
+owner-scoped history view inside the same Beta gate/AppShell. Settings is
+nested under `/beta/settings/*`, and `/beta/ops/*` is redirect compatibility
+only. Clerk establishes identity, while edge policy and D1 lifecycle/RBAC decide
+authority. Public Alpha `/chat` stays separate. Provider/YouTube persistence,
+scheduled jobs, long-context compaction, and full Alpha alignment are deferred
+from the Beta 0.1 exit decision.
 
 ### Worker topology and deployment targeting
 
-The two-worker design is duplicated by environment: `wtfmedia-web` serves
-`wtfhq.in` and binds privately to `wtfmedia-edge`; `wtfmedia-web-staging`
-serves the staging Workers hostname and binds privately to
-`wtfmedia-edge-staging`. Public Alpha is a set of routes on the production web
-worker, not a third Worker. Do not delete either Edge Worker as a cleanup step.
+The web/edge compute pair is duplicated by environment, but the corpus is not:
+`wtfmedia-web` serves `wtfhq.in` and binds privately to `wtfmedia-edge`;
+`wtfmedia-web-staging` serves the staging hostname and binds privately to
+`wtfmedia-edge-staging`. The staging edge keeps only staging Clerk/D1 identity
+and persistence state and calls the production web Worker's public `/api/chat`
+contract through an explicit read-only service binding. Public Alpha is a set
+of routes on the production web worker, not a third Worker. Do not attach
+Vectorize, R2, KV, or ingest queues to the Beta staging edge.
 
 Deploy scripts fail closed when no environment is named. Use
 `npm --prefix web run cf:deploy:staging` for the reviewed staging lane, and
 reserve `cf:deploy:production` for an explicitly authorized production action.
 The Edge package follows the same `deploy:staging` / `deploy:production`
 pattern.
+
+Build OpenNext with dependencies installed inside the current worktree using
+`npm --prefix web ci`. A symlinked `web/node_modules` has repeatedly produced a
+bundle that builds successfully but returns HTTP 500 when loading
+`/.next/server/middleware-manifest.json`. Verify both the local and generated
+server dependency trees resolve inside the worktree before deployment.
+Probe the built Worker locally with an emulator supporting the configured
+compatibility date: `/episodes` should return 200 and GET `/api/chat` should
+return 405. These public probes need no Clerk secret. Verify authenticated
+routes on canonical staging; do not disable middleware to pass a build check.
 
 The company member Beta is a separate staging-only `/beta` lane. Any verified
 Clerk user who is not an active D1 operator receives an owner-scoped member

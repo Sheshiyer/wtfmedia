@@ -219,6 +219,8 @@ type SourceStory = StoryObj;
 export const SingleSource: SourceStory = {
   render: () => (
     <SourcePanel
+      queryScope={{ sourceMode: "uncut", episodeId: null }}
+      effectiveSourceMode="uncut"
       sources={[
         {
           episodeId: "abc123",
@@ -272,7 +274,7 @@ export const UntimedSource: SourceStory = {
   ),
 };
 
-export const MappedUncutSource: SourceStory = {
+export const UncutSourceWithheld: SourceStory = {
   render: () => (
     <SourcePanel
       sources={[
@@ -290,13 +292,219 @@ export const MappedUncutSource: SourceStory = {
     />
   ),
   play: async ({ canvasElement }) => {
-    const link = canvasElement.querySelector('a[href="https://f.io/0I8LmYs9"]');
-    if (!link || link.textContent?.trim() !== "open Frame.io source") {
-      throw new Error("Mapped uncut citations must expose their approved Frame.io source");
+    // The public sheet is published-only: uncut Frame.io sources never render.
+    if (canvasElement.querySelector('a[href="https://f.io/0I8LmYs9"]')) {
+      throw new Error("The public sheet must not expose uncut Frame.io sources");
+    }
+  },
+};
+
+export const GroupedPublishedEvidence: SourceStory = {
+  render: () => (
+    <SourcePanel
+      queryScope={{ sourceMode: "both", episodeId: null }}
+      effectiveSourceMode="both"
+      citedIndices={[1, 4]}
+      sources={[
+        {
+          videoId: "episode0001",
+          title: "Episode one",
+          sourceMode: "published",
+          timeSec: 125,
+          timestampStatus: "verified",
+          mappingStatus: "mapped",
+          url: "https://www.youtube.com/watch?v=episode0001",
+        },
+        {
+          videoId: "episode0001",
+          title: "Episode one",
+          sourceMode: "uncut",
+          timeSec: 300,
+          timestampStatus: "verified",
+          mappingStatus: "mapped",
+          url: "https://f.io/episode-one",
+        },
+        {
+          videoId: "episode0002",
+          title: "Episode two",
+          sourceMode: "published",
+          timestampStatus: "source_timing_unavailable",
+          mappingStatus: "unmapped",
+          url: "https://www.youtube.com/watch?v=episode0002",
+        },
+        {
+          videoId: "episode0003",
+          title: "Episode three",
+          sourceMode: "uncut",
+          timeSec: 420,
+          timestampStatus: "verified",
+          mappingStatus: "mapped",
+          url: "https://f.io/episode-three",
+        },
+      ]}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const panel = canvasElement.querySelector<HTMLElement>('[data-testid="source-panel"]');
+    const panelSummary = panel?.querySelector<HTMLElement>(":scope > summary");
+    panelSummary?.click();
+
+    const groups = panel?.querySelectorAll('[data-testid="source-episode-group"]');
+    if (!groups || groups.length !== 2) {
+      throw new Error("Published evidence groups by episode; uncut entries stay out of the public sheet");
+    }
+    if (panel?.querySelector('a[href^="https://f.io/"]')) {
+      throw new Error("Uncut Frame.io sources must stay out of the public sheet");
+    }
+    const candidates = groups[1].querySelector('[data-testid="candidate-evidence"]');
+    if (!candidates?.textContent?.includes("C2") || candidates.textContent.includes("[3]")) {
+      throw new Error("Candidates must use a noncitation evidence namespace");
     }
   },
 };
 
 export const EmptySources: SourceStory = {
   render: () => <SourcePanel sources={[]} />,
+};
+
+/* ── SourcePanel with moments ────────────────────────────────────────── */
+
+const MOMENT_SOURCES = [
+  {
+    episodeId: "ep-12",
+    videoId: "fL2wyVLX08o",
+    title: "Ep 12: A Guest on Love",
+    url: "https://www.youtube.com/watch?v=fL2wyVLX08o",
+    score: 0.9,
+    t: 300,
+    timestampStatus: "verified" as const,
+  },
+  {
+    episodeId: "ep-12",
+    videoId: "fL2wyVLX08o",
+    title: "Ep 12: A Guest on Love",
+    url: "https://www.youtube.com/watch?v=fL2wyVLX08o",
+    score: 0.7,
+    t: 630,
+    timestampStatus: "verified" as const,
+  },
+  {
+    episodeId: "ep-20",
+    videoId: "vPvnzWoK24Q",
+    title: "Ep 20: Another Guest",
+    url: "https://www.youtube.com/watch?v=vPvnzWoK24Q",
+    score: 0.6,
+    t: 360,
+    timestampStatus: "verified" as const,
+  },
+];
+
+export const GroupedMoments: SourceStory = {
+  render: () => (
+    <SourcePanel
+      sources={MOMENT_SOURCES}
+      question="tell me about relationships"
+      moments={{
+        totalDurationSec: 150,
+        budgetSec: 1800,
+        moments: [
+          {
+            videoId: "fL2wyVLX08o",
+            title: "Ep 12: A Guest on Love",
+            url: "https://www.youtube.com/watch?v=fL2wyVLX08o",
+            startSec: 630,
+            endSec: 705,
+            durationSec: 75,
+            score: 0.9,
+            timestampConfidence: 0.8,
+            citationNumbers: [1],
+            withinBudget: true,
+            guest: "A Guest",
+            theme: "Love",
+            topic: "trust after betrayal",
+            summary: "A story about rebuilding trust.",
+            strength: 3,
+          },
+          {
+            videoId: "fL2wyVLX08o",
+            title: "Ep 12: A Guest on Love",
+            url: "https://www.youtube.com/watch?v=fL2wyVLX08o",
+            startSec: 300,
+            endSec: 345,
+            durationSec: 45,
+            score: 0.7,
+            timestampConfidence: 0.8,
+            citationNumbers: [2],
+            withinBudget: true,
+            topic: "long distance",
+            summary: "They describe keeping a relationship alive while apart.",
+            whyRelevant: "Directly answers the relationship question.",
+            strength: 5,
+          },
+          {
+            videoId: "vPvnzWoK24Q",
+            title: "Ep 20: Another Guest",
+            url: "https://www.youtube.com/watch?v=vPvnzWoK24Q",
+            startSec: 360,
+            endSec: 420,
+            durationSec: 60,
+            score: 0.6,
+            timestampConfidence: null,
+            citationNumbers: [3],
+            withinBudget: true,
+            guest: "Another Guest",
+            topic: "first dates",
+            summary: "Why first dates should be short.",
+            strength: 4,
+          },
+        ],
+      }}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const panel = canvasElement.querySelector<HTMLElement>('[data-testid="source-panel"]');
+    panel?.querySelector<HTMLElement>(":scope > summary")?.click();
+    const rows = [...canvasElement.querySelectorAll<HTMLElement>('[data-testid="moment-row"]')];
+    const topics = rows.map((row) => row.textContent ?? "");
+    // Moments render on the episode clock even though the payload is
+    // score-ordered (trust/630s outranks long-distance/300s).
+    const longDistance = topics.findIndex((text) => text.includes("long distance"));
+    const trust = topics.findIndex((text) => text.includes("trust after betrayal"));
+    if (longDistance === -1 || trust === -1 || longDistance > trust) {
+      throw new Error("Moments within an episode must render earliest first");
+    }
+    const plays = canvasElement.querySelectorAll('a[href*="&t="]');
+    if (plays.length < rows.length) {
+      throw new Error("Every moment must expose a play link at its start");
+    }
+  },
+};
+
+export const MomentsWithoutBudget: SourceStory = {
+  render: () => (
+    <SourcePanel
+      sources={MOMENT_SOURCES.slice(0, 1)}
+      moments={{
+        totalDurationSec: 45,
+        budgetSec: null,
+        moments: [
+          {
+            videoId: "fL2wyVLX08o",
+            title: "Ep 12: A Guest on Love",
+            url: "https://www.youtube.com/watch?v=fL2wyVLX08o",
+            startSec: 300,
+            endSec: 345,
+            durationSec: 45,
+            score: 0.9,
+            timestampConfidence: 0.8,
+            citationNumbers: [1],
+            withinBudget: true,
+            topic: "long distance",
+            summary: "They describe keeping a relationship alive while apart.",
+            strength: 5,
+          },
+        ],
+      }}
+    />
+  ),
 };

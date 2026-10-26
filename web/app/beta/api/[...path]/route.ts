@@ -3,24 +3,70 @@ import { auth } from "@clerk/nextjs/server";
 
 export const dynamic = "force-dynamic";
 
+async function forward(edge: { fetch: (input: Request) => Promise<Response> } | null, localOrigin: string | undefined, request: Request, headers: Headers): Promise<Response> {
+  if (!edge) {
+    const init: RequestInit = { method: request.method, headers, redirect: "manual" };
+    if (request.method !== "GET" && request.method !== "HEAD") init.body = await request.arrayBuffer();
+    const url = new URL(request.url);
+    const upstreamUrl = new URL(url.pathname + url.search, localOrigin);
+    // Validate the browser origin before translating it to the internal dev port.
+    const origin = headers.get("origin");
+    if (origin && request.method !== "GET" && request.method !== "HEAD") {
+      if (origin !== url.origin) return Response.json({ error: "origin_not_allowed" }, { status: 403, headers: { "cache-control": "private, no-store" } });
+      headers.set("origin", upstreamUrl.origin);
+    }
+    const upstream = await fetch(upstreamUrl, init);
+    // Strip hop-by-hop headers from the upstream response — browsers reject
+    // responses that re-emit them (Firefox reports NS_ERROR_*). content-encoding
+    // must go too: fetch already decoded the body, so re-emitting "gzip" makes
+    // the browser gunzip plain JSON and the gate fails closed.
+    const sanitized = new Headers(upstream.headers);
+    for (const hop of ["connection", "transfer-encoding", "keep-alive", "content-length", "content-encoding"]) sanitized.delete(hop);
+    return new Response(upstream.body, { status: upstream.status, headers: sanitized });
+  }
+  // Deployed: forward the ORIGINAL request object with stripped headers.
+  // Rebuilding from a URL string drops the internal routing context and the
+  // subrequest leaves the service binding — Cloudflare answers 1003.
+  // OAuth callbacks redirect to a web page, not another backend endpoint.
+  // Preserve that response for the browser instead of following it in the binding.
+  return edge.fetch(new Request(request, { headers, redirect: "manual" }));
+}
+
 async function proxy(request: Request): Promise<Response> {
   try {
-    const { env } = await getCloudflareContext({ async: true });
-    if (!env.WTFMEDIA_EDGE) return Response.json({ error: "beta_unavailable" }, { status: 503, headers: { "cache-control": "private, no-store" } });
-    if (request.headers.has("authorization")) return await env.WTFMEDIA_EDGE.fetch(request);
+    // The local HTTP forwarder is for `next dev` only. .env.local is baked
+    // into deployed builds too, so gate on the REQUEST being local — a leaked
+    // WTFMEDIA_EDGE_LOCAL_ORIGIN must never divert deployed traffic.
+    const host = new URL(request.url).hostname;
+    const localOrigin = host === "localhost" || host === "127.0.0.1" ? process.env.WTFMEDIA_EDGE_LOCAL_ORIGIN : undefined;
+    const env = localOrigin ? null : (await getCloudflareContext({ async: true })).env;
+    const edge = localOrigin ? null : (env?.WTFMEDIA_EDGE ?? null);
+    if (!localOrigin && !edge) return Response.json({ error: "beta_unavailable" }, { status: 503, headers: { "cache-control": "private, no-store" } });
 
     const headers = new Headers(request.headers);
+    // The edge never reads operator-context headers inbound; they are minted
+    // for web route handlers only. Strip them so a browser cannot forward a
+    // forged context toward the edge.
+    headers.delete("x-wtf-ops-context");
+    headers.delete("x-wtf-ops-proof");
+    if (request.headers.has("authorization")) return await forward(edge, localOrigin, request, headers);
+
     try {
       const token = await (await auth()).getToken();
       if (token) headers.set("authorization", `Bearer ${token}`);
     } catch {
       // The edge remains the authorization boundary and fails closed without a token.
     }
-    return await env.WTFMEDIA_EDGE.fetch(new Request(request, { headers }));
-  } catch {
+    return await forward(edge, localOrigin, request, headers);
+  } catch (error) {
+    console.error("[beta-api-proxy]", error);
     return Response.json({ error: "beta_unavailable" }, { status: 503, headers: { "cache-control": "private, no-store" } });
   }
 }
 
 export const GET = proxy;
+export const HEAD = proxy;
 export const POST = proxy;
+export const PUT = proxy;
+export const PATCH = proxy;
+export const DELETE = proxy;

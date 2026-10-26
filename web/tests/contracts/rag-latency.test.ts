@@ -5,8 +5,9 @@
  * Worker-shaped stub (tests/support/rag-stub.mjs) without any live model:
  *   - grounded answer, abstention (ungrounded), and delayed-answer cases
  *     record first response byte, chunk sequence, and total completion;
- *   - the timeout case proves AbortSignal.timeout(25_000) fires before the
- *     upstream resolves, producing the safe 503.
+ *   - the timeout case proves AbortSignal.timeout(75_000) fires before the
+ *     upstream resolves, producing the safe 503. (75s since f10987e: reasoning
+ *     models need longer than the original 25s.)
  *
  * The body/chunk interpretation is the one approved in Plan 01-01: the proxy
  * awaits the complete Worker JSON response before constructing a plain-text
@@ -160,10 +161,10 @@ describe("controlled RAG latency (local stub only)", () => {
     }
   });
 
-  it("proves the 25s upstream timeout is wired to the safe 503 path", async () => {
+  it("proves the 75s upstream timeout is wired to the safe 503 path", async () => {
     // Hanging service binding: never resolves until the route's timeout signal
     // aborts the request. The signal is controlled here so CI proves the
-    // 25_000 ms configuration without spending 25-50 seconds on this case.
+    // 75_000 ms configuration without spending real time on this case.
     const controller = new AbortController();
     const timeoutSpy = vi.spyOn(AbortSignal, "timeout").mockReturnValue(controller.signal);
     const { POST } = await importRoute({
@@ -180,7 +181,7 @@ describe("controlled RAG latency (local stub only)", () => {
     const started = performance.now();
     const res = await POST(chatRequest(triggerQuestion("default-grounded")));
     const elapsed = Math.round(performance.now() - started);
-    expect(timeoutSpy).toHaveBeenCalledWith(25_000);
+    expect(timeoutSpy).toHaveBeenCalledWith(75_000);
     expect(res.status).toBe(503);
     expect(await res.json()).toEqual({
       error: "The answer service is temporarily unavailable. Please retry shortly.",

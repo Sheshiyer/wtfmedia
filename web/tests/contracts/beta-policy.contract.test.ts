@@ -29,4 +29,13 @@ describe("Beta navigation and edge policy contract", () => {
     expect(canAccessPath("member", "/beta/admin/users")).toBe(false);
     expect(decide("member", "members", "read")).toBe(false);
   });
+
+  it("publishes no Beta ingest destination while preserving Alpha operator ingest policy", () => {
+    expect(BETA_PROTECTED_DESTINATIONS.some(({ href }) => href === "/beta/workspace/ingest")).toBe(false);
+    expect(policyForPath("/beta/workspace/ingest")).toBeNull();
+    for (const role of EDGE_ROLES) expect(canAccessPath(role, "/beta/workspace/ingest"), role).toBe(false);
+
+    expect(policyForPath("/ops/ingest")).toEqual(["ingest", "read"]);
+    for (const role of ["editor", "admin", "super_admin"] as const) expect(canAccessPath(role, "/ops/ingest"), role).toBe(true);
+  });
 });

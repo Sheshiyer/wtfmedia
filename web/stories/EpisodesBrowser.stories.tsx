@@ -79,7 +79,7 @@ export const DrawerValidEpisode: Story = {
     await expect(askLink).toHaveAttribute("href");
     const href = askLink.getAttribute("href")!;
     await expect(href).toContain("/chat?q=");
-    await expect(href).toContain("episodeId=vPvnzWoK24Q");
+    await expect(href).toContain("About%20the%20episode");
   },
 };
 

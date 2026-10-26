@@ -1,5 +1,7 @@
 import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 import { clerkMiddleware } from "@clerk/nextjs/server";
+import { isBetaDestinationVisible } from "@/lib/beta/navigation";
+import { BETA_PRODUCTION_HOSTNAME, normalizedRequestHostname, betaRootRedirectForHost } from "@/lib/beta/hosts";
 import { legacyAuthenticatedChatConversationId } from "@/lib/ops/chat-route";
 import { maybeLocalDevOpsHeaders } from "@/lib/ops/local-dev-headers";
 
@@ -7,27 +9,40 @@ const recoveryPaths = new Set(["/ops/recover", "/sign-in", "/request-access", "/
 
 async function routeMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  if (normalizedRequestHostname(request.nextUrl.hostname) === BETA_PRODUCTION_HOSTNAME && !isBetaDestinationVisible(pathname, "production")) {
+    return NextResponse.redirect(new URL("/beta/chat", request.url));
+  }
+  const betaRoot = betaRootRedirectForHost(request.nextUrl.hostname, pathname);
+  if (betaRoot) {
+    const target = request.nextUrl.clone();
+    target.pathname = betaRoot;
+    return NextResponse.redirect(target);
+  }
   const legacyConversationId = legacyAuthenticatedChatConversationId(pathname);
   if (legacyConversationId) {
     const target = request.nextUrl.clone();
     target.pathname = `/beta/chat/${legacyConversationId}`;
     return NextResponse.redirect(target);
   }
-  // `/ops/*` is the preserved anonymous/legacy Alpha operator tree. Only the
-  // old beta operator aliases redirect into the canonical single shell.
-  if (pathname === "/beta/ops" || pathname.startsWith("/beta/ops/")) {
+  // `/ops/*` pages are retired: the beta shell is the only surface. The
+  // /ops/api/* endpoints stay (chat transport) and /ops/recover stays for
+  // session recovery.
+  const opsPage = pathname === "/ops" || (pathname.startsWith("/ops/") && !pathname.startsWith("/ops/api") && pathname !== "/ops/recover");
+  if (pathname === "/beta/ops" || pathname.startsWith("/beta/ops/") || opsPage) {
+    const source = opsPage ? pathname : pathname.slice("/beta/ops".length);
+    const suffix = opsPage ? pathname.slice("/ops".length) : source;
     const target = request.nextUrl.clone();
-    const suffix = pathname.slice("/beta/ops".length);
-    if (!suffix) target.pathname = "/beta/workspace";
-    else if (suffix === "/production" || suffix === "/episodes" || suffix === "/ingest") target.pathname = `/beta/workspace${suffix}`;
-    else if (suffix === "/operators") target.pathname = "/beta/admin/users";
+    if (!suffix) target.pathname = "/beta/chat";
+    else if (suffix === "/ingest") target.pathname = "/beta/workspace";
+    else if (suffix === "/production" || suffix === "/episodes") target.pathname = `/beta/workspace${suffix}`;
+    else if (suffix === "/operators") target.pathname = "/beta/settings/users";
     else if (suffix === "/audit") target.pathname = "/beta/admin/audit";
     else if (suffix === "/profile") target.pathname = "/beta/settings";
-    else if (suffix === "/chat") target.pathname = "/beta/chat";
+    else if (suffix === "/chat" || suffix.startsWith("/chat/")) target.pathname = "/beta/chat";
     else if (suffix === "/settings") target.pathname = "/beta/settings";
-    else if (suffix.startsWith("/settings/access") || suffix.startsWith("/settings/users")) target.pathname = "/beta/admin/users";
+    else if (suffix.startsWith("/settings/access") || suffix.startsWith("/settings/users")) target.pathname = "/beta/settings/users";
     else if (suffix.startsWith("/settings/")) target.pathname = `/beta/settings/workspace${suffix.slice("/settings".length)}`;
-    else target.pathname = "/beta/workspace";
+    else target.pathname = "/beta/chat";
     return NextResponse.redirect(target);
   }
   if (recoveryPaths.has(pathname)) {
@@ -62,11 +77,25 @@ async function routeMiddleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/ops/:path*", "/api/ops/:path*", "/beta/:path*", "/chat/:path*", "/sign-in/:path*", "/sign-up/:path*", "/request-access"],
+  matcher: ["/", "/ops/:path*", "/api/ops/:path*", "/beta/:path*", "/chat/:path*", "/sign-in/:path*", "/sign-up/:path*", "/request-access"],
 };
 
-const clerkHandler = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim()
-  ? clerkMiddleware((_auth, request) => routeMiddleware(request))
+const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim();
+const clerkSecretKey = process.env.CLERK_SECRET_KEY?.trim();
+// Local Beta requests authenticate in the browser and forward the Clerk bearer
+// token to the edge verifier. Do not make that path depend on a copied Clerk
+// server secret. Deployed builds keep the server middleware fail-closed.
+const clerkHandler = clerkPublishableKey && (clerkSecretKey || process.env.NODE_ENV !== "development")
+  ? clerkMiddleware(async (auth, request) => {
+      // Signed-in principals enter the canonical resolver. It selects the
+      // member or operator landing after the edge has resolved authority.
+      const { pathname } = request.nextUrl;
+      if (pathname === "/" || pathname === "/chat") {
+        const { userId } = await auth();
+        if (userId) return NextResponse.redirect(new URL("/beta", request.url));
+      }
+      return routeMiddleware(request);
+    })
   : null;
 
 export async function middleware(request: NextRequest, event: NextFetchEvent) {

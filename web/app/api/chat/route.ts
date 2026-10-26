@@ -1,11 +1,22 @@
 import { NextRequest } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { chatStream, embedQuery, type ChatMessage } from "@/lib/nvidia";
-import { parseSourceMode, type SourceMode } from "@/lib/provenance/source-mode";
+import { embedQuery, type ChatMessage } from "@/lib/nvidia";
+import {
+  parseSourceMode,
+  type SourceMode,
+} from "@/lib/provenance/source-mode";
+import {
+  projectPublicMoments,
+  projectPublicSources,
+  type EdgeMoment,
+  type EdgeSource,
+} from "@/lib/provenance/public-answer-projection";
 import { isReady, search } from "@/lib/vectors";
+import { claudeChat } from "../../../../cloudflare/src/chat/claude";
+import { DEFAULT_MODEL } from "@/lib/models";
 
 export const runtime = "nodejs";
-export const maxDuration = 30;
+export const maxDuration = 90;
 
 const EDGE_SHARED_SECRET = process.env.EDGE_SHARED_SECRET ?? process.env.CLOUDFLARE_EDGE_SHARED_SECRET;
 const LOCAL_RAG_ENABLED = process.env.WTFMEDIA_LOCAL_RAG_ENABLED?.trim().toLowerCase() === "true";
@@ -19,77 +30,82 @@ async function callAnswerService(request: Request): Promise<Response> {
   return env.WTFMEDIA_EDGE.fetch(request);
 }
 
-type EdgeSource = {
-  n: number;
-  score: number;
-  videoId: string;
-  title: string;
-  url: string;
-  start: number | null;
-  timestamped: boolean;
-  sourceMode?: SourceMode;
-  mappingStatus?: "mapped" | "unmapped" | "unavailable" | "conflicted";
-  segmentId?: string;
-};
+type ResponseState = "answered_grounded" | "retrieval_weak" | "synthesis_invalid" | "abstained";
+type SourceFallbackReason = "requested_mode_insufficient" | "requested_mode_not_competitive";
 
 type EdgeAnswer = {
   answer?: string;
   sources?: EdgeSource[];
   grounded?: boolean;
   sourceMode?: SourceMode;
+  requestedSourceMode?: SourceMode;
+  evidenceSourceMode?: SourceMode | null;
+  fallbackReason?: SourceFallbackReason | null;
   uncutUnavailable?: boolean;
   model?: string;
   modelFallback?: boolean;
   error?: string;
+  responseState?: ResponseState;
+  citedIndices?: number[];
+  followUps?: string[];
+  searchQuery?: string;
+  moments?: EdgeMoment[];
+  totalMomentDurationSec?: number;
+  durationBudgetSec?: number | null;
 };
 
-function isApprovedFrameIoUrl(value: unknown): boolean {
-  if (typeof value !== "string" || !value.trim()) return false;
-  try {
-    const parsed = new URL(value);
-    const hostname = parsed.hostname.toLowerCase();
-    return parsed.protocol === "https:"
-      && (hostname === "f.io" || hostname === "frame.io" || hostname.endsWith(".frame.io"));
-  } catch {
-    return false;
-  }
+const SOURCE_FALLBACK_REASONS = new Set<SourceFallbackReason>([
+  "requested_mode_insufficient",
+  "requested_mode_not_competitive",
+]);
+const RESPONSE_STATES = new Set<ResponseState>([
+  "answered_grounded",
+  "retrieval_weak",
+  "synthesis_invalid",
+  "abstained",
+]);
+
+function optionalSourceMode(value: unknown): SourceMode | null {
+  return value === "published" || value === "uncut" || value === "both" ? value : null;
+}
+
+function publicSourceFallbackReason(value: unknown): SourceFallbackReason | null {
+  return typeof value === "string" && SOURCE_FALLBACK_REASONS.has(value as SourceFallbackReason)
+    ? value as SourceFallbackReason
+    : null;
+}
+
+function publicResponseState(value: unknown): ResponseState {
+  return typeof value === "string" && RESPONSE_STATES.has(value as ResponseState)
+    ? value as ResponseState
+    : "answered_grounded";
 }
 
 function sourceHeader(sources: EdgeSource[], sourceMode: SourceMode) {
-  return JSON.stringify(sources.map((source) => {
-    const mode = source.sourceMode ?? sourceMode;
-    const start = sourceMode === "both" || mode === sourceMode ? source.start : null;
-    const direct = mode === "uncut"
-      ? (isApprovedFrameIoUrl(source.url)
-        ? source.url
-        : typeof source.url === "string" && source.url.startsWith("uncut:")
-          ? source.url
-          : `uncut:${source.videoId}`)
-      : source.url;
-    return {
-      n: source.n,
-      video_id: source.videoId,
-      title: source.title,
-      score: source.score,
-      t: start,
-      time: start == null ? "" : new Date(start * 1_000).toISOString().slice(11, 19).replace(/^00:/, ""),
-      url: mode === "uncut"
-        ? (isApprovedFrameIoUrl(direct) ? direct : undefined)
-        : direct,
-      source_mode: mode,
-      mapping_status: source.mappingStatus ?? (start == null ? "unmapped" : "mapped"),
-      segment_id: source.segmentId ?? (mode === "uncut" ? `uncut:${source.videoId}` : null),
-    };
-  }));
+  return JSON.stringify(projectPublicSources(sources, sourceMode));
+}
+
+function momentHeader(answer: EdgeAnswer): string {
+  return JSON.stringify(projectPublicMoments(answer));
 }
 
 /** Local-only RAG path for `next dev`; production remains Cloudflare-only. */
-async function localAnswer(question: string, sourceMode: SourceMode, episodeId: string | null): Promise<Response> {
+async function localAnswer(question: string, sourceMode: SourceMode, episodeId: string | null, signal: AbortSignal): Promise<Response> {
   if (!isReady()) return Response.json({ error: "local_catalogue_unavailable" }, { status: 503 });
   if (sourceMode === "uncut") {
     return new Response("uncut is unavailable in local mode; switch to published.", {
       status: 200,
-      headers: { "Content-Type": "text/plain; charset=utf-8", "X-Sources": encodeURIComponent("[]"), "X-Source-Mode": "uncut", "X-Uncut-Unavailable": "true", "X-Model": "nvidia-local", "X-Fallback": "true" },
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-Sources": encodeURIComponent("[]"),
+        "X-Requested-Source-Mode": "uncut",
+        "X-Evidence-Source-Mode": "none",
+        "X-Source-Mode": "uncut",
+        "X-Source-Fallback-Reason": "requested_mode_insufficient",
+        "X-Uncut-Unavailable": "true",
+        "X-Model": "none",
+        "X-Fallback": "true",
+      },
     });
   }
   const hits = search(await embedQuery(question), episodeId ? 48 : 6)
@@ -109,17 +125,22 @@ async function localAnswer(question: string, sourceMode: SourceMode, episodeId: 
     segmentId: `local:${hit.video_id}:${hit.chunk_idx}`,
   }));
   const context = hits.map((hit, index) => `[${index + 1}] ${hit.title}\n${hit.text}`).join("\n\n---\n\n");
-  const stream = await chatStream([
+  const generated = await claudeChat({ ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY }, [
     { role: "system", content: "Answer only from the supplied transcript excerpts. Cite every factual sentence with [1], [2], etc. If the excerpts do not answer the question, say so plainly." },
     { role: "user", content: `CONTEXT:\n${context}\n\nQUESTION: ${question}` },
-  ], { maxTokens: 600, temperature: 0.1 });
-  return new Response(stream, {
+  ], { maxTokens: 600, signal });
+  return new Response(generated.answer, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       "X-Sources": encodeURIComponent(sourceHeader(sources, "published")),
+      "X-Requested-Source-Mode": sourceMode,
+      "X-Evidence-Source-Mode": "published",
       "X-Source-Mode": "published",
+      ...(sourceMode === "both"
+        ? { "X-Source-Fallback-Reason": "requested_mode_insufficient" }
+        : {}),
       "X-Uncut-Unavailable": sourceMode === "both" ? "true" : "false",
-      "X-Model": "nvidia-local",
+      "X-Model": generated.model,
       "X-Fallback": "false",
       "Cache-Control": "no-store",
     },
@@ -127,7 +148,7 @@ async function localAnswer(question: string, sourceMode: SourceMode, episodeId: 
 }
 
 export async function POST(req: NextRequest) {
-  let body: { messages?: ChatMessage[]; sourceMode?: unknown; episodeId?: unknown };
+  let body: { messages?: ChatMessage[]; sourceMode?: unknown; episodeId?: unknown; answerModel?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -137,6 +158,14 @@ export async function POST(req: NextRequest) {
   const last = [...messages].reverse().find((message) => message.role === "user");
   if (!last?.content?.trim()) return new Response("no user message", { status: 400 });
   if (last.content.length > MAX_QUESTION_CHARS) return new Response("question too long", { status: 400 });
+  const RETRYABLE_MODELS = new Set([DEFAULT_MODEL]);
+  let answerModel: string | undefined;
+  if (body.answerModel !== undefined) {
+    if (typeof body.answerModel !== "string" || !RETRYABLE_MODELS.has(body.answerModel)) {
+      return new Response("invalid answer model", { status: 400 });
+    }
+    answerModel = body.answerModel;
+  }
   const sourceMode = parseSourceMode(body.sourceMode);
   const episodeId = typeof body.episodeId === "string" && PUBLIC_EPISODE_ID.test(body.episodeId.trim())
     ? body.episodeId.trim()
@@ -145,10 +174,10 @@ export async function POST(req: NextRequest) {
     return new Response("invalid episode id", { status: 400 });
   }
   if (!EDGE_SHARED_SECRET) {
-    if (process.env.NODE_ENV !== "production" && LOCAL_RAG_ENABLED && process.env.NVIDIA_API_KEY) {
-      try { return await localAnswer(last.content, sourceMode, episodeId); }
-      catch (error) {
-        console.error("local NVIDIA RAG failed", error instanceof Error ? error.message : "unknown");
+    if (process.env.NODE_ENV !== "production" && LOCAL_RAG_ENABLED && process.env.NVIDIA_API_KEY && process.env.ANTHROPIC_API_KEY) {
+      try { return await localAnswer(last.content, sourceMode, episodeId, req.signal); }
+      catch {
+        console.error("local RAG failed", { code: "local_answer_unavailable" });
         return Response.json({ error: "local_answer_unavailable" }, { status: 503 });
       }
     }
@@ -165,9 +194,15 @@ export async function POST(req: NextRequest) {
         "X-Client-IP": req.headers.get("cf-connecting-ip")?.trim() || "unknown",
         "X-Request-ID": crypto.randomUUID(),
       },
-      body: JSON.stringify({ question: last.content, sourceMode, ...(episodeId ? { episodeId } : {}) }),
+      body: JSON.stringify({
+        question: last.content,
+        sourceMode,
+        ...(episodeId ? { episodeId } : {}),
+        ...(answerModel ? { answerModel } : {}),
+        history: messages.slice(0, -1).map((m) => ({ role: m.role, content: m.content })),
+      }),
       cache: "no-store",
-      signal: AbortSignal.timeout(25_000),
+      signal: AbortSignal.any([req.signal, AbortSignal.timeout(75_000)]),
     }));
   } catch (error) {
     console.error("wtfmedia web chat transport failed", {
@@ -188,15 +223,32 @@ export async function POST(req: NextRequest) {
   }
   const sources = Array.isArray(result.sources) ? result.sources : [];
   const responseMode = parseSourceMode(result.sourceMode ?? sourceMode);
+  const requestedMode = optionalSourceMode(result.requestedSourceMode) ?? sourceMode;
+  const evidenceMode = result.evidenceSourceMode === null
+    ? null
+    : optionalSourceMode(result.evidenceSourceMode) ?? (sources.length > 0 ? responseMode : null);
+  const fallbackReason = publicSourceFallbackReason(result.fallbackReason);
+  const uncutUnavailable = fallbackReason === "requested_mode_not_competitive"
+    ? false
+    : result.uncutUnavailable === true;
+  const citedIndices = Array.isArray(result.citedIndices) ? result.citedIndices : [];
+  const followUps = Array.isArray(result.followUps) ? result.followUps.filter((f): f is string => typeof f === "string") : [];
   return new Response(result.answer, {
     status: edge.status,
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       "X-Sources": encodeURIComponent(sourceHeader(sources, responseMode)),
+      "X-Requested-Source-Mode": requestedMode,
+      "X-Evidence-Source-Mode": evidenceMode ?? "none",
       "X-Source-Mode": responseMode,
-      "X-Uncut-Unavailable": result.uncutUnavailable ? "true" : "false",
+      ...(fallbackReason ? { "X-Source-Fallback-Reason": fallbackReason } : {}),
+      "X-Uncut-Unavailable": uncutUnavailable ? "true" : "false",
       "X-Model": result.model ?? "cloudflare/llama-3.3-70b-instruct",
       "X-Fallback": result.grounded && !result.modelFallback ? "false" : "true",
+      "X-Response-State": publicResponseState(result.responseState),
+      "X-Cited-Indices": JSON.stringify(citedIndices),
+      "X-Moments": encodeURIComponent(momentHeader(result)),
+      ...(followUps.length > 0 ? { "X-Follow-Ups": JSON.stringify(followUps) } : {}),
       "Cache-Control": "no-store",
     },
   });

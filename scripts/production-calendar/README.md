@@ -2,8 +2,9 @@
 
 ## Pick up this branch on another computer
 
-Clone `codex/release-beta-calendar-local`, not the repository's default `main`
-branch. The source code, migrations, tests, and this guide are on that branch.
+After the merged branch is pushed, clone `futures/nikhai`, not the repository's
+default `main` branch. The source code, migrations, tests, and this guide are
+on the merged branch locally until then.
 Install the web dependencies with `npm --prefix web ci`. The local calendar
 preview was verified with Node.js 26 and Python 3; it uses `node:sqlite` and
 Node's TypeScript stripping support. For the workbook import, create a local
@@ -40,7 +41,8 @@ node scripts/production-calendar/load_local.mjs \
 npm --prefix web run dev:production
 ```
 
-Open `http://127.0.0.1:3001/ops/production`. Start the API before the loader
+Open `http://127.0.0.1:3001/beta/workspace/production` (the legacy
+`/ops/production` route redirects there). Start the API before the loader
 so the local schema exists. `load_local.mjs` is idempotent for the same workbook
 hash; a revised workbook needs the documented reconciliation review rather
 than an assumed overwrite. This preview uses a local super-admin context; it
@@ -67,9 +69,9 @@ python3 scripts/production-calendar/import_workbook.py \
 The JSON contains guest names, contacts, and notes. Keep it outside Git and
 restrict access. It does not authorize a remote D1 import. `load_local.mjs`
 loads the generated file only into an explicitly named **local** SQLite/D1
-database after migrations `0016_production_calendar.sql`,
-`0017_production_source_checks.sql`, `0018_production_ip_targets.sql`, and
-`0019_production_tracker_details.sql`
+database after migrations `0025_production_calendar.sql`,
+`0026_production_source_checks.sql`, `0027_production_ip_targets.sql`, and
+`0028_production_tracker_details.sql`
 have been applied.
 Repeated loads of the same workbook SHA are idempotent. A changed workbook is
 preserved as a new import version and needs review before reconciling old
@@ -134,7 +136,7 @@ box remains a checked box even when an adjacent note says no contract was
 signed; no legal outcome is inferred.
 
 For an already imported local database, back it up and apply outstanding
-migrations through 0019,
+production migrations through 0028,
 then run `reconcile_local.mjs` with the regenerated private JSON and local
 database path. Reconciliation updates only unchanged source-derived records.
 

@@ -40,6 +40,10 @@ function validUserId(value: unknown): value is string {
   return typeof value === "string" && /^user_[A-Za-z0-9_-]{1,120}$/u.test(value);
 }
 
+function sessionId(payload: { sid?: unknown }): string | undefined {
+  return typeof payload.sid === "string" && payload.sid.length <= 128 ? payload.sid : undefined;
+}
+
 export function createClerkVerifier(config: ClerkVerifierConfig) {
   return async (request: Request): Promise<ClerkVerification> => {
     const token = tokenFromRequest(request);
@@ -56,12 +60,10 @@ export function createClerkVerifier(config: ClerkVerifierConfig) {
       const email = normalizedEmail(verified.payload.email);
       const userId = verified.payload.sub;
       if (!email || !validUserId(userId)) return { ok: false };
-      const sessionId = typeof verified.payload.sid === "string" && verified.payload.sid.length <= 128
-        ? verified.payload.sid
-        : undefined;
+      const sid = sessionId(verified.payload);
       const firstName = safeProfileName(verified.payload.given_name);
       const lastName = safeProfileName(verified.payload.family_name);
-      return { ok: true, email, userId, ...(firstName ? { firstName } : {}), ...(lastName ? { lastName } : {}), ...(sessionId ? { sessionId } : {}) };
+      return { ok: true, email, userId, ...(firstName ? { firstName } : {}), ...(lastName ? { lastName } : {}), ...(sid ? { sessionId: sid } : {}) };
     } catch {
       return { ok: false };
     }

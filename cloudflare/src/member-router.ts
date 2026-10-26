@@ -1,23 +1,49 @@
+import { handleSocialAnalytics } from "./social-analytics.ts";
+import { handleAnalyticsInvestigations } from "./analytics-investigations.ts";
+import { handleResearch } from "./research.ts";
+import { erasePendingResearchJobs } from "./research-erasure.ts";
+import { createClerkUserDeleter } from "./clerk/delete-user.ts";
+import { listUsers, manageUser } from "./user-admin.ts";
+import { createClerkInvitationClient } from "./clerk/invitations.ts";
 import { createRemoteClerkVerifier, type ClerkVerification } from "./auth/clerk.ts";
-import { principalContextDto, resolvePrincipalContext } from "./auth/principal-context.ts";
+import { principalContextDto, resolvePrincipalContext, type PrincipalContext } from "./auth/principal-context.ts";
 import { decide, policyForPath } from "./auth/policy.ts";
-import { archiveMemberConversation, completeMemberTurn, deleteMemberConversation, getMemberConversation, listMemberConversations, prepareMemberTurn } from "./chat/member-history.ts";
-import { memberChatConversationDto, memberChatPageDto, memberChatViewDto } from "./chat/browser-dto.ts";
+import { archiveMemberConversation, completeMemberTurn, deleteMemberConversation, getMemberConversation, getMemberSessionForAdmin, listAllMemberSessions, listMemberConversations, prepareMemberTurn } from "./chat/member-history.ts";
+import { adminMemberSessionPageDto, memberChatConversationDto, memberChatPageDto, memberChatViewDto } from "./chat/browser-dto.ts";
 import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "./chat/member-memory.ts";
 import { boundedPriorTurns, runChat, type ChatAnswerInput, type ChatAnswer } from "./chat/answer.ts";
+import { runAlphaChat } from "./chat/alpha-gateway.ts";
 import { isMemberBetaEnabled, resolveMemberBetaRelease } from "./member-release.ts";
 import type { OpsEnv } from "./ops-router.ts";
+import { mutationRequestAllowed } from "./ops-router.ts";
+import { handleAnalyticsRequest, type AnalyticsDependencies } from "./analytics.ts";
+import { handleAnalyticsAssistant } from "./analytics-assistant.ts";
+import { syncSelectedAnalytics, syncYouTubeRetention } from "./analytics-sync.ts";
 
-type Dependencies = { verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer> };
+type Dependencies = { fetchSocial?: typeof fetch; planSocial?: typeof import("./chat/claude.ts").claudeChat; verifyClerk?: (request: Request) => Promise<ClerkVerification>; runChat?: (input: ChatAnswerInput, env: OpsEnv) => Promise<ChatAnswer>; fetchRunner?: typeof fetch } & AnalyticsDependencies;
 const headers = { "cache-control": "private, no-store", "x-content-type-options": "nosniff" };
 const denied = () => Response.json({ error: "ops_unavailable" }, { status: 404, headers });
 const unauthorized = () => Response.json({ error: "unauthorized" }, { status: 401, headers });
 const forbidden = () => Response.json({ error: "forbidden" }, { status: 403, headers });
 const body = (request: Request) => request.json().then((value) => value && typeof value === "object" ? value as Record<string, unknown> : null).catch(() => null);
 
+/**
+ * Every principal chats through the member lane. Operators get a member_users
+ * row keyed by email (get-or-create) so chat/memory data lives in the same
+ * member tables for everyone. Operator authority is unaffected — principal
+ * resolution still checks the operators table first.
+ */
+async function memberIdForPrincipal(db: OpsEnv["DB"], context: PrincipalContext, now = new Date().toISOString()): Promise<number | null> {
+  if (context.kind === "member") return context.memberId;
+  await db.prepare("INSERT OR IGNORE INTO member_users (email, clerk_user_id, role, lifecycle_state, pilot_cohort, office, created_at, updated_at, activated_at) VALUES (?, NULL, 'member', 'active', 'company', 'remote', ?, ?, ?)").bind(context.email, now, now, now).run();
+  const row = await db.prepare("SELECT id FROM member_users WHERE email = ?").bind(context.email).first<{ id: number }>();
+  return row && Number.isSafeInteger(row.id) && row.id > 0 ? row.id : null;
+}
+
 export async function handleMemberRequest(request: Request, env: OpsEnv, dependencies: Dependencies = {}) {
   const url = new URL(request.url);
-  if (!url.pathname.startsWith("/beta/api/") || url.hostname !== env.OPS_HOSTNAME || env.OPS_ENVIRONMENT === "production") return denied();
+  if (!url.pathname.startsWith("/beta/api/") || url.hostname !== env.OPS_HOSTNAME) return denied();
+  if (!mutationRequestAllowed(request, url)) return denied();
   const release = await resolveMemberBetaRelease(env.DB, env.OPS_ENVIRONMENT);
   if (!isMemberBetaEnabled(release)) return denied();
   const parties = env.CLERK_AUTHORIZED_PARTIES?.split(",").map((value) => value.trim()).filter(Boolean);
@@ -30,20 +56,77 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
   const requirement = policyForPath(url.pathname, request.method);
   if (!requirement) return denied();
   if (!decide(context.role, requirement[0], requirement[1], { environment: context.environment })) return forbidden();
+  if (url.pathname === "/beta/api/admin/users" && context.kind === "operator") {
+    try {
+      if (request.method === "GET") return Response.json({ users: await listUsers(env.DB) }, { headers });
+      const input = await body(request);
+      if (!input) return Response.json({ error: "invalid_request" }, { status: 400, headers });
+      const deleteIdentity = createClerkUserDeleter(env.CLERK_SECRET_KEY);
+      const result = await manageUser(env.DB, context, input, createClerkInvitationClient(env.CLERK_SECRET_KEY), env.OPS_ORIGIN,
+        deleteIdentity ? async email => await erasePendingResearchJobs(env, email, dependencies.fetchRunner) && await deleteIdentity(email) : undefined);
+      return Response.json(result.ok ? { users: await listUsers(env.DB) } : { error: result.error }, { status: result.ok ? 200 : 409, headers });
+    } catch { return Response.json({ error: "user_management_unavailable" }, { status: 503, headers }); }
+  }
   if (url.pathname === "/beta/api/principal-context" && request.method === "GET") return Response.json(principalContextDto(context), { headers });
-  if (context.kind !== "member") return forbidden();
-  if (url.pathname === "/beta/api/context" && request.method === "GET") return Response.json({ member: { role: context.role, workspace: context.workspace, pilotCohort: context.pilotCohort, environment: context.environment } }, { headers });
+  if (url.pathname.startsWith('/beta/api/social-analytics/')) {
+    if (env.SOCIAL_ANALYTICS_ENABLED !== '1') return denied();
+    const memberId = await memberIdForPrincipal(env.DB, context);
+    return memberId ? handleSocialAnalytics(request,env,context,memberId,dependencies) : forbidden();
+  }
+  if (url.pathname === "/beta/api/research" || url.pathname.startsWith("/beta/api/research/")) {
+    const memberId = await memberIdForPrincipal(env.DB, context);
+    return memberId ? handleResearch(request, env, memberId, dependencies) : forbidden();
+  }
+  if (/^\/beta\/api\/analytics\/investigations(?:\/[^/]+)?$/u.test(url.pathname)) {
+    const memberId = await memberIdForPrincipal(env.DB, context);
+    return memberId ? handleAnalyticsInvestigations(request, env.DB, memberId) : forbidden();
+  }
+  if (url.pathname === "/beta/api/analytics/assistant" && request.method === "POST") return handleAnalyticsAssistant(request, env, dependencies);
+  if (context.kind === "operator" && url.pathname === "/beta/api/analytics/sync" && request.method === "POST") {
+    const input = await body(request);
+    const provider = input?.provider === "youtube" || input?.provider === "ga4" ? input.provider : null;
+    const startDate = typeof input?.startDate === "string" ? input.startDate : "";
+    const endDate = typeof input?.endDate === "string" ? input.endDate : "";
+    if (!provider || !validAnalyticsRange(startDate, endDate)) return Response.json({ error: "invalid_sync_request" }, { status: 400, headers });
+    const result = await syncSelectedAnalytics(env, provider, startDate, endDate, dependencies);
+    return Response.json({ sync: result }, { status: result.status === "completed" ? 200 : 409, headers });
+  }
+  if (context.kind === "operator" && url.pathname === "/beta/api/analytics/youtube/retention" && request.method === "POST") {
+    const input = await body(request);
+    const videoId = typeof input?.videoId === "string" && /^[A-Za-z0-9_-]{6,24}$/u.test(input.videoId) ? input.videoId : "";
+    const startDate = typeof input?.startDate === "string" ? input.startDate : "";
+    const endDate = typeof input?.endDate === "string" ? input.endDate : "";
+    if (!videoId || !validAnalyticsRange(startDate, endDate)) return Response.json({ error: "invalid_retention_request" }, { status: 400, headers });
+    const result = await syncYouTubeRetention(env, videoId, startDate, endDate, dependencies);
+    return Response.json({ retention: result }, { status: result.status === "completed" ? 200 : 409, headers });
+  }
+  if (url.pathname.startsWith("/beta/api/analytics/")) return handleAnalyticsRequest(request, env, context, dependencies);
+  // Admin session audit: operator-surface reads over every member's history.
+  // Sits above the member-kind gate; policy already required members:read.
+  if (url.pathname === "/beta/api/admin/chat-sessions" && request.method === "GET") {
+    const page = await listAllMemberSessions(env.DB, url.searchParams.get("cursor") ?? undefined);
+    return page ? Response.json(adminMemberSessionPageDto(page), { headers }) : denied();
+  }
+  const adminSession = url.pathname.match(/^\/beta\/api\/admin\/chat-sessions\/(mcnv_[A-Za-z0-9-]{8,88})$/u);
+  if (adminSession && request.method === "GET") {
+    const view = await getMemberSessionForAdmin(env.DB, adminSession[1]);
+    return view ? Response.json(memberChatViewDto(view), { headers }) : denied();
+  }
+  const memberId = await memberIdForPrincipal(env.DB, context);
+  if (!memberId) return denied();
+  if (url.pathname === "/beta/api/context" && request.method === "GET") return Response.json({ member: { role: context.role, workspace: "wtfmedia", pilotCohort: "company", environment: context.environment } }, { headers });
   if (url.pathname === "/beta/api/memory" && request.method === "GET") {
-    const memories = await listMemberMemories(env.DB, context.memberId);
+    const memories = await listMemberMemories(env.DB, memberId);
     return memories ? Response.json({ memories }, { headers }) : denied();
   }
   if (url.pathname === "/beta/api/memory" && request.method === "POST") {
     const input = await body(request);
-    const memory = await createMemberMemory(env.DB, context.memberId, input?.content);
+    const memory = await createMemberMemory(env.DB, memberId, input?.content);
     return memory ? Response.json({ memory }, { status: 201, headers }) : denied();
   }
   if (url.pathname === "/beta/api/chat" && request.method === "GET") {
-    const page = await listMemberConversations(env.DB, context.memberId, url.searchParams.get("cursor") ?? undefined);
+    const includeArchived = url.searchParams.get("includeArchived") === "1";
+    const page = await listMemberConversations(env.DB, memberId, url.searchParams.get("cursor") ?? undefined, includeArchived);
     return page ? Response.json(memberChatPageDto(page), { headers }) : denied();
   }
   const match = url.pathname.match(/^\/beta\/api\/chat\/(mcnv_[A-Za-z0-9-]{8,88})$/u);
@@ -51,31 +134,54 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     const input = await body(request);
     if (!input) return denied();
     const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
-    const turn = await prepareMemberTurn(env.DB, context.memberId, match?.[1], { question: input.question, sourceMode: input.sourceMode, episodeId: input.episodeId, resumeMessageId: input.resumeMessageId, idempotencyKey: request.headers.get("idempotency-key"), requestId });
+    const turn = await prepareMemberTurn(env.DB, memberId, match?.[1], { question: input.question, sourceMode: input.sourceMode, episodeId: input.episodeId, resumeMessageId: input.resumeMessageId, idempotencyKey: request.headers.get("idempotency-key"), requestId });
     if (!turn) return denied();
     if (turn.completed) {
-      const view = await getMemberConversation(env.DB, context.memberId, turn.view.conversation.id);
+      const view = await getMemberConversation(env.DB, memberId, turn.view.conversation.id);
       return view ? Response.json(memberChatViewDto(view), { headers }) : denied();
     }
     try {
-      const memories = await listMemberMemories(env.DB, context.memberId);
       const priorTurns = boundedPriorTurns(turn.view.messages.filter((message) => message.sequence < turn.userMessage.sequence).map(({ role, content }) => ({ role, content })));
-      const answer = await (dependencies.runChat ?? runChat)({ question: turn.userMessage.content, sourceMode: turn.sourceMode, ...(turn.episodeId ? { episodeId: turn.episodeId } : {}), requestId, priorTurns, memory: (memories ?? []).map((memory: any) => String(memory.content)).slice(0, 8) }, env);
-      const stored = await completeMemberTurn(env.DB, context.memberId, turn, { content: answer.answer, metadata: { sources: answer.sources, sourceMode: answer.sourceMode, uncutUnavailable: answer.uncutUnavailable }, grounded: answer.grounded, model: answer.model, fallback: answer.modelFallback, requestId: answer.requestId });
+      // Beta owns the authenticated turn and its D1 lifecycle. Alpha owns
+      // inference/retrieval/citations; no member memory leaves this boundary.
+      const answer = await (dependencies.runChat
+        ?? (env.WTFMEDIA_ALPHA_WEB ? runAlphaChat : runChat))({
+        question: turn.userMessage.content,
+        sourceMode: turn.sourceMode,
+        ...(turn.episodeId ? { episodeId: turn.episodeId } : {}),
+        requestId,
+        priorTurns,
+      }, env);
+      const stored = await completeMemberTurn(env.DB, memberId, turn, {
+        content: answer.answer,
+        metadata: {
+          sources: answer.sources,
+          sourceMode: answer.sourceMode,
+          uncutUnavailable: answer.uncutUnavailable,
+          moments: answer.moments,
+          totalMomentDurationSec: answer.totalMomentDurationSec,
+          durationBudgetSec: answer.durationBudgetSec,
+          citedIndices: answer.citedIndices,
+        },
+        grounded: answer.grounded,
+        model: answer.model,
+        fallback: answer.modelFallback,
+        requestId: answer.requestId,
+      });
       return stored ? Response.json(memberChatViewDto(stored), { status: turn.created ? 201 : 200, headers }) : denied();
     } catch {
-      const pending = await getMemberConversation(env.DB, context.memberId, turn.view.conversation.id);
+      const pending = await getMemberConversation(env.DB, memberId, turn.view.conversation.id);
       if (!pending || pending.conversation.lifecycle_state !== "active") return denied();
       return Response.json({ ...memberChatViewDto(pending), error: "chat_unavailable", retryable: true }, { status: 503, headers });
     }
   }
   if (match && request.method === "GET") {
-    const view = await getMemberConversation(env.DB, context.memberId, match[1], url.searchParams.get("before") ?? undefined);
+    const view = await getMemberConversation(env.DB, memberId, match[1], url.searchParams.get("before") ?? undefined);
     return view ? Response.json(memberChatViewDto(view), { headers }) : denied();
   }
   const archiveChat = url.pathname.match(/^\/beta\/api\/chat\/(mcnv_[A-Za-z0-9-]{8,88})\/archive$/u);
   if (archiveChat && request.method === "POST") {
-    const conversation = await archiveMemberConversation(env.DB, context.memberId, archiveChat[1]);
+    const conversation = await archiveMemberConversation(env.DB, memberId, archiveChat[1]);
     return conversation ? Response.json({ conversation: memberChatConversationDto(conversation) }, { headers }) : denied();
   }
   if (match && request.method === "DELETE") {
@@ -83,13 +189,20 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     // The client confirmation dialog must send this literal acknowledgement;
     // a bare route request cannot erase a private conversation.
     if (input?.confirmation !== "DELETE") return denied();
-    const deleted = await deleteMemberConversation(env.DB, context.memberId, match[1]);
+    const deleted = await deleteMemberConversation(env.DB, memberId, match[1]);
     return deleted ? Response.json(deleted, { headers }) : denied();
   }
   const archiveMemory = url.pathname.match(/^\/beta\/api\/memory\/(mmem_[A-Za-z0-9-]{8,88})\/archive$/u);
   if (archiveMemory && request.method === "POST") {
-    const memory = await archiveMemberMemory(env.DB, context.memberId, archiveMemory[1]);
+    const memory = await archiveMemberMemory(env.DB, memberId, archiveMemory[1]);
     return memory ? Response.json({ memory }, { headers }) : denied();
   }
   return denied();
+}
+
+function validAnalyticsRange(startDate: string, endDate: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/u.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/u.test(endDate)) return false;
+  const start = Date.parse(`${startDate}T00:00:00Z`);
+  const end = Date.parse(`${endDate}T00:00:00Z`);
+  return Number.isFinite(start) && Number.isFinite(end) && start <= end && end - start <= 366 * 86_400_000;
 }

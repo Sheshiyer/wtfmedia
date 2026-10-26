@@ -65,6 +65,7 @@ const idempotencyPattern = /^[A-Za-z0-9._:-]{8,256}$/u;
 const episodePattern = /^[A-Za-z0-9_-]{1,128}$/u;
 const cursorPattern = /^[A-Za-z0-9_-]{1,512}$/u;
 const MAX_PAGE_SIZE = 100;
+const MAX_SOURCE_METADATA_LENGTH = 96_000;
 
 function text(value: unknown, maximum: number): string | null {
   if (typeof value !== "string") return null;
@@ -104,7 +105,7 @@ function metadataJson(value: unknown): string | null {
   } catch {
     return null;
   }
-  if (serialized === undefined || serialized.length > 30_000) return null;
+  if (serialized === undefined || serialized.length > MAX_SOURCE_METADATA_LENGTH) return null;
   try {
     JSON.parse(serialized);
     return serialized;
@@ -246,20 +247,21 @@ export async function getConversationForActor(db: DB, actor: ChatActor, id: unkn
   return getConversation(db, actor.operatorId, id);
 }
 
-export async function listConversations(db: DB, operatorId: number, cursor?: unknown, limit = 25): Promise<ChatPage | null> {
+export async function listConversations(db: DB, operatorId: number, cursor?: unknown, limit = 25, includeArchived = false): Promise<ChatPage | null> {
   if (!validOperatorId(operatorId) || !Number.isInteger(limit) || limit < 1 || limit > MAX_PAGE_SIZE) return null;
   const decoded = cursor == null ? null : decodeCursor(cursor);
   if (cursor !== undefined && !decoded) return null;
+  const lifecycle = includeArchived ? "" : " AND lifecycle_state = 'active'";
   const rows = decoded
-    ? await db.prepare(`SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE operator_id = ? AND (updated_at < ? OR (updated_at = ? AND id < ?)) ORDER BY updated_at DESC, id DESC LIMIT ?`).bind(operatorId, decoded.updatedAt, decoded.updatedAt, decoded.id, limit + 1).all<ChatConversation>()
-    : await db.prepare(`SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE operator_id = ? ORDER BY updated_at DESC, id DESC LIMIT ?`).bind(operatorId, limit + 1).all<ChatConversation>();
+    ? await db.prepare(`SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE operator_id = ?${lifecycle} AND (updated_at < ? OR (updated_at = ? AND id < ?)) ORDER BY updated_at DESC, id DESC LIMIT ?`).bind(operatorId, decoded.updatedAt, decoded.updatedAt, decoded.id, limit + 1).all<ChatConversation>()
+    : await db.prepare(`SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE operator_id = ?${lifecycle} ORDER BY updated_at DESC, id DESC LIMIT ?`).bind(operatorId, limit + 1).all<ChatConversation>();
   const conversations = rows.results.slice(0, limit);
   const last = rows.results.length > limit ? conversations.at(-1) : undefined;
   return { conversations, nextCursor: last ? encodeCursor(last.updated_at, last.id) : null };
 }
 
-export async function listConversationsForActor(db: DB, actor: ChatActor, cursor?: unknown, limit = 25): Promise<ChatPage | null> {
-  return listConversations(db, actor.operatorId, cursor, limit);
+export async function listConversationsForActor(db: DB, actor: ChatActor, cursor?: unknown, limit = 25, includeArchived = false): Promise<ChatPage | null> {
+  return listConversations(db, actor.operatorId, cursor, limit, includeArchived);
 }
 
 export async function archiveConversation(db: DB, actor: ChatActor, id: unknown, now = new Date().toISOString()): Promise<ChatConversation | null> {
@@ -272,6 +274,25 @@ export async function archiveConversation(db: DB, actor: ChatActor, id: unknown,
     return null;
   }
   return await db.prepare(`SELECT ${selectedConversationColumns()} FROM chat_conversations WHERE id = ?`).bind(id).first<ChatConversation>() ?? null;
+}
+
+/** Owner-scoped permanent delete: messages go with the conversation row. */
+export async function deleteConversation(db: DB, actor: ChatActor, id: unknown): Promise<boolean> {
+  if (!validOperatorId(actor.operatorId) || !validId(id, conversationIdPattern)) return false;
+  const target = await db.prepare("SELECT id FROM chat_conversations WHERE id = ? AND operator_id = ?").bind(id, actor.operatorId).first<{ id: string }>();
+  if (!target) return false;
+  try {
+    await db.batch([
+      // Saved preferences survive; only the conversation link is removed.
+      db.prepare("UPDATE saved_memories SET source_conversation_id = NULL WHERE operator_id = ? AND source_conversation_id = ?").bind(actor.operatorId, id),
+      db.prepare("DELETE FROM chat_messages WHERE conversation_id = ?").bind(id),
+      db.prepare("DELETE FROM chat_conversations WHERE id = ? AND operator_id = ?").bind(id, actor.operatorId),
+    ]);
+  } catch (error) {
+    console.error("chat delete failed", { conversationId: id, message: error instanceof Error ? error.message : String(error) });
+    return false;
+  }
+  return true;
 }
 
 function csvCell(value: unknown): string {

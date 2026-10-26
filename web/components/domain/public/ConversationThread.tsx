@@ -5,22 +5,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { SourcePanel, type SourceCitation } from "./SourcePanel";
 import { Button } from "@/components/ui/Button";
+import { ChatAnswerMarkdown } from "./ChatAnswerMarkdown";
+import type { AnswerQueryScope } from "@/lib/public/source-panel-model";
+import type { SourceMode } from "@/lib/provenance/source-mode";
+import type { PublicMomentsPayload } from "@/lib/provenance/public-moment-header";
 
 /**
  * ConversationThread — scrollable message region for the chat route.
  *
- * UI-SPEC §chat:
- *   - Incremental text doesn't move focus
- *   - Auto-scroll stops on scroll-up
- *   - Abstention label: "the catalogue doesn't support that claim"
- *   - Loading: "looking through the catalogue"
- *   - Retry: "retry answer" (no model exposure)
- *   - Published source moments remain usable while private playback is unavailable
- *
- * Alpha geometry:
- *   - The composer is fixed only while the thread fits the viewport.
- *   - Once the conversation needs to scroll, the same composer becomes the
- *     final inline element so it never obscures a prior turn.
+ * Composer placement (the chat surface has no bottom dock):
+ *   - Content fits viewport → composer is fixed at the bottom edge
+ *   - Content overflows → composer flows inline at the end of the thread
  */
 
 export interface Source extends SourceCitation {}
@@ -32,67 +27,45 @@ export interface Message {
   model?: string;
   fallback?: boolean;
   abstained?: boolean;
-}
-
-function linkifyCitations(text: string): React.ReactNode[] {
-  const parts: React.ReactNode[] = [];
-  const regex = /\[([^\]]+)\]/g;
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-
-  while ((match = regex.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index));
-    }
-    const citation = match[1];
-    const episodeId = citation.replace(/^EP:/i, "").trim();
-    parts.push(
-      <Link
-        key={`${match.index}-${citation}`}
-        href={`/episodes?id=${encodeURIComponent(episodeId)}`}
-        className="underline decoration-foreground/40 transition-colors hover:decoration-foreground"
-      >
-        [{citation}]
-      </Link>,
-    );
-    lastIndex = regex.lastIndex;
-  }
-
-  if (lastIndex < text.length) {
-    parts.push(text.slice(lastIndex));
-  }
-
-  return parts;
+  responseState?: string;
+  citedIndices?: number[];
+  followUps?: string[];
+  queryScope?: AnswerQueryScope;
+  effectiveSourceMode?: SourceMode;
+  moments?: PublicMomentsPayload;
 }
 
 export interface ConversationThreadProps {
   messages: Message[];
   loading: boolean;
-  onRetry: () => void;
+  onRetry: (model?: string) => void;
+  onFollowUp?: (question: string) => void;
+  header?: ReactNode;
   footer?: ReactNode;
 }
 
-const FIXED_COMPOSER_CLEARANCE_PX = 160;
+const FIXED_ZONE_PX = 160;
 
 export type ConversationComposerPlacement = "fixed" | "inline";
 
 export interface ConversationThreadFrameRenderProps {
-  /** Place this at the point new content should scroll into view. */
   scrollAnchor: ReactNode;
 }
 
 /**
- * Presentation-only Alpha conversation frame.
- *
- * Private surfaces supply their own message presentation and composer while
- * retaining the public route's bounded scrolling, reader-scroll protection,
- * and fixed-to-inline composer transition.
+ * Shared Alpha frame for private conversation surfaces.  The public thread
+ * keeps its richer source and follow-up presentation below; member and
+ * operator views provide their own content inside the same scroll contract.
  */
 export interface ConversationThreadFrameProps {
   contentVersion: unknown;
   layoutVersion?: unknown;
   renderContent: (props: ConversationThreadFrameRenderProps) => ReactNode;
   renderFooter?: (placement: ConversationComposerPlacement) => ReactNode;
+  /** Private Beta keeps the composer in the viewport while its thread scrolls. */
+  composerPlacement?: "auto" | "fixed";
+  /** Extra classes on the fixed composer frame (e.g. clearing a sidebar). */
+  fixedComposerClassName?: string;
   ariaLabel?: string;
 }
 
@@ -101,6 +74,8 @@ export function ConversationThreadFrame({
   layoutVersion,
   renderContent,
   renderFooter,
+  composerPlacement = "auto",
+  fixedComposerClassName,
   ariaLabel = "Conversation",
 }: ConversationThreadFrameProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -113,7 +88,7 @@ export function ConversationThreadFrame({
     const container = scrollContainerRef.current;
     const content = contentRef.current;
     if (!container || !content) return;
-    setIsOverflowing(content.offsetHeight > container.clientHeight - FIXED_COMPOSER_CLEARANCE_PX);
+    setIsOverflowing(content.offsetHeight > container.clientHeight - FIXED_ZONE_PX);
   }, []);
 
   useEffect(() => {
@@ -125,13 +100,10 @@ export function ConversationThreadFrame({
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
-
-    function handleScroll() {
-      const { scrollTop, scrollHeight, clientHeight } = container!;
-      const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
-      userScrolledUp.current = !isAtBottom;
-    }
-
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      userScrolledUp.current = scrollHeight - scrollTop - clientHeight >= 50;
+    };
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
@@ -140,7 +112,6 @@ export function ConversationThreadFrame({
     const container = scrollContainerRef.current;
     const content = contentRef.current;
     if (!container || !content) return;
-
     checkOverflow();
     const observer = new ResizeObserver(checkOverflow);
     observer.observe(container);
@@ -152,7 +123,7 @@ export function ConversationThreadFrame({
     checkOverflow();
   }, [contentVersion, layoutVersion, checkOverflow]);
 
-  const placement: ConversationComposerPlacement = isOverflowing ? "inline" : "fixed";
+  const placement: ConversationComposerPlacement = composerPlacement === "fixed" || !isOverflowing ? "fixed" : "inline";
 
   return (
     <>
@@ -160,7 +131,7 @@ export function ConversationThreadFrame({
         ref={scrollContainerRef}
         className="min-h-0 flex-1 overflow-y-auto px-4 pt-4 sm:pt-6"
         data-testid="conversation-thread"
-        data-composer-placement={isOverflowing ? "inline" : "fixed"}
+        data-composer-placement={placement}
         tabIndex={0}
         role="log"
         aria-label={ariaLabel}
@@ -170,14 +141,12 @@ export function ConversationThreadFrame({
           {renderContent({ scrollAnchor: <div ref={messagesEndRef} /> })}
           {placement === "inline" ? renderFooter?.(placement) : null}
         </div>
-
         <div className="h-[calc(1rem+env(safe-area-inset-bottom))]" aria-hidden="true" />
         {placement === "fixed" && renderFooter ? <div className="h-20" aria-hidden="true" /> : null}
       </div>
-
       {placement === "fixed" && renderFooter ? (
         <div
-          className="fixed inset-x-0 z-40"
+          className={`fixed inset-x-0 z-40${fixedComposerClassName ? ` ${fixedComposerClassName}` : ""}`}
           data-fixed-composer
           style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
         >
@@ -188,61 +157,23 @@ export function ConversationThreadFrame({
   );
 }
 
+/** The exact Alpha empty-state composition shared by the member workspace. */
 export function ConversationEmptyState() {
+  // Vertically center the card in the space between the header divider and
+  // the floating composer (bottom pad clears the composer zone).
   return (
-    <div
-      className="mx-auto flex w-full max-w-5xl items-center py-4 sm:min-h-[28rem] sm:py-6"
-      data-testid="empty-state"
-      data-evidence-empty
-    >
-      <div className="grid w-full overflow-hidden border-2 border-foreground bg-surface-raised md:grid-cols-[minmax(0,1fr)_minmax(18rem,0.72fr)]">
+    <div className="mx-auto flex h-full w-full max-w-5xl items-center px-4 pb-48 sm:px-6" data-testid="empty-state" data-evidence-empty>
+      <div className="grid w-full overflow-hidden border-2 border-foreground bg-surface-raised sm:min-h-[32rem]">
         <section className="relative min-w-0 overflow-hidden p-4 sm:p-8">
-          <div
-            aria-hidden="true"
-            className="wtf-question-lattice absolute inset-x-0 top-0 h-2"
-          />
-          <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-knowledge">
-            start with the source
-          </p>
-          <h2 className="mt-3 max-w-[13ch] font-display text-3xl font-extrabold lowercase leading-none sm:max-w-[12ch] sm:text-5xl">
-            ask the catalogue. get a cited moment.
-          </h2>
-          <p className="mt-4 max-w-[52ch] font-body text-sm leading-relaxed text-secondary sm:mt-5">
-            ask across published conversations. uncut is used only when a
-            verified mapping exists.
-          </p>
+          <div aria-hidden="true" className="wtf-question-lattice absolute inset-x-0 top-0 h-2" />
+          <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-knowledge">start with the source</p>
+          <h2 className="mt-3 max-w-[13ch] font-display text-3xl font-extrabold lowercase leading-none sm:max-w-[12ch] sm:text-5xl">ask the catalogue. get a cited moment.</h2>
+          <p className="mt-4 max-w-[52ch] font-body text-sm leading-relaxed text-secondary sm:mt-5">ask across published conversations. answers cite the exact moment they come from.</p>
           <div className="mt-4 hidden max-w-2xl border-l-4 border-knowledge bg-canvas px-4 py-3 sm:mt-7 sm:block">
-            <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
-              example question
-            </p>
-            <p className="mt-2 font-serif text-base text-foreground wtf-decrypt-line sm:text-lg">
-              what did guests say about building through uncertainty?
-            </p>
+            <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">example question</p>
+            <p className="mt-2 font-serif text-base text-foreground wtf-decrypt-line sm:text-lg">what did guests say about building through uncertainty?</p>
           </div>
         </section>
-        <aside className="hidden border-t-2 border-foreground bg-canvas p-4 text-foreground sm:block sm:p-5 md:border-l-2 md:border-t-0">
-          <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-secondary">
-            evidence rail
-          </p>
-          <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t-2 border-foreground pt-3 font-label text-xs text-foreground sm:mt-5 sm:block sm:divide-y sm:divide-foreground/20 sm:border-y-2 sm:pt-0 sm:text-sm">
-            <div className="wtf-stagger-in py-3">
-              <dt className="text-secondary">scope</dt>
-              <dd className="mt-1 font-bold">current catalogue</dd>
-            </div>
-            <div className="wtf-stagger-in py-3 [animation-delay:120ms]">
-              <dt className="text-secondary">quoted evidence</dt>
-              <dd className="mt-1 font-bold">separate from synthesis</dd>
-            </div>
-            <div className="wtf-stagger-in py-3 [animation-delay:240ms]">
-              <dt className="text-secondary">source</dt>
-              <dd className="mt-1 font-bold">published or uncut, named</dd>
-            </div>
-            <div className="wtf-stagger-in py-3 [animation-delay:360ms]">
-              <dt className="text-secondary">timing</dt>
-              <dd className="mt-1 font-bold">only when mapped</dd>
-            </div>
-          </dl>
-        </aside>
       </div>
     </div>
   );
@@ -252,21 +183,110 @@ export function ConversationThread({
   messages,
   loading,
   onRetry,
+  onFollowUp,
+  header,
   footer,
 }: ConversationThreadProps) {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const userScrolledUp = useRef(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  const checkOverflow = useCallback(() => {
+    const container = scrollContainerRef.current;
+    const content = contentRef.current;
+    if (!container || !content) return;
+    setIsOverflowing(content.offsetHeight > container.clientHeight - FIXED_ZONE_PX);
+  }, []);
+
+  useEffect(() => {
+    if (!userScrolledUp.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    function handleScroll() {
+      const { scrollTop, scrollHeight, clientHeight } = container!;
+      userScrolledUp.current = scrollHeight - scrollTop - clientHeight >= 50;
+    }
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    const content = contentRef.current;
+    if (!container || !content) return;
+    checkOverflow();
+    const ro = new ResizeObserver(() => checkOverflow());
+    ro.observe(container);
+    ro.observe(content);
+    return () => ro.disconnect();
+  }, [checkOverflow]);
+
+  useEffect(() => { checkOverflow(); }, [messages, loading, checkOverflow]);
+
   return (
-    <ConversationThreadFrame
-      contentVersion={messages}
-      layoutVersion={loading}
-      renderFooter={footer ? () => footer : undefined}
-      renderContent={({ scrollAnchor }) => (
-        <>
+    <>
+      <div
+        ref={scrollContainerRef}
+        className="min-h-0 flex-1 overflow-y-auto px-4 pt-4 sm:pt-6"
+        data-testid="conversation-thread"
+        tabIndex={0}
+        role="log"
+        aria-label="Conversation"
+        aria-live="polite"
+      >
+        {/* Content area — measured for overflow detection */}
+        <div ref={contentRef}>
           <h1 className="sr-only">ask wtf</h1>
-          {messages.length === 0 ? (
-            <ConversationEmptyState />
-          ) : (
-            <div className="mx-auto max-w-2xl space-y-6">
-              {messages.map((msg, i) => (
+          {header}
+
+          <div>
+            {messages.length === 0 ? (
+            <div
+              className="mx-auto flex w-full max-w-5xl items-center py-4 sm:min-h-[28rem] sm:py-6"
+              data-testid="empty-state"
+              data-evidence-empty
+            >
+              <div className="grid w-full overflow-hidden border-2 border-foreground bg-surface-raised">
+                <section className="relative min-w-0 overflow-hidden p-4 sm:p-8">
+                  <div
+                    aria-hidden="true"
+                    className="wtf-question-lattice absolute inset-x-0 top-0 h-2"
+                  />
+                  <p className="font-label text-[11px] font-bold uppercase tracking-[0.16em] text-knowledge">
+                    start with the source
+                  </p>
+                  <h2 className="mt-3 max-w-[13ch] font-display text-3xl font-extrabold lowercase leading-none sm:max-w-[12ch] sm:text-5xl">
+                    ask the catalogue. get a cited moment.
+                  </h2>
+                  <p className="mt-4 max-w-[52ch] font-body text-sm leading-relaxed text-secondary sm:mt-5">
+                    ask across published conversations. answers cite the exact
+                    moment they come from.
+                  </p>
+                  <div className="mt-4 hidden max-w-2xl border-l-4 border-knowledge bg-canvas px-4 py-3 sm:mt-7 sm:block">
+                    <p className="font-label text-[11px] font-bold uppercase tracking-[0.12em] text-muted">
+                      example question
+                    </p>
+                    <p className="mt-2 font-serif text-base text-foreground wtf-decrypt-line sm:text-lg">
+                      what did guests say about building through uncertainty?
+                    </p>
+                  </div>
+                </section>
+              </div>
+            </div>
+            ) : (
+            <div className="max-w-2xl mx-auto space-y-6">
+              {messages.map((msg, i) => {
+                const noEvidence = msg.responseState
+                  ? msg.responseState === "abstained" || msg.responseState === "retrieval_weak"
+                  : msg.abstained;
+                return (
                 <div key={i} className="space-y-2" data-testid={`message-${i}`}>
                   {msg.role === "user" ? (
                     <div className="flex justify-end">
@@ -276,21 +296,40 @@ export function ConversationThread({
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <div className="border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary">
-                        {linkifyCitations(msg.content)}
+                      <div className="prose-chat border-l-4 border-knowledge pl-4 text-sm leading-relaxed text-secondary">
+                        <ChatAnswerMarkdown content={msg.content} sources={noEvidence ? [] : msg.sources ?? []} />
                       </div>
 
-                      {msg.sources && msg.sources.length > 0 && <SourcePanel sources={msg.sources} />}
+                      {!noEvidence && msg.sources && msg.sources.length > 0 && (
+                        <SourcePanel
+                          sources={msg.sources}
+                          citedIndices={msg.citedIndices}
+                          queryScope={msg.queryScope}
+                          effectiveSourceMode={msg.effectiveSourceMode}
+                          moments={msg.moments}
+                          question={messages.slice(0, i).reverse().find((m) => m.role === "user")?.content}
+                        />
+                      )}
 
-                      {msg.abstained && (
-                        <p className="text-xs font-medium italic text-secondary" data-testid="abstention-label">
-                          the catalogue doesn&apos;t support that claim
-                        </p>
+                      {!noEvidence && msg.followUps && msg.followUps.length > 0 && !loading && i === messages.length - 1 && (
+                        <div className="flex flex-wrap gap-2 pt-2" data-testid="follow-up-chips">
+                          {msg.followUps.map((q, fi) => (
+                            <button
+                              key={fi}
+                              type="button"
+                              onClick={() => onFollowUp?.(q)}
+                              className="rounded-full border border-foreground/20 bg-canvas px-3 py-1.5 text-left text-xs text-secondary transition-colors hover:border-knowledge hover:text-foreground"
+                            >
+                              {q}
+                            </button>
+                          ))}
+                        </div>
                       )}
                     </div>
                   )}
                 </div>
-              ))}
+                );
+              })}
 
               {loading && (
                 <div
@@ -302,19 +341,46 @@ export function ConversationThread({
                 </div>
               )}
 
-              {scrollAnchor}
+              <div ref={messagesEndRef} />
             </div>
-          )}
+            )}
 
-          {messages.length > 0 && !loading && messages[messages.length - 1]?.role === "assistant" && (
-            <div className="mt-4 flex justify-center border-t-2 border-foreground/15 px-4 py-3">
-              <Button onClick={onRetry} variant="ghost" className="text-xs" data-testid="retry-button">
-                retry answer
-              </Button>
-            </div>
-          )}
-        </>
+            {messages.length > 0 &&
+              !loading &&
+              messages[messages.length - 1]?.role === "assistant" && (
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-2 border-t-2 border-foreground/15 px-4 py-3">
+                  <Button
+                    onClick={() => onRetry(undefined)}
+                    variant="ghost"
+                    className="text-xs"
+                    data-testid="retry-button"
+                  >
+                    retry answer
+                  </Button>
+                </div>
+              )}
+          </div>
+        </div>
+
+        {/* Inline composer — only when content overflows */}
+        {isOverflowing && footer}
+
+        {/* Bottom spacer: minimal clearance at the end of the thread */}
+        <div className="h-[calc(1rem+env(safe-area-inset-bottom))]" aria-hidden="true" />
+
+        {/* Extra spacer when composer is fixed (so content doesn't hide behind it) */}
+        {!isOverflowing && <div className="h-20" aria-hidden="true" />}
+      </div>
+
+      {/* Fixed composer — pinned to the bottom edge when content fits */}
+      {!isOverflowing && (
+        <div
+          className="fixed inset-x-0 z-40"
+          style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+        >
+          {footer}
+        </div>
       )}
-    />
+    </>
   );
 }

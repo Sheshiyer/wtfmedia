@@ -1,0 +1,6 @@
+# GPT Researcher source and license audited at this exact PyPI release.
+gpt-researcher==0.16.1
+fastapi==0.136.1
+pydantic==2.13.4
+httpx==0.28.1
+uvicorn==0.49.0

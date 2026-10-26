@@ -19,6 +19,7 @@ import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, before, describe, test } from "node:test";
+import { fileURLToPath } from "node:url";
 
 import {
   classifyLanguage,
@@ -47,7 +48,7 @@ import {
 import edgeWorker from "../src/index.ts";
 import { episodeUlid, assetUlid, jobUlid } from "../src/utils/ulid.ts";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
 const persistTo = mkdtempSync(join(tmpdir(), "wtfmedia-transcript-test-"));
 const database = join(persistTo, "provenance.sqlite");
 const migrations = [

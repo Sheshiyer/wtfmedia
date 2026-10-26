@@ -56,12 +56,12 @@ function requiredSchema(db) {
   ];
   const existing = new Set(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all().map((row) => row.name));
   const missing = required.filter((name) => !existing.has(name));
-  if (missing.length) throw new Error(`Apply local production calendar migrations 0016 and 0017 first; missing ${missing.join(", ")}`);
+  if (missing.length) throw new Error(`Apply local production calendar migrations 0025 and 0026 first; missing ${missing.join(", ")}`);
   const ipColumns = new Set(db.prepare("PRAGMA table_info(production_ips)").all().map((row) => row.name));
-  if (!ipColumns.has("target_count") || !ipColumns.has("target_plus")) throw new Error("Apply local migration 0018_production_ip_targets.sql first");
+  if (!ipColumns.has("target_count") || !ipColumns.has("target_plus")) throw new Error("Apply local migration 0027_production_ip_targets.sql first");
   const itemColumns = new Set(db.prepare("PRAGMA table_info(production_items)").all().map((row) => row.name));
   const checkColumns = new Set(db.prepare("PRAGMA table_info(production_source_checks)").all().map((row) => row.name));
-  if (!itemColumns.has("shoot_location") || !checkColumns.has("guest_role")) throw new Error("Apply local migration 0019_production_tracker_details.sql first");
+  if (!itemColumns.has("shoot_location") || !checkColumns.has("guest_role")) throw new Error("Apply local migration 0028_production_tracker_details.sql first");
 }
 
 function validateSnapshot(snapshot) {

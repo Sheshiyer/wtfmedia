@@ -1,0 +1,180 @@
+.review-title {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+.review-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  margin-top: 17px;
+  padding: 13px;
+  gap: 10px;
+  border: 1.5px solid var(--ink);
+  background: #f5eee1;
+}
+
+.review-controls.two-controls {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.review-controls select:disabled {
+  cursor: not-allowed;
+  color: var(--muted);
+  background: #e8e2d8;
+}
+
+.review-title label,
+.review-controls label:last-child {
+  min-width: 0;
+  max-width: none;
+}
+
+.head-to-head { padding-top: 16px; }
+
+.comparison-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 54px minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.comparison-hero article {
+  min-width: 0;
+  padding: 18px;
+  border: 1.5px solid var(--ink);
+}
+
+.comparison-hero .episode-a { background: #e6ebfb; }
+.comparison-hero .episode-b { background: #f8df9c; }
+
+.comparison-hero span {
+  display: block;
+  margin-bottom: 7px;
+  font: 700 10px "DM Mono", monospace;
+  letter-spacing: .7px;
+}
+
+.comparison-hero h3 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.05;
+  letter-spacing: -1px;
+}
+
+.comparison-hero small {
+  display: block;
+  margin-top: 7px;
+  font: 10px "DM Mono", monospace;
+  color: var(--muted);
+}
+
+.versus {
+  display: grid;
+  place-items: center;
+  align-self: center;
+  justify-self: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  font: 700 11px "DM Mono", monospace;
+}
+
+.comparison-table-wrap {
+  overflow-x: auto;
+  margin-top: 10px;
+  border: 1.5px solid var(--ink);
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid #d4cdc2;
+  text-align: left;
+}
+
+.comparison-table thead th {
+  background: #eee8de;
+  font: 700 9px "DM Mono", monospace;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.comparison-table tbody th {
+  width: 27%;
+  font: 600 12px "DM Sans", sans-serif;
+}
+
+.comparison-table tbody td { min-width: 105px; }
+.comparison-table tbody tr:last-child th,
+.comparison-table tbody tr:last-child td { border-bottom: 0; }
+.comparison-table td strong { font-size: 15px; }
+
+.comparison-delta {
+  display: inline-block;
+  padding: 4px 7px;
+  border-radius: 12px;
+  font: 700 10px "DM Mono", monospace;
+  white-space: nowrap;
+}
+
+.comparison-delta.ahead { background: #dbeadb; color: #265f3c; }
+.comparison-delta.behind { background: #f4dddd; color: #8c332f; }
+
+.comparison-read {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 10px;
+  padding: 14px 15px;
+  border-left: 6px solid var(--purple);
+  background: #eee9fb;
+}
+
+.comparison-read b {
+  font: 700 10px "DM Mono", monospace;
+  letter-spacing: .6px;
+}
+
+.comparison-read p {
+  margin: 5px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.comparison-read button {
+  flex: 0 0 auto;
+  padding: 8px 11px;
+  border: 1.5px solid var(--ink);
+  border-radius: 17px;
+  background: var(--surface);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.comparison-read button:hover { background: var(--yellow); }
+
+@media (max-width: 780px) {
+  .review-title { display: grid; }
+  .review-controls { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 540px) {
+  .comparison-hero { grid-template-columns: 1fr; gap: 7px; }
+  .versus { margin: -2px 0; z-index: 1; }
+  .comparison-read,
+  .comparison-boundary { display: block; }
+  .comparison-read button,
+  .comparison-boundary button { margin-top: 12px; }
+  .comparison-table { min-width: 610px; }
+}

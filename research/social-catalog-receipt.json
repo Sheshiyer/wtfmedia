@@ -1,0 +1,306 @@
+{
+  "checked": "2026-10-20",
+  "source": "https://treg.to/catalog/endpoints/<id>",
+  "endpoints": [
+    {
+      "id": "anyapi.linkedin.search.posts",
+      "method": "POST",
+      "kind": "data",
+      "async": null,
+      "platform_eligible": true,
+      "cost": {
+        "type": "per_success",
+        "value": 0.002,
+        "currency": "USD",
+        "unit": "call",
+        "reported_charge": {
+          "path": "costUsd",
+          "unit": "usd"
+        },
+        "source": "observed",
+        "source_url": "https://api.getanyapi.com/v1/apis/linkedin.search_posts",
+        "checked": "2026-09-11",
+        "confidence": "verified",
+        "usd": 0.002
+      },
+      "input": {
+        "body": {
+          "cursor": {
+            "type": "string",
+            "required": false,
+            "note": "Pagination cursor from a previous response."
+          },
+          "datePosted": {
+            "type": "string",
+            "required": false,
+            "note": "Filter by recency. One of last-hour, last-day, last-week, last-month, last-year.",
+            "enum": [
+              "last-hour",
+              "last-day",
+              "last-week",
+              "last-month",
+              "last-year"
+            ],
+            "example": "last-week"
+          },
+          "query": {
+            "type": "string",
+            "required": true,
+            "note": "The post search query.",
+            "example": "hiring"
+          }
+        },
+        "bodyType": "json"
+      }
+    },
+    {
+      "id": "youtube.youtube.search.videos",
+      "method": "GET",
+      "kind": "data",
+      "async": null,
+      "platform_eligible": true,
+      "cost": {
+        "type": "free",
+        "value": 0,
+        "currency": "USD",
+        "unit": "call",
+        "note": "included with the connected account; 100 quota units \u2014 the most expensive Data API method, ~100 searches exhausts a day",
+        "usd": 0.0
+      },
+      "input": {
+        "queryParams": {
+          "part": {
+            "type": "string",
+            "required": true,
+            "example": "snippet"
+          },
+          "q": {
+            "type": "string",
+            "required": true,
+            "example": "coffee"
+          },
+          "type": {
+            "type": "string",
+            "required": false,
+            "note": "video | channel | playlist; omit to mix all three",
+            "example": "video"
+          },
+          "order": {
+            "type": "string",
+            "required": false,
+            "note": "relevance (default) | date | viewCount | rating | title"
+          },
+          "publishedAfter": {
+            "type": "string",
+            "required": false,
+            "note": "RFC 3339 timestamp",
+            "example": "2026-01-01T00:00:00Z"
+          },
+          "regionCode": {
+            "type": "string",
+            "required": false,
+            "note": "ISO 3166-1 alpha-2",
+            "example": "US"
+          },
+          "maxResults": {
+            "type": "integer",
+            "required": false,
+            "note": "1\u201350, default 5",
+            "example": 10
+          }
+        },
+        "note": "search results carry NO statistics \u2014 pass the returned video ids to youtube.video.detail for view/like counts"
+      }
+    },
+    {
+      "id": "anyapi.instagram.hashtag.posts",
+      "method": "POST",
+      "kind": "data",
+      "async": null,
+      "platform_eligible": true,
+      "cost": {
+        "type": "per_success",
+        "value": 0.002,
+        "currency": "USD",
+        "unit": "call",
+        "reported_charge": {
+          "path": "costUsd",
+          "unit": "usd"
+        },
+        "source": "observed",
+        "source_url": "https://api.getanyapi.com/v1/apis/instagram.search_hashtag",
+        "checked": "2026-09-11",
+        "confidence": "verified",
+        "usd": 0.002
+      },
+      "input": {
+        "body": {
+          "cursor": {
+            "type": "string",
+            "required": false,
+            "note": "Pagination cursor from a previous response."
+          },
+          "datePosted": {
+            "type": "string",
+            "required": false,
+            "note": "Restrict results to posts published within this window.",
+            "enum": [
+              "last-hour",
+              "last-day",
+              "last-week",
+              "last-month",
+              "last-year"
+            ],
+            "example": "last-month"
+          },
+          "hashtag": {
+            "type": "string",
+            "required": true,
+            "note": "Hashtag to search, without the leading #.",
+            "example": "skincare"
+          },
+          "mediaType": {
+            "type": "string",
+            "required": false,
+            "note": "Filter by media type. One of all, reel.",
+            "enum": [
+              "all",
+              "reel"
+            ],
+            "example": "reel"
+          }
+        },
+        "bodyType": "json"
+      }
+    },
+    {
+      "id": "scrapecreators.reddit.search.posts",
+      "method": "GET",
+      "kind": "data",
+      "async": null,
+      "platform_eligible": true,
+      "cost": {
+        "type": "per_call",
+        "value": 1,
+        "currency": "credit",
+        "per": 1,
+        "unit": "call",
+        "source": "rate_card_api",
+        "source_url": "https://docs.scrapecreators.com/openapi.json",
+        "checked": "2026-07-28",
+        "confidence": "verified",
+        "usd": 0.00188
+      },
+      "input": {
+        "queryParams": {
+          "query": {
+            "type": "string",
+            "required": true,
+            "note": "Search query",
+            "example": "ai"
+          },
+          "sort": {
+            "type": "string",
+            "required": false,
+            "enum": [
+              "relevance",
+              "new",
+              "top",
+              "comment_count"
+            ],
+            "note": "Prefer relevance when you want posts matching the query. One of: relevance | new | top | comment_count. sort=new is chronological newest-first and often returns weakly related or unrelated sitewide posts (not \"recent posts about X\"). Brand/token queries may also match colloquial substrings under new. Comment search supports relevance, new, and top; comment_count is for post search only.",
+            "example": "relevance"
+          },
+          "filter": {
+            "type": "string",
+            "required": false,
+            "enum": [
+              "posts",
+              "comments"
+            ],
+            "note": "Search posts or comments. Default posts.",
+            "example": "posts"
+          },
+          "timeframe": {
+            "type": "string",
+            "required": false,
+            "enum": [
+              "all",
+              "day",
+              "week",
+              "month",
+              "year"
+            ],
+            "note": "Post search timeframe. One of: all | day | week | month | year.",
+            "example": "all"
+          },
+          "after": {
+            "type": "string",
+            "required": false,
+            "note": "Pagination token from the previous response (after) to get the next page"
+          },
+          "trim": {
+            "type": "boolean",
+            "required": false,
+            "note": "Set to true for a trimmed down version of the response",
+            "example": false
+          }
+        },
+        "note": "Prefer sort=relevance for posts matching the query. sort=new is chronological newest-first and often returns weakly related or unrelated sitewide posts \u2014 not \"recent posts about X\". Brand/token queries may also match colloquial substrings under new."
+      }
+    },
+    {
+      "id": "anyapi.x.search.posts",
+      "method": "POST",
+      "kind": "data",
+      "async": null,
+      "platform_eligible": true,
+      "cost": {
+        "type": "per_success",
+        "value": 0.00075,
+        "currency": "USD",
+        "unit": "call",
+        "reported_charge": {
+          "path": "costUsd",
+          "unit": "usd"
+        },
+        "source": "observed",
+        "source_url": "https://api.getanyapi.com/v1/apis/twitter.search",
+        "checked": "2026-09-11",
+        "confidence": "verified",
+        "usd": 0.00075
+      },
+      "input": {
+        "body": {
+          "cursor": {
+            "type": "string",
+            "required": false,
+            "note": "Opaque pagination cursor from a previous response's nextCursor. Omit for the first page; pass it to fetch the next page of search results."
+          },
+          "limit": {
+            "type": "integer",
+            "required": false,
+            "note": "Page size to ask for (1-50, default 20). Some sources honor it; others always return their whole native page of about 20. A page is never trimmed after the call, so follow nextCursor to continue exactly where this response ended.",
+            "default": 20,
+            "min": 1,
+            "max": 50,
+            "example": 20
+          },
+          "query": {
+            "type": "string",
+            "required": true,
+            "note": "Search query using X (Twitter) advanced-search syntax. IMPORTANT: bare terms are ANDed - a tweet must contain EVERY word, so a list of loosely related keywords matches nothing; use one short phrase or OR between alternatives (e.g. 'anyapi OR getanyapi'). You can embed X advanced-search operators...",
+            "example": "openai"
+          },
+          "queryType": {
+            "type": "string",
+            "required": false,
+            "note": "Result ranking: 'Latest', 'Top', 'Photos', or 'Videos' (e.g. Latest).",
+            "default": "Latest"
+          }
+        },
+        "bodyType": "json"
+      }
+    }
+  ]
+}

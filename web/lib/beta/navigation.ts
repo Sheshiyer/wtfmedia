@@ -11,6 +11,8 @@ export type BetaNavigationDestination = {
 /** Browser navigation contract. Authorization still happens at the edge. */
 export const BETA_PROTECTED_DESTINATIONS: readonly BetaNavigationDestination[] = [
   { href: "/beta", edgePath: "/beta", capability: "beta:read", audiences: ["member", "operator", "admin", "super_admin"] },
+  { href: "/beta/connections", edgePath: "/beta/connections", capability: "beta:read", audiences: ["member", "operator", "admin", "super_admin"] },
+  { href: "/beta/research", edgePath: "/beta/research", capability: "research:read", audiences: ["member", "operator", "admin", "super_admin"] },
   { href: "/beta/chat", edgePath: "/beta/chat", capability: "chat:read", audiences: ["member", "operator", "admin", "super_admin"] },
   { href: "/beta/settings", edgePath: "/beta/settings", capability: "beta:read", audiences: ["member", "operator", "admin", "super_admin"] },
   { href: "/beta/settings/account", edgePath: "/beta/settings/account", capability: "beta:read", audiences: ["member", "operator", "admin", "super_admin"] },
@@ -20,16 +22,20 @@ export const BETA_PROTECTED_DESTINATIONS: readonly BetaNavigationDestination[] =
   { href: "/beta/workspace", edgePath: "/beta/workspace", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/workspace/production", edgePath: "/beta/workspace/production", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/workspace/episodes", edgePath: "/beta/workspace/episodes", capability: "episodes:read", audiences: ["operator", "admin", "super_admin"] },
-  { href: "/beta/workspace/ingest", edgePath: "/beta/workspace/ingest", capability: "ingest:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace", edgePath: "/beta/settings/workspace", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/readiness", edgePath: "/beta/settings/workspace/readiness", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/release", edgePath: "/beta/settings/workspace/release", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/ai", edgePath: "/beta/settings/workspace/ai", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
-  { href: "/beta/settings/workspace/analytics", edgePath: "/beta/settings/workspace/analytics", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
+  { href: "/beta/settings/workspace/analytics", edgePath: "/beta/settings/workspace/analytics", capability: "analytics:read", audiences: ["member", "operator", "admin", "super_admin"] },
+  { href: "/beta/analytics", edgePath: "/beta/analytics", capability: "analytics:read", audiences: ["member", "operator", "admin", "super_admin"] },
+  { href: "/beta/social-analytics", edgePath: "/beta/social-analytics", capability: "analytics:read", audiences: ["member", "operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/sessions", edgePath: "/beta/settings/workspace/sessions", capability: "chat:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/memory", edgePath: "/beta/settings/workspace/memory", capability: "memory:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/sources", edgePath: "/beta/settings/workspace/sources", capability: "transcripts:read", audiences: ["operator", "admin", "super_admin"] },
+  { href: "/beta/settings/users", edgePath: "/beta/settings/users", capability: "members:read", audiences: ["admin", "super_admin"] },
+  { href: "/beta/settings/user-sessions", edgePath: "/beta/settings/user-sessions", capability: "members:read", audiences: ["admin", "super_admin"] },
   { href: "/beta/admin/users", edgePath: "/beta/admin/users", capability: "members:read", audiences: ["admin", "super_admin"] },
+  { href: "/beta/admin/sessions", edgePath: "/beta/admin/sessions", capability: "members:read", audiences: ["admin", "super_admin"] },
   { href: "/beta/admin/audit", edgePath: "/beta/admin/audit", capability: "audit:read", audiences: ["admin", "super_admin"] },
   { href: "/beta/admin/release", edgePath: "/beta/admin/release", capability: "release:manage", audiences: ["super_admin"] },
 ];
@@ -47,4 +53,9 @@ export function capabilityForBetaPath(pathname: string): string | null {
 
 export function audienceForRole(role: string): BetaAudience {
   return role === "member" ? "member" : role === "admin" ? "admin" : role === "super_admin" ? "super_admin" : "operator";
+}
+
+export function isBetaDestinationVisible(href: string, environment: string): boolean {
+  if (href.replace(/\/$/, "") === "/beta/social-analytics") return environment === "local" || process.env.NEXT_PUBLIC_SOCIAL_ANALYTICS_ENABLED === "1";
+  return environment !== "production" || !["/beta/analytics", "/beta/settings/workspace/analytics"].includes(href.replace(/\/$/, ""));
 }

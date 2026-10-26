@@ -17,6 +17,7 @@ import { decide } from "./auth/policy.ts";
 import {
   activateTranscriptVersion,
   getActiveTranscriptVersion,
+  boundedListLimit,
   getEpisodeById,
   getExternalIdentitiesForEpisode,
   getSourceAssetById,
@@ -86,7 +87,7 @@ export async function handleGetEpisodes(
   }
 
   const url = new URL(request.url);
-  const limit = Math.min(Number(url.searchParams.get("limit") ?? "50") || 50, 100);
+  const limit = boundedListLimit(Number(url.searchParams.get("limit") ?? "50") || 50);
   const offset = Math.max(Number(url.searchParams.get("offset") ?? "0") || 0, 0);
   const status = url.searchParams.get("status") as ProductionStatus | null;
   const ip = url.searchParams.get("ip");
@@ -351,7 +352,7 @@ export async function handleListIngestionJobs(
   }
 
   const url = new URL(request.url);
-  const limit = Math.min(Number(url.searchParams.get("limit") ?? "50") || 50, 100);
+  const limit = boundedListLimit(Number(url.searchParams.get("limit") ?? "50") || 50);
   const status = url.searchParams.get("status") as any;
 
   try {

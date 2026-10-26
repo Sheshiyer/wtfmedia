@@ -10,7 +10,7 @@ export default function MemberMemorySettingsPage() {
   const operator = principal.kind === "operator";
   return (
     <div data-member-settings-route="memory">
-      <WorkspaceHeader size="page" eyebrow={operator ? "settings / memory" : "settings / memory"} title={operator ? "operator memory" : "your preferences"} summary={operator ? "Review verified operator-owned memories through the existing server-authorized lifecycle surface." : "Keep only the context you choose to save, separate from your conversation history."} accent="live" />
+      <WorkspaceHeader size="page" eyebrow="settings / preferences" title="your preferences" summary={operator ? "Set the personal preferences and custom instructions that guide your own workspace." : "Keep only the context you choose to save, separate from your conversation history."} accent="live" />
       <div className="mt-6">{operator ? <MemoryGovernancePanel /> : <MemoryPreferencesPanel />}</div>
     </div>
   );

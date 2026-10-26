@@ -23,7 +23,7 @@ ops (`/sign-in`, `/request-access`, `/ops`, `/ops/operators`, `/ops/audit`,
 | Public rooms may be more expressive | Phase 1 contract | `01-UI-SPEC.md` |
 | Reduced motion skips loops | WCAG + token motion policy | `web/styles/motion.css` |
 | React Bits / MotionSites are catalogs, not paste | Harmonize to tokens; no shadcn visual layer | design-core; react-bits-pro spoke; motionskin |
-| Do not install Pro blocks until the owner picks one | Host license is already wired (`~/.temperance_engine/secrets/reactbits-license.env`). Registries are not in `web/components.json` yet. No shadcn init. | `react-bits-pro` SKILL; 2026-08-28 handoff |
+| Use selected Pro patterns as local adapters, not raw paste | Owner selected `preloader-tw`, `staggered-text-tw`, and `animated-list-tw` through the React Bits MCP. The current slice adapts the latter two to WTF tokens and keeps the host license out of the checkout. | React Bits MCP; design-core; 2026-09-08 handoff |
 | Splash plate A is React Bits **Grainient**, not the Grok bg video | Catalog review: Aurora/Plasma/Silk/Galaxy rejected as neon. Grainient is grain + warp that can be creamed. MIT copy from react-bits + `ogl`. Pro backups verified 200: `grain-wave-tw`, `halftone-wave-tw`. | Owner: replace subpar Grok bg; DavidHDev/react-bits Backgrounds |
 
 ## Splash shot list
@@ -40,11 +40,16 @@ Composite at runtime: full-bleed A, centered B. Reduced-motion: A-still + static
 | Layer | Surfaces | Animates | Stays still |
 |---|---|---|---|
 | Boot | Public rooms only, once per load | Two-plate splash | Ops and access routes |
-| Access | `/sign-in`, `/request-access`, `/ops/recover` | Entrance fade of the cream panel | No looping bg |
+| Access | `/sign-in`, `/request-access`, `/ops/recover` | Staggered heading + three-step handoff list | No looping bg |
 | Public rooms | `/`, `/episodes`, `/connections`, `/chat` | 120ms hover/focus; optional marquee (pausable) | Layout, type, data |
 | Ops shell | `/ops/*` | 120ms hover, 200ms disclosure, ≤320ms drawer | Status, counts, no pulse |
 
 ## Catalog to search later (do not install yet)
+
+The selected access patterns are implemented as local, token-harmonized
+adapters in `web/components/patterns/brand/WtfStaggeredText.tsx` and
+`web/components/patterns/brand/WtfMotionList.tsx`. The raw registry files stay
+out of the application until a future install has a valid licensed environment.
 
 **React Bits Pro** (license missing in this checkout — map only):
 

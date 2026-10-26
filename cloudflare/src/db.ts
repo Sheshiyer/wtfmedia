@@ -61,10 +61,10 @@ export async function assertOpsMigrations(db: DB): Promise<void> {
 export async function getOperatorByEmail(db: DB, email: string): Promise<Operator | null> {
   await assertOpsMigrations(db);
   const normalizedEmail = email.trim().toLowerCase();
-  return (await db
-    .prepare("SELECT id, email, display_name, role, active, created_at, updated_at FROM operators WHERE email = ? AND active = 1")
-    .bind(normalizedEmail)
-    .first<Operator>()) ?? null;
+  const operator = await db.prepare("SELECT * FROM operators WHERE email = ? AND active = 1")
+    .bind(normalizedEmail).first<Operator & { member_only?: number }>();
+  return operator?.member_only === 1 ? null : operator;
+
 }
 
 export async function getOperatorById(db: DB, id: number): Promise<Operator | null> {

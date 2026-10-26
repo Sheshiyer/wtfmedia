@@ -59,7 +59,7 @@ test("principal-context returns a safe browser DTO and separates authentication 
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), {
     kind: "member", role: "member", email: "member@example.test", firstName: "Member", lastName: "Example", displayName: "Member Example",
-    landingRoute: "/beta/chat", capabilities: ["beta:read", "chat:read", "chat:write", "memory:read", "memory:write"], environment: "staging",
+    landingRoute: "/beta/chat", capabilities: ["analytics:read", "beta:read", "chat:read", "chat:write", "memory:read", "memory:write", "research:read", "research:write"], environment: "staging",
   });
   const signedOut = await handleMemberRequest(request, { ...env, DB: db() }, { verifyClerk: async () => ({ ok: false }) });
   assert.equal(signedOut.status, 401);
@@ -80,4 +80,34 @@ test("member routes reject unsupported methods and unknown API paths before pers
   assert.equal(unsupported.status, 404);
   const unknown = await handleMemberRequest(new Request("https://ops.staging.test/beta/api/not-a-route", { headers: { authorization: "Bearer verified" } }), { ...env, DB: db() }, dependencies);
   assert.equal(unknown.status, 404);
+});
+
+test("admitted members reach analytics and chat while all channel mutations remain forbidden", async () => {
+ const deps = { verifyClerk: async () => ({ ok: true, email: "member@example.test", userId: "user_member_1" }) };
+ const bindings = { ...env, DB: db() };
+ const origin = "https://ops.staging.test";
+ const status = await handleMemberRequest(new Request(`${origin}/beta/api/analytics/status`), bindings, deps);
+ assert.equal(status.status, 200);
+ const chat = await handleMemberRequest(new Request(`${origin}/beta/api/analytics/assistant`, {method:"POST",headers:{origin,"content-type":"application/json"},body:JSON.stringify({question:"Channel views?"})}), bindings, deps);
+ assert.equal(chat.status, 409);
+ assert.equal((await chat.json()).status, "connection_required");
+ for(const path of ["oauth/start","selection","disconnect","sync","youtube/retention"]){
+  const response=await handleMemberRequest(new Request(`${origin}/beta/api/analytics/${path}`,{method:"POST",headers:{origin}}),bindings,deps);
+  assert.equal(response.status,403,path);
+ }
+});
+
+test("research uses verified admission and rejects cross-origin writes before starting work", async () => {
+ const origin = 'https://ops.staging.test';
+ const bindings = { ...env, DB: db() };
+ const deps = { verifyClerk: async () => ({ ok: true, email: 'member@example.test', userId: 'user_member_1' }) };
+ const response = await handleMemberRequest(new Request(origin+'/beta/api/research'), bindings, deps);
+ assert.equal(response.status, 200);
+ assert.deepEqual(await response.json(), {configured:false,briefs:[]});
+ const signedOut = await handleMemberRequest(new Request(origin+'/beta/api/research'), bindings, {verifyClerk:async()=>({ok:false})});
+ assert.equal(signedOut.status, 401);
+ const crossOrigin = await handleMemberRequest(new Request(origin+'/beta/api/research', {method:'POST',headers:{origin:'https://other.test','content-type':'application/json'},body:JSON.stringify({title:'Subject'})}), bindings, deps);
+ assert.equal(crossOrigin.status,404);
+ const configured = await handleMemberRequest(new Request(origin+'/beta/api/research', {method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify({title:'Subject'})}), bindings, deps);
+ assert.equal(configured.status,503);assert.equal((await configured.json()).error,'research_not_configured');
 });

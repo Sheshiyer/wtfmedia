@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 
 export const MEMBER_SETTINGS_NAVIGATION = [
   { href: "/beta/settings", label: "account", description: "Account overview" },
-  { href: "/beta/settings/memory", label: "memory", description: "Saved preferences" },
   { href: "/beta/settings/sessions", label: "sessions", description: "History and privacy" },
   { href: "/beta/settings/appearance", label: "appearance", description: "Display preference" },
 ] as const;

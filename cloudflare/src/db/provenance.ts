@@ -140,12 +140,19 @@ export async function getEpisodeBySlug(db: DB, slug: string): Promise<EpisodeRec
   return (await db.prepare("SELECT * FROM episodes WHERE slug = ?").bind(slug.trim()).first<EpisodeRecord>()) ?? null;
 }
 
+// SQLite treats a negative (or NULL) LIMIT as unbounded, so clamp both ends:
+// a hostile "?limit=-1" must never widen into a full-table dump.
+export function boundedListLimit(value: unknown, fallback = 50, max = 100): number {
+  const parsed = typeof value === "number" && Number.isFinite(value) ? Math.floor(value) : fallback;
+  return Math.min(Math.max(parsed, 1), max);
+}
+
 export async function listEpisodes(
   db: DB,
   options?: { limit?: number; offset?: number; status?: ProductionStatus }
 ): Promise<EpisodeRecord[]> {
   await assertProvenanceMigrations(db);
-  const limit = Math.min(options?.limit ?? 50, 100);
+  const limit = boundedListLimit(options?.limit);
   const offset = options?.offset ?? 0;
 
   if (options?.status) {
@@ -814,7 +821,7 @@ export async function listIngestionJobs(
   options?: { status?: IngestionJobStatus; limit?: number }
 ): Promise<IngestionJobRecord[]> {
   await assertProvenanceMigrations(db);
-  const limit = Math.min(options?.limit ?? 50, 100);
+  const limit = boundedListLimit(options?.limit);
 
   if (options?.status) {
     const res = await db.prepare("SELECT * FROM ingestion_jobs WHERE status = ? ORDER BY created_at DESC LIMIT ?")

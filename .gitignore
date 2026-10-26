@@ -3,6 +3,8 @@
 __pycache__/
 *.pyc
 .venv/
+# Private research jobs, evidence and SQLite journal files
+research/.state/
 .themes_cache/
 web/src/data/connections.entities.json
 
@@ -52,3 +54,15 @@ cloudflare/worker-configuration.d.ts
 web/src/data/catalog-snapshot.json
 web/tests/security/phase3-threat-results/
 .planning/phases/03-episode-ingestion-provenance-spine/03-02-SUMMARY.md
+
+# local worker secrets
+cloudflare/.dev.vars
+cloudflare/.dev.vars.*
+web/.dev.vars
+
+# Research container deployment artifacts
+research-host/.wrangler/
+research-host/.dev.vars
+
+# Local implementation ledgers and review scratch
+.superpowers/

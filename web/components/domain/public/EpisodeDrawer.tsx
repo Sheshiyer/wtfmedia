@@ -1,9 +1,9 @@
 /**
  * Public episode detail drawer.
  *
- * It supports public YouTube playback and transcript deep-links. Uncut
- * playback remains unavailable until verified media projection and timeline
- * alignment are available, even when uncut evidence is chat-indexed.
+ * It supports public YouTube playback and transcript deep-links. The Uncut
+ * control is deliberately unavailable until an authenticated Worker returns a
+ * signed asset projection and verified timeline alignment.
  */
 
 "use client";
@@ -114,9 +114,9 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
 
   const askHref = `/chat?q=${encodeURIComponent(
     `About the episode "${episode.title}": give me the key takeaways and the most surprising thing said.`,
-  )}&episodeId=${encodeURIComponent(episode.video_id)}`;
+  )}`;
   const uncutStatusId = `uncut-status-${episode.video_id}`;
-  const uncutState = resolvePublicEpisodeUncutState(episode.title, episode.video_id);
+  const uncutState = resolvePublicEpisodeUncutState(episode.title);
 
   const jumpToMoment = (seconds: number) => {
     setSeekSeconds(seconds);
@@ -145,17 +145,14 @@ export function EpisodeDrawer({ episode, onClose }: EpisodeDrawerProps) {
           >
             {playerOpen ? "hide player" : "play published"}
           </button>
-          <span
+          <button
+            type="button"
+            disabled
             aria-describedby={uncutStatusId}
-            className={[
-              "pill inline-flex items-center px-4 py-2 text-sm",
-              uncutState.kind === "active"
-                ? "bg-knowledge text-on-knowledge"
-                : "cursor-not-allowed bg-surface-subtle text-muted opacity-75",
-            ].join(" ")}
+            className="pill cursor-not-allowed bg-surface-subtle px-4 py-2 text-sm text-muted opacity-75"
           >
             {uncutState.label}
-          </span>
+          </button>
           <Link
             href={askHref}
             data-cursor="ask!"

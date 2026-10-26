@@ -35,9 +35,28 @@
 
 `v0.3.3-beta.1` is the latest pre-release. It restores the AppRail contract
 from alpha, wires the login flow through protected settings, and adds an
-authenticated Ask WTF staging lane with server-side RAG, persisted chat
-history, and consolidation policy panels for memory governance, RAG source
-health, and session history.
+authenticated Ask WTF staging lane that reuses Alpha's server-side RAG and
+public citation contract while adding user-scoped persisted chat history,
+Clerk/D1 admission, RBAC, and administration. Beta does not own a second
+corpus or ingest pipeline.
+
+The `release/beta` branch now also contains the reviewed Clerk-backed operator
+session/history/memory slice and the separate invite-only member Beta from PRs
+[#53](https://github.com/Sheshiyer/wtfmedia/pull/53),
+[#54](https://github.com/Sheshiyer/wtfmedia/pull/54), and
+[#55](https://github.com/Sheshiyer/wtfmedia/pull/55). These are repository
+source receipts only: staging migration, keys, activation, and real-account
+acceptance remain open.
+
+Beta 0.1 is a separate local source-integration lane, verified in this checkout
+as merge `d3b4590` (parents `d4e45b4` and `7ec8298`); the user-reported
+`3eebf57` object is unavailable here. Its Edge 376/376, web unit 188/188, web
+contracts 96/96, typecheck, lint, and architecture results are local
+source/build evidence only. Reported runtime/D1 activity is not staging or
+production acceptance. See
+`.planning/inputs/2026-09-11-beta-0.1-production-readiness-checklist.md` for
+the exact-candidate, migration, binding, IAB, production, rollback, and
+explicit-deferral gates.
 
 `v0.3.2-alpha.1` is the latest alpha. It adds named-person retrieval anchors,
 truthful abstention for missing guests, and public source-panel filtering by
@@ -46,8 +65,31 @@ truthful abstention for missing guests, and public source-panel filtering by
 See the [release notes](docs/releases/v0.3.3-beta.1.md) and
 [changelog](CHANGELOG.md).
 
+The next integrated source candidate uses aligned `0.3.3-beta.3` manifests.
+It is not yet a tag or deployment. The existing remote `v0.3.3-beta.2` tag is
+preserved as immutable, historically inconsistent provenance: it points at an
+older commit whose packages still declare `0.3.3-beta.1`, is not the current
+Beta, and is not a deployment receipt. It must never be deleted, moved, reused,
+or reinterpreted; a later prerelease is published only after final acceptance.
+
 Cross-timeline alignment and synchronized uncut playback remain explicitly
 held; an approved Frame.io episode URL is not itself a timestamp mapping.
+
+## Research workspace (local source)
+
+The authenticated `/beta/research` page accepts a guest, company or industry
+(any one is sufficient), plus optional Additional info to guide the research.
+It provides scoped reports, expandable section sources, Word export, sidebar
+deletion and private follow-up questions over saved evidence. Optional
+clarification can be skipped without inventing missing subjects. Research uses a
+private Python runner with GPT Researcher, Treg and direct Claude Sonnet 5.5;
+it does not create another Ask WTF transcript corpus. Existing saved versions
+remain stored, but editing/version controls are not part of the report reader.
+
+Activation requires migration `0023_research.sql`, a running private research
+service, and server-side provider configuration. These source changes do not
+activate staging or production. See [runner setup and limitations](docs/RESEARCH-RUNNER.md)
+and the [research plan](WTF_OS_Research_Agent_Plan.md).
 
 ## Current production release
 
@@ -59,13 +101,15 @@ Ask WTF supports three source modes:
 - `uncut`: approved uncut transcript evidence.
 - `both`: combined retrieval over both approved corpora.
 
-Release receipt as of 2026-09-01:
+Release receipt as of 2026-09-04:
 
-- 55 published transcript assets are reconciled across R2/KV/Vectorize/D1.
+- 56 published transcript assets are reconciled across R2/KV/Vectorize/D1.
 - 49 approved mapped uncut text assets are reconciled across R2/KV/Vectorize/D1.
-- KV receipts are 55/55 published plus 49/49 mapped uncut; Vectorize reports
-  11,948 records with `source_mode` and `video_id` indexes.
-- Queue backlog is 0 and the DLQ remains at its preserved baseline of 18.
+- Published timing is now 56/56: thirteen exact repairs converged to v2 ingest
+  receipts covering 1,976 timed chunks. The earlier full-index count remains a
+  historical baseline until a fresh aggregate Vectorize count is recorded.
+- A fresh queue or DLQ depth was not available from the named-profile Wrangler
+  surface; this release therefore makes no new backlog-depth claim.
 - Live `/api/chat` returns HTTP 200 across `published`, `uncut`, and `both`.
 - The 49-item mapping proves episode membership, not trusted cross-timeline
   alignment or synchronized uncut playback.
@@ -83,7 +127,7 @@ source-asset mismatches are resolved.
 <td width="50%" valign="top">
 
 ### 🕸️ Connections
-An experimental view of recurring themes and ideas across the catalogue. It is not a verified people, ownership, or company index; claims in those categories need curated source metadata.
+A generated semantic view of recurring topics across the catalogue. Topic counts include only episodes with a published caption-aligned location, and every counted episode is shown with its native YouTube time range, matched language, transcript evidence, and perspective. It is not a verified people, ownership, causality, or company index.
 
 </td>
 <td width="50%" valign="top">
@@ -103,7 +147,7 @@ Workers AI handles Cloudflare-side embedding and answer inference. R2 stores sou
 <td width="50%" valign="top">
 
 ### 🎬 Production library
-55 published episodes across the current catalogue, with 43 timestamp sidecars and 12 fallback transcript-only sources. Timestamp links are conditional on per-source timing data.
+56 published episodes across the current catalogue, with 56 validated timestamp sidecars. Timestamp links remain conditional on each returned source's native timing metadata.
 
 </td>
 </tr>
@@ -143,15 +187,14 @@ Start with [docs/AGENT-ONBOARDING.md](docs/AGENT-ONBOARDING.md), then read
 current release receipts, Cloudflare resource names, source-mode chat contract,
 deferred corpus rows, and gated actions.
 
-### WTF production-calendar handoff (2026-10-25)
+### WTF production-calendar handoff (2026-10-26)
 
-The latest local calendar, board, dubbing tracker, import code, and additive D1
-migrations are on the [`codex/release-beta-calendar-local`](https://github.com/Sheshiyer/wtfmedia/tree/codex/release-beta-calendar-local)
-branch, **not** on `main`. A collaborator continuing this work should clone
-that branch explicitly:
+The calendar, board, dubbing tracker, import code, and additive D1 migrations
+have been merged locally with `origin/feature/pavun` on `futures/nikhai`, **not**
+on `main`. The GitHub branch must be pushed before a collaborator can clone it:
 
 ```bash
-git clone --branch codex/release-beta-calendar-local https://github.com/Sheshiyer/wtfmedia.git
+git clone --branch futures/nikhai https://github.com/Sheshiyer/wtfmedia.git
 cd wtfmedia
 ```
 
@@ -162,7 +205,8 @@ import snapshot, and the local SQLite database are deliberately **not** in
 GitHub. The application source is reproducible from this branch, but the
 populated local calendar is not reproducible from the clone alone: the
 authorized teammate needs the workbook through a separate secure channel.
-This branch has not been merged, deployed, or accepted for client-facing use.
+This branch has not been deployed or accepted for client-facing use. The
+populated private local database remains outside Git and is not part of the merge.
 
 ---
 
@@ -190,11 +234,12 @@ Vectorize, and D1 provide retrieval, inference, ingestion, and provenance while
 the browser keeps the same citation response contract. The legacy local index
 remains a rebuild reference; see [the infrastructure design](docs/CLOUDFLARE-INFRASTRUCTURE.md), [migration plan](docs/CLOUDFLARE-MIGRATION-PLAN.md), and [agent onboarding](docs/AGENT-ONBOARDING.md).
 
-The bounded corpus receipt covers 55 published transcripts and 49 approved
+The bounded corpus receipt covers 56 published transcripts and 49 approved
 mapped uncut text assets. Mapping proves episode membership, not trusted
-cross-timeline alignment. Of the published episodes, 43 have verified caption
-timing and can produce a `youtube?t=` citation; the other 12 deliberately link
-only to the source video. See the [production evaluation](docs/PRODUCTION-EVALUATION.md).
+cross-timeline alignment. All 56 published episodes now have validated native
+caption timing; a returned citation produces a `youtube?t=` link only when its
+own vector metadata verifies that timing. See the
+[production evaluation](docs/PRODUCTION-EVALUATION.md).
 <!-- readme-gen:end:architecture -->
 
 ---

@@ -25,6 +25,10 @@ export function AppShell({
 }: AppShellProps) {
   const pathname = usePathname() ?? "/";
   const hideBottomDock = shouldHideBottomDock(mode, pathname);
+  // Beta chat merges the rail toggle into its own header row, so the shell
+  // reserves no separate top band there.
+  const betaChatSurface = pathname === "/beta/chat" || pathname.startsWith("/beta/chat/");
+  const needsStickyWorkspace = pathname === "/connections" || pathname === "/beta/connections" || pathname === "/beta/research";
 
   return (
     <div
@@ -38,7 +42,9 @@ export function AppShell({
         <AppRail mode={mode} navigation={navigation} utility={utility} bottomNavigation={bottomNavigation} disclosureGroups={disclosureGroups} />
         <div
           className={[
-            "relative min-h-screen overflow-hidden pt-[calc(4.5rem+env(safe-area-inset-top))]",
+            "relative min-h-screen",
+            needsStickyWorkspace ? "overflow-x-clip" : "overflow-hidden",
+            betaChatSurface ? "" : pathname === "/beta/research" ? "pt-[calc(6rem+env(safe-area-inset-top))]" : "pt-[calc(4.5rem+env(safe-area-inset-top))]",
             hideBottomDock ? "" : "pb-28 sm:pb-24",
           ].join(" ")}
         >
@@ -56,7 +62,7 @@ export function AppShell({
           <main
             id="wtf-main"
             tabIndex={-1}
-            className="relative z-10 min-h-[calc(100vh-4.5rem-env(safe-area-inset-top))] focus:outline-none"
+            className={`relative z-10 focus:outline-none ${pathname === "/beta/research" ? "min-h-0" : "min-h-[calc(100vh-4.5rem-env(safe-area-inset-top))]"}`}
           >
             {children}
           </main>

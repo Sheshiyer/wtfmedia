@@ -76,12 +76,16 @@ function mockGroundedAnswer(
     : JSON.stringify([
         {
           n: 1,
-          video_id: "xyz789",
+          video_id: "xyz789abc12",
           title: "Startup Culture 101",
           score: 0.78,
           t: null,
           time: "",
-          url: "https://youtube.com/watch?v=xyz789",
+          url: "https://youtube.com/watch?v=xyz789abc12",
+          source_mode: "published",
+          mapping_status: "unmapped",
+          timestamp_status: "source_timing_unavailable",
+          timestamp_reason: "This published transcript was ingested without timestamp data; the link opens the full episode.",
         },
       ]);
 
@@ -96,30 +100,12 @@ function mockGroundedAnswer(
   );
 }
 
-function mockUncutFrameIoAnswer(page: import("@playwright/test").Page) {
-  mockChatStream(page, ["Uncut grounded answer [1]."], {
-    "X-Sources": JSON.stringify([
-      {
-        n: 1,
-        video_id: "O7O204wD82s",
-        title: "Vinod Khosla",
-        score: 0.92,
-        t: 451,
-        time: "7:31",
-        url: "https://f.io/0I8LmYs9",
-        source_mode: "uncut",
-        mapping_status: "mapped",
-      },
-    ]),
-    "X-Model": "test-model",
-    "X-Fallback": "false",
-  });
-}
-
 /** Mock /api/chat with an abstention response. */
 function mockAbstention(page: import("@playwright/test").Page) {
   mockChatStream(page, ["I don't have enough information to answer that."], {
-    "X-Sources": "[]",
+    "X-Sources": encodeURIComponent(JSON.stringify([{ n: 1, title: "Uncited candidate episode", video_id: "abcdefghijk", source_mode: "published" }])),
+    "X-Response-State": "retrieval_weak",
+    "X-Cited-Indices": "[]",
     "X-Model": "test-model",
     "X-Fallback": "false",
   });
@@ -153,13 +139,27 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(page.locator('[data-testid="conversation-thread"]')).toBeVisible();
     await expect(page.locator('[data-testid="empty-state"]')).toBeVisible();
 
-    const textarea = page.locator("textarea");
-    await expect(textarea).toHaveAttribute("placeholder", "what moment are you after?");
-    await expect(textarea).toBeFocused();
+    const composerInput = page.getByRole("textbox", { name: "Ask the catalogue" });
+    await expect(composerInput).toHaveAttribute("placeholder", "what moment are you after?");
+    await expect(composerInput).toBeFocused();
 
     const submitButton = page.locator('button[type="submit"]');
     await expect(submitButton).toHaveText("ask wtf");
     await expect(submitButton).toBeDisabled();
+    await expect(submitButton).toHaveClass(/bg-attention/);
+    await expect(submitButton).toHaveCSS("background-color", "rgb(241, 179, 51)");
+    await expect(submitButton).toHaveCSS("color", "rgb(26, 26, 26)");
+  });
+
+  test("composer is compact and published-only in the beta", async ({ page }) => {
+    await page.goto("/chat");
+    await settle(page);
+
+    const composer = page.locator('[data-testid="ask-composer"]');
+    await expect(composer.locator(".wtf-type-rail")).toHaveCount(0);
+    await expect(composer.getByTestId("source-mode-toggle")).toHaveCount(0);
+    await expect(composer.getByRole("button")).toHaveCount(1);
+    await expect(composer).not.toContainText("find the exact moment where the guest changes their mind");
   });
 
   test("composer clears the restored bottom navigation rail", async ({ page }) => {
@@ -196,8 +196,8 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    const textarea = page.locator("textarea");
-    await textarea.fill("What is this about?");
+    const composerInput = page.getByRole("textbox", { name: "Ask the catalogue" });
+    await composerInput.fill("What is this about?");
     await page.locator('button[type="submit"]').click();
 
     // Wait for response to appear
@@ -241,7 +241,7 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("What did they say about founders?");
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("What did they say about founders?");
     await page.locator('button[type="submit"]').click();
 
     // Wait for response
@@ -260,31 +260,13 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(sourcePanel).toContainText("Episode 5: Persistence");
   });
 
-  test("shows the approved Frame.io URL and serves it from the source action", async ({ page }) => {
-    mockUncutFrameIoAnswer(page);
-
-    await page.goto("/chat");
-    await settle(page);
-
-    await page.locator("textarea").fill("What was said in the uncut recording?");
-    await page.locator('button[type="submit"]').click();
-
-    const sourcePanel = page.locator('[data-testid="source-panel"]');
-    await expect(sourcePanel).toBeVisible();
-    await sourcePanel.locator("summary").click();
-
-    const sourceAction = sourcePanel.getByRole("link", { name: "open Frame.io source" });
-    await expect(sourceAction).toHaveAttribute("href", "https://f.io/0I8LmYs9");
-    await expect(sourceAction).toHaveAttribute("target", "_blank");
-  });
-
   test("shows untimed sources without timestamp", async ({ page }) => {
     mockGroundedAnswer(page, { timed: false });
 
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("Summarize the episode");
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Summarize the episode");
     await page.locator('button[type="submit"]').click();
 
     await expect(page.locator('[data-testid="message-1"]')).toBeVisible({
@@ -294,63 +276,256 @@ test.describe("/chat journey — migrated variant", () => {
     const sourcePanel = page.locator('[data-testid="source-panel"]');
     await expect(sourcePanel).toBeVisible();
     await expect(sourcePanel).toContainText("1 source");
+    await sourcePanel.locator("summary").click();
+    await expect(sourcePanel).toContainText("published time unavailable");
+    await expect(sourcePanel).toContainText("ingested without timestamp data");
+    await expect(sourcePanel.getByRole("link", { name: "open full published episode" })).toBeVisible();
+    await expect(sourcePanel.getByRole("link", { name: "open full published episode" })).not.toHaveAttribute("href", /[?&]t=/);
   });
 
-  test("filters mixed citations when the source mode changes", async ({ page }) => {
-    mockChatStream(page, ["Mixed-source answer."], {
-      "X-Source-Mode": "both",
+  test("shows only published evidence from a both-mode response", async ({ page }) => {
+    mockChatStream(page, ["The answer is grounded in both timelines. [1,4]"], {
       "X-Sources": JSON.stringify([
         {
-          video_id: "published-1",
-          title: "Published episode",
+          n: 1,
+          video_id: "pubsource1a",
+          title: "Published cited source",
           source_mode: "published",
-          t: 120,
+          score: 0.92,
+          t: 125,
         },
         {
-          video_id: "uncut-1",
-          title: "Uncut episode one",
+          n: 2,
+          video_id: "uncutsrc02a",
+          title: "Uncut candidate source",
           source_mode: "uncut",
-          t: 240,
+          mapping_status: "mapped",
+          score: 0.87,
+          t: 300,
+          url: "https://f.io/uncut-candidate-token",
         },
         {
-          video_id: "uncut-2",
-          title: "Uncut episode two",
+          n: 3,
+          video_id: "pubsource3c",
+          title: "Published candidate untimed",
+          source_mode: "published",
+          score: 0.76,
+          t: null,
+          timestamp_status: "source_timing_unavailable",
+          timestamp_reason: "This published transcript was ingested without timestamp data; the link opens the full episode.",
+        },
+        {
+          n: 4,
+          video_id: "uncutsrc04b",
+          title: "Uncut cited source",
           source_mode: "uncut",
-          t: 360,
+          mapping_status: "mapped",
+          score: 0.71,
+          t: 420,
+          url: "https://example.com/not-approved-frame-link",
         },
       ]),
+      "X-Source-Mode": "both",
+      "X-Cited-Indices": JSON.stringify([1, 4]),
+      "X-Fallback": "false",
     });
 
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("Show both source modes");
+    // The composer is published-only; even when a response carries uncut
+    // timelines, the panel renders only the published evidence.
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Compare the published and uncut sources.");
     await page.locator('button[type="submit"]').click();
 
     const sourcePanel = page.locator('[data-testid="source-panel"]');
-    await expect(sourcePanel).toBeVisible();
-    await sourcePanel.locator("summary").click();
-    await expect(sourcePanel).toContainText("3 sources cited");
+    await expect(sourcePanel).toBeVisible({ timeout: 10000 });
+    await sourcePanel.locator("summary").first().click();
 
-    await sourcePanel.getByTestId("source-mode-filter-published").click();
-    await expect(sourcePanel).toContainText("1 source cited");
-    await expect(sourcePanel).toContainText("Published episode");
-    await expect(sourcePanel).not.toContainText("Uncut episode one");
+    await expect(sourcePanel).toContainText("2 sources cited, 1 candidate excerpt");
 
-    await sourcePanel.getByTestId("source-mode-filter-uncut").click();
-    await expect(sourcePanel).toContainText("2 sources cited");
-    await expect(sourcePanel).toContainText("Uncut episode one");
-    await expect(sourcePanel).not.toContainText("Published episode");
+    // No published/uncut/both view control — the panel is published-only.
+    await expect(sourcePanel.getByRole("group", {
+      name: "View evidence returned for this answer (view only)",
+    })).toHaveCount(0);
+    await expect(sourcePanel.getByTestId("hidden-citation-notice")).toHaveCount(0);
 
-    await sourcePanel.getByTestId("source-mode-filter-both").click();
-    await expect(sourcePanel).toContainText("3 sources cited");
-    await expect(sourcePanel).toContainText("Published episode");
-    await expect(sourcePanel).toContainText("Uncut episode two");
+    const sourceRows = sourcePanel.getByTestId("source-evidence-row");
+    const episodeGroups = sourcePanel.getByTestId("source-episode-group");
+    const playbackLinks = sourceRows.locator('a[target="_blank"]');
+    const candidateRows = sourcePanel.locator('[data-testid="source-evidence-row"][data-evidence-kind="candidate"]');
+    const timestampReasons = sourcePanel.getByTestId("timestamp-reason");
+
+    await expect(episodeGroups).toHaveCount(2);
+    await expect(sourceRows).toHaveCount(2);
+    await expect(playbackLinks).toHaveCount(2);
+    await expect(candidateRows).toHaveCount(1);
+    await expect(timestampReasons).toHaveCount(1);
+    await expect(sourceRows.nth(0)).toContainText("[1]");
+    await expect(sourceRows.nth(0)).toContainText("published 2:05");
+    await expect(sourceRows.nth(0)).toHaveAttribute("data-evidence-kind", "citation");
+    await expect(sourceRows.nth(1)).toContainText("C2");
+    await expect(sourceRows.nth(1)).toContainText("published time unavailable");
+    await expect(sourceRows.nth(1)).toHaveAttribute("data-evidence-kind", "candidate");
+    // Uncut rows never render.
+    await expect(sourcePanel.locator('[data-testid="source-evidence-row"]', { hasText: "uncut" })).toHaveCount(0);
+
+    // Candidate excerpts render inline (no disclosure) in the current panel.
+    const candidateEvidence = sourcePanel.getByTestId("candidate-evidence");
+    await expect(candidateEvidence).toHaveCount(1);
+
+    await expect(sourcePanel.getByRole("link", { name: "open published moment", exact: true }).first()).toHaveCSS(
+      "background-color",
+      "rgb(241, 179, 51)",
+    );
+    await expect(sourcePanel.getByRole("link", { name: "open published moment", exact: true }).first()).toHaveCSS(
+      "color",
+      "rgb(26, 26, 26)",
+    );
+
+    // Episode titles open YouTube, not the internal episode page.
+    await expect(sourcePanel.getByRole("link", { name: "Published cited source", exact: true })).toHaveAttribute(
+      "href",
+      "https://www.youtube.com/watch?v=pubsource1a",
+    );
+    await expect(sourcePanel.getByRole("link", { name: "Published candidate untimed", exact: true })).toHaveAttribute(
+      "href",
+      "https://www.youtube.com/watch?v=pubsource3c",
+    );
+    await expect(sourcePanel.getByRole("link", { name: "Uncut candidate source", exact: true })).toHaveCount(0);
+    await expect(sourcePanel.getByRole("link", { name: "Uncut cited source", exact: true })).toHaveCount(0);
+
+    await expect(sourceRows.nth(0).getByRole("link", { name: "open published moment", exact: true })).toHaveAttribute(
+      "href",
+      /youtube\.com\/watch\?v=pubsource1a&t=125s/,
+    );
+    await expect(sourceRows.nth(1).getByRole("link", { name: "open full published episode", exact: true })).toHaveAttribute(
+      "href",
+      "https://www.youtube.com/watch?v=pubsource3c",
+    );
+    await expect(sourceRows.nth(1).getByRole("link", { name: "open full published episode", exact: true })).not.toHaveAttribute(
+      "href",
+      /[?&]t=/,
+    );
+
+    const citationLinks = page.locator('[data-testid="message-1"] .prose-chat a');
+    await expect(citationLinks).toHaveCount(2);
+    await expect(citationLinks.nth(0)).toHaveAttribute("href", "/episodes/pubsource1a");
+    await expect(citationLinks.nth(1)).toHaveAttribute("href", "/episodes/uncutsrc04b");
+  });
+
+  test("keeps query scope immutable with a published-only evidence view", async ({ page }) => {
+    let requestedMode: string | undefined;
+    await page.route("/api/chat", (route) => {
+      requestedMode = (route.request().postDataJSON() as { sourceMode?: string }).sourceMode;
+      route.fulfill({
+        status: 200,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "X-Sources": JSON.stringify([
+            {
+              n: 1,
+              video_id: "episode0001",
+              title: "Episode one",
+              source_mode: "published",
+              mapping_status: "mapped",
+              timestamp_status: "verified",
+              t: 125,
+              url: "https://www.youtube.com/watch?v=episode0001",
+            },
+            {
+              n: 2,
+              video_id: "episode0001",
+              title: "Episode one",
+              source_mode: "uncut",
+              mapping_status: "mapped",
+              timestamp_status: "verified",
+              t: 300,
+              url: "https://f.io/episode-one",
+            },
+            {
+              n: 3,
+              video_id: "episode0002",
+              title: "Episode two",
+              source_mode: "published",
+              mapping_status: "unmapped",
+              timestamp_status: "source_timing_unavailable",
+              timestamp_reason: "This published transcript was ingested without timestamp data; the link opens the full episode.",
+              t: null,
+              url: "https://www.youtube.com/watch?v=episode0002",
+            },
+            {
+              n: 4,
+              video_id: "episode0003",
+              title: "Episode three",
+              source_mode: "uncut",
+              mapping_status: "mapped",
+              timestamp_status: "verified",
+              t: 420,
+              url: "https://f.io/episode-three",
+            },
+          ]),
+          "X-Source-Mode": "both",
+          "X-Cited-Indices": JSON.stringify([1, 4]),
+          "X-Fallback": "false",
+        },
+        body: "The answer uses two native sources. [1,4]",
+      });
+    });
+
+    await page.goto("/chat");
+    await settle(page);
+
+    const composer = page.getByTestId("ask-composer");
+    await composer.getByRole("textbox", { name: "Ask the catalogue" }).fill("Compare the edits.");
+    await composer.locator('button[type="submit"]').click();
+
+    const sourcePanel = page.getByTestId("source-panel");
+    await expect(sourcePanel).toBeVisible({ timeout: 10000 });
+    // The composer no longer offers a mode choice — requests are published-only.
+    expect(requestedMode).toBe("published");
+
+    // Retrieval provenance stays out of the collapsed header — the summary
+    // leads with the citation count only.
+    await expect(sourcePanel.getByTestId("answer-query-scope")).toHaveCount(0);
+    await sourcePanel.locator("summary").first().click();
+
+    // No view control — the panel is published-only even when the response
+    // carries uncut evidence.
+    await expect(sourcePanel.getByRole("group", {
+      name: "View evidence returned for this answer (view only)",
+    })).toHaveCount(0);
+    const episodeGroups = sourcePanel.getByTestId("source-episode-group");
+    await expect(episodeGroups).toHaveCount(2);
+    await expect(episodeGroups.nth(0)).toHaveAttribute("data-episode-key", "episode0001");
+    await expect(episodeGroups.nth(1)).toHaveAttribute("data-episode-key", "episode0002");
+
+    const firstGroup = episodeGroups.nth(0);
+    await expect(firstGroup.getByText("[1]", { exact: true })).toBeVisible();
+    // Episode one's uncut candidate is not rendered.
+    await expect(firstGroup.getByTestId("candidate-evidence")).toHaveCount(0);
+
+    const nativeRows = sourcePanel.getByTestId("source-evidence-row");
+    await expect(nativeRows.filter({ hasText: "published 2:05" }).getByRole("link", { name: "open published moment" })).toHaveAttribute(
+      "href",
+      /youtube\.com\/watch\?v=episode0001&t=125s/,
+    );
+    await expect(nativeRows.filter({ hasText: "uncut" })).toHaveCount(0);
+
+    await expect(sourcePanel.locator("summary").first()).toContainText("2 sources cited");
+    await expect(sourcePanel.locator("summary").first()).not.toContainText("no sources cited");
+    await expect(sourcePanel.getByTestId("hidden-citation-notice")).toHaveCount(0);
+
+    await page.setViewportSize({ width: 320, height: 900 });
+    await expect(sourcePanel.locator("summary").first()).toBeVisible();
+    expect(await page.evaluate(() => (
+      document.documentElement.scrollWidth <= document.documentElement.clientWidth
+    ))).toBe(true);
   });
 
   /* ── abstention ────────────────────────────────────────────────────── */
 
-  test("shows abstention label when response has no grounded content", async ({
+  test("shows only the answer when response has no grounded content", async ({
     page,
   }) => {
     mockAbstention(page);
@@ -358,17 +533,16 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("What is the meaning of life?");
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("What is the meaning of life?");
     await page.locator('button[type="submit"]').click();
 
     await expect(page.locator('[data-testid="message-1"]')).toBeVisible({
       timeout: 10000,
     });
 
-    await expect(page.locator('[data-testid="abstention-label"]')).toBeVisible();
-    await expect(page.locator('[data-testid="abstention-label"]')).toContainText(
-      "the catalogue doesn't support that claim",
-    );
+    await expect(page.getByTestId("message-1")).toContainText("I don't have enough information to answer that.");
+    await expect(page.getByTestId("abstention-label")).toHaveCount(0);
+    await expect(page.getByTestId("source-panel")).toHaveCount(0);
   });
 
   /* ── error recovery ────────────────────────────────────────────────── */
@@ -379,7 +553,7 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("Tell me something");
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Tell me something");
     await page.locator('button[type="submit"]').click();
 
     await expect(page.locator('[data-testid="message-1"]')).toBeVisible({
@@ -419,31 +593,6 @@ test.describe("/chat journey — migrated variant", () => {
     expect(requestCount).toBe(0);
   });
 
-  test("submits a query parameter once without scrolling beneath the app rail", async ({ page }) => {
-    let requestCount = 0;
-    await page.route("/api/chat", (route) => {
-      requestCount++;
-      route.fulfill({
-        status: 200,
-        headers: { "Content-Type": "text/plain; charset=utf-8" },
-        body: "A source-backed answer.",
-      });
-    });
-
-    await page.goto("/chat?q=What%20did%20they%20say%3F");
-    await settle(page);
-    await expect(page.locator('[data-testid="message-1"]')).toBeVisible({ timeout: 10000 });
-    await page.waitForTimeout(250);
-
-    expect(requestCount).toBe(1);
-
-    const railBox = await page.locator("[data-top-app-rail]").boundingBox();
-    const headingBox = await page.getByRole("heading", { name: "ask wtf", exact: true }).boundingBox();
-    expect(railBox).not.toBeNull();
-    expect(headingBox).not.toBeNull();
-    expect(headingBox!.y).toBeGreaterThanOrEqual(railBox!.y + railBox!.height);
-  });
-
   /* ── loading indicator ─────────────────────────────────────────────── */
 
   test("shows loading indicator during streaming", async ({ page }) => {
@@ -460,7 +609,7 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("Hello");
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Hello");
     await page.locator('button[type="submit"]').click();
 
     // Loading indicator appears
@@ -481,7 +630,7 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    await page.locator("textarea").fill("Hello");
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Hello");
     await page.locator('button[type="submit"]').click();
 
     await expect(page.locator('[data-testid="message-1"]')).toBeVisible({
@@ -494,9 +643,35 @@ test.describe("/chat journey — migrated variant", () => {
     await expect(retryButton).toHaveText("retry answer");
   });
 
+  test("retry replaces the assistant answer without duplicating the user turn", async ({ page }) => {
+    const requestBodies: Array<{ messages: Array<{ role: string; content: string }> }> = [];
+    await page.route("/api/chat", (route) => {
+      requestBodies.push(route.request().postDataJSON() as { messages: Array<{ role: string; content: string }> });
+      route.fulfill({
+        status: 200,
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+        body: `Answer ${requestBodies.length}.`,
+      });
+    });
+
+    await page.goto("/chat");
+    await settle(page);
+    await page.getByRole("textbox", { name: "Ask the catalogue" }).fill("Retry this exact question");
+    await page.locator('button[type="submit"]').click();
+    await expect(page.getByText("Answer 1.", { exact: true })).toBeVisible({ timeout: 10000 });
+
+    await page.getByTestId("retry-button").click();
+    await expect(page.getByText("Answer 2.", { exact: true })).toBeVisible({ timeout: 10000 });
+
+    expect(requestBodies).toHaveLength(2);
+    expect(requestBodies[1].messages.filter((message) =>
+      message.role === "user" && message.content === "Retry this exact question")).toHaveLength(1);
+    await expect(page.getByText("Retry this exact question", { exact: true })).toHaveCount(1);
+  });
+
   /* ── keyboard focus ────────────────────────────────────────────────── */
 
-  test("textarea is focused on mount and Enter submits", async ({ page }) => {
+  test("composer textbox is focused on mount and Enter submits", async ({ page }) => {
     let requestCount = 0;
     await page.route("/api/chat", (route) => {
       requestCount++;
@@ -517,12 +692,12 @@ test.describe("/chat journey — migrated variant", () => {
     await page.goto("/chat");
     await settle(page);
 
-    const textarea = page.locator("textarea");
-    await expect(textarea).toBeFocused();
+    const composerInput = page.getByRole("textbox", { name: "Ask the catalogue" });
+    await expect(composerInput).toBeFocused();
 
     // Type and press Enter
-    await textarea.fill("Test question");
-    await textarea.press("Enter");
+    await composerInput.fill("Test question");
+    await composerInput.press("Enter");
 
     // Request was sent
     await page.waitForTimeout(1000);
@@ -622,5 +797,33 @@ test.describe("/chat journey — migrated variant", () => {
 
     await expect(page.locator('[data-testid="ask-composer"]')).toBeVisible();
     await expect(page.locator('[data-testid="conversation-thread"]')).toBeVisible();
+  });
+
+  test("Alpha chat has no document gap below the fixed composer", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/chat");
+    await settle(page);
+
+    const metrics = await page.evaluate(() => ({
+      viewport: window.innerHeight,
+      documentHeight: document.documentElement.scrollHeight,
+      composer: document.querySelector('[data-testid="ask-composer"]')?.getBoundingClientRect().toJSON(),
+    }));
+
+    expect(metrics.documentHeight).toBeLessThanOrEqual(metrics.viewport + 1);
+    expect(metrics.composer?.bottom).toBeLessThan(metrics.viewport);
+    expect(metrics.composer?.bottom).toBeGreaterThan(metrics.viewport - 140);
+  });
+
+  test("Alpha chat removes the redundant intro panel", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/chat");
+    await settle(page);
+
+    await expect(page.locator("[data-workspace-header]")).toHaveCount(0);
+    await expect(page.locator("h1")).toBeAttached();
+    // The chat surface drops the bottom dock; the composer pins to the edge.
+    await expect(page.locator(".wtf-bottom-pill")).toHaveCount(0);
+    await expect(page.getByTestId("ask-composer")).toBeVisible();
   });
 });

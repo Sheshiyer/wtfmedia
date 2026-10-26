@@ -41,7 +41,12 @@ export const EpisodesActive: Story = {
 
 export const Mobile320: Story = {
   render: () => <PublicShell>{content("mobile workspace")}</PublicShell>,
-  parameters: { viewport: { width: 320, height: 640 } },
+  parameters: {
+    viewport: { width: 320, height: 640 },
+    // The dock is intentionally hidden on the chat home ("/"); assert it on
+    // a non-chat page.
+    nextjs: { appDirectory: true, navigation: { pathname: "/episodes" } },
+  },
   play: async ({ canvasElement }) => {
     const primaryNav = canvasElement.querySelector("#wtf-application-navigation");
     const applicationNav = canvasElement.querySelector('nav[aria-label="Application"]');
