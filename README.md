@@ -190,8 +190,8 @@ deferred corpus rows, and gated actions.
 ### WTF production-calendar handoff (2026-10-26)
 
 The calendar, board, dubbing tracker, import code, and additive D1 migrations
-have been merged locally with `origin/feature/pavun` on `futures/nikhai`, **not**
-on `main`. The GitHub branch must be pushed before a collaborator can clone it:
+have been merged with `origin/feature/pavun` on the published GitHub branch
+`futures/nikhai`, **not** on `main`. A collaborator can clone it with:
 
 ```bash
 git clone --branch futures/nikhai https://github.com/Sheshiyer/wtfmedia.git

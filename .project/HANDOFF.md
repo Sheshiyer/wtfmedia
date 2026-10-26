@@ -1,3 +1,14 @@
+## 2026-10-26 — Published futures/nikhai source branch
+
+- The owner explicitly requested a GitHub push. The clean local
+  `futures/nikhai` branch was published to `origin/futures/nikhai` after
+  verifying that the remote branch did not previously exist. This publishes
+  source changes, not a Cloudflare deployment or client-facing acceptance.
+- The private workbook, imported guest contacts and notes, generated import
+  snapshot, and ignored `.local/production-calendar.sqlite` remain local and
+  were not uploaded. A collaborator needs the workbook through a separate
+  secure channel to reproduce the populated calendar.
+
 ## 2026-10-26 — Local production-calendar and Pavun branch integration
 
 - Owner requested a local merge of the latest Pavun work with the existing
