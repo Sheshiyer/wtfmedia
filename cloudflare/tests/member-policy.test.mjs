@@ -25,7 +25,7 @@ test("member policy is not inferred from unknown roles or public routes", () => 
 test("canonical beta routes use explicit capabilities and unknown paths fail closed", () => {
   assert.deepEqual(policyForPath("/beta/chat"), ["chat", "read"]);
   assert.deepEqual(policyForPath("/beta/settings/account"), ["beta", "read"]);
-  assert.deepEqual(policyForPath("/beta/workspace/production"), ["control_room", "read"]);
+  assert.deepEqual(policyForPath("/beta/workspace/production"), ["production", "read"]);
   assert.deepEqual(policyForPath("/beta/admin/users"), ["members", "read"]);
   assert.deepEqual(policyForPath("/beta/admin/release"), ["release", "manage"]);
   assert.equal(canAccessPath("member", "/beta/chat"), true);

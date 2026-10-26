@@ -1,5 +1,6 @@
 import { handleSocialAnalytics } from "./social-analytics.ts";
 import { handleAnalyticsInvestigations } from "./analytics-investigations.ts";
+import { handleProductionCalendarRequest } from "./production-calendar.ts";
 import { handleResearch } from "./research.ts";
 import { erasePendingResearchJobs } from "./research-erasure.ts";
 import { createClerkUserDeleter } from "./clerk/delete-user.ts";
@@ -68,6 +69,9 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     } catch { return Response.json({ error: "user_management_unavailable" }, { status: 503, headers }); }
   }
   if (url.pathname === "/beta/api/principal-context" && request.method === "GET") return Response.json(principalContextDto(context), { headers });
+  if (url.pathname === "/beta/api/production") {
+    return context.kind === "operator" ? handleProductionCalendarRequest(request, env, context) : forbidden();
+  }
   if (url.pathname.startsWith('/beta/api/social-analytics/')) {
     if (env.SOCIAL_ANALYTICS_ENABLED !== '1') return denied();
     const memberId = await memberIdForPrincipal(env.DB, context);

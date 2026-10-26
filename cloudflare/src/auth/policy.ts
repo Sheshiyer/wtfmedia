@@ -1,5 +1,5 @@
 export const roles = ["super_admin", "admin", "editor", "member"] as const;
-export const resources = ["beta", "control_room", "operators", "members", "audit", "chat", "memory", "assets", "episodes", "ingest", "transcripts", "analytics", "research", "release"] as const;
+export const resources = ["beta", "control_room", "production", "operators", "members", "audit", "chat", "memory", "assets", "episodes", "ingest", "transcripts", "analytics", "research", "release"] as const;
 export const actions = ["read", "write", "export", "manage", "transfer", "approve", "create", "upload", "confirm"] as const;
 export type Role = typeof roles[number];
 export type Resource = typeof resources[number];
@@ -8,7 +8,7 @@ export type Action = typeof actions[number];
 const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
   super_admin: new Set([
     "research:read", "research:write",
-    "beta:read", "control_room:read", "operators:read", "operators:manage", "operators:transfer", "operators:approve", "members:read", "members:manage", "release:manage",
+    "beta:read", "control_room:read", "production:read", "production:write", "production:manage", "operators:read", "operators:manage", "operators:transfer", "operators:approve", "members:read", "members:manage", "release:manage",
     "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm", "assets:manage",
     "episodes:read", "episodes:write", "episodes:create", "episodes:manage",
@@ -18,7 +18,7 @@ const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
   ]),
   admin: new Set([
     "research:read", "research:write",
-    "beta:read", "control_room:read", "operators:read", "operators:manage", "members:read", "members:manage", "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
+    "beta:read", "control_room:read", "production:read", "production:write", "production:manage", "operators:read", "operators:manage", "members:read", "members:manage", "audit:read", "audit:export", "chat:read", "chat:write", "chat:export", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm", "assets:manage",
     "episodes:read", "episodes:write", "episodes:create", "episodes:manage",
     "ingest:read", "ingest:write", "ingest:create", "ingest:manage",
@@ -27,7 +27,7 @@ const grants: Record<Role, ReadonlySet<`${Resource}:${Action}`>> = {
   ]),
   editor: new Set([
     "research:read", "research:write",
-    "beta:read", "control_room:read", "chat:read", "chat:write", "memory:read", "memory:write",
+    "beta:read", "control_room:read", "production:read", "production:write", "chat:read", "chat:write", "memory:read", "memory:write",
     "assets:read", "assets:write", "assets:create", "assets:upload", "assets:confirm",
     "episodes:read", "ingest:read",
     "transcripts:read", "transcripts:write",
@@ -75,7 +75,7 @@ const routeRequirements: Record<string, readonly [Resource, Action]> = {
   "/beta/settings/memory": ["memory", "read"],
   "/beta/settings/sessions": ["chat", "read"],
   "/beta/settings/appearance": ["beta", "read"],
-  "/beta/workspace/production": ["control_room", "read"],
+  "/beta/workspace/production": ["production", "read"],
   "/beta/workspace": ["control_room", "read"],
   "/beta/workspace/episodes": ["episodes", "read"],
   "/beta/settings/workspace": ["control_room", "read"],
@@ -129,6 +129,7 @@ export function policyForPath(pathname: string, method = "GET"): readonly [Resou
 
 function betaApiRequirement(pathname: string, method: string): readonly [Resource, Action] | null {
   const requestMethod = method.toUpperCase();
+  if (pathname === "/beta/api/production") return requestMethod === "GET" ? ["production", "read"] : requestMethod === "POST" ? ["production", "write"] : null;
   if (pathname === "/beta/api/research") return requestMethod === "GET" ? ["research", "read"] : requestMethod === "POST" ? ["research", "write"] : null;
   if (/^\/beta\/api\/research\/rbrief_[0-9a-f-]{36}$/u.test(pathname)) return ["GET", "PATCH", "DELETE"].includes(requestMethod) ? ["research", requestMethod === "GET" ? "read" : "write"] : null;
   if (/^\/beta\/api\/research\/rbrief_[0-9a-f-]{36}\/versions\/[1-9][0-9]{0,8}$/u.test(pathname)) return requestMethod === "GET" ? ["research", "read"] : null;

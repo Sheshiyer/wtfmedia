@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { chatHistoryEnabled } from "../src/chat/history.ts";
 import { decide, policyForPath } from "../src/auth/policy.ts";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
 
 test("chat history migration is additive, operator-owned, and archive-only", () => {
   const sql = readFileSync(join(root, "migrations", "0006_chat_history.sql"), "utf8");

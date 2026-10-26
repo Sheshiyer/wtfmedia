@@ -4,6 +4,7 @@ import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { before, test } from "node:test";
+import { fileURLToPath } from "node:url";
 
 import { handleOpsRequest } from "../src/ops-router.ts";
 import { handleMemberRequest } from "../src/member-router.ts";
@@ -26,7 +27,7 @@ import { archiveMemberConversation, createMemberConversation, deleteMemberConver
 import { archiveMemberMemory, createMemberMemory, listMemberMemories } from "../src/chat/member-memory.ts";
 import { resolveOperatorContext } from "../src/auth/operator-context.ts";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
 const persistTo = mkdtempSync(join(tmpdir(), "wtfmedia-auth-chat-"));
 const database = join(persistTo, "ops.sqlite");
 const migrations = [

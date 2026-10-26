@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 
-const cloudflareRoot = new URL("..", import.meta.url).pathname;
+const cloudflareRoot = fileURLToPath(new URL("..", import.meta.url));
 const projectRoot = join(cloudflareRoot, "..");
 const releaseWorkflow = readFileSync(join(projectRoot, ".github", "workflows", "release.yml"), "utf8");
 const packageVersions = [

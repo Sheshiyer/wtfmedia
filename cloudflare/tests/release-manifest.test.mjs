@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { handleOpsRequest } from "../src/ops-router.ts";
 import {
@@ -12,7 +13,7 @@ import {
 import { isMemberBetaEnabled, resolveMemberBetaRelease } from "../src/member-release.ts";
 import { policyForPath } from "../src/auth/policy.ts";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
 const baseEnv = {
   OPS_HOSTNAME: "ops.local.test",
   OPS_ORIGIN: "https://origin.local.test",

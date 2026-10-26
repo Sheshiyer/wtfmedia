@@ -2,9 +2,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { after, before, test } from "node:test";
+import { fileURLToPath } from "node:url";
 import { allowCalendarRequest, handleCalendarRequest } from "../src/calendar.ts";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
 const database = new DatabaseSync(":memory:");
 
 class Statement {

@@ -187,6 +187,20 @@ Start with [docs/AGENT-ONBOARDING.md](docs/AGENT-ONBOARDING.md), then read
 current release receipts, Cloudflare resource names, source-mode chat contract,
 deferred corpus rows, and gated actions.
 
+### WTF production calendar
+
+Production lives at `/beta/workspace/production`, with calendar, board, dubbing
+and manager-only source review using `/beta/api/production`. It uses the common
+Beta session and capability checks. The former `/ops/production` page redirects
+to Beta; no separate preview login or Production API is needed.
+
+The feature from `futures/nikhai` is integrated with `feature/pavun`, including
+the latest research changes. Read [the calendar pickup guide](scripts/production-calendar/README.md)
+and `.project/HANDOFF.md` for setup and verification. Migrations 0025–0028 and
+an authorized private workbook import are needed to populate the paired D1.
+Workbook data, guest contacts, generated snapshots and local databases remain
+outside Git. This source merge does not deploy or change a shared database.
+
 ---
 
 <!-- readme-gen:start:architecture -->

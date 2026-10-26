@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { routeIsActive } from "@/lib/public/route-is-active";
+import { isCalendarActionEvent, isProductionBoardItem, productionActionMark, productionBoardLane } from "@/lib/ops/production-data";
 import {
   dayBoundsToIso,
   emptyProductionWorkspace,
@@ -32,5 +33,33 @@ describe("production calendar model", () => {
     expect(routeIsActive("/beta/workspace/production", "/beta/workspace")).toBe(false);
     expect(routeIsActive("/beta/workspace/production", "/beta/workspace/production")).toBe(true);
     expect(routeIsActive("/beta/workspace", "/beta/workspace")).toBe(true);
+  });
+
+  it("reuses the workbook action icons across equivalent event kinds", () => {
+    expect(productionActionMark("dub_schedule")?.icon).toBe("🎙️");
+    expect(productionActionMark("hindi-post")?.icon).toBe("🎙️");
+    expect(productionActionMark("main_post")?.icon).toBe("📤");
+    expect(productionActionMark("ip_post")?.icon).toBe("📤");
+    expect(productionActionMark("shoot")?.icon).toBe("🎥");
+    expect(productionActionMark("milestone")).toBeNull();
+    expect(isCalendarActionEvent({ kind: "original_video_date" })).toBe(false);
+    expect(isCalendarActionEvent({ kind: "dub_schedule" })).toBe(true);
+  });
+
+  it("keeps dubbing source rows off the main board without losing their calendar marks", () => {
+    expect(isProductionBoardItem({ sourceRef: "Dubbing Tracker!A38:H38" })).toBe(false);
+    expect(isProductionBoardItem({ sourceRef: "Production Tracker Podcast!D14" })).toBe(true);
+    expect(isProductionBoardItem({ sourceRef: "WTF & Nikhil Kamath IPs!A2:F2" })).toBe(true);
+    expect(isProductionBoardItem({ sourceRef: null })).toBe(true);
+    expect(isCalendarActionEvent({ kind: "dub_schedule" })).toBe(true);
+  });
+
+  it("uses explicit stages and actual release dates for simple board lanes", () => {
+    const today = "2026-10-25";
+    expect(productionBoardLane({ id: "payment", stage: "post-production", sourceMarker: null }, [], today)).toBe("post-production");
+    expect(productionBoardLane({ id: "pod", stage: "published", sourceMarker: null }, [], today)).toBe("published");
+    expect(productionBoardLane({ id: "bts", stage: "unverified", sourceMarker: null }, [{ itemId: "bts", kind: "ip_post", day: "2026-09-09", dateState: "actual" }], today)).toBe("published");
+    expect(productionBoardLane({ id: "bts", stage: "unverified", sourceMarker: "not-live" }, [], today)).toBe("no-release-date");
+    expect(productionBoardLane({ id: "upcoming", stage: "unverified", sourceMarker: null }, [{ itemId: "upcoming", kind: "shoot", day: "2026-11-03", dateState: "planned" }], today)).toBe("scheduled");
   });
 });

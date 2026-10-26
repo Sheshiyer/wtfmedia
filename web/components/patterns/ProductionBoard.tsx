@@ -1,69 +1,90 @@
-import { PostIt } from "@/components/patterns/PostIt";
+"use client";
+
+import type { CSSProperties } from "react";
+import { ProductionActionBadge } from "@/components/domain/ops/production/ProductionActionBadge";
 import {
-  productionColumns,
-  type ProductionColumnId,
-  type ProductionPin,
-} from "@/lib/ops/production";
+  dayLabel,
+  productionBoardLane,
+  safeIpColor,
+  type ProductionBlocker,
+  type ProductionBoardLane,
+  type ProductionEvent,
+  type ProductionIp,
+  type ProductionItem,
+} from "@/lib/ops/production-data";
+
+const lanes: { id: ProductionBoardLane; title: string; description: string }[] = [
+  { id: "post-production", title: "Post-production", description: "Marked this way in the production tracker" },
+  { id: "scheduled", title: "Coming up", description: "A future production date is recorded" },
+  { id: "no-release-date", title: "No release date", description: "No confirmed release or upcoming date" },
+  { id: "published", title: "Live", description: "Marked Posted or has an actual release date" },
+];
 
 export function ProductionBoard({
-  pins,
-  selectedColumn,
-  onSelectColumn,
+  items,
+  ips,
+  events,
+  blockers,
+  today,
+  onSelectItem,
 }: {
-  pins: readonly ProductionPin[];
-  selectedColumn: ProductionColumnId;
-  onSelectColumn: (column: ProductionColumnId) => void;
+  items: readonly ProductionItem[];
+  ips: readonly ProductionIp[];
+  events: readonly ProductionEvent[];
+  blockers: readonly ProductionBlocker[];
+  today: string;
+  onSelectItem: (itemId: string) => void;
 }) {
+  const ipById = new Map(ips.map((ip) => [ip.id, ip]));
+  const eventsByItem = new Map<string, ProductionEvent[]>();
+  for (const event of events) {
+    const list = eventsByItem.get(event.itemId) ?? [];
+    list.push(event);
+    eventsByItem.set(event.itemId, list);
+  }
+  const visibleLanes = lanes.map((lane) => ({
+    ...lane,
+    items: items.filter((item) => productionBoardLane(item, eventsByItem.get(item.id) ?? [], today) === lane.id),
+  })).filter((lane) => lane.items.length > 0);
+
+  if (!visibleLanes.length) return <section className="border-2 border-foreground bg-canvas p-6 font-body text-sm text-secondary">No production items match these filters. Add an episode or choose another IP.</section>;
+
   return (
-    <section
-      aria-label="production board"
-      className="grid gap-3 md:grid-cols-3"
-    >
-      {productionColumns.map((column, index) => {
-        const columnPins = pins.filter((pin) => pin.column === column.id);
-        const selected = selectedColumn === column.id;
-        return (
-          <div
-            key={column.id}
-            className="min-h-[22rem] border-2 border-foreground bg-surface-raised p-3"
-          >
-            <button
-              type="button"
-              aria-pressed={selected}
-              onClick={() => onSelectColumn(column.id)}
-              className={[
-                "flex min-h-11 w-full items-center justify-between border-2 px-3 font-label text-sm font-bold lowercase",
-                selected
-                  ? "border-attention bg-attention text-on-attention"
-                  : "border-foreground bg-canvas",
-              ].join(" ")}
-            >
-              <span>{column.label}</span>
-              <span className="font-label text-[11px] font-semibold uppercase tracking-[0.08em]">
-                not activated
-              </span>
-            </button>
-            <div className="mt-3 flex min-h-[16rem] flex-col gap-3">
-              {columnPins.length ? (
-                columnPins.map((pin, pinIndex) => (
-                  <PostIt
-                    key={pin.id}
-                    pin={pin}
-                    tone={(pinIndex % 3) as 0 | 1 | 2}
-                  />
-                ))
-              ) : (
-                <p className="m-auto max-w-[24ch] text-center font-body text-sm text-secondary">
-                  pins land here when a production record exists.
-                </p>
-              )}
+    <section aria-label="Production board" className="overflow-x-auto border-2 border-foreground bg-surface-subtle">
+      <div className="flex min-w-max gap-3 p-3">
+        {visibleLanes.map((lane) => (
+          <div key={lane.id} className="w-72 shrink-0 border border-foreground/40 bg-canvas sm:w-80">
+            <div className="border-b-2 border-foreground px-3 py-2">
+              <div className="flex items-center justify-between gap-2"><h2 className="font-heading text-lg">{lane.title}</h2><span className="font-label text-xs font-bold tabular-nums text-secondary">{lane.items.length}</span></div>
+              <p className="font-body text-xs text-secondary">{lane.description}</p>
             </div>
-            <p className="sr-only">
-              {column.label} column {index + 1} of {productionColumns.length}
-            </p>
+            <div className="space-y-2 p-2">
+              {lane.items.map((item) => {
+                const ip = item.ipId ? ipById.get(item.ipId) : undefined;
+                const timeline = [...(eventsByItem.get(item.id) ?? [])].sort((a, b) => a.day.localeCompare(b.day));
+                const highlight = timeline.find((event) => event.day > today) ?? timeline.at(-1);
+                const openBlocks = blockers.filter((blocker) => blocker.itemId === item.id && blocker.status !== "resolved");
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => onSelectItem(item.id)}
+                    className="w-full border border-foreground/50 border-l-[6px] bg-surface-raised p-3 text-left hover:bg-attention/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
+                    style={{ borderLeftColor: safeIpColor(ip?.color) } as CSSProperties}
+                  >
+                    <span className="font-label text-[11px] font-bold uppercase tracking-[0.06em] text-secondary">{ip?.name ?? "IP not recorded"}</span>
+                    <span className="mt-1 block font-body text-sm font-semibold leading-snug text-foreground">{item.title}</span>
+                    {item.sourceMarker === "not-live" && <span className="mt-1 block font-label text-xs text-secondary">⭕️ Not Live in the workbook</span>}
+                    {highlight && <span className="mt-2 block font-label text-xs text-secondary"><ProductionActionBadge kind={highlight.kind} /> · {dayLabel(highlight.day)}</span>}
+                    {item.owner && <span className="mt-1 block truncate font-label text-xs text-secondary" title={item.owner}>Lead: {item.owner}</span>}
+                    {openBlocks.length > 0 && <span className="mt-2 inline-block border border-editorial px-1.5 py-0.5 font-label text-[11px] font-bold text-editorial">{openBlocks.length} {openBlocks.length === 1 ? "blocker" : "blockers"}</span>}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        );
-      })}
+        ))}
+      </div>
     </section>
   );
 }

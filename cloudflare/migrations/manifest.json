@@ -25,7 +25,11 @@
     "0021_user_deletion.sql",
     "0022_analytics_investigations.sql",
     "0023_research.sql",
-    "0024_social_analytics.sql"
+    "0024_social_analytics.sql",
+    "0025_production_calendar.sql",
+    "0026_production_source_checks.sql",
+    "0027_production_ip_targets.sql",
+    "0028_production_tracker_details.sql"
   ],
   "duplicate_ordinals": {
     "0006": {

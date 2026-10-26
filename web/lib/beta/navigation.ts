@@ -20,7 +20,7 @@ export const BETA_PROTECTED_DESTINATIONS: readonly BetaNavigationDestination[] =
   { href: "/beta/settings/sessions", edgePath: "/beta/settings/sessions", capability: "chat:read", audiences: ["member", "operator", "admin", "super_admin"] },
   { href: "/beta/settings/appearance", edgePath: "/beta/settings/appearance", capability: "beta:read", audiences: ["member", "operator", "admin", "super_admin"] },
   { href: "/beta/workspace", edgePath: "/beta/workspace", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
-  { href: "/beta/workspace/production", edgePath: "/beta/workspace/production", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
+  { href: "/beta/workspace/production", edgePath: "/beta/workspace/production", capability: "production:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/workspace/episodes", edgePath: "/beta/workspace/episodes", capability: "episodes:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace", edgePath: "/beta/settings/workspace", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
   { href: "/beta/settings/workspace/readiness", edgePath: "/beta/settings/workspace/readiness", capability: "control_room:read", audiences: ["operator", "admin", "super_admin"] },
