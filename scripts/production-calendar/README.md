@@ -118,6 +118,14 @@ The working UI uses Calendar, Board, and Dubbing views instead of copying the
 Production Tracker grid into the primary navigation. A manager-only workbook
 reference and each episode's details preserve source rows, fills, boxes, and
 notes for verification. `Payments EP` belongs to WTF Is by owner confirmation.
+The Dubbing view shows the workbook's Posted? checkbox separately from the
+confirmed dubbed go-live state: among 57 imported jobs, 29 are checked, 25
+unchecked, and 3 have no box; 11 checked jobs still have no column-C date and
+are therefore not published. Authenticated editors can read the imported
+column-H follow-up notes in episode details and add a separate team note;
+private source contacts remain manager-only. Add episode from the Dubbing view
+creates an episode and dubbing job together. A confirmed go-live date is
+entered in the dubbing detail panel, not inferred from the source checkbox.
 Shoot location and per-source-row guest role are structured working fields;
 the raw workbook remains unchanged. Unnamed Production Tracker rows 17–19 are
 omitted from operational records and the working source-row view, but their

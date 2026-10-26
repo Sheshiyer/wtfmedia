@@ -18,7 +18,21 @@ class Statement {
   }
 }
 
-const env = { DB: { prepare: (sql) => new Statement(sql) } };
+const env = { DB: {
+  prepare: (sql) => new Statement(sql),
+  async batch(statements) {
+    database.exec("BEGIN");
+    try {
+      const results = [];
+      for (const statement of statements) results.push(await statement.run());
+      database.exec("COMMIT");
+      return results;
+    } catch (error) {
+      database.exec("ROLLBACK");
+      throw error;
+    }
+  },
+} };
 const editor = { operatorId: 2, role: "editor", environment: "local", correlationId: "calendar-test-001" };
 const admin = { operatorId: 1, role: "admin", environment: "local", correlationId: "calendar-test-002" };
 
@@ -83,6 +97,36 @@ test("editor writes a real item and event, with validated dates and audit", asyn
   assert.equal(snapshot.events.length, 1);
   assert.equal(snapshot.events[0].day, "2026-08-21");
   assert.equal(database.prepare("SELECT COUNT(*) AS n FROM production_change_log").get().n, 2);
+});
+
+test("a new dubbing episode is tracked immediately and remains not published until an actual go-live date", async () => {
+  const created = await handleProductionCalendarRequest(request("POST", {
+    action: "create_item",
+    data: { ipId: "wtf-is", title: "New dubbing episode", format: "panel", stage: "planned", owner: "", notes: "", shootLocation: null, trackDubbing: true },
+  }), env, editor);
+  assert.equal(created.status, 201);
+  const itemId = (await created.json()).id;
+  const initial = await (await handleProductionCalendarRequest(request(), env, editor)).json();
+  assert.equal(initial.dubbing.find((job) => job.itemId === itemId).publicationStatus, "not-published");
+  assert.equal(initial.dubbing.find((job) => job.itemId === itemId).status, "pending");
+  assert.equal(initial.dubbing.find((job) => job.itemId === itemId).sourcePostedCheck, "not_box");
+  assert.equal(initial.items.find((item) => item.id === itemId).sourceRef, null);
+
+  const note = await handleProductionCalendarRequest(request("POST", {
+    action: "update_dubbing", data: { itemId, targetLanguage: "hi", status: "in-progress", owner: null, notes: "Waiting for the voice sample" },
+  }), env, editor);
+  assert.equal(note.status, 200);
+  const withNote = await (await handleProductionCalendarRequest(request(), env, editor)).json();
+  assert.equal(withNote.dubbing.find((job) => job.itemId === itemId).notes, "Waiting for the voice sample");
+  assert.equal(withNote.dubbing.find((job) => job.itemId === itemId).publicationStatus, "not-published");
+
+  const live = await handleProductionCalendarRequest(request("POST", {
+    action: "create_event", data: { itemId, kind: "dub_schedule", day: "2026-10-26", dateState: "actual", owner: null, notes: "" },
+  }), env, editor);
+  assert.equal(live.status, 201);
+  const published = await (await handleProductionCalendarRequest(request(), env, editor)).json();
+  assert.equal(published.dubbing.find((job) => job.itemId === itemId).publicationStatus, "published");
+  assert.equal(published.dubbing.find((job) => job.itemId === itemId).publishedOn, "2026-10-26");
 });
 
 test("source checkbox edits preserve unchecked as a distinct state and leave raw cells alone", async () => {
@@ -174,15 +218,19 @@ test("dubbing source checkbox and row notes are separate from publication and pr
   insert.run("F8", "Asked for a sample");
   insert.run("G8", "true");
   insert.run("H8", "Sample sent; response pending");
+  database.prepare("INSERT INTO production_source_cells (import_id, sheet, cell_ref, row_number, raw_value) VALUES ('test-import', 'Dubbing Tracker', 'G9', 9, 'false')").run();
   const visibleToEditor = await (await handleProductionCalendarRequest(request(), env, editor)).json();
   const job = visibleToEditor.dubbing.find((entry) => entry.itemId === "undated-dub");
   assert.equal(job.sourcePostedCheck, "checked");
   assert.equal(job.sourceEpisodeNamed, true);
   assert.equal(job.sourcePermissionStatus, "Asked for a sample");
   assert.equal(job.publicationStatus, "not-published");
+  assert.equal(visibleToEditor.dubbing.find((entry) => entry.itemId === "dated-dub").sourcePostedCheck, "unchecked");
+  assert.equal(visibleToEditor.dubbing.find((entry) => entry.itemId === "dated-dub").publicationStatus, "published");
   const editorPermission = visibleToEditor.permissions.find((entry) => entry.guestId === guestId);
-  assert.equal(editorPermission.sourceNote, null);
+  assert.equal(editorPermission.sourceNote, "Sample sent; response pending");
   assert.equal(Object.hasOwn(editorPermission, "sourceContact"), false);
+  assert.deepEqual(job.sourceNotes, [{ row: 8, text: "Sample sent; response pending" }]);
   const visibleToManager = await (await handleProductionCalendarRequest(request(), env, admin)).json();
   const managerPermission = visibleToManager.permissions.find((entry) => entry.guestId === guestId);
   assert.equal(managerPermission.sourceNote, "Sample sent; response pending");

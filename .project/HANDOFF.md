@@ -1,5 +1,37 @@
 # Project handoff
 
+## 2026-10-26 Dubbing status and new-entry cross-check
+
+**Status:** LOCAL-ONLY. No GitHub push, remote Cloudflare write, migration,
+or deployment in this pass.
+
+- Rechecked the Dubbing Tracker screenshots and private workbook against the
+  local database: 57 imported dubbing jobs, 18 actual column-C go-live dates,
+  39 without a go-live date. Source column G has 29 checked, 25 unchecked, and
+  3 rows without a box among those jobs. Eleven checked jobs have no column-C
+  date and remain **not published** per the client's clarification.
+- Workbook row 30 is still a deliberate exception, not silently counted in
+  those 57 jobs: its apparent name is in column C rather than the episode/
+  guest columns, with a contact and follow-up note in later cells. Its raw
+  cells remain in the private source archive and the import-review queue;
+  confirm its episode/guest identity before making it operational.
+- The Dubbing list now shows the source Posted? checkbox state on every imported
+  episode, separately from actual publication. It also surfaces a note cue;
+  episode details show workbook H follow-up notes to authenticated editors,
+  while source contact column E remains manager-only.
+- Each episode has an editable dubbing work status and separate team note.
+  The detail panel has a direct confirmed go-live date field, which creates
+  the blue-mic calendar event. Permission statuses and notes stay per guest.
+- Add episode from the Dubbing view preselects dubbing tracking. The API
+  atomically creates the episode and dubbing job so it appears in Dubbing
+  immediately, without a second save. Isolated API tests cover creation,
+  note persistence, and transition from not published to published; the
+  browser confirms the preselected form and imported note/status display.
+  No fake test entry was added to the user's local database.
+- Web typecheck, lint, 165 web unit tests, and 11 focused production API
+  tests pass. This is not client-facing approval; prior staging/auth/source
+  review blockers still apply.
+
 ## 2026-10-25 Shareable production-calendar branch pickup
 
 The GitHub feature branch `codex/release-beta-calendar-local` contains the

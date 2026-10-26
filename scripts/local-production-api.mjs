@@ -52,7 +52,21 @@ class Statement {
   }
 }
 
-const env = { DB: { prepare: (sql) => new Statement(sql) } };
+const env = { DB: {
+  prepare: (sql) => new Statement(sql),
+  async batch(statements) {
+    database.exec("BEGIN");
+    try {
+      const results = [];
+      for (const statement of statements) results.push(await statement.run());
+      database.exec("COMMIT");
+      return results;
+    } catch (error) {
+      database.exec("ROLLBACK");
+      throw error;
+    }
+  },
+} };
 const localContext = { operatorId: 1, role: "super_admin", environment: "local", correlationId: "local-production-preview" };
 
 const server = createServer(async (incoming, outgoing) => {

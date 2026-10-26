@@ -33,6 +33,7 @@ export function ProductionDetails({
   selectedEventId,
   showDayEvents,
   creating,
+  creatingDubbing = false,
   busy,
   standalone = false,
   onSelectItem,
@@ -47,18 +48,19 @@ export function ProductionDetails({
   selectedEventId: string | null;
   showDayEvents: boolean;
   creating: boolean;
+  creatingDubbing?: boolean;
   busy: boolean;
   standalone?: boolean;
   onSelectItem: (itemId: string | null) => void;
   onSelectEvent: (eventId: string | null) => void;
   onStartCreate: () => void;
-  onCreated?: () => void;
+  onCreated?: (trackedDubbing: boolean) => void;
   onAction: Action;
 }) {
   const item = snapshot.items.find((record) => record.id === selectedItemId);
   const selectedEvent = snapshot.events.find((record) => record.id === selectedEventId);
   const dayEvents = snapshot.events.filter((event) => event.day === selectedDay && isCalendarActionEvent(event));
-  const [dubbingOpen, setDubbingOpen] = useState(item?.sourceRef?.startsWith("Dubbing Tracker!") === true);
+  const [dubbingOpen, setDubbingOpen] = useState(item?.sourceRef?.startsWith("Dubbing Tracker!") === true || snapshot.dubbing.some((entry) => entry.itemId === item?.id));
   const [blockersOpen, setBlockersOpen] = useState(snapshot.blockers.some((blocker) => blocker.itemId === selectedItemId && blocker.status !== "resolved"));
   const [title, setTitle] = useState("");
   const [ipId, setIpId] = useState("");
@@ -67,15 +69,17 @@ export function ProductionDetails({
   const [owner, setOwner] = useState("");
   const [notes, setNotes] = useState("");
   const [shootLocation, setShootLocation] = useState("");
+  const [trackDubbing, setTrackDubbing] = useState(creatingDubbing);
   const [eventKind, setEventKind] = useState("shoot");
   const [eventDay, setEventDay] = useState(selectedDay);
   const [eventState, setEventState] = useState("planned");
   const [eventOwner, setEventOwner] = useState("");
   const [eventNotes, setEventNotes] = useState("");
   const [dubStatus, setDubStatus] = useState("unknown");
-  const [dubLanguage, setDubLanguage] = useState("hi");
+  const [dubLanguage, setDubLanguage] = useState("Hindi");
   const [dubOwner, setDubOwner] = useState("");
   const [dubNotes, setDubNotes] = useState("");
+  const [dubPublishedDay, setDubPublishedDay] = useState("");
   const [newGuest, setNewGuest] = useState("");
   const [blockReason, setBlockReason] = useState("");
   const [blockOwner, setBlockOwner] = useState("");
@@ -102,10 +106,11 @@ export function ProductionDetails({
   const dub = snapshot.dubbing.find((entry) => entry.itemId === item?.id);
   useEffect(() => {
     setDubStatus(dub?.status ?? "unknown");
-    setDubLanguage(dub?.targetLanguage ?? "hi");
+    setDubLanguage(dub?.targetLanguage ?? "Hindi");
     setDubOwner(dub?.owner ?? "");
     setDubNotes(dub?.notes ?? "");
-  }, [dub?.itemId, dub?.status, dub?.targetLanguage, dub?.owner, dub?.notes]);
+    setDubPublishedDay(dub?.publishedOn ?? "");
+  }, [dub?.itemId, dub?.status, dub?.targetLanguage, dub?.owner, dub?.notes, dub?.publishedOn]);
 
   const linkedGuests = item ? snapshot.itemGuests.filter((link) => link.itemId === item.id).map((link) => snapshot.guests.find((guest) => guest.id === link.guestId)).filter((guest): guest is NonNullable<typeof guest> => Boolean(guest)) : [];
   const itemBlockers = item ? snapshot.blockers.filter((blocker) => blocker.itemId === item.id) : [];
@@ -114,9 +119,9 @@ export function ProductionDetails({
 
   async function saveItem() {
     if (!title.trim() || (!item && !ipId)) return;
-    const data = { title: title.trim(), ipId: ipId || null, format: format.trim(), stage, owner: owner.trim() || null, notes: notes.trim(), shootLocation: shootLocation.trim() || null };
+    const data = { title: title.trim(), ipId: ipId || null, format: format.trim(), stage, owner: owner.trim() || null, notes: notes.trim(), shootLocation: shootLocation.trim() || null, ...(!item ? { trackDubbing } : {}) };
     const saved = await onAction(item ? "update_item" : "create_item", item ? { id: item.id, ...data } : data);
-    if (saved && !item) onCreated?.();
+    if (saved && !item) onCreated?.(trackDubbing);
   }
 
   async function saveEvent() {
@@ -125,6 +130,15 @@ export function ProductionDetails({
     if (await onAction(selectedEvent ? "update_event" : "create_event", selectedEvent ? { id: selectedEvent.id, ...data } : data)) {
       onSelectEvent(null);
     }
+  }
+
+  async function saveDubPublication() {
+    if (!item || !dubPublishedDay) return;
+    const existing = snapshot.events.find((event) => event.itemId === item.id && (event.kind === "dub_schedule" || event.kind === "hindi-post") && event.dateState === "actual");
+    await onAction(existing ? "update_event" : "create_event", {
+      ...(existing ? { id: existing.id } : {}), itemId: item.id, kind: existing?.kind ?? "dub_schedule", day: dubPublishedDay,
+      dateState: "actual", owner: existing?.owner ?? null, notes: existing?.notes ?? "",
+    });
   }
 
   return (
@@ -172,6 +186,7 @@ export function ProductionDetails({
               </div>
               <Field label="Location of shoot"><input className={fieldClass} value={shootLocation} onChange={(event) => setShootLocation(event.target.value)} maxLength={300} disabled={!snapshot.canEdit || busy} placeholder="Not entered" /></Field>
               <Field label="Notes"><textarea className={`${fieldClass} min-h-20`} value={notes} onChange={(event) => setNotes(event.target.value)} maxLength={2000} disabled={!snapshot.canEdit || busy} /></Field>
+              {!item && <label className="flex items-center gap-2 font-label text-sm"><input type="checkbox" checked={trackDubbing} onChange={(event) => setTrackDubbing(event.target.checked)} disabled={!snapshot.canEdit || busy} /> Track dubbing for this episode</label>}
               {item?.sourceMarker === "not-live" && <p className="font-label text-xs text-secondary">⭕️ Not Live in the source workbook; no release date was entered.</p>}
               {item?.sourceStatus && <p className="font-label text-xs text-secondary">Source state: {item.sourceStatus}</p>}
               {snapshot.canEdit && <Button type="submit" variant="attention" loading={busy} disabled={!title.trim() || (!item && !ipId)}>{item ? "Save episode" : "Create episode"}</Button>}
@@ -209,13 +224,18 @@ export function ProductionDetails({
             <details className="border-t border-foreground/30 pt-4" aria-label="Dubbing progress" open={dubbingOpen} onToggle={(event) => setDubbingOpen(event.currentTarget.open)}>
               <summary className="cursor-pointer font-heading text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention">Dubbing{dub?.publicationStatus === "published" ? " · 🎙️ Live" : dub?.publicationStatus === "not-published" ? " · Not published" : ""}</summary>
               <p className="mt-1 font-label text-xs text-secondary">Dubbed publication: {dub?.publicationStatus === "published" ? `🎙️ Published ${dub.publishedOn ? dayLabel(dub.publishedOn) : ""}` : dub?.publicationStatus === "not-published" ? "Not published (no dubbed go-live date)" : "Not tracked"}. This is separate from dubbing work status.</p>
-              {dub?.sourceRow && <p className="mt-1 font-label text-xs text-secondary">Dubbing Tracker row {dub.sourceRow} · {dub.sourceSection === "solo" ? "Solo" : "Panel"} · source “Posted?” {dub.sourcePostedCheck === "checked" ? "☑ ticked" : dub.sourcePostedCheck === "unchecked" ? "☐ unticked" : "not recorded"}. {dub.sourcePostedCheck === "checked" && dub.publicationStatus === "not-published" ? "The client confirmed this is not published without a column-C date." : ""}</p>}
+              {dub?.sourceRow && <p className="mt-1 font-label text-xs text-secondary">Dubbing Tracker row {dub.sourceRow} · {dub.sourceSection === "solo" ? "Solo" : "Panel"} · workbook “Posted?” {dub.sourcePostedCheck === "checked" ? "☑ checked" : dub.sourcePostedCheck === "unchecked" ? "☐ unchecked" : "not recorded"}. {dub.sourcePostedCheck === "checked" && dub.publicationStatus === "not-published" ? "The client confirmed this is not published without a column-C date." : ""}</p>}
               {dub?.sourceNotes.length ? <div className="mt-2 space-y-2 border border-foreground/30 bg-canvas p-2.5"><p className="font-label text-xs font-bold">Workbook follow-up notes</p>{dub.sourceNotes.map((sourceNote) => <p key={sourceNote.row} className="whitespace-pre-wrap break-words font-body text-xs text-secondary"><span className="font-label font-bold">Row {sourceNote.row}: </span>{sourceNote.text}</p>)}</div> : null}
+              {dub && <form className="mt-3 space-y-2 border border-foreground/30 bg-canvas p-3" onSubmit={(event) => { event.preventDefault(); void saveDubPublication(); }}>
+                <Field label="Actual dubbed go-live date"><input type="date" className={fieldClass} value={dubPublishedDay} onChange={(event) => setDubPublishedDay(event.target.value)} disabled={!snapshot.canEdit || busy} /></Field>
+                <p className="font-body text-xs text-secondary">Leave blank while not published. Enter a confirmed date to show the 🎙️ mark on the calendar; this is separate from the workbook Posted? box.</p>
+                {snapshot.canEdit && <Button type="submit" variant="ghost" loading={busy} disabled={!dubPublishedDay || dubPublishedDay === (dub.publishedOn ?? "")}>Save go-live date</Button>}
+              </form>}
               <form className="mt-2 space-y-2" onSubmit={(event) => { event.preventDefault(); void onAction("update_dubbing", { itemId: item.id, targetLanguage: dubLanguage.trim(), status: dubStatus, owner: dubOwner.trim() || null, notes: dubNotes.trim() }); }}>
                 <div className="grid grid-cols-2 gap-2"><Field label="Status"><select className={fieldClass} value={dubStatus} onChange={(event) => setDubStatus(event.target.value)} disabled={!snapshot.canEdit || busy}>{dubbingStatuses.map((choice) => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></Field><Field label="Language"><input className={fieldClass} value={dubLanguage} onChange={(event) => setDubLanguage(event.target.value)} disabled={!snapshot.canEdit || busy} maxLength={32} /></Field></div>
                 <Field label="Owner"><input className={fieldClass} value={dubOwner} onChange={(event) => setDubOwner(event.target.value)} disabled={!snapshot.canEdit || busy} maxLength={120} /></Field>
-                <Field label="Notes"><textarea className={`${fieldClass} min-h-16`} value={dubNotes} onChange={(event) => setDubNotes(event.target.value)} disabled={!snapshot.canEdit || busy} maxLength={1000} /></Field>
-                {snapshot.canEdit && <Button type="submit" variant="secondary" loading={busy}>Save dubbing</Button>}
+                <Field label="Dubbing team note for this episode"><textarea className={`${fieldClass} min-h-20`} value={dubNotes} onChange={(event) => setDubNotes(event.target.value)} disabled={!snapshot.canEdit || busy} maxLength={1000} placeholder="Add an update, dependency, or follow-up" /></Field>
+                {snapshot.canEdit && <Button type="submit" variant="secondary" loading={busy}>{dub ? "Save dubbing" : "Start tracking dubbing"}</Button>}
               </form>
               <h4 className="mt-4 font-label text-sm font-bold">Guest permissions</h4>
               {item.sourceRef?.startsWith("Production Tracker Podcast!") && <p className="mt-1 font-body text-xs text-secondary">Dubbing permission is a separate workflow. It does not change the Production Tracker Guest Agreement boxes above.</p>}

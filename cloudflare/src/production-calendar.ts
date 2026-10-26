@@ -146,14 +146,14 @@ async function snapshot(env: ProductionEnv, context: OperatorContext): Promise<R
       const postedRaw = sourceRow === null ? null : dubbingSourceCells.get(`G${sourceRow}`);
       return {
         ...entry,
-        publicationStatus: publishedOn ? "published" : job.sourceRef?.startsWith("Dubbing Tracker!") ? "not-published" : "unknown",
+        publicationStatus: publishedOn ? "published" : "not-published",
         publishedOn,
         sourceRow,
         sourceSection: sourceRow === null ? null : sourceRow < 31 ? "solo" : "panel",
         sourceEpisodeNamed: sourceRow === null ? null : Boolean(dubbingSourceCells.get(`A${sourceRow}`)?.trim()),
         sourcePermissionStatus: sourceRow === null ? null : dubbingSourceCells.get(`F${sourceRow}`) ?? null,
         sourcePostedCheck: postedRaw === "true" ? "checked" : postedRaw === "false" ? "unchecked" : "not_box",
-        sourceNotes: canManage(context) ? [...(noteRowsByItem.get(job.itemId) ?? [])].sort((a, b) => a - b)
+        sourceNotes: canEdit(context) ? [...(noteRowsByItem.get(job.itemId) ?? [])].sort((a, b) => a - b)
           .map((row) => ({ row, text: dubbingSourceCells.get(`H${row}`) }))
           .filter((note): note is { row: number; text: string } => Boolean(note.text)) : [],
       };
@@ -163,7 +163,7 @@ async function snapshot(env: ProductionEnv, context: OperatorContext): Promise<R
       return {
         ...entry,
         sourceRow,
-        sourceNote: !canManage(context) || sourceRow === null ? null : dubbingSourceCells.get(`H${sourceRow}`) ?? null,
+        sourceNote: !canEdit(context) || sourceRow === null ? null : dubbingSourceCells.get(`H${sourceRow}`) ?? null,
         ...(canManage(context) ? { sourceContact: sourceRow === null ? null : dubbingSourceCells.get(`E${sourceRow}`) ?? null } : {}),
       };
     }), blockers: blockers.results, sourceChecks: sourceChecks.results,
@@ -190,10 +190,16 @@ async function mutate(env: ProductionEnv, context: OperatorContext, body: Mutati
       const owner = optionalString(data.owner, 120);
       const notes = optionalString(data.notes, 4000);
       const shootLocation = optionalString(data.shootLocation, 300);
-      if (!ipId || !title || !stage || owner === undefined || notes === undefined || shootLocation === undefined) return json({ error: "invalid_item" }, 400);
+      const trackDubbing = data.trackDubbing === true;
+      if (!ipId || !title || !stage || owner === undefined || notes === undefined || shootLocation === undefined || (data.trackDubbing !== undefined && typeof data.trackDubbing !== "boolean")) return json({ error: "invalid_item" }, 400);
       entityId = `pitem_${crypto.randomUUID()}`; entityType = "item";
-      await db.prepare("INSERT INTO production_items (id, ip_id, title, format, stage, owner, notes, shoot_location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
-        .bind(entityId, ipId, title, format, stage, owner, notes ?? "", shootLocation ?? null).run();
+      const insertItem = db.prepare("INSERT INTO production_items (id, ip_id, title, format, stage, owner, notes, shoot_location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+        .bind(entityId, ipId, title, format, stage, owner, notes ?? "", shootLocation ?? null);
+      if (trackDubbing) {
+        await db.batch([insertItem, db.prepare("INSERT INTO production_dubbing (item_id, target_language, status, notes) VALUES (?, 'Hindi', 'pending', '')").bind(entityId)]);
+      } else {
+        await insertItem.run();
+      }
     } else if (action === "update_item") {
       entityId = string(data.id, 90) ?? ""; entityType = "item";
       const ipId = data.ipId === null ? null : string(data.ipId, 80);

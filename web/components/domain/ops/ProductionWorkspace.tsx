@@ -89,10 +89,11 @@ export function ProductionWorkspace() {
         const body = await response.json().catch(() => null) as { error?: string } | null;
         throw new Error(body?.error ? `Save failed: ${body.error.replaceAll("_", " ")}.` : errorForStatus(response.status));
       }
-      const body = await response.json() as { ok?: boolean };
+      const body = await response.json() as { ok?: boolean; id?: unknown };
       if (body.ok !== true) throw new Error("Save was not confirmed by the production API.");
       saved = true;
       await refresh();
+      if (action === "create_item" && typeof body.id === "string") setSelectedItemId(body.id);
       setNotice("Saved to the local production database.");
       return true;
     } catch (cause) {
@@ -158,7 +159,7 @@ export function ProductionWorkspace() {
 
       {creating ? (
         <div className="max-w-2xl">
-          <ProductionDetails key="creating" snapshot={snapshot} selectedDay={selectedDay} selectedItemId={null} selectedEventId={null} showDayEvents={false} creating busy={busy} standalone onSelectItem={setSelectedItemId} onSelectEvent={setSelectedEventId} onStartCreate={() => setCreating(true)} onCreated={() => { setCreating(false); setView("board"); setIpFilter("all"); setFormatFilter("all"); setStageFilter("all"); setNotice("Episode saved. Open its board card to add dates; if it is not visible, reload the page."); }} onAction={onAction} />
+          <ProductionDetails key="creating" snapshot={snapshot} selectedDay={selectedDay} selectedItemId={null} selectedEventId={null} showDayEvents={false} creating creatingDubbing={view === "dubbing"} busy={busy} standalone onSelectItem={setSelectedItemId} onSelectEvent={setSelectedEventId} onStartCreate={() => setCreating(true)} onCreated={(trackedDubbing) => { setCreating(false); setView(trackedDubbing ? "dubbing" : "board"); setIpFilter("all"); setFormatFilter("all"); setStageFilter("all"); setNotice(trackedDubbing ? "Dubbing episode saved. Add guest permissions, notes, and a confirmed go-live date in its details." : "Episode saved. Add dates and details in the selected episode panel."); }} onAction={onAction} />
         </div>
       ) : <>
       <nav aria-label="Production views" className="flex flex-wrap items-center gap-2">
@@ -206,14 +207,17 @@ function ProductionDubbingList({ snapshot, itemIds, onSelectItem }: {
   }).sort((a, b) => (a.dub?.sourceRow ?? 1000) - (b.dub?.sourceRow ?? 1000) || a.item.title.localeCompare(b.item.title));
   const visibleRows = lane === "all" ? rows : rows.filter((row) => lane === "permissions" ? row.guestCount === 0 || row.approvedGuests < row.guestCount : lane === "blocked" ? row.blockers.length > 0 || row.dub?.status === "blocked" : row.dub?.publicationStatus === lane);
   const sourceRows = rows.filter((row) => row.dub?.sourceRow !== null && row.dub?.sourceRow !== undefined);
-  const publishedSourceCount = sourceRows.filter((row) => row.dub?.publicationStatus === "published").length;
+  const publishedCount = rows.filter((row) => row.dub?.publicationStatus === "published").length;
+  const checkedCount = sourceRows.filter((row) => row.dub?.sourcePostedCheck === "checked").length;
+  const uncheckedCount = sourceRows.filter((row) => row.dub?.sourcePostedCheck === "unchecked").length;
   const lanes = [{ id: "all", label: "All" }, { id: "not-published", label: "Not published" }, { id: "published", label: "Published" }, { id: "permissions", label: "Needs permission" }, { id: "blocked", label: "Blocked" }];
   return (
     <section aria-label="Dubbing pipeline" className="border-2 border-foreground bg-canvas">
       <div className="border-b-2 border-foreground bg-surface-raised px-4 py-3">
         <h2 className="font-heading text-xl">Dubbed episodes</h2>
         <p className="font-body text-sm text-secondary">A dubbed episode is live only when a go-live date is recorded. Guest permissions and dubbing work are tracked separately in each episode.</p>
-        <div className="mt-3 flex flex-wrap gap-3 font-label text-xs"><span><strong>{publishedSourceCount}</strong> live</span><span><strong>{sourceRows.length - publishedSourceCount}</strong> not published</span></div>
+        <div className="mt-3 flex flex-wrap gap-3 font-label text-xs"><span><strong>{publishedCount}</strong> live</span><span><strong>{rows.length - publishedCount}</strong> not published</span><span>Workbook Posted? <strong>{checkedCount}</strong> ☑ / <strong>{uncheckedCount}</strong> ☐{sourceRows.length - checkedCount - uncheckedCount > 0 ? ` / ${sourceRows.length - checkedCount - uncheckedCount} no box` : ""}</span></div>
+        <p className="mt-1 font-body text-xs text-secondary">The workbook checkbox is shown exactly as recorded. Publication comes from an actual dubbed go-live date, so a checked box with no date remains not published.</p>
         <div className="mt-3 flex flex-wrap gap-1.5" aria-label="Dubbing views">{lanes.map((choice) => <Button key={choice.id} type="button" variant={lane === choice.id ? "attention" : "ghost"} pressed={lane === choice.id} onClick={() => setLane(choice.id)}>{choice.label}</Button>)}</div>
       </div>
       <div className="divide-y divide-foreground/20">
@@ -222,7 +226,7 @@ function ProductionDubbingList({ snapshot, itemIds, onSelectItem }: {
           const publication = dub?.publicationStatus === "published" ? `🎙️ Live ${dub.publishedOn ? dayLabel(dub.publishedOn) : ""}` : "Not published";
           return <button type="button" key={item.id} onClick={() => onSelectItem(item.id)} className="grid w-full gap-2 border-l-[5px] px-4 py-3 text-left hover:bg-attention/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention sm:grid-cols-[minmax(12rem,1.7fr)_minmax(9rem,1fr)] sm:items-center" style={{ borderLeftColor: safeIpColor(ip?.color) } as CSSProperties}>
             <span><span className="block font-body text-sm font-semibold">{item.title}</span><span className="font-label text-xs text-secondary">{ip?.name ?? "IP not recorded"}{dub?.sourceSection ? ` · ${dub.sourceSection === "solo" ? "Solo" : "Panel"}` : ""}</span></span>
-            <span className="font-label text-xs"><span className="block font-bold">{publication}</span><span className="block text-secondary">{guestCount ? `${approvedGuests} of ${guestCount} guest permissions approved` : "Guest not identified"} · Dubbing {optionLabel(dubbingStatuses, dub?.status ?? "unknown")}</span>{blockers[0] && <span className="block text-editorial">Blocked: {blockers[0].reason}</span>}{dub?.sourcePostedCheck === "checked" && dub.publicationStatus === "not-published" && <span className="block text-secondary">Workbook box ticked, but no go-live date</span>}</span>
+            <span className="font-label text-xs"><span className="block font-bold">{publication}</span>{dub?.sourceRow && <span className="block text-secondary">Workbook Posted? {dub.sourcePostedCheck === "checked" ? "☑ checked" : dub.sourcePostedCheck === "unchecked" ? "☐ unchecked" : "— no box recorded"}</span>}<span className="block text-secondary">{guestCount ? `${approvedGuests} of ${guestCount} guest permissions approved` : "Guest not identified"} · Dubbing {optionLabel(dubbingStatuses, dub?.status ?? "unknown")}</span>{dub && (dub.notes || dub.sourceNotes.length) ? <span className="block text-secondary">Notes available in episode details</span> : null}{blockers[0] && <span className="block text-editorial">Blocked: {blockers[0].reason}</span>}</span>
           </button>;
         }) : <p className="p-6 font-body text-sm text-secondary">No items match this dubbing view.</p>}
       </div>
