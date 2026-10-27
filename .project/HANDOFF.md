@@ -1,3 +1,35 @@
+## 2026-10-27 — Social Analytics web release authorized
+
+- Owner approved the local Social Analytics cleanup, pushing to feature/pavun,
+  staging deployment and production deployment of the social page.
+- Web-only release: remove profile UI, top workspace explanation/badge and Beta
+  branding. Staging uses the current branch. Production must use the recorded
+  analytics-only frontend baseline from aa72b98/ded0b4c and overlay only the social
+  workspace component and page metadata. Do not promote research or other staging
+  features to production. Backend workers, credentials and databases are unchanged.
+- Preserve environment-specific Clerk identity, service bindings and domains;
+  record pre/post versions and route/asset checks. No paid model calls, report
+  regeneration, profile selection, account connection or migration is included.
+
+## 2026-10-27 — Local Social Analytics presentation cleanup
+
+- Owner requested removal of the workspace profile section, top connected-workspace
+  explanation and badge, and the Beta label. Removed the profile selector, confirm
+  action, workspace name, explanatory sidebar and environment badge. Heading and
+  page title no longer include Beta. Existing channel controls, account data,
+  server profile selection, principal admission and capability checks are preserved.
+- Removed unused profile-selection UI state and requests. Unconfigured integrations
+  retain a truthful setup message; no automatic profile writes were introduced.
+  Updated existing presentation assertions and stale feature-flag tests to match
+  the already-released analytics routes, without changing routing policy.
+- Local verification: 18 social-contract tests, web typecheck, focused lint and
+  diff check pass. Frontend restarted on localhost:3000; social page returns 200
+  and unsigned principal API returns 401 through the existing local Edge.
+  Backend and research runner remain running. Owner will test the signed-in page.
+- These UI edits remain local and uncommitted on feature/pavun. They are excluded
+  from the research deployment and pushed release receipt below. Test at
+  http://localhost:3000/beta/social-analytics .
+
 ## 2026-10-27 — Automatic visual repair staging deployment receipt
 
 - Owner-authorized candidate 0f25daac16402c5ef69c78bfa8a7ac7e80b35569 is pushed

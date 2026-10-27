@@ -114,45 +114,25 @@ describe("authenticated social workspace", () => {
     expect(harness.request).toHaveBeenCalledWith("/beta/api/social-analytics/status", expect.any(Object));
   });
 
-  it("displays the sole option without silently saving and requires confirmation", async () => {
-    harness.state[0] = adminStatus;
+  it("omits workspace setup and header explanations while keeping channel management", () => {
+    harness.state[0] = { ...adminStatus, configured: true, selectionRequired: false, profileName: "Workspace A" };
     harness.state[4] = false;
-    let finish!: (response: Response) => void;
-    harness.request.mockImplementationOnce(() => new Promise<Response>(resolve => { finish = resolve; }))
-      .mockResolvedValueOnce(Response.json({ ...adminStatus, configured: true, selectionRequired: false }));
     const html = renderWorkspace();
-    expect(html).toContain('value="profile-a" selected=""');
-    expect(harness.request).not.toHaveBeenCalled();
-    button("confirm workspace profile").onClick!();
-    button("confirm workspace profile").onClick!();
-    expect(harness.request).toHaveBeenCalledTimes(1);
-    expect(harness.request).toHaveBeenCalledWith("/beta/api/social-analytics/selection", expect.objectContaining({ method: "POST", body: JSON.stringify({ profileId: "profile-a" }) }));
-    expect(renderWorkspace()).toContain("Confirming workspace profile…");
-    expect(button("confirm workspace profile").loading).toBe(true);
-    finish(Response.json({ ok: true }));
-    await vi.waitFor(() => expect(harness.state[9]).toBe(false));
-    expect(renderWorkspace()).toContain("Workspace profile confirmed.");
-  });
-
-  it("requires a choice for multiple profiles and disables configured overrides", () => {
-    harness.state[0] = { ...adminStatus, profiles: [...adminStatus.profiles, { id: "profile-b", name: "Workspace B" }] };
-    renderWorkspace();
-    expect(button("confirm workspace profile").disabled).toBe(true);
-    harness.state[0] = { ...adminStatus, configured: true, profileId: "profile-b", configuredOverride: true, profiles: [...adminStatus.profiles, { id: "profile-b", name: "Workspace B" }] };
-    const html = renderWorkspace();
-    expect(html).toMatch(/<select[^>]*disabled/);
-    expect(html).toContain('value="profile-b" selected=""');
-    button("confirm workspace profile").onClick!();
+    expect(html).toContain("WTF social intelligence");
+    for (const text of ["· Beta", "one connected workspace", "Connect each channel", "staging workspace", "Workspace profile", "Workspace A", "confirm workspace profile", "Zernio profile"]) {
+      expect(html).not.toContain(text);
+    }
+    expect(button("connect LinkedIn")).toBeDefined();
     expect(harness.request).not.toHaveBeenCalled();
   });
 
-  it("shows setup for no profiles and hides management/profile lists from readers", () => {
-    harness.state[0] = { ...adminStatus, profiles: [] };
-    expect(renderWorkspace()).toContain('href="https://zernio.com"');
+  it("keeps unconfigured workspaces explicit and hides management from readers", () => {
+    harness.state[0] = adminStatus;
+    expect(renderWorkspace()).toContain("Ask an administrator to check the workspace integration.");
+    expect(button("connect LinkedIn").disabled).toBe(true);
     harness.state[0] = { ...adminStatus, canManage: false };
     const html = renderWorkspace();
     expect(html).not.toContain("Workspace A");
-    expect(html).not.toContain("confirm workspace profile");
     expect(html).not.toContain("connect LinkedIn");
     expect(html).toContain("Social chat");
   });
@@ -231,31 +211,16 @@ describe("authenticated social workspace", () => {
   });
 });
 
-describe("social feature gates", () => {
-  it("keeps hosted navigation hidden by default and preserves production YouTube hiding", () => {
+describe("social access", () => {
+  it.each(["local", "staging", "production"])("keeps released analytics navigation available in %s", environment => {
     vi.stubEnv("NEXT_PUBLIC_SOCIAL_ANALYTICS_ENABLED", "");
-    expect(isBetaDestinationVisible("/beta/social-analytics", "local")).toBe(true);
-    for (const environment of ["staging", "production"]) expect(isBetaDestinationVisible("/beta/social-analytics", environment)).toBe(false);
-    vi.stubEnv("NEXT_PUBLIC_SOCIAL_ANALYTICS_ENABLED", "1");
-    expect(isBetaDestinationVisible("/beta/social-analytics/", "production")).toBe(true);
-    expect(isBetaDestinationVisible("/beta/analytics", "production")).toBe(false);
-    expect(isBetaDestinationVisible("/beta/settings/workspace/analytics", "production")).toBe(false);
+    expect(isBetaDestinationVisible("/beta/social-analytics", environment)).toBe(true);
+    expect(isBetaDestinationVisible("/beta/analytics", environment)).toBe(true);
   });
 
-  it.each([
-    ["production", "beta.wtfhq.in", "", "1", false],
-    ["production", "localhost", "", "1", false],
-    ["development", "localhost", "", "1", true],
-    ["development", "localhost", "", "", false],
-    ["development", "localhost.evil.example", "", "1", false],
-    ["production", "beta.wtfhq.in", "1", "", true],
-  ])("gates the server page for %s / %s / hosted=%s / local=%s", async (node, host, enabled, local, allowed) => {
-    vi.stubEnv("NODE_ENV", node);
-    vi.stubEnv("SOCIAL_ANALYTICS_ENABLED", enabled);
-    vi.stubEnv("SOCIAL_ANALYTICS_LOCAL_ENABLED", local);
-    harness.host = host;
-    if (allowed) await expect(BetaSocialAnalyticsPage()).resolves.toBeTruthy();
-    else await expect(BetaSocialAnalyticsPage()).rejects.toThrow("not_found");
+  it("renders the page inside the shared principal gate without a separate frontend flag", () => {
+    vi.stubEnv("SOCIAL_ANALYTICS_ENABLED", "");
+    expect(BetaSocialAnalyticsPage()).toBeTruthy();
   });
 
   it.each(["member", "editor", "admin", "super_admin"] as const)("requires the projected read capability for %s", role => {

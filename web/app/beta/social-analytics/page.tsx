@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { BetaSocialAnalyticsWorkspace } from "@/components/domain/social/SocialAnalyticsWorkspace";
 
 export const metadata: Metadata = {
-  title: "social media analytics · wtf os beta",
+  title: "social media analytics · wtf os",
 };
 
 export default function BetaSocialAnalyticsPage() {

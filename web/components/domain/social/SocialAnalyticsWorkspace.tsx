@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
-import { useBetaPrincipal, useMemberFetch } from "@/components/domain/beta/BetaPrincipalGate";
+import { useMemberFetch } from "@/components/domain/beta/BetaPrincipalGate";
 import { SocialAnalyticsChat } from "@/components/domain/social/SocialAnalyticsChat";
 import { PlatformLogo } from "@/components/domain/social/PlatformLogo";
 import {
@@ -56,10 +56,7 @@ async function responseJson<T>(response: Response): Promise<T> {
 
 type BetaSocialStatusResponse = SocialStatusResponse & {
   canManage: boolean;
-  profiles?: { id: string; name: string }[];
-  profileName?: string;
   selectionRequired?: boolean;
-  configuredOverride?: boolean;
 };
 
 type SocialFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
@@ -71,15 +68,13 @@ export function SocialAnalyticsWorkspace() {
 
 export function BetaSocialAnalyticsWorkspace() {
   const request = useMemberFetch();
-  const principal = useBetaPrincipal();
-  return <SocialAnalyticsView request={request} apiBase="/beta/api/social-analytics" beta environment={principal.environment} />;
+  return <SocialAnalyticsView request={request} apiBase="/beta/api/social-analytics" beta />;
 }
 
-function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
+function SocialAnalyticsView({ request, apiBase, beta = false }: {
   request: SocialFetch;
   apiBase: string;
   beta?: boolean;
-  environment?: string;
 }) {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<BetaSocialStatusResponse | null>(null);
@@ -91,9 +86,6 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
   const [connecting, setConnecting] = useState<SocialPlatform | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const [profileId, setProfileId] = useState("");
-  const [savingProfile, setSavingProfile] = useState(false);
-  const [profileNotice, setProfileNotice] = useState<string | null>(null);
   const [pagePicker, setPagePicker] = useState<string | null>(null);
   const [linkedinPages, setLinkedinPages] = useState<LinkedInOrganization[]>([]);
   const [loadingPages, setLoadingPages] = useState(false);
@@ -105,8 +97,6 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
   const dashboardRequest = useRef<AbortController | null>(null);
   const statusRequest = useRef<AbortController | null>(null);
   const canManage = beta && status?.canManage === true;
-  const profiles = beta && canManage ? status?.profiles ?? [] : [];
-  const selectedProfileId = status?.configuredOverride ? status.profileId ?? "" : profileId || (profiles.length === 1 ? profiles[0].id : "");
   const scope = useMemo(() => ({ platform, ...dateScope(rangeDays) }), [platform, rangeDays]);
 
   const callbackPlatform = searchParams.get("connected");
@@ -129,7 +119,6 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
       const payload = await responseJson<BetaSocialStatusResponse>(response);
       if (controller.signal.aborted) return;
       setStatus(payload);
-      setProfileId("");
     } catch (caught) {
       if (controller.signal.aborted) return;
       setError(caught instanceof Error ? caught.message : "Could not load connected accounts.");
@@ -174,32 +163,6 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
     void load();
     return () => controller.abort();
   }, [activeAccounts.length, apiBase, connectedPlatforms, platform, request, scope, status]);
-
-  const confirmProfile = async () => {
-    if (!beta || !canManage || status?.configuredOverride || !profiles.some((profile) => profile.id === selectedProfileId) || mutationPending.current) return;
-    mutationPending.current = true;
-    dashboardRequest.current?.abort();
-    setLoadingDashboard(false);
-    setSavingProfile(true);
-    setDashboard(null);
-    setError(null);
-    setProfileNotice(null);
-    try {
-      const response = await request(`${apiBase}/selection`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ profileId: selectedProfileId }),
-      });
-      await responseJson(response);
-      setProfileNotice("Workspace profile confirmed.");
-      await loadStatus();
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Could not confirm the workspace profile.");
-    } finally {
-      mutationPending.current = false;
-      setSavingProfile(false);
-    }
-  };
 
   const connect = async (target: SocialPlatform) => {
     if (!canManage || !status?.configured || status.selectionRequired || mutationPending.current) return;
@@ -284,22 +247,15 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
 
   return <div className="bg-canvas pb-16" data-social-analytics-workspace>
     <section className="border-b-2 border-foreground px-4 py-10 sm:px-8 xl:px-12">
-      <div className="mx-auto grid max-w-[var(--wtf-content-max)] gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(280px,0.7fr)] lg:items-end">
+      <div className="mx-auto max-w-[var(--wtf-content-max)]">
         <div>
           <div className="mb-5 flex items-center gap-3">
             <span className="h-1 w-9 border border-foreground bg-editorial" aria-hidden="true" />
-            <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">WTF social intelligence · {beta ? "Beta" : "local lab"}</p>
+            <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">WTF social intelligence</p>
           </div>
           <h1 className="font-display text-[clamp(3rem,8vw,7rem)] font-extrabold lowercase leading-[0.82] tracking-[-0.055em] text-foreground">
             read the room.<br /><span className="font-editorial font-medium italic">across every feed.</span>
           </h1>
-        </div>
-        <div className="border-l-4 border-attention pl-6">
-          <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">one connected workspace</p>
-          <p className="mt-3 max-w-md font-body text-lg leading-relaxed text-secondary">Connect each channel once. Zernio handles platform OAuth; WTF OS turns the returned data into one decision view.</p>
-          <div className="mt-5 inline-flex items-center gap-2 rounded-full border-2 border-foreground bg-surface-raised px-3 py-2 font-label text-xs font-bold uppercase tracking-wide">
-            <span className="h-2.5 w-2.5 rounded-full bg-live" aria-hidden="true" /> {beta ? `${environment} workspace` : "local only · not deployed"}
-          </div>
         </div>
       </div>
     </section>
@@ -308,30 +264,14 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
       {callbackPlatform && <div className="mb-6 border-2 border-foreground bg-live/10 p-4 font-body text-sm" role="status">
         <strong className="font-label">Connection returned from Zernio.</strong> Refreshing account access for {callbackPlatform}.
       </div>}
-      {status && !status.configured && <p className="mb-6 border-2 border-foreground p-4" role="status">{beta ? canManage ? "Confirm a workspace profile below to enable social analytics. If profiles cannot be loaded, ask your administrator to check the integration." : "Social analytics is not configured. Ask an administrator to connect the workspace." : "Social analytics is not configured. Add the local Zernio API key to discover your workspace and enable connections."}</p>}
+      {status && !status.configured && <p className="mb-6 border-2 border-foreground p-4" role="status">{beta ? "Social analytics is not configured. Ask an administrator to check the workspace integration." : "Social analytics is not configured. Add the local Zernio API key to discover your workspace and enable connections."}</p>}
       {error && <div className="mb-6 border-2 border-editorial bg-editorial/10 p-4 font-body text-sm text-foreground" role="alert">
         <strong className="font-label">Needs attention:</strong> {error}
       </div>}
       {notice && <div className="mb-6 border-2 border-foreground bg-live/10 p-4 font-body text-sm" role="status">{notice}</div>}
 
-      {beta && status?.profileName && <p className="mb-4 font-body text-sm">Workspace: <strong>{status.profileName}</strong></p>}
       {!beta && <p className="mb-4 text-sm"><a className="underline" href="/beta/social-analytics">Open the signed-in workspace</a> to connect accounts as an admin and ask questions about your metrics.</p>}
-      {beta && canManage && <section className="mb-8 border-2 border-foreground bg-surface-raised p-5" aria-labelledby="profile-heading">
-        <h2 id="profile-heading" className="font-display text-2xl font-bold">Workspace profile</h2>
-        {status?.configuredOverride && <p className="mt-2 text-sm text-secondary">The workspace profile is fixed by server configuration. Profile switching is disabled.</p>}
-        {profiles.length > 0 || status?.configuredOverride ? <div className="mt-4 flex flex-wrap items-end gap-3">
-          <label className="grid min-w-0 max-w-full gap-2 text-sm">
-            Zernio profile
-            <select className="min-h-11 min-w-0 max-w-full border-2 border-foreground bg-canvas px-3" value={selectedProfileId} onChange={(event) => { setProfileId(event.target.value); setProfileNotice(null); }} disabled={status?.configuredOverride || savingProfile || connecting !== null}>
-              <option value="">Choose a profile</option>
-              {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}</option>)}
-            </select>
-          </label>
-          <Button onClick={() => void confirmProfile()} loading={savingProfile} disabled={!selectedProfileId || status?.configuredOverride || connecting !== null}>confirm workspace profile</Button>
-          <p className="w-full text-sm text-secondary">Confirming uses this profile for everyone in this workspace. Choosing an option alone makes no changes.</p>
-        </div> : <p className="mt-3 text-sm">No accessible profiles. <a className="underline" href="https://zernio.com" target="_blank" rel="noopener noreferrer">Set up a profile in Zernio</a>, then refresh connections.</p>}
-      </section>}
-      {(savingProfile || connecting || loadingStatus || profileNotice) && <p className="mb-4 text-sm" role="status">{savingProfile ? "Confirming workspace profile…" : connecting ? "Opening secure platform connection…" : loadingStatus ? "Loading connected accounts…" : profileNotice}</p>}
+      {(connecting || loadingStatus) && <p className="mb-4 text-sm" role="status">{connecting ? "Opening secure platform connection…" : "Loading connected accounts…"}</p>}
 
       <section aria-labelledby="connections-heading">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
@@ -339,7 +279,7 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
             <p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">01 · connections</p>
             <h2 id="connections-heading" className="mt-2 font-display text-heading font-bold lowercase tracking-tight">bring the channels in</h2>
           </div>
-          <Button variant="secondary" onClick={() => void loadStatus()} loading={loadingStatus} disabled={savingProfile || connecting !== null}>refresh connections</Button>
+          <Button variant="secondary" onClick={() => void loadStatus()} loading={loadingStatus} disabled={connecting !== null}>refresh connections</Button>
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {PLATFORM_DEFINITIONS.map((definition) => {
@@ -357,10 +297,10 @@ function SocialAnalyticsView({ request, apiBase, beta = false, environment }: {
               <p className="mt-2 flex-1 font-body text-sm leading-relaxed text-secondary">{account ? accountLabel(account) : definition.description}</p>
               {account?.healthMessage && <p className="mb-3 text-xs text-editorial">{account.healthMessage}</p>}
               {account?.analyticsNote && <p className="mb-3 text-xs leading-relaxed text-muted">{account.analyticsNote}</p>}
-              {canManage && account?.platform === "linkedin" && <Button variant={account.accountType === "organization" ? "secondary" : "attention"} loading={loadingPages} disabled={savingProfile || connecting !== null || switchingPage || removing !== null} onClick={() => void openLinkedInPages(account.id)}>
+              {canManage && account?.platform === "linkedin" && <Button variant={account.accountType === "organization" ? "secondary" : "attention"} loading={loadingPages} disabled={connecting !== null || switchingPage || removing !== null} onClick={() => void openLinkedInPages(account.id)}>
                 {account.accountType === "organization" ? "change company page" : "choose company page"}
               </Button>}
-              {canManage && (!account || account.platform !== "linkedin") && <Button variant={account ? "secondary" : "attention"} loading={connecting === definition.id} disabled={!status?.configured || status.selectionRequired || savingProfile || connecting !== null} onClick={() => void connect(definition.id)}>
+              {canManage && (!account || account.platform !== "linkedin") && <Button variant={account ? "secondary" : "attention"} loading={connecting === definition.id} disabled={!status?.configured || status.selectionRequired || connecting !== null} onClick={() => void connect(definition.id)}>
                 {account ? "reconnect" : `connect ${definition.label}`}
               </Button>}
               {canManage && account?.platform === "linkedin" && pagePicker === account.id && <div className="mt-4 border-t-2 border-foreground pt-3">
