@@ -1,3 +1,40 @@
+## 2026-10-27 — TikTok Social Analytics deployed to production and staging
+
+- Owner authorized pushing all changes and deploying TikTok Social Analytics to
+  both sites. Source 010b7916b4635100df802a846351dd433f866158 is pushed to
+  feature/pavun. All four updated workers read back at 100% traffic:
+  - Staging Web: 0d0a6410-e007-4945-bedd-4ece2ad34f19.
+  - Staging Edge: 1226f7fd-fa30-4df3-b3f9-bc1c6c195694.
+  - Production apex Web: 318b8b76-325c-452d-a9cc-7be8f734f70b.
+  - Production Edge: a8d94ffe-4298-496f-bc98-3c2408625f21.
+- Production frontend retains the preceding selective release assembly. Only
+  SocialAnalyticsWorkspace.tsx, PlatformLogo.tsx, BRAND-ICONS-LICENSE.md and the
+  shared social-analytics-contracts.ts differ from that assembly. Production
+  research routes remain absent; no other branch features were promoted.
+- Each Edge artifact was prepared from its exact previous live module with three
+  unique reversible replacements: append tiktok to SOCIAL_PLATFORMS; use that
+  array's length for plan validation; use its length in the planner prompt.
+  Reversing these changes restores the previous module byte-for-byte. Live
+  downloaded module hashes match the prepared artifacts. This is a bounded
+  runtime adaptation of the source change, not a full branch Edge rebuild.
+- VERIFIED-SOURCE: 42 Edge and 51 web focused tests pass; both isolated OpenNext
+  builds pass lint/types. Architecture and whitespace checks pass.
+- LIVE-VERIFIED: both social pages serve the exact built TikTok chunk; Clerk
+  domains match their environment. Sign-in/social/YouTube/chat return 200, root
+  redirects 307, and unsigned social status returns 401. All existing settings
+  and bindings match pre-deployment snapshots (staging Web 10 / Edge 27,
+  production Web 6 / Edge 31). Real TikTok OAuth and connected metrics were not
+  exercised; account authorization remains an owner action.
+- No database migration, credential change, provider call, paid model call or
+  report regeneration. Research Worker remains
+  f225e6df-00fb-4a0f-8d57-f95b2c4f3238 at 100% traffic.
+- Rollback versions: staging Web aab96a58-2719-4abb-bbc5-90c54a353024 and Edge
+  5da7831b-a242-40a1-8360-383cbe72e9da; production Web
+  be7823b3-1793-4d25-8658-ad2c6c457624 and Edge
+  4f21894f-9ecd-40d5-afae-dad24890a843. Preserve bindings/state when rolling back.
+- URLs: https://wtfhq.in/beta/social-analytics and
+  https://beta-staging.wtfhq.in/beta/social-analytics .
+
 ## 2026-10-27 — TikTok Social Analytics connection added locally
 
 - Added TikTok to the shared platform contract, connection cards, brand icons,
