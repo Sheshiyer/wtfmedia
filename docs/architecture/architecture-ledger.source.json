@@ -443,7 +443,7 @@
         },
         {
           "label": "Interface",
-          "value": "Structured chat answers, explicit scope, source freshness, cancellation/retry and private saved chats.",
+          "value": "Connection cards for LinkedIn, Instagram, Facebook, X and TikTok; structured chat answers, explicit scope, source freshness, cancellation/retry and private saved chats.",
           "evidence": [
             "web/components/domain/social/SocialAnalyticsChat.tsx",
             "docs/SOCIAL-ANALYTICS-LOCAL.md"

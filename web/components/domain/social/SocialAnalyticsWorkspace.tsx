@@ -43,7 +43,7 @@ function accountLabel(account: SocialAccount): string {
   return account.displayName ?? account.username ?? "Connected account";
 }
 function postFallback(platform: SocialPlatform, publishedAt: string | null): string {
-  const name = platform === "twitter" ? "X" : platform[0].toUpperCase() + platform.slice(1);
+  const name = platform === "twitter" ? "X" : PLATFORM_DEFINITIONS.find(item => item.id === platform)!.label;
   const date = publishedAt ? new Date(publishedAt) : null;
   return date && Number.isFinite(date.getTime()) ? `${name} post · ${new Intl.DateTimeFormat("en", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(date)}` : `${name} post`;
 }
@@ -281,7 +281,7 @@ function SocialAnalyticsView({ request, apiBase, beta = false }: {
           </div>
           <Button variant="secondary" onClick={() => void loadStatus()} loading={loadingStatus} disabled={connecting !== null}>refresh connections</Button>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
           {PLATFORM_DEFINITIONS.map((definition) => {
             const account = accounts.find((candidate) => candidate.platform === definition.id && candidate.isActive);
             const syncPending = account?.analyticsSyncStatus === "never_synced";
@@ -297,6 +297,7 @@ function SocialAnalyticsView({ request, apiBase, beta = false }: {
               <p className="mt-2 flex-1 font-body text-sm leading-relaxed text-secondary">{account ? accountLabel(account) : definition.description}</p>
               {account?.healthMessage && <p className="mb-3 text-xs text-editorial">{account.healthMessage}</p>}
               {account?.analyticsNote && <p className="mb-3 text-xs leading-relaxed text-muted">{account.analyticsNote}</p>}
+              {canManage && account?.platform === "tiktok" && <p className="mb-3 text-xs leading-relaxed text-muted">Reconnect the same TikTok account to keep its history. Connecting a different account replaces the current account and deletes its history.</p>}
               {canManage && account?.platform === "linkedin" && <Button variant={account.accountType === "organization" ? "secondary" : "attention"} loading={loadingPages} disabled={connecting !== null || switchingPage || removing !== null} onClick={() => void openLinkedInPages(account.id)}>
                 {account.accountType === "organization" ? "change company page" : "choose company page"}
               </Button>}

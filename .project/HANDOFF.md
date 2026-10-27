@@ -1,3 +1,19 @@
+## 2026-10-27 — TikTok Social Analytics connection added locally
+
+- Added TikTok to the shared platform contract, connection cards, brand icons,
+  connected-platform filters, provider normalization and analytics query scope.
+  The planner limit follows the supported-platform count (five); existing request
+  budgets and administrator-only connection permissions remain in force.
+- Uses the existing Zernio OAuth handoff and server-selected workspace. The
+  reconnect card explains that choosing another TikTok account replaces the
+  current account and deletes its history, per Zernio's documented contract.
+- VERIFIED-SOURCE: 42 Edge social tests and 51 web social tests pass, including
+  mocked TikTok OAuth/discovery/dashboard, admin versus reader access, five-platform
+  planning and frontend connection/filter behavior. Web typecheck passes.
+- Local on feature/pavun. No push, deployment, migration, credential change,
+  live account connection, provider request or paid model call for this addition.
+  Actual TikTok OAuth and metric availability still need account-owner validation.
+
 ## 2026-10-27 — Social Analytics cleanup deployed to staging and production
 
 - Owner-approved source 94135ba136db22428e0b4e732d8c268f634fcf4f is pushed to

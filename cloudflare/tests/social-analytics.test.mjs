@@ -127,13 +127,41 @@ test('admin-only connection and selection; all admitted roles can view and ask',
   const options={verifyClerk:async()=>identity,fetchSocial,planSocial:async()=>({answer:JSON.stringify({intent:'summary',platforms:['instagram'],metrics:['views'],posts:[],target:'platform'})})};
   const call=(path,method='GET',body)=>handleMemberRequest(req(path,method,body),{...env,DB:database},options);
   const manager=['admin','super_admin'].includes(role);
-  assert.equal((await call('connect','POST',{platform:'instagram'})).status,manager?200:403,role);
+  for (const platform of ['instagram','tiktok']) {
+   assert.equal((await call('connect','POST',{platform})).status,manager?200:403,role);
+  }
   assert.equal((await call('selection','POST',{profileId:'private-profile'})).status,manager?200:403,role);
-  assert.equal(connects,manager?1:0);assert.equal(writes,manager?1:0);
+  assert.equal(connects,manager?2:0);assert.equal(writes,manager?1:0);
   const status=await (await call('status')).json();assert.equal(status.canManage,manager);
   if(!manager){assert.equal(status.profileId,undefined);assert.equal(status.profiles,undefined)}
   assert.equal((await call('dashboard?platform=instagram&fromDate=2026-01-01&toDate=2026-01-02')).status,200,role);
   const response=await call('assistant','POST',{question:'Instagram views',scope:{platform:'instagram',fromDate:'2026-01-01',toDate:'2026-01-02'}});
   assert.equal(response.status,200,role);assert.equal((await response.json()).rows[0].values[0],42);
  }
+});
+
+test('TikTok uses scoped OAuth, account discovery and dashboard normalization', async()=>{
+ const calls=[];
+ const provider=createSocialProvider({ZERNIO_API_KEY:'test'},async url=>{
+  const request=new URL(url);calls.push(request);
+  assert.equal(request.searchParams.get('profileId'),'workspace-profile');
+  if(request.pathname.endsWith('/connect/tiktok')) {
+   assert.equal(request.searchParams.get('redirect_url'),'https://example.test/beta/social-analytics');
+   return Response.json({authUrl:'https://example.test/tiktok-oauth'});
+  }
+  if(request.pathname.endsWith('/accounts')) return Response.json({accounts:[{_id:'tiktok-account',platform:'tiktok',username:'team',isActive:true}]});
+  if(request.pathname.endsWith('/analytics/dashboard')) {
+   assert.equal(request.searchParams.get('platform'),'tiktok');
+   return Response.json({totals:{views:0},topPosts:[{postId:'video-one',platform:'tiktok',content:'Team video',metrics:{views:0,likes:2}}]});
+  }
+  if(request.pathname.endsWith('/analytics')) return Response.json({posts:[]});
+  throw Error(`Unexpected path ${request.pathname}`);
+ });
+ assert.equal(await provider.connect('workspace-profile','tiktok','https://example.test/beta/social-analytics'),'https://example.test/tiktok-oauth');
+ const accounts=await provider.accounts('workspace-profile');
+ assert.equal(accounts[0].platform,'tiktok');assert.equal(accounts[0].username,'team');
+ const dashboard=await provider.dashboard('workspace-profile',{platform:'tiktok',fromDate:'2026-01-01',toDate:'2026-01-02'});
+ assert.equal(dashboard.platform,'tiktok');assert.equal(dashboard.totals.views,0);assert.equal(dashboard.totals.impressions,null);
+ assert.equal(dashboard.topPosts[0].platform,'tiktok');assert.equal(dashboard.topPosts[0].metrics.likes,2);
+ assert.equal(calls.filter(url=>url.pathname.endsWith('/connect/tiktok')).length,1);
 });

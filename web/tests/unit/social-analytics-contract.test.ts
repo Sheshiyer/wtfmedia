@@ -12,9 +12,9 @@ import {
 } from "../../lib/social-analytics/contracts";
 
 describe("social analytics contract", () => {
-  it("exposes the four approved launch platforms", () => {
-    expect(SOCIAL_PLATFORMS).toEqual(["linkedin", "instagram", "facebook", "twitter"]);
-    expect(PLATFORM_DEFINITIONS.map((item) => item.label)).toEqual(["LinkedIn", "Instagram", "Facebook", "X (Twitter)"]);
+  it("exposes the five supported platforms", () => {
+    expect(SOCIAL_PLATFORMS).toEqual(["linkedin", "instagram", "facebook", "twitter", "tiktok"]);
+    expect(PLATFORM_DEFINITIONS.map((item) => item.label)).toEqual(["LinkedIn", "Instagram", "Facebook", "X (Twitter)", "TikTok"]);
     expect(isSocialPlatform("linkedin")).toBe(true);
     expect(isSocialPlatform("youtube")).toBe(false);
   });
@@ -134,20 +134,30 @@ describe("authenticated social workspace", () => {
     const html = renderWorkspace();
     expect(html).not.toContain("Workspace A");
     expect(html).not.toContain("connect LinkedIn");
+    expect(html).not.toContain("connect TikTok");
     expect(html).toContain("Social chat");
   });
 
-  it("posts connections without profile IDs and shows immediate progress", async () => {
+  it.each([["LinkedIn", "linkedin"], ["TikTok", "tiktok"]])("posts %s connections without profile IDs and shows immediate progress", async (label, platform) => {
     harness.state[0] = { ...adminStatus, configured: true, selectionRequired: false };
     harness.state[4] = false;
     const assign = vi.fn();
     vi.stubGlobal("window", { location: { assign } });
     harness.request.mockResolvedValue(Response.json({ authUrl: "https://zernio.com/connect" }));
     renderWorkspace();
-    button("connect LinkedIn").onClick!();
+    button(`connect ${label}`).onClick!();
     expect(renderWorkspace()).toContain("Opening secure platform connection…");
-    expect(harness.request).toHaveBeenCalledWith("/beta/api/social-analytics/connect", expect.objectContaining({ method: "POST", body: '{"platform":"linkedin"}' }));
+    expect(harness.request).toHaveBeenCalledWith("/beta/api/social-analytics/connect", expect.objectContaining({ method: "POST", body: JSON.stringify({ platform }) }));
     await vi.waitFor(() => expect(assign).toHaveBeenCalledWith("https://zernio.com/connect"));
+  });
+
+  it("shows connected TikTok in filters and explains account replacement before reconnect", () => {
+    harness.state[0] = { ...adminStatus, configured: true, selectionRequired: false, accounts: [{ ...activeAccount, platform: "tiktok" }] };
+    harness.state[4] = false;
+    const html = renderWorkspace();
+    expect(html).toContain('<option value="tiktok">TikTok</option>');
+    expect(html).toContain("Connecting a different account replaces the current account and deletes its history.");
+    expect(button("reconnect")).toBeDefined();
   });
 
   it("distinguishes unavailable metrics, pending sync and reported zero activity", () => {

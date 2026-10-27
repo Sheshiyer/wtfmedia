@@ -72,3 +72,13 @@ test('social planning uses direct Claude schema output and keeps plan validation
   await assert.rejects(interpretSocialQuestion({...input,question:'views'},{ANTHROPIC_API_KEY:'test-only-key'}),/invalid_metric/);
  } finally {globalThis.fetch=original;}
 });
+
+test('all five platforms validate and explicit TikTok clears prior post scope',async()=>{
+ const platforms=['linkedin','instagram','facebook','twitter','tiktok'];
+ assert.deepEqual(validateSocialPlan({...defaults,platforms},scope).platforms,platforms);
+ assert.deepEqual(validateSocialPlan({...defaults,platforms:undefined},scope).platforms,platforms);
+ assert.throws(()=>validateSocialPlan({...defaults,platforms:[...platforms,'tiktok']},scope));
+ assert.throws(()=>validateSocialPlan({...defaults,platforms:['unknown']},scope));
+ const result=await interpretSocialQuestion({...input,question:'Show TikTok views'},{},async()=>({answer:JSON.stringify(defaults)}));
+ assert.deepEqual(result.platforms,['tiktok']);assert.deepEqual(result.posts,[]);
+});

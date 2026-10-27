@@ -1,4 +1,4 @@
-The LinkedIn, Instagram, Facebook, and X brand glyph paths in `PlatformLogo.tsx`
+The LinkedIn, Instagram, Facebook, X, and TikTok brand glyph paths in `PlatformLogo.tsx`
 come from [Bootstrap Icons](https://github.com/twbs/icons), Copyright (c)
 2019–2024 The Bootstrap Authors.
 

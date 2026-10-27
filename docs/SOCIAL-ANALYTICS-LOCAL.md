@@ -2,7 +2,7 @@
 
 The authenticated workspace is `/beta/social-analytics`. Members can read and
 ask questions; admins and super-admins can select the shared Zernio workspace
-and connect/reconnect LinkedIn, Instagram, Facebook and X. Saved chats belong
+and connect/reconnect LinkedIn, Instagram, Facebook, X and TikTok. Saved chats belong
 to the signed-in account, not everyone using the shared connection.
 Admins can also select a LinkedIn company Page administered by the connected
 login and remove a connection after an explicit confirmation. Selecting a Page
@@ -11,6 +11,22 @@ opening the picker changes nothing.
 
 Implementation is local source only. Hosted flags are off by default. No shared
 migration, provider configuration, push or deployment is implied.
+
+## TikTok connection
+
+TikTok uses the existing server-selected workspace and Zernio OAuth handoff
+(`/connect/tiktok`). Its card, connected-platform filter, post normalization and
+analytics chat share the same read/manage permissions as other platforms.
+Unavailable provider metrics remain unavailable, rather than being treated as zero.
+
+Zernio supports one TikTok account per profile. Reconnecting the same account
+preserves history; connecting a different account replaces the current account
+and deletes its history. The reconnect card explains this before authorization.
+See [Zernio TikTok documentation](https://docs.zernio.com/platforms/tiktok).
+
+This addition has offline source coverage only; a real TikTok OAuth connection
+and hosted deployment have not been performed for this change. No migration or
+new provider credential is required.
 
 ## Setup for local testing
 
@@ -73,7 +89,7 @@ Explicit new filters take precedence; changing dashboard filters clears implicit
 conversation scope. Post titles with several matches require a choice.
 
 Budgets: 2,000-character question, eight prior turns of 2,000 characters,
-four platforms, two periods, ten displayed rows, twelve provider requests,
+five platforms, two periods, ten displayed rows, twelve provider requests,
 three dashboard requests in parallel, up to five pages of 100 posts, 15-second
 provider timeout, 20-second model timeout and 60-second total budget. Transient
 idempotent provider reads retry once within that budget. Connection handoffs do

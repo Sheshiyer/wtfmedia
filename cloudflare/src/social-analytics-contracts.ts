@@ -1,4 +1,4 @@
-export const SOCIAL_PLATFORMS = ["linkedin", "instagram", "facebook", "twitter"] as const;
+export const SOCIAL_PLATFORMS = ["linkedin", "instagram", "facebook", "twitter", "tiktok"] as const;
 export type SocialPlatform = (typeof SOCIAL_PLATFORMS)[number];
 export type PlatformDefinition = {
     id: SocialPlatform;
@@ -25,6 +25,11 @@ export const PLATFORM_DEFINITIONS: readonly PlatformDefinition[] = [
         id: "twitter",
         label: "X (Twitter)",
         description: "Post impressions, conversation signals, and follower change.",
+    },
+    {
+        id: "tiktok",
+        label: "TikTok",
+        description: "Video views, likes, comments, shares, and available follower metrics.",
     },
 ] as const;
 export function isSocialPlatform(value: unknown): value is SocialPlatform {
