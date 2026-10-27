@@ -1,3 +1,31 @@
+## 2026-10-27 — Staging research figures deployment receipt
+
+- Owner-authorized candidate e2daa10e1c21a7fbb7c1898a60a23589a678d488
+  is pushed to feature/pavun and deployed. Runtime source is 358516f; the candidate
+  changes only the pinned container image and release/architecture documentation.
+- Exact versions read back at 100% traffic:
+  Edge 7e01774c-ab26-4bcb-b0c6-626dff9eec32,
+  Web b9223b45-dd4d-44db-b478-64de54a3a9bf,
+  Research 3adec911-1ebd-4d51-9631-27b08ebff06a.
+  All 27 Edge, 10 Web and 10 Research bindings match their pre-rollout metadata.
+- Container application version 11 is ready with pinned image
+  94391e365d52a68a706b454ee4a0d31b75577cfa81240c5d2713bff4789feb0a.
+  Specific application readback initially lagged; the later container inventory
+  confirms the new version, ready state and exact digest.
+- Live staging sign-in is 200 with the verified staging Clerk public identity;
+  root redirects, research page responds 200, unsigned principal/research APIs
+  deny with 401. Edge health is 200 and preserves Alpha corpus/inference authority.
+  The live research JavaScript exactly matches the isolated build bytes.
+- No schema migration, secret rotation, production/shared Alpha deployment,
+  saved-report rewrite or new paid research job in this rollout. Authenticated
+  staging report generation was not rerun. Direct runner health with the local
+  token returned 401, so no authenticated runner-health claim is made; existing
+  deployed secret bindings are preserved. Container control-plane readiness and
+  prior live local generation/export checks are separate evidence.
+- Test URL: https://beta-staging.wtfhq.in/beta/research . Existing recovered report
+  is retained. Rollback versions/image are in the preparation entry below; roll
+  back Edge before older runner/readers and preserve durable storage and secrets.
+
 ## 2026-10-27 — Owner-authorized staging visual release preparation
 
 - Runtime source 358516f is committed and pushed. Its isolated OpenNext build
