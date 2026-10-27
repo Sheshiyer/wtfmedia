@@ -1,5 +1,12 @@
 ## 2026-10-27 — Owner-authorized staging visual release preparation
 
+- Runtime source 358516f is committed and pushed. Its isolated OpenNext build
+  passes lint/types and compiled staging Clerk verification. The linux/amd64
+  image imports successfully and all 19 Python module hashes match that source.
+  Registry image 94391e365d52a68a706b454ee4a0d31b75577cfa81240c5d2713bff4789feb0a
+  is pinned for deployment. Docker attestation packaging was removed after a
+  registry blob error; no runtime source or locked dependency changed.
+  Staging recovery bookmark is retained privately; migration inventory is current.
 - Owner requested all changes pushed to feature/pavun and deployed to staging.
   Research figures v2 and the verified generation/repair fixes ship together across
   runner, Edge and web. No migration or credential change is required.
