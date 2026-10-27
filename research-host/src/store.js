@@ -38,8 +38,8 @@ export function dispatch(sql, method, args, hashes, now = Date.now()/1000) {
       const old=first('SELECT * FROM jobs WHERE id=?',id);
       if(old){if(old.body_hash!==hashes.body)fail('Conflict');return {id,status:old.status};}
       if(first("SELECT COUNT(*) AS n FROM jobs WHERE status IN ('queued','running')").n>=100)fail('QueueFull');
-      const sections=body.section?(body.sections||[]).filter(s=>s.key!==body.section):[];
-      const result={id,status:'queued',sections,sources:body.sources||[],progress:[],warnings:[],clarification:null};
+      const sections=body.mode==='visuals'?(body.sections||[]):body.section?(body.sections||[]).filter(s=>s.key!==body.section):[];
+      const result={id,status:'queued',sections,sources:body.sources||[],progress:[],warnings:[],clarification:null,...(body.visualPolicyVersion===2?{visualPolicyVersion:2,figures:body.figures||[],coverage:body.coverage||[]}: {})};
       exec('INSERT INTO jobs(id,body_hash,body,result,status,created,kind) VALUES(?,?,?,?,?,?,?)',id,hashes.body,JSON.stringify(body),JSON.stringify(result),'queued',now,kind);
       return {id,status:'queued'};
     }

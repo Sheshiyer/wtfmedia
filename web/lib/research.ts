@@ -1,3 +1,4 @@
+import { validateFigureSlots, type FigureSlot } from "../../shared/research-figures";
 import { researchVisualText } from "./research-report";
 
 export type ResearchStatus = "draft" | "queued" | "running" | "completed" | "partial" | "failed" | "cancelled" | "clarification" | "deleting" | "cancel_pending";
@@ -38,6 +39,7 @@ export type ResearchSource = { id: string; title: string; url: string; excerpt: 
   platform?: ResearchChannel; retrievedVia?: typeof RESEARCH_TOOLS[number]; evidenceType?: "page_extract" | "search_snippet" | "post" | "transcript" | "video_metadata";
 };
 export type ResearchBrief = ResearchSummary & {
+  visualPolicyVersion?: 2; figures?: FigureSlot[];
   notes: string; notesApproved?: boolean; episodeId: string | null; canEdit: boolean; needsResearch?: boolean; skipClarification?: boolean;
   sections: ResearchSection[]; sources: ResearchSource[];
   messages: Array<{ role: string; content: string }>; progress: string[]; warnings: string[];
@@ -260,7 +262,9 @@ export function parseResearchBrief(value: unknown): ResearchBrief {
         && (f.operation == null || ['catalog', 'search', 'social_search', 'extract', 'model'].includes(f.operation))
         && (f.httpStatus == null || (typeof f.httpStatus === "number" && Number.isInteger(f.httpStatus) && f.httpStatus >= 100 && f.httpStatus <= 599));
   const boundedModel = (v: unknown) => typeof v === "string" && v.length <= 120;
-  if ((b.schemaVersion !== undefined && b.schemaVersion !== 2)
+  if ((b.visualPolicyVersion !== undefined && b.visualPolicyVersion !== 2)
+    || (b.figures !== undefined && !validateFigureSlots(b.figures, b.sources))
+    || (b.schemaVersion !== undefined && b.schemaVersion !== 2)
     || (b.coverage !== undefined && (!Array.isArray(b.coverage) || b.coverage.length > 6 || !b.coverage.every(c => c && RESEARCH_CHANNELS.includes(c.channel)
       && ["pending", "searching", "found", "no_results", "unavailable", "failed", "budget_limited"].includes(c.status)
       && Number.isSafeInteger(c.sourceCount) && c.sourceCount >= 0 && ["dedicated_tool", "web_search"].includes(c.method))

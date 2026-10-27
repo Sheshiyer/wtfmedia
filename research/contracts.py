@@ -196,6 +196,10 @@ class Context(DTO):
 
 
 class JobInput(Context):
+    visualPolicyVersion: Literal[2] | None = None
+    mode: Literal['full', 'visuals'] | None = None
+    figures: list[dict] | None = Field(default=None, max_length=8)
+    coverage: list[dict] | None = Field(default=None, max_length=6)
     budgetPolicyVersion: Literal[1] | None = None
     historicalContext: HistoricalContext | None = None
     schemaVersion: Literal[2] | None = None
@@ -210,6 +214,13 @@ class JobInput(Context):
     def structured_request(self):
         if self.schemaVersion == 2 and self.researchInput is None:
             raise ValueError('structured research input required')
+        if self.mode == 'visuals':
+            if self.visualPolicyVersion != 2 or not self.sections or not self.sources or self.notes or self.notesApproved:
+                raise ValueError('visual retry needs retained report evidence only')
+            from .figures import validate_figure
+            for slot in self.figures or []:
+                if slot.get('status') == 'ready' and not validate_figure(slot.get('figure'), [s.model_dump(exclude_none=True) for s in self.sources]):
+                    raise ValueError('invalid retained figure')
         return self
 
     @field_validator('id')

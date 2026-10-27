@@ -4,8 +4,36 @@ import { describe, expect, it } from "vitest";
 import { ResearchContent } from "@/components/domain/beta/ResearchContent";
 import { parseResearchMarkdown, prepareResearchSection } from "@/lib/research-report";
 import type { ResearchBrief, ResearchSource } from "@/lib/research";
+import { figureDateSupported, figureNumbers, validateFigure, type ResearchFigure } from "../../../shared/research-figures";
+import { figureAccessibleText, renderFigure } from "@/lib/research-figures";
 
 const sources: ResearchSource[] = ["src_a", "src_b", "alpha_c"].map(id => ({ id, title: id, url: `https://example.org/${id}`, excerpt: "Evidence", retrievedAt: "2026-10-21" }));
+
+it("normalizes figure formatting without accepting unsupported signs, units or date precision", () => {
+  expect(figureNumbers("pre-2012; 3–4; 90%; 1,000")).toEqual(figureNumbers("2012; 3 or 4; 90 percent; 1000"));
+  expect(figureNumbers("-4")).not.toEqual(figureNumbers("4"));
+  expect(figureNumbers("4%")).not.toEqual(figureNumbers("4"));
+  expect(figureDateSupported("2020-03", "March 2020")).toBe(true);
+  expect(figureDateSupported("2020-03", "In 2020")).toBe(false);
+  expect(figureDateSupported("2020-02-30", "2020-02-30")).toBe(false);
+});
+
+it("accepts grounded undated context without inventing chronology or relaxing date evidence", () => {
+  const quote = "The company started in March 2020 and expanded in June 2021. Capacity is 3 or 4 orders.";
+  const evidence = [{ ...sources[0], evidenceType: "page_extract" as const, excerpt: quote }];
+  const figure: ResearchFigure = { version: 2, kind: "timeline", title: "Company milestones", takeaway: "Recorded milestones.", caveat: "",
+    evidence: [{ sourceId: "src_a", quote }], items: ["2020-03", "2021-06", ""].map((date, index) => ({
+      id: `event_${index}`, label: "Company milestone", detail: index === 2 ? "Capacity is 3–4 orders." : "Recorded event.",
+      evidence: [0], group: "", value: null, displayValue: "", date, cells: [],
+    })), edges: [], columns: [], metric: { unit: "", period: "", geography: "", definition: "" } };
+  expect(validateFigure(figure, evidence)).toEqual(figure);
+  const rendered = renderFigure(figure);
+  expect(rendered.svg).toContain("chronology not established");
+  expect(rendered.svg).not.toMatch(/NaN|Infinity/);
+  expect(figureAccessibleText(figure)).toContain("Undated context:");
+  figure.items[0].date = "2019";
+  expect(validateFigure(figure, evidence)).toBeNull();
+});
 
 describe("shared research section preparation", () => {
   it.each(["[src_a, src_b]", "[[src_a], [src_b]]", "[[src_a](https://example.org/a), [src_b](https://example.org/b)]", "[src_a, src_b](https://example.org)", "[src_a]; [src_b]", "src_a src_b"])("removes recognized citations without wrapper debris: %s", citation => {
@@ -65,10 +93,15 @@ it("keeps source-only and source-plus-caveat cells linked without damaging a tab
   expect(result.markdown).toContain("| Event | [Source 1](#report-src_a) |");
   expect(result.markdown).toContain("[Source 1](#report-src_a), [Source 2](#report-src_b); includes taxes");
   const tree = parseResearchMarkdown(result.markdown);
-  expect(tree.children[0]).toMatchObject({type: "table", children: [{}, {}, {children: [{}, {children: [{type: "link"}]}]}]});
-  const brief = {revision: 1, status: "completed", sources, warnings: [], sections: [
-    {key: "snacks", status: "completed", content},
-  ]} as ResearchBrief;
+  expect(tree.children[0]).toMatchObject({type: "table", children: [{}, {}, {children: [{}, {children: [
+    {type: "link", url: "#report-src_a"}, {type: "text", value: ", "},
+    {type: "link", url: "#report-src_b"}, {type: "text", value: "; includes taxes"},
+  ]}]}]});
+  const brief: ResearchBrief = {id: "report", title: "Report", updatedAt: "2026-10-26", shared: false, canEdit: true,
+    notes: "", episodeId: null, messages: [], progress: [], clarification: null, cost: {toolMicro: 0, modelUsd: 0},
+    revision: 1, status: "completed", sources, warnings: [], sections: [
+      {key: "snacks", title: "Guest profile", status: "completed", content},
+    ]};
   const html = renderToStaticMarkup(createElement(ResearchContent, {brief, sourcePrefix: "report-"}));
   expect(html).toContain('href="#report-src_a"');
   expect(html).toContain('aria-label="View source:');

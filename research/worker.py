@@ -20,6 +20,7 @@ from .interview import dossier_queries, historical_sources, historical_appendix
 from .scope import filter_sources
 from .visuals import build_visuals, evidence_map, finish_visual
 from .budget import MODEL_RESERVE
+from .figures import plan_figures, collect_figure_evidence, generate_figures, figures_complete
 
 
 def state_path():
@@ -62,8 +63,10 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
     calls.evidence_digests = state.setdefault('evidenceDigests', {})
     calls.preparation = state.setdefault('preparation', {})
     engine = engine_factory(calls)
-    result.setdefault('coverage', initial_coverage())
+    if not result.get('coverage'): result['coverage'] = initial_coverage()
     result.setdefault('modelInfo', getattr(calls, 'model_info', model_info()))
+    if body.get('visualPolicyVersion') == 2:
+        result['visualPolicyVersion'] = 2
     if body.get('notes') and not body.get('notesApproved'):
         result['warnings'].append('Private notes were not sent to any provider because notesApproved is false.')
 
@@ -84,6 +87,10 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
         store.save(job_id, lease, result, state, status)
 
     calls.checkpoint = save
+    if body.get('visualPolicyVersion') == 2 and body.get('mode') != 'visuals':
+        # Reserve visual attempts plus repairs and core writers before broad discovery can spend them.
+        slots = sum(section_spec(body, key) is not None for key in TIERS)
+        calls.hold = (slots * 4 + 1) * MODEL_RESERVE
     if state.get('_budget', {}).get('stopped'):
         calls.fatal_error = BudgetExceeded(limit=state['_budget']['stopped'])
 
@@ -108,6 +115,31 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                 raise error
             result['warnings'].append('Search could not authenticate; remaining research uses already retained evidence.')
         save()
+
+    if body.get('mode') == 'visuals':
+        # New run allowance, same saved text/sources and successful figures. No discovery or writer.
+        calls.stage('visuals')
+        if not state.get('retryInitialized'):
+            for slot in result.get('figures', []):
+                if slot.get('status') != 'ready':
+                    slot.update(status='planned', attempts=0)
+                    slot.pop('reason', None)
+                    slot.pop('figure', None)
+            state['retryInitialized'] = True
+            if result.get('figures'):
+                state['figurePlans'] = [{k: slot[k] for k in ('section', 'goal', 'preferredKind')} for slot in result['figures']]
+            save()
+        try:
+            calls.hold = 0
+            await plan_figures(calls, body, result, state, save)
+            await generate_figures(calls, body, result, state, save)
+            written = all(s['status'] in ('completed', 'skipped') for s in result['sections'])
+            save('completed' if written and figures_complete(result) else 'partial')
+        except Stopped:
+            return
+        except (ProviderError, BudgetExceeded, ValueError):
+            save('partial')
+        return
 
     try:
         if not state.get('resolved'):
@@ -278,9 +310,16 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
         pending = [key for key in selected_keys if section_spec(body, key) is not None
                    and not any(s['key'] == key and s['status'] in ('completed', 'partial', 'failed') for s in result['sections'])]
         # Protect the shared visual request alongside remaining writers and numeric reviews.
-        visual_reservation = MODEL_RESERVE if pending and body.get('budgetPolicyVersion') == 1 else 0
+        visual_reservation = (len(pending) * 2 + 1 if body.get('visualPolicyVersion') == 2 else 1) * MODEL_RESERVE if pending and body.get('budgetPolicyVersion') == 1 else 0
         core_reservation = sum((1 if key in state.get('coreDrafts', {}) else 2) * MODEL_RESERVE for key in pending)
         calls.hold = core_reservation + visual_reservation
+        if body.get('visualPolicyVersion') == 2:
+            calls.hold = core_reservation + max(0, visual_reservation - MODEL_RESERVE)
+            await plan_figures(calls, body, result, state, save)
+            visual_reservation = sum(max(0, 2 - f['attempts']) for f in result.get('figures', []) if f['status'] != 'ready') * MODEL_RESERVE
+            calls.hold = core_reservation + visual_reservation
+            await collect_figure_evidence(calls, body, result, state, save)
+            body = {**body, 'figurePlans': state.get('figurePlans', [])}
         if pending and hasattr(engine, 'prepare'):
             prepared = 'context' in calls.preparation
             if prepared:
@@ -410,54 +449,60 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                 save()
                 if getattr(calls, 'fatal_error', None) or info.get('limit', {}).get('kind') in ('job_reservation', 'provider_cost_overrun'):
                     break
-        # A shared optional request avoids four separate model reservations.
-        # All core sections are already saved before any diagram can consume budget.
-        calls.hold = 0
-        outcomes = state.setdefault('visuals', {})
-        for key in list(outcomes):
-            if outcomes[key] == 'attempting':
-                outcomes[key] = 'omitted'
-                result['warnings'].append(TIERS[key][0] + ': Visual omitted after interrupted generation; completed text was retained.')
-        pending_visuals = [section for section in result['sections']
-                           if section['status'] == 'completed' and section['key'] not in outcomes]
-        if pending_visuals:
-            calls.stage('visuals')
-            calls.visual_failure = None
-            try:
-                calls.allowance(needed=MODEL_RESERVE, calls=1)
-            except BudgetExceeded as error:
-                state['visualFailure'] = failure(error, 'runner')
-                figures = {}
-                for section in pending_visuals:
-                    value = evidence_map(section['content'], result['sources'])
-                    figures[section['key']] = finish_visual(value, result['sources']) if value else (
-                        '', ['No diagram allowance remained and the retained extracts could not support an evidence map.'])
-            else:
-                for section in pending_visuals:
-                    outcomes[section['key']] = 'attempting'
-                result['progress'].append('Preparing report diagrams from retained evidence')
-                save()
-                figures = await build_visuals(calls, pending_visuals, result['sources'])
-            if calls.visual_failure:
-                state['visualFailure'] = calls.visual_failure
-            for section in pending_visuals:
-                key = section['key']
-                visual, notes = figures[key]
-                if visual and len((section['content'] + visual).encode('utf-16-le')) // 2 <= 24000:
-                    marker = '\n\n**Numeric evidence comparisons**'
-                    if marker in section['content']:
-                        before, after = section['content'].split(marker, 1)
-                        section['content'] = before + visual + marker + after
-                    else:
-                        section['content'] += visual
-                    outcomes[key] = 'completed'
-                else:
+        if body.get('visualPolicyVersion') == 2:
+            # Completed text and full source evidence live in result; avoid a second wire copy.
+            calls.preparation.pop('context', None)
+            calls.preparation.pop('sources', None)
+            await generate_figures(calls, body, result, state, save)
+        else:
+            # A shared optional request avoids four separate model reservations.
+            # All core sections are already saved before any diagram can consume budget.
+            calls.hold = 0
+            outcomes = state.setdefault('visuals', {})
+            for key in list(outcomes):
+                if outcomes[key] == 'attempting':
                     outcomes[key] = 'omitted'
-                    if visual:
-                        notes.append('Visual omitted: section length limit reached.')
-                result['warnings'].extend(TIERS[key][0] + ': ' + note for note in notes)
-                state.setdefault('visualDetails', {})[key] = list(notes)
-            save()
+                    result['warnings'].append(TIERS[key][0] + ': Visual omitted after interrupted generation; completed text was retained.')
+            pending_visuals = [section for section in result['sections']
+                               if section['status'] == 'completed' and section['key'] not in outcomes]
+            if pending_visuals:
+                calls.stage('visuals')
+                calls.visual_failure = None
+                try:
+                    calls.allowance(needed=MODEL_RESERVE, calls=1)
+                except BudgetExceeded as error:
+                    state['visualFailure'] = failure(error, 'runner')
+                    figures = {}
+                    for section in pending_visuals:
+                        value = evidence_map(section['content'], result['sources'])
+                        figures[section['key']] = finish_visual(value, result['sources']) if value else (
+                            '', ['No diagram allowance remained and the retained extracts could not support an evidence map.'])
+                else:
+                    for section in pending_visuals:
+                        outcomes[section['key']] = 'attempting'
+                    result['progress'].append('Preparing report diagrams from retained evidence')
+                    save()
+                    figures = await build_visuals(calls, pending_visuals, result['sources'])
+                if calls.visual_failure:
+                    state['visualFailure'] = calls.visual_failure
+                for section in pending_visuals:
+                    key = section['key']
+                    visual, notes = figures[key]
+                    if visual and len((section['content'] + visual).encode('utf-16-le')) // 2 <= 24000:
+                        marker = '\n\n**Numeric evidence comparisons**'
+                        if marker in section['content']:
+                            before, after = section['content'].split(marker, 1)
+                            section['content'] = before + visual + marker + after
+                        else:
+                            section['content'] += visual
+                        outcomes[key] = 'completed'
+                    else:
+                        outcomes[key] = 'omitted'
+                        if visual:
+                            notes.append('Visual omitted: section length limit reached.')
+                    result['warnings'].extend(TIERS[key][0] + ': ' + note for note in notes)
+                    state.setdefault('visualDetails', {})[key] = list(notes)
+                save()
         result['sections'].sort(key=lambda s: list(TIERS).index(s['key']))
         slots = result['sections']
         completed = [s for s in slots if s['status'] == 'completed' and s.get('content', '').strip()]
@@ -466,7 +511,7 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                         (s['status'] == 'completed' and bool(s.get('content', '').strip())) or
                         (s['status'] == 'skipped' and s.get('content') == '' and section_spec(body, s['key']) is None)
                         for s in slots))
-        final = 'completed' if complete else final_status()
+        final = 'completed' if complete and (body.get('visualPolicyVersion') != 2 or figures_complete(result)) else final_status()
         if final == 'completed':
             result.pop('failure', None)
         for item in result['coverage']:

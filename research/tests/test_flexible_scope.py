@@ -201,7 +201,7 @@ class FlexibleScopeTests(StoreFixture):
             self.assertFalse(options['output_schema']['additionalProperties'])
 
     def test_real_gptr_planning_and_writing_receive_only_applicable_scope(self):
-        from research.tests.test_gptr_compat import RecordingCalls
+        from research.tests.test_gptr_compat import RecordingCalls, prepared_engine
         class Calls(RecordingCalls):
             options = []
             def model(self, messages, max_tokens=1800, **kwargs):
@@ -211,7 +211,7 @@ class FlexibleScopeTests(StoreFixture):
         calls = Calls()
         from research.contracts import section_spec
         with patch('socket.socket.connect', side_effect=AssertionError('unexpected network')):
-            asyncio.run(GPTREngine(calls).tier(request, 'appetizers', section_spec(request, 'appetizers')[1], []))
+            asyncio.run(prepared_engine(GPTREngine)(calls).tier(request, 'appetizers', section_spec(request, 'appetizers')[1], []))
         self.assertTrue(any(o.get('output_schema', {}).get('properties', {}).get('queries') for o in calls.options))
         writer = next(m for m in calls.models if 'Write the ' in m)
         self.assertIn('# Industry: Energy', writer)

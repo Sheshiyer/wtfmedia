@@ -340,7 +340,14 @@ class GPTRCompatibilityTests(unittest.TestCase):
                         dict(title='Example founder', notes='PRIVATE_NOTES', notesApproved=True),
                         'main', 'India skills employment', sources))
                 self.assertIn('[src_1]', report)
-                self.assertEqual(retained, sources)
+                self.assertEqual([s['id'] for s in retained], [s['id'] for s in sources])
+                for before, after in zip(sources, retained):
+                    self.assertEqual(before['url'], after['url'])
+                    if before['url'] in calls.extracts:
+                        self.assertEqual(after['kind'], 'page_extract')
+                        self.assertIn(before['excerpt'], after['excerpt'])
+                    else:
+                        self.assertEqual(after, before)
                 self.assertIsNone(calls.stage_error)
                 self.assertLessEqual(len(calls.extracts), 8)
                 self.assertLessEqual(len(calls.searches), 4)

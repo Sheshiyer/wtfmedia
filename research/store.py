@@ -96,10 +96,12 @@ class Store:
                 return {'id': job_id, 'status': row['status']}
             if db.execute("SELECT COUNT(*) FROM jobs WHERE status IN ('queued','running')").fetchone()[0] >= 100:
                 raise QueueFull()
-            sections = body.get('sections', []) if body.get('section') else []
+            sections = body.get('sections', []) if body.get('section') or body.get('mode') == 'visuals' else []
             sections = [s for s in sections if s['key'] != body.get('section')]
             result = dict(id=job_id, status='queued', sections=sections, sources=body.get('sources', []),
                           progress=[], warnings=[], clarification=None)
+            if body.get('visualPolicyVersion') == 2:
+                result.update(visualPolicyVersion=2, figures=body.get('figures', []), coverage=body.get('coverage', []))
             db.execute('INSERT INTO jobs(id,body_hash,body,result,status,created,kind) VALUES(?,?,?,?,?,?,?)',
                        (job_id, body_hash, encode(body), encode(result), 'queued', time.time(), kind))
         return {'id': job_id, 'status': 'queued'}

@@ -1,5 +1,7 @@
 "use client";
 
+import { validateFigureSlots, figureCoverage, placeFigures } from "@/lib/research-figures";
+import { ResearchReportFigure } from "./ResearchReportFigure";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { prepareResearchSection, researchDisplayContent, splitResearchVisuals } from "@/lib/research-report";
@@ -84,7 +86,13 @@ export function ResearchSources({ sources, sourcePrefix = "research-source-" }: 
 
 export function ResearchContent({ brief, sourcePrefix = `research-version-${brief.revision}-source-` }: { brief: ResearchBrief; sourcePrefix?: string }) {
   if (brief.status === "clarification" && !brief.sections.some(section => section.content.trim()) && !brief.sources.length) return null;
+  const slots = brief.figures === undefined ? undefined : validateFigureSlots(brief.figures, brief.sources) ?? [];
+  const visualCoverage = figureCoverage(slots, brief.sections);
   return <div className="min-w-0 space-y-5">
+    {brief.sections.some(s => s.content.trim()) && <div role="status" className="space-y-1 border-2 border-foreground p-4">
+      <p className="font-bold">{brief.sections.every(s => ["completed", "skipped"].includes(s.status)) ? "Written report complete" : "Written report incomplete"} · {visualCoverage.legacy ? "Earlier visual format" : `${visualCoverage.ready} of ${visualCoverage.total} visuals ready`}</p>
+      {!visualCoverage.complete && <p className="text-sm">{visualCoverage.legacy ? "This saved report uses the earlier visual format." : ["queued", "running"].includes(brief.status) ? "Visual generation is in progress." : "Visual generation has stopped. Some visuals could not be completed; waiting will not change this saved report. Available findings are retained below."}</p>}
+    </div>}
     {brief.needsResearch && <section role="status" className="space-y-2 border-2 border-foreground bg-attention p-4">
       <h3 className="font-bold">Previous report no longer matches the edited inputs</h3>
       <p className="text-sm">The findings and sources below are retained from the previous scope. Research again to update them. Follow-up is paused until fresh research is available.</p>
@@ -93,14 +101,18 @@ export function ResearchContent({ brief, sourcePrefix = `research-version-${brie
     {(brief.warnings ?? []).filter(warning => warning.startsWith("Visual ")).map(warning => <p key={warning} role="status" className="border border-foreground/20 bg-surface-subtle p-3 text-sm">{warning}</p>)}
     {RESEARCH_SECTIONS.filter(({ key }) => brief.sections.some(s => s.key === key && s.status !== "skipped" && s.content.trim())).map(({ key, title, description }) => {
       const section = brief.sections.find(s => s.key === key);
-      const { markdown: content, citedSources, derivedVisual } = prepareResearchSection(section?.content ?? "", brief.sources, { evidenceMap: section?.status === "completed", sourceHref: source => `#${sourcePrefix}${encodeURIComponent(source.id)}` });
+      const { markdown: content, citedSources, derivedVisual } = prepareResearchSection(section?.content ?? "", brief.sources, { evidenceMap: false, sourceHref: source => `#${sourcePrefix}${encodeURIComponent(source.id)}` });
+      const placed = placeFigures(content, (slots ?? []).filter(s => s.section === key));
       const platforms = [...new Set(citedSources.map(researchSourcePlatform))];
       const visualNotes = (brief.warnings ?? []).filter(warning => warning.startsWith(`${title}: `))
         .map(warning => warning.slice(title.length + 2))
         .filter(warning => warning.startsWith("Visual ") || warning.startsWith("Some diagrams"));
       return <section key={key} className="min-w-0 space-y-3 border-2 border-foreground bg-surface-raised p-4 sm:p-5">
         <div><p className="font-label text-xs uppercase text-secondary">{description}</p><h3 className="font-heading text-2xl font-bold">{title}</h3><p className="text-sm">{section?.status ?? "Not started"}</p></div>
-        {section?.content ? <ResearchMarkdown content={content} sources={[]} visualSources={brief.sources} sourcePrefix={sourcePrefix} /> : <p className="text-sm text-secondary">No findings yet.</p>}
+        {section?.content ? placed.map((block, index) => <div key={index} className="min-w-0">
+          <ResearchMarkdown content={block.markdown} sources={[]} visualSources={brief.sources} sourcePrefix={sourcePrefix} />
+          {block.figures.map(slot => <ResearchReportFigure key={slot.id} running={["queued", "running"].includes(brief.status)} slot={slot} sources={brief.sources} sourcePrefix={sourcePrefix} />)}
+        </div>) : <p className="text-sm text-secondary">No findings yet.</p>}
         {citedSources.length > 0 && <details aria-label={`${title} sources`} className="min-w-0 border-t border-foreground/15 pt-3">
           <summary className="w-fit max-w-full cursor-pointer rounded-full border border-foreground/20 bg-surface-subtle px-3 py-1.5 text-sm focus-visible:outline focus-visible:outline-2">
             <span className="inline-flex flex-wrap items-center gap-2 align-middle">

@@ -1,3 +1,140 @@
+## 2026-10-27 — Owner-authorized staging visual release preparation
+
+- Owner requested all changes pushed to feature/pavun and deployed to staging.
+  Research figures v2 and the verified generation/repair fixes ship together across
+  runner, Edge and web. No migration or credential change is required.
+- Source checks: 183 Python tests, 59 Edge research tests, 7 research-host tests,
+  19 web report/figure tests, host/web types, and privacy (0/446) pass. Updated
+  stale compatibility fixtures to use shared preparation and permit bounded
+  extraction upgrades of uncited snippets while preserving source IDs and URLs.
+- Pre-rollout readback: Edge e13c0fdd-30b9-46de-810f-d4fa8cb101f5,
+  Web b0aef305-da90-43ef-a7ca-de5111342a99,
+  Research 1df3de38-a1da-4933-82d2-ef43f8d25749; all at 100% traffic.
+  Prior research image is ca1555b1b1434df0c527af29f14459e7969edfe025647909580bf97183b0d01a.
+  Staging report status inventory has no queued/running briefs.
+- Use committed-source builds without private state/env files. Verify compiled
+  and live public Clerk identity against the staging issuer. Deploy compatible
+  runner and reader before Edge starts submitting visual-policy-2 jobs.
+  Publication and smoke receipts will follow; this entry is not deployment proof.
+
+## 2026-10-27 — Live visual-only recovery verified
+
+- Owner explicitly authorized end-to-end testing and sending the selected saved
+  report and retained public excerpts to the existing Anthropic service.
+- Live visual-only recovery completed all four planned figures with five model
+  calls and no discovery, search, extraction or report-writing calls. Two drafts
+  required automatic repair. The prior ready figure, sections and sources remain
+  exactly unchanged. Python and the actual Edge projection both accept all four.
+- Saved the recovery into the same staging-backed report with a revision guard,
+  retained version and submitted run receipt. Database readback verifies completed,
+  four ready figures, and unchanged notes/messages/content. Large inline SQL payload
+  exceeded D1's statement limit; recovery instead reused the saved prior version
+  and run payload. No schema changes, other reports or production changes.
+- Actual React reader rendered four loaded figures from the recovered projection
+  in a loopback-only verification snapshot. Actual browser Word export succeeded;
+  all four figures are embedded across seven PNG pages. This is reader/export
+  verification, not authenticated Clerk UI acceptance; native browser permissions
+  were unavailable. Private snapshots and receipts remain ignored.
+- Regression checks: 12 Python recovery/figure tests, 19 report/figure web tests
+  and web typecheck pass. Format equivalence preserves signs, units and date
+  precision; unsupported claims still fail. Automatic repair receives its draft
+  and precise field errors; no provider replacement or wider budget was needed.
+- Changes remain local on feature/pavun. No push or deployment. Refresh the
+  existing report to read the saved recovery; no full research regeneration needed.
+
+## 2026-10-27 — Figure formatting validation and repair context
+
+- Owner's subsequent local report stopped with one ready and three failed figures,
+  each after two attempts; remaining allowance was not exhausted. Read-only cached
+  analysis found false numeric rejections from hyphens/ranges, equivalent percentage
+  spellings, month-date formatting and supported timeline entries without dates.
+  Other rejected drafts contain real unsupported date/number claims.
+- Align Python/shared TypeScript format-only quantity and date rules. Preserve
+  negative signs, percentage units, quote identity and explicit date precision.
+  Supported undated events now render in a separate context area, not on the
+  chronology. At least two supported dated events remain required for timelines.
+- Automatic repair now receives its bounded previous draft and exact failing
+  item/field. Existing two-attempt and reservation limits remain; no wider budget,
+  new provider, invented evidence or automatic saved-report mutation.
+- Read-only replay of seven cached drafts: both validators agree on every outcome;
+  four accepted drafts cover three sections and render finite SVG geometry. The
+  remaining section correctly fails on unsupported event dates. No full live
+  completion is claimed. Typecheck and lint pass.
+- Saved report remains unchanged. No paid provider calls, automated test suites,
+  browser automation, push or deployment. Reloaded the local runner only after confirming no active job.
+
+## 2026-10-27 — Comparison figure citation indexing correction
+
+- Owner's next local report finished partial with three ready figures and one
+  failed comparison after two attempts; no active job remained. Cached-output
+  inspection found unsupported numbers in comparison cells in one attempt and
+  out-of-range item evidence indices in the other. This was not budget exhaustion.
+- Simplified the generation DTO: each item/edge selects evidenceBank string IDs
+  directly, constrained to valid IDs in the per-request schema. The runner builds
+  the compact evidence list and numeric citation indices. Persisted figure and
+  shared browser/Word contracts remain unchanged. Unknown IDs fail closed.
+- Repairs now receive comparison-cell numeric error details and explicit citation
+  instructions instead of a generic structure failure. Numeric support checks
+  remain mandatory; no failed draft is promoted or silently assigned new evidence.
+- Python/schema checks and read-only recompilation of the three saved ready figures
+  pass, including unknown-ID rejection. No provider calls, test suites, database
+  mutation, push or deployment. Saved partial report remains unchanged. Reload the
+  idle local runner for the next explicitly started generation.
+
+## 2026-10-27 — Local figure generation failure correction
+
+- Investigated the owner's terminal partial local run using content-free summaries
+  and read-only cached-output validation. No active job remained. Four non-null
+  figure drafts lacked the required title because schema normalization removed
+  named `properties.title` as though it were a schema annotation. Four other
+  requests returned null. Automatic repair allowance was insufficient; the reader
+  did not clearly distinguish terminal visual failure from pending generation.
+- Corrected schema traversal; preserved required field names. Models now select
+  exact retained evidence passages by ID and the runner materializes citations.
+  Targeted collection can upgrade uncited snippets, while preserving cited evidence.
+  Reserve first attempts and bounded automatic repairs before broad discovery;
+  size figure count for both. Record content-free failure details and final progress.
+- Removed the report visual retry/upgrade button at owner request. Existing reports
+  remain unchanged; terminal visual omissions are explicitly described as stopped.
+- Static Python/schema integrity, TypeScript, lint and read-only saved-source
+  passage checks pass. Reloaded the idle local runner with the correction.
+  No provider requests, report backfill, browser automation or test suites were run.
+  No new provider, credential changes, database migration, push or deployment.
+  Changes remain local on feature/pavun; actual next-report quality remains unverified.
+
+## 2026-10-26 — Local research figures v2 implementation
+
+- Owner requested the reference-report visual generation plan be implemented on
+  feature/pavun. Changes are local; this task does not push, deploy, change secrets,
+  run live research, or mutate shared databases.
+- Added figure planning before writing, targeted evidence collection, a separate
+  persisted figures array, explicit edge/chart/timeline/comparison/metric schemas,
+  retained-quote and numeric validation, derived arithmetic, and required visual
+  coverage for completion. Legacy jobs/readers retain stored v1 diagram support.
+- Visual-only retries/upgrades use the existing owner-scoped run action and revision
+  check. Saved prose and successful figures are preserved; notes, Alpha lookups,
+  general discovery and section writers are excluded from the retry path. Missing
+  evidence stays explicit. Figure-only changes now appear in version history.
+- New jobs protect first figure attempts and writing reserves before discovery.
+  Optional summary preflight denial can select relevant original extracts per
+  section with an explicit limitation, rather than consume protected funds.
+- Added bounded licensed-source image collection with public-IP-pinned HTTPS,
+  redirect/byte/pixel/time limits, image-specific attribution/license evidence and
+  metadata-free retained PNG bytes. No new image provider or public asset store.
+- Reader and Word share rendering and subsection placement. The reader exposes
+  explanation/source links and scrollable figures; Word splits tall figures at
+  row boundaries. Missing figures keep the overall report partial while the UI
+  reports written and visual completion separately. Automatic quotation-card
+  fallback no longer satisfies the visual requirement.
+- Static checks: web TypeScript and lint, Python syntax/DTO schema import, runner
+  store JavaScript syntax, and Edge research-module bundle. No test suites,
+  browser/Word render automation, paid inference, external image fetch or live
+  report executed, per owner preference. Runtime quality remains unverified.
+- Pickup: docs/RESEARCH-VISUALS.md. Later authorized staging rollout needs runner,
+  Edge and web together; no migration is required for existing JSON document
+  storage. Manual acceptance should cover report diversity, missing evidence,
+  retries/recovery, images, source links, narrow screens and Word pagination.
+
 ## 2026-10-26 — Production receipt: YouTube Analytics and Social Analytics only
 
 - Owner-authorized release source aa72b98 deployed with the bounded release

@@ -1,3 +1,4 @@
+import { validateFigureSlots, figureCoverage, figurePngPages, placeFigures, FIGURE_REASONS } from "./research-figures";
 import type { Definition, Nodes } from "mdast";
 import type { INumberingOptions, IParagraphOptions, IRunOptions, ParagraphChild } from "docx";
 import { RESEARCH_CHANNELS, RESEARCH_CHANNEL_LABELS, RESEARCH_EVIDENCE_LABELS, RESEARCH_SECTIONS, researchSourceLabel, researchSourcePlatform, safeResearchUrl, type ResearchBrief, type ResearchChannel, type ResearchCoverage, type ResearchSource } from "./research";
@@ -21,6 +22,10 @@ export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
     return new Paragraph({ children: [icon(platform), new TextRun(` ${RESEARCH_CHANNEL_LABELS[platform]} · `),
       new InternalHyperlink({ anchor: `source_${sourceIndex.get(source.id)}`, children: [new TextRun({ text: `${researchSourceLabel(source)} — ${source.title}`, style: "Hyperlink" })] })] });
   }
+  const slots = validateFigureSlots(brief.figures ?? [], brief.sources) ?? [];
+  const coverage = figureCoverage(brief.figures === undefined ? undefined : slots, brief.sections);
+  const figureImages = new Map<string, Awaited<ReturnType<typeof figurePngPages>>>();
+  for (const slot of slots) if (slot.status === "ready" && slot.figure) figureImages.set(slot.id, await figurePngPages(slot.figure));
   const figures = new Map<string, { visual: ResearchVisual; image: Awaited<ReturnType<typeof researchVisualPng>> }>();
   const rawFigures = new Set<string>();
   function collectFigures(node: Nodes) {
@@ -28,7 +33,7 @@ export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
     if ("children" in node) node.children.forEach(collectFigures);
   }
   const preparedSections = new Map(brief.sections.map(section => [section.key,
-    prepareResearchSection(section.content, brief.sources, { evidenceMap: section.status === "completed",
+    prepareResearchSection(section.content, brief.sources, { evidenceMap: false,
       sourceHref: source => `#source_${sourceIndex.get(source.id)}` })]));
   for (const section of brief.sections) if (section.status !== "skipped") collectFigures(parseResearchMarkdown(preparedSections.get(section.key)!.markdown));
   for (const raw of rawFigures) {
@@ -119,6 +124,7 @@ export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
   }
   const children: Array<InstanceType<typeof Paragraph> | InstanceType<typeof Table>> = [
     heading(brief.title, HeadingLevel.TITLE), paragraph(`Status: ${brief.status}`),
+    paragraph(coverage.legacy ? "Visual upgrade available for this saved report." : `${coverage.ready} of ${coverage.total} visuals ready`),
     ...(brief.status !== "completed" ? [paragraph("Report incomplete — findings and source coverage may be partial.")] : []),
     ...(brief.needsResearch ? [paragraph("Previous report no longer matches the edited inputs. The findings and sources below are retained from the previous scope.")] : []),
     paragraph("Audience context: India · Worldwide research"), heading("Source coverage", HeadingLevel.HEADING_1),
@@ -133,7 +139,22 @@ export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
     const section = brief.sections.find(item => item.key === key);
     if (!section || section.status === "skipped" || !section.content.trim()) continue;
     const prepared = preparedSections.get(section.key)!;
-    children.push(heading(title, HeadingLevel.HEADING_1), paragraph(`Status: ${section.status}`), ...markdownBlocks(prepared.markdown));
+    children.push(heading(title, HeadingLevel.HEADING_1), paragraph(`Status: ${section.status}`));
+    for (const block of placeFigures(prepared.markdown, slots.filter(s => s.section === key))) {
+      children.push(...markdownBlocks(block.markdown));
+      for (const slot of block.figures) {
+        const figure = slot.figure, images = figureImages.get(slot.id);
+        if (!figure || !images) { children.push(paragraph(`${slot.goal}: ${FIGURE_REASONS[slot.reason ?? "invalid_output"]}`)); continue; }
+        children.push(heading(figure.title, HeadingLevel.HEADING_2), ...images.map((image, index) => new Paragraph({ keepNext: index === images.length - 1, children: [new ImageRun({ type: "png", data: image.data, transformation: { width: image.width, height: image.height }, altText: { title: figure.title, description: figure.takeaway, name: `${slot.id}-${index + 1}` } })] })), paragraph(figure.takeaway), paragraph(figure.caveat));
+        for (const [index, ref] of figure.evidence.entries()) {
+          children.push(paragraph(`[${index + 1}] ${ref.quote}`));
+          const source = brief.sources.find(s => s.id === ref.sourceId);
+          if (source) children.push(sourceReference(source));
+        }
+        for (const item of figure.items.filter(i => i.calculation)) children.push(paragraph(`Calculation: ${item.label} = ${item.calculation!.operation} of ${item.calculation!.inputs.map(id => figure.items.find(i => i.id === id)?.label).join(", ")}. Result: ${item.displayValue}.`));
+        if (figure.asset) children.push(paragraph(`${figure.asset.attribution} · ${figure.asset.license}`), new Paragraph({ children: [link("Image source", figure.asset.sourceUrl)] }));
+      }
+    }
     if (section.status !== "completed") children.push(paragraph("This section is incomplete."));
     if (prepared.citedSources.length) children.push(heading("Section sources", HeadingLevel.HEADING_2), ...prepared.citedSources.map(sourceReference));
   }

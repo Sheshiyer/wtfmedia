@@ -1,3 +1,4 @@
+import { validateFigureSlots, figureCoverage, type FigureSlot } from "../../shared/research-figures.ts";
 export const tiers = ['snacks', 'appetizers', 'main', 'desserts'] as const;
 export const channels = ['web', 'linkedin', 'youtube', 'instagram', 'reddit', 'x'] as const;
 export type ResearchChannel = typeof channels[number];
@@ -69,6 +70,8 @@ export type ResearchSource = {
     evidenceType?: 'page_extract' | 'search_snippet' | 'post' | 'transcript' | 'video_metadata';
 };
 export type ResearchDocument = {
+    visualPolicyVersion?: 2;
+    figures?: FigureSlot[];
     schemaVersion?: 2;
     researchInput?: ResearchInputV2;
     coverage?: ChannelCoverage[];
@@ -222,8 +225,9 @@ export function validatedResult(value: unknown, id: string): Partial<ResearchDoc
     }
     if (!sectionsValid(v.sections) || !sourcesValid(v.sources) || ![v.progress, v.warnings].every(a => Array.isArray(a) && a.length <= 100 && a.every(s => bounded(s, 2000))) || !(v.clarification === null || bounded(v.clarification, 2000)) || !v.cost || !Number.isSafeInteger(v.cost.toolMicro) || v.cost.toolMicro < 0 || !(v.cost.modelUsd === null || (Number.isFinite(v.cost.modelUsd) && v.cost.modelUsd >= 0)))
         throw new ResearchError(502, 'invalid_research_result');
+    if (v.visualPolicyVersion !== undefined && v.visualPolicyVersion !== 2 || v.figures !== undefined && !validateFigureSlots(v.figures, v.sources)) throw new ResearchError(502, 'invalid_research_result');
     const sources = v.sources.map(s => ({ id: s.id, title: s.title, url: s.url, excerpt: s.excerpt, retrievedAt: s.retrievedAt, ...(s.publisher ? { publisher: s.publisher } : {}), ...(s.publishedAt ? { publishedAt: s.publishedAt } : {}), ...(s.kind ? { kind: s.kind } : {}), ...(s.timestampSeconds != null ? { timestampSeconds: s.timestampSeconds } : {}), ...(s.platform != null ? { platform: s.platform } : {}), ...(s.retrievedVia != null ? { retrievedVia: s.retrievedVia } : {}), ...(s.evidenceType != null ? { evidenceType: s.evidenceType } : {}) }));
-    return { status: v.status === 'completed' && (v.sections.length !== 4 || v.sections.some(s => !['completed', 'skipped'].includes(s.status)) || !v.sections.some(s => s.status === 'completed')) ? 'partial' : v.status, sections: projectSections(v.sections), sources, progress: v.progress, warnings: v.warnings, clarification: v.clarification, cost: { toolMicro: v.cost.toolMicro, modelUsd: v.cost.modelUsd }, ...metadata };
+    return { ...(v.visualPolicyVersion === 2 ? { visualPolicyVersion: 2 as const, figures: v.figures ?? [] } : {}), status: v.status === 'completed' && (v.visualPolicyVersion === 2 && !figureCoverage(v.figures, v.sections).complete || v.sections.length !== 4 || v.sections.some(s => !['completed', 'skipped'].includes(s.status)) || !v.sections.some(s => s.status === 'completed')) ? 'partial' : v.status, sections: projectSections(v.sections), sources, progress: v.progress, warnings: v.warnings, clarification: v.clarification, cost: { toolMicro: v.cost.toolMicro, modelUsd: v.cost.modelUsd }, ...metadata };
 }
 export async function boundedText(body: Request | Response, limit: number, status: number): Promise<string> {
     const reader = body.body?.getReader();

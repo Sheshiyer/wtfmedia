@@ -13,6 +13,7 @@ from pathlib import Path
 from .evidence import CITATION, byte_slice, compact_sections, merge_sources, select_context, supports, synthesis_context
 from .diagnostics import emit, failure
 from .providers import model_name, ProviderError
+from .store import BudgetExceeded
 from .source_channels import public_subject
 from .scope import scoped_query, filter_sources, validate_resolution
 from .contracts import TIERS, section_spec
@@ -293,7 +294,17 @@ class GPTREngine:
                     synthesis_query += '. Public entity clarification: ' + body['clarification']
                 self.calls.stage('summaries')
                 if 'context' not in preparation:
-                    preparation['context'] = await synthesis_context(self.calls, evidence, synthesis_query)
+                    try:
+                        preparation['context'] = await synthesis_context(self.calls, evidence, synthesis_query)
+                    except BudgetExceeded:
+                        if body.get('visualPolicyVersion') != 2 or self.calls.fatal_error:
+                            raise
+                        # A preflight denial has spent nothing. Writers select relevant original
+                        # extracts per section instead of using the protected figure allowance.
+                        preparation['directEvidence'] = True
+                        preparation['context'] = {'evidenceNote': 'Use the section-specific original extracts. '
+                            'Not every retained source has been synthesized; do not claim exhaustive coverage.'}
+                        self.warnings.append('Research used section-specific source extracts to preserve the writing and visual allowance; not every retained source was synthesized.')
                 preparation.pop('summaryFailed', None)
                 preparation['warnings'] = list(self.warnings)
                 checkpoint()
@@ -316,6 +327,8 @@ class GPTREngine:
                       'When searchScope specifies dates, use evidence from that publication window and do not present '
                       'older event dates or financial periods as results from the requested period. Explain missing coverage. '
                       'Use Markdown tables for comparisons, timelines and metrics with comparable columns; never invent cells. '
+                      'Every factual table row must contain source ID citations in a Source column; put caveats in a separate column. '
+                      'Use Not available for unsupported cells, never blank source cells or dangling punctuation. '
                       'Use prose/lists for narrative and interview questions. Use clear headings and explain missing or conflicting evidence. '
                       'Historical context, when supplied, is Alpha public synthesis, not a verbatim transcript or verified speaker attribution. '
                       'Use its question themes to propose follow-ups and avoid repetition. Do not quote it as actual wording, '
@@ -326,11 +339,16 @@ class GPTREngine:
             if body.get('researchInput') and key in ('snacks', 'appetizers'):
                 prompt += 'Begin with this exact identity heading: # ' + section_spec(body, key)[0] + '\n'
             context = {'researchInput': body.get('researchInput'), 'searchScope': scope, **preparation['context'],
-                       'previousSections': compact_sections(body.get('sections', []))}
+                       'previousSections': compact_sections(body.get('sections', [])),
+                       'plannedFigures': [p for p in body.get('figurePlans', []) if p['section'] == key]}
+            if preparation.get('directEvidence'):
+                context['evidence'] = select_context([s for s in self.sources if supports(s)], public_subject(body) + ' ' + description, 30000)
             if (body.get('historicalContext') or {}).get('status') == 'available':
                 context['historicalEditorialContext'] = body['historicalContext']
             if body.get('notesApproved'):
                 context['privateEditorialNotes'] = body.get('notes', '')
+            if context['plannedFigures']:
+                prompt += ' Explain the planned visual topics in the relevant subsections. Do not claim a figure is ready; it is generated and validated separately. Do not embed image URLs or visual code. '
             # Search planning uses approved public guidance; full private notes stay in synthesis.
             report = await researcher.write_report(custom_prompt=prompt,
                                                    ext_context=json.dumps(context, ensure_ascii=False))

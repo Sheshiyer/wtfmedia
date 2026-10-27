@@ -96,14 +96,17 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
             throw new ResearchError(400, 'invalid_request');
         if (input.skipClarification !== undefined && typeof input.skipClarification !== 'boolean')
             throw new ResearchError(400, 'invalid_request');
+        if (input.visualsOnly !== undefined && typeof input.visualsOnly !== 'boolean') throw new ResearchError(400, 'invalid_request');
+        const visualsOnly = input.visualsOnly === true;
+        if (visualsOnly && (doc.needsResearch || !doc.sections.some(s => ['completed', 'partial'].includes(s.status)) || !doc.sources.length)) throw new ResearchError(409, 'research_not_ready');
         const skipClarification = input.skipClarification ?? doc.skipClarification ?? false;
         const runId = 'rrun_' + crypto.randomUUID();
         // Only the supplied public subject crosses to Alpha; notes and identity never do.
-        const historicalContext = await readAlphaInterviewContext(env, doc.researchInput ? researchTitle(doc.researchInput) : doc.title, doc.episodeId);
-        const payload = { id: runId, title: doc.title, ...(doc.researchInput ? { schemaVersion: 2, researchInput: doc.researchInput } : {}), historicalContext, notes: doc.notes, notesApproved: doc.notesApproved, section: null, skipClarification, clarification: input.clarification ?? null, sections: [], sources: [], budgetMicro: 5000000, ...(env.RESEARCH_BUDGET_POLICY_VERSION === '1' ? { budgetPolicyVersion: 1 } : {}) };
+        const historicalContext = visualsOnly ? null : await readAlphaInterviewContext(env, doc.researchInput ? researchTitle(doc.researchInput) : doc.title, doc.episodeId);
+        const payload = { id: runId, title: doc.title, ...(doc.researchInput ? { schemaVersion: 2, researchInput: doc.researchInput } : {}), historicalContext, notes: visualsOnly ? '' : doc.notes, notesApproved: visualsOnly ? false : doc.notesApproved, section: null, skipClarification, clarification: input.clarification ?? null, sections: visualsOnly ? doc.sections : [], sources: visualsOnly ? doc.sources : [], figures: visualsOnly ? doc.figures ?? [] : [], coverage: visualsOnly ? doc.coverage ?? [] : [], mode: visualsOnly ? 'visuals' : 'full', visualPolicyVersion: 2, budgetMicro: 5000000, budgetPolicyVersion: 1 };
         // Diagnostics describe one run, never today's configuration applied to old work.
         const next = { ...doc, skipClarification, status: 'queued', progress: [], warnings: [], clarification: null };
-        delete next.coverage;
+        if (!visualsOnly) { delete next.coverage; delete next.figures; delete next.visualPolicyVersion; }
         delete next.modelInfo;
         delete next.failure;
         let saved = await save(row, next, runId, payload);
@@ -253,7 +256,8 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
                 OR json_extract(previous_json,'$.status') NOT IN ('completed','partial')
                 OR json_extract(document_json,'$.title') IS NOT json_extract(previous_json,'$.title')
                 OR json_extract(document_json,'$.sections') IS NOT json_extract(previous_json,'$.sections')
-                OR json_extract(document_json,'$.sources') IS NOT json_extract(previous_json,'$.sources'))
+                OR json_extract(document_json,'$.sources') IS NOT json_extract(previous_json,'$.sources')
+                OR json_extract(document_json,'$.figures') IS NOT json_extract(previous_json,'$.figures'))
               AND EXISTS (SELECT 1 FROM json_each(document_json,'$.sections')
                 WHERE length(trim(json_extract(value,'$.content'))) > 0)
               ORDER BY revision DESC`).bind(id).all()).results : [];

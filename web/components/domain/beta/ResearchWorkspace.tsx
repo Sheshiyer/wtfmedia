@@ -191,7 +191,7 @@ function ResearchEditor({ id, configured, canWrite, blocked, onChange }: {
     if (!(editable || (owner && !deleting && suffix === "/cancel")) || mutation.current || !brief) return false;
     if (suffix === "/chat" && brief.needsResearch) return false;
     mutation.current = true; setBusy(true); setNotice("");
-    setPendingAction(suffix === "/run" ? "Starting research…" : suffix === "/cancel" ? "Stopping research…" : "Preparing your answer…");
+    setPendingAction(suffix === "/run" ? (body && typeof body === "object" && "visualsOnly" in body && body.visualsOnly ? "Preparing missing visuals; saved text is retained…" : "Starting research…") : suffix === "/cancel" ? "Stopping research…" : "Preparing your answer…");
     const signal = lifetime.current!.signal;
     try {
       const data = await researchRequest<{ brief: unknown }>(fetcher, path + suffix, { method: "POST", body, signal });
@@ -240,7 +240,7 @@ function ResearchEditor({ id, configured, canWrite, blocked, onChange }: {
     {(running || cancellationPending) && <ResearchRunProgress brief={brief} cancellationPending={cancellationPending}>
       {owner && <Button variant="secondary" disabled={busy || deleting} onClick={() => void mutate("/cancel")}>{cancellationPending ? "Retry cancellation" : "Cancel research"}</Button>}
     </ResearchRunProgress>}
-    {brief.status === "partial" && <div role="status" className="space-y-2 border-2 border-foreground bg-attention p-4"><h3 className="font-bold">This report is incomplete</h3><p>{brief.sections.filter(s => s.status === "completed").length} of {RESEARCH_SECTIONS.length - brief.sections.filter(s => s.status === "skipped").length} sections complete. Available findings are retained below.</p><p className="text-sm">{researchFailureSummary(failure)}</p></div>}
+    {brief.status === "partial" && !brief.sections.every(s => ["completed", "skipped"].includes(s.status)) && <div role="status" className="space-y-2 border-2 border-foreground bg-attention p-4"><h3 className="font-bold">This report is incomplete</h3><p>{brief.sections.filter(s => s.status === "completed").length} of {RESEARCH_SECTIONS.length - brief.sections.filter(s => s.status === "skipped").length} sections complete. Available findings are retained below.</p><p className="text-sm">{researchFailureSummary(failure)}</p></div>}
     {brief.status === "failed" && <div role="status" className="space-y-2 border-2 border-foreground p-4"><h3 className="font-bold">Research failed</h3><p>{researchFailureSummary(failure)}</p>{hasReport && <p>Available findings remain below; they are not a completed report.</p>}</div>}
     {brief.status === "cancelled" && <p role="status">Research was cancelled. Any returned findings remain below.</p>}
     {deleting && <p role="status">Deletion is pending. Use the bin beside this saved brief to retry if needed.</p>}
