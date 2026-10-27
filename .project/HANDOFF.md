@@ -1,3 +1,26 @@
+## 2026-10-27 — Automatic visual repair staging release preparation
+
+- Owner now explicitly authorizes pushing all changes to feature/pavun and
+  redeploying staging. Paid model calls and saved-report regeneration remain out
+  of scope. Runtime source 23a9f028fa25bb1b5a47e9f8491715ae75ee4e09 is pushed.
+- Isolated web build passes lint/types and contains only the verified staging
+  Clerk public identity. It uses the existing pinned Next version and existing
+  OpenNext compatibility override. The linux/amd64 container imports successfully
+  with networking disabled; all 19 Python module hashes match the source commit.
+  Published registry image is pinned at
+  b44c90db74c210553aa031a6f251d44421e05b018a8e600b2ec3f11664b91524.
+- Exact-source checks pass: 192 Python, 60 Edge research, 21 web report and seven
+  research-host tests; host types and isolated build lint/types pass. Staging D1
+  has no outstanding migrations; its recovery bookmark is retained privately.
+- Pre-rollout/rollback versions: Edge 7e01774c-ab26-4bcb-b0c6-626dff9eec32,
+  Web b9223b45-dd4d-44db-b478-64de54a3a9bf,
+  Research 3adec911-1ebd-4d51-9631-27b08ebff06a; all at 100% traffic.
+  Prior image: 94391e365d52a68a706b454ee4a0d31b75577cfa81240c5d2713bff4789feb0a.
+  Preserve all bindings, secrets and durable storage. New optional figure checks
+  require compatible Edge/web readers before the new runner writes results.
+- Deployment and live smoke receipts follow separately. No production deployment,
+  credential change, schema migration or report recovery is authorized here.
+
 ## 2026-10-27 — Local validation and automatic visual repair hardening
 
 - Owner scope: local changes on feature/pavun only; no paid model calls, report
