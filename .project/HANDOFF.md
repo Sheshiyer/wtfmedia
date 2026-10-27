@@ -1,3 +1,30 @@
+## 2026-10-27 — Local validation and automatic visual repair hardening
+
+- Owner scope: local changes on feature/pavun only; no paid model calls, report
+  regeneration, saved-report edits, push or deployment. The deployed versions in
+  the next entry remain unchanged. Existing partial reports do not resume on refresh.
+- Malformed model response envelopes now consume one bounded attempt and stay
+  inside the individual figure loop. Repair receives all detected row issues
+  together, safe schema locations and the retained private draft. Comparison
+  repairs use named cells compiled into a fixed layout with direct passage IDs.
+  Numeric/date/evidence validation remains strict; unsupported content is never
+  converted into a successful figure merely to satisfy the ready count.
+- Whitespace and timeline ordering normalize without rewriting claims or dates.
+  Python array-string bounds match JavaScript UTF-16 limits. Optional fixed failure
+  categories survive Edge projection without exposing private drafts; successful
+  repair and recovery reset clear stale diagnostics. Two attempts per figure and
+  existing allowance/cancellation boundaries are unchanged.
+- VERIFIED-SOURCE: 192 Python tests, 60 Edge research tests, 21 web report tests,
+  web typecheck, focused lint and privacy scan (0/446) pass. An offline synthetic
+  three-ready/one-invalid result reaches four ready with mocked model responses;
+  its Python output passes actual Edge completion validation and all four render
+  through the web SVG renderer. Written sections, sources and ready slots survive.
+- The diagnosed staging report had three ready figures and a comparison rejected
+  twice as invalid_output. Its exact rejected draft was unavailable. No claim
+  that a particular fixture reproduces that historical draft or that live model
+  generation is verified by these offline checks. A separately authorized release
+  must ship compatible runner/Edge/web contracts together before runtime use.
+
 ## 2026-10-27 — Staging research figures deployment receipt
 
 - Owner-authorized candidate e2daa10e1c21a7fbb7c1898a60a23589a678d488

@@ -16,6 +16,7 @@ export type ResearchFigure = {
 export type FigureSlot = { id: string; section: "snacks" | "appetizers" | "main" | "desserts";
   goal: string; preferredKind: FigureKind; status: "planned" | "generating" | "ready" | "failed";
   attempts: number; reason?: "missing_evidence" | "invalid_output" | "budget_exhausted" | "provider_unavailable" | "image_unavailable";
+  checks?: ("schema" | "evidence" | "numbers" | "dates" | "comparison" | "scope" | "values" | "relationships" | "text" | "response" | "structure")[];
   figure?: ResearchFigure };
 export type FigureSource = { id: string; excerpt: string; url: string; kind?: string; evidenceType?: string };
 const obj = (v: unknown): v is Record<string, any> => !!v && typeof v === "object" && !Array.isArray(v);
@@ -98,6 +99,7 @@ export function validateFigure(value: unknown, sources: FigureSource[]): Researc
     if (i.value !== null && (!i.displayValue || !nums(i.displayValue).some(n => Number(n.replace(/[, %]/gu, "")) === i.value)) && !i.calculation) return null;
     if (value.kind === "timeline" && i.date !== "" && (figureDate(i.date) === null || !figureDateSupported(i.date, q))) return null;
     if (value.kind === "comparison" && (value.columns.length < 2 || i.cells.length !== value.columns.length)) return null;
+    if (value.kind === "comparison" && i.cells.every((cell: string) => cell.trim().toLowerCase() === "not available")) return null;
   }
   if (value.kind === "line" && value.metric.period !== `${value.items[0].date}–${value.items.at(-1)!.date}`) return null;
   if (value.kind === "metrics" && value.items.some((i: FigureItem) => i.value === null)) return null;
@@ -144,7 +146,8 @@ export function validateFigureSlots(raw: unknown, sources: FigureSource[]): Figu
   if (raw.filter(s => s?.preferredKind === "image" || s?.figure?.kind === "image").length > 2) return null;
   const ids = new Set<string>();
   for (const s of raw) {
-    if (!obj(s) || !exact(s, ["id", "section", "goal", "preferredKind", "status", "attempts"], ["reason", "figure"]) || !/^fig_(snacks|appetizers|main|desserts)_[12]$/u.test(s.id) || ids.has(s.id) || !["snacks", "appetizers", "main", "desserts"].includes(s.section) || !s.id.startsWith(`fig_${s.section}_`) || !txt(s.goal, 250) || !FIGURE_KINDS.includes(s.preferredKind) || !["planned", "generating", "ready", "failed"].includes(s.status) || !Number.isInteger(s.attempts) || s.attempts < 0 || s.attempts > 2 || s.reason !== undefined && !["missing_evidence", "invalid_output", "budget_exhausted", "provider_unavailable", "image_unavailable"].includes(s.reason)) return null;
+    if (!obj(s) || !exact(s, ["id", "section", "goal", "preferredKind", "status", "attempts"], ["reason", "figure", "checks"]) || !/^fig_(snacks|appetizers|main|desserts)_[12]$/u.test(s.id) || ids.has(s.id) || !["snacks", "appetizers", "main", "desserts"].includes(s.section) || !s.id.startsWith(`fig_${s.section}_`) || !txt(s.goal, 250) || !FIGURE_KINDS.includes(s.preferredKind) || !["planned", "generating", "ready", "failed"].includes(s.status) || !Number.isInteger(s.attempts) || s.attempts < 0 || s.attempts > 2 || s.reason !== undefined && !["missing_evidence", "invalid_output", "budget_exhausted", "provider_unavailable", "image_unavailable"].includes(s.reason)) return null;
+    if (s.checks !== undefined && (!Array.isArray(s.checks) || s.checks.length > 11 || new Set(s.checks).size !== s.checks.length || s.checks.some((check: unknown) => !["schema", "evidence", "numbers", "dates", "comparison", "scope", "values", "relationships", "text", "response", "structure"].includes(check as string)) || s.status === "ready")) return null;
     if (s.status === "ready" ? !validateFigure(s.figure, sources) || s.reason !== undefined : s.figure !== undefined) return null;
     ids.add(s.id);
   }

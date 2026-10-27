@@ -67,6 +67,25 @@ check codes and bounded repair instructions; no invalid draft is rendered as fac
 Targeted extraction may upgrade uncited snippets before writing while retaining
 already-cited evidence and full extracts. No new provider or credential is required.
 
+The local repair hardening handles malformed JSON and response envelopes inside
+the figure loop, so they consume one attempt and cannot abort later figures.
+Schema errors expose bounded field locations and fixed codes, never rejected values
+or arbitrary model keys. Row validation collects up to sixteen issues together so
+the single automatic repair can address multiple numeric, date and layout problems.
+Failed comparison plans use a compact repair schema with named position,
+opportunity and constraint cells; the runner compiles column counts and evidence
+indices. Unsupported dimensions must say `Not available`, and an entirely empty
+comparison row is rejected. All normal evidence and numeric checks still apply.
+
+Deterministic normalization only flattens presentation whitespace and places valid
+timeline dates in chronological order, retaining undated context. It never rewrites
+claims, invents dates, truncates content or substitutes citations. Cell/column length
+limits use the same UTF-16 bounds in Python and TypeScript. Failed slots may retain
+only fixed diagnostic categories in `checks`; successful repairs clear these and
+their private draft/repair state. Provider failures clear stale validation categories.
+The two-attempt cap and existing reservations are unchanged; unsupported evidence
+or provider failures still produce an honest partial report.
+
 Numeric validation accepts equivalent thousands separators, decimal precision,
 percentage wording and hyphenated ranges without turning genuine negatives into
 positives or bare counts into percentages. Date validation accepts explicit month
@@ -108,6 +127,18 @@ long diagram to an unreadable thumbnail. Evidence and attribution follow the fig
 Export errors remain errors; a missing image is not silently replaced with success.
 
 ## Validation and rollout
+
+On 2026-10-27, a subsequent local-only change passed 192 Python tests, 60 Edge
+research tests, 21 web report tests, web typecheck, focused lint and privacy scanning
+(0 violations across 446 files). A synthetic three-ready/one-invalid case reached
+four ready figures with mocked model responses; its actual Python output passed
+Edge completion validation and rendered all four SVGs through the web renderer.
+Additional fixtures cover malformed responses, multiple simultaneous row errors,
+unsupported numbers, provider authentication, budget limits and cancellation.
+No paid calls, report regeneration, saved-report mutation or deployment occurred
+for this change. This is offline source evidence, not a live-generation guarantee.
+The exact rejected draft from the separately diagnosed staging failure was not
+available, so these fixtures do not establish its specific validation error.
 
 Static syntax/schema, TypeScript, lint and bundle checks are distinct from runtime
 acceptance. On 2026-10-27 the owner explicitly authorized automated tests and live

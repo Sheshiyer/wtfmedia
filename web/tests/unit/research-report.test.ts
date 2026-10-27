@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { ResearchContent } from "@/components/domain/beta/ResearchContent";
 import { parseResearchMarkdown, prepareResearchSection } from "@/lib/research-report";
 import type { ResearchBrief, ResearchSource } from "@/lib/research";
-import { figureDateSupported, figureNumbers, validateFigure, type ResearchFigure } from "../../../shared/research-figures";
+import { figureDateSupported, figureNumbers, validateFigure, validateFigureSlots, type ResearchFigure } from "../../../shared/research-figures";
 import { figureAccessibleText, renderFigure } from "@/lib/research-figures";
 
 const sources: ResearchSource[] = ["src_a", "src_b", "alpha_c"].map(id => ({ id, title: id, url: `https://example.org/${id}`, excerpt: "Evidence", retrievedAt: "2026-10-21" }));
@@ -33,6 +33,32 @@ it("accepts grounded undated context without inventing chronology or relaxing da
   expect(figureAccessibleText(figure)).toContain("Undated context:");
   figure.items[0].date = "2019";
   expect(validateFigure(figure, evidence)).toBeNull();
+});
+
+it("renders a repaired comparison with explicit unavailable dimensions and rejects unsupported completion", () => {
+  const quote = "The business has capacity for 3 or 4 orders. Completion is 90 percent.";
+  const evidence = [{ ...sources[0], evidenceType: "page_extract" as const, excerpt: quote }];
+  const figure: ResearchFigure = { version: 2, kind: "comparison", title: "Operating comparison", takeaway: "Documented operating factors.", caveat: "Source account.",
+    evidence: [{ sourceId: "src_a", quote }], items: ["Capacity", "Operations"].map((label, index) => ({
+      id: `row_${index}`, label, detail: "", evidence: [0], group: "", value: null, displayValue: "", date: "",
+      cells: ["Capacity is 3–4 orders.", "Not available", "Not available"],
+    })), edges: [], columns: ["Position", "Opportunity", "Constraint"], metric: { unit: "", period: "", geography: "", definition: "" } };
+  expect(validateFigure(figure, evidence)).toEqual(figure);
+  expect(renderFigure(figure).svg).toContain("Opportunity");
+  expect(renderFigure(figure).svg).not.toMatch(/NaN|Infinity/);
+  figure.items[0].cells[0] = "Capacity is 123456 orders.";
+  expect(validateFigure(figure, evidence)).toBeNull();
+  figure.items[0].cells[0] = "Not available";
+  expect(validateFigure(figure, evidence)).toBeNull();
+  figure.items[0].cells[0] = "😀".repeat(71);
+  expect(validateFigure(figure, evidence)).toBeNull();
+});
+
+it("accepts only fixed visual failure categories and preserves the legacy slot contract", () => {
+  const slot = { id: "fig_main_1", section: "main", goal: "Compare documented factors", preferredKind: "comparison", status: "failed", attempts: 2, reason: "invalid_output" };
+  expect(validateFigureSlots([slot], sources)).toEqual([slot]);
+  expect(validateFigureSlots([{ ...slot, checks: ["numbers", "comparison"] }], sources)).not.toBeNull();
+  expect(validateFigureSlots([{ ...slot, checks: ["PRIVATE_TEXT"] }], sources)).toBeNull();
 });
 
 describe("shared research section preparation", () => {

@@ -7,6 +7,18 @@ const base={id:'rrun_test',status:'partial',sections:[section],sources:[source],
 const parse=value=>validatedResult(value,'rrun_test');
 const failure={stage:'desserts',code:'output_truncated',retryable:true};
 
+test('visual failure categories survive projection without exposing arbitrary diagnostic text',()=>{
+ const slot={id:'fig_main_1',section:'main',goal:'Compare supported opportunities',preferredKind:'comparison',status:'failed',attempts:2,reason:'invalid_output',checks:['comparison','numbers']};
+ const result=parse({...base,visualPolicyVersion:2,figures:[slot]});
+ assert.deepEqual(result.figures[0].checks,['comparison','numbers']);
+ for(const checks of [['PRIVATE_DRAFT'],['numbers','numbers'],['items[0].PRIVATE'],['schema',42]]) {
+  assert.throws(()=>parse({...base,visualPolicyVersion:2,figures:[{...slot,checks}]}));
+ }
+ // Older documents without diagnostics remain readable.
+ const {checks,...legacy}=slot;
+ assert.equal(parse({...base,visualPolicyVersion:2,figures:[legacy]}).figures[0].reason,'invalid_output');
+});
+
 test('one or more populated fields are sufficient and omitted fields remain empty',()=>{
  const keys=['guestName','companyName','industry'];
  for(let mask=1;mask<8;mask++){

@@ -124,6 +124,7 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
                 if slot.get('status') != 'ready':
                     slot.update(status='planned', attempts=0)
                     slot.pop('reason', None)
+                    slot.pop('checks', None)
                     slot.pop('figure', None)
             state['retryInitialized'] = True
             if result.get('figures'):
