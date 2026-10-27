@@ -1,3 +1,29 @@
+## 2026-10-27 — Automatic visual repair staging deployment receipt
+
+- Owner-authorized candidate 0f25daac16402c5ef69c78bfa8a7ac7e80b35569 is pushed
+  to feature/pavun and deployed to staging. Runtime source is 23a9f02; candidate
+  differences are the verified image pin and release/architecture documentation.
+- Readback confirms 100% traffic on Edge 5da7831b-a242-40a1-8360-383cbe72e9da,
+  Web 2ba30171-dbca-498f-97f3-2b11ec7b7ed4, and Research
+  f225e6df-00fb-4a0f-8d57-f95b2c4f3238. All 27 Edge, 10 Web and 10 Research
+  bindings match the pre-rollout snapshot, including existing secret bindings.
+- Container detail confirms application version 12 and pinned image
+  b44c90db74c210553aa031a6f251d44421e05b018a8e600b2ec3f11664b91524;
+  control-plane health reports one healthy instance and no errors. The rollout
+  receipt confirms its 100% step completed. List inventory
+  initially lagged at version 11; direct application readback confirms version 12.
+- Live staging root redirects (307), sign-in and research page return 200,
+  unsigned principal and research APIs return 401, and Edge health preserves
+  staging identity and Alpha corpus authority. Compiled/live Clerk identity
+  matches staging; served research JavaScript matches the exact build bytes.
+- No migrations, secret changes, production deployment, paid model calls or
+  report regeneration. Saved partial reports remain unchanged. These deployment
+  and smoke receipts do not claim authenticated report-generation acceptance.
+  Staging: https://beta-staging.wtfhq.in/beta/research . Rollback targets remain
+  in the preparation entry below; preserve durable state when rolling back.
+- Subsequent Social Analytics presentation edits requested during rollout are
+  local test work only and are not part of this deployed candidate.
+
 ## 2026-10-27 — Automatic visual repair staging release preparation
 
 - Owner now explicitly authorizes pushing all changes to feature/pavun and
