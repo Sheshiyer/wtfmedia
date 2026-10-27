@@ -18,10 +18,10 @@ import {
   type ProductionSourceCheck,
 } from "@/lib/ops/production-data";
 
-const fieldClass = "min-h-10 w-full rounded-control border-2 border-foreground bg-canvas px-2.5 py-1.5 font-body text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention disabled:opacity-50";
+const fieldClass = "min-h-10 min-w-0 w-full rounded-control border-2 border-foreground bg-canvas px-2.5 py-1.5 font-body text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention disabled:opacity-50";
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
-  return <label className="grid gap-1"><span className="font-label text-[11px] font-bold uppercase tracking-[0.07em] text-secondary">{label}</span>{children}</label>;
+  return <label className="grid min-w-0 gap-1"><span className="font-label text-[11px] font-bold uppercase tracking-[0.07em] text-secondary">{label}</span>{children}</label>;
 }
 
 type Action = (action: ProductionAction, data: Record<string, unknown>) => Promise<boolean>;
@@ -142,12 +142,12 @@ export function ProductionDetails({
   }
 
   return (
-    <aside aria-label="Production details" className="min-w-0 border-2 border-foreground bg-surface-raised">
+    <aside aria-label="Production details" className="min-w-0 self-start border-2 border-foreground bg-surface-raised">
       <div className="border-b-2 border-foreground bg-attention px-4 py-3 text-on-attention">
         <p className="font-label text-[11px] font-bold uppercase tracking-[0.1em]">{item ? "Episode details" : creating ? "New episode" : showDayEvents ? "Selected day" : "Episode details"}</p>
-        <h2 className="font-heading text-xl leading-tight">{item?.title ?? (creating ? "Add an episode" : showDayEvents ? dayLabel(selectedDay, { weekday: "long" }) : "Select an episode")}</h2>
+        <h2 className="break-words font-heading text-xl leading-tight">{item?.title ?? (creating ? "Add an episode" : showDayEvents ? dayLabel(selectedDay, { weekday: "long" }) : "Select an episode")}</h2>
       </div>
-      <div className={standalone ? "space-y-5 p-4 sm:p-6" : "max-h-[75vh] space-y-5 overflow-y-auto p-4"}>
+      <div className={standalone ? "space-y-5 p-4 sm:p-6" : "space-y-5 p-4"}>
         {showDayEvents && <section aria-label="Events on selected day">
           <div className="flex items-center justify-between gap-2">
             <h3 className="font-heading text-lg">On this day</h3>
@@ -243,10 +243,10 @@ export function ProductionDetails({
               {snapshot.canEdit && <form className="mt-3 flex gap-2" onSubmit={(event) => { event.preventDefault(); if (newGuest.trim()) void onAction("add_guest_to_item", { itemId: item.id, name: newGuest.trim() }).then((ok) => { if (ok) setNewGuest(""); }); }}><input aria-label="Guest name" className={fieldClass} value={newGuest} onChange={(event) => setNewGuest(event.target.value)} placeholder="Add guest name" maxLength={180} disabled={busy} /><Button type="submit" variant="ghost" disabled={!newGuest.trim() || busy}>Add guest</Button></form>}
             </details>
 
-            <details className="border-t border-foreground/30 pt-4" aria-label="Production blockers" open={blockersOpen} onToggle={(event) => setBlockersOpen(event.currentTarget.open)}>
+            <details className="min-w-0 border-t border-foreground/30 pt-4 [overflow-wrap:anywhere]" aria-label="Production blockers" open={blockersOpen} onToggle={(event) => setBlockersOpen(event.currentTarget.open)}>
               <summary className="cursor-pointer font-heading text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention">Blockers{itemBlockers.length ? ` · ${itemBlockers.length}` : ""}</summary>
               <div className="mt-2 space-y-2">{itemBlockers.length ? itemBlockers.map((blocker) => <div key={blocker.id} className="border border-foreground/30 bg-canvas p-2.5"><p className="font-body text-sm font-semibold">{blocker.reason}</p><p className="mt-1 font-label text-xs text-secondary">{blocker.status} · {blocker.owner || "Unassigned"}{blocker.nextAction ? ` · Next: ${blocker.nextAction}` : ""}</p>{snapshot.canEdit && <button type="button" className="mt-2 font-label text-xs font-bold underline underline-offset-2" disabled={busy} onClick={() => void onAction("update_blocker", { id: blocker.id, itemId: item.id, reason: blocker.reason, owner: blocker.owner, nextAction: blocker.nextAction, status: blocker.status === "resolved" ? "open" : "resolved" })}>{blocker.status === "resolved" ? "Reopen blocker" : "Resolve blocker"}</button>}</div>) : <p className="font-body text-sm text-secondary">No blockers recorded.</p>}</div>
-              {snapshot.canEdit && <form className="mt-3 space-y-2 border border-foreground/30 bg-canvas p-3" onSubmit={(event) => { event.preventDefault(); if (blockReason.trim()) void onAction("create_blocker", { itemId: item.id, reason: blockReason.trim(), owner: blockOwner.trim() || null, status: "open", nextAction: blockAction.trim() }).then((ok) => { if (ok) { setBlockReason(""); setBlockOwner(""); setBlockAction(""); } }); }}><Field label="Reason"><input className={fieldClass} value={blockReason} onChange={(event) => setBlockReason(event.target.value)} maxLength={500} disabled={busy} required /></Field><div className="grid grid-cols-2 gap-2"><Field label="Owner"><input className={fieldClass} value={blockOwner} onChange={(event) => setBlockOwner(event.target.value)} disabled={busy} /></Field><Field label="Next action"><input className={fieldClass} value={blockAction} onChange={(event) => setBlockAction(event.target.value)} disabled={busy} /></Field></div><Button type="submit" variant="ghost" disabled={!blockReason.trim() || busy}>Add blocker</Button></form>}
+              {snapshot.canEdit && <form className="mt-3 space-y-2 border border-foreground/30 bg-canvas p-3" onSubmit={(event) => { event.preventDefault(); if (blockReason.trim()) void onAction("create_blocker", { itemId: item.id, reason: blockReason.trim(), owner: blockOwner.trim() || null, status: "open", nextAction: blockAction.trim() }).then((ok) => { if (ok) { setBlockReason(""); setBlockOwner(""); setBlockAction(""); } }); }}><Field label="Reason"><input className={fieldClass} value={blockReason} onChange={(event) => setBlockReason(event.target.value)} maxLength={500} disabled={busy} required /></Field><div className="grid grid-cols-1 gap-2 sm:grid-cols-2"><Field label="Owner"><input className={fieldClass} value={blockOwner} onChange={(event) => setBlockOwner(event.target.value)} disabled={busy} /></Field><Field label="Next action"><input className={fieldClass} value={blockAction} onChange={(event) => setBlockAction(event.target.value)} disabled={busy} /></Field></div><Button type="submit" variant="ghost" disabled={!blockReason.trim() || busy}>Add blocker</Button></form>}
             </details>
           </>
         )}

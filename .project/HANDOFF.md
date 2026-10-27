@@ -1,3 +1,20 @@
+## 2026-10-27 — Production details / Blockers clipping fix ready for staging
+
+- Removed the details body's 75vh cap and nested vertical scrolling; expanded
+  sections now participate in normal document scrolling. The panel aligns to its
+  own content height instead of stretching to the calendar column's height.
+- Shared field labels and inputs can shrink within their grid tracks. Blocker
+  owner/action fields stack on narrow screens, and long blocker text/title wraps.
+  No API, permission, mutation or production data behavior changed.
+- VERIFIED-SOURCE: typecheck, focused lint and six production-calendar unit checks
+  pass. The actual component and stylesheet were measured in an isolated local
+  synthetic-data preview at 1600x900, 1600x650, 1440x900, 768x900, 390x844 and
+  320x710: no horizontal overflow or nested body scroll, form fields fit, panel
+  ends with its content and Add blocker remains reachable above the dock footprint.
+  Desktop/mobile screenshots were inspected. These are layout checks, not live data.
+- Owner requested staging deployment only. Keep the production apex unchanged;
+  work remains on feature/pavun with no branch push requested for this task.
+
 ## 2026-10-27 — Quiet workspace loading deployed to staging and production
 
 - Owner authorized both deployments. Source candidate
