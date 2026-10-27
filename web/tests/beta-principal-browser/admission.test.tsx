@@ -79,13 +79,19 @@ afterEach(async () => {
   vi.unstubAllGlobals();
 });
 
-it("uses only neutral loading until initial server admission, including hard refresh", async () => {
+it("shows public page placeholders without an access screen until admission, including hard refresh", async () => {
   const pending = deferred<Response>();
   fetchMock.mockReturnValue(pending.promise);
   await render();
   expect(privatePage()).toBeNull();
   expect(container.querySelector('[role="status"]')).not.toBeNull();
+  expect(container.querySelector('[role="status"]')?.classList.contains("sr-only")).toBe(true);
+  expect(container.querySelector('[data-workspace-loading] [data-wtfos-wordmark-mini]')).not.toBeNull();
+  expect(container.querySelector('[data-navigation-toggle]')).toBeNull();
+  expect(container.querySelector("h1")).toBeNull();
   expect(container.textContent).not.toContain("checking access");
+  expect(container.textContent).not.toContain("Loading workspace");
+  expect(container.textContent).not.toContain("beta access");
   await act(async () => pending.resolve(response()));
   expect(privatePage()).not.toBeNull();
   await act(async () => root.unmount());
@@ -94,8 +100,35 @@ it("uses only neutral loading until initial server admission, including hard ref
   fetchMock.mockReturnValue(refreshed.promise);
   await render();
   expect(privatePage()).toBeNull();
+  expect(container.querySelector("[data-workspace-loading]")).not.toBeNull();
   expect(fetchMock).toHaveBeenCalledTimes(2);
   await act(async () => refreshed.resolve(response()));
+});
+
+it("does not restart pending admission when the route changes", async () => {
+  const pending = deferred<Response>();
+  fetchMock.mockReturnValue(pending.promise);
+  await render();
+  runtime.pathname = "/beta/analytics";
+  await render();
+  runtime.pathname = "/beta/social-analytics";
+  await render();
+  expect(privatePage()).toBeNull();
+  expect(fetchMock).toHaveBeenCalledOnce();
+  await act(async () => pending.resolve(response()));
+  expect(privatePage()).not.toBeNull();
+  expect(container.querySelector("[data-workspace-loading]")).toBeNull();
+});
+
+it("uses the latest destination when a pending admission loses authentication", async () => {
+  const pending = deferred<Response>();
+  fetchMock.mockReturnValueOnce(pending.promise).mockResolvedValue(new Response(null, { status: 401 }));
+  await render();
+  runtime.pathname = "/beta/social-analytics";
+  await render();
+  await act(async () => pending.resolve(new Response(null, { status: 401 })));
+  expect(privatePage()).toBeNull();
+  expect(runtime.router.replace).toHaveBeenCalledWith("/sign-in?redirect_url=%2Fbeta%2Fsocial-analytics");
 });
 
 it("keeps the admitted subtree and one admission through navigation, back/forward and token-hook changes", async () => {

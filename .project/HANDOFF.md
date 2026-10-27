@@ -1,3 +1,26 @@
+## 2026-10-27 — Quiet workspace loading and stable pending admission (local)
+
+- Owner reported the access-check card on refresh in production/staging. The
+  recorded selective production frontend still uses the older checking-access
+  GateState; current branch source already uses a neutral standalone loading
+  screen. Replace that screen with public brand chrome and subtle responsive
+  placeholders, with a screen-reader-only loading status. No private children,
+  role navigation or cached authority render before fresh server admission.
+- Route changes during pending admission now reuse the same request instead of
+  restarting it. A late authentication failure redirects to the latest route.
+  Existing session invalidation, destination capability checks, API denials and
+  fresh verification after hard reload remain enforced.
+- VERIFIED-SOURCE: 44 mounted headless Chrome checks pass across desktop/mobile;
+  13 focused principal/single-shell unit tests pass; web typecheck and focused
+  lint pass. No live account/provider requests. The separate open-enrollment
+  suite has one pre-existing stale source assertion requiring an old social
+  bottom-dock exclusion that is absent from HEAD; navigation was not changed.
+- Changes remain local on feature/pavun; no push or deployment authorized in this
+  fix request. For a later production release, adapt the gate in the existing
+  selective production assembly and include BetaWorkspaceLoading.tsx; preserve
+  production's navigation list and unrelated page source. Do not promote the
+  branch's research/production-tracker navigation while delivering this fix.
+
 ## 2026-10-27 — TikTok Social Analytics deployed to production and staging
 
 - Owner authorized pushing all changes and deploying TikTok Social Analytics to

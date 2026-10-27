@@ -4,6 +4,7 @@ import { useAuth } from "@clerk/nextjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { OperatorContextProvider } from "@/components/domain/ops/OperatorContextProvider";
+import { BetaWorkspaceLoading } from "./BetaWorkspaceLoading";
 import { AppShell, type AppNavItem } from "@/components/shells/AppShell";
 import { audienceForRole, betaDestinationForPath, capabilityForBetaPath, isBetaDestinationVisible } from "@/lib/beta/navigation";
 import { parsePrincipalContext, principalCanAccess, type PrincipalContext } from "@/lib/beta/principal";
@@ -64,10 +65,6 @@ function Shell({ context, children }: { context: PrincipalContext; children: Rea
 
 function GateState({ heading, body, retry }: { heading: string; body: string; retry?: () => void }) {
   return <main className="grid min-h-screen place-items-center bg-canvas px-4 py-8"><section className="w-full max-w-xl border-2 border-foreground bg-surface-raised p-6 shadow-[6px_6px_0_rgb(var(--wtf-foreground-rgb)/0.14)]"><p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">beta access</p><h1 className="mt-2 font-heading text-3xl font-bold lowercase">{heading}</h1><p className="mt-3 text-sm leading-6 text-secondary">{body}</p>{retry ? <button type="button" onClick={retry} className="mt-5 min-h-11 border-2 border-foreground bg-attention px-4 font-label text-sm font-bold text-on-attention">try again</button> : null}</section></main>;
-}
-
-function ShellLoading() {
-  return <main aria-busy="true" className="min-h-screen bg-canvas px-4 py-10 text-foreground sm:px-8"><p className="font-label text-sm font-bold">WTF OS</p><p role="status" className="mt-3 text-sm text-secondary">Loading workspace…</p></main>;
 }
 
 function principalCanOpenPath(principal: PrincipalContext, pathname: string): boolean {
@@ -143,6 +140,7 @@ function SessionPrincipalGate({ children, auth, identityKey }: { children: React
     setPrincipal(null);
     if (!isSignedIn) {
       const ticket = memberInvitationTicket(invitationTicket);
+      const { pathname, router } = requestContextRef.current;
       router.replace(ticket ? `/sign-up?redirect_url=${encodeURIComponent(pathname)}&__clerk_ticket=${encodeURIComponent(ticket)}` : `/sign-in?redirect_url=${encodeURIComponent(pathname)}`);
       return;
     }
@@ -155,6 +153,7 @@ function SessionPrincipalGate({ children, auth, identityKey }: { children: React
         setPrincipal(null);
         setAdmittedKey(null);
         setState("loading");
+        const { pathname, router } = requestContextRef.current;
         router.replace(`/sign-in?redirect_url=${encodeURIComponent(pathname)}`);
         return;
       }
@@ -170,7 +169,7 @@ function SessionPrincipalGate({ children, auth, identityKey }: { children: React
     } catch {
       if (attempt === admissionAttemptRef.current) setState("unavailable");
     }
-  }, [admissionKey, fetchWithSession, identityKey, invitationTicket, isLoaded, isSignedIn, pathname, router]);
+  }, [admissionKey, fetchWithSession, identityKey, invitationTicket, isLoaded, isSignedIn]);
 
   useEffect(() => { if (isLoaded) void admit(); }, [admit, isLoaded]);
   const memberFetch = useCallback<MemberFetch>(async (input, init) => {
@@ -195,7 +194,7 @@ function SessionPrincipalGate({ children, auth, identityKey }: { children: React
   if (!isLoaded || !principal || verifiedIdentityKeyRef.current !== identityKey) {
     if (state === "denied") return <GateState heading="access is not granted" body="Your verified account is not allowed to open this Beta route. Nothing private was shown." />;
     if (state === "unavailable") return <GateState heading="workspace unavailable" body="The verified principal context could not be loaded. Nothing private was shown." retry={() => void admit()} />;
-    return <ShellLoading />;
+    return <BetaWorkspaceLoading />;
   }
 
   if (state === "denied" || !principalCanOpenPath(principal, pathname)) return <GateState heading="access is not granted" body="Your verified account is not allowed to open this Beta route. Nothing private was shown." />;
@@ -208,6 +207,6 @@ function SessionPrincipalGate({ children, auth, identityKey }: { children: React
       : value;
   };
 
-  if (state === "loading" || admittedKey !== admissionKey) return <ShellLoading />;
+  if (state === "loading" || admittedKey !== admissionKey) return <BetaWorkspaceLoading />;
   return renderWithPrincipal(children);
 }
