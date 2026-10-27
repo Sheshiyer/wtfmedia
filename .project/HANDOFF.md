@@ -1,3 +1,35 @@
+## 2026-10-27 — Quiet workspace loading deployed to staging and production
+
+- Owner authorized both deployments. Source candidate
+  9b54418f5191e5a7fadbd2a9b31e34faf6316ae7 is committed locally on feature/pavun.
+  This turn did not push the branch.
+- Staging Web 2d0e0ad5-4a88-4139-83ea-776300a2d0e8 and production apex Web
+  0bbce8d8-c572-426d-ad96-f6d8ac770cf5 read back at 100% traffic.
+- Production uses the previous selective TikTok frontend assembly. Only
+  BetaPrincipalGate.tsx and the added BetaWorkspaceLoading.tsx change at runtime.
+  Its original member/operator navigation and Shell symbols are retained exactly;
+  the current verified session-admission lifecycle and quiet placeholders are
+  adapted to its existing navigation helper. Research routes remain absent.
+- VERIFIED-SOURCE: both exact candidates pass 44 mounted headless desktop/mobile
+  admission tests each (88 checks total), including reloads, pending navigation,
+  sign-out, session changes and denial. Production fixtures target its released
+  Social Analytics route in place of the unreleased Research route. Both isolated
+  OpenNext builds pass lint/types; source architecture and diff checks pass.
+- LIVE-VERIFIED: both social pages render public loading chrome without the old
+  checking-access card; referenced gate chunks hash-match the exact build and
+  contain the screen-reader-only status. Clerk identity matches each environment.
+  Sign-in/social/YouTube/chat return 200, root redirects 307, unsigned principal
+  and social APIs return 401. A transient public read timeout passed on retry.
+- All settings and bindings are unchanged. Production Edge remains
+  a8d94ffe-4298-496f-bc98-3c2408625f21; staging Edge remains
+  1226f7fd-fa30-4df3-b3f9-bc1c6c195694; research remains
+  f225e6df-00fb-4a0f-8d57-f95b2c4f3238. No database, credential, provider/account
+  mutation or paid model call. No live signed-in persona matrix is claimed.
+- Rollback Web versions: staging 0d0a6410-e007-4945-bedd-4ece2ad34f19 and
+  production 318b8b76-325c-452d-a9cc-7be8f734f70b. Preserve settings and bindings.
+- URLs: https://beta-staging.wtfhq.in/beta/social-analytics and
+  https://wtfhq.in/beta/social-analytics .
+
 ## 2026-10-27 — Quiet workspace loading and stable pending admission (local)
 
 - Owner reported the access-check card on refresh in production/staging. The
