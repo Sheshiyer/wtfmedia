@@ -1,3 +1,24 @@
+## 2026-10-27 — Production Blockers layout fix deployed to staging
+
+- Owner-authorized staging Web version 64cbe867-bfb6-4b7e-a648-ba7221a7e4d8
+  serves 100% traffic from committed source
+  afa5906339903728b9802e1118ebcb4934906c8c. Work remains local on feature/pavun;
+  no branch push was requested or performed for this change.
+- Details use document scrolling, content-sized panel height, shrinking inputs,
+  mobile-stacked blocker fields and wrapping long text. Six measured desktop/
+  mobile sizes pass layout checks; screenshots inspected. Six calendar unit
+  checks, focused lint, typecheck and isolated OpenNext build pass.
+- LIVE-VERIFIED: /beta/workspace/production and /beta/social-analytics return 200;
+  the Production page references the exact built bundle containing the fix.
+  Staging Clerk identity matches, unsigned production API returns 401, and all
+  worker settings/bindings remain unchanged. Live private rows were not inspected
+  or mutated. Synthetic layout measurements are source evidence only.
+- Production Web remains 0bbce8d8-c572-426d-ad96-f6d8ac770cf5. Both Edge workers
+  and the research Worker retain their prior versions; no database, credential,
+  provider or paid model operations occurred. Temporary layout preview stopped.
+- Rollback staging Web: 2d0e0ad5-4a88-4139-83ea-776300a2d0e8; preserve bindings.
+- Test URL: https://beta-staging.wtfhq.in/beta/workspace/production .
+
 ## 2026-10-27 — Production details / Blockers clipping fix ready for staging
 
 - Removed the details body's 75vh cap and nested vertical scrolling; expanded
