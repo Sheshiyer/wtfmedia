@@ -1,3 +1,24 @@
+## 2026-10-27 — Board and research UI deployed to staging
+
+- Owner-authorized staging Web version 82f978d9-e06f-497f-990c-93cf88a5c04b serves
+  100% traffic from committed source e999d44c18672d636c3e0be5dc54864c7d09a64b.
+  Includes responsive Board lanes, expandable retained-source cards, full-width
+  open source cards, and unnumbered figure evidence with source links preserved.
+- VERIFIED-SOURCE: 100 focused unit checks, typecheck, scoped lint, architecture
+  freshness and isolated OpenNext build pass. Prior six-width synthetic browser
+  checks cover layout, disclosure keyboard behavior and saved evidence display.
+- LIVE-VERIFIED: staging Production/Research/Social pages and sign-in return 200;
+  unsigned Production/Research APIs return 401. Exact live Board/research JS and
+  expanded-card CSS hashes match the build. Compiled and live Clerk identity
+  match the staging Edge issuer. Existing bindings/settings are preserved.
+- Production Web, both Edge workers and the research Worker retain their previous
+  versions. No database changes, provider calls or saved-report regeneration.
+  Private authenticated report contents were not inspected in this deployment.
+- Rollback staging Web: 64cbe867-bfb6-4b7e-a648-ba7221a7e4d8. Work remains local on
+  feature/pavun; no branch push was requested or performed.
+- Test: https://beta-staging.wtfhq.in/beta/research and
+  https://beta-staging.wtfhq.in/beta/workspace/production .
+
 ## 2026-10-27 — Expanded source card gap corrected (local)
 
 - An open source coverage card now spans the full grid width. This removes the
