@@ -1,3 +1,32 @@
+## 2026-10-27 — Social Analytics cleanup deployed to staging and production
+
+- Owner-approved source 94135ba136db22428e0b4e732d8c268f634fcf4f is pushed to
+  feature/pavun. Staging Web aab96a58-2719-4abb-bbc5-90c54a353024 and production
+  apex Web be7823b3-1793-4d25-8658-ad2c6c457624 both read back at 100% traffic.
+- Production frontend was assembled using the frontend portion of the recorded
+  aa72b98 release builder and ded0b4c ancestor. Its Social Analytics source matched
+  the pre-change branch exactly. Before/after file hashes prove that only
+  web/components/domain/social/SocialAnalyticsWorkspace.tsx and
+  web/app/beta/social-analytics/page.tsx changed relative to that assembly.
+  Research routes remain absent from the production build. This is the recorded
+  source-lineage reconstruction, not a byte-identical old Web artifact claim.
+- Both isolated builds pass built-in lint/types and contain the correct public
+  Clerk identity for their environment. All 18 focused social-contract tests,
+  architecture and diff checks pass. Live sign-in, social, YouTube analytics and
+  chat routes return 200, roots redirect 307, and unsigned social APIs return 401.
+  Each live social page references the new chunk, whose bytes match its build.
+- All ten staging Web and six production Web bindings are preserved, including
+  secret names and environment-specific Edge/self service bindings. Production
+  Edge remains 4f21894f-9ecd-40d5-afae-dad24890a843; staging Edge remains
+  5da7831b-a242-40a1-8360-383cbe72e9da; research remains
+  f225e6df-00fb-4a0f-8d57-f95b2c4f3238. No backend, database, credential,
+  connection, paid model call or saved-report changes occurred.
+- Rollback Web versions: staging 2ba30171-dbca-498f-97f3-2b11ec7b7ed4;
+  production 48912c66-e223-41b1-a6d9-22fdee5a12a2. Preserve bindings and state.
+  Signed-in provider data was not queried; owner accepted the local presentation.
+- URLs: https://beta-staging.wtfhq.in/beta/social-analytics and
+  https://wtfhq.in/beta/social-analytics .
+
 ## 2026-10-27 — Social Analytics web release authorized
 
 - Owner approved the local Social Analytics cleanup, pushing to feature/pavun,
