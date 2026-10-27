@@ -21,7 +21,6 @@ function wrap(text: string, width: number, font = 18) {
 }
 const words = (s: string, x: number, y: number, width: number, size = 18, bold = false, fill = "#242424") => wrap(s, width, size).map((line, i) => `<text x="${x}" y="${y + i * (size + 6)}" font-size="${size}" fill="${fill}"${bold ? ' font-weight="700"' : ""}>${escape(line)}</text>`).join("");
 const box = (x: number, y: number, width: number, height: number, color = "#f5f6f9", border = "#dce1eb") => `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="12" fill="${color}" stroke="${border}"/>`;
-const evidenceLabel = (refs: number[]) => refs.map(n => `[${n + 1}]`).join(" ");
 const lineHeight = (s: string, width: number, font = 18) => wrap(s, width, font).length * (font + 6);
 export const FIGURE_REASONS: Record<string, string> = {
   missing_evidence: "More supporting evidence is needed for this figure.",
@@ -39,7 +38,7 @@ export function renderFigure(f: ResearchFigure): { svg: string; width: number; h
   let content = words(f.title, left, 58, inner, 32, true);
   content += words(f.takeaway, left, y, inner, 19); y += lineHeight(f.takeaway, inner, 19) + 28;
   content += `<path d="M40 ${y} H1080" stroke="#dce1eb"/>`; y += 30;
-  const itemCaption = (item: FigureItem) => [item.group, evidenceLabel(item.evidence)].filter(Boolean).join(" · ");
+  const itemCaption = (item: FigureItem) => item.group;
   if (f.kind === "bar") {
     const values = f.items.map(i => i.value!); const min = Math.min(0, ...values); const max = Math.max(0, ...values);
     const span = max - min || 1, x0 = 320, chartWidth = 580;
@@ -69,7 +68,7 @@ export function renderFigure(f: ResearchFigure): { svg: string; width: number; h
     content += words(f.items[0].date, 150, start + h + 26, 160, 15) + words(f.items.at(-1)!.date, 920, start + h + 26, 160, 15);
     y = start + h + 65;
     // A full-width key keeps dense dates and point values readable instead of colliding on the axis.
-    points.forEach(p => { content += words(`${p.item.date} · ${p.item.label}: ${p.item.displayValue} ${f.metric.unit} ${evidenceLabel(p.item.evidence)}`, left, y, inner, 17); y += lineHeight(`${p.item.date} · ${p.item.label}: ${p.item.displayValue} ${f.metric.unit} ${evidenceLabel(p.item.evidence)}`, inner, 17) + 8; breaks.push(y); });
+    points.forEach(p => { content += words(`${p.item.date} · ${p.item.label}: ${p.item.displayValue} ${f.metric.unit}`, left, y, inner, 17); y += lineHeight(`${p.item.date} · ${p.item.label}: ${p.item.displayValue} ${f.metric.unit}`, inner, 17) + 8; breaks.push(y); });
   } else if (f.kind === "stacked") {
     const total = f.items.reduce((n, i) => n + i.value!, 0); let x = left;
     const metricLabel = `${f.metric.definition} · ${f.metric.unit} · ${f.metric.geography} · ${f.metric.period}`;
@@ -78,7 +77,7 @@ export function renderFigure(f: ResearchFigure): { svg: string; width: number; h
     y += 105;
     f.items.forEach((i, index) => {
       content += `<circle cx="52" cy="${y - 6}" r="7" fill="${palette[index % palette.length]}"/>`;
-      const label = `${i.label}: ${i.displayValue} ${f.metric.unit} ${evidenceLabel(i.evidence)}`;
+      const label = `${i.label}: ${i.displayValue} ${f.metric.unit}`;
       content += words(label, 75, y, inner - 40, 20, true); y += lineHeight(label, inner - 40, 20) + 15; breaks.push(y);
     });
   } else if (f.kind === "comparison") {
@@ -88,7 +87,7 @@ export function renderFigure(f: ResearchFigure): { svg: string; width: number; h
     content += box(left, y, inner, headerHeight); let x = left;
     headers.forEach((h, n) => { content += words(h, x + 12, y + 28, widths[n] - 24, 18, true); x += widths[n]; }); y += headerHeight;
     for (const i of f.items) {
-      const cells = [`${i.label} ${evidenceLabel(i.evidence)}`, ...i.cells];
+      const cells = [i.label, ...i.cells];
       const rh = Math.max(70, ...cells.map((c, n) => lineHeight(c, widths[n] - 24, 17) + 32)); x = left;
       cells.forEach((c, n) => { content += words(c || "Not available", x + 12, y + 27, widths[n] - 24, 17, n === 0); x += widths[n]; });
       y += rh; breaks.push(y); content += `<path d="M40 ${y} H1080" stroke="#dce1eb"/>`;
@@ -131,12 +130,11 @@ export function renderFigure(f: ResearchFigure): { svg: string; width: number; h
       const a = placements[f.items.findIndex(i => i.id === e.from)], b = placements[f.items.findIndex(i => i.id === e.to)];
       const x = 750 + index * 21, ay = a.y + a.h * .35, by = b.y + b.h * .65;
       content += `<path d="M720 ${ay} H${x} V${by} H728" fill="none" stroke="${palette[index % palette.length]}" stroke-width="2" marker-end="url(#arrow${index % palette.length})"/>`;
-      content += words(String(index + 1), x + 3, (ay + by) / 2, 30, 13, true, palette[index % palette.length]);
     });
     content += words("Connections", left, y + 15, inner, 21, true); y += 48;
-    f.edges.forEach((e, index) => {
+    f.edges.forEach(e => {
       const from = f.items.find(i => i.id === e.from)!, to = f.items.find(i => i.id === e.to)!;
-      const label = `${index + 1}. ${from.label} → ${to.label}: ${e.label} ${evidenceLabel(e.evidence)}`;
+      const label = `${from.label} → ${to.label}: ${e.label}`;
       content += words(label, left, y, inner, 18); y += lineHeight(label, inner) + 12; breaks.push(y);
     });
   } else if (f.kind === "image" && f.asset) {
@@ -161,7 +159,7 @@ export function renderFigure(f: ResearchFigure): { svg: string; width: number; h
   }
   if (f.caveat) { content += words(f.caveat, left, y + 15, inner, 16); y += lineHeight(f.caveat, inner, 16) + 30; }
   content += `<path d="M40 ${y} H1080" stroke="#dce1eb"/>`; y += 26;
-  content += words("Sources: numbered evidence references accompany this figure.", left, y, inner, 14);
+  content += words("Supporting sources and excerpts accompany this figure.", left, y, inner, 14);
   const height = Math.ceil(y + 30);
   const defs = palette.map((color, i) => `<marker id="arrow${i}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="${color}"/></marker>`).join("");
   return { width, height, breaks: [...breaks, height], svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img"><title>${escape(f.title)}</title><desc>${escape(f.takeaway)}</desc><defs>${defs}</defs><rect width="${width}" height="${height}" fill="#ffffff"/><g font-family="Arial,sans-serif" fill="#242424">${content}</g></svg>` };

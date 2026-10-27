@@ -1,3 +1,37 @@
+## 2026-10-27 — Expanded source card gap corrected (local)
+
+- An open source coverage card now spans the full grid width. This removes the
+  tall empty neighboring columns caused by long excerpts in a narrow card.
+  Native disclosure behavior and the compact closed-card grid are preserved.
+- VERIFIED-SOURCE: scoped lint passes. Actual components/CSS with 95 synthetic
+  saved sources checked at 1600, 1440, 1024, 768, 390 and 320px: expanded cards
+  fill the grid, keyboard collapse restores columns, all links remain available,
+  and no page overflow occurs. Desktop screenshot inspected. No live report
+  content, provider calls, deployment or push; changes remain on feature/pavun.
+
+## 2026-10-27 — Board layout and research source presentation (local)
+
+- Production Board now wraps lanes into a responsive grid instead of a fixed-width
+  horizontal scroller. Long titles and owner names wrap; Live stays reachable via
+  normal page scrolling. Existing Blockers layout fix is preserved.
+- Research channel coverage cards expand to show their saved source titles, safe
+  original links, retained excerpts, retrieval metadata and timestamps. Counts
+  reflect available saved records; mismatches with search receipts are explicit.
+  The full source list reuses the same excerpt component.
+- Saved structured figures no longer render bracketed evidence numbers or numbered
+  connection keys. Evidence validation/references remain intact, with quotes and
+  links in the expandable explanation. Word figures use the same renderer and
+  unnumbered evidence text; table source links use names instead of source numbers.
+  No report regeneration or paid calls are required for this presentation change.
+- VERIFIED-SOURCE: 100 focused unit checks, typecheck and scoped lint pass. Actual
+  components/CSS checked with synthetic data at 1600, 1440, 1024, 768, 390 and 320px:
+  no Board/page horizontal overflow, Live selection works, all six source cards
+  expand by keyboard, excerpts/links match, unsafe links are omitted and diagram
+  evidence remains accessible without numeric markers. Desktop screenshot inspected.
+  These checks are not live private-data acceptance.
+- Work stays local on feature/pavun; no push or deployment for this change. No
+  backend, stored report, database, provider or credential changes.
+
 ## 2026-10-27 — Production Blockers layout fix deployed to staging
 
 - Owner-authorized staging Web version 64cbe867-bfb6-4b7e-a648-ba7221a7e4d8

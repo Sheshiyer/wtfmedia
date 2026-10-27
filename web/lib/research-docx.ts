@@ -146,8 +146,8 @@ export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
         const figure = slot.figure, images = figureImages.get(slot.id);
         if (!figure || !images) { children.push(paragraph(`${slot.goal}: ${FIGURE_REASONS[slot.reason ?? "invalid_output"]}`)); continue; }
         children.push(heading(figure.title, HeadingLevel.HEADING_2), ...images.map((image, index) => new Paragraph({ keepNext: index === images.length - 1, children: [new ImageRun({ type: "png", data: image.data, transformation: { width: image.width, height: image.height }, altText: { title: figure.title, description: figure.takeaway, name: `${slot.id}-${index + 1}` } })] })), paragraph(figure.takeaway), paragraph(figure.caveat));
-        for (const [index, ref] of figure.evidence.entries()) {
-          children.push(paragraph(`[${index + 1}] ${ref.quote}`));
+        for (const ref of figure.evidence) {
+          children.push(paragraph(ref.quote));
           const source = brief.sources.find(s => s.id === ref.sourceId);
           if (source) children.push(sourceReference(source));
         }

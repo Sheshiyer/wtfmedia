@@ -6,8 +6,27 @@ import { parseResearchMarkdown, prepareResearchSection } from "@/lib/research-re
 import type { ResearchBrief, ResearchSource } from "@/lib/research";
 import { figureDateSupported, figureNumbers, validateFigure, validateFigureSlots, type ResearchFigure } from "../../../shared/research-figures";
 import { figureAccessibleText, renderFigure } from "@/lib/research-figures";
+import { ResearchReportFigure } from "@/components/domain/beta/ResearchReportFigure";
 
 const sources: ResearchSource[] = ["src_a", "src_b", "alpha_c"].map(id => ({ id, title: id, url: `https://example.org/${id}`, excerpt: "Evidence", retrievedAt: "2026-10-21" }));
+
+it("renders saved figures without citation numbering while preserving evidence and numeric facts", () => {
+  const figure: ResearchFigure = { version: 2, kind: "flow", title: "Operating flow", takeaway: "Recorded operations.", caveat: "Source account.",
+    evidence: [{ sourceId: "src_a", quote: "Capacity was 90 orders in 2020." }],
+    items: ["Booking", "Delivery"].map(label => ({ id: label, label, detail: "Capacity was 90 orders in 2020.", evidence: [0], group: "Operations", value: null, displayValue: "", date: "", cells: [] })),
+    edges: [{ from: "Booking", to: "Delivery", label: "leads to", evidence: [0] }], columns: [], metric: { unit: "", period: "", geography: "", definition: "" } };
+  const before = JSON.stringify(figure);
+  const svg = renderFigure(figure).svg;
+  expect(svg).toContain("Capacity was 90 orders in 2020.");
+  expect(svg).toContain("Booking → Delivery: leads to");
+  expect(svg).not.toMatch(/\[\d+\]|numbered evidence|1\. Booking/);
+  const html = renderToStaticMarkup(createElement(ResearchReportFigure, { slot: { id: "fig_main_1", section: "main", goal: "Explain operations", preferredKind: "flow", status: "ready", attempts: 1, figure }, sources, sourcePrefix: "report-" }));
+  expect(html).not.toContain("[1]");
+  expect(html).toContain("Capacity was 90 orders in 2020.");
+  expect(html).toContain('href="https://example.org/src_a"');
+  expect(html).toContain('href="#report-src_a"');
+  expect(JSON.stringify(figure)).toBe(before);
+});
 
 it("normalizes figure formatting without accepting unsupported signs, units or date precision", () => {
   expect(figureNumbers("pre-2012; 3–4; 90%; 1,000")).toEqual(figureNumbers("2012; 3 or 4; 90 percent; 1000"));
@@ -94,7 +113,7 @@ describe("shared research section preparation", () => {
     const result = prepareResearchSection("Unverified synthesis: Unverified: disputed [src_a].\n\n## Findings\n\n- **Bold** and *italic* [src_a]\n\n| Value | Evidence |\n| --- | --- |\n| ₹10 ~approx~ | [src_b] |\n\n[unsafe](javascript:alert)", sources);
     expect(result.markdown).toContain("Not independently confirmed: disputed.");
     expect(result.markdown).toContain("- **Bold** and *italic*");
-    expect(result.markdown).toContain("| ₹10 ~approx~ | [Source 2](#research-source-src_b) |");
+    expect(result.markdown).toContain("| ₹10 ~approx~ | [src_b](#research-source-src_b) |");
     expect(result.markdown).toContain("[unsafe](javascript:alert)");
     expect(result.citedSources).toHaveLength(2);
   });
@@ -116,8 +135,8 @@ describe("shared research section preparation", () => {
 it("keeps source-only and source-plus-caveat cells linked without damaging a table", () => {
   const content = "| Event | Source / caveat |\n| --- | --- |\n| Event | [src_a] |\n| Estimate | [src_a, src_b]; includes taxes |";
   const result = prepareResearchSection(content, sources, {sourceHref: source => `#report-${source.id}`});
-  expect(result.markdown).toContain("| Event | [Source 1](#report-src_a) |");
-  expect(result.markdown).toContain("[Source 1](#report-src_a), [Source 2](#report-src_b); includes taxes");
+  expect(result.markdown).toContain("| Event | [src_a](#report-src_a) |");
+  expect(result.markdown).toContain("[src_a](#report-src_a), [src_b](#report-src_b); includes taxes");
   const tree = parseResearchMarkdown(result.markdown);
   expect(tree.children[0]).toMatchObject({type: "table", children: [{}, {}, {children: [{}, {children: [
     {type: "link", url: "#report-src_a"}, {type: "text", value: ", "},
@@ -137,7 +156,7 @@ it("keeps source-only and source-plus-caveat cells linked without damaging a tab
 it("uses Word source bookmarks for citations inside table cells", () => {
   const result = prepareResearchSection("| Claim | Source |\n| --- | --- |\n| Observation | [src_b] |", sources,
     {sourceHref: source => `#source_${sources.indexOf(source)}`});
-  expect(result.markdown).toContain("[Source 2](#source_1)");
+  expect(result.markdown).toContain("[src_b](#source_1)");
 });
 
 

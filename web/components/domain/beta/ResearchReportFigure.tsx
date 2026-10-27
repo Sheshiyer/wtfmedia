@@ -21,10 +21,10 @@ export function ResearchReportFigure({ slot, sources, sourcePrefix, running = fa
     <details className="text-sm"><summary className="cursor-pointer font-bold">Read explanation and sources</summary>
       <p className="mt-3 whitespace-pre-line">{figureAccessibleText(figure)}</p>
       {figure.items.filter(i => i.calculation).map(i => <p key={i.id} className="mt-2">Calculated {i.label}: {i.calculation!.operation} of {i.calculation!.inputs.map(id => figure.items.find(p => p.id === id)?.label).join(", ")}. Inputs are cited below.</p>)}
-      <ol className="mt-4 space-y-3">{figure.evidence.map((ref, index) => { const source = sources.find(s => s.id === ref.sourceId); return <li key={index}>
-        <p><strong>[{index + 1}]</strong> {ref.quote}</p>{source && <a className="underline" href={source.url} target="_blank" rel="noopener noreferrer">{source.publisher || source.title}</a>}
+      <ul className="mt-4 space-y-3">{figure.evidence.map((ref, index) => { const source = sources.find(s => s.id === ref.sourceId); return <li key={index}>
+        <p>{ref.quote}</p>{source && <a className="underline" href={source.url} target="_blank" rel="noopener noreferrer">{source.publisher || source.title}</a>}
         {source && <a href={`#${sourcePrefix}${encodeURIComponent(source.id)}`} className="ml-3 underline">Saved source</a>}
-      </li>; })}</ol>
+      </li>; })}</ul>
       {figure.asset && <p className="mt-3">{figure.asset.attribution} · {figure.asset.license} · <a className="underline" href={figure.asset.sourceUrl} target="_blank" rel="noopener noreferrer">Image source</a></p>}
     </details>
   </figure>;

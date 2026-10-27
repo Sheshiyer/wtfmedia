@@ -50,10 +50,10 @@ export function ProductionBoard({
   if (!visibleLanes.length) return <section className="border-2 border-foreground bg-canvas p-6 font-body text-sm text-secondary">No production items match these filters. Add an episode or choose another IP.</section>;
 
   return (
-    <section aria-label="Production board" className="overflow-x-auto border-2 border-foreground bg-surface-subtle">
-      <div className="flex min-w-max gap-3 p-3">
+    <section aria-label="Production board" className="min-w-0 border-2 border-foreground bg-surface-subtle">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] items-start gap-3 p-3">
         {visibleLanes.map((lane) => (
-          <div key={lane.id} className="w-72 shrink-0 border border-foreground/40 bg-canvas sm:w-80">
+          <div key={lane.id} className="min-w-0 border border-foreground/40 bg-canvas [overflow-wrap:anywhere]">
             <div className="border-b-2 border-foreground px-3 py-2">
               <div className="flex items-center justify-between gap-2"><h2 className="font-heading text-lg">{lane.title}</h2><span className="font-label text-xs font-bold tabular-nums text-secondary">{lane.items.length}</span></div>
               <p className="font-body text-xs text-secondary">{lane.description}</p>
@@ -69,14 +69,14 @@ export function ProductionBoard({
                     key={item.id}
                     type="button"
                     onClick={() => onSelectItem(item.id)}
-                    className="w-full border border-foreground/50 border-l-[6px] bg-surface-raised p-3 text-left hover:bg-attention/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
+                    className="min-w-0 w-full border border-foreground/50 border-l-[6px] bg-surface-raised p-3 text-left hover:bg-attention/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
                     style={{ borderLeftColor: safeIpColor(ip?.color) } as CSSProperties}
                   >
                     <span className="font-label text-[11px] font-bold uppercase tracking-[0.06em] text-secondary">{ip?.name ?? "IP not recorded"}</span>
                     <span className="mt-1 block font-body text-sm font-semibold leading-snug text-foreground">{item.title}</span>
                     {item.sourceMarker === "not-live" && <span className="mt-1 block font-label text-xs text-secondary">⭕️ Not Live in the workbook</span>}
                     {highlight && <span className="mt-2 block font-label text-xs text-secondary"><ProductionActionBadge kind={highlight.kind} /> · {dayLabel(highlight.day)}</span>}
-                    {item.owner && <span className="mt-1 block truncate font-label text-xs text-secondary" title={item.owner}>Lead: {item.owner}</span>}
+                    {item.owner && <span className="mt-1 block font-label text-xs text-secondary" title={item.owner}>Lead: {item.owner}</span>}
                     {openBlocks.length > 0 && <span className="mt-2 inline-block border border-editorial px-1.5 py-0.5 font-label text-[11px] font-bold text-editorial">{openBlocks.length} {openBlocks.length === 1 ? "blocker" : "blockers"}</span>}
                   </button>
                 );

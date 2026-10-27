@@ -129,7 +129,8 @@ export function prepareResearchSection(content: string, sources: ResearchSource[
         const references = [...new Set(citation.ids)].map(id => {
           const source = known.get(id)!;
           const href = options.sourceHref?.(source) ?? `#research-source-${encodeURIComponent(id)}`;
-          return `[Source ${sources.indexOf(source) + 1}](${href})`;
+          const label = (source.publisher?.trim() || source.title.trim() || "Source").replace(/[\\[\]|]/gu, "\\$&");
+          return `[${label}](${href})`;
         }).join(", ");
         edits.push({ start: cursor, end: citation.end, value: [references, citation.remaining].filter(Boolean).join(", ") });
         cursor = citation.end;

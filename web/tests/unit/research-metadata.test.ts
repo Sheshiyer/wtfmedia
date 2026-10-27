@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ResearchContent, ResearchMarkdown, ResearchSources } from "@/components/domain/beta/ResearchContent";
 import { ResearchCoverageSummary } from "@/components/domain/beta/ResearchSourceBadge";
-import { parseResearchBrief, parseResearchInput, researchFailureSummary, researchDraft, researchMarkdown, researchTitle, type ResearchBrief } from "@/lib/research";
+import { RESEARCH_CHANNELS, parseResearchBrief, parseResearchInput, researchFailureSummary, researchDraft, researchMarkdown, researchTitle, type ResearchBrief } from "@/lib/research";
 
 const legacy: ResearchBrief = {
   id: "rb_contract", title: "Guest research", status: "completed", revision: 1,
@@ -140,12 +140,29 @@ it("shows recorded coverage outcomes without inventing legacy channel searches",
 });
 it.each([0, 1, 2])("labels %i retained sources independently of the recorded found status", sourceCount => {
   const coverage = [{ channel: "web", status: "found", sourceCount, method: "web_search" }] as const;
-  const html = renderToStaticMarkup(createElement(ResearchCoverageSummary, { coverage: [...coverage] }));
+  const html = renderToStaticMarkup(createElement(ResearchCoverageSummary, { coverage: [...coverage], sources: Array.from({ length: sourceCount }, (_, index) => ({ ...legacy.sources[0], id: `source_${index}`, platform: "web" as const })) }));
   const count = `${sourceCount} retained ${sourceCount === 1 ? "source" : "sources"}`;
   expect(html).toContain(count);
   expect(html).toContain(sourceCount ? ">Found<" : ">Results found; none retained<");
   expect(html).not.toContain("No results");
   expect(researchMarkdown({ ...legacy, coverage: [...coverage] })).toContain(`Web: found · ${count}`);
+});
+it("exposes retained excerpts in channel dropdowns, reports missing records and rejects unsafe links", () => {
+  const sources = RESEARCH_CHANNELS.map(platform => ({ ...legacy.sources[0], id: `src_${platform}`, platform,
+    title: `${platform} interview`, excerpt: `${platform} retained excerpt`, url: platform === "x" ? "javascript:bad" : `https://example.org/${platform}` }));
+  const before = JSON.stringify(sources);
+  const html = renderToStaticMarkup(createElement(ResearchCoverageSummary, { sources, coverage: [{ channel: "web", status: "found", sourceCount: 3, method: "web_search" }] }));
+  expect(html.match(/<details>/gu)).toHaveLength(6);
+  expect(html).not.toContain("open=\"\"");
+  for (const platform of RESEARCH_CHANNELS) {
+    expect(html).toContain(`${platform} interview`);
+    expect(html).toContain(`${platform} retained excerpt`);
+  }
+  expect(html).toContain("The search recorded 3 sources; 1 is available in this saved report.");
+  expect(html).not.toContain('href="javascript:');
+  expect(JSON.stringify(sources)).toBe(before);
+  const empty = renderToStaticMarkup(createElement(ResearchCoverageSummary, { sources: [] }));
+  expect(empty).toContain("No saved sources or excerpts are available for this channel.");
 });
 it.each([
   ["https://www.youtube.com/watch?v=example", "YouTube"],

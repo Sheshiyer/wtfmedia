@@ -6,8 +6,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { prepareResearchSection, researchDisplayContent, splitResearchVisuals } from "@/lib/research-report";
 import { renderResearchVisual, researchVisualDataUrl, type ResearchVisual } from "@/lib/research-visuals";
-import { RESEARCH_SECTIONS, RESEARCH_EVIDENCE_LABELS, replaceResearchCitations, researchFailureSummary, researchSourceLabel, researchSourcePlatform, safeResearchUrl, type ResearchBrief, type ResearchSource } from "@/lib/research";
-import { ResearchCoverageSummary, ResearchSourceBadge } from "./ResearchSourceBadge";
+import { RESEARCH_SECTIONS, replaceResearchCitations, researchFailureSummary, researchSourceLabel, researchSourcePlatform, safeResearchUrl, type ResearchBrief, type ResearchSource } from "@/lib/research";
+import { ResearchCoverageSummary, ResearchSourceBadge, ResearchSourceExcerpt } from "./ResearchSourceBadge";
 
 function ResearchFigure({ visual, sources, sourcePrefix }: { visual: ResearchVisual; sources: ResearchSource[]; sourcePrefix: string }) {
   const rendered = renderResearchVisual(visual);
@@ -69,15 +69,10 @@ export function ResearchSources({ sources, sourcePrefix = "research-source-" }: 
     <summary className="cursor-pointer font-heading text-xl font-bold">Sources · {sources.length}</summary>
     {!sources.length && <p className="text-sm text-secondary">No source evidence has been returned yet.</p>}
     <ol className="mt-4 grid min-w-0 items-start gap-3">{sources.map(source => {
-      const url = safeResearchUrl(source.url);
       return <li id={`${sourcePrefix}${encodeURIComponent(source.id)}`} key={source.id} className="min-w-0 scroll-mt-24 border-2 border-foreground bg-surface-raised p-4">
         <details>
           <summary className="cursor-pointer break-words font-bold [overflow-wrap:anywhere]"><ResearchSourceBadge platform={researchSourcePlatform(source)} label={researchSourceLabel(source)} /><span className="mt-1 block">{source.title}</span></summary>
-          {url && <a href={url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm underline">Open original source ↗</a>}
-        <p className="mt-2 whitespace-pre-wrap break-words text-sm">{source.excerpt || (source.kind === "alpha_reference" ? "Episode reference, transcript excerpt unavailable." : "Supporting excerpt unavailable.")}</p>
-        <p className="mt-2 break-words text-xs text-secondary">{source.publisher && `${source.publisher} · `}{source.publishedAt && `Published ${source.publishedAt} · `}Retrieved {source.retrievedAt}</p>
-        <p className="mt-2 text-xs text-secondary">{source.evidenceType ? RESEARCH_EVIDENCE_LABELS[source.evidenceType] : "Evidence type not recorded"}{source.retrievedVia ? ` · Retrieved via ${source.retrievedVia}` : ""}</p>
-        {typeof source.timestampSeconds === "number" && Number.isFinite(source.timestampSeconds) && source.timestampSeconds >= 0 && <p className="mt-1 text-xs">Source timestamp: {Math.floor(source.timestampSeconds / 60)}:{String(Math.floor(source.timestampSeconds % 60)).padStart(2, "0")}</p>}
+          <div className="mt-3"><ResearchSourceExcerpt source={source} /></div>
         </details>
       </li>;
     })}</ol>
@@ -97,7 +92,7 @@ export function ResearchContent({ brief, sourcePrefix = `research-version-${brie
       <h3 className="font-bold">Previous report no longer matches the edited inputs</h3>
       <p className="text-sm">The findings and sources below are retained from the previous scope. Research again to update them. Follow-up is paused until fresh research is available.</p>
     </section>}
-    <ResearchCoverageSummary coverage={brief.coverage} />
+    <ResearchCoverageSummary coverage={brief.coverage} sources={brief.sources} />
     {(brief.warnings ?? []).filter(warning => warning.startsWith("Visual ")).map(warning => <p key={warning} role="status" className="border border-foreground/20 bg-surface-subtle p-3 text-sm">{warning}</p>)}
     {RESEARCH_SECTIONS.filter(({ key }) => brief.sections.some(s => s.key === key && s.status !== "skipped" && s.content.trim())).map(({ key, title, description }) => {
       const section = brief.sections.find(s => s.key === key);
