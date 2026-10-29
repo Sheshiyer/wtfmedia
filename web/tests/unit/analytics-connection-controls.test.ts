@@ -8,7 +8,7 @@ function controls(manage: boolean, serverManage = manage) {
     if (!nodes.has(selector)) nodes.set(selector, { hidden: false, disabled: false, textContent: '', classList: { toggle: vi.fn() } });
     return nodes.get(selector)!;
   };
-  const context = vm.createContext({ URLSearchParams, window: { location: { search: `?manage=${manage ? 1 : 0}` } },
+  const context = vm.createContext({ URLSearchParams, window: { location: { search: `?manage=${manage ? 1 : 0}&channel=UC${"a".repeat(22)}` } },
     render: vi.fn(), weekly: [], episodes: [], state: {}, fetch: vi.fn().mockResolvedValue({ ok: true, json: async () => ({configured: true, canManage: serverManage, connections: []}) }), $: node, document: { querySelectorAll: () => [], querySelector: () => null } });
   const source = readFileSync('public/analytics-demo/production-bridge.js', 'utf8');
   vm.runInContext(source.replace('  configureRanges(today);', '  globalThis.testControls = { api, renderProductionStatus, loadStatus }; return;\n  configureRanges(today);'), context);
@@ -52,4 +52,22 @@ it.each([[false, true], [true, false]])('refreshes stale management hint %s with
   const view = controls(hint, permission);
   await view.loadStatus(); view.render();
   expect(view.node('#api-connect-demo').hidden).toBe(!permission);
+});
+
+
+it('keeps reconnect available at capacity, including expired grants, while readers cannot manage', () => {
+  for (const status of ['connected', 'expired']) {
+    const admin = controls(true);
+    admin.api.accountCount = 3;
+    admin.api.connection = { status, resource: { id: 'channel', name: 'Channel' } };
+    admin.render();
+    expect(admin.node('#api-connect-demo').hidden).toBe(false);
+    expect(admin.node('#api-connect-demo').disabled).toBe(false);
+    expect(admin.node('#api-connect-demo').textContent).toBe('reconnect Google');
+    const reader = controls(false);
+    reader.api.accountCount = 3;
+    reader.api.connection = admin.api.connection;
+    reader.render();
+    expect(reader.node('#api-connect-demo').hidden).toBe(true);
+  }
 });

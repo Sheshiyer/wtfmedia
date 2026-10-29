@@ -1,3 +1,28 @@
+## 2026-10-29 — PR #87 multi-channel analytics reviewed and corrected
+
+- Owner requested fixes, merge into feature/pavun and staging deployment.
+  PR head 292a03586a73b9f98962f2f78a058b72742139e5 integrates without conflicts.
+  No push or production deployment is authorized by this task.
+- OAuth authorization remains available with three occupied slots, including
+  expired grants. Verified channel selection and D1 still reject a fourth
+  account; reconnection preserves other grants and existing observations.
+- Combined metrics require all channels to cover the selected dates. Previous
+  and trailing-28-day baselines are checked independently. Missing observations
+  produce unavailable totals/comparisons; observed zero days remain valid.
+- VERIFIED-SOURCE: Edge 611/611 plus the added legacy migration preservation
+  test pass; focused analytics web 17/17, typecheck, lint and architecture pass.
+  Full web unit suite: 435 pass, seven unrelated navigation/routing failures;
+  the same seven failures reproduce on pre-merge feature/pavun (687ead4).
+  OAuth callback, replay, selection and migration checks use synthetic data
+  and mocked Google responses; no real Google authorization or paid calls.
+- Migration 0029 preserves the legacy encrypted grant, analytics history and
+  Reporting job. Deployment requires a staging D1 recovery bookmark and paired
+  Edge/Web receipts. A pre-migration Edge rollback requires database recovery
+  too, since the migration moves the legacy grant into per-channel storage.
+- Staging deployment is pending Cloudflare authentication: the current default
+  login lacks the WTF account and no named wtfmedia profile is configured.
+  No remote database or Worker changes have been made in this task yet.
+
 ## 2026-10-27 — Board and research UI deployed to staging
 
 - Owner-authorized staging Web version 82f978d9-e06f-497f-990c-93cf88a5c04b serves
@@ -6474,3 +6499,18 @@ DNS, Clerk, queue, ingest, corpus, or production mutation occurred.
   real Clerk account matrix and actual Mac/iPhone/Word checks. Staging-only
   deployment cannot migrate shared Alpha Ask WTF; its cutover remains separately
   authorized. No live inference/deployment success is claimed.
+
+## 2026-10-29 — Three-channel YouTube analytics PR candidate
+
+- Rebased this source change on `feature/pavun` at `9097a5c`. No Pavun social
+  analytics or release files were replaced. The new migration is numbered
+  `0029_youtube_multi_account.sql` after the branch's existing `0028`.
+- The existing Google OAuth flow now stores up to three separate channel grants,
+  with per-channel sync/reporting state, per-channel pages and an All channels
+  aggregate. The migration preserves the previously selected channel, stored
+  observations and Reporting job. `docs/YOUTUBE-MULTI-ACCOUNT.md` has admin steps.
+- Local checks on this rebased source: Edge 606/606, web TypeScript and lint
+  pass, and analytics-related web tests 16/16. The full web unit run has seven
+  failures in navigation/auth tests; the same seven reproduce on the untouched
+  `9097a5c` base. No live Google or Clerk acceptance was possible with the
+  available local configuration. No migration apply or deployment was done.

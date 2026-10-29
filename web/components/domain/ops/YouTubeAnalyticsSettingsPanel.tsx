@@ -5,6 +5,7 @@ import type { IntegrationConnectionState, OperatorSettingsRole } from "@/lib/ops
 
 type Provider = "youtube" | "ga4";
 type Connection = {
+  id: string;
   provider: Provider;
   status: IntegrationConnectionState;
   resource: { id: string; name: string | null; timezone: string | null } | null;
@@ -45,6 +46,7 @@ function labelFor(state: IntegrationConnectionState | "loading" | "setup_require
 export function YouTubeAnalyticsSettingsPanel({ role }: { role: OperatorSettingsRole }) {
   const canManage = role === "admin" || role === "super_admin";
   const [provider, setProvider] = useState<Provider>("youtube");
+  const [selectedChannelId, setSelectedChannelId] = useState("");
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [report, setReport] = useState<Report | null>(null);
   const [busy, setBusy] = useState(false);
@@ -55,7 +57,8 @@ export function YouTubeAnalyticsSettingsPanel({ role }: { role: OperatorSettings
   const today = useMemo(() => new Date(), []);
   const [endDate, setEndDate] = useState(isoDate(today));
   const [startDate, setStartDate] = useState(isoDate(new Date(today.getTime() - 27 * 86_400_000)));
-  const connection = status?.connections.find((item) => item.provider === provider) ?? null;
+  const youtubeConnections = status?.connections.filter(item => item.provider === "youtube" && item.status !== "revoked" && item.resource) ?? [];
+  const connection = provider === "youtube" ? youtubeConnections.find(item => item.resource?.id === selectedChannelId) ?? youtubeConnections[0] ?? null : status?.connections.find(item => item.provider === "ga4") ?? null;
 
   useEffect(() => {
     setResourceId(connection?.resource?.id ?? "");
@@ -79,7 +82,7 @@ export function YouTubeAnalyticsSettingsPanel({ role }: { role: OperatorSettings
     if (!connection?.resource) { setReport(null); return; }
     setBusy(true);
     try {
-      const query = new URLSearchParams({ startDate, endDate });
+      const query = new URLSearchParams({ startDate, endDate, ...(provider === "youtube" && connection.resource ? { channelId: connection.resource.id } : {}) });
       const response = await fetch(`/beta/api/analytics/${provider}?${query}`, { cache: "no-store" });
       const value = await response.json() as Report & { error?: string };
       if (!response.ok) throw new Error(value.error ?? "report_unavailable");
@@ -129,7 +132,7 @@ export function YouTubeAnalyticsSettingsPanel({ role }: { role: OperatorSettings
     if (!canManage) return;
     setBusy(true);
     try {
-      const response = await fetch("/beta/api/analytics/disconnect", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ provider }) });
+      const response = await fetch("/beta/api/analytics/disconnect", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ provider, ...(provider === "youtube" ? { channelId: connection?.resource?.id } : {}) }) });
       if (!response.ok) throw new Error("disconnect_failed");
       setReport(null);
       await loadStatus();
@@ -142,7 +145,7 @@ export function YouTubeAnalyticsSettingsPanel({ role }: { role: OperatorSettings
     if (!canManage || !connection?.resource) return;
     setBusy(true);
     try {
-      const response = await fetch("/beta/api/analytics/sync", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ provider, startDate, endDate }) });
+      const response = await fetch("/beta/api/analytics/sync", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ provider, startDate, endDate, ...(provider === "youtube" ? { channelId: connection.resource.id } : {}) }) });
       const value = await response.json() as { sync?: { status?: string; rows?: number; errorCode?: string }; error?: string };
       if (!response.ok || value.sync?.status !== "completed") throw new Error(value.sync?.errorCode ?? value.error ?? "sync_failed");
       await Promise.all([loadStatus(), loadReport()]);
@@ -166,13 +169,15 @@ export function YouTubeAnalyticsSettingsPanel({ role }: { role: OperatorSettings
     <div className="mt-5 flex gap-2" role="tablist" aria-label="Analytics source">
       {(["youtube", "ga4"] as const).map((item) => <button key={item} type="button" role="tab" aria-selected={provider === item} className={provider === item ? command : button} onClick={() => setProvider(item)}>{item === "youtube" ? "YouTube" : "Website (GA4)"}</button>)}
     </div>
+    {provider === "youtube" && <div className="mt-4 flex flex-wrap items-center gap-3"><label className="grid gap-1 text-xs">YouTube channel<select className={control} value={connection?.resource?.id ?? ""} onChange={event => setSelectedChannelId(event.target.value)}>{youtubeConnections.map(item => <option key={item.id} value={item.resource!.id}>{item.resource!.name || item.resource!.id}</option>)}</select></label><a className={button} href="/beta/analytics">open all-channel analytics</a><span className="text-xs text-secondary">{youtubeConnections.length}/3 connected</span></div>}
     <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
       <div className="border-2 border-foreground bg-canvas p-4">
         <p className="font-label text-[11px] font-bold uppercase tracking-[0.1em] text-muted">connection</p>
         <dl className="mt-3 grid gap-2 text-sm"><div className="flex justify-between gap-3"><dt className="text-secondary">provider</dt><dd className="font-semibold">{provider === "youtube" ? "Google / YouTube" : "Google Analytics 4"}</dd></div><div className="flex justify-between gap-3"><dt className="text-secondary">selected resource</dt><dd className="text-right font-semibold">{connection?.resource?.name ?? "not selected"}</dd></div><div className="flex justify-between gap-3"><dt className="text-secondary">last attempted refresh</dt><dd className="text-right font-semibold">{connection?.lastAttemptedRefreshAt ?? "not observed"}</dd></div><div className="flex justify-between gap-3"><dt className="text-secondary">last successful refresh</dt><dd className="text-right font-semibold">{connection?.lastSuccessfulRefreshAt ?? "not observed"}</dd></div>{connection?.errorCode ? <div className="flex justify-between gap-3"><dt className="text-secondary">provider state</dt><dd className="text-right font-semibold">{connection.errorCode.replaceAll("_", " ")}</dd></div> : null}</dl>
         {canManage ? <div className="mt-4 flex flex-wrap gap-2"><button type="button" className={command} onClick={connect} disabled={busy || !status?.configured || status?.migrationRequired}>{state === "connected" ? "reconnect Google" : "connect Google"}</button>{connection && state !== "revoked" ? <button type="button" className={button} onClick={disconnect} disabled={busy}>disconnect</button> : null}</div> : <p className="mt-4 border-l-4 border-information bg-surface-subtle px-3 py-2 text-xs text-secondary">Editor access is report-only. Connection management requires admin authority.</p>}
         {!status?.configured ? <p className="mt-3 text-xs text-secondary">OAuth secrets are not configured in this environment. No credential is accepted in the browser.</p> : null}
-        {canManage && connection && !["not_configured", "not_connected", "setup_required", "revoked"].includes(state) ? <div className="mt-5 grid gap-3 border-t-2 border-foreground/20 pt-4"><label className="grid gap-1"><span className="font-label text-xs font-bold uppercase">{provider === "youtube" ? "YouTube channel ID" : "GA4 property ID"}</span><input className={control} value={resourceId} onChange={(event) => setResourceId(event.target.value)} placeholder={provider === "youtube" ? "UC…" : "numeric property ID"} /></label>{provider === "ga4" ? <label className="grid gap-1"><span className="font-label text-xs font-bold uppercase">property display name</span><input className={control} value={resourceName} onChange={(event) => setResourceName(event.target.value)} placeholder="website name" /></label> : null}<label className="grid gap-1"><span className="font-label text-xs font-bold uppercase">reporting timezone</span><input className={control} value={timezone} onChange={(event) => setTimezone(event.target.value)} /></label><button type="button" className={command} onClick={selectResource} disabled={busy || !resourceId.trim()}>{connection.resource ? "validate and change selection" : "validate and select"}</button></div> : null}
+        {provider === "youtube" && canManage && <p className="mt-4 text-xs text-secondary">To add a channel, connect Google here and complete the channel picker on the analytics page. Disconnect a channel before adding a fourth.</p>}
+        {provider === "ga4" && canManage && connection && !["not_configured", "not_connected", "setup_required", "revoked"].includes(state) ? <div className="mt-5 grid gap-3 border-t-2 border-foreground/20 pt-4"><label className="grid gap-1"><span className="font-label text-xs font-bold uppercase">GA4 property ID</span><input className={control} value={resourceId} onChange={(event) => setResourceId(event.target.value)} placeholder="numeric property ID" /></label><label className="grid gap-1"><span className="font-label text-xs font-bold uppercase">property display name</span><input className={control} value={resourceName} onChange={(event) => setResourceName(event.target.value)} placeholder="website name" /></label><label className="grid gap-1"><span className="font-label text-xs font-bold uppercase">reporting timezone</span><input className={control} value={timezone} onChange={(event) => setTimezone(event.target.value)} /></label><button type="button" className={command} onClick={selectResource} disabled={busy || !resourceId.trim()}>{connection.resource ? "validate and change selection" : "validate and select"}</button></div> : null}
         <p className="mt-4 text-xs leading-relaxed text-secondary" aria-live="polite">{notice}</p>
       </div>
       <div className="border-2 border-foreground bg-canvas p-4">
@@ -213,7 +218,7 @@ function YouTubeEpisodeComparisonPanel({ report }: { report: Report }) {
 
   async function compareEpisodes() {
     if (!videoA || !videoB || videoA === videoB) { setNotice("Choose two different episodes."); return; }
-    const query = new URLSearchParams({ videoA, videoB, window });
+    const query = new URLSearchParams({ videoA, videoB, window, channelId: report.resource?.id ?? "" });
     const response = await fetch(`/beta/api/analytics/youtube/episodes/compare?${query}`, { cache: "no-store" });
     const value = await response.json() as Record<string, unknown> & { error?: string };
     setComparison(response.ok ? value : null);
@@ -241,12 +246,12 @@ function YouTubeRetentionPanel({ report, canManage }: { report: Report; canManag
 
   const load = useCallback(async (selected: string) => {
     if (!selected || !range) return;
-    const query = new URLSearchParams({ videoId: selected, startDate: range.startDate, endDate: range.endDate });
+    const query = new URLSearchParams({ videoId: selected, startDate: range.startDate, endDate: range.endDate, channelId: report.resource?.id ?? "" });
     const response = await fetch(`/beta/api/analytics/youtube/retention?${query}`, { cache: "no-store" });
     const value = await response.json() as { points?: Array<Record<string, unknown>>; status?: string };
     setPoints(response.ok ? value.points ?? [] : []);
     setState(response.ok && value.points?.length ? `${value.points.length} provider retention points loaded.` : "No stored curve for this episode and range. Admins can synchronize it on demand.");
-  }, [range]);
+  }, [range, report.resource?.id]);
 
   useEffect(() => { void load(videoId); }, [load, videoId]);
 

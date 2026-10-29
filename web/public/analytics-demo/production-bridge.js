@@ -2,10 +2,13 @@
 (() => {
   const parameters = new URLSearchParams(window.location.search);
   let canManage = parameters.get('manage') === '1';
+  const channelId = parameters.get('channel') || 'all';
   const api = {
     configured: false,
     migrationRequired: false,
     connection: null,
+    accountCount: 0,
+    pendingYouTube: null,
     report: null,
     reportKey: '',
     reportLoading: false,
@@ -139,6 +142,7 @@
     if (!connection) return ['Google not connected', 'Connect the Google account that manages your channel. Access is read-only.'];
     if (!connection.resource) return ['Select the channel', 'Google is connected. Select your YouTube channel to continue.'];
     if (connection.status !== 'connected') return [String(connection.status).replaceAll('_', ' '), 'Reconnect Google before synchronizing provider observations.'];
+    if (channelId === 'all') return ['All connected channels', 'Combined observations from each connected YouTube channel. Open a channel page to update its data.'];
     return [connection.resource.name || connection.resource.id, 'Your channel is connected. Update data to see the latest results.'];
   }
 
@@ -150,10 +154,14 @@
     const needsAdmin = !canManage && api.configured && !api.migrationRequired && !connected;
     $('#api-status-copy').textContent = needsAdmin ? 'Channel connections are managed by workspace admins.' : copy;
     $('#header-data-state').textContent = connected ? `OAuth data · ${api.report?.freshness ? `synced ${api.report.freshness}` : 'awaiting sync'}` : title;
-    $('#trust-connection').textContent = connected ? `YouTube · ${api.connection.resource.name || api.connection.resource.id}` : title;
+    $('#trust-connection').textContent = connected ? `YouTube · ${api.report?.resource?.name || api.connection.resource.name || api.connection.resource.id}` : title;
     $('#trust-sync').textContent = api.report?.freshness || api.connection?.lastSuccessfulRefreshAt || 'No successful synchronization';
     const coverage = api.report?.coverage;
     if (coverage) {
+      if (api.report.combined) {
+        $('#trust-coverage').textContent = `${coverage.includedChannels}/${coverage.requestedChannels} channels · ${coverage.channelDays}/${coverage.expectedChannelDays} channel-days`;
+        $('#coverage-note').textContent = api.report.status === 'partial' ? 'Some channels have missing daily observations. Combined totals are hidden until every connected channel covers the selected dates.' : 'Combined totals include all connected channels; rates are weighted by their underlying observations.';
+      } else {
       const reach = coverage.reach || {};
       const reachState = reach.errorCode === 'reporting_api_disabled'
         ? 'reach unavailable · enable YouTube Reporting API'
@@ -163,6 +171,7 @@
             ? 'reach job active · awaiting Google report'
             : `${reach.observedDays || 0} reach days`;
       $('#trust-coverage').textContent = `${coverage.observedDays || 0}/${coverage.requestedDays || 0} daily rows · ${reachState}`;
+      }
     }
     if (!api.report) $('#coverage-note').textContent = 'No synchronized provider observations in this selected scope.';
     $('#api-action-status').textContent = needsAdmin ? 'Ask a workspace admin to connect or reconnect YouTube. Analytics and chat are available to all members once connected.' : api.notice;
@@ -171,15 +180,15 @@
     const sync = $('#api-sync-production');
     const active = Boolean(api.connection && api.connection.status !== 'revoked');
     const disconnect = $('#api-disconnect');
-    connect.hidden = !canManage || connected;
-    disconnect.hidden = !canManage || !active;
-    sync.hidden = !canManage || !connected;
+    connect.hidden = !canManage || Boolean(api.pendingYouTube);
+    disconnect.hidden = !canManage || !active || channelId === 'all';
+    sync.hidden = !canManage || !connected || channelId === 'all';
     connect.disabled = !api.configured || api.reportLoading;
-    connect.textContent = active && !api.connection.resource ? 'connect channel' : 'connect Google';
+    connect.textContent = (active && channelId !== 'all') || api.accountCount >= 3 ? 'reconnect Google' : api.accountCount ? 'add another YouTube account' : 'connect Google';
     disconnect.disabled = api.reportLoading;
     sync.disabled = !connected || api.reportLoading;
     sync.textContent = api.reportLoading ? 'updating…' : 'update data';
-    if (!active || !canManage) form.hidden = true;
+    if (!api.pendingYouTube || !canManage) form.hidden = true;
     document.querySelectorAll('.answer-confidence').forEach(node => { node.textContent = api.report ? 'CONFIDENCE · STORED PROVIDER OBSERVATIONS' : 'CONFIDENCE · PROVIDER DATA UNAVAILABLE'; });
     const episodeCopy = document.querySelector('#episodes .section-title > p');
     if (episodeCopy) episodeCopy.textContent = api.report ? 'Choose an episode to review its performance.' : 'No synchronized episode observations available.';
@@ -197,14 +206,24 @@
       canManage = result.canManage === true;
       api.configured = Boolean(result.configured);
       api.migrationRequired = Boolean(result.migrationRequired);
-      api.connection = Array.isArray(result.connections) ? result.connections.find(item => item.provider === 'youtube' && item.status !== 'revoked') || null : null;
-      if (canManage && api.connection && !api.connection.resource) {
-        await selectChannel();
-        return;
+      const channels = Array.isArray(result.connections) ? result.connections.filter(item => item.provider === 'youtube' && item.resource && item.status !== 'revoked') : [];
+      api.accountCount = channels.length;
+      api.connection = channelId === 'all' ? channels[0] || null : channels.find(item => item.resource.id === channelId) || null;
+      api.pendingYouTube = result.pendingYouTube || null;
+      if (canManage && api.pendingYouTube) {
+        const select = $('#api-channel-id');
+        select.replaceChildren(...api.pendingYouTube.channels.map(channel => {
+          const option = document.createElement('option');
+          option.value = channel.id;
+          option.textContent = channel.name;
+          return option;
+        }));
+        $('#api-channel-form').hidden = false;
+        api.notice = api.accountCount >= 3 ? 'All three slots are occupied. Choose an existing channel to reconnect; disconnect one before adding another.' : 'Google authorized. Choose the channel to add to this workspace.';
       }
       if (!api.connection?.resource) {
         clearProviderData();
-        api.notice = api.migrationRequired ? 'Channel connection is temporarily unavailable.' : api.configured ? 'Connect Google and select the authorized channel.' : 'Google connection is not available yet. Please contact your administrator.';
+        if (!api.pendingYouTube) api.notice = api.migrationRequired ? 'Channel connection is temporarily unavailable.' : api.configured ? 'Connect Google and select the authorized channel.' : 'Google connection is not available yet. Please contact your administrator.';
         render();
         return;
       }
@@ -220,7 +239,7 @@
 
   function currentRangeKey() {
     const selected = range();
-    return `${selected.from}:${selected.to}`;
+    return `${channelId}:${selected.from}:${selected.to}`;
   }
 
   async function loadReport(force = false) {
@@ -235,7 +254,7 @@
     priorRender();
     renderProductionStatus();
     try {
-      const query = new URLSearchParams({ startDate: selected.from, endDate: selected.to });
+      const query = new URLSearchParams({ channelId, startDate: selected.from, endDate: selected.to });
       const report = await request(`/beta/api/analytics/youtube?${query}`);
       applyReport(report);
       api.notice = report.trends?.length ? 'Stored YouTube observations loaded.' : 'The selected channel is connected, but this date range has no synchronized observations.';
@@ -273,24 +292,12 @@
       const result = await request('/beta/api/analytics/selection', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ provider: 'youtube', resourceId, timezone }),
+        body: JSON.stringify({ provider: 'youtube', resourceId, timezone, pendingTransactionId: api.pendingYouTube?.id }),
       });
-      if (result.channels) {
-        const select = $('#api-channel-id');
-        select.replaceChildren(...result.channels.map(channel => {
-          const option = document.createElement('option');
-          option.value = channel.id;
-          option.textContent = channel.name;
-          return option;
-        }));
-        $('#api-channel-form').hidden = false;
-        setBusy(false, 'Choose the channel you want to connect.');
-        return;
-      }
       $('#api-channel-form').hidden = true;
-      api.notice = 'Channel connected.';
+      api.notice = 'Channel connected. Opening its analytics page.';
       api.reportLoading = false;
-      await loadStatus();
+      window.top.location.assign(`/beta/analytics/channels/${encodeURIComponent(result.connection.resource.id)}`);
     } catch (error) {
       setBusy(false, `Channel selection failed · ${error.message}`);
     }
@@ -302,15 +309,14 @@
     try {
       await request('/beta/api/analytics/disconnect', {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ provider: 'youtube' }),
+        body: JSON.stringify({ provider: 'youtube', channelId }),
       });
       api.connection = null;
       api.report = null;
       api.reportKey = '';
       $('#api-channel-id').replaceChildren();
       clearProviderData();
-      setBusy(false, 'Channel disconnected.');
-      render();
+      window.top.location.assign('/beta/analytics');
     } catch (error) { setBusy(false, `Could not disconnect · ${error.message}`); }
   }
 
@@ -322,7 +328,7 @@
       const result = await request('/beta/api/analytics/sync', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ provider: 'youtube', startDate: selected.from, endDate: selected.to }),
+        body: JSON.stringify({ provider: 'youtube', channelId, startDate: selected.from, endDate: selected.to }),
       });
       api.reportKey = '';
       api.notice = `Synchronization ${result.sync?.status || 'completed'} · ${result.sync?.rows ?? 0} stored observations.`;
@@ -355,7 +361,7 @@
   }
 
   function comparisonKey() {
-    return state.cohort === 'episode' && state.episode !== 'all' && state.compareEpisode ? `${state.episode}:${state.compareEpisode}:${state.episodeWindow}` : '';
+    return channelId !== 'all' && state.cohort === 'episode' && state.episode !== 'all' && state.compareEpisode ? `${state.episode}:${state.compareEpisode}:${state.episodeWindow}` : '';
   }
 
   async function loadComparison() {
@@ -365,7 +371,7 @@
     api.comparisonLoading = true;
     api.comparison = null;
     try {
-      const query = new URLSearchParams({ videoA: state.episode, videoB: state.compareEpisode, window: state.episodeWindow });
+      const query = new URLSearchParams({ channelId, videoA: state.episode, videoB: state.compareEpisode, window: state.episodeWindow });
       api.comparison = await request(`/beta/api/analytics/youtube/episodes/compare?${query}`);
     } catch (error) {
       api.notice = `Matched episode comparison unavailable · ${error.message}`;
@@ -377,7 +383,7 @@
 
   function retentionKey() {
     const selected = range();
-    return state.episode !== 'all' ? `${state.episode}:${selected.from}:${selected.to}` : '';
+    return channelId !== 'all' && state.episode !== 'all' ? `${state.episode}:${selected.from}:${selected.to}` : '';
   }
 
   function renderRetention() {
@@ -400,7 +406,7 @@
     api.retentionLoading = true;
     const selected = range();
     try {
-      const query = new URLSearchParams({ videoId: state.episode, startDate: selected.from, endDate: selected.to });
+      const query = new URLSearchParams({ channelId, videoId: state.episode, startDate: selected.from, endDate: selected.to });
       api.retention = await request(`/beta/api/analytics/youtube/retention?${query}`);
     } catch (error) {
       api.retention = null;

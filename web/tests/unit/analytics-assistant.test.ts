@@ -31,7 +31,7 @@ describe("production analytics assistant", () => {
     }) });
     const context = vm.createContext({
       document: { querySelector: (selector: string) => selector === "#conversation" ? conversation : null, createElement: () => new Element() },
-      fetch, URL, AbortSignal, Date, console,
+      fetch, URL, URLSearchParams, window: { location: { search: `?channel=UC${"a".repeat(22)}` } }, AbortSignal, Date, console,
       range: () => ({ from: "2026-09-01", to: "2026-09-30" }),
       state: { episode: "all" }, answer: vi.fn(),
     });
@@ -56,7 +56,7 @@ describe("production analytics assistant", () => {
       }),
     };
     const context = vm.createContext({ document: { querySelector: (selector: string) => selector === "#conversation" ? conversation : null, createElement: () => new Element() },
-      fetch: vi.fn().mockResolvedValue({ ok: true, json: async () => result }), URL, AbortSignal, Date, console,
+      fetch: vi.fn().mockResolvedValue({ ok: true, json: async () => result }), URL, URLSearchParams, window: { location: { search: `?channel=UC${"a".repeat(22)}` } }, AbortSignal, Date, console,
       range: () => ({ from: '2026-09-01', to: '2026-09-30' }), state: { episode: 'all' }, answer: vi.fn(),
     });
     vm.runInContext(readFileSync('public/analytics-demo/analytics-assistant.js', 'utf8'), context);
@@ -85,7 +85,7 @@ describe("production analytics assistant", () => {
     const setup = () => {
       const conversation = new Element(), list = new Element(), count = new Element(), container = new Element(); list.parentElement = container;
       const nodes: Record<string, Element> = {'#conversation':conversation,'#saved-list':list,'#saved-count':count};
-      const context = vm.createContext({document:{querySelector:(s:string)=>nodes[s] || null,createElement:()=>new Element()}, fetch, URL, AbortSignal, Date, console,
+      const context = vm.createContext({document:{querySelector:(s:string)=>nodes[s] || null,createElement:()=>new Element()}, fetch, URL, URLSearchParams, window: { location: { search: `?channel=UC${"a".repeat(22)}` } }, AbortSignal, Date, console,
         crypto:{randomUUID:()=> '12345678-1234-4123-8123-123456789abc'}, range:()=>({from:'2026-09-01',to:'2026-09-30'}),state:{episode:'all'},answer:vi.fn(),renderSaved:vi.fn()});
       vm.runInContext(readFileSync('public/analytics-demo/analytics-assistant.js','utf8'),context);
       return {context,conversation,list,count,container};
@@ -117,7 +117,7 @@ describe("production analytics assistant", () => {
     const nodes:Record<string,Element>={'#conversation':conversation,'.chat-compose':compose,'.chat-compose input':input,'.chat-compose button':submit};
     let reject!: (error: Error)=>void;
     const fetch=vi.fn(()=>new Promise((_resolve,failed)=>{reject=failed;}));
-    const context=vm.createContext({document:{querySelector:(s:string)=>nodes[s]||null,createElement:()=>new Element()},fetch,URL,AbortSignal,Date,range:()=>({from:'2026-09-01',to:'2026-09-30'}),state:{episode:'all'},answer:vi.fn()});
+    const context=vm.createContext({document:{querySelector:(s:string)=>nodes[s]||null,createElement:()=>new Element()},fetch,URL,URLSearchParams,window:{location:{search:`?channel=UC${"a".repeat(22)}`}},AbortSignal,Date,range:()=>({from:'2026-09-01',to:'2026-09-30'}),state:{episode:'all'},answer:vi.fn()});
     vm.runInContext(readFileSync('public/analytics-demo/analytics-assistant.js','utf8'),context);
     input.value='First question';compose.onsubmit!({preventDefault(){}});
     expect(input.value).toBe('');expect(submit.disabled).toBe(true);

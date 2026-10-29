@@ -112,9 +112,11 @@ test("OAuth start persists only hashed state and returns a read-only Google cons
   assert.match(authorization.searchParams.get("scope"), /youtube\.readonly/u);
   assert.match(authorization.searchParams.get("scope"), /yt-analytics\.readonly/u);
   assert.ok(authorization.searchParams.get("state"));
-  assert.equal(inserted.length, 1);
-  assert.equal(inserted[0].values[4], "/beta/settings/workspace/analytics", "must satisfy migration 0018 return_path constraint");
-  const persisted = inserted[0].values.join(" ");
+  assert.equal(authorization.searchParams.get("prompt"), "select_account consent");
+  const transaction = inserted.find(item => item.sql.startsWith("INSERT INTO analytics_oauth_transactions"));
+  assert.ok(transaction);
+  assert.equal(transaction.values[4], "/beta/settings/workspace/analytics", "must satisfy migration 0018 return_path constraint");
+  const persisted = transaction.values.join(" ");
   assert.doesNotMatch(persisted, new RegExp(authorization.searchParams.get("state"), "u"));
   assert.doesNotMatch(JSON.stringify(payload), /test-secret|test-encryption-secret/u);
 });
@@ -155,7 +157,7 @@ test("status hides a dangling selected resource so staging repeats validated cha
   assert.equal(payload.connections[0].errorCode, "resource_not_selected");
 });
 
-test("OAuth reconnection clears stale selections and deactivates their provider resource", async () => {
+test("YouTube OAuth preserves existing channels and stores a pending authorized selection", async () => {
   const prepared = [];
   const batched = [];
   const db = {
@@ -176,17 +178,17 @@ test("OAuth reconnection clears stale selections and deactivates their provider 
     ANALYTICS_TOKEN_ENCRYPTION_KEY: "test-encryption-secret",
   }, operator, {
     now: () => new Date("2026-10-07T00:00:00Z"),
-    fetchGoogle: async () => Response.json({
+    fetchGoogle: async (input) => new URL(input).hostname === "oauth2.googleapis.com" ? Response.json({
       access_token: "test-access",
       refresh_token: "test-refresh",
       expires_in: 3600,
       scope: "https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/yt-analytics.readonly",
-    }),
+    }) : Response.json({ items: [{ id: `UC${"a".repeat(22)}`, snippet: { title: "Authorized channel" } }] }),
   });
   assert.equal(response.status, 303);
-  assert.equal(batched.length, 2);
-  assert.ok(prepared.some(sql => sql.includes("selected_resource_id = NULL") && sql.includes("last_successful_refresh_at = NULL")));
-  assert.ok(prepared.some(sql => sql.includes("UPDATE youtube_analytics_channels SET active = 0")));
+  assert.equal(batched.length, 0);
+  assert.ok(prepared.some(sql => sql.includes("pending_credentials = ?") && sql.includes("available_resources_json = ?")));
+  assert.ok(!prepared.some(sql => sql.includes("UPDATE youtube_analytics_channels SET active = 0")));
 });
 
 test("operator analytics API is readable by editors but management remains denied", async () => {
@@ -435,40 +437,13 @@ test("OAuth denial returns to the allowlisted primary operator analytics page", 
   assert.equal(response.headers.get("location"), "http://localhost:3000/beta/analytics?oauth=denied&provider=youtube");
 });
 
-test("YouTube connection discovers owned channels without manual IDs and never guesses between channels", async () => {
-  const secret = "test-channel-discovery-key";
-  const encrypted = await encryptAnalyticsCredentials({ accessToken: "test-access", refreshToken: "test-refresh", expiresAt: "2026-10-05T00:00:00Z" }, secret);
-  const first = { id: `UC${"a".repeat(22)}`, snippet: { title: "First channel" } };
-  const second = { id: `UC${"b".repeat(22)}`, snippet: { title: "Second channel" } };
-  for (const items of [[first], [first, second], []]) {
-    const writes = [];
-    const db = {
-      prepare() { return statement({ async first() { return { id: "connection-test", provider: "youtube", status: "connected", encrypted_credentials: encrypted }; } }); },
-      async batch(statements) { writes.push(...statements); return []; },
-    };
-    const response = await handleAnalyticsRequest(new Request("https://app.test/beta/api/analytics/selection", {
-      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ provider: "youtube" }),
-    }), { DB: db, OPS_ENVIRONMENT: "staging", ANALYTICS_TOKEN_ENCRYPTION_KEY: secret, GOOGLE_OAUTH_CLIENT_ID: "test-client", GOOGLE_OAUTH_CLIENT_SECRET: "test-secret" }, operator, {
-      now: () => new Date("2026-10-04T00:00:00Z"),
-      fetchGoogle: async (url) => {
-        assert.equal(new URL(url).searchParams.get("mine"), "true");
-        return Response.json({ items });
-      },
-    });
-    const result = await response.json();
-    if (items.length === 1) {
-      assert.equal(response.status, 200);
-      assert.equal(result.connection.resource.id, first.id);
-      assert.equal(writes.length, 3);
-    } else if (items.length === 2) {
-      assert.equal(response.status, 200);
-      assert.deepEqual(result.channels.map(channel => channel.name), ["First channel", "Second channel"]);
-      assert.equal(writes.length, 0);
-    } else {
-      assert.equal(response.status, 403);
-      assert.equal(writes.length, 0);
-    }
-  }
+test("YouTube selection requires the matching pending OAuth grant", async () => {
+  const db = { prepare() { return statement(); } };
+  const response = await handleAnalyticsRequest(new Request("https://app.test/beta/api/analytics/selection", {
+    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ provider: "youtube", resourceId: `UC${"a".repeat(22)}` }),
+  }), { DB: db, OPS_ENVIRONMENT: "staging" }, operator);
+  assert.equal(response.status, 409);
+  assert.equal((await response.json()).error, "oauth_selection_required");
 });
 
 test("members can read analytics and submit chat but cannot manage the channel", async () => {
