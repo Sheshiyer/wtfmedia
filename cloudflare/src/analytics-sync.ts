@@ -98,6 +98,7 @@ function reportRows(payload: YouTubeReport): Array<Record<string, unknown>> {
 async function youtubeReport(
   fetchGoogle: typeof fetch,
   accessToken: string,
+  channelId: string,
   startDate: string,
   endDate: string,
   dimensions: string,
@@ -105,7 +106,7 @@ async function youtubeReport(
   filters?: string,
 ): Promise<Array<Record<string, unknown>>> {
   const url = new URL("https://youtubeanalytics.googleapis.com/v2/reports");
-  url.searchParams.set("ids", "channel==MINE");
+  url.searchParams.set("ids", `channel==${channelId}`);
   url.searchParams.set("startDate", startDate);
   url.searchParams.set("endDate", endDate);
   url.searchParams.set("dimensions", dimensions);
@@ -168,6 +169,7 @@ type ReportingReport = { id?: string; startTime?: string; endTime?: string; down
 type ReportingReportType = { id?: string; deprecateTime?: string; systemManaged?: boolean };
 
 const reachReportType = "channel_reach_basic_a1";
+const reachJobKey = (connection: SyncConnection) => `${reachReportType}:${connection.selected_resource_id}`;
 
 async function hasReachReportType(fetchGoogle: typeof fetch, accessToken: string): Promise<boolean> {
   const url = new URL("https://youtubereporting.googleapis.com/v1/reportTypes");
@@ -185,9 +187,9 @@ async function hasReachReportType(fetchGoogle: typeof fetch, accessToken: string
 }
 
 async function recordReachFailure(env: AnalyticsEnv, connection: SyncConnection, errorCode: string, now: string): Promise<void> {
-  const pendingJobId = `pending:${connection.id}:${reachReportType}`;
+  const pendingJobId = `pending:${connection.id}:${reachJobKey(connection)}`;
   await env.DB.prepare("INSERT INTO youtube_reporting_jobs (connection_id, report_type_id, google_job_id, status, last_checked_at, last_error_code, created_at, updated_at) VALUES (?, ?, ?, 'failed', ?, ?, ?, ?) ON CONFLICT(connection_id, report_type_id) DO UPDATE SET status = 'failed', last_checked_at = excluded.last_checked_at, last_error_code = excluded.last_error_code, updated_at = excluded.updated_at")
-    .bind(connection.id, reachReportType, pendingJobId, now, errorCode, now, now)
+    .bind(connection.id, reachJobKey(connection), pendingJobId, now, errorCode, now, now)
     .run();
 }
 
@@ -209,12 +211,12 @@ async function findExistingReachJob(fetchGoogle: typeof fetch, accessToken: stri
 
 async function recordActiveReachJob(env: AnalyticsEnv, connection: SyncConnection, jobId: string, now: string): Promise<void> {
   await env.DB.prepare("INSERT INTO youtube_reporting_jobs (connection_id, report_type_id, google_job_id, status, last_checked_at, created_at, updated_at) VALUES (?, ?, ?, 'active', ?, ?, ?) ON CONFLICT(connection_id, report_type_id) DO UPDATE SET google_job_id = excluded.google_job_id, status = 'active', last_checked_at = excluded.last_checked_at, last_error_code = NULL, updated_at = excluded.updated_at")
-    .bind(connection.id, reachReportType, jobId, now, now, now)
+    .bind(connection.id, reachJobKey(connection), jobId, now, now, now)
     .run();
 }
 
 async function ensureReachJob(env: AnalyticsEnv, connection: SyncConnection, accessToken: string, fetchGoogle: typeof fetch, now: string): Promise<string> {
-  const stored = await env.DB.prepare("SELECT google_job_id FROM youtube_reporting_jobs WHERE connection_id = ? AND report_type_id = ? AND status = 'active'").bind(connection.id, reachReportType).first<{ google_job_id: string }>();
+  const stored = await env.DB.prepare("SELECT google_job_id FROM youtube_reporting_jobs WHERE connection_id = ? AND report_type_id = ? AND status = 'active'").bind(connection.id, reachJobKey(connection)).first<{ google_job_id: string }>();
   if (stored?.google_job_id) return stored.google_job_id;
   if (!await hasReachReportType(fetchGoogle, accessToken)) {
     throw Object.assign(new Error("reach_report_type_unavailable"), { status: "failed", code: "reach_report_type_unavailable" });
@@ -300,10 +302,10 @@ async function syncYouTubeReach(env: AnalyticsEnv, connection: SyncConnection, c
     for (const [metricDate, aggregate] of daily) {
       statements.push(env.DB.prepare("INSERT INTO youtube_channel_daily_metrics (channel_id, metric_date, thumbnail_impressions, thumbnail_impressions_ctr, raw_analytics_json, observed_at) VALUES (?, ?, ?, ?, '{}', ?) ON CONFLICT(channel_id, metric_date) DO UPDATE SET thumbnail_impressions = excluded.thumbnail_impressions, thumbnail_impressions_ctr = excluded.thumbnail_impressions_ctr, observed_at = excluded.observed_at").bind(channelKey, metricDate, aggregate.impressions, aggregate.impressions > 0 ? aggregate.clicks / aggregate.impressions : null, now));
     }
-    statements.push(env.DB.prepare("INSERT INTO youtube_reporting_imports (google_report_id, connection_id, report_type_id, report_start_time, report_end_time, rows_imported, imported_at) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(report.id, connection.id, reachReportType, report.startTime ?? null, report.endTime ?? null, acceptedRows, now));
+    statements.push(env.DB.prepare("INSERT INTO youtube_reporting_imports (google_report_id, connection_id, report_type_id, report_start_time, report_end_time, rows_imported, imported_at) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(report.id, connection.id, reachJobKey(connection), report.startTime ?? null, report.endTime ?? null, acceptedRows, now));
     await batch(env.DB, statements);
   }
-  await env.DB.prepare("UPDATE youtube_reporting_jobs SET last_checked_at = ?, last_error_code = NULL, updated_at = ? WHERE connection_id = ? AND report_type_id = ?").bind(now, now, connection.id, reachReportType).run();
+  await env.DB.prepare("UPDATE youtube_reporting_jobs SET last_checked_at = ?, last_error_code = NULL, updated_at = ? WHERE connection_id = ? AND report_type_id = ?").bind(now, now, connection.id, reachJobKey(connection)).run();
   return importedRows;
 }
 
@@ -315,11 +317,11 @@ async function syncYouTube(env: AnalyticsEnv, connection: SyncConnection, access
   const videoReports = [] as Array<Promise<Array<Record<string, unknown>>>>;
   for (let index = 0; index < catalogue.videoIds.length; index += 200) {
     const videoFilter = `video==${catalogue.videoIds.slice(index, index + 200).join(",")}`;
-    videoReports.push(youtubeReport(fetchGoogle, accessToken, startDate, endDate, "day,video", undefined, videoFilter));
+    videoReports.push(youtubeReport(fetchGoogle, accessToken, connection.selected_resource_id!, startDate, endDate, "day,video", undefined, videoFilter));
   }
   const [channelRows, audienceRows, ...videoBatches] = await Promise.all([
-    youtubeReport(fetchGoogle, accessToken, startDate, endDate, "day"),
-    youtubeReport(fetchGoogle, accessToken, startDate, endDate, "day,subscribedStatus", "views,estimatedMinutesWatched,averageViewDuration,averageViewPercentage"),
+    youtubeReport(fetchGoogle, accessToken, connection.selected_resource_id!, startDate, endDate, "day"),
+    youtubeReport(fetchGoogle, accessToken, connection.selected_resource_id!, startDate, endDate, "day,subscribedStatus", "views,estimatedMinutesWatched,averageViewDuration,averageViewPercentage"),
     ...videoReports,
   ]);
   const videoRows = videoBatches.flat();
@@ -423,7 +425,7 @@ export async function syncAnalyticsConnection(env: AnalyticsEnv, connection: Syn
   const now = (dependencies.now?.() ?? new Date()).toISOString();
   const runId = id("asyn");
   await env.DB.prepare("INSERT INTO analytics_sync_runs (id, connection_id, resource_id, provider, requested_start_date, requested_end_date, status, attempt_count, started_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 'running', 1, ?, ?, ?) ON CONFLICT(connection_id, resource_id, requested_start_date, requested_end_date) DO UPDATE SET status = 'running', attempt_count = analytics_sync_runs.attempt_count + 1, started_at = excluded.started_at, last_error_code = NULL, updated_at = excluded.updated_at").bind(runId, connection.id, connection.selected_resource_id, connection.provider, startDate, endDate, now, now, now).run();
-  await env.DB.prepare("UPDATE analytics_provider_connections SET status = 'syncing', last_attempted_refresh_at = ?, updated_at = ? WHERE id = ?").bind(now, now, connection.id).run();
+  await env.DB.prepare(connection.account_id ? "UPDATE youtube_analytics_accounts SET status = 'syncing', last_attempted_refresh_at = ?, updated_at = ? WHERE id = ?" : "UPDATE analytics_provider_connections SET status = 'syncing', last_attempted_refresh_at = ?, updated_at = ? WHERE id = ?").bind(now, now, connection.account_id ?? connection.id).run();
   try {
     if (!connection.selected_resource_id) throw Object.assign(new Error("resource_not_selected"), { status: "failed", code: "resource_not_selected" });
     const accessToken = await refreshAnalyticsAccessToken(connection, env, dependencies);
@@ -433,7 +435,7 @@ export async function syncAnalyticsConnection(env: AnalyticsEnv, connection: Syn
       : await syncGa4(env, connection, accessToken, fetchGoogle, startDate, endDate, now);
     await env.DB.batch([
       env.DB.prepare("UPDATE analytics_sync_runs SET status = 'completed', completed_at = ?, updated_at = ? WHERE connection_id = ? AND resource_id = ? AND requested_start_date = ? AND requested_end_date = ?").bind(now, now, connection.id, connection.selected_resource_id, startDate, endDate),
-      env.DB.prepare("UPDATE analytics_provider_connections SET status = 'connected', last_successful_refresh_at = ?, last_error_code = NULL, updated_at = ? WHERE id = ?").bind(now, now, connection.id),
+      env.DB.prepare(connection.account_id ? "UPDATE youtube_analytics_accounts SET status = 'connected', last_successful_refresh_at = ?, last_error_code = NULL, updated_at = ? WHERE id = ?" : "UPDATE analytics_provider_connections SET status = 'connected', last_successful_refresh_at = ?, last_error_code = NULL, updated_at = ? WHERE id = ?").bind(now, now, connection.account_id ?? connection.id),
     ]);
     return { connectionId: connection.id, provider: connection.provider, status: "completed", rows };
   } catch (cause) {
@@ -454,7 +456,7 @@ export async function syncAnalyticsConnection(env: AnalyticsEnv, connection: Syn
           : "provider_error";
     await env.DB.batch([
       env.DB.prepare("UPDATE analytics_sync_runs SET status = ?, next_retry_at = ?, last_error_code = ?, completed_at = ?, updated_at = ? WHERE connection_id = ? AND resource_id = ? AND requested_start_date = ? AND requested_end_date = ?").bind(resultStatus, nextRetry, code, now, now, connection.id, connection.selected_resource_id, startDate, endDate),
-      env.DB.prepare("UPDATE analytics_provider_connections SET status = ?, last_error_code = ?, updated_at = ? WHERE id = ?").bind(connectionStatus, code, now, connection.id),
+      env.DB.prepare(connection.account_id ? "UPDATE youtube_analytics_accounts SET status = ?, last_error_code = ?, updated_at = ? WHERE id = ?" : "UPDATE analytics_provider_connections SET status = ?, last_error_code = ?, updated_at = ? WHERE id = ?").bind(connectionStatus, code, now, connection.account_id ?? connection.id),
     ]);
     return { connectionId: connection.id, provider: connection.provider, status: resultStatus, rows: 0, errorCode: code };
   }
@@ -466,8 +468,11 @@ export async function syncSelectedAnalytics(
   startDate: string,
   endDate: string,
   dependencies: AnalyticsDependencies = {},
+  channelId?: string,
 ): Promise<SyncResult> {
-  const connection = await env.DB.prepare("SELECT id, environment, provider, status, encrypted_credentials, granted_scopes_json, token_expires_at, selected_resource_id, selected_resource_name, reporting_timezone, last_attempted_refresh_at, last_successful_refresh_at, last_error_code FROM analytics_provider_connections WHERE environment = ? AND provider = ?").bind(env.OPS_ENVIRONMENT, provider).first<SyncConnection>();
+  const connection = provider === "youtube"
+    ? await env.DB.prepare("SELECT p.id, p.environment, p.provider, a.id AS account_id, a.status, a.encrypted_credentials, a.granted_scopes_json, a.token_expires_at, a.youtube_channel_id AS selected_resource_id, a.title AS selected_resource_name, c.reporting_timezone, a.last_attempted_refresh_at, a.last_successful_refresh_at, a.last_error_code FROM analytics_provider_connections p JOIN youtube_analytics_accounts a ON a.connection_id = p.id JOIN youtube_analytics_channels c ON c.connection_id = p.id AND c.youtube_channel_id = a.youtube_channel_id AND c.active = 1 WHERE p.environment = ? AND a.youtube_channel_id = ? AND a.status <> 'revoked'").bind(env.OPS_ENVIRONMENT, channelId ?? "").first<SyncConnection>()
+    : await env.DB.prepare("SELECT id, environment, provider, status, encrypted_credentials, granted_scopes_json, token_expires_at, selected_resource_id, selected_resource_name, reporting_timezone, last_attempted_refresh_at, last_successful_refresh_at, last_error_code FROM analytics_provider_connections WHERE environment = ? AND provider = ?").bind(env.OPS_ENVIRONMENT, provider).first<SyncConnection>();
   if (!connection) return { connectionId: "unavailable", provider, status: "failed", rows: 0, errorCode: "connection_required" };
   return syncAnalyticsConnection(env, connection, startDate, endDate, dependencies);
 }
@@ -479,14 +484,14 @@ export async function syncYouTubeRetention(
   endDate: string,
   dependencies: AnalyticsDependencies = {},
 ): Promise<{ videoId: string; status: "completed" | "failed"; rows: number; errorCode?: string }> {
-  const connection = await env.DB.prepare("SELECT id, environment, provider, status, encrypted_credentials, granted_scopes_json, token_expires_at, selected_resource_id, selected_resource_name, reporting_timezone, last_attempted_refresh_at, last_successful_refresh_at, last_error_code FROM analytics_provider_connections WHERE environment = ? AND provider = 'youtube'").bind(env.OPS_ENVIRONMENT).first<SyncConnection>();
+  const connection = await env.DB.prepare("SELECT p.id, p.environment, p.provider, a.id AS account_id, a.status, a.encrypted_credentials, a.granted_scopes_json, a.token_expires_at, a.youtube_channel_id AS selected_resource_id, a.title AS selected_resource_name, c.reporting_timezone, a.last_attempted_refresh_at, a.last_successful_refresh_at, a.last_error_code FROM analytics_provider_connections p JOIN youtube_analytics_accounts a ON a.connection_id = p.id JOIN youtube_analytics_channels c ON c.connection_id = p.id AND c.youtube_channel_id = a.youtube_channel_id AND c.active = 1 JOIN youtube_analytics_videos v ON v.channel_id = c.id WHERE p.environment = ? AND a.status <> 'revoked' AND v.youtube_video_id = ?").bind(env.OPS_ENVIRONMENT, youtubeVideoId).first<SyncConnection>();
   if (!connection?.selected_resource_id) return { videoId: youtubeVideoId, status: "failed", rows: 0, errorCode: "connection_required" };
   const video = await env.DB.prepare("SELECT v.id FROM youtube_analytics_videos v JOIN youtube_analytics_channels c ON c.id = v.channel_id WHERE c.connection_id = ? AND c.youtube_channel_id = ? AND c.active = 1 AND v.youtube_video_id = ?").bind(connection.id, connection.selected_resource_id, youtubeVideoId).first<{ id: string }>();
   if (!video) return { videoId: youtubeVideoId, status: "failed", rows: 0, errorCode: "video_not_found" };
   try {
     const accessToken = await refreshAnalyticsAccessToken(connection, env, dependencies);
     const fetchGoogle = dependencies.fetchGoogle ?? fetch;
-    const rows = await youtubeReport(fetchGoogle, accessToken, startDate, endDate, "elapsedVideoTimeRatio", "audienceWatchRatio,relativeRetentionPerformance,startedWatching,stoppedWatching,totalSegmentImpressions", `video==${youtubeVideoId}`);
+    const rows = await youtubeReport(fetchGoogle, accessToken, connection.selected_resource_id, startDate, endDate, "elapsedVideoTimeRatio", "audienceWatchRatio,relativeRetentionPerformance,startedWatching,stoppedWatching,totalSegmentImpressions", `video==${youtubeVideoId}`);
     const observedAt = (dependencies.now?.() ?? new Date()).toISOString();
     const statements: D1PreparedStatement[] = [
       env.DB.prepare("DELETE FROM youtube_video_retention_points WHERE video_id = ? AND range_start = ? AND range_end = ?").bind(video.id, startDate, endDate),
@@ -508,8 +513,9 @@ export async function syncConfiguredAnalytics(env: AnalyticsEnv, scheduledAt = n
   if (env.OPS_ENVIRONMENT === "production") return [];
   const end = new Date(scheduledAt.getTime() - dayMs);
   const start = new Date(end.getTime() - 6 * dayMs);
-  const result = await env.DB.prepare("SELECT id, environment, provider, status, encrypted_credentials, granted_scopes_json, token_expires_at, selected_resource_id, selected_resource_name, reporting_timezone, last_attempted_refresh_at, last_successful_refresh_at, last_error_code FROM analytics_provider_connections WHERE environment = ? AND status IN ('connected', 'stale', 'provider_error') AND encrypted_credentials IS NOT NULL AND selected_resource_id IS NOT NULL ORDER BY provider").bind(env.OPS_ENVIRONMENT).all<SyncConnection>();
+  const result = await env.DB.prepare("SELECT id, environment, provider, status, encrypted_credentials, granted_scopes_json, token_expires_at, selected_resource_id, selected_resource_name, reporting_timezone, last_attempted_refresh_at, last_successful_refresh_at, last_error_code FROM analytics_provider_connections WHERE environment = ? AND provider = 'ga4' AND status IN ('connected', 'stale', 'provider_error') AND encrypted_credentials IS NOT NULL AND selected_resource_id IS NOT NULL").bind(env.OPS_ENVIRONMENT).all<SyncConnection>();
+  const youtube = await env.DB.prepare("SELECT p.id, p.environment, p.provider, a.id AS account_id, a.status, a.encrypted_credentials, a.granted_scopes_json, a.token_expires_at, a.youtube_channel_id AS selected_resource_id, a.title AS selected_resource_name, c.reporting_timezone, a.last_attempted_refresh_at, a.last_successful_refresh_at, a.last_error_code FROM analytics_provider_connections p JOIN youtube_analytics_accounts a ON a.connection_id = p.id JOIN youtube_analytics_channels c ON c.connection_id = p.id AND c.youtube_channel_id = a.youtube_channel_id AND c.active = 1 WHERE p.environment = ? AND a.status IN ('connected','stale','provider_error') ORDER BY a.created_at LIMIT 3").bind(env.OPS_ENVIRONMENT).all<SyncConnection>();
   const summaries: SyncResult[] = [];
-  for (const connection of result.results) summaries.push(await syncAnalyticsConnection(env, connection, isoDate(start), isoDate(end), { ...dependencies, now: () => scheduledAt }));
+  for (const connection of [...result.results, ...youtube.results]) summaries.push(await syncAnalyticsConnection(env, connection, isoDate(start), isoDate(end), { ...dependencies, now: () => scheduledAt }));
   return summaries;
 }

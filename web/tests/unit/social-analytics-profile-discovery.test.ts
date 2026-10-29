@@ -27,6 +27,7 @@ describe("Zernio profile discovery", () => {
 
   it("selects the unique default when a key sees several profiles", async () => {
     vi.stubEnv("ZERNIO_API_KEY", "test-key");
+    vi.stubEnv("ZERNIO_PROFILE_ID", "");
     mockProfiles({ profiles: [{ _id: "other" }, { _id: "default", isDefault: true }] });
 
     await expect(discoverZernioProfileId()).resolves.toBe("default");
@@ -34,6 +35,7 @@ describe("Zernio profile discovery", () => {
 
   it("fails closed instead of using an arbitrary profile", async () => {
     vi.stubEnv("ZERNIO_API_KEY", "test-key");
+    vi.stubEnv("ZERNIO_PROFILE_ID", "");
     mockProfiles({ profiles: [{ _id: "one" }, { _id: "two" }] });
 
     await expect(discoverZernioProfileId()).rejects.toMatchObject({

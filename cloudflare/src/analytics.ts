@@ -41,6 +41,21 @@ export type AnalyticsConnectionRow = {
   last_attempted_refresh_at: string | null;
   last_successful_refresh_at: string | null;
   last_error_code: string | null;
+  account_id?: string;
+};
+
+type YouTubeAccountRow = {
+  id: string;
+  connection_id: string;
+  youtube_channel_id: string;
+  title: string;
+  encrypted_credentials: string;
+  granted_scopes_json: string;
+  token_expires_at: string;
+  status: string;
+  last_attempted_refresh_at: string | null;
+  last_successful_refresh_at: string | null;
+  last_error_code: string | null;
 };
 
 type StoredCredentials = {
@@ -136,6 +151,7 @@ function connectionDto(row: AnalyticsConnectionRow) {
     grantedScopes = [];
   }
   return {
+    id: row.account_id ?? row.id,
     provider: row.provider,
     status: row.status,
     grantedScopes,
@@ -148,6 +164,15 @@ function connectionDto(row: AnalyticsConnectionRow) {
     lastSuccessfulRefreshAt: row.last_successful_refresh_at,
     errorCode: row.last_error_code,
   };
+}
+
+async function youtubeAccounts(env: AnalyticsEnv): Promise<YouTubeAccountRow[]> {
+  const result = await env.DB.prepare("SELECT a.id, a.connection_id, a.youtube_channel_id, a.title, a.encrypted_credentials, a.granted_scopes_json, a.token_expires_at, a.status, a.last_attempted_refresh_at, a.last_successful_refresh_at, a.last_error_code FROM youtube_analytics_accounts a JOIN analytics_provider_connections p ON p.id = a.connection_id WHERE p.environment = ? AND a.status <> 'revoked' ORDER BY a.created_at, a.id LIMIT 3").bind(env.OPS_ENVIRONMENT).all<YouTubeAccountRow>();
+  return result.results;
+}
+
+function channelConnection(base: AnalyticsConnectionRow, account: YouTubeAccountRow): AnalyticsConnectionRow {
+  return { ...base, account_id: account.id, status: account.status, encrypted_credentials: account.encrypted_credentials, granted_scopes_json: account.granted_scopes_json, token_expires_at: account.token_expires_at, selected_resource_id: account.youtube_channel_id, selected_resource_name: account.title, last_attempted_refresh_at: account.last_attempted_refresh_at, last_successful_refresh_at: account.last_successful_refresh_at, last_error_code: account.last_error_code };
 }
 
 async function connections(db: DB, environment: string): Promise<AnalyticsConnectionRow[]> {
@@ -165,10 +190,13 @@ async function hasActiveSelectedResource(db: DB, row: AnalyticsConnectionRow): P
   return selected?.selected === 1;
 }
 
-async function status(env: AnalyticsEnv, canManage: boolean): Promise<Response> {
+async function status(env: AnalyticsEnv, canManage: boolean, operatorId?: number, now = new Date()): Promise<Response> {
   try {
     const rows = await connections(env.DB, env.OPS_ENVIRONMENT);
-    const projected = await Promise.all(rows.map(async (row) => {
+    const base = rows.find(row => row.provider === 'youtube');
+    const accounts = base ? await youtubeAccounts(env) : [];
+    const expanded = rows.flatMap(row => row.provider === 'youtube' && accounts.length ? accounts.map(account => channelConnection(row, account)) : [row]);
+    const projected = await Promise.all(expanded.map(async (row) => {
       if (!row.selected_resource_id || await hasActiveSelectedResource(env.DB, row)) return connectionDto(row);
       // A reconnect can leave an older selection ID without an active provider
       // resource row. Never present that dangling ID as a usable connection:
@@ -181,7 +209,8 @@ async function status(env: AnalyticsEnv, canManage: boolean): Promise<Response> 
         last_error_code: "resource_not_selected",
       });
     }));
-    return json({ configured: configured(env), canManage, connections: projected });
+    const pending = canManage && operatorId ? await env.DB.prepare("SELECT id, available_resources_json FROM analytics_oauth_transactions WHERE operator_id = ? AND provider = 'youtube' AND pending_credentials IS NOT NULL AND expires_at > ? ORDER BY created_at DESC LIMIT 1").bind(operatorId, now.toISOString()).first<{ id: string; available_resources_json: string }>() : null;
+    return json({ configured: configured(env), canManage, connections: projected, youtubeLimit: 3, pendingYouTube: pending ? { id: pending.id, channels: JSON.parse(pending.available_resources_json) } : null });
   } catch {
     return json({ configured: configured(env), canManage, connections: [], migrationRequired: true });
   }
@@ -203,6 +232,7 @@ async function startOAuth(request: Request, env: AnalyticsEnv, context: Operator
   const input = await body(request);
   const provider = providerValue(input?.provider);
   if (!provider) return json({ error: "invalid_provider" }, 400);
+  if (provider === "youtube" && (await youtubeAccounts(env)).length >= 3) return json({ error: "youtube_account_limit", message: "Disconnect one of the three channels before connecting another." }, 409);
   const stateBytes = crypto.getRandomValues(new Uint8Array(32));
   const state = base64Url(stateBytes);
   const stateHash = await sha256Hex(state);
@@ -219,7 +249,7 @@ async function startOAuth(request: Request, env: AnalyticsEnv, context: Operator
   authorization.searchParams.set("scope", scopes[provider].join(" "));
   authorization.searchParams.set("access_type", "offline");
   authorization.searchParams.set("include_granted_scopes", "true");
-  authorization.searchParams.set("prompt", "consent");
+  authorization.searchParams.set("prompt", provider === "youtube" ? "select_account consent" : "consent");
   authorization.searchParams.set("state", state);
   return json({ authorizationUrl: authorization.toString() }, 201);
 }
@@ -270,6 +300,19 @@ async function oauthCallback(request: Request, env: AnalyticsEnv, context: Opera
   }
   const expiresAt = new Date(now.getTime() + token.expires_in * 1_000).toISOString();
   const encrypted = await encryptAnalyticsCredentials({ accessToken: token.access_token, refreshToken: token.refresh_token, expiresAt }, env.ANALYTICS_TOKEN_ENCRYPTION_KEY!.trim());
+  if (transaction.provider === "youtube") {
+    const channelsUrl = new URL("https://www.googleapis.com/youtube/v3/channels");
+    channelsUrl.searchParams.set("part", "id,snippet");
+    channelsUrl.searchParams.set("mine", "true");
+    channelsUrl.searchParams.set("maxResults", "50");
+    const response = await (dependencies.fetchGoogle ?? fetch)(channelsUrl, { headers: { authorization: `Bearer ${token.access_token}`, accept: "application/json" } });
+    const payload = await response.json().catch(() => null) as { items?: Array<{ id?: string; snippet?: { title?: string } }> } | null;
+    if (!response.ok || !payload?.items?.length) return safeReturn(request, env, "failed", transaction.provider);
+    const available = payload.items.filter(item => item.id && /^UC[A-Za-z0-9_-]{22}$/u.test(item.id)).map(item => ({ id: item.id!, name: (item.snippet?.title || item.id!).slice(0, 160) }));
+    if (!available.length) return safeReturn(request, env, "failed", transaction.provider);
+    await env.DB.prepare("UPDATE analytics_oauth_transactions SET pending_credentials = ?, available_resources_json = ?, expires_at = ? WHERE id = ?").bind(encrypted, JSON.stringify(available), new Date(now.getTime() + 30 * 60_000).toISOString(), transaction.id).run();
+    return safeReturn(request, env, "connected", transaction.provider);
+  }
   const connectionId = `acon_${(dependencies.randomUUID?.() ?? crypto.randomUUID()).replaceAll("-", "")}`;
   const reconnect = env.DB.prepare(
     "INSERT INTO analytics_provider_connections (id, environment, provider, status, encrypted_credentials, encryption_key_version, granted_scopes_json, token_expires_at, connected_by_operator_id, created_at, updated_at) VALUES (?, ?, ?, 'connected', ?, 'v1', ?, ?, ?, ?, ?) ON CONFLICT(environment, provider) DO UPDATE SET status = 'connected', encrypted_credentials = excluded.encrypted_credentials, encryption_key_version = excluded.encryption_key_version, granted_scopes_json = excluded.granted_scopes_json, token_expires_at = excluded.token_expires_at, connected_by_operator_id = excluded.connected_by_operator_id, selected_resource_id = NULL, selected_resource_name = NULL, reporting_timezone = NULL, last_validated_at = NULL, last_attempted_refresh_at = NULL, last_successful_refresh_at = NULL, last_error_code = NULL, revoked_at = NULL, updated_at = excluded.updated_at",
@@ -298,22 +341,27 @@ export async function refreshAnalyticsAccessToken(row: AnalyticsConnectionRow, e
   });
   const token = await response.json().catch(() => null) as { access_token?: string; expires_in?: number } | null;
   if (!response.ok || !token?.access_token || !token.expires_in) {
-    await env.DB.prepare("UPDATE analytics_provider_connections SET status = 'expired', last_error_code = 'token_refresh_failed', updated_at = ? WHERE id = ?").bind(now.toISOString(), row.id).run();
+    await env.DB.prepare(row.account_id ? "UPDATE youtube_analytics_accounts SET status = 'expired', last_error_code = 'token_refresh_failed', updated_at = ? WHERE id = ?" : "UPDATE analytics_provider_connections SET status = 'expired', last_error_code = 'token_refresh_failed', updated_at = ? WHERE id = ?").bind(now.toISOString(), row.account_id ?? row.id).run();
     throw new Error("token_refresh_failed");
   }
   const expiresAt = new Date(now.getTime() + token.expires_in * 1_000).toISOString();
   const encrypted = await encryptAnalyticsCredentials({ accessToken: token.access_token, refreshToken: stored.refreshToken, expiresAt }, env.ANALYTICS_TOKEN_ENCRYPTION_KEY.trim());
-  await env.DB.prepare("UPDATE analytics_provider_connections SET encrypted_credentials = ?, token_expires_at = ?, status = 'connected', last_error_code = NULL, updated_at = ? WHERE id = ?").bind(encrypted, expiresAt, now.toISOString(), row.id).run();
+  await env.DB.prepare(row.account_id ? "UPDATE youtube_analytics_accounts SET encrypted_credentials = ?, token_expires_at = ?, status = 'connected', last_error_code = NULL, updated_at = ? WHERE id = ?" : "UPDATE analytics_provider_connections SET encrypted_credentials = ?, token_expires_at = ?, status = 'connected', last_error_code = NULL, updated_at = ? WHERE id = ?").bind(encrypted, expiresAt, now.toISOString(), row.account_id ?? row.id).run();
   return token.access_token;
 }
 
-async function connectionFor(env: AnalyticsEnv, provider: AnalyticsProvider): Promise<AnalyticsConnectionRow | null> {
-  return env.DB.prepare(
+async function connectionFor(env: AnalyticsEnv, provider: AnalyticsProvider, channelId?: string): Promise<AnalyticsConnectionRow | null> {
+  const base = await env.DB.prepare(
     "SELECT id, provider, status, encrypted_credentials, granted_scopes_json, token_expires_at, selected_resource_id, selected_resource_name, reporting_timezone, last_attempted_refresh_at, last_successful_refresh_at, last_error_code FROM analytics_provider_connections WHERE environment = ? AND provider = ?",
   ).bind(env.OPS_ENVIRONMENT, provider).first<AnalyticsConnectionRow>();
+  if (!base || provider !== "youtube") return base;
+  const accounts = await youtubeAccounts(env);
+  if (!accounts.length) return channelId ? null : base;
+  const account = channelId ? accounts.find(account => account.youtube_channel_id === channelId) : accounts[0];
+  return account ? channelConnection(base, account) : null;
 }
 
-async function selectResource(request: Request, env: AnalyticsEnv, dependencies: AnalyticsDependencies): Promise<Response> {
+async function selectResource(request: Request, env: AnalyticsEnv, context: OperatorPrincipal, dependencies: AnalyticsDependencies): Promise<Response> {
   const input = await body(request);
   const provider = providerValue(input?.provider);
   let resourceId = typeof input?.resourceId === "string" ? input.resourceId.trim() : "";
@@ -321,6 +369,30 @@ async function selectResource(request: Request, env: AnalyticsEnv, dependencies:
   if (!provider) return json({ error: "invalid_provider" }, 400);
   if (provider === "youtube" && resourceId && !/^UC[A-Za-z0-9_-]{22}$/u.test(resourceId)) return json({ error: "invalid_channel_id" }, 400);
   if (provider === "ga4" && !/^\d{5,24}$/u.test(resourceId)) return json({ error: "invalid_property_id" }, 400);
+  if (provider === "youtube") {
+    const transactionId = typeof input?.pendingTransactionId === "string" ? input.pendingTransactionId : "";
+    if (!/^aotx_[0-9a-f]{32}$/u.test(transactionId)) return json({ error: "oauth_selection_required" }, 409);
+    const pending = await env.DB.prepare("SELECT pending_credentials, available_resources_json FROM analytics_oauth_transactions WHERE id = ? AND operator_id = ? AND provider = 'youtube' AND pending_credentials IS NOT NULL AND expires_at > ?").bind(transactionId, context.operatorId, (dependencies.now?.() ?? new Date()).toISOString()).first<{ pending_credentials: string; available_resources_json: string }>();
+    if (!pending) return json({ error: "oauth_selection_expired" }, 409);
+    let available: Array<{ id: string; name: string }> = [];
+    try { available = JSON.parse(pending.available_resources_json); } catch { /* Invalid pending selection is rejected below. */ }
+    const selected = available.find(channel => channel.id === resourceId);
+    if (!selected) return json({ error: "resource_not_authorized" }, 403);
+    const existing = await youtubeAccounts(env);
+    if (!existing.some(account => account.youtube_channel_id === resourceId) && existing.length >= 3) return json({ error: "youtube_account_limit" }, 409);
+    const credentials = await decryptAnalyticsCredentials(pending.pending_credentials, env.ANALYTICS_TOKEN_ENCRYPTION_KEY!.trim());
+    const now = (dependencies.now?.() ?? new Date()).toISOString();
+    const base = await connectionFor(env, "youtube");
+    const connectionId = base?.id ?? `acon_${(dependencies.randomUUID?.() ?? crypto.randomUUID()).replaceAll("-", "")}`;
+    if (!base) await env.DB.prepare("INSERT INTO analytics_provider_connections (id, environment, provider, status, encrypted_credentials, encryption_key_version, granted_scopes_json, token_expires_at, connected_by_operator_id, selected_resource_id, selected_resource_name, reporting_timezone, created_at, updated_at) VALUES (?, ?, 'youtube', 'connected', ?, 'v1', ?, ?, ?, ?, ?, ?, ?, ?)").bind(connectionId, env.OPS_ENVIRONMENT, pending.pending_credentials, JSON.stringify(scopes.youtube), credentials.expiresAt, context.operatorId, resourceId, selected.name, timezone, now, now).run();
+    await env.DB.batch([
+      env.DB.prepare("INSERT INTO youtube_analytics_accounts (id, connection_id, youtube_channel_id, title, encrypted_credentials, granted_scopes_json, token_expires_at, status, connected_by_operator_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'connected', ?, ?, ?) ON CONFLICT(connection_id, youtube_channel_id) DO UPDATE SET title = excluded.title, encrypted_credentials = excluded.encrypted_credentials, granted_scopes_json = excluded.granted_scopes_json, token_expires_at = excluded.token_expires_at, status = 'connected', last_error_code = NULL, updated_at = excluded.updated_at").bind(`yaac_${(dependencies.randomUUID?.() ?? crypto.randomUUID()).replaceAll("-", "")}`, connectionId, resourceId, selected.name, pending.pending_credentials, JSON.stringify(scopes.youtube), credentials.expiresAt, context.operatorId, now, now),
+      env.DB.prepare("INSERT INTO youtube_analytics_channels (id, connection_id, youtube_channel_id, title, reporting_timezone, active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 1, ?, ?) ON CONFLICT(connection_id, youtube_channel_id) DO UPDATE SET title = excluded.title, reporting_timezone = excluded.reporting_timezone, active = 1, updated_at = excluded.updated_at").bind(`ytch_${(dependencies.randomUUID?.() ?? crypto.randomUUID()).replaceAll("-", "")}`, connectionId, resourceId, selected.name, timezone, now, now),
+      env.DB.prepare("UPDATE analytics_oauth_transactions SET pending_credentials = NULL, available_resources_json = NULL WHERE id = ? AND operator_id = ?").bind(transactionId, context.operatorId),
+      env.DB.prepare("UPDATE analytics_provider_connections SET status = 'revoked', encrypted_credentials = NULL, token_expires_at = NULL, updated_at = ? WHERE id = ?").bind(now, connectionId),
+    ]);
+    return json({ connection: { id: resourceId, provider: "youtube", status: "connected", resource: { id: resourceId, name: selected.name, timezone } } });
+  }
   const row = await connectionFor(env, provider);
   if (!row || !row.encrypted_credentials || row.status === "revoked") return json({ error: "connection_required" }, 409);
   let accessToken: string;
@@ -369,7 +441,9 @@ async function disconnect(request: Request, env: AnalyticsEnv, dependencies: Ana
   const input = await body(request);
   const provider = providerValue(input?.provider);
   if (!provider) return json({ error: "invalid_provider" }, 400);
-  const row = await connectionFor(env, provider);
+  const channelId = provider === "youtube" && typeof input?.channelId === "string" ? input.channelId : undefined;
+  if (provider === "youtube" && !channelId) return json({ error: "channel_required" }, 400);
+  const row = await connectionFor(env, provider, channelId);
   if (!row) return json({ error: "connection_not_found" }, 404);
   let providerRevocation: "confirmed" | "unconfirmed" = "unconfirmed";
   if (row.encrypted_credentials && env.ANALYTICS_TOKEN_ENCRYPTION_KEY) {
@@ -386,6 +460,15 @@ async function disconnect(request: Request, env: AnalyticsEnv, dependencies: Ana
     }
   }
   const now = dependencies.now?.() ?? new Date();
+  if (provider === "youtube" && row.account_id) {
+    const other = (await youtubeAccounts(env)).find(account => account.youtube_channel_id !== channelId);
+    await env.DB.batch([
+      env.DB.prepare("UPDATE youtube_analytics_accounts SET status = 'revoked', encrypted_credentials = '', updated_at = ? WHERE id = ?").bind(now.toISOString(), row.account_id),
+      env.DB.prepare("UPDATE youtube_analytics_channels SET active = 0, updated_at = ? WHERE connection_id = ? AND youtube_channel_id = ?").bind(now.toISOString(), row.id, channelId),
+      env.DB.prepare("UPDATE analytics_provider_connections SET selected_resource_id = ?, selected_resource_name = ?, updated_at = ? WHERE id = ? AND selected_resource_id = ?").bind(other?.youtube_channel_id ?? null, other?.title ?? null, now.toISOString(), row.id, channelId),
+    ]);
+    return json({ provider, channelId, status: "revoked", providerRevocation });
+  }
   const statements = [
     env.DB.prepare("UPDATE analytics_provider_connections SET status = 'revoked', encrypted_credentials = NULL, token_expires_at = NULL, revoked_at = ?, last_error_code = NULL, updated_at = ? WHERE id = ?").bind(now.toISOString(), now.toISOString(), row.id),
   ];
@@ -447,9 +530,13 @@ function observation(row: DailyRow): YouTubeDailyObservation {
 }
 
 async function youtubeReport(request: Request, env: AnalyticsEnv): Promise<Response> {
-  const range = dateRange(new URL(request.url));
+  const url = new URL(request.url);
+  const range = dateRange(url);
   if (!range) return json({ error: "invalid_date_range" }, 400);
-  const connection = await connectionFor(env, "youtube");
+  if (url.searchParams.get("channelId") === "all") return combinedYouTubeReport(request, env);
+  const channelId = url.searchParams.get("channelId") ?? undefined;
+  if (channelId && !/^UC[A-Za-z0-9_-]{22}$/u.test(channelId)) return json({ error: "invalid_channel_id" }, 400);
+  const connection = await connectionFor(env, "youtube", channelId);
   if (!connection?.selected_resource_id) return json({ error: "channel_not_selected" }, 409);
   const channel = await env.DB.prepare("SELECT id, youtube_channel_id, title, reporting_timezone FROM youtube_analytics_channels WHERE connection_id = ? AND youtube_channel_id = ? AND active = 1").bind(connection.id, connection.selected_resource_id).first<{ id: string; youtube_channel_id: string; title: string; reporting_timezone: string }>();
   if (!channel) return json({ error: "channel_not_selected" }, 409);
@@ -493,7 +580,7 @@ async function youtubeReport(request: Request, env: AnalyticsEnv): Promise<Respo
     groups[key] = group;
     return groups;
   }, {})).map((group) => ({ ...group, status: group.episodeCount >= 3 ? "eligible" : "insufficient_sample", hypothesisOnly: true }));
-  const reachJob = await env.DB.prepare("SELECT status, last_checked_at AS lastCheckedAt, last_error_code AS errorCode FROM youtube_reporting_jobs WHERE connection_id = ? AND report_type_id = 'channel_reach_basic_a1'").bind(connection.id).first<Record<string, unknown>>();
+  const reachJob = await env.DB.prepare("SELECT status, last_checked_at AS lastCheckedAt, last_error_code AS errorCode FROM youtube_reporting_jobs WHERE connection_id = ? AND report_type_id = ?").bind(connection.id, `channel_reach_basic_a1:${connection.selected_resource_id}`).first<Record<string, unknown>>();
   const currentRows = within(range.startDate, range.endDate);
   const reachObservedDays = currentRows.filter((row) => row.impressions != null && row.impressionsCtr != null).length;
   return json({
@@ -523,12 +610,84 @@ async function youtubeReport(request: Request, env: AnalyticsEnv): Promise<Respo
   });
 }
 
+type YouTubeStoredReport = {
+  resource: { id: string; name: string };
+  freshness: string | null;
+  totals: Record<string, number | null>;
+  periods: { current: Record<string, number | null>; previous: Record<string, number | null>; trailing28: Record<string, number | null> };
+  trends: DailyRow[];
+  videos: Array<Record<string, unknown>>;
+  coverage: { observedDays: number; requestedDays: number };
+};
+
+function combinePeriod(periods: Array<Record<string, number | null>>): ReturnType<typeof aggregateYouTubePeriod> {
+  if (!periods.length) return aggregateYouTubePeriod([{ date: "combined", views: null, watchMinutes: null, averageViewDurationSeconds: null, averageViewPercentage: null, impressions: null, impressionsCtr: null, subscribersGained: null, subscribersLost: null, subscribedViews: null, unsubscribedViews: null }]);
+  const sum = (key: string): number | null => periods.every(period => numeric(period[key]) != null) ? periods.reduce((total, period) => total + numeric(period[key])!, 0) : null;
+  const weighted = (key: string, weightKey: string): number | null => {
+    const weights = periods.map(period => numeric(period[weightKey]));
+    const values = periods.map(period => numeric(period[key]));
+    if (weights.some(weight => weight == null) || values.some(value => value == null)) return null;
+    const weight = weights.reduce<number>((total, value) => total + value!, 0);
+    return weight > 0 ? values.reduce((total, value, index) => total + value! * weights[index]!, 0) / weight : null;
+  };
+  return aggregateYouTubePeriod([{
+    date: "combined", views: sum("views"), watchMinutes: sum("watchMinutes"),
+    averageViewDurationSeconds: weighted("averageViewDurationSeconds", "views"),
+    averageViewPercentage: weighted("averageViewPercentage", "views"),
+    impressions: sum("impressions"), impressionsCtr: weighted("impressionsCtr", "impressions"),
+    subscribersGained: sum("subscribersGained"), subscribersLost: sum("subscribersLost"),
+    subscribedViews: sum("subscribedViews"), unsubscribedViews: sum("unsubscribedViews"),
+  }]);
+}
+
+async function combinedYouTubeReport(request: Request, env: AnalyticsEnv): Promise<Response> {
+  const accounts = await youtubeAccounts(env);
+  if (!accounts.length) return json({ error: "channel_not_selected" }, 409);
+  const range = dateRange(new URL(request.url))!;
+  const reports: YouTubeStoredReport[] = [];
+  const unavailable: string[] = [];
+  for (const account of accounts) {
+    const url = new URL(request.url);
+    url.searchParams.set("channelId", account.youtube_channel_id);
+    const response = await youtubeReport(new Request(url), env);
+    if (response.ok) reports.push(await response.json() as YouTubeStoredReport);
+    else unavailable.push(account.youtube_channel_id);
+  }
+  if (!reports.length) return json({ error: "channel_reports_unavailable", unavailable }, 409);
+  const incomplete = unavailable.length > 0;
+  const current = combinePeriod(incomplete ? [] : reports.map(report => report.periods.current));
+  const previous = combinePeriod(incomplete ? [] : reports.map(report => report.periods.previous));
+  const trailing = combinePeriod(incomplete ? [] : reports.map(report => report.periods.trailing28));
+  const dates = new Set(reports.flatMap(report => report.trends.map(day => day.date)));
+  const trends = [...dates].sort().map(date => {
+    const rows = reports.map(report => report.trends.find(day => day.date === date));
+    const sum = (key: keyof DailyRow) => rows.every(row => row && numeric(row[key]) != null) ? rows.reduce((total, row) => total + numeric(row![key])!, 0) : null;
+    const views = sum("views"), impressions = sum("impressions");
+    const weighted = (key: keyof DailyRow, weightKey: keyof DailyRow) => rows.every(row => row && numeric(row[key]) != null && numeric(row[weightKey]) != null) ? rows.reduce((total, row) => total + numeric(row![key])! * numeric(row![weightKey])!, 0) / Math.max(1, sum(weightKey) ?? 0) : null;
+    return { date, views, watchMinutes: sum("watchMinutes"), averageViewDurationSeconds: weighted("averageViewDurationSeconds", "views"), averageViewPercentage: weighted("averageViewPercentage", "views"), impressions, impressionsCtr: weighted("impressionsCtr", "impressions"), subscribersGained: sum("subscribersGained"), subscribersLost: sum("subscribersLost"), subscribedViews: sum("subscribedViews"), unsubscribedViews: sum("unsubscribedViews") };
+  });
+  const sumTotal = (key: string) => reports.every(report => numeric(report.totals[key]) != null) ? reports.reduce((total, report) => total + numeric(report.totals[key])!, 0) : null;
+  return json({ provider: "youtube", resource: { id: "all", name: `All ${accounts.length} channels`, timezone: "UTC" }, range,
+    freshness: reports.every(report => report.freshness) ? reports.map(report => report.freshness!).sort()[0] : null,
+    status: incomplete ? "partial" : "connected", combined: true,
+    totals: { views: incomplete ? null : sumTotal("views"), watch_minutes: incomplete ? null : sumTotal("watch_minutes"), likes: incomplete ? null : sumTotal("likes"), comments_count: incomplete ? null : sumTotal("comments_count"), shares: incomplete ? null : sumTotal("shares"), subscribers_gained: incomplete ? null : sumTotal("subscribers_gained"), subscribers_lost: incomplete ? null : sumTotal("subscribers_lost"), average_view_duration_seconds: incomplete ? null : current.averageViewDurationSeconds, average_view_percentage: incomplete ? null : current.averageViewPercentage, impressions: incomplete ? null : current.impressions, impressions_ctr: incomplete ? null : current.impressionsCtr, estimated_impression_clicks: incomplete ? null : current.estimatedImpressionClicks, subscribed_views: incomplete ? null : current.subscribedViews, unsubscribed_views: incomplete ? null : current.unsubscribedViews, unsubscribed_view_percentage: incomplete ? null : current.unsubscribedViewPercentage, stv_rate: incomplete ? null : current.stvRate, conversion_rate: incomplete ? null : current.conversionRate },
+    periods: { current, previous, trailing28: trailing }, comparisons: { previous: comparison(current, previous), trailing28: comparison(current, trailing) },
+    expectations: { ctr: trailing.impressionsCtr, retention: trailing.averageViewPercentage, method: "weighted_previous_28_complete_days", formulaVersion: YOUTUBE_FORMULA_VERSION },
+    trends: incomplete ? [] : trends, videos: incomplete ? [] : reports.flatMap(report => report.videos.map(video => ({ ...video, channelId: report.resource.id, channelName: report.resource.name }))),
+    contentPatterns: [], insights: incomplete ? [] : writtenInsights(current, previous, trailing),
+    coverage: { requestedChannels: accounts.length, includedChannels: reports.length, unavailableChannels: unavailable, channelDays: reports.reduce((total, report) => total + report.coverage.observedDays, 0), expectedChannelDays: accounts.length * dayCount(range.startDate, range.endDate) },
+    formulas: { version: YOUTUBE_FORMULA_VERSION, combined: "Additive metrics summed across channels; rates weighted by their metric denominators. Missing channel observations make totals unavailable." },
+  });
+}
+
 async function youtubeRetentionReport(request: Request, env: AnalyticsEnv): Promise<Response> {
   const url = new URL(request.url);
   const range = dateRange(url);
   const videoId = url.searchParams.get("videoId") ?? "";
   if (!range || !/^[A-Za-z0-9_-]{6,24}$/u.test(videoId)) return json({ error: "invalid_retention_request" }, 400);
-  const connection = await connectionFor(env, "youtube");
+  const channelId = url.searchParams.get("channelId") ?? undefined;
+  if (channelId && !/^UC[A-Za-z0-9_-]{22}$/u.test(channelId)) return json({ error: "invalid_channel_id" }, 400);
+  const connection = await connectionFor(env, "youtube", channelId);
   if (!connection?.selected_resource_id) return json({ error: "channel_not_selected" }, 409);
   const video = await env.DB.prepare("SELECT v.id, v.youtube_video_id, v.title FROM youtube_analytics_videos v JOIN youtube_analytics_channels c ON c.id = v.channel_id WHERE c.connection_id = ? AND c.youtube_channel_id = ? AND c.active = 1 AND v.youtube_video_id = ?").bind(connection.id, connection.selected_resource_id, videoId).first<{ id: string; youtube_video_id: string; title: string }>();
   if (!video) return json({ error: "video_not_found" }, 404);
@@ -544,7 +703,9 @@ export async function youtubeEpisodeComparison(request: Request, env: AnalyticsE
   if (![videoA, videoB].every((value) => /^[A-Za-z0-9_-]{6,24}$/u.test(value)) || !["first24", "first7", "first28", "lifetime", "selected"].includes(window)) return json({ error: "invalid_episode_comparison" }, 400);
   const selectedRange = window === "selected" ? dateRange(url) : null;
   if (window === "selected" && !selectedRange) return json({ error: "invalid_date_range" }, 400);
-  const connection = await connectionFor(env, "youtube");
+  const channelId = url.searchParams.get("channelId") ?? undefined;
+  if (channelId && !/^UC[A-Za-z0-9_-]{22}$/u.test(channelId)) return json({ error: "invalid_channel_id" }, 400);
+  const connection = await connectionFor(env, "youtube", channelId);
   if (!connection?.selected_resource_id) return json({ error: "channel_not_selected" }, 409);
   const channel = await env.DB.prepare("SELECT id FROM youtube_analytics_channels WHERE connection_id = ? AND youtube_channel_id = ? AND active = 1").bind(connection.id, connection.selected_resource_id).first<{ id: string }>();
   if (!channel) return json({ error: "channel_not_selected" }, 409);
@@ -619,10 +780,10 @@ export async function handleAnalyticsRequest(
   const canManage = context.kind === "operator" && ["admin", "super_admin"].includes(context.role);
   if ((request.method !== "GET" || pathname.endsWith("/oauth/callback")) && !canManage) return json({ error: "forbidden" }, 403);
   try {
-    if (pathname === "/beta/api/analytics/status" && request.method === "GET") return status(env, canManage);
+    if (pathname === "/beta/api/analytics/status" && request.method === "GET") return status(env, canManage, context.kind === "operator" ? context.operatorId : undefined, dependencies.now?.() ?? new Date());
     if (pathname === "/beta/api/analytics/oauth/start" && request.method === "POST") return context.kind === "operator" ? startOAuth(request, env, context, dependencies) : json({ error: "forbidden" }, 403);
     if (pathname === "/beta/api/analytics/oauth/callback" && request.method === "GET") return context.kind === "operator" ? oauthCallback(request, env, context, dependencies) : json({ error: "forbidden" }, 403);
-    if (pathname === "/beta/api/analytics/selection" && request.method === "POST") return selectResource(request, env, dependencies);
+    if (pathname === "/beta/api/analytics/selection" && request.method === "POST") return context.kind === "operator" ? selectResource(request, env, context, dependencies) : json({ error: "forbidden" }, 403);
     if (pathname === "/beta/api/analytics/disconnect" && request.method === "POST") return disconnect(request, env, dependencies);
     if (pathname === "/beta/api/analytics/youtube" && request.method === "GET") return youtubeReport(request, env);
     if (pathname === "/beta/api/analytics/youtube/retention" && request.method === "GET") return youtubeRetentionReport(request, env);

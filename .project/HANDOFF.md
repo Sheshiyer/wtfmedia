@@ -6326,3 +6326,18 @@ DNS, Clerk, queue, ingest, corpus, or production mutation occurred.
   real Clerk account matrix and actual Mac/iPhone/Word checks. Staging-only
   deployment cannot migrate shared Alpha Ask WTF; its cutover remains separately
   authorized. No live inference/deployment success is claimed.
+
+## 2026-10-29 — Three-channel YouTube analytics PR candidate
+
+- Rebased this source change on `feature/pavun` at `9097a5c`. No Pavun social
+  analytics or release files were replaced. The new migration is numbered
+  `0029_youtube_multi_account.sql` after the branch's existing `0028`.
+- The existing Google OAuth flow now stores up to three separate channel grants,
+  with per-channel sync/reporting state, per-channel pages and an All channels
+  aggregate. The migration preserves the previously selected channel, stored
+  observations and Reporting job. `docs/YOUTUBE-MULTI-ACCOUNT.md` has admin steps.
+- Local checks on this rebased source: Edge 606/606, web TypeScript and lint
+  pass, and analytics-related web tests 16/16. The full web unit run has seven
+  failures in navigation/auth tests; the same seven reproduce on the untouched
+  `9097a5c` base. No live Google or Clerk acceptance was possible with the
+  available local configuration. No migration apply or deployment was done.

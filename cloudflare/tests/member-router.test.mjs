@@ -88,7 +88,7 @@ test("admitted members reach analytics and chat while all channel mutations rema
  const origin = "https://ops.staging.test";
  const status = await handleMemberRequest(new Request(`${origin}/beta/api/analytics/status`), bindings, deps);
  assert.equal(status.status, 200);
- const chat = await handleMemberRequest(new Request(`${origin}/beta/api/analytics/assistant`, {method:"POST",headers:{origin,"content-type":"application/json"},body:JSON.stringify({question:"Channel views?"})}), bindings, deps);
+ const chat = await handleMemberRequest(new Request(`${origin}/beta/api/analytics/assistant`, {method:"POST",headers:{origin,"content-type":"application/json"},body:JSON.stringify({question:"Channel views?",channelId:`UC${"a".repeat(22)}`})}), bindings, deps);
  assert.equal(chat.status, 409);
  assert.equal((await chat.json()).status, "connection_required");
  for(const path of ["oauth/start","selection","disconnect","sync","youtube/retention"]){

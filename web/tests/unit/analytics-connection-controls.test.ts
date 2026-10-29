@@ -8,7 +8,7 @@ function controls(manage: boolean, serverManage = manage) {
     if (!nodes.has(selector)) nodes.set(selector, { hidden: false, disabled: false, textContent: '', classList: { toggle: vi.fn() } });
     return nodes.get(selector)!;
   };
-  const context = vm.createContext({ URLSearchParams, window: { location: { search: `?manage=${manage ? 1 : 0}` } },
+  const context = vm.createContext({ URLSearchParams, window: { location: { search: `?manage=${manage ? 1 : 0}&channel=UC${"a".repeat(22)}` } },
     render: vi.fn(), weekly: [], episodes: [], state: {}, fetch: vi.fn().mockResolvedValue({ ok: true, json: async () => ({configured: true, canManage: serverManage, connections: []}) }), $: node, document: { querySelectorAll: () => [], querySelector: () => null } });
   const source = readFileSync('public/analytics-demo/production-bridge.js', 'utf8');
   vm.runInContext(source.replace('  configureRanges(today);', '  globalThis.testControls = { api, renderProductionStatus, loadStatus }; return;\n  configureRanges(today);'), context);

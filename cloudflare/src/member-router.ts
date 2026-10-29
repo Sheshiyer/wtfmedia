@@ -91,8 +91,9 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     const provider = input?.provider === "youtube" || input?.provider === "ga4" ? input.provider : null;
     const startDate = typeof input?.startDate === "string" ? input.startDate : "";
     const endDate = typeof input?.endDate === "string" ? input.endDate : "";
-    if (!provider || !validAnalyticsRange(startDate, endDate)) return Response.json({ error: "invalid_sync_request" }, { status: 400, headers });
-    const result = await syncSelectedAnalytics(env, provider, startDate, endDate, dependencies);
+    const channelId = typeof input?.channelId === "string" ? input.channelId : "";
+    if (!provider || !validAnalyticsRange(startDate, endDate) || provider === "youtube" && !/^UC[A-Za-z0-9_-]{22}$/u.test(channelId)) return Response.json({ error: "invalid_sync_request" }, { status: 400, headers });
+    const result = await syncSelectedAnalytics(env, provider, startDate, endDate, dependencies, channelId);
     return Response.json({ sync: result }, { status: result.status === "completed" ? 200 : 409, headers });
   }
   if (context.kind === "operator" && url.pathname === "/beta/api/analytics/youtube/retention" && request.method === "POST") {

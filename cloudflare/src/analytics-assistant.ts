@@ -74,8 +74,10 @@ export async function handleAnalyticsAssistant(request: Request, env: Env, depen
   const start = input.startDate ?? new Date(now.getTime() - 28 * 86400000).toISOString().slice(0, 10);
   const end = input.endDate ?? yesterday;
   if (!validRange(start, end) || (input.videoId != null && !validId(input.videoId))) return message("invalid_request", "Choose a valid date range of at most 367 days and a valid video.", 400);
+  const channelId = typeof input.channelId === "string" && /^UC[A-Za-z0-9_-]{22}$/u.test(input.channelId) ? input.channelId : null;
+  if (!channelId) return message("channel_required", "Choose one of the connected YouTube channels to ask about its analytics.", 400);
   try {
-    const connection = await env.DB.prepare("SELECT * FROM analytics_provider_connections WHERE environment = ? AND provider = 'youtube'").bind(env.OPS_ENVIRONMENT).first<AnalyticsConnectionRow>();
+    const connection = await env.DB.prepare("SELECT p.id, p.provider, a.id AS account_id, a.status, a.encrypted_credentials, a.granted_scopes_json, a.token_expires_at, a.youtube_channel_id AS selected_resource_id, a.title AS selected_resource_name, c.reporting_timezone, a.last_attempted_refresh_at, a.last_successful_refresh_at, a.last_error_code FROM analytics_provider_connections p JOIN youtube_analytics_accounts a ON a.connection_id = p.id JOIN youtube_analytics_channels c ON c.connection_id = p.id AND c.youtube_channel_id = a.youtube_channel_id AND c.active = 1 WHERE p.environment = ? AND a.youtube_channel_id = ? AND a.status <> 'revoked'").bind(env.OPS_ENVIRONMENT, channelId).first<AnalyticsConnectionRow>();
     if (!connection?.selected_resource_id || !connection.encrypted_credentials || ["revoked", "expired"].includes(connection.status)) return message("connection_required", "Connect YouTube and select an authorized channel before asking about its data.", 409);
     const selectedIds = [input.videoId, input.comparisonVideoId].filter(validId);
     const selectedVideos = selectedIds.length ? (await env.DB.prepare(`SELECT v.youtube_video_id AS videoId, v.title FROM youtube_analytics_videos v JOIN youtube_analytics_channels c ON c.id = v.channel_id WHERE c.connection_id = ? AND c.youtube_channel_id = ? AND c.active = 1 AND v.youtube_video_id IN (${selectedIds.map(() => "?").join(",")})`).bind(connection.id, connection.selected_resource_id, ...selectedIds).all<{ videoId: string; title: string }>()).results : [];
@@ -110,7 +112,7 @@ export async function handleAnalyticsAssistant(request: Request, env: Env, depen
       if (resolved[0].videoId === resolved[1].videoId) return message("clarification_required", "Choose two different videos to compare.");
       const window = plan.window ?? (["first24", "first7", "first28", "lifetime", "selected"].includes(String(input.comparisonWindow)) ? String(input.comparisonWindow) : "first7");
       const comparisonUrl = new URL("https://internal/beta/api/analytics/youtube/episodes/compare");
-      comparisonUrl.search = new URLSearchParams({ videoA: resolved[0].videoId, videoB: resolved[1].videoId, window, ...(window === "selected" ? { startDate: plan.startDate, endDate: plan.endDate } : {}) }).toString();
+      comparisonUrl.search = new URLSearchParams({ channelId, videoA: resolved[0].videoId, videoB: resolved[1].videoId, window, ...(window === "selected" ? { startDate: plan.startDate, endDate: plan.endDate } : {}) }).toString();
       const response = await youtubeEpisodeComparison(new Request(comparisonUrl), env, dependencies, true);
       if (!response.ok) return message("no_data", "The synchronized comparison is unavailable for these videos. Update channel data and try again.");
       const report = await response.json() as { episodeA: Record<string, unknown> & { range: { startDate: string; endDate: string } }; episodeB: Record<string, unknown> & { range: { startDate: string; endDate: string } } };

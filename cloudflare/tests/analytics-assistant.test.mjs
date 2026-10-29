@@ -6,7 +6,7 @@ import { policyForPath, capabilitiesForRole } from '../src/auth/policy.ts';
 
 const now = () => new Date('2026-10-04T12:00:00Z');
 const plan = {kind:'metrics',videoQuery:'Example',startDate:'2026-09-01',endDate:'2026-09-30',metrics:['subscribersGained','subscribersLost']};
-const request = (overrides={}) => new Request('http://localhost/beta/api/analytics/assistant',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({question:'How much subscriber growth for Example?',...overrides})});
+const request = (overrides={}) => new Request('http://localhost/beta/api/analytics/assistant',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({question:'How much subscriber growth for Example?',channelId:`UC${'a'.repeat(22)}`,...overrides})});
 async function fixture(options={}) {
  const secret='test-only-encryption-secret';
  const encrypted=await encryptAnalyticsCredentials({accessToken:'test-access-token',refreshToken:'test-refresh-token',expiresAt:'2026-10-05T00:00:00Z'},secret);
@@ -130,7 +130,11 @@ test('two-video chat fetches live metrics when stored observations are missing',
  const videos=[{id:'stored-a',videoId:'video_test1',title:'Rohit',publishedAt:'2026-09-01T00:00:00Z'},{id:'stored-b',videoId:'video_test2',title:'Artist',publishedAt:'2026-09-15T00:00:00Z'}];
  let calendar=false;
  const original=f.env.DB.prepare;
+ const testConnection=await original('analytics_provider_connections').bind('staging','youtube').first();
+ const comparisonChannelId=`UC${'a'.repeat(22)}`;
+ testConnection.selected_resource_id=comparisonChannelId;
  f.env.DB.prepare=sql=>{
+  if(sql.includes('FROM youtube_analytics_accounts'))return {bind(){return this;},async all(){return{results:[{...testConnection,id:'account-test',youtube_channel_id:comparisonChannelId,title:'Channel'}]};}};
   if(sql.includes('analytics_provider_connections'))return original(sql);
   let args=[];
   return {bind(...values){args=values;return this;},async first(){
@@ -140,7 +144,7 @@ test('two-video chat fetches live metrics when stored observations are missing',
    return {views:null,impressions:null};
   },async all(){
    if(sql.includes('JOIN youtube_analytics_channels')){
-    assert.deepEqual(args.slice(0,2),['connection-test','UC_selected_channel']);
+    assert.deepEqual(args.slice(0,2),['connection-test',comparisonChannelId]);
     return{results:videos.filter(v=>v.title===args[2])};
    }
    assert.equal(args[0],'channel-test');return{results:videos};
