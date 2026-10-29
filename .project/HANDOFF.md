@@ -1,3 +1,29 @@
+## 2026-10-29 — PR #87 fixes deployed to staging
+
+- Owner-authorized staging deployment uses runtime source
+  e8d3de43e87929d5a30c4b64a4d08421a9f2e3e4, the local feature/pavun merge of
+  PR #87 with reconnect-at-capacity and complete-period aggregation fixes.
+- Staging Edge fec8d229-f32d-452d-af33-59f9fdcb1adb and Web
+  bdf16ee1-462f-4bc2-aa08-5d3dccb45d4a are each verified at 100% traffic.
+  Migration 0029 was the only pending migration and is applied; the pre-change
+  D1 Time Travel recovery bookmark is saved in ignored deployment evidence.
+  Existing analytics table counts are unchanged and foreign-key checks pass.
+- LIVE-VERIFIED: analytics, channel, research, Production, social and sign-in
+  pages return 200; unsigned analytics/Production/research APIs return 401.
+  Both analytics adapters and both analytics page bundles match local hashes.
+  Compiled/live Clerk identity matches staging, Web binds only staging Edge,
+  and Edge retains staging D1 and the Alpha chat bridge. Binding names and
+  compatibility settings are preserved; health names alpha_public_api.
+- Production Web/Edge and the research runner retain their pre-deploy versions.
+  No Google consent, provider sync, paid model calls or saved-report mutation
+  was performed. Actual Google-account consent remains user-interactive;
+  multi-account flow correctness is covered by the source regression suite.
+- Recovery targets: Web 82f978d9-e06f-497f-990c-93cf88a5c04b; Edge
+  1226f7fd-fa30-4df3-b3f9-bc1c6c195694. Coordinate database recovery before a
+  pre-migration Edge rollback; do not restore old code alone after new grants.
+- No Git push requested or performed. Test:
+  https://beta-staging.wtfhq.in/beta/analytics .
+
 ## 2026-10-29 — PR #87 multi-channel analytics reviewed and corrected
 
 - Owner requested fixes, merge into feature/pavun and staging deployment.
