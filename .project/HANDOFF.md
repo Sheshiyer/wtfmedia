@@ -1,7 +1,8 @@
 ## 2026-10-29 — PR #87 multi-channel analytics reviewed and corrected
 
 - Owner requested fixes, merge into feature/pavun and staging deployment.
-  PR head 292a03586a73b9f98962f2f78a058b72742139e5 integrates without conflicts.
+  PR head 292a03586a73b9f98962f2f78a058b72742139e5 merged without conflicts
+  in local merge e8d3de43e87929d5a30c4b64a4d08421a9f2e3e4.
   No push or production deployment is authorized by this task.
 - OAuth authorization remains available with three occupied slots, including
   expired grants. Verified channel selection and D1 still reject a fourth
@@ -9,8 +10,10 @@
 - Combined metrics require all channels to cover the selected dates. Previous
   and trailing-28-day baselines are checked independently. Missing observations
   produce unavailable totals/comparisons; observed zero days remain valid.
-- VERIFIED-SOURCE: Edge 611/611 plus the added legacy migration preservation
-  test pass; focused analytics web 17/17, typecheck, lint and architecture pass.
+- VERIFIED-SOURCE: Edge 612/612, focused analytics web 17/17, contracts 101/101,
+  typecheck, lint and architecture pass. Isolated staging OpenNext build and
+  Edge bundle succeed at e8d3de43e87929d5a30c4b64a4d08421a9f2e3e4;
+  compiled Clerk identity matches staging configuration.
   Full web unit suite: 435 pass, seven unrelated navigation/routing failures;
   the same seven failures reproduce on pre-merge feature/pavun (687ead4).
   OAuth callback, replay, selection and migration checks use synthetic data
