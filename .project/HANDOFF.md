@@ -1,3 +1,30 @@
+## 2026-10-29 — Editorial research visuals deployed to staging
+
+- Owner-authorized candidate b04a2fc544c7ff566fd794bd3fe61644c971781f is pushed to
+  feature/pavun. Runtime source is 92b931e2b75778280f9901e61f382315825bf2be;
+  candidate differences are the image pin and release/architecture documentation.
+- Staging Web a93067d9-183c-4922-b1ca-ddfec05857ee and Research
+  e99e5db7-59c8-4b9a-9484-f1183f894c6b each receive 100% traffic.
+  All bindings, secret binding names and compatibility settings match the
+  pre-rollout snapshot. The Web remains paired only with staging Edge.
+- Direct container readback confirms application version 13, one healthy
+  instance, no errors or failed instances, and image
+  92f4eaa147999d4bd37dc83f8aa5798b1f9633b73f89474b55cf1bceb20b4ce1.
+  An initial version-12 readback lagged rollout; version 13 is now confirmed.
+- LIVE-VERIFIED: research, analytics, Production, social and sign-in pages return
+  200. Unsigned principal, research and runner health endpoints return 401.
+  The served figure-renderer asset exactly matches the isolated build, and
+  compiled/live Clerk identity matches staging. Edge health preserves staging
+  identity and Alpha corpus authority.
+- Production Web/Edge and staging Edge versions/settings are unchanged. No
+  migrations, credential changes, paid model calls or saved-report regeneration.
+  This verifies deployment and smoke checks, not live model editorial quality.
+- New reports use the updated visual planning instructions. Existing valid v2
+  figures receive the new layout on refresh; missing old figures are not created
+  by a refresh. Staging: https://beta-staging.wtfhq.in/beta/research .
+- Rollback Web/Research versions and prior image are in the preparation receipt
+  below. Preserve durable state if rolling back.
+
 ## 2026-10-29 — Editorial visual staging release preparation
 
 - Owner authorized pushing all visual changes to feature/pavun and deploying
