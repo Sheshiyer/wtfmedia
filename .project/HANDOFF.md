@@ -1,3 +1,24 @@
+## 2026-10-29 — Editorial visual staging release preparation
+
+- Owner authorized pushing all visual changes to feature/pavun and deploying
+  staging. Runtime source 92b931e2b75778280f9901e61f382315825bf2be is pushed.
+- Isolated OpenNext build passes lint/types and verifies staging Clerk identity.
+  The linux/amd64 container imports with networking disabled; all 19 Python
+  module hashes match the committed source. Registry upload succeeded after
+  omitting Docker's optional provenance attachment (the first upload was rejected).
+- Research image is pinned to
+  92f4eaa147999d4bd37dc83f8aa5798b1f9633b73f89474b55cf1bceb20b4ce1.
+  Exact-source checks: 26 focused web, 21 Python figure/recovery and seven host
+  tests pass. The earlier four synthetic Chrome checks cover desktop/mobile
+  rendering and Word export. No live paid generation was run.
+- Pre-rollout readback: zero queued/running staging briefs. Rollback Web is
+  bdf16ee1-462f-4bc2-aa08-5d3dccb45d4a; Research is
+  f225e6df-00fb-4a0f-8d57-f95b2c4f3238 with prior image
+  b44c90db74c210553aa031a6f251d44421e05b018a8e600b2ec3f11664b91524.
+  Staging Edge fec8d229-f32d-452d-af33-59f9fdcb1adb remains unchanged.
+- Only staging Web and Research need deployment; no schema, credentials,
+  provider, production or saved-report changes. Deployment receipt follows.
+
 ## 2026-10-29 — Research editorial figures updated locally
 
 - Owner requested clearer research diagrams and images in the style of the supplied
