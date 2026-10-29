@@ -1,3 +1,30 @@
+## 2026-10-29 — Research editorial figures updated locally
+
+- Owner requested clearer research diagrams and images in the style of the supplied
+  payments report. Local changes remain on feature/pavun; no push or deployment.
+- The v2 figure renderer now uses compact horizontal/serpentine process layouts,
+  layered branching maps, participant pictograms, side-by-side comparisons for
+  two or three alternatives, and highlighted takeaways. Dense/cyclic graphs keep
+  explicit edge routing; no relationship is inferred from item order.
+- Existing valid saved figures receive these layouts when rendered; research need
+  not be rerun. Future planner/generation prompts favor one useful explanation,
+  short labels, concise qualified claims, and appropriate visual variety.
+  Retained-evidence validation, numeric scope checks, paid-call limits, and licensed
+  source-image requirements are unchanged. Reference assets were not added to the
+  corpus or tracked source.
+- The page provides a fitted preview and keyboard-accessible enlarged view.
+  Shared PNG rendering keeps connected diagrams intact and bounds Word image size.
+  Named sources and excerpts remain available; numeric citation markers are not
+  added to artwork.
+- VERIFIED-SOURCE: 26 focused web unit tests, 21 runner figure/recovery tests,
+  TypeScript and scoped ESLint pass. Four synthetic desktop/mobile Chrome tests
+  verify labels, branches/cycles, no clipping/overlap, keyboard focus/Escape,
+  PNG encoding, and actual Word download contents/dimensions. Process, map and
+  comparison screenshots were inspected. The installed Chrome was used because
+  the pinned Playwright browser binaries are absent; Firefox/WebKit are untested.
+- No paid model calls, saved-report mutations, credential changes or deployment.
+  Live generation quality under the revised prompts has not been exercised.
+
 ## 2026-10-29 — PR #87 fixes deployed to staging
 
 - Owner-authorized staging deployment uses runtime source

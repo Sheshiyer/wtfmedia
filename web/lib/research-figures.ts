@@ -30,13 +30,99 @@ export const FIGURE_REASONS: Record<string, string> = {
   image_unavailable: "A relevant image with explicit reuse permission was not available.",
 };
 
+// Layout uses only the supplied edges. Position never creates a new relationship.
+function diagramLayout(f: ResearchFigure, top: number, heightFor: (i: FigureItem, width: number) => number) {
+  const incoming = new Map(f.items.map(i => [i.id, f.edges.filter(e => e.to === i.id).length]));
+  const outgoing = new Map(f.items.map(i => [i.id, f.edges.filter(e => e.from === i.id)]));
+  const degrees = new Map(incoming), ranks = new Map(f.items.map(i => [i.id, 0]));
+  const queue = f.items.filter(i => !degrees.get(i.id)).map(i => i.id), order: string[] = [];
+  while (queue.length) {
+    const id = queue.shift()!; order.push(id);
+    for (const edge of outgoing.get(id)!) {
+      ranks.set(edge.to, Math.max(ranks.get(edge.to)!, ranks.get(id)! + 1));
+      degrees.set(edge.to, degrees.get(edge.to)! - 1);
+      if (!degrees.get(edge.to)) queue.push(edge.to);
+    }
+  }
+  const chain = order.length === f.items.length && f.edges.length === f.items.length - 1 && f.items.every(i => incoming.get(i.id)! <= 1 && outgoing.get(i.id)!.length <= 1);
+  const layers = Math.max(...ranks.values()) + 1;
+  const branched = !chain && order.length === f.items.length && layers <= 3;
+  const columns = chain ? Math.min(f.items.length, f.items.length === 4 ? 4 : 3) : branched ? layers : 1;
+  const nodeWidth = columns === 1 ? 760 : (1040 - (columns - 1) * 72) / columns;
+  const nodes: { item: FigureItem; x: number; y: number; width: number; height: number }[] = [];
+  let bottom = top;
+  if (chain) {
+    for (let start = 0; start < order.length; start += columns) {
+      const row = order.slice(start, start + columns).map(id => f.items.find(i => i.id === id)!);
+      const height = Math.max(...row.map(i => heightFor(i, nodeWidth)));
+      row.forEach((item, col) => nodes.push({ item, x: 40 + (Math.floor(start / columns) % 2 ? columns - 1 - col : col) * (nodeWidth + 72), y: bottom, width: nodeWidth, height }));
+      bottom += height + 72;
+    }
+  } else if (branched) {
+    // Reserve space above nodes for relationships that skip an intermediate layer.
+    const headroom = f.edges.some(e => ranks.get(e.to)! - ranks.get(e.from)! > 1) ? 32 + f.edges.length * 12 : 0;
+    const heights = Array.from({ length: layers }, (_, rank) => f.items.filter(i => ranks.get(i.id) === rank).reduce((h, i) => h + heightFor(i, nodeWidth) + 24, -24));
+    const graphHeight = Math.max(...heights);
+    for (let rank = 0; rank < layers; rank++) {
+      let y = top + headroom + (graphHeight - heights[rank]) / 2;
+      for (const item of f.items.filter(i => ranks.get(i.id) === rank)) {
+        const height = heightFor(item, nodeWidth);
+        nodes.push({ item, x: 40 + rank * (nodeWidth + 72), y, width: nodeWidth, height }); y += height + 24;
+      }
+    }
+    bottom = top + headroom + graphHeight + 36;
+  } else {
+    // Cycles and dense graphs keep distinct outer routing lanes, never false chains.
+    for (const item of f.items) {
+      const height = heightFor(item, nodeWidth);
+      nodes.push({ item, x: 40, y: bottom, width: nodeWidth, height }); bottom += height + 24;
+    }
+  }
+  const routes = f.edges.map((edge, index) => {
+    const a = nodes.find(n => n.item.id === edge.from)!, b = nodes.find(n => n.item.id === edge.to)!;
+    const fromEdges = f.edges.filter(e => e.from === edge.from), toEdges = f.edges.filter(e => e.to === edge.to);
+    const ay = a.y + a.height * (fromEdges.indexOf(edge) + 1) / (fromEdges.length + 1);
+    const by = b.y + b.height * (toEdges.indexOf(edge) + 1) / (toEdges.length + 1);
+    let path: string;
+    if (chain && a.y === b.y) {
+      const forward = a.x < b.x;
+      path = `M${forward ? a.x + a.width : a.x} ${ay} H${forward ? b.x - 7 : b.x + b.width + 7}`;
+    } else if (chain) path = `M${a.x + a.width / 2} ${a.y + a.height} V${b.y - 7}`;
+    else if (branched && ranks.get(edge.to)! - ranks.get(edge.from)! === 1) {
+      const ax = a.x + a.width, bx = b.x - 7, middle = (ax + bx) / 2;
+      path = `M${ax} ${ay} C${middle} ${ay} ${middle} ${by} ${bx} ${by}`;
+    } else if (branched) {
+      const lane = top + 12 + index * 12;
+      path = `M${a.x + a.width} ${ay} H${a.x + a.width + 18} V${lane} H${b.x - 18} V${by} H${b.x - 7}`;
+    } else {
+      const lane = 840 + index * 16;
+      path = `M${a.x + a.width} ${ay} H${lane} V${by} H${b.x + b.width + 7}`;
+    }
+    return { edge, path };
+  });
+  return { nodes, routes, bottom, kind: chain ? "process" : branched ? "map" : "relationships" };
+}
+
+// Fixed decorative pictograms; source text never supplies executable SVG markup.
+function pictogram(label: string, x: number, y: number, color: string) {
+  const text = label.toLowerCase();
+  const shape = /customer|consumer|person|guest|founder|user|team/u.test(text) ? '<circle cx="16" cy="9" r="5"/><path d="M5 29c0-15 22-15 22 0"/>'
+    : /bank|fund|invest|capital/u.test(text) ? '<path d="M2 11L16 3l14 8H2zm4 4v11m10-11v11m10-11v11M2 30h28"/>'
+    : /merchant|shop|store|retail/u.test(text) ? '<path d="M4 13h24v17H4zM2 13l4-9h20l4 9M12 30V20h8v10"/>'
+    : /delivery|transport|logistic|truck/u.test(text) ? '<path d="M2 7h18v17H2zm18 7h6l4 6v4H20"/><circle cx="8" cy="26" r="3"/><circle cx="25" cy="26" r="3"/>'
+    : /network|platform|global|market/u.test(text) ? '<circle cx="16" cy="16" r="13"/><ellipse cx="16" cy="16" rx="6" ry="13"/><path d="M3 16h26"/>'
+    : /manufactur|factory|production/u.test(text) ? '<path d="M3 29V14l9-6v9l9-6v9h8v9H3zM5 5h5v7M8 23h3m5 0h3m5 0h3"/>'
+    : '<rect x="4" y="4" width="24" height="24" rx="5"/><path d="M9 11h14M9 16h14M9 21h8"/>';
+  return `<g transform="translate(${x} ${y})" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${shape}</g>`;
+}
+
 /** Deterministic SVG, never model-authored markup or remote fonts. */
 export function renderFigure(f: ResearchFigure): { svg: string; width: number; height: number; breaks: number[] } {
   const width = 1120; const left = 40; const inner = width - 80;
   const breaks: number[] = [];
   let y = 58 + lineHeight(f.title, inner, 32);
   let content = words(f.title, left, 58, inner, 32, true);
-  content += words(f.takeaway, left, y, inner, 19); y += lineHeight(f.takeaway, inner, 19) + 28;
+  y += 12;
   content += `<path d="M40 ${y} H1080" stroke="#dce1eb"/>`; y += 30;
   const itemCaption = (item: FigureItem) => item.group;
   if (f.kind === "bar") {
@@ -80,6 +166,24 @@ export function renderFigure(f: ResearchFigure): { svg: string; width: number; h
       const label = `${i.label}: ${i.displayValue} ${f.metric.unit}`;
       content += words(label, 75, y, inner - 40, 20, true); y += lineHeight(label, inner - 40, 20) + 15; breaks.push(y);
     });
+  } else if (f.kind === "comparison" && f.items.length <= 3) {
+    const gap = 24, cardWidth = (inner - gap * (f.items.length - 1)) / f.items.length;
+    const headingHeight = Math.max(...f.items.map(i => lineHeight(i.label, cardWidth - 40, 24))) + 42;
+    const rowHeights = f.columns.map((heading, n) => 36 + lineHeight(heading, cardWidth - 40, 16) + Math.max(...f.items.map(i => lineHeight(i.cells[n], cardWidth - 40, 19))));
+    const height = headingHeight + rowHeights.reduce((a, b) => a + b, 0) + 16;
+    f.items.forEach((item, index) => {
+      const x = left + index * (cardWidth + gap), color = palette[index % palette.length];
+      content += `<g data-comparison="${escape(item.id)}">` + box(x, y, cardWidth, height, index % 2 ? "#f0f4ff" : "#fff5e9", color);
+      content += `<rect x="${x + 20}" y="${y + 16}" width="40" height="5" rx="2" fill="${color}"/>`;
+      content += words(item.label, x + 20, y + 52, cardWidth - 40, 24, true);
+      let at = y + headingHeight + 24;
+      f.columns.forEach((heading, n) => {
+        content += words(heading, x + 20, at, cardWidth - 40, 16, true, "#596579");
+        content += words(item.cells[n], x + 20, at + lineHeight(heading, cardWidth - 40, 16) + 8, cardWidth - 40, 19);
+        at += rowHeights[n];
+      });
+      content += "</g>";
+    }); y += height + 28; breaks.push(y);
   } else if (f.kind === "comparison") {
     const widths = [220, ...f.columns.map(() => (inner - 220) / f.columns.length)];
     const headers = ["", ...f.columns];
@@ -116,27 +220,36 @@ export function renderFigure(f: ResearchFigure): { svg: string; width: number; h
       }
     }
   } else if (f.kind === "flow" || f.kind === "ecosystem") {
-    // Explicit adjacency with independent right-side routing lanes also handles cycles and back edges.
-    // Labels live in the connection key, never over another node or arrow.
-    const placements: { y: number; h: number }[] = [];
-    f.items.forEach((i, index) => {
-      const h = 52 + lineHeight(i.label, 620, 23) + lineHeight(i.detail, 620, 18) + lineHeight(itemCaption(i), 620, 14);
-      placements.push({ y, h });
-      content += box(left, y, 680, h, index % 2 ? "#f0f4ff" : "#fff5e9", palette[index % 2]);
-      content += words(i.label, 62, y + 32, 620, 23, true) + words(i.detail, 62, y + 40 + lineHeight(i.label, 620, 23), 620);
-      content += words(itemCaption(i), 62, y + h - 16, 620, 14); y += h + 26; breaks.push(y);
+    const graph = diagramLayout(f, y, (i, w) => 100 + lineHeight(i.label, w - 40, 22) + lineHeight(i.detail, w - 40, 18) + lineHeight(i.group, w - 40, 14));
+    content += `<g data-diagram-layout="${graph.kind}">`;
+    // Connectors go behind cards; no line can obscure a card's text.
+    graph.routes.forEach(({ edge, path }, index) => {
+      content += `<path d="${path}" data-from="${escape(edge.from)}" data-to="${escape(edge.to)}" fill="none" stroke="${palette[index % palette.length]}" stroke-width="3" marker-end="url(#arrow${index % palette.length})"><title>${escape(edge.label)}</title></path>`;
     });
-    f.edges.forEach((e, index) => {
-      const a = placements[f.items.findIndex(i => i.id === e.from)], b = placements[f.items.findIndex(i => i.id === e.to)];
-      const x = 750 + index * 21, ay = a.y + a.h * .35, by = b.y + b.h * .65;
-      content += `<path d="M720 ${ay} H${x} V${by} H728" fill="none" stroke="${palette[index % palette.length]}" stroke-width="2" marker-end="url(#arrow${index % palette.length})"/>`;
+    graph.nodes.forEach(({ item, x, y: top, width: w, height: h }, index) => {
+      const color = palette[index % palette.length];
+      content += `<g data-node="${escape(item.id)}">` + box(x, top, w, h, "#ffffff", color);
+      content += pictogram(item.label + " " + item.group, x + 20, top + 16, color);
+      let at = top + 74;
+      content += words(item.label, x + 20, at, w - 40, 22, true); at += lineHeight(item.label, w - 40, 22) + 12;
+      content += words(item.detail, x + 20, at, w - 40, 18);
+      content += words(item.group, x + 20, top + h - lineHeight(item.group, w - 40, 14), w - 40, 14, false, "#596579");
+      content += "</g>";
     });
-    content += words("Connections", left, y + 15, inner, 21, true); y += 48;
-    f.edges.forEach(e => {
-      const from = f.items.find(i => i.id === e.from)!, to = f.items.find(i => i.id === e.to)!;
-      const label = `${from.label} → ${to.label}: ${e.label}`;
-      content += words(label, left, y, inner, 18); y += lineHeight(label, inner) + 12; breaks.push(y);
-    });
+    content += "</g>"; y = graph.bottom; breaks.push(y);
+    content += words("How the parts connect", left, y + 15, inner, 21, true); y += 48;
+    // A compact key keeps exact relationship labels legible, including back edges.
+    for (let n = 0; n < f.edges.length; n += 2) {
+      let rowHeight = 0;
+      f.edges.slice(n, n + 2).forEach((e, col) => {
+        const from = f.items.find(i => i.id === e.from)!, to = f.items.find(i => i.id === e.to)!;
+        const label = `${from.label} → ${to.label}: ${e.label}`, x = left + col * 532;
+        content += `<circle cx="${x + 5}" cy="${y - 6}" r="4" fill="${palette[(n + col) % palette.length]}"/>`;
+        content += words(label, x + 18, y, 490, 16);
+        rowHeight = Math.max(rowHeight, lineHeight(label, 490, 16));
+      });
+      y += rowHeight + 16; breaks.push(y);
+    }
   } else if (f.kind === "image" && f.asset) {
     const scale = Math.min(inner / f.asset.width, 620 / f.asset.height, 1);
     const w = f.asset.width * scale, h = f.asset.height * scale;
@@ -157,6 +270,10 @@ export function renderFigure(f: ResearchFigure): { svg: string; width: number; h
       }); y += h + 24; breaks.push(y);
     }
   }
+  const takeawayHeight = lineHeight(f.takeaway, inner - 44, 21) + 36;
+  content += box(left, y + 8, inner, takeawayHeight, "#fff5e9", "#e99545");
+  content += words(f.takeaway, left + 22, y + 38, inner - 44, 21, true);
+  y += takeawayHeight + 36; breaks.push(y);
   if (f.caveat) { content += words(f.caveat, left, y + 15, inner, 16); y += lineHeight(f.caveat, inner, 16) + 30; }
   content += `<path d="M40 ${y} H1080" stroke="#dce1eb"/>`; y += 26;
   content += words("Supporting sources and excerpts accompany this figure.", left, y, inner, 14);
@@ -183,8 +300,8 @@ export async function figurePngPages(f: ResearchFigure) {
     if (start) { ctx.fillStyle = "#242424"; ctx.font = "bold 36px Arial"; ctx.fillText(f.title + " (continued)", 80, 70, canvas.width - 160); }
     ctx.drawImage(image, 0, start, rendered.width, end - start, 0, header * 2, rendered.width * 2, (end - start) * 2);
     const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error("Could not encode report figure.")), "image/png"));
-    const scale = 600 / rendered.width;
-    pages.push({ data: new Uint8Array(await blob.arrayBuffer()), width: 600, height: Math.round(height * scale) });
+    const scale = Math.min(600 / rendered.width, 660 / height);
+    pages.push({ data: new Uint8Array(await blob.arrayBuffer()), width: Math.round(rendered.width * scale), height: Math.round(height * scale) });
     start = end;
   }
   return pages;

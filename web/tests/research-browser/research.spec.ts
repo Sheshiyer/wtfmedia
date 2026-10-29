@@ -1,5 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
+import { readFile } from "node:fs/promises";
+import JSZip from "jszip";
 import type { ResearchBrief } from "../../lib/research";
+import { figureSource, processFigure } from "../fixtures/research-figure-fixtures";
+import type { ResearchFigure } from "../../lib/research-figures";
 const input = { guestName: "Example Guest", companyName: "Example Company", industry: "Film production", audienceCountry: "IN" as const };
 const saved: ResearchBrief = {
   id: "rb_fixture", title: "Example Guest · Example Company", revision: 2, status: "completed", updatedAt: "2026-10-20T10:00:00Z",
@@ -18,6 +22,101 @@ async function open(page: Page, brief = saved) {
   await page.getByRole("button", { name: /^Example Guest · Example Company/ }).click();
   await expect(page.getByRole("article", { name: "Research brief" })).toBeVisible();
 }
+
+test("editorial figure fits the page, enlarges accessibly and exports an intact PNG", async ({ page }, testInfo) => {
+  const brief: ResearchBrief = { ...saved, sources: [figureSource],
+    sections: [{ key: "snacks", title: "Payment process", content: "An illustrative process.", status: "completed" }],
+    figures: [{ id: "fig_snacks_1", section: "snacks", goal: "Explain the payment request", preferredKind: "flow", status: "ready", attempts: 1, figure: processFigure }],
+  };
+  await open(page, brief);
+  const figure = page.locator("#fig_snacks_1"), image = figure.locator("img").first();
+  await expect(image).toBeVisible();
+  expect(await image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await figure.screenshot({ path: testInfo.outputPath("editorial-process.png") });
+  const enlarge = figure.getByRole("button", { name: "Enlarge visual" });
+  await enlarge.click();
+  const dialog = page.getByRole("dialog", { name: processFigure.title });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Close visual" })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+  await expect(enlarge).toBeFocused();
+  await figure.getByText("Read explanation and sources", { exact: true }).click();
+  await expect(figure.getByRole("link", { name: figureSource.title })).toBeVisible();
+  // Exercise the actual browser canvas export, without fetching evidence or invoking a model.
+  const moduleUrl = `/@fs/${process.cwd()}/lib/research-figures.ts`;
+  const pages = await page.evaluate(async ({ moduleUrl, figure }) => {
+    const { figurePngPages } = await import(/* @vite-ignore */ moduleUrl);
+    const output: { data: Uint8Array; width: number; height: number }[] = await figurePngPages(figure);
+    return output.map(p => ({ width: p.width, height: p.height, magic: Array.from(p.data.slice(0, 8)) }));
+  }, { moduleUrl, figure: processFigure });
+  expect(pages).toHaveLength(1);
+  expect(pages[0].magic).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
+  expect(pages[0].width).toBeLessThanOrEqual(600);
+  expect(pages[0].height).toBeLessThanOrEqual(660);
+  const downloading = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download Word", exact: true }).click();
+  const download = await downloading;
+  const archive = await JSZip.loadAsync(await readFile((await download.path())!));
+  const documentXml = await archive.file("word/document.xml")!.async("string");
+  expect(documentXml).toContain(processFigure.title);
+  expect(Object.keys(archive.files).some(name => /^word\/media\/.+\.png$/u.test(name))).toBe(true);
+  for (const [, width, height] of documentXml.matchAll(/<wp:extent cx="(\d+)" cy="(\d+)"/gu)) {
+    expect(Number(width)).toBeLessThanOrEqual(600 * 9525);
+    expect(Number(height)).toBeLessThanOrEqual(660 * 9525);
+  }
+});
+
+test("editorial figure layouts keep long labels inside cards and preserve complete print diagrams", async ({ page }, testInfo) => {
+  await open(page);
+  const comparison: ResearchFigure = { ...processFigure, kind: "comparison", title: "Compare responsibilities", edges: [], columns: ["Responsibility", "Boundary"],
+    items: processFigure.items.slice(1, 3).map(i => ({ ...i, cells: [i.detail, "Authorization only; settlement is outside this example."] })),
+  };
+  const map: ResearchFigure = { ...processFigure, kind: "ecosystem", title: "A branching relationship map", edges: [
+    { from: "customer", to: "merchant", label: "one path", evidence: [0] },
+    { from: "customer", to: "network", label: "another path", evidence: [0] },
+    { from: "merchant", to: "bank", label: "connects", evidence: [0] },
+    { from: "network", to: "bank", label: "connects", evidence: [0] },
+  ] };
+  const long: ResearchFigure = { ...processFigure, title: "Long labels remain complete", items: Array.from({ length: 10 }, (_, i) => ({
+    ...processFigure.items[0], id: `item_${i}`, label: "A long qualified participant label that must remain readable",
+    detail: "A detailed explanation of the documented relationship, including qualifications and limitations that must remain visible rather than being clipped or silently removed.",
+    group: "Documented participant in the illustrative example",
+  })), edges: Array.from({ length: 10 }, (_, i) => ({ from: `item_${i}`, to: `item_${(i + 1) % 10}`, label: "documented relationship", evidence: [0] })) };
+  const moduleUrl = `/@fs/${process.cwd()}/lib/research-figures.ts`;
+  const result = await page.evaluate(async ({ moduleUrl, figures }) => {
+    const { renderFigure, figurePngPages } = await import(/* @vite-ignore */ moduleUrl);
+    const failures: string[] = [], pages: { width: number; height: number }[] = [];
+    const gallery = document.createElement("div"); gallery.id = "figure-qa-gallery"; gallery.style.cssText = "position:absolute;top:0;left:0;background:white;width:1120px;z-index:100"; document.body.append(gallery);
+    for (const figure of figures) {
+      const rendered = renderFigure(figure);
+      const svg = new DOMParser().parseFromString(rendered.svg, "image/svg+xml").documentElement as unknown as SVGSVGElement;
+      gallery.append(svg);
+      for (const text of svg.querySelectorAll("text")) {
+        const b = text.getBBox();
+        if (b.x < 0 || b.y < 0 || b.x + b.width > rendered.width || b.y + b.height > rendered.height) failures.push(`${figure.title}: page overflow`);
+      }
+      for (const card of svg.querySelectorAll("[data-node], [data-comparison]")) {
+        const rect = card.querySelector("rect")!.getBBox();
+        const texts = Array.from(card.querySelectorAll("text")).map(t => t.getBBox());
+        for (const b of texts) if (b.x < rect.x || b.y < rect.y || b.x + b.width > rect.x + rect.width || b.y + b.height > rect.y + rect.height) failures.push(`${figure.title}: card overflow`);
+        for (let i = 0; i < texts.length; i++) for (let j = i + 1; j < texts.length; j++) {
+          const a = texts[i], b = texts[j];
+          if (a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height) failures.push(`${figure.title}: overlapping text`);
+        }
+      }
+      const exported = await figurePngPages(figure);
+      pages.push(...exported.map((p: { width: number; height: number }) => ({ width: p.width, height: p.height })));
+    }
+    return { failures, pages };
+  }, { moduleUrl, figures: [map, comparison, long] });
+  expect(result.failures).toEqual([]);
+  expect(result.pages.length).toBeGreaterThanOrEqual(3);
+  for (const p of result.pages) { expect(p.width).toBeLessThanOrEqual(600); expect(p.height).toBeLessThanOrEqual(660); }
+  await page.locator("#figure-qa-gallery svg").nth(0).screenshot({ path: testInfo.outputPath("editorial-map.png") });
+  await page.locator("#figure-qa-gallery svg").nth(1).screenshot({ path: testInfo.outputPath("editorial-comparison.png") });
+});
 
 test("reader has Word export and section sources without removed controls", async ({ page }) => {
   await open(page);
