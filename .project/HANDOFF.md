@@ -1,3 +1,27 @@
+## 2026-10-30 — Adaptive research staging release preparation
+
+- Owner authorized pushing all changes and deploying staging. Runtime source
+  060955a is pushed to feature/pavun. The isolated Web build passes lint/types;
+  compiled Clerk identity matches the configured staging issuer. It retains the
+  existing Next dependency version using OpenNext's explicit compatibility flag.
+- Tested linux/amd64 research image is uploaded and pinned to
+  cece1fb866c0d1e8c42f573835d478ce36257bf67b471982413ba1f17b4bf68a.
+  Offline container imports pass; all 21 Python module hashes match runtime
+  source. Full Edge suite passes 614 tests; research host passes seven tests
+  and typecheck. Prior runner/UI/browser evidence is recorded below.
+- Read-only pre-rollout inventory: no pending migrations and zero active staging
+  research briefs. D1 recovery bookmark and original deployment/binding metadata
+  are retained in ignored local release evidence. No database migration is needed.
+- Rollback versions: Edge fec8d229-f32d-452d-af33-59f9fdcb1adb;
+  Web a93067d9-183c-4922-b1ca-ddfec05857ee;
+  Research e99e5db7-59c8-4b9a-9484-f1183f894c6b, prior image
+  92f4eaa147999d4bd37dc83f8aa5798b1f9633b73f89474b55cf1bceb20b4ce1.
+  Preserve Durable Object state and saved reports during rollback.
+- Existing default Cloudflare login was verified against the WTF account;
+  deployment explicitly selects that account. No new credential configuration
+  was needed. No paid research, report regeneration or production mutation.
+  Deployment results follow in a separate receipt.
+
 ## 2026-10-30 — Adaptive evidence collection and complete single-input scope (local)
 
 - Owner confirmed evidence-driven collection instead of fixed source counts, and
