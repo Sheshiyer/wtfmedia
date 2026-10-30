@@ -1,3 +1,17 @@
+## 2026-10-30 — 120-source runner staging preparation
+
+- Owner authorized staging deployment of the rollback/fix. Runtime source 4c2e022
+  is committed locally on feature/pavun. No new Git push was requested.
+- Offline linux/amd64 container import checks pass; the 120-source constant and
+  all 21 Python module hashes match runtime source. Tested image is
+  29f306a8985f3b571a320763f08095d41ba37cd4425f9cc20189d8f5649d25c9.
+- Zero active staging briefs before rollout. Research rollback target is
+  c2dfcdff-297a-4bf1-847a-c7c17bb9032a and prior image
+  cece1fb866c0d1e8c42f573835d478ce36257bf67b471982413ba1f17b4bf68a.
+  No Web/Edge code, schema, credentials or production deployment is needed.
+- Existing failed reports remain terminal; no paid calls or saved report replay
+  is part of this deployment. Source regression evidence is recorded below.
+
 ## 2026-10-30 — Restore 120 sources and protect writing from optional preparation (local)
 
 - Owner superseded the requested budget increase with a temporary return to the
