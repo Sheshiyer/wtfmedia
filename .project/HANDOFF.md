@@ -1,3 +1,22 @@
+## 2026-10-30 — 120-source cap and preparation fix deployed to staging
+
+- Owner-authorized local candidate 68e250c (runtime 4c2e022) is deployed to the
+  staging research Worker as dfe6c6db-0004-4d83-ae27-5c765bf5aa5a at 100% traffic.
+- Direct application readback confirms version 15 and image
+  29f306a8985f3b571a320763f08095d41ba37cd4425f9cc20189d8f5649d25c9,
+  one healthy instance, no errors and no failed instances. The list endpoint
+  temporarily returned version 14; direct application metadata verifies version 15.
+- Runner bindings and runtime settings match the prior version. Research page
+  and Edge health return 200; unsigned research API and runner health return 401.
+  Host tests pass 7/7 and typecheck passes, alongside the 215 runner tests below.
+- Web/Edge, production, credentials and databases were not deployed or mutated.
+  Existing saved reports were not replayed. No paid model calls were made.
+  New runs use the restored 120-source ceiling, paused adaptive expansion and
+  retained-evidence preparation fallback, with the existing allowance unchanged.
+- Source/image/receipt commits remain local on feature/pavun; this task requested
+  deployment, not another Git push. Test at
+  https://beta-staging.wtfhq.in/beta/research . The failed saved run stays terminal.
+
 ## 2026-10-30 — 120-source runner staging preparation
 
 - Owner authorized staging deployment of the rollback/fix. Runtime source 4c2e022
