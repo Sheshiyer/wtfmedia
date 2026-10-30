@@ -1,3 +1,31 @@
+## 2026-10-30 — Adaptive research deployed to staging
+
+- Owner-authorized candidate f7ccf44 is pushed to feature/pavun; runtime source
+  is 060955a (the candidate adds the tested image pin and release documentation).
+- VERIFIED-DEPLOYED: all three staging versions receive 100% traffic:
+  Edge c6be4029-e560-4233-8a2b-fea80ec413ca;
+  Research c2dfcdff-297a-4bf1-847a-c7c17bb9032a;
+  Web 3d531e1c-3990-415d-9690-af1016089ab0.
+  Container application readback converged to version 14, ready, one instance,
+  and image cece1fb866c0d1e8c42f573835d478ce36257bf67b471982413ba1f17b4bf68a.
+- Binding metadata and script runtime settings match the pre-rollout snapshot
+  for all three Workers. Web binds only staging Edge; Edge retains staging D1
+  plus the Alpha chat bridge. Existing secret binding names were preserved.
+- LIVE-VERIFIED: research, Production, analytics, social analytics and sign-in
+  return 200. Unsigned principal/research APIs and runner health return 401.
+  The live research page asset matches the isolated build byte-for-byte; compiled
+  and live Clerk identity match staging. Edge health reports staging and
+  alpha_public_api. Python's default HTTP client received the existing Cloudflare
+  1010 browser-integrity response; the checks passed using curl without any
+  firewall/security configuration change.
+- No production deployment, shared database mutation, paid provider invocation
+  or saved-report regeneration. New submissions can exercise combined inputs,
+  all four sections from one subject, and evidence-driven follow-up collection.
+  Existing saved reports stay intact. This verifies deployment and public access
+  controls, not a new live report's research accuracy or the full persona matrix.
+- Test at https://beta-staging.wtfhq.in/beta/research . Prior versions and image
+  for rollback are in the preparation receipt below; preserve durable data.
+
 ## 2026-10-30 — Adaptive research staging release preparation
 
 - Owner authorized pushing all changes and deploying staging. Runtime source
