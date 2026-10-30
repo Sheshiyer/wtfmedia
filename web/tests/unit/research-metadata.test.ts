@@ -266,3 +266,21 @@ it("shows a section's visual omission reason without hiding completed prose", ()
   expect(html).toContain("a supporting quote did not match the retained evidence");
   expect(html).toContain("A disputed claim");
 });
+
+it("accepts multiple separate names without interpreting company-name commas", () => {
+  const input = parseResearchInput({guestName:" Ada Guest \nada guest\nBea Guest",companyName:"Example, Inc.\nOther Co",industry:"Payments\nHospitality",audienceCountry:"IN"});
+  expect(input.guestName).toBe("Ada Guest\nBea Guest");
+  expect(input.companyName).toBe("Example, Inc.\nOther Co");
+  expect(researchTitle(input)).toBe("Ada Guest, Bea Guest · Example, Inc., Other Co · Payments, Hospitality");
+  expect(() => parseResearchInput({...input, guestName: "A\nB"})).toThrow();
+  expect(() => parseResearchInput({...input, guestName: Array.from({length: 6}, (_, i) => `Guest ${i}`).join("\n")})).toThrow();
+});
+
+it("labels inferred company leaders accurately and shows the discovery stop reason", async () => {
+  const { researchSectionTitle } = await import("@/lib/research");
+  const notice = "Evidence coverage: Further searches stopped at the research allowance. Some questions remain unverified.";
+  const html = renderToStaticMarkup(createElement(ResearchContent, {brief: {...legacy, warnings: [notice]}}));
+  expect(html).toContain(notice);
+  expect(researchSectionTitle("snacks", {guestName:"", companyName:"Example", industry:"", audienceCountry:"IN"})).toBe("People and leadership");
+  expect(researchSectionTitle("appetizers", {guestName:"Example Person", companyName:"", industry:"", audienceCountry:"IN"})).toBe("Companies and industries");
+});

@@ -7,8 +7,10 @@ New jobs carry `schemaVersion: 2` and `researchInput` with `guestName`,
 context across global research. At least one of the three subject fields must be
 populated (2–120 characters); absent fields stay empty. `skipClarification`
 persists an optional skip without authorizing a guessed person or company.
-Inapplicable section slots use `skipped` with empty content and are omitted from
-the reader/export; at least one section must complete for a completed report.
+New full runs cover all four sections from any single supplied field, researching
+related people, companies and industries from documented connections. Inputs remain
+unchanged; researched leaders are not presented as confirmed guests. Existing saved
+skipped sections remain readable and are not automatically regenerated.
 India remains audience context across global research. It is not a separate report section or an
 India-only search filter. Title-only historical jobs remain supported.
 
@@ -33,11 +35,17 @@ that channel as budget-limited; it did not raise the limit or claim coverage.
 The per-call maximum header is a requested provider limit, not a guarantee of
 upstream billing. Review this discrepancy before expanding live acceptance.
 
-Source retention uses a 120-source current-evidence ceiling, with a two-source
-diversity floor per available channel and remaining slots ranked by report relevance
-and extract quality. Twenty is a provider page size, not a quota. Two guest topics
-and/or four industry topics are searched before the six channel probes; recovery
-checkpoints each topic. The report follows interview-dossier needs rather than hit counts.
+Source counts adapt to report evidence needs. After initial discovery, a bounded,
+checkpointed assessment identifies uncovered topics and performs targeted follow-up
+searches. Coverage claims must reference retained exact quotes. No channel quota or
+120-source cutoff remains. Twenty is a provider batch size; several topic-specific
+queries can collect more results from that channel. New searches stop when topic
+coverage is supported, nothing useful is added, or provider, time, spending or storage
+bounds intervene. The saved report shows a code-owned coverage notice for that stop.
+Retention is limited by a 1 MB serialized evidence allowance within the 1.8 MB document
+limit, prioritizing relevant subjects while preserving saved citations. Follow-up
+searching shares the existing preparation-phase call limit, reserves the preparer's
+calls and funds, protects writing/visual allowances, and has a three-minute window.
 Up to twelve separate Alpha episode references can accompany the historical appendix.
 The edge obtains this bounded public synthesis through the existing published Alpha
 chat contract; private notes and owner identity never cross that bridge. The runner
@@ -45,7 +53,7 @@ has no Alpha corpus credentials or raw transcript access. Historical synthesis i
 research planning and proposed follow-ups, never current-fact validation or verified
 verbatim/speaker claims. Missing context is disclosed and narrowed identity scope drops it.
 Sources cited in completed sections, including numeric comparisons, are never
-evicted; legacy reports with more than 120 protected sources remain readable.
+evicted; oversized legacy protected evidence remains readable.
 Larger evidence sets are read in bounded synthesis batches with original source
 IDs. Summaries are cached in private job state by exact evidence and public scope,
 so unchanged batches are reused across sections and retries; changed evidence or
@@ -256,7 +264,7 @@ messages contain only `user`/`assistant` roles. Bounds: title 400 characters,
 notes 12,000; four sections at 24,000 content characters each; sources with
 12,000 excerpt characters each and no fixed source-count cap; question 2,000; last 12 messages at 12,000 each.
 Contracts accept older reports without a source-count limit; new research retains
-the balanced 120-source pool described above. Research synthesis considers every
+evidence within the serialized storage allowance described above. Research synthesis considers every
 retained eligible source in bounded, cached batches; follow-up
 and numeric checks select relevance-ranked verbatim slices. Notes, previous sections
 and recent messages remain bounded. Full accepted evidence stays

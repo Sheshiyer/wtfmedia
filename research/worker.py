@@ -8,6 +8,7 @@ import time
 from uuid import uuid4
 
 from .remote_store import open_store
+from .discovery import expand_evidence
 from .contracts import TIERS, utf16_slice, section_spec, validate_section_subject
 from .evidence import (NUMBER, merge_sources, number_comparison, select_context,
                        supports, validate_report)
@@ -15,6 +16,7 @@ from .providers import Calls, ProviderError, configured, model_info
 from .store import BudgetExceeded, Stopped
 from .diagnostics import emit, failure
 from .scope import plan_scope, validate_resolution, contains_excluded_subject
+from .subjects import subjects, names as subject_names
 from .source_channels import CHANNELS, collect_channel, initial_coverage, platform_for_url, public_subject
 from .interview import dossier_queries, historical_sources, historical_appendix
 from .scope import filter_sources
@@ -213,7 +215,7 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
             return
         excluded = []
         if 'researchInput' in state:
-            excluded = [body['researchInput'][key] for key in state['resolution']['ambiguousFields']]
+            excluded = [name for key in state['resolution']['ambiguousFields'] for name in subject_names(body['researchInput'][key])]
             body = {**body, 'researchInput': state['researchInput'], 'clarification': None}
             body['title'] = public_subject(body)
         scope = state.get('searchScope', {})
@@ -258,7 +260,7 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
             try:
                 found = filter_sources(await asyncio.to_thread(calls.search, queries[index]), scope)
                 protected = {c for s in result['sections'] for c in re.findall(r'\b((?:src_|alpha_)[A-Za-z0-9_-]+)\b', s.get('content', ''))}
-                result['sources'] = merge_sources(result['sources'], found, protected_ids=protected, query=queries[index])
+                result['sources'] = merge_sources(result['sources'], found, protected_ids=protected, query=queries[index], subjects=subjects(body))
                 if not found:
                     result['warnings'].append(f'Dossier topic {index + 1}: no matching evidence returned; report must identify the gap.')
             except (ProviderError, ValueError, BudgetExceeded) as error:
@@ -283,7 +285,7 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
             found, coverage = await asyncio.to_thread(collect_channel, channel, body, calls)
             protected = {citation for section in result['sections'] if section.get('status') == 'completed'
                          for citation in re.findall(r'\b((?:src_|alpha_)[A-Za-z0-9_-]+)\b', section.get('content', ''))}
-            result['sources'] = merge_sources(result['sources'], found, protected_ids=protected, query=public_subject(body))
+            result['sources'] = merge_sources(result['sources'], found, protected_ids=protected, query=public_subject(body), subjects=subjects(body))
             result['coverage'][index] = coverage
             if calls.discovery_error is not None:
                 discovery_error(calls.discovery_error)
@@ -314,6 +316,8 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
         visual_reservation = (len(pending) * 2 + 1 if body.get('visualPolicyVersion') == 2 else 1) * MODEL_RESERVE if pending and body.get('budgetPolicyVersion') == 1 else 0
         core_reservation = sum((1 if key in state.get('coreDrafts', {}) else 2) * MODEL_RESERVE for key in pending)
         calls.hold = core_reservation + visual_reservation
+        if pending and body.get('budgetPolicyVersion') == 1:
+            await expand_evidence(body, result, state, calls, save)
         if body.get('visualPolicyVersion') == 2:
             calls.hold = core_reservation + max(0, visual_reservation - MODEL_RESERVE)
             await plan_figures(calls, body, result, state, save)

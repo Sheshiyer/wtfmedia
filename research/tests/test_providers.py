@@ -210,6 +210,24 @@ class ProviderTests(unittest.TestCase):
         paid = self.net.requests[-1]
         self.assertEqual(paid[3],{'urls':[source()['url']],'text':{'maxCharacters':12000}})
         self.assertEqual(paid[2]['X-Treg-Route-Max-Cost'],'0.001')
+    def test_financial_extraction_requests_verbatim_highlights_with_same_cost_ceiling(self):
+        original = self.net.request
+        def response(method, url, headers, body=None):
+            result = original(method, url, headers, body)
+            if url.endswith(EXTRACT) and '/call/' in url:
+                return {'results': [{'url': body['urls'][0], 'title': 'Annual report', 'highlights': ['FY2025 revenue was 123 million.', 'Net profit was 12 million.']}]}, result[1]
+            return result
+        self.net.request = response
+        with patch('socket.getaddrinfo', return_value=[(socket.AF_INET, socket.SOCK_STREAM, 6, '', ('93.184.216.34', 443))]):
+            result = self.calls.extract(source(), query='annual financial revenue profit fiscal year')
+        self.assertIn('FY2025 revenue was 123 million.', result[0]['excerpt'])
+        self.assertEqual(result[0]['id'], source()['id'])
+        request = self.net.requests[-1]
+        self.assertIn('highlights', request[3])
+        self.assertNotIn('text', request[3])
+        self.assertNotIn('summary', request[3])
+        self.assertEqual(request[2]['X-Treg-Route-Max-Cost'], '0.001')
+
     def test_private_dns_extraction_blocked(self):
         with patch('socket.getaddrinfo',return_value=[(socket.AF_INET,socket.SOCK_STREAM,6,'',('127.0.0.1',443))]):
             with self.assertRaises(ProviderError): self.calls.extract(source())

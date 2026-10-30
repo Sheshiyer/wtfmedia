@@ -121,12 +121,12 @@ def contains_excluded_subject(query, scope):
 
 def scoped_query(query, scope):
     if not scope:
-        return query
+        return query[:1200]
     pieces = [scope.get('focus', '')]
     if scope.get('dateFrom') or scope.get('dateTo'):
         pieces.append(f"Publication dates {scope.get('dateFrom') or 'any start'} through {scope.get('dateTo') or 'today'} only")
     suffix = '. ' + '; '.join(p for p in pieces if p)
-    return query[:1200-len(suffix)] + suffix if len(suffix) > 2 else query
+    return query[:1200-len(suffix)] + suffix if len(suffix) > 2 else query[:1200]
 
 
 def publication_date(value):

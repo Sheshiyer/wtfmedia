@@ -308,3 +308,68 @@ test("Word download is a real docx and tables stay within the viewport", async (
   expect(await sidebar.evaluate(el => getComputedStyle(el).position)).toBe(page.viewportSize()!.width >= 1024 ? "sticky" : "static");
   await page.screenshot({ path: `/tmp/research-updated-${page.viewportSize()!.width}.png`, fullPage: true });
 });
+
+test("multiple subject rows submit one combined brief and retain additional info beneath its title", async ({ page }) => {
+  await open(page);
+  const form = page.getByRole("form", { name: "New research" });
+  for (const [label, add, first, second] of [["Guest name", "guest", "Ada Guest", "Bea Guest"], ["Company name", "company", "Example, Inc.", "Other Co"], ["Industry", "industry", "Payments", "Hospitality"]]) {
+    await form.getByLabel(label, { exact: true }).fill(first);
+    await form.getByRole("button", { name: `Add ${add}`, exact: true }).click();
+    await form.getByLabel(`${label} 2`, { exact: true }).fill(second);
+  }
+  await form.getByRole("button", { name: "Remove industry 2", exact: true }).click();
+  await form.getByRole("button", { name: "Add industry", exact: true }).click();
+  await form.getByLabel("Industry 2", { exact: true }).fill("Hospitality");
+  await form.locator("summary").click();
+  await form.getByLabel("Additional info", { exact: true }).fill("Compare operations for an Indian audience.");
+  let sent: Record<string, unknown> | undefined;
+  let combined = { ...saved, id: "rb_combined", title: "Combined research", status: "draft" as const };
+  await page.route("**/beta/api/research/rb_combined", route => route.fulfill({json: {brief: combined}}));
+  await page.route("**/beta/api/research", async route => {
+    sent = route.request().postDataJSON();
+    combined = { ...combined, ...sent };
+    await route.fulfill({ json: { brief: combined } });
+  });
+  await form.getByRole("button", { name: "Start new research", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Combined research", exact: true })).toBeVisible();
+  expect(sent).toMatchObject({schemaVersion: 2, researchInput: {guestName: "Ada Guest\nBea Guest", companyName: "Example, Inc.\nOther Co", industry: "Payments\nHospitality", audienceCountry: "IN"}});
+  const header = page.getByRole("article", { name: "Research brief" }).locator("header");
+  await expect(header).toContainText("Additional info: Compare operations for an Indian audience.");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test("saved report and Word export omit editorial checklist and include approved additional info", async ({ page }) => {
+  const brief: ResearchBrief = { ...saved, notes: "Focus on payment operations.", notesApproved: true,
+    sections: [{key: "main", title: "Industry", status: "completed", content: "# Industry\n\nA finding.\n\n## Unresolved research gaps\n\nA metric remains unverified.\n\n## Editorial verification checklist\n\n- [ ] CHECKLIST_TASK_REMOVE\n\n## Conclusion\n\nKeep this conclusion."}] };
+  await open(page, brief);
+  await expect(page.getByText("Additional info: Focus on payment operations.", {exact: true})).toBeVisible();
+  await expect(page.getByText("CHECKLIST_TASK_REMOVE")).toHaveCount(0);
+  await expect(page.getByText("A metric remains unverified.", {exact: true})).toBeVisible();
+  const downloading = page.waitForEvent("download");
+  await page.getByRole("button", {name: "Download Word", exact: true}).click();
+  const download = await downloading;
+  const zip = await JSZip.loadAsync(await readFile((await download.path())!));
+  const xml = await zip.file("word/document.xml")!.async("string");
+  expect(xml).toContain("Focus on payment operations.");
+  expect(xml).toContain("A metric remains unverified.");
+  expect(xml).not.toContain("CHECKLIST_TASK_REMOVE");
+  expect(xml).not.toContain("Editorial verification checklist");
+});
+
+test("company-only reports display all four sections and explain a discovery stop", async ({page}) => {
+  const notice = "Evidence coverage: Further searches stopped at the research allowance. Some questions remain unverified.";
+  const brief: ResearchBrief = {...saved, researchInput: {guestName: "", companyName: "Example Company", industry: "", audienceCountry: "IN"}, warnings: [notice],
+    sections: (["snacks", "appetizers", "main", "desserts"] as const).map(key => ({key, title: key, status: "completed", content: `## ${key} findings\n\nSupported research [src_one].`}))};
+  await open(page, brief);
+  for (const title of ["People and leadership", "Company and industry", "Industry positioning and opportunities", "Takeaways and interview preparation"])
+    await expect(page.getByRole("heading", {name: title, exact: true})).toBeVisible();
+  await expect(page.getByText(notice, {exact: true})).toBeVisible();
+  const downloading = page.waitForEvent("download");
+  await page.getByRole("button", {name: "Download Word", exact: true}).click();
+  const zip = await JSZip.loadAsync(await readFile((await (await downloading).path())!));
+  const xml = await zip.file("word/document.xml")!.async("string");
+  expect(xml).toContain("People and leadership");
+  expect(xml).toContain(notice);
+  expect(xml).not.toContain("Guest profile");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

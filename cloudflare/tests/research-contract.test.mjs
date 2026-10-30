@@ -143,3 +143,13 @@ test('budget limit metadata survives projection and rejects unbounded or private
  }
  assert.equal(parse({...base,failure:{...failure,code:'budget_exhausted'}}).failure.limit,undefined);
 });
+
+test('multiple subjects preserve legacy strings, normalize entries, and enforce per-entry and total bounds',()=>{
+ const input=parseResearchInput({guestName:' Ada Guest \nada guest\nBea Guest',companyName:'Example, Inc.\nOther Co',industry:'Payments',audienceCountry:'IN'});
+ assert.equal(input.guestName,'Ada Guest\nBea Guest');
+ assert.equal(input.companyName,'Example, Inc.\nOther Co');
+ assert.equal(researchTitle(input),'Ada Guest, Bea Guest — Example, Inc., Other Co — Payments');
+ for(const invalid of [null,3,'x','x'.repeat(121),Array.from({length:6},(_,i)=>`Guest ${i}`).join('\n')])
+   assert.throws(()=>parseResearchInput({...input,guestName:invalid}));
+ assert.throws(()=>parseResearchInput({...input,guestName:Array.from({length:5},(_,i)=>`Guest ${i}`).join('\n'),companyName:Array.from({length:5},(_,i)=>`Company ${i}`).join('\n')}));
+});

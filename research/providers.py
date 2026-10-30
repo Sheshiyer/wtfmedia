@@ -257,6 +257,7 @@ class Calls:
         self.network = network or Network()
         self.catalog_checked = False
         self.extract_checked = False
+        self.extract_highlights_supported = False
         self.lock = threading.Lock()
         self.stage_calls = 0
         self.stage_error = None
@@ -420,7 +421,7 @@ class Calls:
             self.store.settle(self.job_id, self.lease, key, cost, receipt, sources)
             return sources
 
-    def extract(self, source):
+    def extract(self, source, query=""):
         with self.lock:
             self.check()
             url = safe_url(source['url'])
@@ -433,8 +434,11 @@ class Calls:
             if not self.extract_checked:
                 catalog, _ = self.network.request('GET', 'https://treg.to/catalog/endpoints/' + EXTRACT, {})
                 validate_catalog(catalog, EXTRACT)
+                self.extract_highlights_supported = catalog['endpoint']['input']['body'].get('highlights', {}).get('type') == 'object'
                 self.extract_checked = True
-            body = {'urls': [url], 'text': {'maxCharacters': 12000}}
+            highlights = bool(query and self.extract_highlights_supported)
+            # One content type only, preserving the existing per-page cost ceiling.
+            body = {'urls': [url], **({'highlights': {'query': query[:1000], 'maxCharacters': 12000}} if highlights else {'text': {'maxCharacters': 12000}})}
             key = 'extract_' + digest(encode(body))
             cached = self.admit(key, 'tool', 1000)
             if cached is not None:
@@ -451,9 +455,11 @@ class Calls:
                 raise ProviderError('invalid extraction response')
             normalized = []
             for row in payload['results'][:1]:
-                if safe_url(row.get('url', '')) != url or not isinstance(row.get('text'), str):
+                passages = row.get('highlights')
+                text = '\n\n'.join(passages) if highlights and isinstance(passages, list) and all(isinstance(p, str) for p in passages) else row.get('text') if not highlights else None
+                if safe_url(row.get('url', '')) != url or not isinstance(text, str):
                     continue
-                normalized = normalize_results({'results': [{**row, 'snippet': row['text'],
+                normalized = normalize_results({'results': [{**row, 'snippet': text,
                                                               'date': row.get('publishedDate')}]})
                 for item in normalized:
                     item['kind'] = 'page_extract'

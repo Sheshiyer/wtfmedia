@@ -6,7 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { prepareResearchSection, researchDisplayContent, splitResearchVisuals } from "@/lib/research-report";
 import { renderResearchVisual, researchVisualDataUrl, type ResearchVisual } from "@/lib/research-visuals";
-import { RESEARCH_SECTIONS, replaceResearchCitations, researchFailureSummary, researchSourceLabel, researchSourcePlatform, safeResearchUrl, type ResearchBrief, type ResearchSource } from "@/lib/research";
+import { RESEARCH_SECTIONS, researchSectionTitle, replaceResearchCitations, researchFailureSummary, researchSourceLabel, researchSourcePlatform, safeResearchUrl, type ResearchBrief, type ResearchSource } from "@/lib/research";
 import { ResearchCoverageSummary, ResearchSourceBadge, ResearchSourceExcerpt } from "./ResearchSourceBadge";
 
 function ResearchFigure({ visual, sources, sourcePrefix }: { visual: ResearchVisual; sources: ResearchSource[]; sourcePrefix: string }) {
@@ -93,7 +93,7 @@ export function ResearchContent({ brief, sourcePrefix = `research-version-${brie
       <p className="text-sm">The findings and sources below are retained from the previous scope. Research again to update them. Follow-up is paused until fresh research is available.</p>
     </section>}
     <ResearchCoverageSummary coverage={brief.coverage} sources={brief.sources} />
-    {(brief.warnings ?? []).filter(warning => warning.startsWith("Visual ")).map(warning => <p key={warning} role="status" className="border border-foreground/20 bg-surface-subtle p-3 text-sm">{warning}</p>)}
+    {(brief.warnings ?? []).filter(warning => warning.startsWith("Visual ") || warning.startsWith("Evidence coverage: ")).map(warning => <p key={warning} role="status" className="border border-foreground/20 bg-surface-subtle p-3 text-sm">{warning}</p>)}
     {RESEARCH_SECTIONS.filter(({ key }) => brief.sections.some(s => s.key === key && s.status !== "skipped" && s.content.trim())).map(({ key, title, description }) => {
       const section = brief.sections.find(s => s.key === key);
       const { markdown: content, citedSources, derivedVisual } = prepareResearchSection(section?.content ?? "", brief.sources, { evidenceMap: false, sourceHref: source => `#${sourcePrefix}${encodeURIComponent(source.id)}` });
@@ -101,9 +101,9 @@ export function ResearchContent({ brief, sourcePrefix = `research-version-${brie
       const platforms = [...new Set(citedSources.map(researchSourcePlatform))];
       const visualNotes = (brief.warnings ?? []).filter(warning => warning.startsWith(`${title}: `))
         .map(warning => warning.slice(title.length + 2))
-        .filter(warning => warning.startsWith("Visual ") || warning.startsWith("Some diagrams"));
+        .filter(warning => warning.startsWith("Visual ") || warning.startsWith("Evidence coverage: ") || warning.startsWith("Some diagrams"));
       return <section key={key} className="min-w-0 space-y-3 border-2 border-foreground bg-surface-raised p-4 sm:p-5">
-        <div><p className="font-label text-xs uppercase text-secondary">{description}</p><h3 className="font-heading text-2xl font-bold">{title}</h3><p className="text-sm">{section?.status ?? "Not started"}</p></div>
+        <div><p className="font-label text-xs uppercase text-secondary">{description}</p><h3 className="font-heading text-2xl font-bold">{researchSectionTitle(key, brief.researchInput)}</h3><p className="text-sm">{section?.status ?? "Not started"}</p></div>
         {section?.content ? placed.map((block, index) => <div key={index} className="min-w-0">
           <ResearchMarkdown content={block.markdown} sources={[]} visualSources={brief.sources} sourcePrefix={sourcePrefix} />
           {block.figures.map(slot => <ResearchReportFigure key={slot.id} running={["queued", "running"].includes(brief.status)} slot={slot} sources={brief.sources} sourcePrefix={sourcePrefix} />)}

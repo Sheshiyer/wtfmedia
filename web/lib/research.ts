@@ -1,3 +1,4 @@
+import { normalizeResearchInput, researchInputLabel } from "../../shared/research-input";
 import { validateFigureSlots, type FigureSlot } from "../../shared/research-figures";
 import { researchVisualText } from "./research-report";
 
@@ -54,21 +55,18 @@ export const RESEARCH_SECTIONS: ReadonlyArray<{ key: ResearchSectionKey; title: 
   { key: "main", title: "Industry positioning and opportunities", description: "Main course" },
   { key: "desserts", title: "Takeaways and interview preparation", description: "Desserts" },
 ];
+/** Label associated people accurately when the user did not name an interview guest. */
+export function researchSectionTitle(key: ResearchSectionKey, input?: ResearchInputV2): string {
+  if (input && key === "snacks" && !input.guestName.trim()) return "People and leadership";
+  if (input && key === "appetizers" && !input.companyName.trim() && !input.industry.trim()) return "Companies and industries";
+  return RESEARCH_SECTIONS.find(section => section.key === key)!.title;
+}
 export const RESEARCH_NOTES_LIMIT = 12_000;
 export function parseResearchInput(value: unknown): ResearchInputV2 {
-  const input = value as Partial<ResearchInputV2> | null;
-  const fields = [input?.guestName, input?.companyName, input?.industry];
-  if (!input || input.audienceCountry !== "IN" || fields.some(v => v !== undefined && typeof v !== "string")) {
-    throw new Error("Enter a guest, company or industry, each between 2 and 120 characters.");
-  }
-  const normalized = fields.map(v => v?.trim() ?? "");
-  if (!normalized.some(Boolean) || normalized.some(v => v.length > 120 || v.length > 0 && v.length < 2)) {
-    throw new Error("Enter a guest, company or industry, each between 2 and 120 characters.");
-  }
-  return { guestName: normalized[0], companyName: normalized[1], industry: normalized[2], audienceCountry: "IN" };
+  try { return normalizeResearchInput(value); } catch { throw new Error("Enter up to 5 names per category and 10 total, each between 2 and 120 characters."); }
 }
 export function researchTitle(input: ResearchInputV2): string {
-  return [input.guestName, input.companyName, input.industry].filter(Boolean).join(" · ").slice(0, 200).replace(/[\uD800-\uDBFF]$/u, "");
+  return researchInputLabel(input, " · ").slice(0, 200).replace(/[\uD800-\uDBFF]$/u, "").trim();
 }
 export function researchIsRunning(status: ResearchStatus) { return status === "queued" || status === "running"; }
 export function researchDraft(brief: ResearchBrief): ResearchDraft {
@@ -158,7 +156,7 @@ export async function readResearchImport(file: { name: string; size: number; tex
 export function researchMarkdown(brief: ResearchBrief): string {
   const quoteLabel = (label: string) => label.replace(/[[\]\\]/gu, "\\$&");
   return [
-    `# ${brief.title}`, `Status: ${brief.status} · Revision ${brief.revision}`, `Updated: ${brief.updatedAt}`,
+    `# ${brief.title}`, ...(brief.schemaVersion === 2 && brief.notesApproved === true && brief.notes.trim() ? [`Additional info: ${brief.notes.replace(/[\\`*_{}\[\]()<>#!|~]/gu, "\\$&")}`] : []), `Status: ${brief.status} · Revision ${brief.revision}`, `Updated: ${brief.updatedAt}`,
     ...(brief.needsResearch ? ["Previous report no longer matches the edited inputs. Retained findings and sources belong to the previous scope; run research again before using them for the new inputs."] : []),
     ...(brief.researchInput ? [`Guest: ${brief.researchInput.guestName}\n\nCompany: ${brief.researchInput.companyName}\n\nIndustry: ${brief.researchInput.industry}\n\nAudience context: India`] : []),
     ...brief.sections.map(section => `## ${section.title}\n\nStatus: ${section.status}\n\n${replaceResearchCitations(researchVisualText(section.content, brief.sources), brief.sources, source => {

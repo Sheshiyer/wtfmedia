@@ -53,7 +53,7 @@ class RecordingCalls:
         return [dict(id='src_1', title='Example founder podcast interview',url='https://example.com/podcast',
                      excerpt='The founder established Example Industries and discussed its public work in an interview.',
                      kind='search_snippet',retrievedAt='2026-10-13')]
-    def extract(self, source):
+    def extract(self, source, query=""):
         self.extracts.append(source['url'])
         return [{**source,'kind':'page_extract','excerpt':source['excerpt'] + ' Retained raw public page text.'}]
 
@@ -349,7 +349,7 @@ class GPTRCompatibilityTests(unittest.TestCase):
                     else:
                         self.assertEqual(after, before)
                 self.assertIsNone(calls.stage_error)
-                self.assertLessEqual(len(calls.extracts), 8)
+                self.assertLessEqual(len(calls.extracts), 10)
                 self.assertLessEqual(len(calls.searches), 4)
                 self.assertTrue(engine.warnings)
                 self.assertNotIn('PRIVATE_ERROR', ' '.join(engine.warnings))

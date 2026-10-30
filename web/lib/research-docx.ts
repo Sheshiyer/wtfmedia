@@ -1,7 +1,7 @@
 import { validateFigureSlots, figureCoverage, figurePngPages, placeFigures, FIGURE_REASONS } from "./research-figures";
 import type { Definition, Nodes } from "mdast";
 import type { INumberingOptions, IParagraphOptions, IRunOptions, ParagraphChild } from "docx";
-import { RESEARCH_CHANNELS, RESEARCH_CHANNEL_LABELS, RESEARCH_EVIDENCE_LABELS, RESEARCH_SECTIONS, researchSourceLabel, researchSourcePlatform, safeResearchUrl, type ResearchBrief, type ResearchChannel, type ResearchCoverage, type ResearchSource } from "./research";
+import { RESEARCH_CHANNELS, RESEARCH_CHANNEL_LABELS, RESEARCH_EVIDENCE_LABELS, RESEARCH_SECTIONS, researchSectionTitle, researchSourceLabel, researchSourcePlatform, safeResearchUrl, type ResearchBrief, type ResearchChannel, type ResearchCoverage, type ResearchSource } from "./research";
 import { parseResearchMarkdown, prepareResearchSection } from "./research-report";
 import { parseResearchVisual, researchVisualPng, type ResearchVisual } from "./research-visuals";
 
@@ -123,11 +123,14 @@ export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
     return blocks(root.children);
   }
   const children: Array<InstanceType<typeof Paragraph> | InstanceType<typeof Table>> = [
-    heading(brief.title, HeadingLevel.TITLE), paragraph(`Status: ${brief.status}`),
+    heading(brief.title, HeadingLevel.TITLE),
+    ...(brief.schemaVersion === 2 && brief.notesApproved === true && brief.notes.trim() ? [paragraph(`Additional info: ${brief.notes}`)] : []),
+    paragraph(`Status: ${brief.status}`),
     paragraph(coverage.legacy ? "Visual upgrade available for this saved report." : `${coverage.ready} of ${coverage.total} visuals ready`),
     ...(brief.status !== "completed" ? [paragraph("Report incomplete — findings and source coverage may be partial.")] : []),
     ...(brief.needsResearch ? [paragraph("Previous report no longer matches the edited inputs. The findings and sources below are retained from the previous scope.")] : []),
-    paragraph("Audience context: India · Worldwide research"), heading("Source coverage", HeadingLevel.HEADING_1),
+    paragraph("Audience context: India · Worldwide research"),
+    ...brief.warnings.filter(warning => warning.startsWith("Evidence coverage: ")).map(warning => paragraph(warning)), heading("Source coverage", HeadingLevel.HEADING_1),
   ];
   const coverageLabels: Record<ResearchCoverage["status"], string> = { pending: "Pending", searching: "Searching", found: "Found", no_results: "No results", unavailable: "Unavailable", failed: "Search failed", budget_limited: "Budget limited" };
   for (const channel of RESEARCH_CHANNELS) {
@@ -135,11 +138,11 @@ export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
     const status = receipt ? receipt.status === "found" && !receipt.sourceCount ? "Results found; none retained" : coverageLabels[receipt.status] : "Not recorded";
     children.push(new Paragraph({ children: [icon(channel), new TextRun(` ${RESEARCH_CHANNEL_LABELS[channel]} · ${status}${receipt ? ` · ${receipt.sourceCount} retained ${receipt.sourceCount === 1 ? "source" : "sources"} · ${receipt.method === "web_search" ? "Web search" : "Dedicated tool"}` : ""}`)] }));
   }
-  for (const { key, title } of RESEARCH_SECTIONS) {
+  for (const { key } of RESEARCH_SECTIONS) {
     const section = brief.sections.find(item => item.key === key);
     if (!section || section.status === "skipped" || !section.content.trim()) continue;
     const prepared = preparedSections.get(section.key)!;
-    children.push(heading(title, HeadingLevel.HEADING_1), paragraph(`Status: ${section.status}`));
+    children.push(heading(researchSectionTitle(key, brief.researchInput), HeadingLevel.HEADING_1), paragraph(`Status: ${section.status}`));
     for (const block of placeFigures(prepared.markdown, slots.filter(s => s.section === key))) {
       children.push(...markdownBlocks(block.markdown));
       for (const slot of block.figures) {

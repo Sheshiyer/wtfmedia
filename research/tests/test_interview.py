@@ -40,11 +40,11 @@ class InterviewTests(unittest.TestCase):
         body = dict(title='ignored', researchInput=dict(guestName='', companyName='', industry='Hotels'),
                     notes='PRIVATE NOTE', notesApproved=False)
         queries = dossier_queries(body)
-        self.assertEqual(len(queries), 4)
+        self.assertEqual(len(queries), 6)
         self.assertTrue(any('unit economics' in q for q in queries))
         self.assertTrue(all('Hotels' in q and 'PRIVATE' not in q and 'biography' not in q for q in queries))
         body['researchInput'] = dict(guestName='Guest', companyName='', industry='')
-        self.assertEqual(len(dossier_queries(body)), 2)
+        self.assertEqual(len(dossier_queries(body)), 6)
 
 
 class InterviewWorkflowTests(StoreFixture):

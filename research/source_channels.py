@@ -27,16 +27,20 @@ def platform_for_url(url):
                  if any(host == d or host.endswith('.' + d) for d in domains)), 'web')
 
 
+from .subjects import display, names, subjects
+
+
 def public_subject(body):
     fields = body.get('researchInput')
     if fields:
-        return '; '.join(label + ': ' + fields[name] for name, label in
+        return '; '.join(label + ': ' + display(fields[name]) for name, label in
                          [('guestName', 'Guest'), ('companyName', 'company'), ('industry', 'industry')] if fields.get(name))
     return body['title']
 
 
 def channel_query(channel, body):
-    subject = public_subject(body)
+    entities = subjects(body)
+    subject = (" OR ".join('"' + name.replace('"', '') + '"' for name in entities) if len(entities) > 1 else public_subject(body))
     if channel == 'web':
         return scoped_query(subject + ' public background official reports global context and relevance to India', body.get('searchScope', {}))
     domains = ' OR '.join('site:' + domain for domain in DOMAINS[channel])
@@ -161,7 +165,10 @@ def collect_channel(channel, body, calls):
     from .diagnostics import emit, failure
     method = 'dedicated_tool'
     try:
-        if channel == 'web' or not hasattr(calls, 'social_search'):
+        multiple = any(len(names((body.get('researchInput') or {}).get(key, ''))) > 1
+                       for key in ('guestName', 'companyName', 'industry'))
+        # Native single-hashtag / AND-query tools cannot represent a panel request.
+        if channel == 'web' or not hasattr(calls, 'social_search') or multiple:
             method = 'web_search'
             found = calls.search(channel_query(channel, body))
         else:

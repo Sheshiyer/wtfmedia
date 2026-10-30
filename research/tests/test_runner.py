@@ -162,7 +162,7 @@ class WorkflowTests(StoreFixture):
                 return super().search(query)
         self.body['title'] = 'Research Elon Musk, Tesla and competitor BYD'
         asyncio.run(run_job(self.db, self.claim(), FakeEngine, CaptureCalls))
-        self.assertEqual(len(queries), 12)  # Six dossier topics plus six channel probes.
+        self.assertEqual(len(queries), 10)  # Four initial topics plus six channel probes.
         self.assertTrue(any('site:youtube.com' in query for query in queries))
         for query in queries:
             self.assertIn(self.body['title'], query)

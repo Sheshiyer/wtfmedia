@@ -1,4 +1,5 @@
 """Bounded service DTOs. Sources are evidence data, never instructions."""
+from .subjects import names, display
 import ipaddress
 import re
 from typing import Literal
@@ -65,20 +66,24 @@ ToolId = Literal['perplexity.web.search', 'exa.web.contents.get', 'anyapi.linked
 
 
 class ResearchInput(DTO):
-    guestName: str = Field(default='', max_length=120)
-    companyName: str = Field(default='', max_length=120)
-    industry: str = Field(default='', max_length=120)
+    guestName: str = Field(default='', max_length=604)
+    companyName: str = Field(default='', max_length=604)
+    industry: str = Field(default='', max_length=604)
     audienceCountry: Literal['IN'] = 'IN'
 
     @field_validator('guestName', 'companyName', 'industry', mode='before')
     @classmethod
     def trim(cls, value):
-        return value.strip() if isinstance(value, str) else value
+        if isinstance(value, str) and len(value.encode('utf-16-le')) > 1208:
+            raise ValueError('research names exceed input limit')
+        return '\n'.join(names(value)) if isinstance(value, str) else value
 
     @model_validator(mode='after')
     def supplied_scope(self):
         values = (self.guestName, self.companyName, self.industry)
-        if not any(values) or any(value and len(value.encode('utf-16-le')) < 4 for value in values):
+        lists = [names(value) for value in values]
+        if (not any(values) or sum(map(len, lists)) > 10 or any(len(items) > 5 for items in lists)
+                or any(not 4 <= len(name.encode('utf-16-le')) <= 240 for items in lists for name in items)):
             raise ValueError('enter a guest, company or industry; populated fields need 2–120 characters')
         return self
 
@@ -242,25 +247,33 @@ class ChatInput(Context):
 
 
 def section_spec(body, key):
-    """Four stable wire slots, with scope chosen from supplied fields only."""
+    """Every valid starting subject gets all four sections; inferred connections need evidence."""
+    if body.get('mode') == 'visuals' and any(section['key'] == key and section.get('status') == 'skipped' for section in body.get('sections', [])):
+        return None  # Preserve the written scope of legacy visual-only repairs.
     fields = body.get('researchInput')
     if not fields:
         return TIERS[key]
-    guest, company, industry = (fields.get(n, '') for n in ('guestName', 'companyName', 'industry'))
+    guest, company, industry = (utf16_slice(display(fields.get(n, '')), 150) for n in ('guestName', 'companyName', 'industry'))
     if key == 'snacks':
-        return (f'Guest profile: {guest}', TIERS[key][1]) if guest else None
-    if key in ('appetizers', 'main') and not (company or industry):
-        return None
+        if guest:
+            return (f'Guest profile: {guest}', TIERS[key][1])
+        return (f'People and leadership: {company or industry}',
+                'Identify founders, leaders and influential people with documented links to the supplied company or industry. '
+                'Explain their roles and relevant backgrounds with citations. These are researched people, not confirmed interview guests.')
     if key == 'appetizers':
         if company:
             return (f'Company and industry: {company}' if industry else f'Company: {company}', TIERS[key][1])
-        return (f'Industry: {industry}', 'Industry economics, competitors, market structure, related industries, '
-                'regulation and barriers. Distinguish global and Indian figures. Do not invent a focal company or guest.')
+        if industry:
+            return (f'Industry: {industry}', 'Research industry economics, representative companies, market structure, '
+                    'value chains, regulation and barriers. Distinguish global and Indian figures. Cite why each company is relevant.')
+        return (f'Companies and industries: {guest}', 'Discover companies the supplied guest founded, led or has a documented '
+                'material connection to, then research their business models, financials, competitors and industries. '
+                'Distinguish founder, executive, investor and commentator roles and current from past associations. Cite each connection.')
     if key == 'main':
         return TIERS[key]
-    return (TIERS[key][0], 'Takeaways, outlook and a thematic sequence of proposed interview questions with follow-ups about only the supplied '
-            'subjects. For a guest-only request focus on that person; for company/industry-only requests ask '
-            'questions about that scope without inventing a guest or biographical section.')
+    return (TIERS[key][0], 'Takeaways, outlook and proposed interview questions covering the supplied subjects and their '
+            'evidence-backed company, industry and people connections. If no guest was supplied, identify question themes '
+            'or potential informed respondents without presenting them as confirmed guests.')
 
 
 def validate_section_subject(body, key, content):

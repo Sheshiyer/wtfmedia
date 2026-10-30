@@ -37,18 +37,24 @@ Treg supplies Perplexity web search, Exa extraction and the five catalog-pinned
 social searches in `social-catalog-receipt.json`. A failed direct social search
 can fall back to domain-targeted web search; coverage records the actual method
 and outcome. YouTube metadata is not treated as a transcript. Source counts
-describe discovery outcomes, not guaranteed coverage of an entire platform. New runs
-first search two guest-dossier topics and/or four industry-dossier topics according to
-the supplied scope. Twenty remains a provider page size, not a source quota.
-Up to 120 current-evidence sources are retained by relevance and extract quality,
-with a small two-source diversity floor per available channel. Up to 12 separately
-labelled Alpha references may accompany the report. No results are padded to a target.
-A failed/empty dedicated search can use one domain-targeted fallback (Instagram also
-uses it for approved topical focus). Up to eight pages are extracted during preparation.
-There is no unbounded pagination. Saved citations
-remain protected even in larger legacy reports. Large evidence sets are synthesized
-in batches, with unchanged summaries reused across sections and retries. Spend,
-payload and model context limits still apply.
+describe retained evidence, not coverage of an entire platform. Initial subject and
+channel searches are followed by an evidence assessment with exact retained quotes
+for the requested topics. Uncovered questions trigger targeted searches, including
+additional searches on the same platform. Twenty is a transport batch size, not a
+report quota. Discovery stops on supported topic coverage, no useful new queries or
+evidence, provider failure, or an existing allowance; it never pads channel counts.
+The assessment and each search are checkpointed. It reserves planning, writing and
+visual capacity, respects the existing phase/cost ceilings and has a three-minute
+follow-up discovery window. No private notes enter the search planner.
+
+Source retention has no fixed count or per-platform floor. A 1 MB serialized evidence
+allowance leaves room within the existing 1.8 MB saved-document limit for prose,
+figures and metadata. Subject coverage and relevance prioritize retention only when
+storage is full; cited source identity and text remain protected. A source count is
+not proof of relevance, independence or claim accuracy. Code-owned coverage notices
+explain why follow-up discovery stopped. Up to twelve separately labelled Alpha
+references remain a distinct historical-context contract. Preparation extracts up
+to ten priority pages; spending, payload and model-context limits remain bounded.
 
 Historical lookup has a 40-second bound and is separate from runner billing; it uses
 the existing Alpha service's inference budget. Provider quality, exact question wording,
@@ -86,15 +92,16 @@ If no clear subject remains, the run stays `clarification`
 with no completed report; process recovery reuses its decision without another
 resolution call. Optional guidance can be skipped without removing subjects.
 
-All completed runs contain exactly four unique slots in the existing tier order.
-Guest-only requests skip `appetizers` and `main`; company/industry-only requests
-skip `snacks`. Skipped slots have `status: "skipped"`, `content: ""`, no failure,
-and a bounded reason in the title. At least one slot must be completed with
-nonblank content. Missing slots, arbitrary skipped applicable slots, and empty
-completed slots cannot finish a run. Readers and exports should omit skipped
-slots, while retaining scope warnings. Person/company sections must start with
-the requested identity heading before the worker accepts them. This guards
-against substitution; it does not establish the truth of every generated claim.
+New full runs cover all four sections from any valid starting field. Guest-only
+research follows documented company roles into company economics and industry
+analysis. Company-only or industry-only research identifies relevant people and
+leaders; these are researched associations, not confirmed interview guests. The
+original inputs remain unchanged. A missing association is an explicit evidence
+limitation, never an invented identity. Ambiguous/excluded identities remain blocked.
+All four sections must contain completed content for a full completed report.
+Legacy skipped slots remain readable, and existing saved reports/visual-only retries
+are not automatically rewritten. People/company sections retain their scope heading
+validation; this guards substitution, not the truth of every generated claim.
 
 Report follow-ups use only saved source extracts and report/history context, with
 one model call and no search/extraction. A skipped guest slot prevents the original
@@ -136,3 +143,31 @@ Visuals share one bounded model request after core writing. Provider-compatible
 schemas leave item-count bounds to local validation. Table references are preserved
 as links in both the reader and Word export; existing reports need no paid rerun
 for this display correction. Diagram changes still need owner runtime acceptance.
+
+### Combined research inputs and financial evidence
+
+Schema v2 keeps `guestName`, `companyName`, and `industry` as strings. Each field
+now accepts newline-separated names: up to five per category, ten total, and
+2–120 UTF-16 units per name. Commas remain part of names. Web/Edge and the runner
+trim, normalize NFC and deduplicate within each category. Legacy single-subject
+briefs remain valid; no database migration is needed.
+
+Discovery searches each supplied subject individually before cross-topic
+queries, within the twelve-call dossier ceiling. Company queries explicitly seek
+annual reports, audited financial statements, investor relations and regulatory
+filings. Retention and writer context preserve coverage across supplied subjects.
+Extraction prioritizes financial candidates and is bounded to ten targets. When
+the existing Exa catalogue supports it, financial pages request query-focused
+highlights instead of full text (one content type at the existing per-page cost
+ceiling); no AI summary is requested. Ranking does not certify publisher authority.
+Writers receive original relevant passages alongside summaries and must separate
+unverified-in-this-run metrics from proven non-disclosure, company-reported
+numbers from independently confirmed facts, and listing status from availability
+of financial reports. Existing citation, numeric and spending checks still apply.
+
+Report generation no longer requests an editorial verification checklist. The web
+and exports also omit that named section from existing saved reports, retaining
+material limitations. Additional info is displayed beneath the owner-visible
+title; schema-v2 approved Additional info is included in exports. Unapproved or
+legacy private notes stay out of exports, and shared views retain server-side
+note redaction. These presentation changes do not regenerate saved findings.

@@ -48,3 +48,12 @@ test('missing, ungrounded and failed Alpha responses stay unavailable',async()=>
  assert.deepEqual(await readAlphaResearchEvidence({WTFMEDIA_ALPHA_WEB:{fetch:async()=>new Response('Uncited assertion')}},'Subject','abcdefghijk'),[]);
  assert.deepEqual(await readAlphaResearchEvidence({WTFMEDIA_ALPHA_WEB:{fetch:async()=>{throw Error('private upstream failure');}}},'Subject','abcdefghijk'),[]);
 });
+
+test('historical context includes every bounded public subject instead of a truncated display title', async()=>{
+ const subjects=Array.from({length:10},(_,i)=>`Company ${i} ${'x'.repeat(108)}`);
+ let body;
+ await readAlphaInterviewContext({WTFMEDIA_ALPHA_WEB:{fetch:async request=>{body=await request.json();return new Response('No evidence');}}},subjects.join(', '));
+ for(const subject of subjects) assert.ok(body.messages[0].content.includes(subject));
+ assert.ok(body.messages[0].content.length<=2000);
+ assert.deepEqual(Object.keys(body).sort(),['messages','sourceMode']);
+});

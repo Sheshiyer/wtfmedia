@@ -7,7 +7,7 @@ export async function readAlphaInterviewContext(env: AlphaGatewayEnvironment, su
   const service = env.WTFMEDIA_ALPHA_WEB;
   try {
     const result = await runAlphaChat({
-      question: `About ${subject.slice(0, 400)}: summarize questions actually asked in previous published WTF episodes and the discussion they opened. Focus on Nikhil's questions only when the transcript establishes the speaker; otherwise say speaker unknown. Cite each historical reference. Separate what was asked from unanswered angles. Do not invent questions, quotes, speakers or new interview questions. If no relevant questions are retrieved, say so.`,
+      question: `About ${subject.slice(0, 1250)}: summarize questions actually asked in previous published WTF episodes and the discussion they opened. Focus on Nikhil's questions only when the transcript establishes the speaker; otherwise say speaker unknown. Cite each historical reference. Separate what was asked from unanswered angles. Do not invent questions, quotes, speakers or new interview questions. If no relevant questions are retrieved, say so.`,
       sourceMode: "published", ...(episodeId ? { episodeId } : {}),
     }, { WTFMEDIA_ALPHA_WEB: { fetch: request => service.fetch(new Request(request, { signal: AbortSignal.timeout(40_000) })) } });
     if (!result.grounded || result.answer.length > 6000) return unavailable;

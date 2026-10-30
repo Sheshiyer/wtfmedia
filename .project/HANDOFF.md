@@ -1,3 +1,79 @@
+## 2026-10-30 — Adaptive evidence collection and complete single-input scope (local)
+
+- Owner confirmed evidence-driven collection instead of fixed source counts, and
+  requested all four sections from any single guest/company/industry input.
+  This supersedes the earlier omission-based section rules for new full runs.
+- Removed the 120-source ceiling and two-per-channel retention floor. Distinct
+  sources are retained within a 1 MB serialized evidence allowance, leaving room
+  in the existing 1.8 MB document ceiling. Relevance/subject coverage select only
+  when storage fills; saved cited excerpts/identity remain protected. Provider
+  batches can still contain twenty results, but follow-up topic queries can collect
+  further results from that platform. No source-count target triggers completion.
+- New versioned-budget full runs assess report needs against retained quotes,
+  search uncovered questions, then reassess. Discovery checkpoints plans and each
+  search; duplicate/no-gain results, unavailable providers, no new queries,
+  coverage, time, storage or budget determine stopping. It shares the existing
+  preparation phase ceiling, leaves four preparer calls and its planning/search
+  reservation available, and preserves writer/visual holds. Follow-up discovery
+  has a three-minute window checked between existing bounded provider calls.
+  Safe coverage notices appear in the report and Word export. Private notes do not
+  enter this planner; approved public scope guidance and exclusions still apply.
+- Guest-only research follows documented company/industry relationships. Company
+  or industry input researches relevant people and leadership without pretending
+  they were supplied or confirmed interview guests. All seven nonempty input
+  combinations reach all four writers. Original input fields remain unchanged;
+  scope headings, source citations and disputed-identity filtering remain enforced.
+  Missing relationships require a truthful limitation, never an invented identity.
+- Legacy saved reports are unchanged. Visual-only repair preserves legacy skipped
+  sections and bypasses discovery; cached writing and completed discovery are not
+  replayed after restart. UI/Word labels distinguish associated people from guests.
+- VERIFIED-SOURCE: 212 runner tests, 130 research web tests, 62 research Edge tests,
+  typecheck and lint pass. Twelve mocked desktop/mobile Chrome checks cover
+  single/multiple input, all four report sections, coverage notices and actual
+  Word export. Regression cases cover 40 YouTube sources, 17 Reddit sources,
+  137 total sources, storage bounds, cancellation and checkpoint recovery.
+- No live paid provider calls, saved-report regeneration, push, deployment,
+  credential or shared database changes. Work remains on feature/pavun alongside
+  the preceding local multi-input/financial-evidence changes. This is mocked-flow
+  verification, not live report accuracy or staging acceptance. Deploy matching
+  Edge/Web/runner source together in a separately requested rollout.
+
+## 2026-10-30 — Combined research scope and evidence coverage (local only)
+
+- Work remains on feature/pavun; no push, deployment, shared database change,
+  paid provider call, or saved-report regeneration was performed for this change.
+- Schema-v2 input fields now accept newline-separated names, with repeated form
+  rows: five per category, ten total, 2–120 UTF-16 units per name. Commas remain
+  part of names. Web/Edge share normalization; the runner matches those bounds.
+  Existing single-subject briefs remain readable without migration.
+- Every supplied subject receives an individual dossier query before combined
+  discovery. Company queries prioritize public annual reports, investor relations,
+  financial statements and filings. Retention and writer context preserve subject
+  diversity; extraction selects up to ten relevant candidates rather than the
+  first eight. Financial extraction uses existing Exa highlights when advertised
+  by its catalogue, with one content type and the unchanged per-page cost ceiling.
+  Original relevant passages supplement summaries. Publisher priority is not a
+  verification receipt, and prompts distinguish failed retrieval from proven
+  non-disclosure. Existing budget, citation and numerical checks remain intact.
+- Public historical-context requests include the complete bounded subject list
+  instead of the truncated display title, remaining under Alpha's question limit.
+  Notes and private identity do not cross that boundary. Ambiguous categories
+  remain fail-closed, including each excluded name in multi-subject requests.
+- Additional info appears beneath the report title. Approved schema-v2 Additional
+  info is also exported; legacy/unapproved private notes remain excluded from
+  exports, and shared-view note redaction is unchanged. Generation no longer asks
+  for an editorial verification checklist; page/Word/Markdown presentation also
+  removes that named section from saved reports while preserving material gaps.
+- VERIFIED-SOURCE: 198 runner tests, 62 research Edge tests, 129 research web unit
+  tests, 101 web API contracts, typecheck and lint pass. Ten mocked Chrome
+  desktop/mobile checks cover adding/removing multiple names, legacy single-field
+  submission, title context, and actual Word export. Local socket restrictions
+  required rerunning browser/API-stub checks with local-listening permission.
+- This is source and mocked-flow verification, not a live evidence-quality or
+  staging acceptance claim. Existing saved findings are unchanged. A future
+  rollout needs matching Edge, Web and Research runner versions; the current
+  deployed image pin still identifies the preceding staging release.
+
 ## 2026-10-29 — Editorial research visuals deployed to staging
 
 - Owner-authorized candidate b04a2fc544c7ff566fd794bd3fe61644c971781f is pushed to

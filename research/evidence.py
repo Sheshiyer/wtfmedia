@@ -7,9 +7,9 @@ from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
 from .contracts import Source, safe_url, utf16_slice
-from .source_channels import CHANNELS, platform_for_url
+from .source_channels import platform_for_url
 
-MAX_RETAINED_SOURCES = 120
+MAX_EVIDENCE_BYTES = 1_000_000  # Leaves room in the 1.8 MB report document for prose, figures and metadata.
 
 CITATION = re.compile(r'\[([A-Za-z0-9_-]{1,100})\]')
 NUMBER = re.compile(r'(?<![\w])\d[\d,]*(?:\.\d+)?%?')
@@ -44,8 +44,8 @@ def normalize_results(payload):
     return sources
 
 
-def merge_sources(existing, incoming, *, protected_ids=(), query=None):
-    """Retain relevant evidence within a ceiling, not a twenty-per-platform quota."""
+def merge_sources(existing, incoming, *, protected_ids=(), query=None, subjects=(), byte_budget=MAX_EVIDENCE_BYTES):
+    """Retain distinct sources without a count quota; enforce serialized storage capacity."""
     protected_ids = set(protected_ids)
     by_url = {s['url']: s for s in existing}
     ids = {s['id'] for s in existing}
@@ -64,27 +64,27 @@ def merge_sources(existing, incoming, *, protected_ids=(), query=None):
         by_url[source['url']] = source
         ids.add(source['id'])
     sources = list(by_url.values())
-    total = MAX_RETAINED_SOURCES
-    if len(sources) <= total:
+    sizes = {s['id']: len(json.dumps(s, ensure_ascii=False).encode('utf-8')) + 2 for s in sources}
+    if sum(sizes.values()) + 2 <= byte_budget:
         return sources
     selected = {s['id'] for s in sources if s['id'] in protected_ids}
+    used = sum(sizes[ident] for ident in selected) + 2
     terms = set(re.findall(r'\w{3,}', (query or '').lower()))
     ranked = sorted(sources, key=lambda s: (
         supports(s), len(terms & set(re.findall(r'\w{3,}', (s['title'] + ' ' + s['excerpt']).lower()))),
         s.get('kind') == 'page_extract'
     ), reverse=True)
-    pools = {c: [s for s in ranked if platform_for_url(s['url']) == c and s['id'] not in selected]
-             for c in CHANNELS}
-    for channel, pool in pools.items():
-        used = sum(s['id'] in selected and platform_for_url(s['url']) == channel for s in sources)
-        for _ in range(min(max(0, 2 - used), len(pool), max(0, total - len(selected)))):
-            selected.add(pool.pop(0)['id'])
-    # A small diversity floor; remaining capacity follows report relevance and evidence quality.
-    for source in ranked:
-        if len(selected) >= total:
-            break
-        selected.add(source['id'])
-    # Stable ordering lets unchanged evidence batches reuse their summaries.
+    # Represent each requested subject before filling remaining storage by relevance.
+    priority = []
+    for subject in subjects:
+        candidate = next((s for s in ranked if matches_subject(s, subject) and s not in priority), None)
+        if candidate:
+            priority.append(candidate)
+    for source in priority + [s for s in ranked if s not in priority]:
+        if source['id'] not in selected and used + sizes[source['id']] <= byte_budget:
+            selected.add(source['id'])
+            used += sizes[source['id']]
+    # Saved citations are never silently deleted, including oversized legacy snapshots.
     return [s for s in sources if s['id'] in selected]
 
 
@@ -135,21 +135,66 @@ def byte_slice(text, budget):
     return text.encode('utf-8')[:budget].decode('utf-8', errors='ignore')
 
 
-def select_context(sources, query, char_budget=28000):
+def matches_subject(source, subject):
+    tokens = set(re.findall(r'\w{2,}', subject.lower()))
+    text = set(re.findall(r'\w{2,}', (source['title'] + ' ' + source['excerpt']).lower()))
+    return bool(tokens) and tokens.issubset(text)
+
+
+def primary_priority(source):
+    """Discovery priority only: a matching title is not proof of publisher authority."""
+    text = (source['title'] + ' ' + source['url'] + ' ' + source['excerpt'][:1500]).lower()
+    return sum(term in text for term in ('annual report', 'financial statements', 'investor relations',
+        'financial results', 'audited', 'regulatory', 'revenue', 'operating profit', 'net profit'))
+
+
+def extraction_targets(sources, entities=(), limit=10):
+    candidates = sorted((s for s in sources if s.get('kind') != 'page_extract'),
+                        key=lambda source: (platform_for_url(source['url']) == 'web', primary_priority(source)), reverse=True)
+    selected = []
+    for entity in entities:
+        match = next((s for s in candidates if matches_subject(s, entity) and s not in selected), None)
+        if match and len(selected) < limit:
+            selected.append(match)
+    for source in candidates:
+        if len(selected) == limit:
+            break
+        if source not in selected:
+            selected.append(source)
+    return [s['id'] for s in selected]
+
+
+def relevant_excerpt(text, query, limit):
+    """Return one verbatim window, rather than always returning an annual report's preface."""
+    terms = set(re.findall(r'\w{3,}', query.lower()))
+    starts = {0} | {max(0, (match.start() - 120) // 100 * 100)
+                    for match in re.finditer(r'\w{3,}', text) if match.group().lower() in terms}
+    windows = [byte_slice(text[start:start + limit], limit) for start in sorted(starts)]
+    return max(windows, key=lambda window: len(terms & set(re.findall(r'\w{3,}', window.lower()))))
+
+
+def select_context(sources, query, char_budget=28000, *, subjects=()):
     """Retain full extracts in SQLite, send bounded verbatim slices with unchanged IDs."""
     terms = set(re.findall(r'\w{3,}', query.lower()))
     ranked = sorted((s for s in sources if supports(s)), key=lambda s: len(
         terms & set(re.findall(r'\w{3,}', (s['title'] + ' ' + s['excerpt']).lower()))), reverse=True)
+    priority = []
+    for subject in subjects:
+        candidate = next((source for source in ranked if matches_subject(source, subject) and source not in priority), None)
+        if candidate:
+            priority.append(candidate)
+    ranked = priority + [source for source in ranked if source not in priority]
     selected = []
-    for source in ranked:
+    for index, source in enumerate(ranked):
         if char_budget < 300:
             break
         candidate = {k: v for k, v in source.items()
                      if k in ('id', 'title', 'url', 'kind', 'publishedAt')}
-        available = char_budget - len(json.dumps(candidate, ensure_ascii=False).encode()) - 30
+        allocation = char_budget // max(1, len(priority) - index)
+        available = allocation - len(json.dumps(candidate, ensure_ascii=False).encode()) - 30
         if available < 300:
             continue
-        candidate['excerpt'] = byte_slice(source['excerpt'], min(3500, available))
+        candidate['excerpt'] = relevant_excerpt(source['excerpt'], query, min(3500, available))
         size = len(json.dumps(candidate, ensure_ascii=False).encode())
         if size > char_budget:
             continue

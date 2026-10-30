@@ -1,5 +1,7 @@
 "use client";
 
+import { researchNames } from "../../../../shared/research-input";
+
 import * as Dialog from "@radix-ui/react-dialog";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useBetaPrincipal, useMemberFetch } from "./BetaPrincipalGate";
@@ -105,7 +107,7 @@ export function ResearchWorkspace() {
     <header className="shrink-0"><p className="font-label text-xs font-bold uppercase tracking-widest text-secondary">WTF OS · Research</p><h1 className="mt-2 font-heading text-3xl font-bold sm:text-4xl">Research</h1><p className="mt-3 max-w-2xl text-secondary">Build a source-backed brief, shape the questions, and keep the evidence close.</p></header>
     {!loading && !configured && <div role="status" className="flex flex-wrap items-center justify-between gap-3 border-2 border-foreground bg-surface-subtle p-4 text-sm"><p className="max-w-3xl">{unavailable}</p><Button variant="secondary" onClick={() => setReload(value => value + 1)}>Retry connection</Button></div>}
     {notice && <p role="alert">{notice}</p>}
-        {canWrite && <form aria-label="New research" className="shrink-0 border-2 border-foreground bg-surface-raised p-5 sm:p-6" onSubmit={event => { event.preventDefault(); void create(); }}><fieldset disabled={creating} className="min-w-0 space-y-4"><legend className="mb-2 font-heading text-xl font-bold">Start a new brief</legend><p className="text-sm text-secondary">Research a guest, company or industry around the world, with context for an Indian audience. Enter any one field to start.</p>
+        {canWrite && <form aria-label="New research" className="shrink-0 border-2 border-foreground bg-surface-raised p-5 sm:p-6" onSubmit={event => { event.preventDefault(); void create(); }}><fieldset disabled={creating} className="min-w-0 space-y-4"><legend className="mb-2 font-heading text-xl font-bold">Start a new brief</legend><p className="text-sm text-secondary">Research a guest, company or industry around the world, with context for an Indian audience. Enter any one field to start. All four sections cover connected people, companies and industries where evidence supports them.</p>
           <ResearchInputFields value={researchInput} onChange={setResearchInput} />
           <details><summary className="min-h-11 cursor-pointer py-2 text-sm font-bold">Additional info (optional)</summary><div className="grid items-start gap-6 border-t border-foreground/15 pt-5 ">
             <div className="min-w-0 space-y-4"><label className="grid gap-2 text-sm font-bold">Additional info<textarea placeholder="Guide the research: topics to prioritize, comparisons, exclusions, interview angle, or an optional time period." className={`${control} min-h-40 resize-y font-normal`} maxLength={RESEARCH_NOTES_LIMIT} value={notes} onChange={event => setNotes(event.target.value)} /></label>
@@ -228,6 +230,7 @@ function ResearchEditor({ id, configured, canWrite, blocked, onChange }: {
   return <article className="min-w-0 space-y-5" aria-label="Research brief" aria-busy={busy}>
     <header className="space-y-3"><div className="flex flex-wrap items-center gap-2"><span className="border-2 border-foreground bg-surface-subtle px-2 py-1 font-label text-xs">{brief.needsResearch ? "Needs research" : brief.status}</span>{!owner && <span className="text-sm">Read only</span>}</div>
       <h2 className="break-words font-heading text-3xl font-bold [overflow-wrap:anywhere]">{brief.title}</h2>
+      {brief.notes.trim() && <p className="whitespace-pre-wrap break-words text-sm [overflow-wrap:anywhere]"><strong>Additional info:</strong> {brief.notes}</p>}
       {brief.researchInput && <p className="text-sm">Audience context: India</p>}
       <div className="flex flex-wrap gap-2">
         {editable && brief.status === "draft" && <Button variant="attention" disabled={modelDisabled} onClick={() => void mutate("/run", { revision: brief.revision })}>Start research</Button>}
@@ -259,11 +262,18 @@ function validResearchInput(value: ResearchInputV2): boolean {
 }
 
 function ResearchInputFields({ value, onChange }: { value: ResearchInputV2; onChange: (input: ResearchInputV2) => void }) {
+  const count = [value.guestName, value.companyName, value.industry].reduce((total, field) => total + researchNames(field).length, 0);
   return <div className="min-w-0 space-y-3">
-    <p className="text-sm font-bold">Audience context: India</p><p className="text-sm text-secondary">Enter a guest, company or industry. Other fields are optional.</p>
-    <div className="grid min-w-0 gap-3 xl:grid-cols-3">
-      {([{ key: "guestName", label: "Guest name", example: "Elon Musk" }, { key: "companyName", label: "Company name", example: "Tesla" }, { key: "industry", label: "Industry", example: "Electric vehicles" }] as const).map(field =>
-        <label key={field.key} className="grid min-w-0 gap-1 text-sm font-bold">{field.label}<input className={control} minLength={2} maxLength={120} placeholder={`e.g. ${field.example}`} value={value[field.key]} onChange={event => onChange({ ...value, [field.key]: event.target.value })} /></label>)}
+    <p className="text-sm font-bold">Audience context: India</p><p className="text-sm text-secondary">Add guests, companies or industries for one combined report. Up to 5 per category and 10 total; enter one name per row.</p>
+    <div className="grid min-w-0 items-start gap-3 xl:grid-cols-3">
+      {([{ key: "guestName", label: "Guest name", add: "guest", example: "Elon Musk" }, { key: "companyName", label: "Company name", add: "company", example: "Tesla" }, { key: "industry", label: "Industry", add: "industry", example: "Electric vehicles" }] as const).map(field => {
+        const rows = value[field.key].split("\n");
+        const update = (next: string[]) => onChange({ ...value, [field.key]: next.join("\n") });
+        return <div key={field.key} className="min-w-0 space-y-2">{rows.map((name, index) => <div key={index} className="flex min-w-0 items-end gap-2">
+          <label className="grid min-w-0 flex-1 gap-1 text-sm font-bold">{field.label}{index ? ` ${index + 1}` : ""}<input className={control} minLength={2} maxLength={120} placeholder={`e.g. ${field.example}`} value={name} onChange={event => update(rows.map((row, i) => i === index ? event.target.value : row))} /></label>
+          {rows.length > 1 && <button type="button" className="p-2 text-sm underline" aria-label={`Remove ${field.label.toLowerCase()} ${index + 1}`} onClick={() => update(rows.filter((_, i) => i !== index))}>Remove</button>}
+        </div>)}<button type="button" className="text-sm font-bold underline disabled:opacity-50" disabled={rows.length >= 5 || count >= 10 || rows.some(row => !row.trim())} onClick={() => update([...rows, ""])}>Add {field.add}</button></div>;
+      })}
     </div>
   </div>;
 }

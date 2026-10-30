@@ -50,10 +50,13 @@ class FlexibleScopeTests(StoreFixture):
                     query = dedicated_input(channel, request)
                     self.assertIn('Publicsubject' if channel == 'instagram' else 'Public subject', json.dumps(query))
 
-    def test_scope_omits_inapplicable_slots_and_preserves_four_explicit_results(self):
-        for fields, expected in [({'companyName': 'Acme'}, ['appetizers', 'main', 'desserts']),
-                                 ({'industry': 'Energy'}, ['appetizers', 'main', 'desserts']),
-                                 ({'guestName': 'Example Person'}, ['snacks', 'desserts'])]:
+    def test_every_starting_field_expands_to_all_four_sections(self):
+        for mask in itertools.product((False, True), repeat=3):
+            if not any(mask):
+                continue
+            fields = {key: value for key, value, enabled in zip(
+                ('guestName', 'companyName', 'industry'), ('Example Person', 'Acme', 'Energy'), mask) if enabled}
+            expected = list(TIERS)
             with self.subTest(fields=fields):
                 self.db.delete(self.body['id'])
                 from research.tests.test_runner import body
@@ -90,7 +93,8 @@ class FlexibleScopeTests(StoreFixture):
         first = self.db.get(self.body['id'])
         self.assertEqual(first['status'], 'completed')
         self.assertEqual(len(first['sections']), 4)
-        self.assertEqual(first['sections'][0]['status'], 'skipped')
+        self.assertEqual(first['sections'][0]['status'], 'completed')
+        self.assertIn('People and leadership: Zomato', first['sections'][0]['title'])
         self.assertTrue(all(s['guestName'] == '' and s['companyName'] == 'Zomato' and s['industry'] == 'Food delivery' for s in seen))
         self.assertNotIn('Deepinder', json.dumps(first))
         self.assertIsNone(first['clarification'])
@@ -116,7 +120,8 @@ class FlexibleScopeTests(StoreFixture):
         asyncio.run(run_job(self.db, self.claim(), Ambiguous, FakeCalls))
         result = self.db.get(self.body['id'])
         self.assertEqual(result['status'], 'completed')
-        self.assertEqual(result['sections'][0]['status'], 'skipped')
+        self.assertEqual(result['sections'][0]['status'], 'completed')
+        self.assertIn('People and leadership: Energy', result['sections'][0]['title'])
         self.assertTrue(all(s['status'] == 'completed' for s in result['sections'][1:]))
 
     def test_all_ambiguous_never_completes_or_searches_or_repeats_resolution(self):
@@ -239,14 +244,14 @@ class FlexibleScopeTests(StoreFixture):
         asyncio.run(run_job(self.db, self.claim(), FakeEngine, FakeCalls))
         self.assertEqual(self.db.get(self.body['id'])['status'], 'partial')
 
-    def test_recovery_drops_preexisting_unrequested_guest_section(self):
+    def test_recovery_preserves_completed_people_research_from_industry_start(self):
         self.body.update(researchInput={'guestName': '', 'companyName': '', 'industry': 'Energy'})
         claim = self.claim()
         claim[4].update(resolved=True, channel_index=6)
-        claim[3]['sections'] = [dict(key=key, title='Saved', content='Old unrelated content', status='completed') for key in TIERS]
+        claim[3]['sections'] = [dict(key=key, title='Saved', content='Retained associated industry research', status='completed') for key in TIERS]
         asyncio.run(run_job(self.db, claim, FakeEngine, FakeCalls))
         guest = self.db.get(self.body['id'])['sections'][0]
-        self.assertEqual((guest['status'], guest['content']), ('skipped', ''))
+        self.assertEqual((guest['status'], guest['content']), ('completed', 'Retained associated industry research'))
 
     def test_resolution_cannot_change_values_or_dispute_omitted_fields(self):
         request = {**self.body, 'researchInput': {'guestName': 'Alex Smith', 'companyName': '', 'industry': 'Energy'}}
@@ -311,6 +316,6 @@ class FlexibleScopeTests(StoreFixture):
         result = self.db.get(self.body['id'])
         self.assertEqual(result['status'], 'completed')
         self.assertNotIn('Mukesh', json.dumps(public))
-        self.assertIn('Scope:', result['sections'][1]['content'])
-        self.assertIn('identity', result['sections'][1]['content'])
+        self.assertIn('Scope:', result['sections'][0]['content'])
+        self.assertIn('identity', result['sections'][0]['content'])
         self.assertNotIn('Scope:', result['sections'][2]['content'])

@@ -1,3 +1,4 @@
+import { normalizeResearchInput, researchInputLabel } from "../../shared/research-input.ts";
 import { validateFigureSlots, figureCoverage, type FigureSlot } from "../../shared/research-figures.ts";
 export const tiers = ['snacks', 'appetizers', 'main', 'desserts'] as const;
 export const channels = ['web', 'linkedin', 'youtube', 'instagram', 'reddit', 'x'] as const;
@@ -116,18 +117,10 @@ export class ResearchError extends Error {
 export const bounded = (v: unknown, max: number): v is string => typeof v === 'string' && v.length <= max;
 const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 export function parseResearchInput(value: unknown): ResearchInputV2 {
-    if (!record(value) || value.audienceCountry !== 'IN')
-        throw new ResearchError(400, 'invalid_request');
-    const names = ['guestName', 'companyName', 'industry'] as const;
-    if (names.some(k => value[k] !== undefined && typeof value[k] !== 'string'))
-        throw new ResearchError(400, 'invalid_request');
-    const fields = names.map(k => typeof value[k] === 'string' ? value[k].trim() : '');
-    if (!fields.some(Boolean) || fields.some(s => s.length > 120 || s.length > 0 && s.length < 2))
-        throw new ResearchError(400, 'invalid_request');
-    return { guestName: fields[0], companyName: fields[1], industry: fields[2], audienceCountry: 'IN' };
+  try { return normalizeResearchInput(value); } catch { throw new ResearchError(400, 'invalid_request'); }
 }
 export function researchTitle(input: ResearchInputV2): string {
-    return [input.guestName, input.companyName, input.industry].filter(Boolean).join(' — ').slice(0, 200).replace(/[\uD800-\uDBFF]$/, '').trim();
+  return researchInputLabel(input).slice(0, 200).replace(/[\uD800-\uDBFF]$/u, "").trim();
 }
 export function failureValid(v: unknown): v is ResearchFailure {
     return record(v) && ['resolve', 'discovery', ...tiers, 'storage', 'runner'].includes(v.stage as string)

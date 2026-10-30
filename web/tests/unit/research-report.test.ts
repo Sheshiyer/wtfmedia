@@ -175,3 +175,13 @@ it("adds an attributed evidence map to a saved report without changing its body 
   expect(prepareResearchSection(content, sources, { evidenceMap: true }).derivedVisual).toBe(false);
   expect(prepareResearchSection(result.markdown, retained, { evidenceMap: true }).derivedVisual).toBe(false);
 });
+
+it("removes the editorial checklist from saved report presentation while preserving material gaps and subsequent sources", () => {
+  const content = "# Report\n\n## Unresolved research gaps\n\nA metric was not verified.\n\n## Editorial verification checklist\n\n- [ ] Finish checking\n\n### Editorial verification checklist\n\nRemove this task.\n\n## Sources\n\nKeep this evidence.\n\n```text\n## Editorial verification checklist\nLiteral example\n```";
+  const prepared = prepareResearchSection(content, []);
+  expect(prepared.markdown).not.toContain("Finish checking");
+  expect(prepared.markdown).not.toContain("Remove this task");
+  expect(prepared.markdown).toContain("A metric was not verified");
+  expect(prepared.markdown).toContain("Keep this evidence");
+  expect(prepared.markdown).toContain("Literal example");
+});

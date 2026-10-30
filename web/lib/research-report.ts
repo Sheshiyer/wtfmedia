@@ -8,6 +8,26 @@ import { parseResearchVisual, retainedEvidenceMap, type ResearchVisual } from ".
 const parser = unified().use(remarkParse).use(remarkGfm, { singleTilde: false });
 export function parseResearchMarkdown(content: string) { return parser.parse(content); }
 
+/** Remove the named editorial task section from legacy reports, preserving other limitations and code. */
+export function withoutEditorialChecklist(content: string): string {
+  const nodes = parseResearchMarkdown(content).children;
+  const ranges: Array<[number, number]> = [];
+  const text = (node: Nodes): string => "value" in node ? String(node.value) : "children" in node ? node.children.map(text).join("") : "";
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    if (ranges.length && node.position!.start.offset! < ranges[ranges.length - 1][1]) continue;
+    if (node.type !== "heading" || !/^(?:\d+[.)]\s*)?editorial(?: verification)? checklist\s*:?$/iu.test(text(node).trim())) continue;
+    let end = content.length;
+    for (let j = i + 1; j < nodes.length; j++) {
+      const next = nodes[j];
+      if (next.type === "heading" && next.depth <= node.depth) { end = next.position!.start.offset!; break; }
+    }
+    ranges.push([node.position!.start.offset!, end]);
+  }
+  for (const [start, end] of ranges.reverse()) content = content.slice(0, start) + content.slice(end);
+  return content;
+}
+
 type ResearchPart = { kind: "markdown"; content: string } | { kind: "visual"; visual: ResearchVisual | null };
 
 /** Split generated top-level figure fences before touching prose citations. */
@@ -29,7 +49,7 @@ export function splitResearchVisuals(content: string, sources: ResearchSource[])
 /** Portable Markdown gets a readable text alternative, not raw figure JSON. */
 export function researchVisualText(content: string, sources: ResearchSource[]): string {
   const plain = (value: string) => value.replace(/[\\`*_{}\[\]()<>#!|~]/gu, "\\$&");
-  return splitResearchVisuals(content, sources).map(part => {
+  return splitResearchVisuals(withoutEditorialChecklist(content), sources).map(part => {
     if (part.kind === "markdown") return part.content;
     if (!part.visual) return "\n\nDiagram unavailable: supporting evidence could not be validated.\n\n";
     const figure = part.visual;
@@ -52,6 +72,7 @@ export function researchDisplayContent(content: string): string {
 
 /** Edit only prose/citation AST ranges, leaving raw Markdown, escapes and code intact. */
 export function prepareResearchSection(content: string, sources: ResearchSource[], options: { sourceHref?: (source: ResearchSource) => string; evidenceMap?: boolean } = {}): { markdown: string; citedSources: ResearchSource[]; derivedVisual: boolean } {
+  content = withoutEditorialChecklist(content);
   const known = new Map(sources.map(source => [source.id, source]));
   const cited = new Map<string, ResearchSource>();
   const eligible = new Uint8Array(content.length);

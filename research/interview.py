@@ -1,12 +1,12 @@
 """Editorial dossier structure and bounded coverage; historical synthesis is not evidence."""
 import re
 
-from .contracts import section_spec
+from .subjects import names
 from .scope import scoped_query
 from .source_channels import public_subject
 
 DOSSIER = {
-    'snacks': 'Build a guest dossier for each explicitly supplied guest: background and education, '
+    'snacks': 'Build a dossier for each supplied guest or, when none was supplied, people with documented leadership or industry roles: background and education, '
               'career timeline and turning points, businesses/boards/investments, documented anecdotes and '
               'public positions. Connect sourced details to a specific opening question and follow-ups. '
               'Include an editorial sensitivities note only when supported or explicitly supplied; do not invent controversies.',
@@ -24,23 +24,35 @@ DOSSIER = {
                 '(only named supplied guests), follow-ups, and panel hand-offs only when multiple guests are supplied. '
                 'Mark all new questions as proposed. Include historical continuity: what earlier discussions '
                 'covered, what to avoid repeating, and what to revisit or challenge with newer evidence. '
-                'Finish with unresolved research gaps and an editorial verification checklist.',
+                'Include only material unresolved limitations, specifying what this run could not verify. Never include an editorial verification checklist or ask the reader to finish the research.',
 }
 
 
 def dossier_queries(body):
     """One bounded pass over report needs, not a target number of hits per platform."""
-    topics = []
-    if section_spec(body, 'snacks'):
-        topics += ['official biography career milestones interviews decisions',
-                   'documented career anecdotes public statements leadership interviews']
-    if section_spec(body, 'appetizers'):
-        topics += ['industry history value chain business models official reports',
-                   'global India market size operating metrics unit economics annual report',
-                   'competition distribution consumer behaviour regulation primary sources',
-                   'technology AI future employment entrepreneurship risks research']
+    topics = ['industry history value chain business models official reports',
+              'global India market size operating metrics unit economics annual report',
+              'competition distribution consumer behaviour regulation primary sources',
+              'technology future employment entrepreneurship risks research']
+    fields = body.get('researchInput') or {}
+    targeted = []
+    for guest in names(fields.get('guestName', '')):
+        targeted.append(guest + ' official biography career milestones decisions interviews')
+    for company in names(fields.get('companyName', '')):
+        targeted.append(company + ' official investor relations annual report audited financial statements revenue profit operating metrics latest')
+    for industry in names(fields.get('industry', '')):
+        targeted.append(industry + ' global India market size operating metrics industry statistics primary sources')
+    # Search direct inputs first, then establish their people/company/industry connections.
+    for guest in names(fields.get('guestName', '')):
+        targeted.append(guest + ' companies founded executive investor roles industries official biography')
+    for industry in names(fields.get('industry', '')):
+        targeted.append(industry + ' leading companies founders leaders business models primary sources')
+    for company in names(fields.get('companyName', '')):
+        targeted.append(company + ' founders leadership history industry competitors financial results latest reporting period')
     subject = public_subject(body)
-    return [scoped_query(subject + ' ' + topic, body.get('searchScope', {})) for topic in topics]
+    queries = targeted + [subject + ' ' + topic for topic in topics]
+    return [scoped_query(query, body.get('searchScope', {})) for query in queries[:12]]
+
 
 
 def historical_sources(context):
