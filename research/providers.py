@@ -303,6 +303,10 @@ class Calls:
         return 'model_' + digest(encode([self.phase, self.operation_attempt, messages, max_tokens, effort, output_schema]))
 
     def admit(self, key, kind, amount):
+        # Optional evidence work must not durably stop admission when it reaches
+        # funds held for writers/figures. Calls run under the provider lock.
+        if self.budget_policy == 1 and self.phase in ('dossier', 'channels', 'preparation', 'extraction', 'summaries'):
+            self.allowance(needed=amount, calls=1, keys=[key])
         try:
             if self.budget_policy == 1:
                 return self.store.admit(self.job_id, self.lease, key,

@@ -35,17 +35,16 @@ that channel as budget-limited; it did not raise the limit or claim coverage.
 The per-call maximum header is a requested provider limit, not a guarantee of
 upstream billing. Review this discrepancy before expanding live acceptance.
 
-Source counts adapt to report evidence needs. After initial discovery, a bounded,
-checkpointed assessment identifies uncovered topics and performs targeted follow-up
-searches. Coverage claims must reference retained exact quotes. No channel quota or
-120-source cutoff remains. Twenty is a provider batch size; several topic-specific
-queries can collect more results from that channel. New searches stop when topic
-coverage is supported, nothing useful is added, or provider, time, spending or storage
-bounds intervene. The saved report shows a code-owned coverage notice for that stop.
-Retention is limited by a 1 MB serialized evidence allowance within the 1.8 MB document
-limit, prioritizing relevant subjects while preserving saved citations. Follow-up
-searching shares the existing preparation-phase call limit, reserves the preparer's
-calls and funds, protects writing/visual allowances, and has a three-minute window.
+The owner-requested rollback restores the shared 120-source retention ceiling and
+pauses adaptive follow-up assessment/search. Existing subject and channel discovery
+still runs; twenty is a provider batch size. Subject coverage, channel diversity and
+relevance choose up to 120 retained sources within a 1 MB evidence allowance. Saved
+citations and oversized legacy reports remain protected. All four sections still
+research evidence-backed connections from any supplied subject.
+Optional preparation now preflights spending before admission. At the allowance
+boundary it uses retained original extracts for writers instead of durably stopping
+the job. Real provider overruns and previously stopped ledgers remain fail-closed.
+The existing 5,000,000 micro-unit job ceiling is unchanged.
 Up to twelve separate Alpha episode references can accompany the historical appendix.
 The edge obtains this bounded public synthesis through the existing published Alpha
 chat contract; private notes and owner identity never cross that bridge. The runner
@@ -264,7 +263,7 @@ messages contain only `user`/`assistant` roles. Bounds: title 400 characters,
 notes 12,000; four sections at 24,000 content characters each; sources with
 12,000 excerpt characters each and no fixed source-count cap; question 2,000; last 12 messages at 12,000 each.
 Contracts accept older reports without a source-count limit; new research retains
-evidence within the serialized storage allowance described above. Research synthesis considers every
+up to 120 sources within the serialized storage allowance described above. Research synthesis considers every
 retained eligible source in bounded, cached batches; follow-up
 and numeric checks select relevance-ranked verbatim slices. Notes, previous sections
 and recent messages remain bounded. Full accepted evidence stays
@@ -308,10 +307,11 @@ are checked locally. Undated/out-of-range evidence is excluded under a strict da
 constraint; retrieval time is never a substitute for publication time. Report prompts
 also distinguish publication dates from the dates of events/financial periods.
 
-There is no count-based source eviction. The existing 1.2 MB runner/state request
+New uncited evidence is relevance-selected within the restored 120-source cap;
+saved citations are never evicted. The existing 1.2 MB runner/state request
 bound, 1.8 MB saved document bound, provider response limits and per-run/per-stage
-budgets still apply. A limit failure is explicit; sources are not silently dropped
-to make a report appear complete. Larger evidence sets can require more model calls.
+budgets still apply. Preparation can fall back to retained excerpts when optional
+processing cannot fit; it does not claim exhaustive synthesis or verified gaps.
 
 Research does not call Alpha episode retrieval. Legacy Alpha references remain
 readable in old briefs but are excluded from new runner submissions. Public videos

@@ -18,16 +18,16 @@ def rows(channel, count):
 
 
 class SourceBudgetTests(unittest.TestCase):
-    def test_retains_sources_within_storage_without_count_quotas(self):
+    def test_restored_total_cap_preserves_channel_diversity(self):
         found = [s for c in CHANNELS for s in rows(c, 30)]
         for s in found:
             if platform_for_url(s['url']) == 'web':
                 s['title'] = 'Company market economics India'
         retained = merge_sources([], found, query='Company')
         counts = Counter(platform_for_url(s['url']) for s in retained)
-        self.assertEqual(len(retained), len(found))
+        self.assertEqual(len(retained), 120)
         self.assertEqual(counts['web'], 30)
-        self.assertTrue(all(counts[c] == 30 for c in CHANNELS))
+        self.assertTrue(all(counts[c] >= 2 for c in CHANNELS))
 
     def test_unused_slots_transfer_to_other_channels_without_duplicates(self):
         found = rows('web', 70) + [s for c in CHANNELS[1:] for s in rows(c, 10)]
@@ -36,17 +36,17 @@ class SourceBudgetTests(unittest.TestCase):
         self.assertEqual(len({s['url'] for s in retained}), 120)
         self.assertEqual(Counter(platform_for_url(s['url']) for s in retained)['web'], 70)
 
-    def test_new_social_evidence_is_not_discarded_at_fixed_total(self):
+    def test_new_social_evidence_shares_restored_total(self):
         existing = rows('web', 120)
         retained = merge_sources(existing, rows('reddit', 30), protected_ids={'src_web_119'})
-        self.assertEqual(len(retained), 150)
+        self.assertEqual(len(retained), 120)
         self.assertIn(existing[-1], retained)
-        self.assertEqual(sum(platform_for_url(s['url']) == 'reddit' for s in retained), 30)
+        self.assertGreaterEqual(sum(platform_for_url(s['url']) == 'reddit' for s in retained), 2)
 
     def test_all_saved_citations_survive_even_in_a_legacy_oversized_report(self):
         existing = rows('web', 130)
         retained = merge_sources(existing, rows('reddit', 5), protected_ids={s['id'] for s in existing})
-        self.assertEqual(retained, existing + rows('reddit', 5))
+        self.assertEqual(retained, existing)
 
     def test_scarce_channels_are_not_padded_with_unrelated_sources(self):
         self.assertEqual(merge_sources([], rows('web', 3)), rows('web', 3))

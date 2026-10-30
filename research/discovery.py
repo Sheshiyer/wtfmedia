@@ -8,7 +8,7 @@ from typing import Literal
 from pydantic import Field
 from .budget import MODEL_RESERVE
 from .contracts import DTO
-from .evidence import merge_sources, select_context, supports
+from .evidence import merge_sources, select_context, supports, MAX_RETAINED_SOURCES
 from .providers import ProviderError, TOOL_RESERVE
 from .scope import scoped_query, filter_sources, contains_excluded_subject
 from .source_channels import DOMAINS, public_subject, platform_for_url, channel_query
@@ -97,6 +97,7 @@ MESSAGES = {
     'sufficient': 'Evidence coverage: The requested topics have supporting material; this does not certify every claim or source.',
     'budget': 'Evidence coverage: Further searches stopped at the research allowance. Some questions remain unverified.',
     'deadline': 'Evidence coverage: Further searches reached the time allowance. Some questions remain unverified.',
+    'source_limit': 'Evidence coverage: The retained-source limit was reached. Remaining questions must use the retained evidence or remain unverified.',
     'storage': 'Evidence coverage: The saved-evidence storage allowance was reached. Some discovered material could not be retained.',
     'no_new_evidence': 'Evidence coverage: Follow-up searches added no new usable evidence. Remaining gaps are unverified, not proof of unavailable data.',
     'no_new_queries': 'Evidence coverage: No useful new search was identified for the remaining questions. Those gaps remain unverified.',
@@ -183,7 +184,7 @@ async def expand_evidence(body, result, state, calls, save):
                 result['progress'].append('Searched an unresolved report question')
                 save()
                 if len({s['url'] for s in result['sources']}) < len(candidates):
-                    finish('storage'); return
+                    finish('source_limit' if len(result['sources']) >= MAX_RETAINED_SOURCES else 'storage'); return
             if not checkpoint['added']:
                 finish('no_new_evidence' if performed or checkpoint['index'] else 'no_new_queries'); return
             checkpoint.pop('plan')

@@ -13,7 +13,8 @@ from pathlib import Path
 from .subjects import subjects
 from .evidence import primary_priority, extraction_targets, CITATION, byte_slice, compact_sections, merge_sources, select_context, supports, synthesis_context
 from .diagnostics import emit, failure
-from .providers import model_name, ProviderError
+from .providers import model_name, ProviderError, TOOL_RESERVE
+from .budget import MODEL_RESERVE
 from .store import BudgetExceeded
 from .source_channels import public_subject
 from .scope import scoped_query, filter_sources, validate_resolution
@@ -137,7 +138,27 @@ class GPTREngine:
 
     async def prepare(self, body, sources):
         description = ' '.join(spec[1] for key in TIERS if (spec := section_spec(body, key)))
-        return await self._run(body, None, description, sources, prepare_only=True)
+        self.sources = filter_sources(list(sources), body.get('searchScope', {}))
+        try:
+            if body.get('budgetPolicyVersion') == 1 and not self.calls.preparation.get('searched') and 'context' not in self.calls.preparation:
+                self.calls.stage('preparation')
+                self.calls.allowance(needed=MODEL_RESERVE + 3 * TOOL_RESERVE, calls=4)
+            return await self._run(body, None, description, sources, prepare_only=True)
+        except BudgetExceeded:
+            # A preflight denial spends nothing and leaves writing/figures admitted.
+            # A real overrun/durable stop remains fatal; never clear its ledger.
+            evidence = getattr(self, 'sources', sources)
+            if (body.get('budgetPolicyVersion') != 1 or getattr(self.calls, 'fatal_error', None)
+                    or not any(supports(s) for s in evidence)):
+                raise
+            self.calls.stage('preparation')
+            self.calls.preparation.update(sources=evidence, directEvidence=True, searched=True,
+                context={'evidenceNote': 'Use the section-specific original extracts. Additional preparation reached its allowance; do not claim exhaustive coverage.'})
+            warning = 'Additional preparation stopped to preserve writing and diagrams; the report uses retained source extracts.'
+            self.warnings = list(dict.fromkeys([*self.warnings, warning]))
+            self.calls.preparation['warnings'] = self.warnings
+            getattr(self.calls, 'checkpoint', lambda: None)()
+            return evidence
 
     async def tier(self, body, key, description, sources):
         if 'context' not in self.calls.preparation:

@@ -1,3 +1,33 @@
+## 2026-10-30 — Restore 120 sources and protect writing from optional preparation (local)
+
+- Owner superseded the requested budget increase with a temporary return to the
+  120-reference policy. New retention is capped at 120 plus the existing byte
+  allowance, selecting subject coverage/channel diversity/relevance. Saved cited
+  sources, including oversized legacy evidence, remain protected. Adaptive
+  follow-up discovery is paused; multi-input and all-four-section behavior remain.
+  The 5,000,000 micro-unit ceiling and per-call/per-phase bounds are unchanged.
+- Read-only staging failure metadata confirmed discovery/preparation denied
+  admission with 823,630 already reserved against a 5,000,000 ceiling, 160 retained
+  sources and zero written sections. Four million units were held for writers and
+  visuals; an extra planning call could not fit. The durable admission denial
+  stopped the run. This was a reservation/preparation bug, not broken citations or
+  proof of an exhausted provider account. No report bodies or secrets were read.
+- Optional dossier/channel/preparation/extraction/summary calls now preflight under
+  the provider lock before durable admission. Shared preparation checks capacity
+  before initial search and falls back to relevant retained extracts when denied.
+  Empty evidence, real provider overruns and durable stopped ledgers still fail
+  closed. No stored budget is cleared, increased or reset.
+- VERIFIED-SOURCE: 215 runner tests pass. A regression uses real SQLite admission,
+  pinned GPT Researcher, report writers and figure validators with mocked provider
+  responses, 120 retained sources and the exact observed 823,630 starting amount:
+  all four sections and four figures complete with zero preparation model calls.
+  Additional cases retain hard stops and reject empty-evidence completion.
+- Changes are local on feature/pavun. No push/deployment, paid model calls,
+  regeneration or saved-report mutation. The failed staging report remains failed;
+  code changes alone do not replay it. A matching runner deployment is needed to
+  activate the new admission and retention behavior. Previous staging receipt below
+  describes the version still deployed.
+
 ## 2026-10-30 — Adaptive research deployed to staging
 
 - Owner-authorized candidate f7ccf44 is pushed to feature/pavun; runtime source

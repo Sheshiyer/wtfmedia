@@ -7,8 +7,9 @@ from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
 from .contracts import Source, safe_url, utf16_slice
-from .source_channels import platform_for_url
+from .source_channels import CHANNELS, platform_for_url
 
+MAX_RETAINED_SOURCES = 120
 MAX_EVIDENCE_BYTES = 1_000_000  # Leaves room in the 1.8 MB report document for prose, figures and metadata.
 
 CITATION = re.compile(r'\[([A-Za-z0-9_-]{1,100})\]')
@@ -45,7 +46,7 @@ def normalize_results(payload):
 
 
 def merge_sources(existing, incoming, *, protected_ids=(), query=None, subjects=(), byte_budget=MAX_EVIDENCE_BYTES):
-    """Retain distinct sources without a count quota; enforce serialized storage capacity."""
+    """Retain up to 120 distinct sources within storage capacity; never evict saved citations."""
     protected_ids = set(protected_ids)
     by_url = {s['url']: s for s in existing}
     ids = {s['id'] for s in existing}
@@ -65,7 +66,7 @@ def merge_sources(existing, incoming, *, protected_ids=(), query=None, subjects=
         ids.add(source['id'])
     sources = list(by_url.values())
     sizes = {s['id']: len(json.dumps(s, ensure_ascii=False).encode('utf-8')) + 2 for s in sources}
-    if sum(sizes.values()) + 2 <= byte_budget:
+    if len(sources) <= MAX_RETAINED_SOURCES and sum(sizes.values()) + 2 <= byte_budget:
         return sources
     selected = {s['id'] for s in sources if s['id'] in protected_ids}
     used = sum(sizes[ident] for ident in selected) + 2
@@ -80,8 +81,12 @@ def merge_sources(existing, incoming, *, protected_ids=(), query=None, subjects=
         candidate = next((s for s in ranked if matches_subject(s, subject) and s not in priority), None)
         if candidate:
             priority.append(candidate)
+    # Restore the previous channel-diversity floor within the shared 120 cap.
+    for channel in CHANNELS:
+        count = sum(platform_for_url(s['url']) == channel for s in sources if s['id'] in selected or s in priority)
+        priority.extend([s for s in ranked if platform_for_url(s['url']) == channel and s['id'] not in selected and s not in priority][:max(0, 2 - count)])
     for source in priority + [s for s in ranked if s not in priority]:
-        if source['id'] not in selected and used + sizes[source['id']] <= byte_budget:
+        if len(selected) < MAX_RETAINED_SOURCES and source['id'] not in selected and used + sizes[source['id']] <= byte_budget:
             selected.add(source['id'])
             used += sizes[source['id']]
     # Saved citations are never silently deleted, including oversized legacy snapshots.

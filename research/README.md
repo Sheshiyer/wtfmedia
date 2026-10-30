@@ -37,24 +37,23 @@ Treg supplies Perplexity web search, Exa extraction and the five catalog-pinned
 social searches in `social-catalog-receipt.json`. A failed direct social search
 can fall back to domain-targeted web search; coverage records the actual method
 and outcome. YouTube metadata is not treated as a transcript. Source counts
-describe retained evidence, not coverage of an entire platform. Initial subject and
-channel searches are followed by an evidence assessment with exact retained quotes
-for the requested topics. Uncovered questions trigger targeted searches, including
-additional searches on the same platform. Twenty is a transport batch size, not a
-report quota. Discovery stops on supported topic coverage, no useful new queries or
-evidence, provider failure, or an existing allowance; it never pads channel counts.
-The assessment and each search are checkpointed. It reserves planning, writing and
-visual capacity, respects the existing phase/cost ceilings and has a three-minute
-follow-up discovery window. No private notes enter the search planner.
+describe retained evidence, not coverage of an entire platform. The owner-requested
+rollback restores a shared 120-source retention ceiling and pauses the extra adaptive
+assessment/search pass. Twenty remains a per-request provider batch size. Subject
+coverage, channel diversity and relevance select the retained set; no channel is
+padded. All four sections still follow documented people/company/industry connections.
 
-Source retention has no fixed count or per-platform floor. A 1 MB serialized evidence
-allowance leaves room within the existing 1.8 MB saved-document limit for prose,
-figures and metadata. Subject coverage and relevance prioritize retention only when
-storage is full; cited source identity and text remain protected. A source count is
-not proof of relevance, independence or claim accuracy. Code-owned coverage notices
-explain why follow-up discovery stopped. Up to twelve separately labelled Alpha
-references remain a distinct historical-context contract. Preparation extracts up
-to ten priority pages; spending, payload and model-context limits remain bounded.
+A 1 MB serialized evidence allowance also leaves room within the existing 1.8 MB
+saved-document limit. Saved cited source identity and text remain protected, including
+legacy reports above 120; they are not silently pruned. A source count is not proof
+of relevance, independence or claim accuracy. Separate Alpha historical references
+retain their existing contract. Preparation can extract up to ten priority pages.
+
+Optional evidence work checks its remaining allowance before admission. If it cannot
+proceed without using writing/diagram reservations, preparation uses relevant retained
+extracts instead. It never clears a durable budget stop or provider cost overrun,
+and empty evidence cannot become a completed report. The per-run ceiling remains
+5,000,000 micro-units; no budget increase accompanies this rollback.
 
 Historical lookup has a 40-second bound and is separate from runner billing; it uses
 the existing Alpha service's inference budget. Provider quality, exact question wording,

@@ -69,15 +69,16 @@ class AdaptiveDiscoveryTests(unittest.TestCase):
         self.assertEqual(state['adaptiveDiscovery']['reason'], 'sufficient')
         self.assertIn('site:youtube.com', calls.searches[0])
 
-    def test_reddit_is_not_stopped_at_two_and_total_is_not_stopped_at_120(self):
+    def test_paused_discovery_module_still_respects_restored_total_cap(self):
         initial = [source(i) for i in range(120)] + [source(i, 'reddit') for i in range(120, 122)]
         more = [source(i, 'reddit') for i in range(122, 137)]
         calls = Calls([self.plan('reddit', 'Example Company customer experience'), self.covered(more)], [more])
         output, state = self.run_flow(calls, {**result(), 'sources': initial, 'coverage': [dict(channel='reddit', method='dedicated_tool')]})
-        self.assertEqual(len(output['sources']), 137)
+        self.assertEqual(len(output['sources']), 120)
+        self.assertEqual(state['adaptiveDiscovery']['reason'], 'source_limit')
         self.assertEqual(output['coverage'][0]['method'], 'web_search')
-        self.assertEqual(sum('reddit.com' in s['url'] for s in output['sources']), 17)
-        self.assertEqual(state['adaptiveDiscovery']['reason'], 'sufficient')
+        self.assertGreaterEqual(sum('reddit.com' in s['url'] for s in output['sources']), 2)
+        self.assertEqual(state['adaptiveDiscovery']['reason'], 'source_limit')
 
     def test_duplicate_evidence_stops_without_padding_sources(self):
         calls = Calls([self.plan()], [[source(0)]])
@@ -133,7 +134,7 @@ class AdaptiveDiscoveryTests(unittest.TestCase):
         saved = merge_sources(rows[:1], rows, protected_ids={'src_0'}, byte_budget=20000)
         self.assertIn(rows[0], saved)
         self.assertLessEqual(len(json.dumps(saved).encode()), 20000)
-        self.assertEqual(len(merge_sources([], [source(i) for i in range(300)])), 300)
+        self.assertEqual(len(merge_sources([], [source(i) for i in range(300)])), 120)
 
     def test_deadline_and_empty_search_plan_are_truthful_stops(self):
         calls = Calls([])
@@ -164,7 +165,7 @@ from research.contracts import section_spec
 
 
 class AdaptiveWorkflowTests(StoreFixture):
-    def test_guest_only_job_assesses_coverage_then_writes_all_four_sections(self):
+    def test_guest_only_job_skips_paused_adaptive_pass_and_writes_all_four_sections(self):
         self.body.update(budgetPolicyVersion=1, researchInput={'guestName': 'Example Person'})
         requirements = evidence_needs(self.body)
         assessed, written = [], []
@@ -181,7 +182,7 @@ class AdaptiveWorkflowTests(StoreFixture):
         with patch('socket.socket.connect', side_effect=AssertionError('unexpected network')):
             asyncio.run(run_job(self.db, self.claim(), LocalEngine, LocalCalls))
         saved = self.db.get(self.body['id'])
-        self.assertEqual(assessed, [True])
+        self.assertEqual(assessed, [])
         self.assertEqual(written, ['snacks', 'appetizers', 'main', 'desserts'])
         self.assertEqual(saved['status'], 'completed')
         self.assertTrue(all(section['status'] == 'completed' for section in saved['sections']))
