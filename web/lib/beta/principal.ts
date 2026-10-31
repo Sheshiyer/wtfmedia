@@ -1,3 +1,5 @@
+import { isYouTubeAnalyticsChannelPath } from "./youtube-channel-path";
+
 export type PrincipalKind = "member" | "operator";
 export type PrincipalRole = "member" | "editor" | "admin" | "super_admin";
 
@@ -45,6 +47,7 @@ export function parsePrincipalContext(value: unknown): PrincipalContext | null {
 }
 
 export function principalCanAccess(context: PrincipalContext, pathname: string): boolean {
+  if (isYouTubeAnalyticsChannelPath(pathname)) return context.capabilities.includes("analytics:read");
   if (pathname === "/beta" || pathname === "/beta/api/principal-context") return true;
   if (pathname === "/beta/social-analytics") return context.capabilities.includes("analytics:read");
   if (pathname === "/beta/research") return context.capabilities.includes("research:read");
@@ -64,6 +67,7 @@ export function principalCanAccess(context: PrincipalContext, pathname: string):
 }
 
 export function capabilityForPath(pathname: string): string | null {
+  if (isYouTubeAnalyticsChannelPath(pathname)) return "analytics:read";
   if (pathname === "/beta/research") return "research:read";
   if (pathname.startsWith("/beta/admin/release")) return "release:manage";
   if (pathname.startsWith("/beta/admin/users")) return "members:read";

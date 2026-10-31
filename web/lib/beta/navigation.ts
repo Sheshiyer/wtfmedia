@@ -1,3 +1,5 @@
+import { isYouTubeAnalyticsChannelPath } from "./youtube-channel-path";
+
 export type BetaAudience = "member" | "operator" | "admin" | "super_admin";
 
 export type BetaNavigationDestination = {
@@ -43,6 +45,7 @@ export const BETA_PROTECTED_DESTINATIONS: readonly BetaNavigationDestination[] =
 export function betaDestinationForPath(pathname: string): BetaNavigationDestination | null {
   const exact = BETA_PROTECTED_DESTINATIONS.find((item) => item.href === pathname);
   if (exact) return exact;
+  if (isYouTubeAnalyticsChannelPath(pathname)) return BETA_PROTECTED_DESTINATIONS.find((item) => item.href === "/beta/analytics") ?? null;
   if (/^\/beta\/chat\/(?:mcnv|cnv)_[A-Za-z0-9-]{8,88}$/u.test(pathname)) return BETA_PROTECTED_DESTINATIONS.find((item) => item.href === "/beta/chat") ?? null;
   return null;
 }
