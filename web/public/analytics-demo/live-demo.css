@@ -459,5 +459,19 @@
 .connection-actions button, .connection-card #api-channel-form button { border: 1px solid #fffdf8; border-radius: 24px; padding: 8px 12px; min-height: 44px; max-width: 100%; white-space: normal; background: #fffdf8; color: #242220; font-size: 12px; font-weight: 700; }
 .connection-card #api-action-status { margin: 0; font-size: 12px; line-height: 1.4; }
 .connection-card #api-channel-form label { display: grid; gap: 6px; font-size: 12px; }
-.connection-card #api-channel-form select { max-width: 100%; padding: 8px; }
+.connection-card #api-channel-form select {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 2px solid #242220;
+  border-radius: 6px;
+  background: #fffdf8;
+  color: #242220;
+  color-scheme: light;
+  font: 700 13px "DM Sans", sans-serif;
+}
+.connection-card #api-channel-form select:focus-visible { outline: 3px solid #f3b634; outline-offset: 2px; }
+.connection-card #api-channel-form option { background: #fffdf8; color: #242220; }
 .connection-card [hidden] { display: none !important; }
