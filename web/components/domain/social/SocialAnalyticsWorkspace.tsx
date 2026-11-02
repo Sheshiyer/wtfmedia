@@ -281,27 +281,27 @@ function SocialAnalyticsView({ request, apiBase, beta = false }: {
           </div>
           <Button variant="secondary" onClick={() => void loadStatus()} loading={loadingStatus} disabled={connecting !== null}>refresh connections</Button>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           {PLATFORM_DEFINITIONS.map((definition) => {
             const account = accounts.find((candidate) => candidate.platform === definition.id && candidate.isActive);
             const syncPending = account?.analyticsSyncStatus === "never_synced";
-            return <article key={definition.id} className="flex min-h-[260px] flex-col border-2 border-foreground bg-surface-raised p-5 shadow-[6px_6px_0_var(--wtf-surface-structure)]">
+            return <article key={definition.id} className="flex min-h-[260px] min-w-0 flex-col border-2 border-foreground bg-surface-raised p-4 shadow-[6px_6px_0_var(--wtf-surface-structure)] xl:p-5">
               <div className="flex items-start justify-between gap-3">
                 <PlatformLogo platform={definition.id} />
-                <span className="inline-flex items-center gap-2 font-label text-[11px] font-bold uppercase tracking-wide text-muted">
-                  <span className={`h-2.5 w-2.5 rounded-full ${account ? account.health === "connected" && !syncPending ? "bg-live" : "bg-attention" : "bg-muted"}`} aria-hidden="true" />
+                <span className="inline-flex min-w-0 items-center gap-1 text-right font-label text-[10px] font-bold uppercase leading-tight tracking-wide text-muted xl:gap-2 xl:text-[11px]">
+                  <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${account ? account.health === "connected" && !syncPending ? "bg-live" : "bg-attention" : "bg-muted"}`} aria-hidden="true" />
                   {account ? account.health === "connected" ? syncPending ? "sync pending" : "connected" : account.health === "attention" ? "attention" : "check unavailable" : "not connected"}
                 </span>
               </div>
-              <h3 className="mt-5 font-display text-2xl font-bold">{definition.label}</h3>
+              <h3 className="mt-5 break-words font-display text-xl font-bold xl:text-2xl">{definition.label}</h3>
               <p className="mt-2 flex-1 font-body text-sm leading-relaxed text-secondary">{account ? accountLabel(account) : definition.description}</p>
               {account?.healthMessage && <p className="mb-3 text-xs text-editorial">{account.healthMessage}</p>}
               {account?.analyticsNote && <p className="mb-3 text-xs leading-relaxed text-muted">{account.analyticsNote}</p>}
               {canManage && account?.platform === "tiktok" && <p className="mb-3 text-xs leading-relaxed text-muted">Reconnect the same TikTok account to keep its history. Connecting a different account replaces the current account and deletes its history.</p>}
-              {canManage && account?.platform === "linkedin" && <Button variant={account.accountType === "organization" ? "secondary" : "attention"} loading={loadingPages} disabled={connecting !== null || switchingPage || removing !== null} onClick={() => void openLinkedInPages(account.id)}>
+              {canManage && account?.platform === "linkedin" && <Button className="w-full min-w-0 text-center" variant={account.accountType === "organization" ? "secondary" : "attention"} loading={loadingPages} disabled={connecting !== null || switchingPage || removing !== null} onClick={() => void openLinkedInPages(account.id)}>
                 {account.accountType === "organization" ? "change company page" : "choose company page"}
               </Button>}
-              {canManage && (!account || account.platform !== "linkedin") && <Button variant={account ? "secondary" : "attention"} loading={connecting === definition.id} disabled={!status?.configured || status.selectionRequired || connecting !== null} onClick={() => void connect(definition.id)}>
+              {canManage && (!account || account.platform !== "linkedin") && <Button className="w-full min-w-0 text-center" variant={account ? "secondary" : "attention"} loading={connecting === definition.id} disabled={!status?.configured || status.selectionRequired || connecting !== null} onClick={() => void connect(definition.id)}>
                 {account ? "reconnect" : `connect ${definition.label}`}
               </Button>}
               {canManage && account?.platform === "linkedin" && pagePicker === account.id && <div className="mt-4 border-t-2 border-foreground pt-3">
