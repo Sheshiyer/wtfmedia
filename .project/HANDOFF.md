@@ -1,3 +1,185 @@
+## 2026-11-02 — Owner-authorized branch synchronization
+
+- Owner requested pushing all remaining changes to feature/pavun.
+  Includes the existing channel-admission/release builder commits, PR #89 merge,
+  adaptive collection budget/cached-receipt fixes, tests and documentation.
+- VERIFIED-SOURCE: all 219 offline research tests pass; diff whitespace and
+  added-content secret/local-path checks pass. Architecture ledger regenerated.
+- This is a source push only. Adaptive research remains undeployed; staging
+  keeps its existing 120-source runner and the PR #89 frontend deployment.
+  No paid model calls, report regeneration or production changes.
+
+## 2026-11-02 — PR #89 social cards and channel picker deployed to staging
+
+- Owner requested review/merge of feature/sarthak UI fixes and staging deployment.
+  Reviewed PR #89 head 003cbd6110d40a1c76325313710d8045eafd240e; two UI files only.
+  Local merge 772212dcfbb4921a95e16d5be6308c66fb42bf8c had no conflicts.
+  GitHub PR merged into feature/pavun as f1290d66d5fed9b91981950af18e6035336886ce.
+  Local branch reconciles that remote merge with the existing channel-admission
+  commit; its tree matches the tested candidate. No separate branch push.
+- Clean committed archive excludes dirty adaptive research work. 65 focused
+  analytics tests pass; OpenNext build includes successful lint/type checks.
+  Compiled Clerk identity verified for staging, not production.
+- Staging Web 0578cb78-2500-471c-9313-4cd03cd2ce09 receives 100% traffic.
+  Prior/rollback Web 071cd57b-6412-44da-80ac-1ade00dc2e95. All bindings and
+  runtime settings unchanged, including staging-only Edge service binding.
+  Live picker CSS and social layout JS match built assets byte-for-byte.
+- Browser redirects signed-out social analytics to sign-in. No authenticated
+  visual/Google consent acceptance claim. No Edge, database, credentials,
+  research runner or production deployment changes.
+
+## 2026-10-31 — Staging YouTube channel-page access fix
+
+- Owner reported an admin denied at a valid /beta/analytics/channels/UC… URL.
+  Root cause: staging frontend still used the pre-fix destination allowlist.
+  Local committed candidate 11cf7852c284b8580b37da3fca82542b09850b1a registers
+  canonical channel pages under the existing analytics:read capability.
+- Built a clean HEAD archive, excluding local adaptive research changes.
+  Eight channel-admission tests pass; OpenNext build/lint/types pass, and
+  compiled Clerk identity is staging-only. No role/credential/data changes.
+- STAGING WEB DEPLOYED: 071cd57b-6412-44da-80ac-1ade00dc2e95, 100% traffic.
+  Rollback version: 3d531e1c-3990-415d-9690-af1016089ab0. All ten bindings
+  and runtime settings match before/after; Edge remains staging-only.
+- LIVE-VERIFIED: channel page 200; unsigned principal/analytics APIs 401.
+  Live admission JavaScript matches the tested asset, SHA-256
+  23e3a0ea4c54b6a328f3117c33f61961c8e3d87c79211f924a7249ca2f5ac6c0.
+  Real signed-in admin/Google OAuth was not exercised. Initial Python HTTP
+  probe returned 403; curl reached the application successfully with 200.
+- No Edge, research runner, database, production or Git remote changes.
+  Research remains on its existing 120-source staging release.
+
+## 2026-10-31 — YouTube multi-account analytics deployed to production
+
+- Owner authorized the production YouTube analytics promotion after PR #88.
+  Local source candidate 11cf7852c284b8580b37da3fca82542b09850b1a adds a
+  reproducible bounded release builder and fixes channel-page admission.
+  The per-channel routes previously had no registered navigation destination;
+  valid channel paths now inherit analytics:read for every admitted role.
+  This source commit remains local; this task did not request another push.
+- Production Edge baseline a8d94ffe-4298-496f-bc98-3c2408625f21 was downloaded
+  and hash-checked before publication. The release adds a private analytics
+  module and six reversible analytics dispatch/sync replacements. Reversing
+  replacements restores all previous production bytes exactly. Shared Alpha
+  inference, social handlers and unrelated backend routes remain intact.
+- Frontend retains the documented ded0b4c analytics-only reconstruction, prior
+  Social/TikTok features and quiet admission lifecycle. It includes current
+  YouTube workspace/settings/assets, channel pages and their admission fix.
+  Research and the new Production Calendar were not promoted. Rebuilding the
+  assembly from the committed builder reproduces its runtime source/artifact.
+- VERIFIED-SOURCE: 48 focused Edge checks; seven checks against the actual
+  packaged Edge overlay; 21 focused web checks; eight channel-admission checks
+  against the production assembly. OpenNext production build, lint/types and
+  compiled production Clerk identity pass. These use mocked Google responses;
+  three real Google consent flows were not exercised.
+- Only migration 0029 applied through an isolated migration directory. Recovery
+  bookmark: 00000275-00000000-00005115-0e8ab2117fb0776b02048f5253425a37.
+  Existing 25 daily metric rows, two channel rows and one Reporting job remain.
+  There were zero eligible selected grants before migration and zero migrated
+  accounts afterward; no active grant migration is claimed. Migrations 0023
+  and 0025–0028 remain absent. No credential rotation or paid/provider call.
+- PRODUCTION-DEPLOYED at 100% traffic:
+  Edge e9baf170-f705-41cd-9c6a-5c735b203004;
+  apex Web 01b461cb-1a4d-4764-9ecf-6be355ede3e4.
+  All 31 Edge/six Web bindings and runtime settings match pre-release snapshots.
+  Downloaded Edge SHA-256 matches the tested artifact:
+  4dffbe6eda077bc69f29cd74a1689b468e83995079436e23606dad486ba1a963.
+- LIVE-VERIFIED: production health ok; analytics/channel/social pages 200;
+  unsigned analytics and principal APIs 401. Live analytics bridge matches the
+  built artifact byte-for-byte and sign-in uses clerk.wtfhq.in. Actual signed-in
+  Google account connection/sync remains owner testing, not an acceptance claim.
+- Rollback Web: 0bbce8d8-c572-426d-ad96-f6d8ac770cf5; previous Edge above.
+  Once new channel grants are stored, do not restore old Edge code alone: the
+  per-channel schema/grants require coordinated recovery. Preserve saved data.
+  Staging and its 120-source research image were untouched. Uncommitted local
+  adaptive research work remains local. Test https://wtfhq.in/beta/analytics .
+
+## 2026-10-31 — PR #88 merged and staging Edge redeployed
+
+- Owner authorized merging PR #88 from feature/sarthak into feature/pavun and
+  deploying staging. Reviewed head f45bf7cb817f1cf51543bc872159ded409f89937
+  changes only the multi-account regression test and setup documentation.
+  No conflicts. Merge dfdf5002ac0fc31c04a49b4ff3fe71243126b74e is pushed to
+  feature/pavun; GitHub confirms PR #88 MERGED at that exact commit.
+- VERIFIED-SOURCE: all 614 Edge tests pass, including seven multi-account tests.
+  Distinct encrypted refresh grants remain separate, reconnect replaces only
+  its channel grant, the fourth channel is rejected and legacy migration
+  preservation remains covered. No live Google authorization was performed.
+- STAGING-DEPLOYED: Edge 0387d2ce-516b-47a8-bc63-afadd6e31272 receives 100%
+  traffic. Bindings and runtime settings match the previous version exactly;
+  rollback version is c6be4029-e560-4233-8a2b-fea80ec413ca. The existing default
+  Cloudflare login was verified against the explicit WTF account.
+- PR #88 contains no runtime change. Web source is identical to the deployed
+  f7ccf44 baseline, so Web remains 3d531e1c-3990-415d-9690-af1016089ab0.
+  Research retains the deployed 120-source image; local adaptive code and prior
+  uncommitted documentation remain local and were not included in this push.
+- LIVE-VERIFIED: canonical Edge /v1/health returns staging, status ok and
+  alpha_public_api. /beta/analytics returns 200; unsigned analytics/status
+  returns 401. Staging reports no pending migrations. No schema/data, credential,
+  production, paid-model or saved-report mutation. Full signed-in Google
+  account consent remains a separate interactive verification, not claimed here.
+
+## 2026-10-30 — Payments episode added to shared Alpha
+
+- Owner authorized adding YouTube episode hBvInWQWpZ0, “If UPI Is Free, Who Pays
+  for It? | PhonePe, Razorpay & NPCI | WTF is Payments?”. Public YouTube metadata
+  identifies Nikhil Kamath's channel, publication 2026-10-30 and duration 14,405s.
+- Verified absence of its D1 external identity, exact R2 keys and KV ingest receipt
+  before writing. Native English auto-captions yielded 7,157 validated timed cues.
+  Auto-captions do not establish speaker diarization or editorial accuracy.
+- Uploaded transcripts/hBvInWQWpZ0.txt and timestamps/hBvInWQWpZ0.json to the
+  existing Alpha bucket and verified both through downloaded SHA-256 readback.
+  Registered one episode/YouTube identity and two available source assets in the
+  existing production catalogue, with matching source hashes.
+- No local ingest secret was configured. Used the existing authorized Cloudflare
+  login and the canonical admitTranscriptJobs source/D1 validator to submit exactly
+  one message to the existing Alpha ingest queue through Cloudflare's API. No
+  secret rotation, second corpus, runtime deployment or broad replay was performed.
+- LIVE-VERIFIED: KV wtfmedia.ingest.v2 receipt has chunkCount=223 and
+  timingOrigin=published_sidecar. After index propagation, all 223 vector records
+  match the exact native text/timestamps and published video identity. A filtered
+  nearest-neighbor query using an existing vector returned five matching passages;
+  no answer-generation call was used or claimed as an end-to-end chat test.
+- Transcript SHA-256: 40c5022385cbde555d00f54741c44474313bbaa526da79eaa3aeb8b24186a1a2.
+  Timestamp SHA-256: 744402fc4c47cae5a140c9310f814faac9faf9a3b0a1cc762361f037320cfe6b.
+  Combined ingest hash: 216ef692daaca9a6d79cb531a3a30f4d7c7762d9a3505461a3effe47a8f6cda7.
+- Connections is separate: /api/connections imports a generated topic-connections
+  JSON snapshot rather than querying catalogue D1. Its source snapshot still covers
+  55 episodes and excludes this video. Adding D1/RAG data does not update that page;
+  topic regeneration and a web rollout are separate work. An unsigned live API
+  probe returned 403, so live Connections content is not claimed as inspected.
+- Work remains on feature/pavun with the prior adaptive research changes preserved.
+  No push or deployment; downloaded caption bodies and operational scripts remain
+  outside tracked source. The staging research runner stays on its 120-source image.
+
+## 2026-10-30 — Adaptive collection repaired locally; staging stays at 120
+
+- Owner explicitly selected adaptive collection beyond 120 as local work only.
+  Working branch remains feature/pavun. No push, deployment, paid provider call,
+  saved-report replay, credential change or shared database mutation was performed.
+  The deployed staging image/version in the next checkpoint remains unchanged.
+- Restored evidence-driven discovery and byte-bounded source retention without
+  count/platform quotas. Follow-ups target unresolved questions; stopping at the
+  search allowance hands retained evidence to writers instead of failing the job.
+  Single-input and multi-input all-four-section behavior remains intact.
+- Coverage assessment now also supplies the four figure goals, replacing a separate
+  planning call. The writer/numeric-review and figure generation/repair holds remain
+  protected. Optional GPT Researcher preparation retains the direct-extract fallback.
+  The 5,000,000 micro-unit ceiling and durable overrun/stop semantics are unchanged.
+- Combined planning checkpoints preserve intent before dispatch. Model/search
+  preflight accounts for cached receipts so restarts reuse completed operations.
+  Invalid combined assessment uses default figure goals without another planner;
+  generated figures still require supporting evidence and validation.
+- VERIFIED-SOURCE: 219 runner tests pass offline. A real Store + pinned GPTResearcher
+  + Calls + validators regression starts with 573,630 reserved units and 160 sources,
+  runs the combined planner and a targeted search, retains 180 sources, passes the
+  new excerpts to all writers, and completes four sections, four numeric reviews
+  and four figures after all four first drafts need repair. Final reservation is
+  4,828,630 of 5,000,000. An interrupted planner reuses its receipt with no second
+  model dispatch. Provider responses are mocked and network sockets are blocked.
+- This proves local orchestration and budget handling, not live provider quality or
+  guaranteed completion for arbitrary evidence/provider failures. Existing failed
+  reports remain unchanged. New local adaptive code is not in the staging image.
+
 ## 2026-10-30 — 120-source cap and preparation fix deployed to staging
 
 - Owner-authorized local candidate 68e250c (runtime 4c2e022) is deployed to the

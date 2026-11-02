@@ -37,23 +37,33 @@ Treg supplies Perplexity web search, Exa extraction and the five catalog-pinned
 social searches in `social-catalog-receipt.json`. A failed direct social search
 can fall back to domain-targeted web search; coverage records the actual method
 and outcome. YouTube metadata is not treated as a transcript. Source counts
-describe retained evidence, not coverage of an entire platform. The owner-requested
-rollback restores a shared 120-source retention ceiling and pauses the extra adaptive
-assessment/search pass. Twenty remains a per-request provider batch size. Subject
-coverage, channel diversity and relevance select the retained set; no channel is
-padded. All four sections still follow documented people/company/industry connections.
+describe retained evidence, not coverage of an entire platform. Local source restores
+adaptive collection: follow-up searches address uncovered research questions, not a
+fixed source-count target. Twenty remains a per-request provider batch size. All four
+sections follow documented people/company/industry connections even with one input.
+Staging remains on the separately deployed 120-source rollback until a new rollout.
 
-A 1 MB serialized evidence allowance also leaves room within the existing 1.8 MB
-saved-document limit. Saved cited source identity and text remain protected, including
-legacy reports above 120; they are not silently pruned. A source count is not proof
-of relevance, independence or claim accuracy. Separate Alpha historical references
-retain their existing contract. Preparation can extract up to ten priority pages.
+A 1 MB serialized evidence allowance leaves room within the existing 1.8 MB saved-document
+limit. Saved cited source identity and text remain protected; they are not silently
+pruned. Subject coverage and relevance select evidence when storage is full. A source
+count is not proof of relevance, independence or claim accuracy. Separate Alpha
+historical references retain their existing contract. Preparation can extract up to
+ten priority pages.
 
-Optional evidence work checks its remaining allowance before admission. If it cannot
-proceed without using writing/diagram reservations, preparation uses relevant retained
+Coverage assessment and the initial four figure goals share one model call. Writing,
+numeric review, and one generation/repair pair per figure retain their reservations.
+Adaptive search stops when evidence suffices, no useful query/evidence remains, or
+its time/storage/remaining allowance is reached. It then hands retained evidence to
+writing; reaching the optional search allowance does not itself fail the report.
+Interrupted planning/search operations reuse durable cached receipts. Invalid combined
+planning uses default figure goals without a second planning call; actual figures
+still require supported evidence and validation.
+
+Optional evidence work checks its remaining allowance before admission. If preparation
+cannot proceed without using writing/diagram reservations, it uses relevant retained
 extracts instead. It never clears a durable budget stop or provider cost overrun,
 and empty evidence cannot become a completed report. The per-run ceiling remains
-5,000,000 micro-units; no budget increase accompanies this rollback.
+5,000,000 micro-units; there is no budget increase or live report replay.
 
 Historical lookup has a 40-second bound and is separate from runner billing; it uses
 the existing Alpha service's inference budget. Provider quality, exact question wording,
@@ -135,10 +145,11 @@ The 5,000,000 micro-unit ceiling and 250,000 model reservation are unchanged.
 New job activation is explicitly gated by Edge `RESEARCH_BUDGET_POLICY_VERSION=1`
 after compatible hosted storage and the runner are deployed. Existing jobs keep
 their recorded policy. See [rollout and recovery](../docs/RESEARCH-RUNNER.md#policy-1-rollout-not-activated-by-this-source-change).
-This local implementation has not been tested or deployed; added offline regression
-cases are pending execution, consistent with the owner's instruction.
+Current local adaptive changes are covered by offline runner regressions; they do not
+change the deployed 120-source staging image. Live provider quality is not an offline
+test claim.
 
-Visuals share one bounded model request after core writing. Provider-compatible
+Figure generation follows core writing, with bounded per-figure repair attempts. Provider-compatible
 schemas leave item-count bounds to local validation. Table references are preserved
 as links in both the reader and Word export; existing reports need no paid rerun
 for this display correction. Diagram changes still need owner runtime acceptance.

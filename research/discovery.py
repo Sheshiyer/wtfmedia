@@ -7,8 +7,9 @@ from typing import Literal
 
 from pydantic import Field
 from .budget import MODEL_RESERVE
-from .contracts import DTO
-from .evidence import merge_sources, select_context, supports, MAX_RETAINED_SOURCES
+from .contracts import DTO, section_spec
+from .figures import Plan, DEFAULTS, provider_schema
+from .evidence import merge_sources, select_context, supports
 from .providers import ProviderError, TOOL_RESERVE
 from .scope import scoped_query, filter_sources, contains_excluded_subject
 from .source_channels import DOMAINS, public_subject, platform_for_url, channel_query
@@ -30,6 +31,7 @@ class FollowupSearch(DTO):
 
 
 class CoveragePlan(DTO):
+    figures: list[Plan] = Field(default_factory=list, max_length=8)
     covered: list[CoverageEvidence] = Field(max_length=50)
     queries: list[FollowupSearch] = Field(max_length=6)  # One response batch, not a report quota.
 
@@ -91,13 +93,18 @@ Use documented connections to follow a guest to their companies and industries, 
 its leaders. Research those connections before assuming them. Do not invent a confirmed interview guest.
 Searches must contain public research terms only, respect exclusions and dates, and differ from tried queries.
 Do not seek any minimum number per platform. Return no queries when no useful new search can be proposed;
-that means unresolved needs, not proof that information does not exist. Return JSON: covered, queries.'''
+that means unresolved needs, not proof that information does not exist.
+When figureSections are supplied, also plan one explanatory figure per supplied section using the same
+public evidence: section, goal, preferredKind, query. Use varied mechanisms, timelines, comparisons or
+supported metrics, not quote cards. Charts require compatible units/periods; images require an openly
+licensed public source. Queries must be public evidence gaps; leave query empty when evidence suffices.
+These plans share this coverage assessment; do not invent claims or confirmed guests. Return JSON:
+covered, queries, figures. With no figureSections return an empty figures array.'''
 
 MESSAGES = {
     'sufficient': 'Evidence coverage: The requested topics have supporting material; this does not certify every claim or source.',
     'budget': 'Evidence coverage: Further searches stopped at the research allowance. Some questions remain unverified.',
     'deadline': 'Evidence coverage: Further searches reached the time allowance. Some questions remain unverified.',
-    'source_limit': 'Evidence coverage: The retained-source limit was reached. Remaining questions must use the retained evidence or remain unverified.',
     'storage': 'Evidence coverage: The saved-evidence storage allowance was reached. Some discovered material could not be retained.',
     'no_new_evidence': 'Evidence coverage: Follow-up searches added no new usable evidence. Remaining gaps are unverified, not proof of unavailable data.',
     'no_new_queries': 'Evidence coverage: No useful new search was identified for the remaining questions. Those gaps remain unverified.',
@@ -118,8 +125,11 @@ async def expand_evidence(body, result, state, calls, save):
     scope = body.get('searchScope') or {}
     calls.stage('preparation')
     previous_hold = getattr(calls, 'hold', 0)
-    # Leave a planning-model reservation and four phase calls for the existing GPTR preparer.
-    calls.hold = previous_hold + MODEL_RESERVE + 3 * TOOL_RESERVE
+    # Coverage and figure planning share one model reservation. Optional GPTR
+    # preparation can use retained excerpts; do not reserve another planner on top
+    # of all writers, numeric reviews and figure first-attempt/repair reservations.
+    combined_figures = body.get('visualPolicyVersion') == 2 and 'figurePlans' not in state
+    calls.hold = max(0, previous_hold - MODEL_RESERVE) if combined_figures else previous_hold
 
     def finish(reason):
         checkpoint['reason'] = reason
@@ -134,14 +144,27 @@ async def expand_evidence(body, result, state, calls, save):
             if calls.preparation.get('searchDisabled'):
                 finish('unavailable'); return
             if 'plan' not in checkpoint:
-                calls.allowance(needed=MODEL_RESERVE, calls=5)
                 context = select_context(result['sources'], ' '.join(n['question'] for n in needs),
                                          42000, subjects=subjects(body))
                 messages = [{'role': 'system', 'content': PROMPT}, {'role': 'user', 'content': json.dumps({
                     'subject': public_subject(body), 'needs': needs, 'scope': scope,
-                    'triedQueries': checkpoint['tried'], 'evidence': context}, ensure_ascii=False)}]
-                raw = await asyncio.to_thread(calls.model, messages, 3500, output_schema=CoveragePlan.model_json_schema())
+                    'triedQueries': checkpoint['tried'], 'evidence': context,
+                    'figureSections': {k: section_spec(body, k) for k in DEFAULTS if section_spec(body, k)}
+                        if combined_figures and ('adaptiveFigurePlans' not in state or checkpoint.get('figurePlanningPending')) else {}}, ensure_ascii=False)}]
+                schema = provider_schema(CoveragePlan.model_json_schema())
+                keys = [calls.model_key(messages, 5000, output_schema=schema)] if hasattr(calls, 'model_key') else []
+                calls.allowance(needed=MODEL_RESERVE, calls=1, keys=keys)
+                # Persist the handoff before dispatch: an interrupted or invalid
+                # response must not trigger another independent figure-planning bill.
+                first_plan = combined_figures and 'adaptiveFigurePlans' not in state
+                if first_plan:
+                    state['adaptiveFigurePlans'] = []
+                    checkpoint['figurePlanningPending'] = True
+                    save()
+                raw = await asyncio.to_thread(calls.model, messages, 5000, output_schema=schema)
                 checkpoint['plan'] = validate_plan(raw, needs, context)
+                if checkpoint.pop('figurePlanningPending', False):
+                    state['adaptiveFigurePlans'] = checkpoint['plan']['figures']
                 checkpoint['index'] = 0
                 checkpoint['added'] = False
                 save()
@@ -163,7 +186,8 @@ async def expand_evidence(body, result, state, calls, save):
                     raise ValueError('search restores a disputed identity')
                 if time.time() - checkpoint['startedAt'] >= 180:
                     finish('deadline'); return
-                calls.allowance(needed=TOOL_RESERVE, calls=5)
+                keys = [calls.search_key(query)] if hasattr(calls, 'search_key') else []
+                calls.allowance(needed=TOOL_RESERVE, calls=1, keys=keys)
                 incoming = filter_sources(await asyncio.to_thread(calls.search, query), scope)
                 if item['channel'] != 'web':
                     incoming = [source for source in incoming if platform_for_url(source['url']) == item['channel']]
@@ -184,7 +208,7 @@ async def expand_evidence(body, result, state, calls, save):
                 result['progress'].append('Searched an unresolved report question')
                 save()
                 if len({s['url'] for s in result['sources']}) < len(candidates):
-                    finish('source_limit' if len(result['sources']) >= MAX_RETAINED_SOURCES else 'storage'); return
+                    finish('storage'); return
             if not checkpoint['added']:
                 finish('no_new_evidence' if performed or checkpoint['index'] else 'no_new_queries'); return
             checkpoint.pop('plan')

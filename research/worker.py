@@ -8,6 +8,7 @@ import time
 from uuid import uuid4
 
 from .remote_store import open_store
+from .discovery import expand_evidence
 from .contracts import TIERS, utf16_slice, section_spec, validate_section_subject
 from .evidence import (NUMBER, merge_sources, number_comparison, select_context,
                        supports, validate_report)
@@ -323,7 +324,8 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
         visual_reservation = (len(pending) * 2 + 1 if body.get('visualPolicyVersion') == 2 else 1) * MODEL_RESERVE if pending and body.get('budgetPolicyVersion') == 1 else 0
         core_reservation = sum((1 if key in state.get('coreDrafts', {}) else 2) * MODEL_RESERVE for key in pending)
         calls.hold = core_reservation + visual_reservation
-        # Follow-up expansion is paused under the owner-requested 120-source rollback.
+        if pending and body.get('budgetPolicyVersion') == 1:
+            await expand_evidence(body, result, state, calls, save)
         if body.get('visualPolicyVersion') == 2:
             calls.hold = core_reservation + max(0, visual_reservation - MODEL_RESERVE)
             await plan_figures(calls, body, result, state, save)

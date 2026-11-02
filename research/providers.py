@@ -329,6 +329,9 @@ class Calls:
         self.fatal_error = error
         raise error
 
+    def search_key(self, query):
+        return 'tool_' + digest(encode({'query': query, 'search_type': 'web', 'max_results': 20}))
+
     def search(self, query):
         try:
             return self._search(query)
@@ -353,7 +356,7 @@ class Calls:
                 validate_catalog(catalog)
                 self.catalog_checked = True
             body = {'query': query, 'search_type': 'web', 'max_results': 20}
-            key = 'tool_' + digest(encode(body))
+            key = self.search_key(query)
             cached = self.admit(key, 'tool', TOOL_RESERVE)
             if cached is not None:
                 from .scope import filter_sources
