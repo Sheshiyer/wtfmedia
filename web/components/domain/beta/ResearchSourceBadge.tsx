@@ -36,7 +36,7 @@ export function ResearchSourceExcerpt({ source }: { source: ResearchSource }) {
 export function ResearchCoverageSummary({ coverage, sources }: { coverage?: ResearchCoverage[]; sources: ResearchSource[] }) {
   return <section aria-label="Source channel coverage" className="min-w-0 space-y-2">
     <h3 className="font-bold">Source coverage</h3>
-    <ul className="grid min-w-0 grid-cols-1 items-start gap-2 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="grid min-w-0 grid-cols-1 items-start gap-2 sm:grid-cols-2 2xl:grid-cols-3">
       {RESEARCH_CHANNELS.map(channel => {
         const receipt = coverage?.find(item => item.channel === channel);
         const retained = sources.filter(source => researchSourcePlatform(source) === channel);

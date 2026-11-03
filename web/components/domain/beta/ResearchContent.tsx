@@ -25,7 +25,7 @@ function ResearchFigure({ visual, sources, sourcePrefix }: { visual: ResearchVis
 
 export function ResearchMarkdown({ content, sources, visualSources = sources, sourcePrefix = "research-source-" }: { content: string; sources: ResearchSource[]; visualSources?: ResearchSource[]; sourcePrefix?: string }) {
   const parts = splitResearchVisuals(content, visualSources);
-  if (parts.some(part => part.kind === "visual")) return <div className="min-w-0 space-y-5">{parts.map((part, index) => part.kind === "markdown"
+  if (parts.some(part => part.kind === "visual")) return <div className="min-w-0 space-y-4">{parts.map((part, index) => part.kind === "markdown"
     ? <ResearchMarkdown key={index} content={part.content} sources={sources} visualSources={visualSources} sourcePrefix={sourcePrefix} />
     : part.visual ? <ResearchFigure key={index} visual={part.visual} sources={visualSources} sourcePrefix={sourcePrefix} />
       : <p key={index} className="text-sm text-secondary">Diagram unavailable: supporting evidence could not be validated.</p>)}</div>;
@@ -33,7 +33,7 @@ export function ResearchMarkdown({ content, sources, visualSources = sources, so
   const displayContent = researchDisplayContent(content);
   const marker = "**Numeric evidence comparisons**";
   const split = displayContent.indexOf(marker);
-  if (split >= 0) return <div className="min-w-0 space-y-5">
+  if (split >= 0) return <div className="min-w-0 space-y-4">
     <ResearchMarkdown content={displayContent.slice(0, split)} sources={sources} visualSources={visualSources} sourcePrefix={sourcePrefix} />
     <details className="min-w-0 rounded-control border border-foreground/20 p-4"><summary className="cursor-pointer font-bold">Check numeric evidence</summary><div className="mt-4 min-w-0"><ResearchMarkdown content={displayContent.slice(split + marker.length)} sources={sources} visualSources={visualSources} sourcePrefix={sourcePrefix} /></div></details>
   </div>;
@@ -83,10 +83,10 @@ export function ResearchContent({ brief, sourcePrefix = `research-version-${brie
   if (brief.status === "clarification" && !brief.sections.some(section => section.content.trim()) && !brief.sources.length) return null;
   const slots = brief.figures === undefined ? undefined : validateFigureSlots(brief.figures, brief.sources) ?? [];
   const visualCoverage = figureCoverage(slots, brief.sections);
-  return <div className="min-w-0 space-y-5">
+  return <div className="min-w-0 space-y-4">
     {brief.sections.some(s => s.content.trim()) && <div role="status" className="space-y-1 border-2 border-foreground p-4">
-      <p className="font-bold">{brief.sections.every(s => ["completed", "skipped"].includes(s.status)) ? "Written report complete" : "Written report incomplete"} · {visualCoverage.legacy ? "Earlier visual format" : `${visualCoverage.ready} of ${visualCoverage.total} visuals ready`}</p>
-      {!visualCoverage.complete && <p className="text-sm">{visualCoverage.legacy ? "This saved report uses the earlier visual format." : ["queued", "running"].includes(brief.status) ? "Visual generation is in progress." : "Visual generation has stopped. Some visuals could not be completed; waiting will not change this saved report. Available findings are retained below."}</p>}
+      <p className="font-bold">{brief.sections.every(s => ["completed", "skipped"].includes(s.status)) ? "Written report complete" : "Written report incomplete"} · {visualCoverage.legacy ? "Earlier visual format" : visualCoverage.total ? `${visualCoverage.ready} of ${visualCoverage.total} visuals ready` : "Preparing visuals"}</p>
+      {!visualCoverage.complete && <p className="text-sm">{visualCoverage.legacy ? "This saved report uses the earlier visual format." : ["queued", "running"].includes(brief.status) ? "Visuals are being created and checked against their sources. This page updates automatically." : "Visual generation finished with missing visuals. The available report and validated visuals are shown below."}</p>}
     </div>}
     {brief.needsResearch && <section role="status" className="space-y-2 border-2 border-foreground bg-attention p-4">
       <h3 className="font-bold">Previous report no longer matches the edited inputs</h3>
@@ -103,7 +103,7 @@ export function ResearchContent({ brief, sourcePrefix = `research-version-${brie
         .map(warning => warning.slice(title.length + 2))
         .filter(warning => warning.startsWith("Visual ") || warning.startsWith("Evidence coverage: ") || warning.startsWith("Some diagrams"));
       return <section key={key} className="min-w-0 space-y-3 border-2 border-foreground bg-surface-raised p-4 sm:p-5">
-        <div><p className="font-label text-xs uppercase text-secondary">{description}</p><h3 className="font-heading text-2xl font-bold">{researchSectionTitle(key, brief.researchInput)}</h3><p className="text-sm">{section?.status ?? "Not started"}</p></div>
+        <div><p className="font-label text-xs uppercase text-secondary">{brief.contextPolicyVersion === 1 ? "Research connections" : description}</p><h3 className="font-heading text-2xl font-bold">{researchSectionTitle(key, brief.researchInput, brief.contextPolicyVersion)}</h3><p className="text-sm">{section?.status ?? "Not started"}</p></div>
         {section?.content ? placed.map((block, index) => <div key={index} className="min-w-0">
           <ResearchMarkdown content={block.markdown} sources={[]} visualSources={brief.sources} sourcePrefix={sourcePrefix} />
           {block.figures.map(slot => <ResearchReportFigure key={slot.id} running={["queued", "running"].includes(brief.status)} slot={slot} sources={brief.sources} sourcePrefix={sourcePrefix} />)}

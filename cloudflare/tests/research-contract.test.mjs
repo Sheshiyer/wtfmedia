@@ -153,3 +153,18 @@ test('multiple subjects preserve legacy strings, normalize entries, and enforce 
    assert.throws(()=>parseResearchInput({...input,guestName:invalid}));
  assert.throws(()=>parseResearchInput({...input,guestName:Array.from({length:5},(_,i)=>`Guest ${i}`).join('\n'),companyName:Array.from({length:5},(_,i)=>`Company ${i}`).join('\n')}));
 });
+
+test('connection policy survives projection and rejects unsupported versions',()=>{
+ assert.equal(parse({...base,contextPolicyVersion:1}).contextPolicyVersion,1);
+ assert.equal(parse({...base,status:'running',contextPolicyVersion:1}).contextPolicyVersion,1);
+ assert.throws(()=>parse({...base,contextPolicyVersion:2}));
+ assert.equal(parse(base).contextPolicyVersion,undefined);
+});
+
+test('research problem options are bounded and projected with selected focus',()=>{
+ const first={id:'p1',title:'Institutions',question:'How do institutions change?',why:'A question to investigate.',domain:'Institutions',sourceIds:['s1']};
+ const second={...first,id:'p2',domain:'Technology'};
+ assert.deepEqual(parse({...base,researchProblems:[first,second],selectedProblem:first}).selectedProblem,first);
+ for(const options of [[first],[first,first],[first,{...second,question:'x'.repeat(401)}]])
+  assert.throws(()=>parse({...base,researchProblems:options}));
+});

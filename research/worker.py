@@ -72,6 +72,9 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
     if body.get('notes') and not body.get('notesApproved'):
         result['warnings'].append('Private notes were not sent to any provider because notesApproved is false.')
 
+    if body.get('contextPolicyVersion') == 1:
+        result['contextPolicyVersion'] = 1
+
     def save(status='running'):
         result['warnings'] = list(dict.fromkeys(result['warnings']))[:100]
         result['progress'] = result['progress'][-80:]
@@ -93,6 +96,8 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
         # Reserve visual attempts plus repairs and core writers before broad discovery can spend them.
         slots = sum(section_spec(body, key) is not None for key in TIERS)
         calls.hold = (slots * 4 + 1) * MODEL_RESERVE
+    if body.get('contextPolicyVersion') == 1 and body.get('mode') != 'visuals':
+        calls.hold = 16 * MODEL_RESERVE
     if state.get('_budget', {}).get('stopped'):
         calls.fatal_error = BudgetExceeded(limit=state['_budget']['stopped'])
 
@@ -259,6 +264,18 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
         if scope.get('dateFrom') or scope.get('dateTo'):
             result['warnings'].append(f"Publication-date filter: {scope.get('dateFrom') or 'any start'} through {scope.get('dateTo') or 'today'}. Undated and out-of-range sources are excluded; report figures must also refer to the requested period.")
 
+        if body.get('problemSelectionVersion') == 1:
+            if not body.get('selectedProblem'):
+                from .problems import discover_problems
+                await discover_problems(body, result, state, calls, save)
+                return
+            selected = body['selectedProblem']
+            result['selectedProblem'] = selected
+            # This is an investigative question, never a presumed finding.
+            scope = {**scope, 'focus': (selected['question'] + ' ' + scope.get('focus', ''))[:300]}
+            body = {**body, 'searchScope': scope}
+            calls.scope = scope
+
         # Topic coverage precedes social discovery; checkpoints prevent replay after restart.
         queries = dossier_queries(body)
         calls.stage('dossier')
@@ -310,6 +327,10 @@ async def run_job(store, claim, engine_factory=None, calls_factory=Calls):
             for item in result['coverage']:
                 if item['status'] in ('pending', 'searching'):
                     item['status'] = 'unavailable'
+        if body.get('contextPolicyVersion') == 1:
+            from .connections import run_connections
+            await run_connections(body, result, state, calls, save)
+            return
         # Persist every deliberately omitted slot, including after recovery or a single-tier rerun.
         for key in TIERS:
             if section_spec(body, key) is None:

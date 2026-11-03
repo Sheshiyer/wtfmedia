@@ -67,3 +67,17 @@ describe("real research Word export", () => {
     expect(JSON.stringify(value)).toBe(before);
   });
 });
+
+it('exports connection brief headings while preserving legacy report headings', async () => {
+  const { xml } = await documentParts({ ...brief, contextPolicyVersion: 1 });
+  expect(xml).toContain('Questions worth exploring');
+  expect(xml).toContain('Conversation plan');
+  expect(xml).not.toContain('Takeaways and interview preparation');
+  expect(xml).not.toContain('Industry positioning and opportunities');
+});
+
+it('exports the chosen research problem beneath report metadata', async () => {
+  const selectedProblem = { id: 'p1', title: 'Institutions', question: 'How do institutions change?', why: 'Investigate public work.', domain: 'Institutions', sourceIds: ['src_one'] };
+  const { xml } = await documentParts({ ...brief, selectedProblem });
+  expect(xml).toContain('Research focus: How do institutions change?');
+});

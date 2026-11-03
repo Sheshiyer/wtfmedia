@@ -248,7 +248,8 @@ def provider_schema(schema):
     for key, value in schema.items():
         if key in ('properties', '$defs', 'definitions'):
             result[key] = {name: provider_schema(spec) for name, spec in value.items()}
-        elif key not in ('minItems', 'maxItems', 'minLength', 'maxLength', 'pattern', 'default', 'title'):
+        elif key not in ('minItems', 'maxItems', 'minLength', 'maxLength', 'pattern', 'default', 'title',
+                         'minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'multipleOf'):
             result[key] = provider_schema(value)
     return result
 
@@ -596,7 +597,11 @@ async def generate_figures(calls, body, result, state, save):
             # Protect first attempts AND automatic repairs for the other figures.
             calls.hold = remaining * MODEL_RESERVE
             try:
-                bank = evidence_bank(result['sources'], slot['goal'])
+                visual_sources = result['sources']
+                if body.get('connectionContext'):
+                    allowed = {i['sourceId'] for i in body['connectionContext']['evidence']}
+                    visual_sources = [s for s in visual_sources if s['id'] in allowed]
+                bank = evidence_bank(visual_sources, slot['goal'])
                 if not bank:
                     slot.update(status='failed', reason='missing_evidence', checks=['evidence']); save(); break
                 payload = {'goal': slot['goal'], 'preferredKind': slot['preferredKind'],
@@ -604,6 +609,9 @@ async def generate_figures(calls, body, result, state, save):
                     'evidenceBank': bank,
                     'repair': previous_error,
                     'previousDraft': state.get('figureDrafts', {}).get(slot['id'])}
+                if body.get('connectionContext'):
+                    payload['verifiedConnections'] = body['connectionContext']
+                    payload['relationshipRules'] = 'Use only these reviewed relationships. Label interpretations and proposed questions; do not turn comparison into causality. No unsupported arrows.'
                 comparison_repair = slot['attempts'] > 0 and slot['preferredKind'] == 'comparison'
                 payload['validationChecks'] = state.get('figureDiagnostics', {}).get(slot['id'], {}).get('checks', [])
                 messages = [{'role': 'system', 'content': COMPARISON_REPAIR_PROMPT if comparison_repair else FIGURE_PROMPT}, {'role': 'user', 'content': json.dumps(payload, ensure_ascii=False)}]

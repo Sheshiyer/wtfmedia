@@ -1,3 +1,4 @@
+import { validResearchProblem, validResearchProblems, type ResearchProblem } from "../../shared/research-problems";
 import { normalizeResearchInput, researchInputLabel } from "../../shared/research-input";
 import { validateFigureSlots, type FigureSlot } from "../../shared/research-figures";
 import { researchVisualText } from "./research-report";
@@ -40,6 +41,8 @@ export type ResearchSource = { id: string; title: string; url: string; excerpt: 
   platform?: ResearchChannel; retrievedVia?: typeof RESEARCH_TOOLS[number]; evidenceType?: "page_extract" | "search_snippet" | "post" | "transcript" | "video_metadata";
 };
 export type ResearchBrief = ResearchSummary & {
+  contextPolicyVersion?: 1;
+  researchProblems?: ResearchProblem[]; selectedProblem?: ResearchProblem;
   visualPolicyVersion?: 2; figures?: FigureSlot[];
   notes: string; notesApproved?: boolean; episodeId: string | null; canEdit: boolean; needsResearch?: boolean; skipClarification?: boolean;
   sections: ResearchSection[]; sources: ResearchSource[];
@@ -56,7 +59,11 @@ export const RESEARCH_SECTIONS: ReadonlyArray<{ key: ResearchSectionKey; title: 
   { key: "desserts", title: "Takeaways and interview preparation", description: "Desserts" },
 ];
 /** Label associated people accurately when the user did not name an interview guest. */
-export function researchSectionTitle(key: ResearchSectionKey, input?: ResearchInputV2): string {
+export const CONNECTION_SECTION_TITLES: Record<ResearchSectionKey, string> = {
+  snacks: "Key insights", appetizers: "Connected evidence", main: "Questions worth exploring", desserts: "Conversation plan",
+};
+export function researchSectionTitle(key: ResearchSectionKey, input?: ResearchInputV2, contextPolicyVersion?: 1): string {
+  if (contextPolicyVersion === 1) return CONNECTION_SECTION_TITLES[key];
   if (input && key === "snacks" && !input.guestName.trim()) return "People and leadership";
   if (input && key === "appetizers" && !input.companyName.trim() && !input.industry.trim()) return "Companies and industries";
   return RESEARCH_SECTIONS.find(section => section.key === key)!.title;
@@ -237,6 +244,8 @@ export function parseResearchBrief(value: unknown): ResearchBrief {
   const b = value as ResearchBrief | null;
   if (!b || typeof b.id !== "string" || typeof b.title !== "string" || !Number.isInteger(b.revision)
     || !["draft", "queued", "running", "completed", "partial", "failed", "cancelled", "clarification", "deleting", "cancel_pending"].includes(b.status)
+    || (b.researchProblems !== undefined && !validResearchProblems(b.researchProblems))
+    || (b.selectedProblem !== undefined && !validResearchProblem(b.selectedProblem))
     || typeof b.updatedAt !== "string" || typeof b.notes !== "string" || !(b.episodeId === null || typeof b.episodeId === "string")
     || typeof b.shared !== "boolean" || typeof b.canEdit !== "boolean"
     || (b.skipClarification !== undefined && typeof b.skipClarification !== "boolean")
@@ -260,7 +269,8 @@ export function parseResearchBrief(value: unknown): ResearchBrief {
         && (f.operation == null || ['catalog', 'search', 'social_search', 'extract', 'model'].includes(f.operation))
         && (f.httpStatus == null || (typeof f.httpStatus === "number" && Number.isInteger(f.httpStatus) && f.httpStatus >= 100 && f.httpStatus <= 599));
   const boundedModel = (v: unknown) => typeof v === "string" && v.length <= 120;
-  if ((b.visualPolicyVersion !== undefined && b.visualPolicyVersion !== 2)
+  if ((b.contextPolicyVersion !== undefined && b.contextPolicyVersion !== 1)
+    || (b.visualPolicyVersion !== undefined && b.visualPolicyVersion !== 2)
     || (b.figures !== undefined && !validateFigureSlots(b.figures, b.sources))
     || (b.schemaVersion !== undefined && b.schemaVersion !== 2)
     || (b.coverage !== undefined && (!Array.isArray(b.coverage) || b.coverage.length > 6 || !b.coverage.every(c => c && RESEARCH_CHANNELS.includes(c.channel)

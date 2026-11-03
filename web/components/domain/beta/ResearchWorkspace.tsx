@@ -107,27 +107,27 @@ export function ResearchWorkspace() {
     <header className="shrink-0"><p className="font-label text-xs font-bold uppercase tracking-widest text-secondary">WTF OS · Research</p><h1 className="mt-2 font-heading text-3xl font-bold sm:text-4xl">Research</h1><p className="mt-3 max-w-2xl text-secondary">Build a source-backed brief, shape the questions, and keep the evidence close.</p></header>
     {!loading && !configured && <div role="status" className="flex flex-wrap items-center justify-between gap-3 border-2 border-foreground bg-surface-subtle p-4 text-sm"><p className="max-w-3xl">{unavailable}</p><Button variant="secondary" onClick={() => setReload(value => value + 1)}>Retry connection</Button></div>}
     {notice && <p role="alert">{notice}</p>}
-        {canWrite && <form aria-label="New research" className="shrink-0 border-2 border-foreground bg-surface-raised p-5 sm:p-6" onSubmit={event => { event.preventDefault(); void create(); }}><fieldset disabled={creating} className="min-w-0 space-y-4"><legend className="mb-2 font-heading text-xl font-bold">Start a new brief</legend><p className="text-sm text-secondary">Research a guest, company or industry around the world, with context for an Indian audience. Enter any one field to start. All four sections cover connected people, companies and industries where evidence supports them.</p>
+        {canWrite && <details open={!selected || creating} className="border-2 border-foreground bg-surface-raised"><summary className="cursor-pointer px-5 py-4 font-heading text-lg font-bold focus-visible:outline focus-visible:outline-2">Start a new brief</summary><form aria-label="New research" className="border-t border-foreground/15 p-5 sm:p-6" onSubmit={event => { event.preventDefault(); void create(); }}><fieldset disabled={creating} className="min-w-0 space-y-4"><legend className="sr-only">New research inputs</legend><p className="text-sm text-secondary">Research a guest, company or industry around the world, with context for an Indian audience. Enter any one field to discover research problems across their work and ideas. Choose a problem before we build the full report and visuals.</p>
           <ResearchInputFields value={researchInput} onChange={setResearchInput} />
           <details><summary className="min-h-11 cursor-pointer py-2 text-sm font-bold">Additional info (optional)</summary><div className="grid items-start gap-6 border-t border-foreground/15 pt-5 ">
             <div className="min-w-0 space-y-4"><label className="grid gap-2 text-sm font-bold">Additional info<textarea placeholder="Guide the research: topics to prioritize, comparisons, exclusions, interview angle, or an optional time period." className={`${control} min-h-40 resize-y font-normal`} maxLength={RESEARCH_NOTES_LIMIT} value={notes} onChange={event => setNotes(event.target.value)} /></label>
             <p className="text-xs text-secondary">Used to guide research and writing. The AI receives this information; public searches use derived topics and any requested date constraints.</p></div>
           </div></details>
-          <Button type="submit" className="w-full sm:w-auto" variant="attention" disabled={loading || !configured || !validInput || creating} loading={creating}>{creating ? "Starting…" : "Start new research"}</Button>
+          <Button type="submit" className="w-full sm:w-auto" variant="attention" disabled={loading || !configured || !validInput || creating} loading={creating}>{creating ? "Finding options…" : "Find research problems"}</Button>
           </fieldset>
-        </form>}
-    <div className="grid min-w-0 items-start gap-6 lg:grid-cols-[18rem_minmax(0,1fr)]">
-      <aside className="min-w-0 space-y-4 border-2 border-foreground bg-surface-raised p-5 lg:sticky lg:top-[calc(7rem+env(safe-area-inset-top))] lg:flex lg:max-h-[calc(100dvh-8rem-env(safe-area-inset-top))] lg:min-h-0 lg:flex-col" aria-label="Saved research briefs">
+        </form></details>}
+    <div className="grid min-w-0 items-start gap-5 xl:grid-cols-[15rem_minmax(0,1fr)]">
+      <aside className="min-w-0 space-y-4 border-2 border-foreground bg-surface-raised p-5 xl:sticky xl:top-[calc(7rem+env(safe-area-inset-top))] xl:flex xl:max-h-[calc(100dvh-8rem-env(safe-area-inset-top))] xl:min-h-0 xl:flex-col" aria-label="Saved research briefs">
         <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-heading text-lg font-bold">Saved briefs</h2><Button variant="ghost" disabled={loading || creating} onClick={() => setReload(value => value + 1)}>Refresh</Button></div>
         {loading && <p role="status">Loading saved briefs…</p>}
         {!loading && !list.length && <p className="text-sm text-secondary">Your briefs will appear here after you start research.</p>}
-        <ul className="max-h-[32rem] space-y-2 overflow-y-auto lg:min-h-0 lg:max-h-none lg:flex-1">{list.map(row => <li key={row.id} className={`flex min-w-0 items-start border-2 border-foreground ${selected === row.id ? "bg-attention" : "bg-surface-raised"}`}>
+        <ul className="max-h-[32rem] space-y-2 overflow-y-auto xl:min-h-0 xl:max-h-none xl:flex-1">{list.map(row => <li key={row.id} className={`flex min-w-0 items-start border-2 border-foreground ${selected === row.id ? "bg-attention" : "bg-surface-raised"}`}>
           <button type="button" aria-current={selected === row.id ? "true" : undefined} onClick={() => select(row.id)} className="min-w-0 flex-1 p-3 text-left focus-visible:outline focus-visible:outline-2"><span className="block break-words font-bold">{row.title}</span><span className="mt-1 block text-xs" role={deletingId === row.id ? "status" : undefined}>{deletingId === row.id ? "Deleting research…" : row.status}{row.shared ? " · Shared" : ""}</span><span className="mt-1 block break-words text-xs text-secondary">{new Date(row.updatedAt).toLocaleString()}</span></button>
           {canWrite && row.canEdit && <button type="button" aria-label={`Delete ${row.title}`} title="Delete research" disabled={deletingId !== null} onClick={() => setDeleteTarget(row)} className="m-1 grid min-h-11 min-w-11 shrink-0 place-items-center rounded-control text-editorial hover:bg-editorial/10 focus-visible:outline focus-visible:outline-2 disabled:opacity-50"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg></button>}
         </li>)}</ul>
       </aside>
       {selected ? <fieldset aria-label="Research report" tabIndex={0} className="min-w-0" disabled={creating || deletingId === selected}><ResearchEditor key={selected} id={selected} configured={configured} canWrite={canWrite} blocked={deletingId === selected || list.some(row => row.id === selected && row.status === "deleting")} onChange={updateSummary} /></fieldset>
-        : <div className="min-w-0 border-2 border-foreground bg-surface-raised p-6 sm:p-8"><h2 className="font-heading text-2xl font-bold">Your research brief</h2><p className="mt-2 max-w-2xl text-secondary">{list.length ? "Select a saved brief to read its findings, explore sources, or ask a follow-up question." : canWrite ? "Start with any guest, company or industry above. Your findings and sources will appear here as the research progresses." : "Saved briefs shared with you will appear here."}</p><ul className="mt-6 grid gap-x-6 gap-y-4 border-t border-foreground/20 pt-6 sm:grid-cols-2">{RESEARCH_SECTIONS.map(section => <li key={section.key} className="min-w-0"><h3 className="font-bold">{section.description}</h3></li>)}</ul></div>}
+        : <div className="min-w-0 border-2 border-foreground bg-surface-raised p-6 sm:p-8"><h2 className="font-heading text-2xl font-bold">Your research brief</h2><p className="mt-2 max-w-2xl text-secondary">{list.length ? "Select a saved brief to read its findings, explore sources, or ask a follow-up question." : canWrite ? "Start with any guest, company or industry above. Discover connections across sources, why they matter, and questions worth exploring in your podcast." : "Saved briefs shared with you will appear here."}</p><ul className="mt-6 grid gap-x-6 gap-y-4 border-t border-foreground/20 pt-6 sm:grid-cols-2">{RESEARCH_SECTIONS.map(section => <li key={section.key} className="min-w-0"><h3 className="font-bold">{({ snacks: "Key insights", appetizers: "Connected evidence", main: "Questions worth exploring", desserts: "Conversation plan" })[section.key]}</h3></li>)}</ul></div>}
     </div>
     <Dialog.Root open={!!deleteTarget} onOpenChange={open => { if (!open) setDeleteTarget(null); }}><Dialog.Portal><Dialog.Overlay className="fixed inset-0 z-50 bg-overlay/60" /><Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 space-y-4 border-2 border-foreground bg-canvas p-6"><Dialog.Title className="font-heading text-xl font-bold">Permanently delete this brief?</Dialog.Title><Dialog.Description>This permanently deletes {deleteTarget?.title}, its saved versions, sources and follow-up chat. Any running research will be stopped. This cannot be undone.</Dialog.Description><div className="flex flex-wrap gap-2"><Button autoFocus variant="secondary" onClick={() => setDeleteTarget(null)}>Keep brief</Button><Button onClick={() => void removeBrief()}>Delete permanently</Button></div></Dialog.Content></Dialog.Portal></Dialog.Root>
   </section>;
@@ -141,9 +141,11 @@ function ResearchEditor({ id, configured, canWrite, blocked, onChange }: {
   const [brief, setBrief] = useState<ResearchBrief | null>(null);
   const [busy, setBusy] = useState(false);
   const [pendingAction, setPendingAction] = useState("");
+  const progressAnchor = useRef<HTMLDivElement | null>(null);
   const [notice, setNotice] = useState("");
   const [question, setQuestion] = useState("");
   const [clarification, setClarification] = useState("");
+  const [problemId, setProblemId] = useState("");
   const [cancelPending, setCancelPending] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [reload, setReload] = useState(0);
@@ -193,7 +195,8 @@ function ResearchEditor({ id, configured, canWrite, blocked, onChange }: {
     if (!(editable || (owner && !deleting && suffix === "/cancel")) || mutation.current || !brief) return false;
     if (suffix === "/chat" && brief.needsResearch) return false;
     mutation.current = true; setBusy(true); setNotice("");
-    setPendingAction(suffix === "/run" ? (body && typeof body === "object" && "visualsOnly" in body && body.visualsOnly ? "Preparing missing visuals; saved text is retained…" : "Starting research…") : suffix === "/cancel" ? "Stopping research…" : "Preparing your answer…");
+    if (suffix === "/run") requestAnimationFrame(() => progressAnchor.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
+    setPendingAction(suffix === "/run" ? (body && typeof body === "object" && "visualsOnly" in body && body.visualsOnly ? "Preparing missing visuals; saved text is retained…" : "Starting research for your selected problem…") : suffix === "/cancel" ? "Stopping research…" : "Preparing your answer…");
     const signal = lifetime.current!.signal;
     try {
       const data = await researchRequest<{ brief: unknown }>(fetcher, path + suffix, { method: "POST", body, signal });
@@ -225,20 +228,34 @@ function ResearchEditor({ id, configured, canWrite, blocked, onChange }: {
   const modelDisabled = busy || !configured || !editable || (!!brief.notes.trim() && !brief.notesApproved);
   const sourcePrefix = "research-current-source-";
   const failure = brief.failure ?? brief.sections.find(section => section.failure)?.failure;
-  const needsClarification = brief.status === "clarification";
+  const needsProblem = brief.status === "clarification" && !!brief.researchProblems?.length;
+  const needsClarification = brief.status === "clarification" && !needsProblem;
   const hasReport = brief.sections.some(section => section.status !== "skipped" && section.content.trim());
-  return <article className="min-w-0 space-y-5" aria-label="Research brief" aria-busy={busy}>
-    <header className="space-y-3"><div className="flex flex-wrap items-center gap-2"><span className="border-2 border-foreground bg-surface-subtle px-2 py-1 font-label text-xs">{brief.needsResearch ? "Needs research" : brief.status}</span>{!owner && <span className="text-sm">Read only</span>}</div>
+  return <article className="min-w-0 space-y-4" aria-label="Research brief" aria-busy={busy || running}>
+    <div ref={progressAnchor} className="scroll-mt-28" />
+    <header className="space-y-3 border-b border-foreground/20 pb-4"><div className="flex flex-wrap items-center gap-2"><span className="border-2 border-foreground bg-surface-subtle px-2 py-1 font-label text-xs">{brief.needsResearch ? "Needs research" : brief.status}</span>{!owner && <span className="text-sm">Read only</span>}</div>
       <h2 className="break-words font-heading text-3xl font-bold [overflow-wrap:anywhere]">{brief.title}</h2>
       {brief.notes.trim() && <p className="whitespace-pre-wrap break-words text-sm [overflow-wrap:anywhere]"><strong>Additional info:</strong> {brief.notes}</p>}
       {brief.researchInput && <p className="text-sm">Audience context: India</p>}
-      <div className="flex flex-wrap gap-2">
+      {brief.selectedProblem && <p className="text-sm"><strong>Research focus:</strong> {brief.selectedProblem.question}</p>}
+      <div className="flex flex-wrap gap-2 empty:hidden">
         {editable && brief.status === "draft" && <Button variant="attention" disabled={modelDisabled} onClick={() => void mutate("/run", { revision: brief.revision })}>Start research</Button>}
         {hasReport && <Button variant="secondary" disabled={exporting || deleting} onClick={() => void exportWord()}>{exporting ? "Preparing Word file…" : "Download Word"}</Button>}
       </div>
     </header>
-    {pendingAction && <p role="status" aria-live="polite" className="border-2 border-foreground bg-surface-subtle p-3">{pendingAction}</p>}
+    {pendingAction && <p role="status" aria-live="polite" className="flex items-center gap-3 border-2 border-foreground bg-attention/20 p-3"><span aria-hidden="true" className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-foreground/30 border-t-foreground motion-reduce:animate-none" />{pendingAction}</p>}
     {notice && <p role="alert" className="border-2 border-foreground bg-surface-subtle p-3 text-sm">{notice}</p>}
+    {needsProblem && <section aria-label="Choose a research problem" className="space-y-4 border-2 border-foreground bg-surface-raised p-5">
+      <h3 className="font-heading text-2xl font-bold">What should we explore?</h3>
+      <p>These are possible questions to investigate, not conclusions. Choose one to guide the full report and its visuals.</p>
+      <fieldset disabled={!editable || busy} className="grid gap-3 2xl:grid-cols-2"><legend className="sr-only">Research problem</legend>
+        {brief.researchProblems!.map(problem => <label key={problem.id} className={`min-w-0 cursor-pointer border-2 p-4 ${problemId === problem.id ? "border-foreground bg-attention" : "border-foreground/20"}`}>
+          <span className="flex items-start gap-3"><input type="radio" name="research-problem" value={problem.id} checked={problemId === problem.id} onChange={() => setProblemId(problem.id)} className="mt-1" /><span className="min-w-0 space-y-2 break-words"><span className="block text-xs uppercase">{problem.domain}</span><strong className="block">{problem.title}</strong><span className="block">{problem.question}</span><span className="block text-sm">{problem.why}</span></span></span>
+          <span className="mt-3 block break-words text-sm [overflow-wrap:anywhere]">{problem.sourceIds.map(sourceId => { const source = brief.sources.find(s => s.id === sourceId); return source ? <a key={sourceId} href={source.url} target="_blank" rel="noopener noreferrer" className="mr-3 underline">{source.title}</a> : null; })}</span>
+        </label>)}
+      </fieldset>
+      {editable && <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-3 border-2 border-foreground bg-canvas p-3 shadow-sm"><p role="status" className="text-sm">{busy ? "Starting your selected research…" : problemId ? "Problem selected. Ready to start." : "Select one problem above to continue."}</p><Button loading={busy} disabled={modelDisabled || !brief.researchProblems!.some(p => p.id === problemId)} onClick={() => void mutate("/run", { revision: brief.revision, selectedProblemId: problemId }).then(ok => { if (ok) setProblemId(""); })}>{busy ? "Starting research…" : "Research this problem"}</Button></div>}
+    </section>}
     {needsClarification && <section aria-label="Clarification needed" className="space-y-3 border-2 border-foreground bg-attention p-4"><h3 className="font-heading text-xl font-bold">Clarification needed</h3><p>{brief.clarification || "Clarify the subject to continue, or skip to research only what is clear from your input."}</p>{editable && <form className="space-y-2" onSubmit={event => { event.preventDefault(); if (clarification.trim()) void mutate("/run", { revision: brief.revision, clarification: clarification.trim() }).then(ok => { if (ok) setClarification(""); }); }}><label className="grid gap-1">Your clarification<textarea className={control} maxLength={2000} value={clarification} onChange={event => setClarification(event.target.value)} disabled={busy} /></label><div className="flex flex-wrap gap-2"><Button type="submit" disabled={modelDisabled || !clarification.trim()}>Continue research</Button><Button type="button" variant="secondary" disabled={modelDisabled} onClick={() => void mutate("/run", { revision: brief.revision, skipClarification: true })}>Skip and continue</Button></div></form>}</section>}
     {(running || cancellationPending) && <ResearchRunProgress brief={brief} cancellationPending={cancellationPending}>
       {owner && <Button variant="secondary" disabled={busy || deleting} onClick={() => void mutate("/cancel")}>{cancellationPending ? "Retry cancellation" : "Cancel research"}</Button>}
@@ -285,9 +302,14 @@ function ResearchRunProgress({ brief, cancellationPending, children }: { brief: 
     const timer = setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 1000);
     return () => clearInterval(timer);
   }, [started]);
+  const written = brief.sections.filter(section => section.status === "completed").length;
+  const ready = brief.figures?.filter(figure => figure.status === "ready").length ?? 0;
+  const stage = brief.figures?.length ? 3 : written ? 2 : brief.progress.some(entry => /connections|extracting evidence|relationships/i.test(entry)) ? 1 : 0;
+  const steps = brief.selectedProblem ? ["Collect evidence", "Connect and verify", "Write report", "Create visuals"] : ["Identify subject", "Explore research problems"];
   return <section aria-label="Research in progress" className="min-w-0 space-y-4 border-2 border-foreground bg-surface-raised p-5">
-    <div role="status" aria-live="polite"><h3 className="font-heading text-2xl font-bold">{cancellationPending ? "Stopping your research…" : "Your report is cooking"}</h3>
-      <p className="mt-2 break-words text-sm">{cancellationPending ? "Cancellation is not yet confirmed. Editing and new research are paused." : brief.progress.at(-1) || (brief.status === "queued" ? "Waiting to start" : "Research in progress")}</p></div>
+    <div role="status" aria-live="polite" className="flex items-start gap-3"><span aria-hidden="true" className="mt-1 h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-foreground/30 border-t-foreground motion-reduce:animate-none" /><div><h3 className="font-heading text-2xl font-bold">{cancellationPending ? "Stopping your research…" : brief.selectedProblem ? "Researching your selected problem" : "Finding research problems"}</h3>
+      <p className="mt-2 break-words text-sm">{cancellationPending ? "Cancellation is not yet confirmed. Editing and new research are paused." : brief.progress.at(-1) || (brief.status === "queued" ? "Waiting to start" : "Research in progress")}</p></div></div>
+    <ol aria-label="Research stages" className="grid gap-2 sm:grid-cols-2 2xl:grid-cols-4">{steps.map((label, index) => <li key={label} aria-current={index === (brief.selectedProblem ? stage : brief.sources.length ? 1 : 0) ? "step" : undefined} className="border border-foreground/20 bg-surface-subtle p-3 text-sm aria-[current=step]:border-foreground aria-[current=step]:bg-attention/20"><span className="block font-bold">{label}</span><span className="mt-1 block text-xs text-secondary">{brief.selectedProblem ? index < stage ? "Done" : index === stage ? index === 3 ? `${ready} of ${brief.figures?.length ?? 4} ready` : "In progress" : "Next" : index === (brief.sources.length ? 1 : 0) ? "In progress" : index === 0 ? "Done" : "Next"}</span></li>)}</ol>
     <p className="text-sm text-secondary">Elapsed in this view: {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, "0")}</p>
     <p className="text-sm text-secondary">Your report will update automatically. You can return to it from Saved briefs.</p>
     {children}

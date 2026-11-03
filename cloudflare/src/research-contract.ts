@@ -1,3 +1,4 @@
+import { validResearchProblem, validResearchProblems, type ResearchProblem } from "../../shared/research-problems.ts";
 import { normalizeResearchInput, researchInputLabel } from "../../shared/research-input.ts";
 import { validateFigureSlots, figureCoverage, type FigureSlot } from "../../shared/research-figures.ts";
 export const tiers = ['snacks', 'appetizers', 'main', 'desserts'] as const;
@@ -71,6 +72,9 @@ export type ResearchSource = {
     evidenceType?: 'page_extract' | 'search_snippet' | 'post' | 'transcript' | 'video_metadata';
 };
 export type ResearchDocument = {
+    contextPolicyVersion?: 1;
+    researchProblems?: ResearchProblem[];
+    selectedProblem?: ResearchProblem;
     visualPolicyVersion?: 2;
     figures?: FigureSlot[];
     schemaVersion?: 2;
@@ -141,14 +145,26 @@ function modelNameValid(v: unknown): v is string {
     return bounded(v, 120) && /^[A-Za-z0-9][A-Za-z0-9._/:-]*$/.test(v)
         && !v.includes('://') && !/(?:^|[/:._-])(?:sk|key|token|secret|password|authorization|bearer|credential)(?:$|[/:._-])/i.test(v);
 }
-export function resultMetadata(v: Record<string, unknown>): Pick<ResearchDocument, 'coverage' | 'modelInfo' | 'failure'> {
+export function resultMetadata(v: Record<string, unknown>): Pick<ResearchDocument, 'coverage' | 'modelInfo' | 'failure' | 'contextPolicyVersion' | 'researchProblems' | 'selectedProblem'> {
     if (v.schemaVersion != null && v.schemaVersion !== 2)
         throw new ResearchError(502, 'invalid_research_result');
     if (v.researchInput != null) {
         try { parseResearchInput(v.researchInput); }
         catch { throw new ResearchError(502, 'invalid_research_result'); }
     }
-    const result: Pick<ResearchDocument, 'coverage' | 'modelInfo' | 'failure'> = {};
+    const result: Pick<ResearchDocument, 'coverage' | 'modelInfo' | 'failure' | 'contextPolicyVersion' | 'researchProblems' | 'selectedProblem'> = {};
+    if (v.contextPolicyVersion !== undefined) {
+        if (v.contextPolicyVersion !== 1) throw new ResearchError(502, 'invalid_research_result');
+        result.contextPolicyVersion = 1;
+    }
+    if (v.researchProblems !== undefined) {
+        if (!validResearchProblems(v.researchProblems)) throw new ResearchError(502, 'invalid_research_result');
+        result.researchProblems = v.researchProblems;
+    }
+    if (v.selectedProblem !== undefined) {
+        if (!validResearchProblem(v.selectedProblem)) throw new ResearchError(502, 'invalid_research_result');
+        result.selectedProblem = v.selectedProblem;
+    }
     if (v.coverage != null) {
         const coverage = v.coverage;
         if (!Array.isArray(coverage) || coverage.length > 6 || new Set(coverage.map(c => c?.channel)).size !== coverage.length

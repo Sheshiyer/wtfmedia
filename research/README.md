@@ -181,3 +181,65 @@ material limitations. Additional info is displayed beneath the owner-visible
 title; schema-v2 approved Additional info is included in exports. Unapproved or
 legacy private notes stay out of exports, and shared views retain server-side
 note redaction. These presentation changes do not regenerate saved findings.
+
+## Connection briefs (local source, context policy 1)
+
+New full requests from the updated Edge carry `contextPolicyVersion: 1`.
+Deploy the compatible runner before enabling those Edge requests; older runners
+reject this additive request field. This source work has not been deployed.
+Legacy jobs without the flag continue their original workflow and saved reports
+are not rewritten. Existing visual-only recovery keeps its recorded scope.
+
+The connection workflow discovers people/company/industry evidence from any
+input, optionally extracts six original pages, selects up to 60,000 characters
+of relevant passages, and extracts structured evidence in two bounded batches.
+Each item retains an exact passage, attribution, period, scope and original
+provenance. Duplicate passages collapse. Connections require distinct resources
+and origins; repeated articles are not independent confirmation. Interpretations,
+documented relations, alternatives and limitations are explicit. Predictions,
+metadata and historical Alpha summaries are not observed outcomes/transcripts.
+
+A separate verification pass reviews proposed relationships and original passages,
+including up to three focused gap searches when allowance remains. Ranking uses
+relevance, evidence strength and interview usefulness; no minimum insight count
+is required. No accepted relationship yields an honest partial result, not filler.
+Extraction/relation/review each allow one schema/evidence repair; durable checkpoints
+and provider receipts preserve successful work across restarts. Semantic review is
+model-based, not a guarantee of correctness or an independent human review.
+
+Four public sections project this private structured state: Key insights, Connected
+evidence, Questions worth exploring, Conversation plan. The existing source reader
+and Word export use the same version-aware headings and retained source links.
+Four visual goals explain relationships, original context, alternatives and interview
+questions. Existing figure validation/repair applies. A locally validated comparison
+of the referenced evidence can replace a failed richer diagram; it does not invent
+causal arrows or fetch/generate a photograph. Interpretations remain labelled and
+citations remain beneath visuals, not numbered inside the artwork.
+
+The existing spending ceiling remains unchanged. Sixteen model reservations protect
+extraction and review repairs plus four visual generation/repair pairs before optional
+discovery. Bounded evidence selection is disclosed; source count is not analysis
+coverage. Real provider overruns remain failures. No paid validation calls are part
+of the automated suite. Context-focused editorial quality still requires live trials.
+
+### Choose a research problem before the report
+
+New full jobs from the local Edge use `problemSelectionVersion: 1`. After identity
+resolution, a small two-query exploration proposes distinct source-linked research
+questions across the subject's work. The runner returns `clarification` with
+`researchProblems` and stops before full discovery, writing or visuals. This uses
+the existing terminal-job and owner/revision boundaries; it needs no migration.
+
+The reader requires an explicit option selection. Edge resolves `selectedProblemId`
+against the current owner brief's offered options (client-authored problem text is
+not accepted). The next job retains preview sources and passes the selected problem
+into search scope, evidence selection, connection synthesis and review. The reader
+and Word export show the selected question. Identity clarification remains separate;
+skipping identity guidance does not skip problem selection. Changing subject or
+notes clears stale choices. Legacy saved reports and visual-only recovery retain
+their previous behavior. Deploy the compatible runner before the updated Edge.
+
+Options are proposed investigations, not proven conclusions. The model is asked
+for 4–6 different domains; at least two supported options are required rather than
+inventing associations to fill a quota. Offline tests do not establish live editorial
+quality or guarantee a particular domain mix.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useClerk } from "@clerk/nextjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { OperatorContextProvider } from "@/components/domain/ops/OperatorContextProvider";
@@ -63,8 +63,8 @@ function Shell({ context, children }: { context: PrincipalContext; children: Rea
   >{children}</AppShell>;
 }
 
-function GateState({ heading, body, retry }: { heading: string; body: string; retry?: () => void }) {
-  return <main className="grid min-h-screen place-items-center bg-canvas px-4 py-8"><section className="w-full max-w-xl border-2 border-foreground bg-surface-raised p-6 shadow-[6px_6px_0_rgb(var(--wtf-foreground-rgb)/0.14)]"><p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">beta access</p><h1 className="mt-2 font-heading text-3xl font-bold lowercase">{heading}</h1><p className="mt-3 text-sm leading-6 text-secondary">{body}</p>{retry ? <button type="button" onClick={retry} className="mt-5 min-h-11 border-2 border-foreground bg-attention px-4 font-label text-sm font-bold text-on-attention">try again</button> : null}</section></main>;
+function GateState({ heading, body, retry, recover }: { heading: string; body: string; retry?: () => void; recover?: () => void }) {
+  return <main className="grid min-h-screen place-items-center bg-canvas px-4 py-8"><section className="w-full max-w-xl border-2 border-foreground bg-surface-raised p-6 shadow-[6px_6px_0_rgb(var(--wtf-foreground-rgb)/0.14)]"><p className="font-label text-[11px] font-bold uppercase tracking-[0.14em] text-muted">beta access</p><h1 className="mt-2 font-heading text-3xl font-bold lowercase">{heading}</h1><p className="mt-3 text-sm leading-6 text-secondary">{body}</p>{retry ? <button type="button" onClick={retry} className="mt-5 min-h-11 border-2 border-foreground bg-attention px-4 font-label text-sm font-bold text-on-attention">try again</button> : null}{recover ? <button type="button" onClick={recover} className="mt-5 ml-3 min-h-11 border-2 border-foreground px-4 font-label text-sm font-bold">Sign out and sign in again</button> : null}</section></main>;
 }
 
 function principalCanOpenPath(principal: PrincipalContext, pathname: string): boolean {
@@ -84,10 +84,11 @@ export function BetaPrincipalGate({ children }: { children: React.ReactNode }) {
 
 function SessionPrincipalGate({ children, auth, identityKey }: { children: React.ReactNode; auth: ReturnType<typeof useAuth>; identityKey: string }) {
   const router = useRouter();
+  const { signOut } = useClerk();
   const pathname = usePathname() ?? "/beta";
   const invitationTicket = useSearchParams().get("__clerk_ticket");
   const { isLoaded, isSignedIn, getToken } = auth;
-  const [state, setState] = useState<"loading" | "ready" | "denied" | "unavailable">("loading");
+  const [state, setState] = useState<"loading" | "ready" | "denied" | "unavailable" | "session-error">("loading");
   const [principal, setPrincipal] = useState<PrincipalContext | null>(null);
   const principalRef = useRef<PrincipalContext | null>(null);
   const verifiedIdentityKeyRef = useRef<string | null>(null);
@@ -119,7 +120,7 @@ function SessionPrincipalGate({ children, auth, identityKey }: { children: React
       const token = skipCache ? await getToken({ skipCache: true }) : await getToken();
       ensureCurrent();
       if (token) headers.set("authorization", `Bearer ${token}`);
-      const response = await fetch(input, { ...init, headers, cache: "no-store" });
+      const response = await fetch(input, { ...init, headers, credentials: "omit", cache: "no-store" });
       ensureCurrent();
       return response;
     };
@@ -152,9 +153,9 @@ function SessionPrincipalGate({ children, auth, identityKey }: { children: React
         verifiedIdentityKeyRef.current = null;
         setPrincipal(null);
         setAdmittedKey(null);
-        setState("loading");
-        const { pathname, router } = requestContextRef.current;
-        router.replace(`/sign-in?redirect_url=${encodeURIComponent(pathname)}`);
+        // Clerk still has a session. Redirecting to its sign-in widget here
+        // bounces straight back to this gate and repeats admission forever.
+        setState("session-error");
         return;
       }
       if (response.status === 403) { setState("denied"); return; }
@@ -182,16 +183,13 @@ function SessionPrincipalGate({ children, auth, identityKey }: { children: React
       verifiedIdentityKeyRef.current = null;
       setPrincipal(null);
       setAdmittedKey(null);
-      setState(response.status === 403 ? "denied" : "loading");
-      if (response.status === 401) {
-        const { pathname, router } = requestContextRef.current;
-        router.replace(`/sign-in?redirect_url=${encodeURIComponent(pathname)}`);
-      }
+      setState(response.status === 403 ? "denied" : "session-error");
     }
     return response;
   }, [fetchWithSession]);
 
   if (!isLoaded || !principal || verifiedIdentityKeyRef.current !== identityKey) {
+    if (state === "session-error") return <GateState heading="sign-in needs refreshing" body="Your session could not be verified. Try again, or sign out and sign in again to refresh it." retry={() => void admit()} recover={() => { void signOut({ redirectUrl: `/sign-in?redirect_url=${encodeURIComponent(pathname)}` }).catch(() => setState("session-error")); }} />;
     if (state === "denied") return <GateState heading="access is not granted" body="Your verified account is not allowed to open this Beta route. Nothing private was shown." />;
     if (state === "unavailable") return <GateState heading="workspace unavailable" body="The verified principal context could not be loaded. Nothing private was shown." retry={() => void admit()} />;
     return <BetaWorkspaceLoading />;

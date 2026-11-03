@@ -1,3 +1,153 @@
+## 2026-11-03 — Local session redirect-loop repair
+
+- Local Edge repeatedly rejected principal admission with 401 while Clerk remained signed in. The gate redirected back to sign-in, whose active session returned to the workspace and repeated the cycle.
+- Bearer-authenticated browser API requests now omit cookies to avoid stale cookie/fresh bearer conflicts; Edge token validation and admission remain unchanged. Local issuer and localhost authorized-party configuration match the frontend.
+- Persistent 401 after the existing single fresh-token retry clears private state and presents explicit retry/sign-out recovery instead of another automatic redirect. Actual signed-out navigation retains the normal sign-in/invitation flow.
+- Added regression coverage for cookie omission, bounded retries, recovery, and private-state removal. VERIFIED-SOURCE: web typecheck, targeted lint, diff checks pass. Browser regression execution blocked by missing Playwright Chromium executable; no browser installed and no live signed-in acceptance claimed. Existing local frontend responds 200 at sign-in.
+- Local feature/pavun only; no push, deployment, credentials change, or paid model call.
+
+## 2026-11-03 — Research feedback/layout and visual evidence alignment
+
+- Owner requested visible selection/loading states, report alignment and repair
+  of stopped visuals. No installed UI skill found in the skill catalog/local
+  skill directories; used existing design tokens/components. Native browser
+  inspection blocked by missing computer-use permissions (not visual acceptance).
+- Problem CTA now shows immediate spinner/status with a sticky action row;
+  run status has stage indicators and source/visual progress. New-brief form
+  collapses while a report is selected; narrower sidebar, wider report and
+  responsive source/option columns reduce wrapping and empty space.
+- Latest saved run was terminal partial: four written sections, one of four
+  visuals ready. Model drafts failed numeric checks, then fallbacks failed because
+  accepted connections used search snippets that figure evidence policy rejects.
+  There were 38 eligible original sources; none needed to be invented or relabelled.
+- New connection extraction selects only diagram-eligible originals; saved-source
+  offline selection retains all 38. With fewer than two originals, it returns
+  truthful partial status rather than promoting snippets. Fallback scope metadata
+  cannot introduce numbers absent from its quoted passage. Existing saved report
+  unchanged; completing it requires new evidence analysis, not a page refresh.
+- VERIFIED-SOURCE: 242 runner tests, 78 web metadata/export tests, web typecheck,
+  targeted ESLint and diff whitespace checks pass. Added regression covering many
+  high-ranked snippets alongside eligible originals and four validated fallbacks.
+- Runner restarted locally; no paid calls, shared data writes, push or deployment.
+
+## 2026-11-03 — Research problem selection before full reports
+
+- Owner requested distinct problem options before research so a guest is not
+  reduced to a best-known employer. Added versioned, source-linked small discovery
+  pass that pauses before full research; reader requires one offered option.
+- Edge validates option ID against the owner brief and persists selectedProblem;
+  selection guides query scope, passage ranking, connection synthesis/review and
+  resulting visuals. Selected question appears in reader and Word metadata.
+  Preview sources carry forward; subject/notes edits clear stale selections.
+- VERIFIED-SOURCE: 240 Python tests, 60 focused Edge contracts/routes, 78 web
+  metadata/export tests, web typecheck and targeted lint pass. No paid calls or
+  semantic-quality acceptance claim. Existing report unchanged; no DB migration.
+- Local runner restarted and Edge/Next watch source changes. Keep local on
+  feature/pavun; no push/deployment. New jobs require compatible runner before
+  future Edge rollout. UI action is Find research problems, then Research this
+  problem. Existing saved reports do not retroactively gain choices.
+
+## 2026-11-03 — Local high-volume connection flow verification
+
+- Owner requested local testing before testing again. Saved job was no longer
+  present in the local runner database; used synthetic 176-source, 26-item,
+  seven-connection fixture instead. No saved report was changed or regenerated.
+- New permanent regression executes real runner admission/model serialization,
+  review, section writing, figure materialization/validation, and private SQLite
+  saves with network blocked. Simulated review is not semantic acceptance.
+- Both normal four-figure responses and failed-provider-figure fallback produce
+  four completed sections and four validated figures. Normal path: five model
+  requests; fallback path: nine. Largest message request 77,259 bytes (<90 KB).
+- All 236 offline runner tests pass. Local services remain running. No paid
+  calls, browser signed-in acceptance, push, or deployment performed.
+
+## 2026-11-03 — Bound complete connection-review requests
+
+- Latest local run extracted 26 items and proposed seven connections, then hit
+  the runner 90 KB message bound. Review incorrectly budgeted source excerpts
+  alone (65 KB) without evidence/proposals/prompt/JSON serialization overhead.
+- Review now budgets serialized UTF-8 messages to 80 KB, reserves original
+  passages for every referenced item, avoids duplicate quotes, reduces surrounding
+  context only when necessary, and adds optional gap-search excerpts if they fit.
+  All retained report sources remain unchanged. Missing evidence still fails closed.
+- Offline reconstruction of this saved request is 79,923 bytes, preserving all
+  seven proposals and their 23 referenced evidence items. All 235 runner tests
+  pass, including multibyte source contexts and original-passage preservation.
+- Local runner restarted. No paid calls, report regeneration, saved report
+  mutations, push or deployment; full live completion remains unverified.
+
+## 2026-11-03 — Anthropic connection schema compatibility
+
+- Latest failed local job completed extraction (25 items), then first connection
+  proposal model request returned HTTP 400. Its schema still contained numeric
+  minimum/maximum constraints unsupported by Anthropic structured outputs.
+- Provider adapter now strips numeric constraints recursively while preserving
+  named fields; local Pydantic score bounds remain mandatory. Regression checks
+  cover all connection schemas and rejection of out-of-range local scores.
+- All 234 offline runner tests pass. Local runner restarted. Provider error body
+  was not retained, so no live confirmation of the 400 cause or full completion
+  claim. No paid calls, report regeneration, pushes or deployments performed.
+
+## 2026-11-03 — Isolate schema-invalid research candidates
+
+- Subsequent local run reached extraction batch two but rejected responses for
+  17 items (limit 16), then overlong summaries. Previous item-evidence repair
+  still validated the entire schema first, so it did not handle this case.
+- Local extraction now validates bounded candidates independently, keeps up to
+  16 supported items, and discards malformed candidates without truncating their
+  claims. Connection proposal validation likewise isolates invalid candidates.
+  Malformed envelopes and wholly invalid nonempty batches still fail closed.
+- Offline replay of saved failed batch responses now retains 16 and 11 valid
+  items. All 233 runner tests pass; no paid calls or full live acceptance claim.
+  Local runner restarted; saved failed report unchanged. No push/deployment.
+
+## 2026-11-03 — Local connection extraction batch fix
+
+- Latest local run passed search authentication and retained 165 sources, then
+  failed evidence extraction validation. One unsupported number/date previously
+  rejected an entire otherwise usable batch. Local pipeline now retains only
+  independently validated candidates and clears unsupported period metadata.
+- Strict quote/reference/summary-number checks remain; wholly invalid batches
+  still fail bounded validation. Twelve connection tests pass. Offline replay
+  of the two saved extraction responses retains 11 and 16 valid items.
+- Runner restarted with existing Treg configuration from .dev.vars and other
+  local settings from .dev.vars.local. No credential files modified. No paid
+  calls, saved-report mutations, regeneration, push or deployment performed.
+
+## 2026-11-02 — Connection-focused research implemented locally
+
+- Owner authorized implementing the evidence-to-insight plan on feature/pavun,
+  keeping changes local and starting services. Later steering: owner will test;
+  stop additional testing and provide the local link. No commit/push/deployment.
+- New contextPolicyVersion=1 full jobs extract structured evidence, propose
+  cross-resource relationships, optionally search specific gaps, and separately
+  review original passages. Versioned private checkpoints preserve successful
+  extraction, proposals, review, sections and completed figures on recovery.
+  Legacy jobs/reports retain their prior behavior. Runner compatibility must
+  precede any future deployment of the updated Edge request payload.
+- Public projection uses the existing section/figure/source contracts with
+  version-aware reader and Word headings: Key insights, Connected evidence,
+  Questions worth exploring, Conversation plan. Source-backed interpretations,
+  alternatives, limitations and proposed interview questions replace dossiers.
+- Relationship types are general, not belief/disagreement-specific. Quote,
+  identity, number, duplicate-origin and reference checks reject malformed
+  candidates. Semantic review remains model-based, not guaranteed truth.
+  No accepted connection returns partial rather than inventing findings.
+- Four visual goals use reviewed context plus existing validation/repair.
+  Failed rich figures may fall back to a validated evidence comparison without
+  causal arrows. Sixteen model reservations protect analysis and visual repairs;
+  existing spending ceiling is unchanged. No paid model calls were made.
+- VERIFIED-SOURCE before owner took over testing: 230 offline runner tests,
+  63 Edge research tests, 132 web research/export tests, web typecheck and
+  targeted ESLint pass. Includes real worker/admission and failed-figure recovery
+  with fake providers, bounded repair and restart reuse. Not live editorial QA.
+- Local services running: Next localhost:3000, Edge localhost:8787, runner
+  127.0.0.1:8080. Local Edge uses the existing staging identity/data bindings;
+  runner uses a fresh ignored private local database so no old job is replayed.
+  Authenticated runner readiness 200/configured; research page 200; invalid
+  principal bearer 401. Browser opened research; authenticated report generation
+  remains owner testing. Test http://localhost:3000/beta/research .
+
 ## 2026-11-02 — Owner-authorized branch synchronization
 
 - Owner requested pushing all remaining changes to feature/pavun.

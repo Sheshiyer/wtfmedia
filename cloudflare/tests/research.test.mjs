@@ -610,3 +610,25 @@ test('single-field scope and optional clarification skip survive durable resubmi
  assert.equal(payload.researchInput.guestName,'');assert.equal(payload.notesApproved,true);
  db.sqlite.close();
 });
+
+test('research problem selection is required and uses only the owner brief offered option',async()=>{
+ const db=database();const submitted=[];
+ const call=client(db,async(input,init)=>{if(init?.body)submitted.push(JSON.parse(init.body));return accepted(input,init);});
+ let brief=(await(await call('POST','',{title:'Public guest'})).json()).brief;
+ assert.equal(submitted[0].problemSelectionVersion,1);
+ const sources=[{id:'src_a',title:'Public work',url:'https://example.com/a',excerpt:'Public evidence for research exploration.',retrievedAt:'2026-11-03T00:00:00Z'}];
+ const problems=[{id:'p1',title:'Institutions',question:'How do institutions change?',why:'Investigate public work.',domain:'Institutions',sourceIds:['src_a']},{id:'p2',title:'Technology',question:'How does technology spread?',why:'Investigate public ideas.',domain:'Technology',sourceIds:['src_a']}];
+ const poll=client(db,async(input)=>Response.json({...emptyJob,id:new URL(input).pathname.split('/').pop(),status:'clarification',sections:[],sources,researchProblems:problems,clarification:'Choose a problem.'}));
+ brief=(await(await poll('GET','/'+brief.id)).json()).brief;
+ assert.deepEqual(brief.researchProblems,problems);
+ const path='/'+brief.id+'/run';
+ assert.equal((await call('POST',path,{revision:brief.revision,skipClarification:true})).status,400);
+ assert.equal((await call('POST',path,{revision:brief.revision,selectedProblemId:'p6'})).status,400);
+ assert.equal((await call('POST',path,{revision:brief.revision,selectedProblemId:'p1'},902)).status,404);
+ const response=await call('POST',path,{revision:brief.revision,selectedProblemId:'p2'});
+ assert.equal(response.status,200);
+ assert.deepEqual(submitted.at(-1).selectedProblem,problems[1]);
+ assert.deepEqual(submitted.at(-1).sources,sources);
+ assert.deepEqual((await response.json()).brief.selectedProblem,problems[1]);
+ db.sqlite.close();
+});

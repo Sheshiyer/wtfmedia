@@ -284,3 +284,20 @@ it("labels inferred company leaders accurately and shows the discovery stop reas
   expect(researchSectionTitle("snacks", {guestName:"", companyName:"Example", industry:"", audienceCountry:"IN"})).toBe("People and leadership");
   expect(researchSectionTitle("appetizers", {guestName:"Example Person", companyName:"", industry:"", audienceCountry:"IN"})).toBe("Companies and industries");
 });
+
+it('uses connection-focused headings only for versioned insight briefs', async () => {
+  const { researchSectionTitle } = await import('@/lib/research');
+  expect(researchSectionTitle('snacks', undefined, 1)).toBe('Key insights');
+  expect(researchSectionTitle('appetizers', undefined, 1)).toBe('Connected evidence');
+  expect(researchSectionTitle('main', undefined, 1)).toBe('Questions worth exploring');
+  expect(researchSectionTitle('desserts', undefined, 1)).toBe('Conversation plan');
+  expect(researchSectionTitle('snacks')).toBe('Guest profile');
+});
+
+it('accepts bounded research problem choices and rejects duplicate or malformed choices', () => {
+  const first = { id: 'p1', title: 'Institutions', question: 'How do institutions change?', why: 'Investigate public work.', domain: 'Institutions', sourceIds: ['src_one'] };
+  const second = { ...first, id: 'p2', domain: 'Technology' };
+  expect(parseResearchBrief({ ...legacy, researchProblems: [first, second], selectedProblem: first }).selectedProblem).toEqual(first);
+  expect(() => parseResearchBrief({ ...legacy, researchProblems: [first, first] })).toThrow();
+  expect(() => parseResearchBrief({ ...legacy, selectedProblem: { ...first, question: 'x'.repeat(401) } })).toThrow();
+});

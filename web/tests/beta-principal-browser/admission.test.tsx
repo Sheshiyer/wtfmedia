@@ -7,8 +7,9 @@ const runtime = vi.hoisted(() => ({
   pathname: "/beta/research",
   router: { replace: vi.fn() },
   navigate: vi.fn(),
+  signOut: vi.fn(),
 }));
-vi.mock("@clerk/nextjs", () => ({ useAuth: () => runtime.auth }));
+vi.mock("@clerk/nextjs", () => ({ useAuth: () => runtime.auth, useClerk: () => ({ signOut: runtime.signOut }) }));
 vi.mock("next/navigation", () => ({
   usePathname: () => runtime.pathname,
   useRouter: () => runtime.router,
@@ -57,6 +58,7 @@ beforeEach(() => {
   runtime.auth = { isLoaded: true, isSignedIn: true, userId: "fixture-a", sessionId: "fixture-session-a", getToken: vi.fn().mockResolvedValue("fixture-token") };
   runtime.pathname = "/beta/research";
   runtime.router.replace.mockReset();
+  runtime.signOut.mockReset().mockResolvedValue(undefined);
   originalUrl = location.href;
   window.addEventListener("popstate", onPopState);
   runtime.navigate.mockImplementation((path: string, push = true) => {
@@ -128,7 +130,10 @@ it("uses the latest destination when a pending admission loses authentication", 
   await render();
   await act(async () => pending.resolve(new Response(null, { status: 401 })));
   expect(privatePage()).toBeNull();
-  expect(runtime.router.replace).toHaveBeenCalledWith("/sign-in?redirect_url=%2Fbeta%2Fsocial-analytics");
+  expect(runtime.router.replace).not.toHaveBeenCalled();
+  expect(container.textContent).toContain("sign-in needs refreshing");
+  await act(async () => Array.from(container.querySelectorAll("button")).find(button => button.textContent === "Sign out and sign in again")!.click());
+  expect(runtime.signOut).toHaveBeenCalledWith({ redirectUrl: "/sign-in?redirect_url=%2Fbeta%2Fsocial-analytics" });
 });
 
 it("keeps the admitted subtree and one admission through navigation, back/forward and token-hook changes", async () => {
@@ -183,7 +188,9 @@ it("uses the current token hook and redirect destination through a retained fetc
   expect(headers.get("authorization")).toBe("Bearer fixture-refreshed-token");
   fetchMock.mockResolvedValue(new Response(null, { status: 401 }));
   await act(async () => { await retainedFetch("/beta/api/conversations"); });
-  expect(runtime.router.replace).toHaveBeenCalledWith("/sign-in?redirect_url=%2Fbeta%2Fsettings");
+  expect(runtime.router.replace).not.toHaveBeenCalled();
+  expect(container.textContent).toContain("sign-in needs refreshing");
+  expect(privatePage()).toBeNull();
 });
 
 it("checks destination capabilities synchronously without another admission request", async () => {
@@ -268,7 +275,7 @@ it.each([401, 403])("removes private content after protected API denial %s and c
   runtime.pathname = "/beta/settings";
   await render();
   expect(privatePage()).toBeNull();
-  if (status === 401) expect(runtime.router.replace).toHaveBeenCalled();
+  if (status === 401) { expect(runtime.router.replace).not.toHaveBeenCalled(); expect(container.textContent).toContain("sign-in needs refreshing"); }
   else expect(container.textContent).toContain("access is not granted");
 });
 
@@ -322,4 +329,22 @@ it.each([403, 503, 200])("fails closed for initial denial, outage or malformed a
     await act(async () => container.querySelector<HTMLButtonElement>("button")!.click());
     expect(privatePage()).not.toBeNull();
   }
+});
+
+it("sends bearer credentials without a competing browser session cookie", async () => {
+  await render();
+  expect(fetchMock.mock.calls[0][1]?.credentials).toBe("omit");
+  expect(new Headers(fetchMock.mock.calls[0][1]?.headers).get("authorization")).toBe("Bearer fixture-token");
+  await act(async () => { await api("/beta/api/conversations", { credentials: "include" }); });
+  expect(fetchMock.mock.calls.at(-1)?.[1]?.credentials).toBe("omit");
+});
+
+it("recovers rejected admission by explicit retry without a redirect loop", async () => {
+  fetchMock.mockResolvedValue(new Response(null, { status: 401 }));
+  await render();
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(runtime.router.replace).not.toHaveBeenCalled();
+  fetchMock.mockResolvedValue(response());
+  await act(async () => container.querySelector<HTMLButtonElement>("button")!.click());
+  expect(privatePage()).not.toBeNull();
 });

@@ -200,7 +200,19 @@ class Context(DTO):
         return self
 
 
+class ResearchProblem(DTO):
+    id: str = Field(pattern=r'^p[1-6]$')
+    title: str = Field(min_length=1, max_length=100)
+    question: str = Field(min_length=1, max_length=400)
+    why: str = Field(min_length=1, max_length=400)
+    domain: str = Field(min_length=1, max_length=100)
+    sourceIds: list[str] = Field(min_length=1, max_length=4)
+
+
 class JobInput(Context):
+    problemSelectionVersion: Literal[1] | None = None
+    selectedProblem: ResearchProblem | None = None
+    contextPolicyVersion: Literal[1] | None = None
     visualPolicyVersion: Literal[2] | None = None
     mode: Literal['full', 'visuals'] | None = None
     figures: list[dict] | None = Field(default=None, max_length=8)

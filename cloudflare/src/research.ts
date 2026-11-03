@@ -100,14 +100,19 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
         if (input.visualsOnly !== undefined && typeof input.visualsOnly !== 'boolean') throw new ResearchError(400, 'invalid_request');
         const visualsOnly = input.visualsOnly === true;
         if (visualsOnly && (doc.needsResearch || !doc.sections.some(s => ['completed', 'partial'].includes(s.status)) || !doc.sources.length)) throw new ResearchError(409, 'research_not_ready');
+        if (input.selectedProblemId !== undefined && (typeof input.selectedProblemId !== 'string' || doc.status !== 'clarification' || !doc.researchProblems?.some(p => p.id === input.selectedProblemId)))
+            throw new ResearchError(400, 'invalid_request');
+        const selectedProblem = input.selectedProblemId !== undefined ? doc.researchProblems!.find(p => p.id === input.selectedProblemId)! : doc.selectedProblem;
+        if (!visualsOnly && doc.researchProblems?.length && !selectedProblem)
+            throw new ResearchError(400, 'select_research_problem');
         const skipClarification = input.skipClarification ?? doc.skipClarification ?? false;
         const runId = 'rrun_' + crypto.randomUUID();
         // Only the supplied public subject crosses to Alpha; notes and identity never do.
         const historicalContext = visualsOnly ? null : await readAlphaInterviewContext(env, doc.researchInput ? researchInputLabel(doc.researchInput) : doc.title, doc.episodeId);
-        const payload = { id: runId, title: doc.title, ...(doc.researchInput ? { schemaVersion: 2, researchInput: doc.researchInput } : {}), historicalContext, notes: visualsOnly ? '' : doc.notes, notesApproved: visualsOnly ? false : doc.notesApproved, section: null, skipClarification, clarification: input.clarification ?? null, sections: visualsOnly ? doc.sections : [], sources: visualsOnly ? doc.sources : [], figures: visualsOnly ? doc.figures ?? [] : [], coverage: visualsOnly ? doc.coverage ?? [] : [], mode: visualsOnly ? 'visuals' : 'full', visualPolicyVersion: 2, budgetMicro: 5000000, budgetPolicyVersion: 1 };
+        const payload = { id: runId, title: doc.title, ...(doc.researchInput ? { schemaVersion: 2, researchInput: doc.researchInput } : {}), historicalContext, notes: visualsOnly ? '' : doc.notes, notesApproved: visualsOnly ? false : doc.notesApproved, section: null, skipClarification, clarification: input.clarification ?? null, sections: visualsOnly ? doc.sections : [], sources: visualsOnly || selectedProblem ? doc.sources : [], figures: visualsOnly ? doc.figures ?? [] : [], coverage: visualsOnly ? doc.coverage ?? [] : [], mode: visualsOnly ? 'visuals' : 'full', ...(!visualsOnly ? { contextPolicyVersion: 1, problemSelectionVersion: 1, ...(selectedProblem ? { selectedProblem } : {}) } : {}), visualPolicyVersion: 2, budgetMicro: 5000000, budgetPolicyVersion: 1 };
         // Diagnostics describe one run, never today's configuration applied to old work.
-        const next = { ...doc, skipClarification, status: 'queued', progress: [], warnings: [], clarification: null };
-        if (!visualsOnly) { delete next.coverage; delete next.figures; delete next.visualPolicyVersion; }
+        const next = { ...doc, ...(selectedProblem ? { selectedProblem } : {}), skipClarification, status: 'queued', progress: [], warnings: [], clarification: null };
+        if (!visualsOnly) { delete next.researchProblems; delete next.coverage; delete next.figures; delete next.visualPolicyVersion; delete next.contextPolicyVersion; }
         delete next.modelInfo;
         delete next.failure;
         let saved = await save(row, next, runId, payload);
@@ -326,6 +331,9 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
                     : !doc.researchInput && input.title !== undefined && input.title.trim() !== doc.title.trim();
                 const needsResearch = doc.needsResearch || (doc.sections.length > 0 && scopeChanged);
                 doc = { ...doc, ...Object.fromEntries(['title', 'notes', 'notesApproved', 'episodeId', 'shared', 'sections', 'researchInput'].filter(k => input[k] !== undefined).map(k => [k, input[k]])) };
+                if (scopeChanged || input.notes !== undefined && input.notes !== JSON.parse(row.document_json).notes) {
+                    delete doc.selectedProblem; delete doc.researchProblems;
+                }
                 if (needsResearch) doc.needsResearch = true;
                 if (input.researchInput) {
                     doc.schemaVersion = 2;

@@ -130,6 +130,7 @@ export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
     ...(brief.status !== "completed" ? [paragraph("Report incomplete — findings and source coverage may be partial.")] : []),
     ...(brief.needsResearch ? [paragraph("Previous report no longer matches the edited inputs. The findings and sources below are retained from the previous scope.")] : []),
     paragraph("Audience context: India · Worldwide research"),
+    ...(brief.selectedProblem ? [paragraph(`Research focus: ${brief.selectedProblem.question}`)] : []),
     ...brief.warnings.filter(warning => warning.startsWith("Evidence coverage: ")).map(warning => paragraph(warning)), heading("Source coverage", HeadingLevel.HEADING_1),
   ];
   const coverageLabels: Record<ResearchCoverage["status"], string> = { pending: "Pending", searching: "Searching", found: "Found", no_results: "No results", unavailable: "Unavailable", failed: "Search failed", budget_limited: "Budget limited" };
@@ -142,7 +143,7 @@ export async function buildResearchDocx(brief: ResearchBrief): Promise<Blob> {
     const section = brief.sections.find(item => item.key === key);
     if (!section || section.status === "skipped" || !section.content.trim()) continue;
     const prepared = preparedSections.get(section.key)!;
-    children.push(heading(researchSectionTitle(key, brief.researchInput), HeadingLevel.HEADING_1), paragraph(`Status: ${section.status}`));
+    children.push(heading(researchSectionTitle(key, brief.researchInput, brief.contextPolicyVersion), HeadingLevel.HEADING_1), paragraph(`Status: ${section.status}`));
     for (const block of placeFigures(prepared.markdown, slots.filter(s => s.section === key))) {
       children.push(...markdownBlocks(block.markdown));
       for (const slot of block.figures) {
