@@ -12,6 +12,7 @@
     report: null,
     reportKey: '',
     reportLoading: false,
+    syncing: false,
     comparison: null,
     comparisonKey: '',
     comparisonLoading: false,
@@ -187,7 +188,9 @@
     connect.textContent = (active && channelId !== 'all') || api.accountCount >= 3 ? 'reconnect Google' : api.accountCount ? 'add another YouTube account' : 'connect Google';
     disconnect.disabled = api.reportLoading;
     sync.disabled = !connected || api.reportLoading;
-    sync.textContent = api.reportLoading ? 'updating…' : 'update data';
+    sync.textContent = 'update data';
+    sync.setAttribute('aria-busy', String(api.syncing));
+    sync.setAttribute('aria-label', api.syncing ? 'Updating YouTube data' : 'Update YouTube data');
     if (!api.pendingYouTube || !canManage) form.hidden = true;
     document.querySelectorAll('.answer-confidence').forEach(node => { node.textContent = api.report ? 'CONFIDENCE · STORED PROVIDER OBSERVATIONS' : 'CONFIDENCE · PROVIDER DATA UNAVAILABLE'; });
     const episodeCopy = document.querySelector('#episodes .section-title > p');
@@ -323,6 +326,7 @@
   async function synchronize() {
     if (!canManage || !api.connection?.resource) return;
     const selected = range();
+    api.syncing = true;
     setBusy(true, `Synchronizing ${selected.label}.`);
     try {
       const result = await request('/beta/api/analytics/sync', {
@@ -333,8 +337,10 @@
       api.reportKey = '';
       api.notice = `Synchronization ${result.sync?.status || 'completed'} · ${result.sync?.rows ?? 0} stored observations.`;
       api.reportLoading = false;
+      api.syncing = false;
       await loadStatus();
     } catch (error) {
+      api.syncing = false;
       setBusy(false, `Synchronization failed · ${error.message}`);
     }
   }

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { claudeChat, CLAUDE_MODEL } from '../src/chat/claude.ts';
+import { claudeChat, safeClaudeErrorCode, CLAUDE_MODEL } from '../src/chat/claude.ts';
 
 const env = { ANTHROPIC_API_KEY: 'test-only-key' };
 const messages = [{ role: 'system', content: 'policy' }, { role: 'user', content: 'question' }];
@@ -92,4 +92,8 @@ test('configuration and invalid input fail before transport', async () => {
     await assert.rejects(claudeChat(env, messages, { maxTokens: 0 }), /claude_invalid_budget/);
     await assert.rejects(claudeChat(env, messages, { signal: AbortSignal.abort('private') }), /claude_aborted/);
   });
+});
+test('interpreter diagnostics expose only known safe error codes', () => {
+  assert.equal(safeClaudeErrorCode(new Error('claude_http_401')), 'claude_http_401');
+  assert.equal(safeClaudeErrorCode(new Error('private provider body with token')), 'interpreter_failed');
 });

@@ -105,6 +105,45 @@ test('authenticated assistant returns scoped provider values, workspace label an
  const response=await call();assert.equal(response.status,200);const answer=await response.json();assert.equal(answer.rows[0].values[0],42);assert.match(answer.summary,/Social Team/);assert.equal(answer.evidence[0].basis,'received_period');
  count=10;const before=providerCalls;assert.equal((await call()).status,429);assert.equal(providerCalls,before);
 });
+test('all-platform chat uses the sole connected account instead of unavailable platforms',async()=>{
+ const database=db();const prepare=database.prepare;database.prepare=sql=>sql.includes('social_analytics_rate_limits')?{bind(){return this},first:async()=>({requests:1})}:prepare(sql);
+ const calls=[];
+ const fetchSocial=async url=>{const path=new URL(url).pathname;calls.push(path);return Response.json(path.endsWith('/profiles')?{profiles:[{_id:'one',name:'Social Team'}]}:path.endsWith('/accounts')?{accounts:[{_id:'a',platform:'instagram',isActive:true,hasAnalyticsAccess:true}]}:{totals:{views:42},followers:{},daily:[]});};
+ const planSocial=async()=>({answer:JSON.stringify({intent:'summary',platforms:['linkedin','instagram','facebook','twitter','tiktok'],metrics:['views'],posts:[],target:'platform'})});
+ const response=await handleMemberRequest(req('assistant','POST',{question:'How are we doing?',scope:{platform:'all',fromDate:'2026-01-01',toDate:'2026-01-02'}}),{...env,DB:database,ZERNIO_PROFILE_ID:'one'},{verifyClerk:async()=>identity,fetchSocial,planSocial});
+ assert.equal(response.status,200);const answer=await response.json();assert.equal(answer.status,'answered');assert.deepEqual(answer.entities.map(e=>e.platform),['instagram']);assert.equal(answer.rows[0].values[0],42);
+ assert.equal(calls.filter(path=>path.endsWith('/analytics/dashboard')).length,1);
+});
+test('all-platform chat retrieves each connected platform when multiple accounts are active',async()=>{
+ const database=db();const prepare=database.prepare;database.prepare=sql=>sql.includes('social_analytics_rate_limits')?{bind(){return this},first:async()=>({requests:1})}:prepare(sql);
+ const dashboards=[];
+ const fetchSocial=async url=>{const parsed=new URL(url);if(parsed.pathname.endsWith('/analytics/dashboard'))dashboards.push(parsed.searchParams.get('platform'));return Response.json(parsed.pathname.endsWith('/profiles')?{profiles:[{_id:'one',name:'Social Team'}]}:parsed.pathname.endsWith('/accounts')?{accounts:[{_id:'a',platform:'instagram',isActive:true,hasAnalyticsAccess:true},{_id:'b',platform:'facebook',isActive:true,hasAnalyticsAccess:true}]}:{totals:{views:42},followers:{},daily:[]});};
+ const planSocial=async()=>({answer:JSON.stringify({intent:'summary',platforms:['linkedin','instagram','facebook','twitter','tiktok'],metrics:['views'],posts:[],target:'platform'})});
+ const response=await handleMemberRequest(req('assistant','POST',{question:'How are all connected platforms doing?',scope:{platform:'all',fromDate:'2026-01-01',toDate:'2026-01-02'}}),{...env,DB:database,ZERNIO_PROFILE_ID:'one'},{verifyClerk:async()=>identity,fetchSocial,planSocial});
+ assert.equal(response.status,200);const answer=await response.json();assert.equal(answer.status,'answered');assert.deepEqual(answer.entities.map(e=>e.platform).sort(),['facebook','instagram']);assert.deepEqual(dashboards.sort(),['facebook','instagram']);
+});
+test('single-platform chat stays on the selected account when other platforms are connected',async()=>{
+ const database=db();const prepare=database.prepare;database.prepare=sql=>sql.includes('social_analytics_rate_limits')?{bind(){return this},first:async()=>({requests:1})}:prepare(sql);
+ const dashboards=[];
+ const fetchSocial=async url=>{const parsed=new URL(url);if(parsed.pathname.endsWith('/analytics/dashboard'))dashboards.push(parsed.searchParams.get('platform'));return Response.json(parsed.pathname.endsWith('/profiles')?{profiles:[{_id:'one',name:'Social Team'}]}:parsed.pathname.endsWith('/accounts')?{accounts:[{_id:'a',platform:'instagram',isActive:true,hasAnalyticsAccess:true},{_id:'b',platform:'facebook',isActive:true,hasAnalyticsAccess:true}]}:{totals:{views:42},followers:{},daily:[]});};
+ const planSocial=async()=>({answer:JSON.stringify({intent:'summary',platforms:['instagram','facebook'],metrics:['views'],posts:[],target:'platform'})});
+ const response=await handleMemberRequest(req('assistant','POST',{question:'How are we doing?',scope:{platform:'instagram',fromDate:'2026-01-01',toDate:'2026-01-02'}}),{...env,DB:database,ZERNIO_PROFILE_ID:'one'},{verifyClerk:async()=>identity,fetchSocial,planSocial});
+ assert.equal(response.status,200);const answer=await response.json();assert.deepEqual(answer.entities.map(e=>e.platform),['instagram']);assert.deepEqual(dashboards,['instagram']);
+});
+test('inactive social accounts require reconnection before the question interpreter runs',async()=>{
+ const database=db();const prepare=database.prepare;database.prepare=sql=>sql.includes('social_analytics_rate_limits')?{bind(){return this},first:async()=>({requests:1})}:prepare(sql);
+ let modelCalls=0;
+ const fetchSocial=async url=>{const path=new URL(url).pathname;return Response.json(path.endsWith('/profiles')?{profiles:[{_id:'one',name:'Social Team'}]}:{accounts:[{_id:'a',platform:'instagram',isActive:false}]});};
+ const response=await handleMemberRequest(req('assistant','POST',{question:'How is Instagram performing?',scope:{platform:'all',fromDate:'2026-01-01',toDate:'2026-01-02'}}),{...env,DB:database,ZERNIO_PROFILE_ID:'one'},{verifyClerk:async()=>identity,fetchSocial,planSocial:async()=>{modelCalls++;throw Error('model should not run')}});
+ assert.equal(response.status,409);assert.equal(modelCalls,0);assert.match((await response.json()).summary,/Connect a social account/i);
+});
+test('selected inactive social account does not borrow another connected account',async()=>{
+ const database=db();const prepare=database.prepare;database.prepare=sql=>sql.includes('social_analytics_rate_limits')?{bind(){return this},first:async()=>({requests:1})}:prepare(sql);
+ let modelCalls=0;
+ const fetchSocial=async url=>{const path=new URL(url).pathname;return Response.json(path.endsWith('/profiles')?{profiles:[{_id:'one',name:'Social Team'}]}:{accounts:[{_id:'a',platform:'instagram',isActive:true,hasAnalyticsAccess:true},{_id:'b',platform:'facebook',isActive:false}]});};
+ const response=await handleMemberRequest(req('assistant','POST',{question:'How are we doing?',scope:{platform:'facebook',fromDate:'2026-01-01',toDate:'2026-01-02'}}),{...env,DB:database,ZERNIO_PROFILE_ID:'one'},{verifyClerk:async()=>identity,fetchSocial,planSocial:async()=>{modelCalls++;throw Error('model should not run')}});
+ assert.equal(response.status,409);assert.equal(modelCalls,0);assert.match((await response.json()).summary,/Reconnect the selected social account/i);
+});
 test('sole or unique default profile is discovered; ambiguity and stale selection fail closed', async()=>{
  for (const profiles of [[{id:'one',name:'Team'}],[{id:'other',name:'Other'},{id:'one',name:'Team',isDefault:true}]]) {
   assert.equal((await resolveSocialWorkspace(db(),env,{profiles:async()=>profiles})).profileId,'one');
