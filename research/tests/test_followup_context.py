@@ -35,3 +35,21 @@ class FollowupContextTests(unittest.TestCase):
         asyncio.run(GPTREngine(calls).chat(ChatInput(question='What were the other options?').model_dump()))
         self.assertEqual(json.loads(calls.messages[-1]['content'])['offeredProblems'], [])
         self.assertIn('original list is unavailable', calls.messages[0]['content'])
+
+class ResolutionGuidanceTests(unittest.TestCase):
+    def test_optional_spelling_confirmation_does_not_interrupt(self):
+        class Resolver(Calls):
+            def model(self, messages, *args, **kwargs):
+                self.messages = messages
+                return json.dumps(dict(kind='optional_guidance', clarification='Confirm spelling?', ambiguousFields=[]))
+        calls = Resolver()
+        result = asyncio.run(GPTREngine(calls).resolve({'researchInput': {'guestName':'Balaji Srinivase'}}, []))
+        self.assertEqual(result, dict(kind='resolved', clarification=None, ambiguousFields=[]))
+        self.assertIn('minor spelling errors', calls.messages[0]['content'])
+
+    def test_genuine_identity_conflict_still_requires_clarification(self):
+        class Resolver(Calls):
+            def model(self, *args, **kwargs):
+                return json.dumps(dict(kind='identity_conflict', clarification='Which Alex?', ambiguousFields=['guestName']))
+        result = asyncio.run(GPTREngine(Resolver()).resolve({'researchInput': {'guestName':'Alex Smith'}}, []))
+        self.assertEqual(result['kind'], 'identity_conflict')

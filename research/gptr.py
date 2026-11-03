@@ -124,7 +124,10 @@ class GPTREngine:
              'Resolved means no question and no ambiguous fields. Optional guidance has a question but no ambiguous fields. '
              'For identity conflicts identify ONLY fields whose public identity is genuinely ambiguous. '
              'Unrelated supplied guests and companies are valid research subjects; absence of an affiliation is not an identity conflict. '
-             'Never invent or replace a field value. Ask only about genuine identity ambiguity. '
+             'Preserve the entered field values, but interpret minor spelling errors, capitalization, spacing and common transliteration variants using discovery evidence. '
+             'When discovery clearly identifies one public person despite a small typo, return resolved; do not ask for spelling confirmation. '
+             'An identity_conflict requires evidence of multiple plausible distinct identities, not merely imperfect spelling. '
+             'Do not replace the guest with a different person or infer an identity from fuzzy name similarity alone. '
              'Do not ask to confirm the requested topic or scope. India is the audience context, not a separate subject. '
              'Missing optional guest/company/industry fields are valid; never ask merely to fill them in. '
              'A supplied guest stays fixed even if another person is better associated with the company. '
@@ -132,7 +135,10 @@ class GPTREngine:
              'can withhold identity-specific claims. Do not change the subject, infer private facts or invent an identity.'},
             {'role': 'user', 'content': json.dumps(payload)}], 500, effort='low', output_schema=RESOLVE_SCHEMA)
         try:
-            return validate_resolution(json.loads(response), body)
+            resolution = validate_resolution(json.loads(response), body)
+            if resolution['kind'] == 'optional_guidance':
+                return dict(kind='resolved', clarification=None, ambiguousFields=[])
+            return resolution
         except (ValueError, KeyError, TypeError):
             raise ProviderError('invalid clarification response', code='invalid_output', reason='invalid_schema') from None
 

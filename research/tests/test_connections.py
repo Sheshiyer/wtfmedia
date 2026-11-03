@@ -266,7 +266,7 @@ class ConnectionWireTests(unittest.TestCase):
         self.assertEqual(props['evidenceIds']['items']['enum'], ['e1', 'e2'])
         self.assertIn('"maxLength": 100', props['title']['description'])
         self.assertNotIn('maxLength', props['title'])
-        self.assertIn('"maximum": 5', props['strength']['description'])
+        self.assertEqual(props['strength']['enum'], [1, 2, 3, 4, 5])
         extraction = connection_wire_schema(Extraction, {'sources': SOURCES})
         self.assertEqual(extraction['$defs']['EvidenceItem']['properties']['sourceId']['enum'], ['src_a', 'src_b'])
         review = connection_wire_schema(Review, {'connections': [CONNECTION]})
@@ -304,3 +304,38 @@ class ConnectionWireTests(unittest.TestCase):
         self.assertEqual(len(count), 2)
         self.assertEqual(count[1][2]['role'], 'assistant')
         self.assertNotIn('proposals', cp)
+
+class FormatRecoveryTests(unittest.TestCase):
+    def test_fenced_json_null_query_and_duplicate_refs_are_format_only(self):
+        candidate = {**CONNECTION, 'title': '  '+CONNECTION['title']+'  ',
+                     'query': None, 'evidenceIds': ['e1', 'e2', 'e1']}
+        raw = '```json\n'+json.dumps({'connections': [candidate]})+'\n```'
+        self.assertEqual(retained_connections(raw, ITEMS, SOURCES), [CONNECTION])
+        candidate['evidenceIds'] = ['e1', 'e1']
+        with self.assertRaises(ValueError):
+            retained_connections(json.dumps({'connections': [candidate]}), ITEMS, SOURCES)
+
+    def test_provider_output_failure_uses_existing_bounded_repair(self):
+        from research.connections import structured, Connections
+        calls = Calls(); cp = {}; limits = []
+        def model(messages, max_tokens, **kwargs):
+            limits.append(max_tokens)
+            if len(limits) == 1:
+                raise ProviderError('incomplete output', code='invalid_output', reason='invalid_schema')
+            return json.dumps({'connections': [CONNECTION]})
+        calls.model = model
+        result = asyncio.run(structured(calls, cp, 'proposals', Connections, 'Connect',
+            {'evidence': ITEMS}, lambda raw: retained_connections(raw, ITEMS, SOURCES), lambda: None))
+        self.assertEqual(result, [CONNECTION])
+        self.assertEqual(limits, [7000, 12000])
+
+    def test_refusals_do_not_retry(self):
+        from research.connections import structured, Connections
+        calls = Calls(); count = []
+        def model(*args, **kwargs):
+            count.append(1)
+            raise ProviderError('refused', code='invalid_output', retryable=False)
+        calls.model = model
+        with self.assertRaises(ProviderError):
+            asyncio.run(structured(calls, {}, 'proposals', Connections, 'Connect', {}, lambda raw: [], lambda: None))
+        self.assertEqual(len(count), 1)

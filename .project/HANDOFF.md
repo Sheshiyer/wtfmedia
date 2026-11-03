@@ -1,3 +1,10 @@
+## 2026-11-03 — Output repair and spelling clarification hardening (local)
+
+- Owner reports another staging format failure and requests production deployment. Read-only staging D1 diagnostics locate the latest failure after evidence extraction at connection proposal generation, invalid_output/invalid_schema. Rejected field is not available; no exact live root cause claimed.
+- Structured pipeline now includes retryable provider-output errors in its existing two-attempt ceiling; the repair attempt allows 12000 output tokens instead of 7000. Refusals/auth/network handling remains unchanged. Format-only normalization handles fenced JSON, surrounding whitespace, null optional metadata/query fields and repeated evidence IDs; unsupported facts, unknown references, missing required claims and single-resource connections still reject. Scores are constrained via provider enum.
+- Resolver guidance treats small spelling/case/spacing/transliteration differences as resolved only when discovery establishes one identity, and optional guidance no longer interrupts. Genuine identity conflicts still ask. Entered subject values remain unchanged.
+- VERIFIED-SOURCE: 257 offline runner tests and diff check pass. No paid calls, report regeneration, shared writes, push or deployment. Environment clarification is pending: user said production, but research-host is staging-only; do not deploy its staging state namespace as production.
+
 ## 2026-11-03 — Expanded follow-up and connection repair deployed to staging
 
 - Owner authorized push and staging deployment. Runtime 56d403b, immutable runner image pin 27140e4 on feature/pavun. Includes all pending draft-aware connection validation repair and expanded follow-up context/UI changes.

@@ -122,7 +122,9 @@ def validated_items(raw, sources):
 
 
 def candidate_rows(raw, field):
-    data = json.loads(raw)
+    text = raw.strip()
+    fenced = re.fullmatch(r'```(?:json)?\s*\n(.*?)\n```', text, re.S | re.I)
+    data = json.loads(fenced.group(1) if fenced else text)
     if not isinstance(data, dict) or set(data) != {field} or not isinstance(data[field], list):
         raise ValueError('invalid candidate envelope')
     if len(data[field]) > 64:
@@ -130,11 +132,31 @@ def candidate_rows(raw, field):
     return data[field]
 
 
+def normalized_candidate(candidate, schema):
+    """Format-only cleanup. Never shorten claims, invent fields, or repair evidence IDs."""
+    if not isinstance(candidate, dict):
+        return candidate
+    value = dict(candidate)
+    for key, item in value.items():
+        if isinstance(item, str):
+            value[key] = item.strip()
+    empty = ('attribution', 'period', 'scope', 'origin') if schema is EvidenceItem else ('query',)
+    for key in empty:
+        if key in value and value[key] is None:
+            value[key] = ''
+    if schema is Connection and isinstance(value.get('evidenceIds'), list):
+        ids = value['evidenceIds']
+        if all(isinstance(i, str) for i in ids):
+            value['evidenceIds'] = list(dict.fromkeys(i.strip() for i in ids))
+    return value
+
+
 def retained_items(raw, sources):
     """Keep independently validated evidence; one bad candidate cannot erase a batch."""
     rows = candidate_rows(raw, 'items')
     result, seen = [], set()
     for candidate in rows:
+        candidate = normalized_candidate(candidate, EvidenceItem)
         try:
             item = EvidenceItem.model_validate(candidate).model_dump()
         except ValueError:
@@ -214,6 +236,7 @@ def retained_connections(raw, items, sources):
     rows = candidate_rows(raw, 'connections')
     result, seen, issues = [], set(), []
     for candidate in rows:
+        candidate = normalized_candidate(candidate, Connection)
         try:
             valid = validated_connections(json.dumps({'connections': [candidate]}), items, sources)
         except (ValueError, TypeError, KeyError) as error:
@@ -295,6 +318,8 @@ def connection_wire_schema(schema, payload):
         ids = [item['id'] for item in payload.get('evidence', [])]
         if ids:
             definitions['Connection']['properties']['evidenceIds']['items'] = {'type': 'string', 'enum': ids}
+        for name in ('relevance', 'strength', 'usefulness'):
+            definitions['Connection']['properties'][name] = {'type': 'integer', 'enum': [1, 2, 3, 4, 5]}
     if schema is Review:
         ids = [item['id'] for item in payload.get('connections', [])]
         if ids:
@@ -327,12 +352,26 @@ async def structured(calls, checkpoint, key, schema, prompt, payload, validator,
     for attempt in range(checkpoint.get(key + 'Attempts', 0), 2):
         messages = repair_messages(prompt, payload, checkpoint, key, attempt)
         wire = connection_wire_schema(schema, payload)
-        keys = [calls.model_key(messages, 7000, output_schema=wire)]
+        max_tokens = 12000 if attempt else 7000
+        keys = [calls.model_key(messages, max_tokens, output_schema=wire)]
         calls.operation_attempt = attempt
         calls.allowance(needed=MODEL_RESERVE, calls=1, keys=keys)
-        raw = await asyncio.to_thread(calls.model, messages, 7000, output_schema=wire)
+        raw = None
         try:
+            raw = await asyncio.to_thread(calls.model, messages, max_tokens, output_schema=wire)
             value = validator(raw)
+        except ProviderError as error:
+            # Output failures used to bypass repair completely. Authentication,
+            # refusals and transport failures retain their original handling.
+            if error.code not in {'invalid_output', 'output_truncated', 'empty_output'} or not error.retryable:
+                raise
+            checkpoint[key + 'Validation'] = ['provider output: ' + error.code]
+            checkpoint.pop(key + 'Draft', None)
+            checkpoint[key + 'Attempts'] = attempt + 1
+            save()
+            if attempt == 1:
+                raise
+            continue
         except (ValueError, TypeError, KeyError) as error:
             checkpoint[key + 'Validation'] = validation_feedback(error)
             # Private job state only; never include rejected model text in public results/logs.
