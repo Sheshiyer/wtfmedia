@@ -254,6 +254,9 @@ class Message(DTO):
 
 
 class ChatInput(Context):
+    title: str = Field(default="", max_length=500)
+    researchProblems: list[ResearchProblem] = Field(default_factory=list, max_length=6)
+    selectedProblem: ResearchProblem | None = None
     question: str = Field(min_length=1, max_length=2000)
     messages: list[Message] = Field(default_factory=list, max_length=12)
 

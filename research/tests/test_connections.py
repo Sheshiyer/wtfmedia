@@ -257,3 +257,50 @@ class ConnectionFeedbackTests(unittest.TestCase):
     def test_unknown_exception_text_is_not_echoed_to_repair(self):
         from research.connections import validation_feedback
         self.assertEqual(validation_feedback(ValueError('secret private text')), ['response failed validation'])
+
+class ConnectionWireTests(unittest.TestCase):
+    def test_provider_reference_enums_and_local_constraints_are_preserved(self):
+        from research.connections import connection_wire_schema, Connections, Extraction, Review
+        wire = connection_wire_schema(Connections, {'evidence': ITEMS})
+        props = wire['$defs']['Connection']['properties']
+        self.assertEqual(props['evidenceIds']['items']['enum'], ['e1', 'e2'])
+        self.assertIn('"maxLength": 100', props['title']['description'])
+        self.assertNotIn('maxLength', props['title'])
+        self.assertIn('"maximum": 5', props['strength']['description'])
+        extraction = connection_wire_schema(Extraction, {'sources': SOURCES})
+        self.assertEqual(extraction['$defs']['EvidenceItem']['properties']['sourceId']['enum'], ['src_a', 'src_b'])
+        review = connection_wire_schema(Review, {'connections': [CONNECTION]})
+        self.assertEqual(review['$defs']['Decision']['properties']['connectionId']['enum'], ['c1'])
+
+    def test_repair_includes_rejected_draft_and_survives_resume(self):
+        from research.connections import repair_messages
+        cp = {'proposalsDraft': json.dumps({'connections': [{**CONNECTION, 'strength': 8}]}),
+              'proposalsValidation': ['connections.0.strength: less_than_equal']}
+        messages = repair_messages('Connect', {}, cp, 'proposals', 1)
+        self.assertEqual([m['role'] for m in messages], ['system', 'user', 'assistant', 'user'])
+        self.assertEqual(messages[2]['content'], cp['proposalsDraft'])
+        self.assertIn('strength', messages[-1]['content'])
+        self.assertIn('untrusted data', messages[-1]['content'])
+
+    def test_repair_does_not_overflow_multibyte_request_limit(self):
+        from research.connections import repair_messages
+        from research.store import encode
+        payload = {'evidence': '背景' * 11000}
+        cp = {'proposalsDraft': 'x' * 30000, 'proposalsValidation': ['title: string_too_long']}
+        messages = repair_messages('Connect', payload, cp, 'proposals', 1)
+        self.assertEqual([m['role'] for m in messages], ['system', 'user', 'user'])
+        self.assertLess(len(encode(messages).encode('utf-8')), 85000)
+
+    def test_invalid_evidence_still_fails_after_draft_repair(self):
+        from research.connections import structured, Connections
+        calls = Calls(); cp = {}; count = []
+        def broken(messages, *args, **kwargs):
+            count.append(messages)
+            return json.dumps({'connections': [{**CONNECTION, 'evidenceIds': ['e1', 'unknown']}]})
+        calls.model = broken
+        with self.assertRaises(ProviderError):
+            asyncio.run(structured(calls, cp, 'proposals', Connections, 'Connect',
+                {'evidence': ITEMS}, lambda raw: retained_connections(raw, ITEMS, SOURCES), lambda: None))
+        self.assertEqual(len(count), 2)
+        self.assertEqual(count[1][2]['role'], 'assistant')
+        self.assertNotIn('proposals', cp)

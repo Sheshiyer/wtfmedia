@@ -1,3 +1,22 @@
+## 2026-11-03 — Local follow-up runner restart
+
+- Owner reported a generic follow-up error. Local Edge logged a 502 after the new chat fields were added, while the non-reloading runner was still the pre-update process. Restarted that local runner with existing configuration and state; authenticated read-only health confirms configured=true.
+- Added an offline HTTP contract regression with an injected handler proving expanded problem/title/focus fields are accepted without provider calls. Nine API/follow-up tests pass. Real paid answer generation remains untested; saved reports were not regenerated. No push or deployment.
+
+## 2026-11-03 — Broader research follow-up conversation (local)
+
+- Follow-up context now includes the original offered problem statements, selected focus, title and research inputs alongside retained evidence and report text. Starting research preserves offered options; older briefs recover options only from matching saved versions under the existing owner authorization.
+- Conversation supports alternative angles, sensitive interview questions and deeper explanations. Original options must be recalled faithfully; new ideas are labeled proposals, factual claims remain evidence-bound, and no new web search is performed. Unapproved notes stay excluded.
+- Dedicated chat component adds suggested questions, clear message layout, pending question, loading feedback, disabled duplicate submission and draft preservation on failure. Model context trims lower-ranked excerpts to keep serialized messages within 85KB.
+- VERIFIED-SOURCE: 65 Edge research tests, 251 runner tests, web TypeScript and focused ESLint pass. After the final message-size bound, 35 focused runner tests pass. Browser appearance and live provider behavior are not verified. No paid calls, report regeneration, shared state writes, push or deployment.
+
+## 2026-11-03 — Strict connection format and draft-aware repair (local)
+
+- Latest read-only staging diagnostics show one completed context report (4/4 visuals) followed by another invalid_output/invalid_schema failure after extraction and before connection review. Exact rejected fields are not available in the public result; do not claim a verified field-specific root cause.
+- Prior feedback-only repair still requested a replacement without showing the rejected draft. Local update supplies the bounded private draft on retry when the complete UTF-8 message fits 85KB, retaining the existing two-attempt ceiling. Draft is removed after success and never projected to public report/logs.
+- Provider-compatible schemas now retain local length/item/pattern/score requirements in descriptions and restrict source/evidence/review reference IDs to supplied IDs via enums. Strict local evidence, numeric and causality checks remain unchanged.
+- VERIFIED-SOURCE: 249 offline runner tests pass, including dynamic reference constraints, failed-draft repair, multibyte request bounds, and rejection of unsupported references. No paid model calls, saved report regeneration, shared state writes, push or deployment. Live provider completion is not guaranteed or verified.
+
 ## 2026-11-03 — Connection validation repair deployed to staging
 
 - Owner requested staging deployment. Runtime a9ffa7d, image pin 82eccf0; commits remain local on feature/pavun (no push requested in this task).

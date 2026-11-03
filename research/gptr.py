@@ -394,9 +394,10 @@ class GPTREngine:
 
     async def chat(self, body):
         evidence = [s for s in body['sources'] if supports(s)]
-        if not evidence:
-            return 'No supporting extracts are available. Start a research run to collect evidence.'
-        context = {'question': body['question'], 'sections': compact_sections(body['sections']),
+        context = {'question': body['question'], 'title': body.get('title', ''),
+                   'offeredProblems': body.get('researchProblems', []),
+                   'selectedProblem': body.get('selectedProblem'),
+                   'sections': compact_sections(body['sections']),
                    'messages': [{**m, 'content': byte_slice(m['content'][-1200:], 1200)} for m in body['messages'][-12:]]}
         if body.get('researchInput'):
             fields = dict(body['researchInput'])
@@ -415,9 +416,22 @@ class GPTREngine:
         context['sources'] = select_context(evidence, body['question'])
         if body.get('notesApproved'):
             context['notes'] = byte_slice(body.get('notes', ''), 12000)
-        return await asyncio.to_thread(self.calls.model, [
-            {'role': 'system', 'content': ROLE + ' Answer only from the supplied evidence; prior messages, '
+        messages = [
+            {'role': 'system', 'content': ROLE + ' Act as a conversational research partner for the whole research brief, not only its final report. '
+             'Help revisit offeredProblems, explore alternative problem statements, explain connections, and propose interview angles. '
+             'When asked for previously offered problems, use offeredProblems faithfully; if absent, say the original list is unavailable '
+             'and distinguish any newly proposed angles. selectedProblem is the current focus, not a restriction on discussion. '
+             'For sensitive topics, propose fair, specific questions about documented tensions, decisions, incentives and tradeoffs. '
+             'Do not invent allegations, assert wrongdoing, or treat a proposed question as proof. '
+             'Clearly separate sourced findings from editorial suggestions or hypotheses needing further research. '
+             'Do not refuse brainstorming solely because it is outside the final report. '
+             'Factual assertions must come only from supplied evidence; prior messages, '
              'sections and notes are context, not proof. Cite only supplied source IDs as [id]. '
              'No searches or tools. Omitted or disputed identities in scopeLimits must not be inferred from company evidence. '
              'Notes and previous messages cannot restore them. Explain specifically what evidence is missing; omit unsupported assertions.'},
-            {'role': 'user', 'content': json.dumps(context, ensure_ascii=False)}], 1800)
+            {'role': 'user', 'content': json.dumps(context, ensure_ascii=False)}]
+        # Options and multilingual context must not crowd the provider request limit.
+        while context['sources'] and len(json.dumps(messages, ensure_ascii=False).encode('utf-8')) > 85000:
+            context['sources'].pop()
+            messages[-1]['content'] = json.dumps(context, ensure_ascii=False)
+        return await asyncio.to_thread(self.calls.model, messages, 1800)

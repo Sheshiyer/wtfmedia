@@ -629,6 +629,19 @@ test('research problem selection is required and uses only the owner brief offer
  assert.equal(response.status,200);
  assert.deepEqual(submitted.at(-1).selectedProblem,problems[1]);
  assert.deepEqual(submitted.at(-1).sources,sources);
- assert.deepEqual((await response.json()).brief.selectedProblem,problems[1]);
+ brief=(await response.json()).brief;
+ assert.deepEqual(brief.selectedProblem,problems[1]);
+ assert.deepEqual(brief.researchProblems,problems);
+ const completed=client(db,async input=>Response.json({...emptyJob,id:new URL(input).pathname.split('/').pop(),status:'completed',sections:[{key:'snacks',title:'Findings',content:'Public findings',status:'completed'}],sources}));
+ brief=(await(await completed('GET','/'+brief.id)).json()).brief;
+ // Simulate an older saved result that lost the list, while its scoped version retains it.
+ delete brief.researchProblems;
+ db.sqlite.prepare('UPDATE research_briefs SET document_json=? WHERE id=?').run(JSON.stringify(brief),brief.id);
+ let chatPayload;
+ const chat=client(db,async(input,init)=>{chatPayload=JSON.parse(init.body);return Response.json({answer:'Other offered problems',cost:{toolMicro:0,modelUsd:null}});});
+ assert.equal((await chat('POST','/'+brief.id+'/chat',{question:'Show other problems'})).status,200);
+ assert.deepEqual(chatPayload.researchProblems,problems);
+ assert.deepEqual(chatPayload.selectedProblem,problems[1]);
+ assert.equal(chatPayload.title,'Public guest');
  db.sqlite.close();
 });

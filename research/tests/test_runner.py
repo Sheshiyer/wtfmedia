@@ -280,6 +280,21 @@ class ApiTests(StoreFixture):
         for method,path in [('get','/health'),('post','/jobs'),('get','/jobs/'+self.body['id']),
                             ('delete','/jobs/'+self.body['id']),('post','/jobs/'+self.body['id']+'/cancel'),('post','/chat')]:
             self.assertEqual(getattr(self.client,method)(path).status_code, 401)
+    def test_followup_http_accepts_expanded_context_without_provider_calls(self):
+        received = []
+        async def handler(payload):
+            received.append(payload)
+            return {'answer': 'Proposed angle', 'cost': {'toolMicro': 0, 'modelUsd': 0}}
+        problem = dict(id='p1', title='Trust', question='How is trust established?',
+                       why='Explore public ideas.', domain='Technology', sourceIds=['src_a'])
+        with TestClient(create_app(self.db, ready=lambda: True, chat_handler=handler)) as client:
+            response = client.post('/chat', headers=self.headers, json={
+                'question': 'Show other problems', 'title': 'Research brief',
+                'researchProblems': [problem], 'selectedProblem': problem})
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(received[0]['researchProblems'], [problem])
+            self.assertEqual(received[0]['selectedProblem'], problem)
+
     def test_api_late_post_after_unknown_cancel_delete(self):
         for operation in ('cancel','delete'):
             payload = body()

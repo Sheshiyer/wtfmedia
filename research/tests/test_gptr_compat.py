@@ -45,7 +45,7 @@ class RecordingCalls:
             return '{"kind":"resolved","clarification":null,"ambiguousFields":[]}'
         if 'Extract numeric claims' in encoded:
             return '{"claims":[]}'
-        if 'Write the ' in encoded or 'Answer only from the supplied evidence' in encoded:
+        if 'Write the ' in encoded or 'Act as a conversational research partner' in encoded:
             return 'A bounded editorial observation [src_1].'
         return '{"queries":["Example founder background", "Example founder industry"]}'
     def search(self, query):
@@ -245,7 +245,7 @@ class GPTRCompatibilityTests(unittest.TestCase):
         self.assertFalse(any('PRIVATE_NOTES' in q for q in calls.searches))
         for message in calls.models:
             if 'PRIVATE_NOTES' in message:
-                self.assertTrue('Write the ' in message or 'Answer only from the supplied evidence' in message)
+                self.assertTrue('Write the ' in message or 'Act as a conversational research partner' in message)
         self.assertTrue(any('PRIVATE_NOTES' in m for m in calls.models))
     def test_unapproved_notes_not_sent_even_to_chat(self):
         from research.gptr import GPTREngine as BaseEngine

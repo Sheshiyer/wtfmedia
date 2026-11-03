@@ -112,7 +112,7 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
         const payload = { id: runId, title: doc.title, ...(doc.researchInput ? { schemaVersion: 2, researchInput: doc.researchInput } : {}), historicalContext, notes: visualsOnly ? '' : doc.notes, notesApproved: visualsOnly ? false : doc.notesApproved, section: null, skipClarification, clarification: input.clarification ?? null, sections: visualsOnly ? doc.sections : [], sources: visualsOnly || selectedProblem ? doc.sources : [], figures: visualsOnly ? doc.figures ?? [] : [], coverage: visualsOnly ? doc.coverage ?? [] : [], mode: visualsOnly ? 'visuals' : 'full', ...(!visualsOnly ? { contextPolicyVersion: 1, problemSelectionVersion: 1, ...(selectedProblem ? { selectedProblem } : {}) } : {}), visualPolicyVersion: 2, budgetMicro: 5000000, budgetPolicyVersion: 1 };
         // Diagnostics describe one run, never today's configuration applied to old work.
         const next = { ...doc, ...(selectedProblem ? { selectedProblem } : {}), skipClarification, status: 'queued', progress: [], warnings: [], clarification: null };
-        if (!visualsOnly) { delete next.researchProblems; delete next.coverage; delete next.figures; delete next.visualPolicyVersion; delete next.contextPolicyVersion; }
+        if (!visualsOnly) { delete next.coverage; delete next.figures; delete next.visualPolicyVersion; delete next.contextPolicyVersion; }
         delete next.modelInfo;
         delete next.failure;
         let saved = await save(row, next, runId, payload);
@@ -300,7 +300,19 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
                 throw new ResearchError(409, 'research_not_ready');
             if (doc.messages.length >= 100)
                 throw new ResearchError(409, 'research_chat_limit');
-            const result = await runner('/chat', 'POST', { question: input.question, ...(doc.researchInput ? { researchInput: doc.researchInput } : {}), messages: doc.messages.slice(-12).map(m => ({ role: m.role, content: m.content.slice(0, 6000) })), sections: doc.sections, sources: doc.sources, notes: doc.notes, notesApproved: doc.notesApproved });
+            // Older runs removed offered options after selection. Recover only a
+            // matching scope snapshot from this already owner-authorized brief.
+            let researchProblems = doc.researchProblems;
+            if (!researchProblems?.length) {
+                const snapshots = await db.prepare("SELECT document_json FROM research_versions WHERE brief_id = ? AND json_type(document_json, '$.researchProblems') = 'array' ORDER BY revision DESC LIMIT 10").bind(row.id).all<{ document_json: string }>();
+                for (const snapshot of snapshots.results) {
+                    const previous = JSON.parse(snapshot.document_json);
+                    if (previous.title !== doc.title || JSON.stringify(previous.researchInput ?? null) !== JSON.stringify(doc.researchInput ?? null) || previous.notes !== doc.notes) continue;
+                    researchProblems = resultMetadata(previous).researchProblems;
+                    if (researchProblems?.length) break;
+                }
+            }
+            const result = await runner('/chat', 'POST', { question: input.question, title: doc.title, researchProblems: researchProblems ?? [], ...(doc.selectedProblem ? { selectedProblem: doc.selectedProblem } : {}), ...(doc.researchInput ? { researchInput: doc.researchInput } : {}), messages: doc.messages.slice(-12).map(m => ({ role: m.role, content: m.content.slice(0, 6000) })), sections: doc.sections, sources: doc.sources, notes: doc.notes, notesApproved: doc.notesApproved });
             if (!bounded(result.answer, 30000) || !result.answer.trim() || !result.cost || !Number.isSafeInteger(result.cost.toolMicro) || result.cost.toolMicro < 0 || !(result.cost.modelUsd === null || Number.isFinite(result.cost.modelUsd) && result.cost.modelUsd >= 0))
                 throw new ResearchError(502, 'invalid_research_result');
             doc = await save(row, { ...doc, messages: [...doc.messages, { role: 'user', content: input.question }, { role: 'assistant', content: result.answer }], cost: { toolMicro: doc.cost.toolMicro + result.cost.toolMicro, modelUsd: doc.cost.modelUsd === null || result.cost.modelUsd === null ? null : doc.cost.modelUsd + result.cost.modelUsd } });

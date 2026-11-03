@@ -6,7 +6,8 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useBetaPrincipal, useMemberFetch } from "./BetaPrincipalGate";
 import { Button } from "@/components/ui/Button";
-import { ResearchContent, ResearchMarkdown } from "./ResearchContent";
+import { ResearchContent } from "./ResearchContent";
+import { ResearchFollowup } from "./ResearchFollowup";
 import {
   parseResearchBrief, parseResearchInput, researchFailureSummary,
   researchIsRunning, researchRequest, ResearchRequestError, RESEARCH_NOTES_LIMIT,
@@ -143,7 +144,6 @@ function ResearchEditor({ id, configured, canWrite, blocked, onChange }: {
   const [pendingAction, setPendingAction] = useState("");
   const progressAnchor = useRef<HTMLDivElement | null>(null);
   const [notice, setNotice] = useState("");
-  const [question, setQuestion] = useState("");
   const [clarification, setClarification] = useState("");
   const [problemId, setProblemId] = useState("");
   const [cancelPending, setCancelPending] = useState(false);
@@ -267,10 +267,7 @@ function ResearchEditor({ id, configured, canWrite, blocked, onChange }: {
     {brief.status === "completed" && brief.warnings.some(warning => warning.endsWith("Some diagrams could not be generated within the remaining allowance.")) && <p role="status" className="border-2 border-foreground p-4">The written report is complete. Some diagrams could not be generated within the remaining allowance.</p>}
     {brief.status === "completed" && !hasReport && <p role="status">No report content was returned. Start a new brief to try again.</p>}
     <ResearchContent brief={brief} sourcePrefix={sourcePrefix} />
-    {editable && hasReport && !needsClarification && <section className="space-y-3 border-2 border-foreground p-4" aria-label="Private research follow-up"><h3 className="font-heading text-xl font-bold">Follow-up</h3><p className="text-sm text-secondary">Ask about this report and its saved sources. Follow-ups do not search for new information.</p>
-      <div className="space-y-3">{brief.messages.map((message, index) => <div key={index} className="min-w-0 border-l-2 border-foreground pl-3"><p className="mb-1 font-label text-xs font-bold">{message.role === "user" ? "You" : "Research"}</p><ResearchMarkdown content={message.content} sources={brief.sources} sourcePrefix={sourcePrefix} /></div>)}</div>
-      <form className="space-y-2" onSubmit={event => { event.preventDefault(); if (question.trim()) void mutate("/chat", { question: question.trim() }).then(ok => { if (ok) setQuestion(""); }); }}><label className="grid gap-1 text-sm font-bold">Question<textarea className={control} maxLength={2000} value={question} disabled={busy || brief.needsResearch} onChange={event => setQuestion(event.target.value)} required /></label><Button type="submit" disabled={modelDisabled || running || brief.needsResearch || !question.trim()}>Ask follow-up</Button></form>
-    </section>}
+    {editable && hasReport && !needsClarification && <ResearchFollowup key={brief.id} brief={brief} sourcePrefix={sourcePrefix} disabled={modelDisabled || running || !!brief.needsResearch} onAsk={question => mutate("/chat", { question })} />}
   </article>;
 }
 
