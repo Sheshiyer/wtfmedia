@@ -1,7 +1,7 @@
-import { claudeChat, type ClaudeEnv } from './chat/claude.ts';
+import { claudeChat, safeClaudeErrorCode, type ClaudeEnv } from './chat/claude.ts';
 import { SOCIAL_METRICS, SOCIAL_PLATFORMS, isSocialPlatform, validSocialRange, type SocialEntity, type SocialQueryPlan, type SocialScope } from './social-analytics-contracts.ts';
 import { emptySocialAnswer, executeSocialPlan, type SocialWorkspace } from './social-analytics-evidence.ts';
-import type { SocialProvider } from './social-analytics-provider.ts';
+import { ZernioError, type SocialProvider } from './social-analytics-provider.ts';
 const record = (v: unknown): Record<string, unknown> => v && typeof v === 'object' && !Array.isArray(v) ? v as Record<string, unknown> : {};
 const refId = (v: unknown): v is string => typeof v === 'string' && /^[a-zA-Z0-9_-]{1,160}$/.test(v);
 export function validateSocialPlan(value: unknown, scope: SocialScope): SocialQueryPlan {
@@ -189,14 +189,24 @@ export async function handleSocialAnalyticsAssistant(request: Request, env: Clau
         return Response.json({ error: 'invalid_question_or_scope' }, { status: 400, headers });
     const fallback = { fromDate: s.fromDate, toDate: s.toDate, platforms: isSocialPlatform(s.platform) ? [s.platform] : [] };
     try {
+        const connected = SOCIAL_PLATFORMS.filter(platform => workspace.accounts.some(account => account.platform === platform && account.isActive && account.hasAnalyticsAccess !== false));
+        if (!connected.length) return Response.json(emptySocialAnswer(fallback, 'Connect a social account with analytics access before asking about its metrics.'), { status: 409, headers });
+        if (isSocialPlatform(s.platform) && !connected.includes(s.platform)) return Response.json(emptySocialAnswer(fallback, 'Reconnect the selected social account with analytics access before asking about its metrics.'), { status: 409, headers });
         const plan = await interpretSocialQuestion(input, env, planner, deadline, request.signal);
+        const named = SOCIAL_PLATFORMS.filter(platform => new RegExp(`\\b${platform === 'twitter' ? '(?:twitter|x)' : platform}\\b`, 'i').test(input.question as string));
+        if (!named.length && !plan.posts.length) {
+            const asksForAll = /\ball (?:connected )?(?:platforms|channels|accounts)\b|\bacross (?:connected )?(?:platforms|channels|accounts)\b/i.test(input.question);
+            plan.platforms = isSocialPlatform(s.platform) && !asksForAll ? [s.platform] : connected;
+            if (plan.platforms.length === 1 && plan.intent === 'platform_comparison') plan.intent = 'summary';
+        }
         const result = await executeSocialPlan(provider, workspace, plan);
         result.summary = `${workspace.profileName ?? "Selected workspace"} · ${result.summary}`;
         if (/\bwhy\b|improve|recommend/i.test(input.question))
             result.limitations.push('These observations do not establish a cause. Test changes to content or distribution and compare the same metrics and dates before drawing conclusions.');
         return Response.json(result, { headers });
     }
-    catch {
-        return Response.json(emptySocialAnswer(fallback, 'I could not interpret this question safely. Try naming the metric, platform or post, and dates.', true), { status: 503, headers });
+    catch (error) {
+        const providerError = error instanceof ZernioError;
+        return Response.json({ ...emptySocialAnswer(fallback, providerError ? error.message : 'I could not interpret this question safely. Try naming the metric, platform or post, and dates.', true), errorCode: providerError ? error.code : safeClaudeErrorCode(error) }, { status: 503, headers });
     }
 }

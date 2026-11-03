@@ -117,12 +117,12 @@
     if (question.length <= 2000) input.value = '';
     void answer(question);
   };
-  append('assistant-message', 'Ask about views, watch time, engagement, or subscriber growth for a video or your connected channel. Answers show the date range and YouTube source.');
+  append('assistant-message', 'Ask about views, watch time, engagement, or subscriber growth for one channel or all connected channels. Answers show the date range and YouTube source.');
   answer = async function analyticsAnswer(question) {
     if (busy || saving || typeof question !== 'string' || !question.trim()) return;
     if (question.length > 2000) { append('assistant-message', 'Please keep your question under 2,000 characters.'); return; }
     const channelId = new URLSearchParams(window.location.search).get('channel');
-    if (!channelId || channelId === 'all') { append('assistant-message', 'Choose one connected channel above to ask about its videos and analytics.'); return; }
+    if (!channelId) { append('assistant-message', 'Choose a connected channel or All channels to ask about YouTube analytics.'); return; }
     busy = true;
     dirty = true;
     if (submit) { submit.disabled = true; submit.textContent = 'Thinking…'; }
@@ -134,7 +134,7 @@
       const selected = range();
       const response = await (globalThis.wtfAnalyticsRequest || fetch)('/beta/api/analytics/assistant', {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ channelId, question, startDate: selected.from, endDate: selected.to, videoId: state.episode !== 'all' ? state.episode : chosenVideo, comparisonVideoId: state.compareEpisode || null, comparisonWindow: state.episodeWindow || "first7", previousQuestions, recentMessages: transcript.slice(0, -1).slice(-8).map(message => ({ role: message.role, content: message.content.slice(0, 6000) })) }),
+        body: JSON.stringify({ channelId, question, startDate: selected.from, endDate: selected.to, videoId: channelId === 'all' ? null : state.episode !== 'all' ? state.episode : chosenVideo, comparisonVideoId: channelId === 'all' ? null : state.compareEpisode || null, comparisonWindow: state.episodeWindow || "first7", previousQuestions, recentMessages: transcript.slice(0, -1).slice(-8).map(message => ({ role: message.role, content: message.content.slice(0, 6000) })) }),
         signal: AbortSignal.timeout(60000),
       });
       const result = await response.json();

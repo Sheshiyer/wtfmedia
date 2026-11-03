@@ -9,6 +9,11 @@ function failure(code: string, status?: number) {
   return Object.assign(new Error(`claude_${code}`), status === undefined ? {} : { status });
 }
 
+export function safeClaudeErrorCode(error: unknown): string {
+  const code = error instanceof Error ? error.message : "";
+  return /^claude_(?:not_configured|http_\d{3}|timeout|aborted|transport_error|invalid_response|invalid_json|invalid_stop_reason|unexpected_model|empty_response|refusal|max_tokens|model_context_window_exceeded|tool_use|pause_turn|unavailable)$/.test(code) ? code : "interpreter_failed";
+}
+
 function pause(ms: number, signal: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
     const abort = () => { clearTimeout(timer); reject(failure("aborted")); };

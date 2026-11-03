@@ -7158,3 +7158,27 @@ DNS, Clerk, queue, ingest, corpus, or production mutation occurred.
   failures in navigation/auth tests; the same seven reproduce on the untouched
   `9097a5c` base. No live Google or Clerk acceptance was possible with the
   available local configuration. No migration apply or deployment was done.
+
+## 2026-11-03 — Analytics chat scope and YouTube sync control PR candidate
+
+- Based on `feature/pavun` at `091b9ad`; the newer Pavun research and handoff
+  commits are included. Delivery is from `feature/sarthak` into a review-only
+  PR targeting `feature/pavun`. No merge or deployment is part of this change.
+- YouTube chat now answers channel-wide questions for All channels using each
+  channel's existing Google OAuth grant. It keeps per-channel values separate,
+  sums additive counts only, globally ranks returned videos, and withholds a
+  combined answer if any channel is unavailable. One connected channel keeps
+  the existing single-channel path.
+- Social chat uses only connected accounts for an All-platform query. A single
+  selected platform stays scoped to that platform; a selected inactive account
+  asks for reconnection. Safe model/provider error codes make failures easier
+  to diagnose without returning credential or provider response bodies.
+- The YouTube Update Data button keeps its label and action-row position while
+  synchronization runs; its busy state remains available to assistive tech.
+- VERIFIED-SOURCE: full Edge suite 624/624 after the Pavun update, followed by
+  62/62 focused analytics/Claude/social tests after the final account guard;
+  web typecheck, lint, JavaScript syntax, and `git diff --check` pass. Real
+  Claude inference and live Google/Zernio responses were not verified locally:
+  the deployed model secret is not readable into this checkout and local OAuth
+  grants/accounts are not active. These are still live acceptance checks after
+  PR review with the intended environment credentials.

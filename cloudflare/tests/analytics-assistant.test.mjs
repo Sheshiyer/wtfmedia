@@ -52,6 +52,29 @@ test('assistant is analytics read only and is available to members',()=>{
  assert.equal(capabilitiesForRole('editor').includes('analytics:read'),true);
 });
 
+test('All channels answers one, two, and three connected channels with separate grants',async()=>{
+ for(const count of [1,2,3]){
+  const ids=Array.from({length:count},(_,i)=>`UC${String.fromCharCode(97+i).repeat(22)}`);
+  const secret='all-channel-test-secret';
+  const encrypted=await encryptAnalyticsCredentials({accessToken:'valid-token',refreshToken:'refresh-token',expiresAt:'2026-10-05T00:00:00Z'},secret);
+  let plannerCalls=0;const queried=[];
+  const env={OPS_ENVIRONMENT:'staging',GOOGLE_OAUTH_CLIENT_ID:'test-client',GOOGLE_OAUTH_CLIENT_SECRET:'test-secret',ANALYTICS_TOKEN_ENCRYPTION_KEY:secret,DB:{prepare(sql){let values=[];return{bind(...args){values=args;return this},async all(){if(sql.includes('SELECT a.youtube_channel_id AS channelId'))return{results:ids.map((id,i)=>({channelId:id,title:`Channel ${i+1}`}))};return{results:[]}},async first(){const id=values[1];return ids.includes(id)?{id:'connection-test',account_id:`account-${id}`,provider:'youtube',status:'connected',selected_resource_id:id,selected_resource_name:`Channel ${ids.indexOf(id)+1}`,encrypted_credentials:encrypted}:null}}}}};
+  const deps={now,planAnalytics:async()=>{plannerCalls++;return{kind:'metrics',scope:'channel',videoQuery:null,startDate:'2026-09-01',endDate:'2026-09-30',metrics:['views','subscribersGained']}},fetchGoogle:async url=>{const id=new URL(url).searchParams.get('ids')?.slice('channel=='.length);queried.push(id);return Response.json({columnHeaders:[{name:'views'},{name:'subscribersGained'}],rows:[[10*(ids.indexOf(id)+1),ids.indexOf(id)+1]]})}};
+  const response=await handleAnalyticsAssistant(request({channelId:'all',question:'How did all channels perform?',startDate:'2026-09-01',endDate:'2026-09-30'}),env,deps);
+  const answer=await response.json();assert.equal(response.status,200,JSON.stringify({answer,queried,plannerCalls}));assert.equal(answer.status,'answered');assert.equal(plannerCalls,1);assert.deepEqual(queried.sort(),[...ids].sort());
+  if(count>1){assert.equal(answer.metrics.find(row=>row.label==='All channels · Views in selected period').value,10*count*(count+1)/2);assert.equal(answer.metrics.filter(row=>row.key==='views').length,count+1)}
+ }
+});
+
+test('All channels ranks videos across each channel without inventing a global winner',async()=>{
+ const ids=['a','b','c'].map(letter=>`UC${letter.repeat(22)}`);
+ const secret='ranking-test-secret';const encrypted=await encryptAnalyticsCredentials({accessToken:'valid-token',refreshToken:'refresh-token',expiresAt:'2026-10-05T00:00:00Z'},secret);
+ const env={OPS_ENVIRONMENT:'staging',GOOGLE_OAUTH_CLIENT_ID:'test-client',GOOGLE_OAUTH_CLIENT_SECRET:'test-secret',ANALYTICS_TOKEN_ENCRYPTION_KEY:secret,DB:{prepare(sql){let values=[];return{bind(...args){values=args;return this},async all(){if(sql.includes('SELECT a.youtube_channel_id AS channelId'))return{results:ids.map((id,i)=>({channelId:id,title:`Channel ${i+1}`}))};if(sql.includes('youtube_analytics_videos'))return{results:values.slice(2).map(videoId=>({videoId,title:`Video ${videoId.slice(-1)}`}))};return{results:[]}},async first(){const id=values[1];return ids.includes(id)?{id:'connection-test',account_id:`account-${id}`,provider:'youtube',status:'connected',selected_resource_id:id,selected_resource_name:`Channel ${ids.indexOf(id)+1}`,encrypted_credentials:encrypted}:null}}}}};
+ const deps={now,planAnalytics:async()=>({kind:'ranking',scope:'channel',videoQuery:null,startDate:'2026-09-01',endDate:'2026-09-30',metrics:['subscribersGained'],rankBy:'subscribersGained',order:'desc',limit:3}),fetchGoogle:async url=>{const id=new URL(url).searchParams.get('ids')?.slice('channel=='.length),index=ids.indexOf(id);return Response.json({columnHeaders:[{name:'video'},{name:'subscribersGained'}],rows:[[`video_test${index}`,10*(index+1)]]})}};
+ const answer=await(await handleAnalyticsAssistant(request({channelId:'all',question:'Which episode gained the most subscribers?',startDate:'2026-09-01',endDate:'2026-09-30'}),env,deps)).json();
+ assert.equal(answer.status,'answered',JSON.stringify(answer));assert.deepEqual(answer.ranking.map(row=>row.value),[30,20,10]);assert.deepEqual(answer.ranking.map(row=>row.channelId),ids.toReversed());
+});
+
 
 test('explicit channel scope overrides a previously selected video',async()=>{
  const f=await fixture({plan:{...plan,scope:'channel',videoQuery:null}});
@@ -89,7 +112,7 @@ test('missing Claude configuration fails without a Workers AI fallback or Google
  f.env.AI={run(){throw new Error('Workers AI must not be used');}};
  const response=await handleAnalyticsAssistant(request(),f.env,f.deps);
  assert.equal(response.status,503);
- assert.equal((await response.json()).status,'assistant_unavailable');
+ const body=await response.json();assert.equal(body.status,'assistant_unavailable');assert.equal(body.errorCode,'claude_not_configured');
  assert.equal(f.calls(),0);
 });
 
