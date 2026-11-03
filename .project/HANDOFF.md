@@ -1,3 +1,13 @@
+## 2026-11-03 — PR #90 merged, pushed and deployed to staging
+
+- Owner requested merge to feature/pavun, push and staging deployment. Reviewed PR #90 head e9b1a7e; merged cleanly without conflicts as d8c344ec083cd6d9352fc9158e60b4ecd49fb8f6. GitHub confirms MERGED. Preserved newer research and sign-in recovery changes.
+- Scope: YouTube All channels chat with separate Google grants and additive-only aggregation; connected-platform social chat scoping; bounded safe error codes; stable Update Data button. No migrations or credentials changes.
+- VERIFIED-SOURCE: 625 Edge tests pass; changed browser JS syntax and diff checks pass; isolated 98-page OpenNext build with lint/types passes using the existing Next compatibility override. Compiled Clerk identity matches staging.
+- Staging Edge e61024db-7f64-4235-b596-b2bc088a4a59; Web 2dcbfe1e-29b4-4932-9275-b55d16a13bfe. Web binds to staging Edge; beta-staging.wtfhq.in custom domain deployed.
+- Live analytics-assistant.js, production-bridge.js and live-demo.css match candidate bytes. Sign-in, YouTube analytics and social analytics pages return 200. Edge health reports staging/alpha_public_api; unsigned analytics assistant returns 401.
+- Prior rollback Edge 2c550b0a-adf1-4697-ba33-f175b11fa59b; Web efc9ed72-36f5-4cf8-a4e0-3649f13cec8e. Research runner unchanged at e35174f9-fbcd-4fb7-b6a5-353489f29edb.
+- No production deployment, paid model calls, live Google/Zernio question execution, or full signed-in persona acceptance claimed. Owner should test All channels and selected-channel/platform questions with connected accounts.
+
 ## 2026-11-03 — Connection research and session recovery deployed to staging
 
 - Owner authorized staging and push. Runtime source 990606f; digest pin 4aecf98. Default Wrangler login verified access to the WTF account and every deploy explicitly selected that account; named wtfmedia profile was absent. Credentials unchanged.
