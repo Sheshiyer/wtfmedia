@@ -225,3 +225,35 @@ class ConnectionRepairTests(unittest.TestCase):
         same=[{**ITEMS[0]},{**ITEMS[1],'sourceId':ITEMS[0]['sourceId']}]
         with self.assertRaises(ValueError): validated_connections(json.dumps({'connections':[CONNECTION]}),same,SOURCES)
         with self.assertRaises(ValueError): validated_connections(json.dumps({'connections':[{**CONNECTION,'explanation':'Revenue increased by 700 percent.'}]}),ITEMS,SOURCES)
+
+class ConnectionFeedbackTests(unittest.TestCase):
+    def test_failed_candidates_report_fields_without_rejected_content(self):
+        from research.connections import CandidateValidationError
+        bad = {**CONNECTION, 'title': 'PRIVATE_MARKER' * 20, 'relevance': 9}
+        with self.assertRaises(CandidateValidationError) as caught:
+            retained_connections(json.dumps({'connections': [bad]}), ITEMS, SOURCES)
+        feedback = ' '.join(caught.exception.issues)
+        self.assertIn('title', feedback)
+        self.assertIn('relevance', feedback)
+        self.assertNotIn('PRIVATE_MARKER', feedback)
+
+    def test_repair_receives_specific_checks_and_keeps_strict_validation(self):
+        from research.connections import structured, Connections
+        calls = Calls(); cp = {}; requests = []
+        def model(messages, *args, **kwargs):
+            requests.append(messages)
+            value = {**CONNECTION, 'title': 'x' * 101} if len(requests) == 1 else CONNECTION
+            return json.dumps({'connections': [value]})
+        calls.model = model
+        result = asyncio.run(structured(calls, cp, 'proposals', Connections, 'Connect', {},
+            lambda raw: retained_connections(raw, ITEMS, SOURCES), lambda: None))
+        self.assertEqual(result, [CONNECTION])
+        self.assertIn('title', requests[1][-1]['content'])
+        self.assertIn('string_too_long', requests[1][-1]['content'])
+        self.assertNotIn('x' * 101, requests[1][-1]['content'])
+        self.assertNotIn('proposalsValidation', cp)
+        self.assertEqual(len(requests), 2)
+
+    def test_unknown_exception_text_is_not_echoed_to_repair(self):
+        from research.connections import validation_feedback
+        self.assertEqual(validation_feedback(ValueError('secret private text')), ['response failed validation'])

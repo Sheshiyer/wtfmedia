@@ -1,3 +1,10 @@
+## 2026-11-03 — Connection proposal validation repair (local)
+
+- Owner reported failed staging research after problem selection. Read-only D1 diagnostic projection confirms both extraction batches completed, then failure at connection proposal generation with invalid_output/invalid_schema. No report bodies or owner/run identifiers printed. Exact rejected field is unavailable from saved public diagnostics.
+- Found proposal prompt omitted local string/item/score limits stripped from provider schema, and rejected candidates discarded their diagnostic detail. Generic retry had no actionable validation feedback.
+- Local fix explicitly states proposal/review bounds, preserves bounded field/type or allowlisted evidence-rule feedback for exhausted candidate sets, and sends that feedback to the one existing repair attempt. No rejected values or arbitrary exception text included; strict source/numeric validation unchanged.
+- VERIFIED-SOURCE: 245 runner tests pass, including oversize/score diagnostics, successful bounded repair and private-text omission; diff check passes. No paid model call, regeneration, shared writes, push, or deployment. Existing failed staging brief unchanged; exact live outcome remains unverified.
+
 ## 2026-11-03 — PR #90 merged, pushed and deployed to staging
 
 - Owner requested merge to feature/pavun, push and staging deployment. Reviewed PR #90 head e9b1a7e; merged cleanly without conflicts as d8c344ec083cd6d9352fc9158e60b4ecd49fb8f6. GitHub confirms MERGED. Preserved newer research and sign-in recovery changes.
