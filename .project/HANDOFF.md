@@ -1,3 +1,11 @@
+## 2026-11-03 — Staging candidate pushed; deployment awaiting login
+
+- Owner requested all changes pushed and staging deployed. Runtime candidate 990606f is pushed to origin/feature/pavun.
+- VERIFIED-SOURCE: 242 runner tests, 65 Edge research tests, 78 web research/export tests, 7 host tests, host typecheck, and isolated OpenNext build (98 pages; lint/types) pass. Built browser Clerk identity matches staging. Browser admission tests remain blocked by absent Playwright Chromium.
+- Linux/amd64 research image wtfmedia-research:990606f built and imports checked without provider calls. Registry push and digest pin are pending. Compatible runner must deploy before the Edge enables contextPolicyVersion/problemSelectionVersion.
+- Isolated web artifact is under ignored .local/staging-990606f. Build used the established unsupported-Next-version override. No local environment or credential file was copied into the artifact.
+- Staging deployment is blocked by unauthenticated wtfmedia Wrangler profile. Owner asked to complete named-profile login. No staging services, database, secrets, or production resources changed; no paid research calls or report regeneration.
+
 ## 2026-11-03 — Local session redirect-loop repair
 
 - Local Edge repeatedly rejected principal admission with 401 while Clerk remained signed in. The gate redirected back to sign-in, whose active session returned to the workspace and repeated the cycle.
