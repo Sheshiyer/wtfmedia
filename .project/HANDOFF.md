@@ -1,3 +1,10 @@
+## 2026-11-03 — Output repair and spelling fixes deployed to staging
+
+- Owner clarified staging, not production. Runtime d89f5a0, image pin 6432c7b; commits remain local on feature/pavun, no push requested in this task.
+- Runner Worker 5825bdc1-c175-4edf-b3df-bc72ec1db692; container application version 19, digest 7780ecb0347c374dc086dcc7ae10f13abcae9db3c35db322d6ec7a90ccd74c16. Final readback confirms one healthy instance, no starting/failed instances or errors.
+- VERIFIED-SOURCE: 257 offline runner tests before freeze; 52 focused tests pass inside the Linux/amd64 image. Staging research page 200 and unsigned runner health 401. No paid provider test or saved report regeneration; exact prior rejected field remains unverified.
+- Web/Edge, database, credentials and production unchanged. Rollback runner 72069b6c-542a-43fe-8699-cf018d297027/image 0d2a2f6bebd0e7edd000098c07a1266b4b06c6a3b95e8228e5bcaefda05c38de. Removed temporary staging-format-fix build copy after rollout verification to limit local storage.
+
 ## 2026-11-03 — Output repair and spelling clarification hardening (local)
 
 - Owner reports another staging format failure and requests production deployment. Read-only staging D1 diagnostics locate the latest failure after evidence extraction at connection proposal generation, invalid_output/invalid_schema. Rejected field is not available; no exact live root cause claimed.
