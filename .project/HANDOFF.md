@@ -1,3 +1,12 @@
+## 2026-11-03 — Connection research and session recovery deployed to staging
+
+- Owner authorized staging and push. Runtime source 990606f; digest pin 4aecf98. Default Wrangler login verified access to the WTF account and every deploy explicitly selected that account; named wtfmedia profile was absent. Credentials unchanged.
+- Runner Worker e35174f9-fbcd-4fb7-b6a5-353489f29edb; container application version 16, image sha256:03d0ec0a45861d513dffb1dfed390d70df041ac9d323dcc3c123c2d2f9a5cce7. Uncached application readback confirms one healthy instance, no errors/failed instances. Initial CLI metadata was stale.
+- Edge 2c550b0a-adf1-4697-ba33-f175b11fa59b; Web efc9ed72-36f5-4cf8-a4e0-3649f13cec8e at beta-staging.wtfhq.in. Runner deployed before Edge, then Web. Web binds to staging Edge; Alpha remains inference/corpus authority.
+- Live sign-in/research pages return 200, compiled/live Clerk key matches staging issuer, principal API and runner health return 401 unsigned. Edge /v1/health returns healthy staging and alpha_public_api authority.
+- Rollback targets: runner dfe6c6db-0004-4d83-ae27-5c765bf5aa5a/image 29f306a8985f3b571a320763f08095d41ba37cd4425f9cc20189d8f5649d25c9; Edge 0387d2ce-516b-47a8-bc63-afadd6e31272; Web 0578cb78-2500-471c-9313-4cd03cd2ce09. Do not roll back runner alone while new Edge fields are enabled.
+- No migrations, credential changes, production deployment, paid model calls, or saved-report regeneration. Real signed-in admission and full editorial/provider flow remain owner acceptance checks; no full persona matrix claimed.
+
 ## 2026-11-03 — Staging candidate pushed; deployment awaiting login
 
 - Owner requested all changes pushed and staging deployed. Runtime candidate 990606f is pushed to origin/feature/pavun.
