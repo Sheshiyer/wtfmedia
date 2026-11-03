@@ -7,7 +7,7 @@
   "workers_dev": true,
   "preview_urls": false,
   "observability": {"enabled": true, "traces": {"enabled": true}},
-  "containers": [{"class_name":"ResearchContainer", "image":"registry.cloudflare.com/8f380cb5640467030b647e12773efb46/wtfmedia-research@sha256:03d0ec0a45861d513dffb1dfed390d70df041ac9d323dcc3c123c2d2f9a5cce7", "instance_type":"standard-1", "max_instances":1}],
+  "containers": [{"class_name":"ResearchContainer", "image":"registry.cloudflare.com/8f380cb5640467030b647e12773efb46/wtfmedia-research@sha256:5de0e1260d40fc9e724096fabc0a899116369ff4d9f2335f618d7d813c77de19", "instance_type":"standard-1", "max_instances":1}],
   "durable_objects": {"bindings":[{"name":"RUNNER","class_name":"ResearchContainer"},{"name":"STATE","class_name":"ResearchState"}]},
   "migrations": [{"tag":"v1","new_sqlite_classes":["ResearchContainer","ResearchState"]}],
   "triggers": {"crons":["* * * * *"]}
