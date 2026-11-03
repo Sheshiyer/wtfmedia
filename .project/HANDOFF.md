@@ -1,3 +1,11 @@
+## 2026-11-03 — Current YouTube and Social Analytics deployed to production
+
+- Owner-authorized selective release b80effb is live at wtfhq.in; branch remains feature/pavun. No push requested in this task.
+- Production Edge 1fe56185-6f05-491f-a259-5a3cd22e965f and apex Web 1df88d2d-ad7f-4b4a-b20e-6f66813abb6e read back at 100% traffic. All 31 Edge/six Web bindings and compatibility settings match the pre-release snapshots.
+- Live Edge SHA-256 b9781e1909b047903cc5ebc9729a5359363ed2cd9fdac0bae3519d3b05110ff0 matches the tested artifact. Live analytics-assistant.js, production-bridge.js and live-demo.css match candidate bytes. Sign-in, analytics, channel, social and chat pages return 200; unsigned principal/analytics/social APIs return 401. Compiled and live sign-in identity is clerk.wtfhq.in.
+- VERIFIED-SOURCE: 119 focused backend, 74 focused frontend and 23 packaged YouTube handler checks pass; production OpenNext build includes lint/types. Real signed-in Google/Zernio/Claude calls remain owner testing, not acceptance evidence.
+- Rollback: Edge e9baf170-f705-41cd-9c6a-5c735b203004; Web 01b461cb-1a4d-4764-9ecf-6be355ede3e4. No migrations, credentials, research runner, staging services or corpus changes. No paid model calls. Temporary production build copy removed after verification to avoid cache accumulation.
+
 ## 2026-11-03 — Current analytics production candidate
 
 - Owner authorized current YouTube and Social Analytics deployment to production only. Added a reproducible selective builder based on recorded Edge e9baf170-f705-41cd-9c6a-5c735b203004 and the existing production frontend assembly. Only two backend handler dispatches change; reversal exactly restores the baseline. Research is excluded.
