@@ -1,3 +1,9 @@
+## 2026-11-03 — Current analytics production candidate
+
+- Owner authorized current YouTube and Social Analytics deployment to production only. Added a reproducible selective builder based on recorded Edge e9baf170-f705-41cd-9c6a-5c735b203004 and the existing production frontend assembly. Only two backend handler dispatches change; reversal exactly restores the baseline. Research is excluded.
+- Includes current connected-channel/platform chat and analytics UI. Fixed the DOM test fixture for the existing accessible sync status and added a busy-state assertion.
+- VERIFIED-SOURCE: 119 focused Edge checks, 74 web checks, 23 checks against the packaged YouTube handler, production OpenNext lint/type/build and compiled clerk.wtfhq.in identity pass. No paid/live provider calls or database/credential changes. Production rollout receipt follows; signed-in provider acceptance remains owner testing.
+
 ## 2026-11-03 — Partial-failure resilience deployed to staging
 
 - Owner authorized push and staging deployment. Runtime 4ca0377, image pin e695cf1 on feature/pavun. Includes preservation of valid extraction/proposal/review items across repair, partial evidence reports on exhausted output validation, and content-free validation categories.

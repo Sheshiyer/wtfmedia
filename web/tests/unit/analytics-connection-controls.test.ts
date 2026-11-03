@@ -3,9 +3,9 @@ import vm from 'node:vm';
 import { describe, expect, it, vi } from 'vitest';
 
 function controls(manage: boolean, serverManage = manage) {
-  const nodes = new Map<string, { hidden: boolean; disabled: boolean; textContent: string; classList: { toggle: ReturnType<typeof vi.fn> } }>();
+  const nodes = new Map<string, { hidden: boolean; disabled: boolean; textContent: string; setAttribute: ReturnType<typeof vi.fn>; classList: { toggle: ReturnType<typeof vi.fn> } }>();
   const node = (selector: string) => {
-    if (!nodes.has(selector)) nodes.set(selector, { hidden: false, disabled: false, textContent: '', classList: { toggle: vi.fn() } });
+    if (!nodes.has(selector)) nodes.set(selector, { hidden: false, disabled: false, textContent: '', setAttribute: vi.fn(), classList: { toggle: vi.fn() } });
     return nodes.get(selector)!;
   };
   const context = vm.createContext({ URLSearchParams, window: { location: { search: `?manage=${manage ? 1 : 0}&channel=UC${"a".repeat(22)}` } },
@@ -70,4 +70,11 @@ it('keeps reconnect available at capacity, including expired grants, while reade
     reader.render();
     expect(reader.node('#api-connect-demo').hidden).toBe(true);
   }
+});
+
+it('keeps sync control stable while exposing progress accessibly', () => {
+  const view = controls(true);
+  view.api.syncing = true;
+  view.render();
+  expect(view.node('#api-sync-production').setAttribute).toHaveBeenCalledWith('aria-busy', 'true');
 });
