@@ -432,3 +432,82 @@ class MixedRunRecoveryTests(unittest.TestCase):
     def test_invalid_quote_with_reused_id_does_not_hide_valid_candidate(self):
         bad = {**ITEMS[0], 'quote':'This passage is not in any of the retained sources.'}
         self.assertEqual(retained_items(json.dumps({'items':[bad,ITEMS[0]]}), SOURCES), [ITEMS[0]])
+
+class NumericConnectionRecoveryTests(unittest.TestCase):
+    def test_numeric_feedback_names_fields_and_preserves_repair_candidate(self):
+        from research.connections import CandidateValidationError
+        bad = {**CONNECTION, 'explanation': 'Delivery increased by 900 percent.'}
+        with self.assertRaises(CandidateValidationError) as caught:
+            retained_connections(json.dumps({'connections':[bad]}), ITEMS, SOURCES, repair_partial=True)
+        self.assertIn('explanation: unsupported numbers', caught.exception.issues[0])
+        self.assertEqual(caught.exception.repairable, [bad])
+        self.assertEqual(caught.exception.retained, [])
+
+    def test_numeric_batch_failure_repairs_then_reviews_and_completes_four_sections(self):
+        calls = Calls(); original = calls.model; repairs = []
+        def model(messages, *args, **kwargs):
+            if 'Develop useful podcast insights' in messages[0]['content']:
+                payload = json.loads(messages[1]['content'])
+                if 'candidate' in payload:
+                    repairs.append(payload)
+                    return json.dumps({'connections':[CONNECTION]})
+                return json.dumps({'connections':[{**CONNECTION, 'significance':'A 900 percent increase.'}]})
+            return original(messages, *args, **kwargs)
+        calls.model = model
+        result = dict(sources=copy.deepcopy(SOURCES), sections=[], figures=[], warnings=[], progress=[], visualPolicyVersion=2)
+        statuses=[]; state={}
+        async def no_model_visuals(*args): pass
+        with patch('research.connections.generate_figures', no_model_visuals):
+            asyncio.run(run_connections(dict(title='Delivery'),result,state,calls,lambda status='running':statuses.append(status)))
+        self.assertEqual(len(repairs),1)
+        self.assertEqual(statuses[-1],'completed')
+        self.assertEqual(len(result['sections']),4)
+        self.assertEqual([f['status'] for f in result['figures']],['ready']*4)
+        self.assertTrue(state['connectionsV1']['review'][0]['accepted'])
+        self.assertNotIn('900', json.dumps(result['sections']))
+
+    def test_invalid_references_are_never_eligible_for_numeric_repair(self):
+        from research.connections import CandidateValidationError
+        with self.assertRaises(CandidateValidationError) as caught:
+            retained_connections(json.dumps({'connections':[{**CONNECTION,'evidenceIds':['e1','fake']}]}),ITEMS,SOURCES,repair_partial=True)
+        self.assertEqual(caught.exception.repairable,[])
+
+    def test_failed_numeric_repair_remains_partial_without_publishing_invalid_claims(self):
+        calls = Calls(); original=calls.model; count=[]
+        def model(messages,*args,**kwargs):
+            if 'Develop useful podcast insights' in messages[0]['content']:
+                count.append(1)
+                return json.dumps({'connections':[{**CONNECTION,'significance':'A 900 percent increase.'}]})
+            return original(messages,*args,**kwargs)
+        calls.model=model
+        result=dict(sources=copy.deepcopy(SOURCES),sections=[],figures=[],warnings=[],progress=[])
+        statuses=[]
+        asyncio.run(run_connections(dict(title='Delivery'),result,{},calls,lambda status='running':statuses.append(status)))
+        self.assertEqual(len(count),4)
+        self.assertEqual(statuses[-1],'partial')
+        self.assertNotIn('900',json.dumps(result['sections']))
+        self.assertEqual(result['figures'],[])
+
+class InlineEvidenceMarkerTests(unittest.TestCase):
+    def test_known_citation_digits_are_not_numeric_claims(self):
+        row={**CONNECTION,'explanation':'Local distribution (e1) may complement delivery reliability (e2).','limitation':'Different contexts (e1, e2); causality is unproven.'}
+        result=validated_connections(json.dumps({'connections':[row]}),ITEMS,SOURCES)[0]
+        self.assertEqual(result['explanation'],'Local distribution may complement delivery reliability.')
+        self.assertEqual(result['evidenceIds'],['e1','e2'])
+        self.assertNotIn('(e1',result['limitation'])
+        self.assertIsNotNone(fallback_figure(result,ITEMS,SOURCES))
+
+    def test_claims_unknown_references_and_parenthetical_prose_are_not_removed(self):
+        from research.connections import remove_inline_evidence_markers
+        for text in ['Revenue rose (900 percent).','Unknown citation (e99).','Claim (e1 says 900 percent).','Unknown mixed citation [e1, e99].']:
+            self.assertEqual(remove_inline_evidence_markers(text,['e1','e2']),text)
+            with self.assertRaises(ValueError):
+                validated_connections(json.dumps({'connections':[{**CONNECTION,'explanation':text}]}),ITEMS,SOURCES)
+        self.assertEqual(remove_inline_evidence_markers('Context [e1; e2].',['e1','e2']),'Context.')
+
+class FigureExcerptTests(unittest.TestCase):
+    def test_fallback_display_truncation_is_explicit_and_word_aligned(self):
+        from research.connections import figure_excerpt
+        self.assertEqual(figure_excerpt('Short complete statement.',30),'Short complete statement.')
+        self.assertEqual(figure_excerpt('Revenue follows investment over time.',22),'Revenue follows…')
+        self.assertLessEqual(len(figure_excerpt('😀 repeated words '*30,140).encode('utf-16-le'))//2,140)
