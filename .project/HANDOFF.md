@@ -1,3 +1,11 @@
+## 2026-11-03 — Preserve validated research through item failures (local)
+
+- Owner requested better validation diagnostics and non-fatal handling of small item failures. Extraction, proposal and review retain independently valid items in private checkpoints across the existing bounded repair attempt. Repair requests identify already retained IDs; successful replacements merge without overwriting accepted evidence. Negative review decisions take precedence when merging.
+- Review parses items independently; unknown IDs, missing/malformed decisions and duplicate decisions never implicitly approve a connection. A malformed repair cannot erase earlier valid candidates. Invalid quotes no longer reserve an ID that suppresses a later valid extraction candidate.
+- Exhausted retryable output validation yields retained candidates rather than aborting the entire pipeline. If insufficient reviewed connections remain, save partial with bounded, source-checked passages and explicit incomplete-connection wording. Fatal auth/refusal/storage and cancellation behavior is not converted into success.
+- Content-free diagnostic categories and user-facing omission/repair warnings distinguish field length, references, numeric support, source independence, causality, incomplete review and provider/structure failures. No rejected prose in logs.
+- VERIFIED-SOURCE: 262 full offline runner tests passed before final extraction-ID adjustment; final 35 connection tests pass including mixed-candidate full flow with four sections and four valid fallback visuals, malformed repair preservation, duplicate review exclusion and private-log filtering. No paid calls, saved report regeneration, staging deployment or push. Changes remain local on feature/pavun.
+
 ## 2026-11-03 — Output repair and spelling fixes deployed to staging
 
 - Owner clarified staging, not production. Runtime d89f5a0, image pin 6432c7b; commits remain local on feature/pavun, no push requested in this task.

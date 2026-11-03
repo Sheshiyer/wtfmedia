@@ -167,7 +167,9 @@ class ConnectionTests(unittest.TestCase):
         calls.model=rejected
         result=dict(sources=copy.deepcopy(SOURCES),sections=[],figures=[],warnings=[],progress=[]);statuses=[]
         asyncio.run(run_connections(dict(title='Delivery'),result,{},calls,lambda status='running':statuses.append(status)))
-        self.assertEqual(statuses[-1],'partial');self.assertEqual(result['sections'],[])
+        self.assertEqual(statuses[-1],'partial')
+        self.assertEqual(result['sections'][0]['status'], 'partial')
+        self.assertNotIn('Interpretation to explore', result['sections'][0]['content'])
 
 from research.tests.test_runner import StoreFixture, FakeEngine
 from research.providers import Calls as RealCalls
@@ -339,3 +341,94 @@ class FormatRecoveryTests(unittest.TestCase):
         with self.assertRaises(ProviderError):
             asyncio.run(structured(calls, {}, 'proposals', Connections, 'Connect', {}, lambda raw: [], lambda: None))
         self.assertEqual(len(count), 1)
+
+class PartialRecoveryTests(unittest.TestCase):
+    def test_valid_connections_survive_failed_repair_and_resume(self):
+        from research.connections import structured, Connections
+        calls = Calls(); cp = {}; requests = []
+        bad = {**CONNECTION, 'id': 'c2', 'evidenceIds': ['e1', 'missing']}
+        def model(messages, *args, **kwargs):
+            requests.append(messages)
+            if len(requests) == 1:
+                return json.dumps({'connections': [CONNECTION, bad]})
+            return '{broken'
+        calls.model = model
+        validator = lambda raw: retained_connections(raw, ITEMS, SOURCES, repair_partial=True)
+        for _ in range(2):
+            result = asyncio.run(structured(calls, cp, 'proposals', Connections, 'Connect',
+                {'evidence': ITEMS}, validator, lambda: None, tolerant=True))
+            self.assertEqual(result, [CONNECTION])
+        self.assertEqual(len(requests), 2)
+        self.assertIn('Retained IDs: ["c1"]', requests[1][-1]['content'])
+        self.assertIn('invalid_references', cp['proposalsIssues'])
+
+    def test_partial_review_never_promotes_missing_or_duplicate_decisions(self):
+        from research.connections import retained_review, CandidateValidationError
+        proposals = [CONNECTION, {**CONNECTION, 'id': 'c2'}]
+        good = dict(connectionId='c1', accepted=True, reason='Supported.')
+        duplicate = dict(connectionId='c2', accepted=True, reason='Supported.')
+        with self.assertRaises(CandidateValidationError) as caught:
+            retained_review(json.dumps({'decisions': [good, duplicate, duplicate]}), proposals)
+        self.assertEqual(caught.exception.retained, [good])
+
+    def test_exhausted_proposal_format_returns_partial_evidence_not_failed(self):
+        calls = Calls(); original = calls.model
+        def model(messages, *args, **kwargs):
+            if 'Develop useful podcast insights' in messages[0]['content']:
+                return '{broken'
+            return original(messages, *args, **kwargs)
+        calls.model = model
+        result = dict(sources=copy.deepcopy(SOURCES), sections=[], figures=[], warnings=[], progress=[])
+        statuses = []
+        asyncio.run(run_connections(dict(title='Delivery'), result, {}, calls, lambda status='running': statuses.append(status)))
+        self.assertEqual(statuses[-1], 'partial')
+        self.assertEqual(result['sections'][0]['status'], 'partial')
+        self.assertTrue(any('invalid response structure' in w for w in result['warnings']))
+        self.assertEqual(result['figures'], [])
+
+    def test_fatal_authentication_is_not_hidden_by_partial_mode(self):
+        from research.connections import structured, Connections
+        calls = Calls()
+        def model(*args, **kwargs):
+            raise ProviderError('authentication', code='authentication', retryable=False)
+        calls.model = model
+        with self.assertRaises(ProviderError):
+            asyncio.run(structured(calls, {}, 'proposals', Connections, 'Connect', {}, lambda raw: [], lambda: None, tolerant=True))
+
+    def test_diagnostics_exclude_untrusted_fields(self):
+        import io
+        from contextlib import redirect_stderr
+        from research.diagnostics import emit
+        output = io.StringIO()
+        with redirect_stderr(output):
+            emit(dict(stage='discovery', status='partial', validationStep='connections',
+                      validationCategory='invalid_references', secret='PRIVATE'))
+            emit(dict(stage='discovery', status='partial', validationStep='PRIVATE', validationCategory='PRIVATE'))
+        self.assertNotIn('PRIVATE', output.getvalue())
+        self.assertIn('invalid_references', output.getvalue())
+
+class MixedRunRecoveryTests(unittest.TestCase):
+    def test_invalid_proposal_does_not_block_review_report_and_visuals(self):
+        calls = Calls(); original = calls.model; attempts = []
+        def model(messages, *args, **kwargs):
+            if 'Develop useful podcast insights' in messages[0]['content']:
+                attempts.append(1)
+                good = json.loads(original(messages, *args, **kwargs))['connections'][0]
+                bad = {**good, 'id':'c2', 'evidenceIds':['missing','e1']}
+                return json.dumps({'connections': [good, bad] if len(attempts) == 1 else [bad]})
+            return original(messages, *args, **kwargs)
+        calls.model = model
+        result = dict(sources=copy.deepcopy(SOURCES), sections=[], figures=[], warnings=[], progress=[], visualPolicyVersion=2)
+        statuses = []
+        async def no_model_visuals(*args): pass
+        with patch('research.connections.generate_figures', no_model_visuals):
+            asyncio.run(run_connections(dict(title='Delivery'), result, {}, calls, lambda status='running':statuses.append(status)))
+        self.assertEqual(statuses[-1], 'completed')
+        self.assertEqual(len(result['sections']), 4)
+        self.assertEqual([f['status'] for f in result['figures']], ['ready']*4)
+        self.assertTrue(any('invalid evidence references' in w for w in result['warnings']))
+        self.assertEqual(len(attempts), 2)
+
+    def test_invalid_quote_with_reused_id_does_not_hide_valid_candidate(self):
+        bad = {**ITEMS[0], 'quote':'This passage is not in any of the retained sources.'}
+        self.assertEqual(retained_items(json.dumps({'items':[bad,ITEMS[0]]}), SOURCES), [ITEMS[0]])

@@ -66,6 +66,10 @@ def emit(event):
         return
     safe = {'event': 'research_stage', 'stage': stage, 'status': status}
     safe.update(safe_details(event))
+    if event.get('validationStep') in {'extraction', 'connections', 'review'}:
+        safe['validationStep'] = event['validationStep']
+    if event.get('validationCategory') in {'unsupported_numbers', 'invalid_references', 'source_independence', 'unsupported_causality', 'incomplete_review', 'field_length', 'provider_output', 'response_structure'}:
+        safe['validationCategory'] = event['validationCategory']
     if event.get('model') == 'claude-sonnet-5-5':
         safe['model'] = 'claude-sonnet-5-5'
     code, channel = event.get('code'), event.get('channel')
