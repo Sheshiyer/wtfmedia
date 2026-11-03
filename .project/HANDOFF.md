@@ -1,3 +1,11 @@
+## 2026-11-03 — Connection validation repair deployed to staging
+
+- Owner requested staging deployment. Runtime a9ffa7d, image pin 82eccf0; commits remain local on feature/pavun (no push requested in this task).
+- Runner Worker f5a724ae-8191-4e10-869a-03ec60df0bb6; container application version 17, image sha256:5de0e1260d40fc9e724096fabc0a899116369ff4d9f2335f618d7d813c77de19. Final readback confirms one healthy instance, zero failed/starting instances. Earlier metadata remained stale while rollout settled; one metadata request timed out.
+- Existing 245 offline runner tests passed before freezing; 21 connection regressions also passed inside the Linux/amd64 deployment image with test files mounted read-only. No model/provider calls.
+- Research page returns 200; unsigned runner health returns 401. Web/Edge, shared database, credentials and production unchanged. Saved failed report not regenerated; real provider output remains untested.
+- Rollback: runner e35174f9-fbcd-4fb7-b6a5-353489f29edb with image 03d0ec0a45861d513dffb1dfed390d70df041ac9d323dcc3c123c2d2f9a5cce7.
+
 ## 2026-11-03 — Connection proposal validation repair (local)
 
 - Owner reported failed staging research after problem selection. Read-only D1 diagnostic projection confirms both extraction batches completed, then failure at connection proposal generation with invalid_output/invalid_schema. No report bodies or owner/run identifiers printed. Exact rejected field is unavailable from saved public diagnostics.
