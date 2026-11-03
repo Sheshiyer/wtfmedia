@@ -1,3 +1,10 @@
+## 2026-11-03 — Real-API-tested research marker fix deployed to staging
+
+- Owner authorized staging deployment only. Runtime e3f28ce, image pin 0a24312 on feature/pavun; no push. Includes validated inline evidence-marker cleanup, bounded numeric repair and word-aligned fallback figure text.
+- VERIFIED-SOURCE: 271 offline runner tests and 42 connection tests inside the Linux/amd64 image pass. Prior fresh real Treg/Anthropic run completed four sections/four model-generated visuals without checkpoint reuse or fallback figures; actual Edge projection and SVG rendering passed.
+- Staging runner Worker 6f335d91-8576-4844-84ea-f5b17d818eb3 reads back at 100% traffic. Container application version 21 uses digest 2135d47827103ef0c6b78d8d01ae7398763c3977737f9cb448998e9d8d421286; one healthy instance, zero starting/failed and no errors after rollout. Research page 200; unsigned runner health 401.
+- Staging Web/Edge, databases, credentials, production and saved reports unchanged. Deployment smoke does not claim a new signed-in staging research run. Rollback: runner 6b1e7989-6536-4d89-8b80-0db803fed185, image 993831cc59316f59752904b6b3c3ff55ea5c5d96fbf139e0606d8d28311344c8. Temporary deployment build copy removed; local real-API evidence retained.
+
 ## 2026-11-03 — Fresh end-to-end real-API regression passed (local)
 
 - Owner explicitly requested another real-API end-to-end test. Submitted fresh discovery and selected-problem jobs to the local runner, with no prior test checkpoints, manually injected candidates, result rewriting or resumed state. Existing user reports and shared D1 were untouched.
