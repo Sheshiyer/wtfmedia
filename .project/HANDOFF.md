@@ -1,3 +1,12 @@
+## 2026-11-03 — Expanded follow-up and connection repair deployed to staging
+
+- Owner authorized push and staging deployment. Runtime 56d403b, immutable runner image pin 27140e4 on feature/pavun. Includes all pending draft-aware connection validation repair and expanded follow-up context/UI changes.
+- VERIFIED-SOURCE: 252 offline runner tests, 43 focused Edge research tests, 34 offline tests inside the Linux/amd64 image, isolated OpenNext build including lint/types, and diff check pass. Compiled Clerk identity matches staging. No paid model calls or report regeneration.
+- Runner Worker 72069b6c-542a-43fe-8699-cf018d297027; container application version 18, digest 0d2a2f6bebd0e7edd000098c07a1266b4b06c6a3b95e8228e5bcaefda05c38de. Final readback: one healthy, zero starting/failed, no errors.
+- Edge 767b5813-b52a-4f18-b0d7-786cc486eb19; Web e5e1a78b-a975-47c6-8d30-02a82eb212f6. Runner deployed before Edge then Web. Staging custom domain deployed; sign-in/research return 200, unsigned principal and runner health return 401, Edge health reports staging/alpha_public_api. Live signed-in model answers remain untested.
+- Rollback: Runner f5a724ae-8191-4e10-869a-03ec60df0bb6/image 5de0e1260d40fc9e724096fabc0a899116369ff4d9f2335f618d7d813c77de19; Edge e61024db-7f64-4235-b596-b2bc088a4a59; Web 2dcbfe1e-29b4-4932-9275-b55d16a13bfe. Roll back Edge before an incompatible older runner.
+- No database migrations, credential changes or production deployment. Artifact under ignored .local/staging-followup.
+
 ## 2026-11-03 — Local follow-up runner restart
 
 - Owner reported a generic follow-up error. Local Edge logged a 502 after the new chat fields were added, while the non-reloading runner was still the pre-update process. Restarted that local runner with existing configuration and state; authenticated read-only health confirms configured=true.
