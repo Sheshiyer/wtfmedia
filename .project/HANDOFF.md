@@ -1,3 +1,11 @@
+## 2026-11-03 — Partial-failure resilience deployed to staging
+
+- Owner authorized push and staging deployment. Runtime 4ca0377, image pin e695cf1 on feature/pavun. Includes preservation of valid extraction/proposal/review items across repair, partial evidence reports on exhausted output validation, and content-free validation categories.
+- VERIFIED-SOURCE: all 264 offline runner tests pass; 35 connection tests pass inside the Linux/amd64 deployment image. No paid model calls or saved-report regeneration.
+- Runner Worker 6b1e7989-6536-4d89-8b80-0db803fed185; container application version 20, digest 993831cc59316f59752904b6b3c3ff55ea5c5d96fbf139e0606d8d28311344c8. Final readback confirms one healthy instance, zero starting/failed and no errors.
+- Research page 200, unsigned runner health 401. Staging Web/Edge, databases, credentials and production unchanged. Live model-output acceptance remains untested.
+- Rollback: runner 5825bdc1-c175-4edf-b3df-bc72ec1db692/image 7780ecb0347c374dc086dcc7ae10f13abcae9db3c35db322d6ec7a90ccd74c16. Temporary staging-resilience build copy removed after verification to limit disk usage.
+
 ## 2026-11-03 — Preserve validated research through item failures (local)
 
 - Owner requested better validation diagnostics and non-fatal handling of small item failures. Extraction, proposal and review retain independently valid items in private checkpoints across the existing bounded repair attempt. Repair requests identify already retained IDs; successful replacements merge without overwriting accepted evidence. Negative review decisions take precedence when merging.
