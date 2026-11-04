@@ -36,7 +36,7 @@ export type ResearchFailure = {
     httpStatus?: number;
 };
 export type ResearchSection = { key: ResearchSectionKey; title: string; content: string; status: string; failure?: ResearchFailure };
-export type ResearchSummary = { id: string; title: string; status: ResearchStatus; updatedAt: string; revision: number; shared: boolean; canEdit?: boolean };
+export type ResearchSummary = { researchGroupId?: string; problemQuestion?: string; id: string; title: string; status: ResearchStatus; updatedAt: string; revision: number; shared: boolean; canEdit?: boolean };
 export type ResearchSource = { id: string; title: string; url: string; excerpt: string; publisher?: string; publishedAt?: string; retrievedAt: string; kind?: string; timestampSeconds?: number;
   platform?: ResearchChannel; retrievedVia?: typeof RESEARCH_TOOLS[number]; evidenceType?: "page_extract" | "search_snippet" | "post" | "transcript" | "video_metadata";
 };

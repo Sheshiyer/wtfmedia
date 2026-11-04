@@ -201,12 +201,18 @@ class Context(DTO):
 
 
 class ResearchProblem(DTO):
-    id: str = Field(pattern=r'^p[1-6]$')
+    id: str = Field(pattern=r'^(?:p[1-6]|p_custom)$')
     title: str = Field(min_length=1, max_length=100)
     question: str = Field(min_length=1, max_length=400)
     why: str = Field(min_length=1, max_length=400)
     domain: str = Field(min_length=1, max_length=100)
-    sourceIds: list[str] = Field(min_length=1, max_length=4)
+    sourceIds: list[str] = Field(default_factory=list, max_length=4)
+
+    @model_validator(mode='after')
+    def require_discovered_evidence(self):
+        if self.id != 'p_custom' and not self.sourceIds:
+            raise ValueError('Discovered problems require evidence')
+        return self
 
 
 class JobInput(Context):

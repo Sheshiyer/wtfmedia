@@ -373,3 +373,51 @@ test("company-only reports display all four sections and explain a discovery sto
   expect(xml).not.toContain("Guest profile");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+test("switches research problems and launches full research from chat with visible progress", async ({ page }, testInfo) => {
+  const problems = [{id:"p1",title:"Institutions",question:"How do institutions change?",why:"Explore public work",domain:"Institutions",sourceIds:["src_one"]},{id:"p2",title:"Technology",question:"How does technology spread?",why:"Explore public ideas",domain:"Technology",sourceIds:["src_one"]}];
+  const original = {...saved,researchProblems:problems,selectedProblem:problems[0]};
+  const child = {...original,id:"rb_child",researchGroupId:original.id,selectedProblem:problems[1],status:"queued" as const,sections:[],messages:[],figures:[]};
+  let starts = 0;
+  await page.route("**/beta/api/research/rb_fixture/run", async route => {
+    const body=route.request().postDataJSON();expect(body.newProblem).toBe(true);expect(body.selectedProblemId).toBe("p2");starts++;
+    await new Promise(resolve=>setTimeout(resolve,400));await route.fulfill({json:{brief:child}});
+  });
+  await page.route("**/beta/api/research/rb_child", route=>route.fulfill({json:{brief:child}}));
+  await open(page,original);
+  const problemsPanel=page.getByRole("region",{name:"Research problems"});
+  await problemsPanel.getByLabel("Problem statement",{exact:true}).selectOption("p2");
+  await problemsPanel.screenshot({path:testInfo.outputPath("problem-switcher.png")});
+  await problemsPanel.getByRole("button",{name:"Start in-depth research",exact:true}).click();
+  await expect(page.getByText("Starting research for your selected problem…",{exact:true})).toBeVisible();
+  await expect(page.getByRole("heading",{name:"Researching your selected problem"})).toBeVisible();
+  expect(starts).toBe(1);
+  // Switching back preserves the original report and its chat; no extra paid run.
+  await page.getByRole("button",{name:/^Example Guest · Example Company/}).last().click();
+  await expect(page.getByText("Research focus:").locator("..")).toContainText(problems[0].question);
+  const chat=page.getByRole("region",{name:"Research conversation"});
+  await chat.getByLabel("Your question",{exact:true}).fill("Research option 2");
+  await chat.getByRole("button",{name:"Start in-depth research",exact:true}).click();
+  await expect(page.getByRole("heading",{name:"Researching your selected problem"})).toBeVisible();
+  expect(starts).toBe(2); // Backend returns the existing child idempotently.
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test("chat keeps ordinary questions on evidence and can start a custom problem", async ({page}) => {
+  let chatCalls=0, researchCalls=0;
+  const child={...saved,id:'rb_custom',researchGroupId:saved.id,status:'queued' as const,sections:[],selectedProblem:{id:'p_custom',title:'New question',question:'How do new technologies change public institutions?',why:'User question',domain:'Research',sourceIds:[]}};
+  await page.route('**/beta/api/research/rb_fixture/chat',async route=>{chatCalls++;expect(route.request().postDataJSON().question).toContain('sensitive');await route.fulfill({json:{brief:{...saved,revision:3,messages:[{role:'assistant',content:'## Sensitive topics\n\nDocumented tensions and fair questions.'}]}}});});
+  await page.route('**/beta/api/research/rb_fixture/run',async route=>{researchCalls++;expect(route.request().postDataJSON()).toMatchObject({newProblem:true,problemQuestion:child.selectedProblem.question});await route.fulfill({json:{brief:child}});});
+  await page.route('**/beta/api/research/rb_custom',route=>route.fulfill({json:{brief:child}}));
+  await open(page);
+  const chat=page.getByRole('region',{name:'Research conversation'});
+  await chat.getByLabel('Your question',{exact:true}).fill('Suggest sensitive topics');
+  await chat.getByRole('button',{name:'Send question',exact:true}).click();
+  await expect(chat.getByRole('heading',{name:'Sensitive topics',exact:true})).toBeVisible();
+  expect(chatCalls).toBe(1);expect(researchCalls).toBe(0);
+  await chat.getByLabel('Action',{exact:true}).selectOption('research');
+  await chat.getByLabel('Problem statement',{exact:true}).fill(child.selectedProblem.question);
+  await chat.getByRole('button',{name:'Start in-depth research',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Researching your selected problem'})).toBeVisible();
+  expect(researchCalls).toBe(1);
+});

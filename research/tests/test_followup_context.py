@@ -8,6 +8,8 @@ class Calls:
     def __init__(self): self.messages = None
     def model(self, messages, *args, **kwargs):
         self.messages = messages
+        self.max_tokens = args[0] if args else None
+        self.effort = kwargs.get("effort")
         return 'Proposed interview angles, not established findings.'
     def search(self, *args): raise AssertionError('No new search')
     def extract(self, *args): raise AssertionError('No new extraction')
@@ -29,6 +31,10 @@ class FollowupContextTests(unittest.TestCase):
         self.assertIn('editorial suggestions', calls.messages[0]['content'])
         self.assertIn('Do not invent allegations', calls.messages[0]['content'])
         self.assertIn('Proposed', answer)
+        self.assertEqual(calls.max_tokens, 4000)
+        self.assertEqual(calls.effort, 'low')
+        self.assertIn('Sensitivity alone is not a reason to refuse', calls.messages[0]['content'])
+        self.assertIn('Evidence not established in retained sources', calls.messages[0]['content'])
 
     def test_legacy_brief_does_not_invent_original_options(self):
         calls = Calls()
@@ -53,3 +59,12 @@ class ResolutionGuidanceTests(unittest.TestCase):
                 return json.dumps(dict(kind='identity_conflict', clarification='Which Alex?', ambiguousFields=['guestName']))
         result = asyncio.run(GPTREngine(Resolver()).resolve({'researchInput': {'guestName':'Alex Smith'}}, []))
         self.assertEqual(result['kind'], 'identity_conflict')
+
+class CustomProblemTests(unittest.TestCase):
+    def test_user_question_is_not_fabricated_source_evidence(self):
+        from research.contracts import ResearchProblem
+        from pydantic import ValidationError
+        p=dict(id='p_custom', title='Open question', question='How do institutions change?', why='User question', domain='Research', sourceIds=[])
+        self.assertEqual(ResearchProblem.model_validate(p).sourceIds, [])
+        with self.assertRaises(ValidationError):
+            ResearchProblem.model_validate({**p, 'id':'p1'})

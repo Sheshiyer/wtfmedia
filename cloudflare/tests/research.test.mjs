@@ -645,3 +645,31 @@ test('research problem selection is required and uses only the owner brief offer
  assert.equal(chatPayload.title,'Public guest');
  db.sqlite.close();
 });
+
+test('another problem starts a private full run, preserves original, and reopens idempotently',async()=>{
+ const db=database(), submitted=[];
+ const call=client(db,async(url,init)=>{if(init?.body)submitted.push(JSON.parse(init.body));return accepted(url,init);});
+ let original=(await(await call('POST','',{title:'Public guest'})).json()).brief;
+ const problems=[{id:'p1',title:'Institutions',question:'How do institutions change?',why:'Public work.',domain:'Institutions',sourceIds:['src_a']},{id:'p2',title:'Technology',question:'How does technology spread?',why:'Public ideas.',domain:'Technology',sourceIds:['src_a']}];
+ original={...original,status:'completed',sections:[{key:'snacks',title:'Findings',content:'Original report remains intact.',status:'completed'}],researchProblems:problems,selectedProblem:problems[0]};
+ db.sqlite.prepare('UPDATE research_briefs SET document_json=?, current_run_id=NULL WHERE id=?').run(JSON.stringify(original),original.id);
+ const path='/'+original.id+'/run', request={revision:original.revision,newProblem:true,selectedProblemId:'p2'};
+ assert.equal((await call('POST',path,request,902)).status,404);
+ assert.equal((await call('POST',path,{...request,selectedProblemId:'p6'})).status,400);
+ const response=await call('POST',path,request);assert.equal(response.status,200);
+ const child=(await response.json()).brief;
+ assert.notEqual(child.id,original.id);assert.equal(child.researchGroupId,original.id);assert.equal(child.status,'queued');assert.equal(child.shared,false);
+ assert.deepEqual(submitted.at(-1).selectedProblem,problems[1]);assert.equal(submitted.at(-1).mode,'full');assert.deepEqual(submitted.at(-1).sections,[]);assert.equal(submitted.at(-1).visualPolicyVersion,2);
+ // The chat action from a completed sibling reopens the original instead of duplicating it.
+ const finishedChild={...child,status:'completed',sections:original.sections};
+ db.sqlite.prepare('UPDATE research_briefs SET document_json=?, current_run_id=NULL WHERE id=?').run(JSON.stringify(finishedChild),child.id);
+ const reopened=(await(await call('POST','/'+child.id+'/run',{revision:child.revision,newProblem:true,selectedProblemId:'p1'})).json()).brief;
+ assert.equal(reopened.id,original.id);
+ const before=submitted.length;const repeated=(await(await call('POST',path,request)).json()).brief;assert.equal(repeated.id,child.id);assert.equal(submitted.length,before);
+ const unchanged=(await(await call('GET','/'+original.id)).json()).brief;assert.deepEqual(unchanged.sections,original.sections);assert.deepEqual(unchanged.selectedProblem,problems[0]);
+ const custom=(await(await call('POST',path,{revision:original.revision,newProblem:true,problemQuestion:'How do public institutions respond to new technology?'})).json()).brief;
+ assert.equal(custom.selectedProblem.id,'p_custom');assert.deepEqual(custom.selectedProblem.sourceIds,[]);assert.equal(submitted.at(-1).mode,'full');
+ const list=await(await call('GET')).json();assert.ok(list.briefs.some(b=>b.id===child.id&&b.researchGroupId===original.id&&b.problemQuestion===problems[1].question));
+ assert.equal((await call('POST',path,{...request,revision:0})).status,409);
+ db.sqlite.close();
+});

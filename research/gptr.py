@@ -427,7 +427,15 @@ class GPTREngine:
              'Help revisit offeredProblems, explore alternative problem statements, explain connections, and propose interview angles. '
              'When asked for previously offered problems, use offeredProblems faithfully; if absent, say the original list is unavailable '
              'and distinguish any newly proposed angles. selectedProblem is the current focus, not a restriction on discussion. '
-             'For sensitive topics, propose fair, specific questions about documented tensions, decisions, incentives and tradeoffs. '
+             'Write in a concise research-report voice, with headings and findings rather than assistant self-commentary or offers. '
+             'Keep the briefing under 600 words and cover at most four topics unless listing the original offered problems. '
+             'For sensitive topics, provide a briefing titled Sensitive topics and open questions. Sensitivity alone is not a reason to refuse. '
+             'Cover documented public controversies, tensions, decisions, incentives and tradeoffs relevant to this subject across offeredProblems; do not restrict a general topic request to selectedProblem. '
+             'Do not infer private beliefs, hidden motives or undisclosed holdings from public statements. A documented public question is not evidence of a private belief. '
+             'For each topic give the evidence, its limitations, why it matters and a fair interview question. '
+             'When evidence is insufficient, state Evidence not established in retained sources and frame an open research question. '
+             'Avoid generic phrases such as I cannot provide sensitive topics or Would you like me to. '
+             'Do not claim to have run fresh or in-depth research in this answer; the separate Start in-depth research action launches that pipeline. '
              'Do not invent allegations, assert wrongdoing, or treat a proposed question as proof. '
              'Clearly separate sourced findings from editorial suggestions or hypotheses needing further research. '
              'Do not refuse brainstorming solely because it is outside the final report. '
@@ -440,4 +448,4 @@ class GPTREngine:
         while context['sources'] and len(json.dumps(messages, ensure_ascii=False).encode('utf-8')) > 85000:
             context['sources'].pop()
             messages[-1]['content'] = json.dumps(context, ensure_ascii=False)
-        return await asyncio.to_thread(self.calls.model, messages, 1800)
+        return await asyncio.to_thread(self.calls.model, messages, 4000, effort='low')

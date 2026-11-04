@@ -6,7 +6,7 @@ This service reuses pinned GPT Researcher 0.16.1 for planning, conducting resear
 and writing. Treg performs allowlisted search/raw page extraction. The installed
 `httpx` client calls Anthropic Messages directly with `claude-sonnet-5-5` and
 server-only `ANTHROPIC_API_KEY`. Planning/resolution use low effort; synthesis and
-follow-ups use medium effort. Requests use `thinking.type: between_tools`, without
+follow-ups use low effort with a 4,000-token output ceiling and concise briefing instructions. Requests use `thinking.type: between_tools`, without
 sampling parameters, tool choice or a legacy-provider fallback. The GPTR config
 retains its `openai:` parser label, but every completion alias is intercepted and
 its generic model/embedding transports remain blocked. Legacy OpenRouter and
@@ -243,3 +243,20 @@ Options are proposed investigations, not proven conclusions. The model is asked
 for 4–6 different domains; at least two supported options are required rather than
 inventing associations to fill a quota. Offline tests do not establish live editorial
 quality or guarantee a particular domain mix.
+
+
+### Alternate problems and follow-up briefings
+
+The report reader can launch another offered problem or a user-written question through
+`POST /beta/api/research/:id/run` with `newProblem: true` and either `selectedProblemId`
+or `problemQuestion` (10–400 characters). The owner/revision checks apply. This creates
+an owner-private child brief with a fresh full research run, independent sections,
+visuals and conversation. Earlier reports remain intact. Repeated selections reopen
+the existing report; the reader groups reports with `researchGroupId`. No migration is
+required. `p_custom` identifies a user question with no invented supporting source IDs;
+discovered options still require source references.
+
+Chat keeps ordinary questions on saved evidence. An explicit research command or the
+Start in-depth research action invokes the same full-run endpoint. Sensitive-topic
+responses use a concise briefing format: documented evidence, limitations, relevance
+and fair interview questions. They do not invent allegations or private motivations.

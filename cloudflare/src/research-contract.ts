@@ -72,6 +72,7 @@ export type ResearchSource = {
     evidenceType?: 'page_extract' | 'search_snippet' | 'post' | 'transcript' | 'video_metadata';
 };
 export type ResearchDocument = {
+    researchGroupId?: string;
     contextPolicyVersion?: 1;
     researchProblems?: ResearchProblem[];
     selectedProblem?: ResearchProblem;

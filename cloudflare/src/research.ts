@@ -1,3 +1,4 @@
+import type { ResearchProblem } from '../../shared/research-problems.ts';
 import { researchInputLabel } from "../../shared/research-input.ts";
 import type { DB } from './db.ts';
 import { readAlphaInterviewContext } from './research-alpha.ts';
@@ -46,6 +47,17 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
         if (!results[0].meta?.changes)
             throw new ResearchError(409, 'research_conflict');
         return doc;
+    }
+    async function offeredProblems(doc: ResearchDocument) {
+        if (doc.researchProblems?.length) return doc.researchProblems;
+        const snapshots = await db.prepare("SELECT document_json FROM research_versions WHERE brief_id = ? AND json_type(document_json, '$.researchProblems') = 'array' ORDER BY revision DESC LIMIT 10").bind(doc.id).all<{document_json: string}>();
+        for (const snapshot of snapshots.results) {
+            const previous = JSON.parse(snapshot.document_json);
+            if (previous.title !== doc.title || JSON.stringify(previous.researchInput ?? null) !== JSON.stringify(doc.researchInput ?? null) || previous.notes !== doc.notes) continue;
+            const problems = resultMetadata(previous).researchProblems;
+            if (problems?.length) return problems;
+        }
+        return undefined;
     }
     async function submit(runId: string) {
         const run = await db.prepare('SELECT payload_json,submitted FROM research_runs WHERE run_id = ?')
@@ -151,12 +163,14 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
             }
             if (!input || Array.isArray(input) || typeof input !== 'object')
                 throw new ResearchError(400, 'invalid_request');
+            if (input.newProblem !== undefined && typeof input.newProblem !== 'boolean') throw new ResearchError(400, 'invalid_request');
+            if (input.newProblem === true && input.visualsOnly !== undefined) throw new ResearchError(400, 'invalid_request');
             if (Object.prototype.hasOwnProperty.call(input, 'needsResearch'))
                 throw new ResearchError(400, 'invalid_request');
         }
         if (!id) {
             if (method === 'GET') {
-                const rows = await db.prepare("SELECT id, json_extract(document_json,'$.title') AS title, json_extract(document_json,'$.status') AS status, updated_at AS updatedAt, revision, json_extract(document_json,'$.shared') AS shared, member_id = ? AS canEdit FROM research_briefs WHERE member_id = ? OR json_extract(document_json,'$.shared') = 1 ORDER BY updated_at DESC LIMIT 100").bind(memberId, memberId).all<{
+                const rows = await db.prepare("SELECT id, json_extract(document_json,'$.title') AS title, json_extract(document_json,'$.status') AS status, updated_at AS updatedAt, revision, json_extract(document_json,'$.shared') AS shared, json_extract(document_json,'$.researchGroupId') AS researchGroupId, json_extract(document_json,'$.selectedProblem.question') AS problemQuestion, member_id = ? AS canEdit FROM research_briefs WHERE member_id = ? OR json_extract(document_json,'$.shared') = 1 ORDER BY updated_at DESC LIMIT 100").bind(memberId, memberId).all<{
                     shared: number;
                     canEdit: number;
                 }>();
@@ -267,6 +281,7 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
               AND EXISTS (SELECT 1 FROM json_each(document_json,'$.sections')
                 WHERE length(trim(json_extract(value,'$.content'))) > 0)
               ORDER BY revision DESC`).bind(id).all()).results : [];
+            if (owner && !active(doc.status)) doc = {...doc, researchProblems: await offeredProblems(doc)};
             return reply({ brief: view(doc, owner), versions });
         }
         if (method === 'DELETE' && !action) {
@@ -302,16 +317,7 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
                 throw new ResearchError(409, 'research_chat_limit');
             // Older runs removed offered options after selection. Recover only a
             // matching scope snapshot from this already owner-authorized brief.
-            let researchProblems = doc.researchProblems;
-            if (!researchProblems?.length) {
-                const snapshots = await db.prepare("SELECT document_json FROM research_versions WHERE brief_id = ? AND json_type(document_json, '$.researchProblems') = 'array' ORDER BY revision DESC LIMIT 10").bind(row.id).all<{ document_json: string }>();
-                for (const snapshot of snapshots.results) {
-                    const previous = JSON.parse(snapshot.document_json);
-                    if (previous.title !== doc.title || JSON.stringify(previous.researchInput ?? null) !== JSON.stringify(doc.researchInput ?? null) || previous.notes !== doc.notes) continue;
-                    researchProblems = resultMetadata(previous).researchProblems;
-                    if (researchProblems?.length) break;
-                }
-            }
+            const researchProblems = await offeredProblems(doc);
             const result = await runner('/chat', 'POST', { question: input.question, title: doc.title, researchProblems: researchProblems ?? [], ...(doc.selectedProblem ? { selectedProblem: doc.selectedProblem } : {}), ...(doc.researchInput ? { researchInput: doc.researchInput } : {}), messages: doc.messages.slice(-12).map(m => ({ role: m.role, content: m.content.slice(0, 6000) })), sections: doc.sections, sources: doc.sources, notes: doc.notes, notesApproved: doc.notesApproved });
             if (!bounded(result.answer, 30000) || !result.answer.trim() || !result.cost || !Number.isSafeInteger(result.cost.toolMicro) || result.cost.toolMicro < 0 || !(result.cost.modelUsd === null || Number.isFinite(result.cost.modelUsd) && result.cost.modelUsd >= 0))
                 throw new ResearchError(502, 'invalid_research_result');
@@ -323,6 +329,44 @@ export async function handleResearch(request: Request, env: Env, memberId: numbe
                 throw new ResearchError(409, 'research_conflict');
             if (active(doc.status))
                 throw new ResearchError(409, 'research_running');
+            if (action === 'run' && input.newProblem === true) {
+                if (doc.needsResearch || !doc.sections.some(s => s.content.trim())) throw new ResearchError(409, 'research_not_ready');
+                if (input.selectedProblemId !== undefined && input.problemQuestion !== undefined) throw new ResearchError(400, 'invalid_request');
+                doc = {...doc, researchProblems: await offeredProblems(doc)};
+                let problem: ResearchProblem | undefined;
+                if (input.selectedProblemId !== undefined) {
+                    problem = doc.researchProblems?.find(p => p.id === input.selectedProblemId);
+                    if (!problem) throw new ResearchError(400, 'invalid_request');
+                } else {
+                    if (!bounded(input.problemQuestion, 400) || input.problemQuestion.trim().length < 10) throw new ResearchError(400, 'invalid_request');
+                    const question = input.problemQuestion.trim();
+                    problem = { id: 'p_custom', title: question.slice(0, 100), question, domain: 'User-selected research', why: 'Investigate this question using fresh evidence; it is not an established finding.', sourceIds: [] };
+                }
+                const group = doc.researchGroupId ?? doc.id;
+                if (doc.selectedProblem?.question === problem.question) return reply({ brief: view(doc, true) });
+                const matching = await db.prepare("SELECT * FROM research_briefs WHERE member_id = ? AND (id = ? OR json_extract(document_json, '$.researchGroupId') = ?) AND json_extract(document_json, '$.selectedProblem.question') = ? AND json_extract(document_json, '$.title') = ? AND json_extract(document_json, '$.notes') = ? AND json_extract(document_json, '$.researchInput') IS ? ORDER BY updated_at DESC LIMIT 1")
+                    .bind(memberId, group, group, problem.question, doc.title, doc.notes, doc.researchInput ? JSON.stringify(doc.researchInput) : null).first<Row>();
+                if (matching) return reply({brief: view(JSON.parse(matching.document_json), true)});
+                // Deterministic, owner-scoped child identity makes double clicks and retries idempotent.
+                const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify([memberId, group, problem.question, doc.title, doc.researchInput ?? null, doc.notes]))));
+                digest[6] = (digest[6] & 15) | 64; digest[8] = (digest[8] & 63) | 128;
+                const hex = Array.from(digest.slice(0, 16), b => b.toString(16).padStart(2, '0')).join('');
+                const childId = `rbrief_${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+                const existing = await db.prepare('SELECT * FROM research_briefs WHERE id = ? AND member_id = ?').bind(childId, memberId).first<Row>();
+                if (existing) return reply({ brief: view(JSON.parse(existing.document_json), true) });
+                if (!await researchAvailable(env, deps.fetchRunner)) throw new ResearchError(503, 'research_not_configured');
+                const child: ResearchDocument = { id: childId, researchGroupId: group, title: doc.title,
+                    ...(doc.researchInput ? {schemaVersion: 2, researchInput: doc.researchInput} : {}),
+                    researchProblems: doc.researchProblems, selectedProblem: problem,
+                    notes: doc.notes, notesApproved: doc.notesApproved, episodeId: doc.episodeId, shared: false,
+                    status: 'draft', revision: 1, updatedAt: new Date().toISOString(), sections: [], sources: doc.sources, messages: [], progress: [], warnings: [], clarification: null, cost: {toolMicro: 0, modelUsd: 0} };
+                const json = JSON.stringify(child);
+                await db.prepare('INSERT INTO research_briefs(id,member_id,revision,document_json,updated_at) VALUES (?,?,1,?,?) ON CONFLICT DO NOTHING').bind(childId, memberId, json, child.updatedAt).run();
+                const childRow = await db.prepare('SELECT * FROM research_briefs WHERE id = ? AND member_id = ?').bind(childId, memberId).first<Row>();
+                if (!childRow) throw new ResearchError(409, 'research_conflict');
+                if (childRow.revision !== 1) return reply({brief: view(JSON.parse(childRow.document_json), true)});
+                return reply({ brief: view(await start(childRow, child, {}, true), true) });
+            }
             if (action === 'run')
                 return reply({ brief: view(await start(row, doc, input), true) });
             if (action === 'restore') {

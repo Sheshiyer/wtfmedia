@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { useBetaPrincipal, useMemberFetch } from "./BetaPrincipalGate";
 import { Button } from "@/components/ui/Button";
 import { ResearchContent } from "./ResearchContent";
+import { ResearchProblems } from "./ResearchProblems";
 import { ResearchFollowup } from "./ResearchFollowup";
 import {
   parseResearchBrief, parseResearchInput, researchFailureSummary,
@@ -65,8 +66,9 @@ export function ResearchWorkspace() {
   }, [configured, loading]);
   const updateSummary = useCallback((brief: ResearchBrief) => {
     if (deletedIds.current.has(brief.id) || deleteInFlight.current === brief.id) return;
-    const { id, title, status, updatedAt, revision, shared, canEdit } = brief;
-    setList(rows => [{ id, title, status, updatedAt, revision, shared, canEdit }, ...rows.filter(row => row.id !== id)]);
+    const { id, title, status, updatedAt, revision, shared, canEdit, researchGroupId } = brief;
+    const problemQuestion = brief.selectedProblem?.question;
+    setList(rows => [{ id, title, status, updatedAt, revision, shared, canEdit, researchGroupId, problemQuestion }, ...rows.filter(row => row.id !== id)]);
   }, []);
   function select(id: string) {
     if (creating || selected === id) return;
@@ -123,20 +125,20 @@ export function ResearchWorkspace() {
         {loading && <p role="status">Loading saved briefs…</p>}
         {!loading && !list.length && <p className="text-sm text-secondary">Your briefs will appear here after you start research.</p>}
         <ul className="max-h-[32rem] space-y-2 overflow-y-auto xl:min-h-0 xl:max-h-none xl:flex-1">{list.map(row => <li key={row.id} className={`flex min-w-0 items-start border-2 border-foreground ${selected === row.id ? "bg-attention" : "bg-surface-raised"}`}>
-          <button type="button" aria-current={selected === row.id ? "true" : undefined} onClick={() => select(row.id)} className="min-w-0 flex-1 p-3 text-left focus-visible:outline focus-visible:outline-2"><span className="block break-words font-bold">{row.title}</span><span className="mt-1 block text-xs" role={deletingId === row.id ? "status" : undefined}>{deletingId === row.id ? "Deleting research…" : row.status}{row.shared ? " · Shared" : ""}</span><span className="mt-1 block break-words text-xs text-secondary">{new Date(row.updatedAt).toLocaleString()}</span></button>
+          <button type="button" aria-current={selected === row.id ? "true" : undefined} onClick={() => select(row.id)} className="min-w-0 flex-1 p-3 text-left focus-visible:outline focus-visible:outline-2"><span className="block break-words font-bold">{row.title}</span>{row.problemQuestion && <span className="mt-1 block break-words text-xs leading-5">{row.problemQuestion}</span>}<span className="mt-1 block text-xs" role={deletingId === row.id ? "status" : undefined}>{deletingId === row.id ? "Deleting research…" : row.status}{row.shared ? " · Shared" : ""}</span><span className="mt-1 block break-words text-xs text-secondary">{new Date(row.updatedAt).toLocaleString()}</span></button>
           {canWrite && row.canEdit && <button type="button" aria-label={`Delete ${row.title}`} title="Delete research" disabled={deletingId !== null} onClick={() => setDeleteTarget(row)} className="m-1 grid min-h-11 min-w-11 shrink-0 place-items-center rounded-control text-editorial hover:bg-editorial/10 focus-visible:outline focus-visible:outline-2 disabled:opacity-50"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg></button>}
         </li>)}</ul>
       </aside>
-      {selected ? <fieldset aria-label="Research report" tabIndex={0} className="min-w-0" disabled={creating || deletingId === selected}><ResearchEditor key={selected} id={selected} configured={configured} canWrite={canWrite} blocked={deletingId === selected || list.some(row => row.id === selected && row.status === "deleting")} onChange={updateSummary} /></fieldset>
+      {selected ? <fieldset aria-label="Research report" tabIndex={0} className="min-w-0" disabled={creating || deletingId === selected}><ResearchEditor key={selected} id={selected} configured={configured} canWrite={canWrite} blocked={deletingId === selected || list.some(row => row.id === selected && row.status === "deleting")} onChange={updateSummary} reports={list} onSelect={select} /></fieldset>
         : <div className="min-w-0 border-2 border-foreground bg-surface-raised p-6 sm:p-8"><h2 className="font-heading text-2xl font-bold">Your research brief</h2><p className="mt-2 max-w-2xl text-secondary">{list.length ? "Select a saved brief to read its findings, explore sources, or ask a follow-up question." : canWrite ? "Start with any guest, company or industry above. Discover connections across sources, why they matter, and questions worth exploring in your podcast." : "Saved briefs shared with you will appear here."}</p><ul className="mt-6 grid gap-x-6 gap-y-4 border-t border-foreground/20 pt-6 sm:grid-cols-2">{RESEARCH_SECTIONS.map(section => <li key={section.key} className="min-w-0"><h3 className="font-bold">{({ snacks: "Key insights", appetizers: "Connected evidence", main: "Questions worth exploring", desserts: "Conversation plan" })[section.key]}</h3></li>)}</ul></div>}
     </div>
     <Dialog.Root open={!!deleteTarget} onOpenChange={open => { if (!open) setDeleteTarget(null); }}><Dialog.Portal><Dialog.Overlay className="fixed inset-0 z-50 bg-overlay/60" /><Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 space-y-4 border-2 border-foreground bg-canvas p-6"><Dialog.Title className="font-heading text-xl font-bold">Permanently delete this brief?</Dialog.Title><Dialog.Description>This permanently deletes {deleteTarget?.title}, its saved versions, sources and follow-up chat. Any running research will be stopped. This cannot be undone.</Dialog.Description><div className="flex flex-wrap gap-2"><Button autoFocus variant="secondary" onClick={() => setDeleteTarget(null)}>Keep brief</Button><Button onClick={() => void removeBrief()}>Delete permanently</Button></div></Dialog.Content></Dialog.Portal></Dialog.Root>
   </section>;
 }
 
-function ResearchEditor({ id, configured, canWrite, blocked, onChange }: {
+function ResearchEditor({ id, configured, canWrite, blocked, onChange, reports, onSelect }: {
   id: string; configured: boolean; canWrite: boolean; blocked: boolean;
-  onChange: (brief: ResearchBrief) => void;
+  onChange: (brief: ResearchBrief) => void; reports: ResearchSummary[]; onSelect: (id: string) => void;
 }) {
   const fetcher = useMemberFetch();
   const [brief, setBrief] = useState<ResearchBrief | null>(null);
@@ -202,7 +204,10 @@ function ResearchEditor({ id, configured, canWrite, blocked, onChange }: {
       const data = await researchRequest<{ brief: unknown }>(fetcher, path + suffix, { method: "POST", body, signal });
       if (signal.aborted) return false;
       const next = parseResearchBrief(data.brief);
-      if (next.id !== id) throw new Error("This brief could not be updated.");
+      if (next.id !== id) {
+        if (suffix !== "/run" || !body || typeof body !== "object" || !("newProblem" in body) || body.newProblem !== true) throw new Error("This brief could not be updated.");
+        onChange(next); onSelect(next.id); return true;
+      }
       setBrief(current => current && next.revision >= current.revision ? next : current);
       onChange(next); if (suffix === "/cancel") setCancelPending(false); return true;
     } catch (error) {
@@ -239,10 +244,11 @@ function ResearchEditor({ id, configured, canWrite, blocked, onChange }: {
       {brief.researchInput && <p className="text-sm">Audience context: India</p>}
       {brief.selectedProblem && <p className="text-sm"><strong>Research focus:</strong> {brief.selectedProblem.question}</p>}
       <div className="flex flex-wrap gap-2 empty:hidden">
-        {editable && brief.status === "draft" && <Button variant="attention" disabled={modelDisabled} onClick={() => void mutate("/run", { revision: brief.revision })}>Start research</Button>}
+        {editable && (brief.status === "draft" || (!!brief.selectedProblem && !hasReport && ["failed", "cancelled"].includes(brief.status))) && <Button variant="attention" disabled={modelDisabled} onClick={() => void mutate("/run", { revision: brief.revision })}>Start research</Button>}
         {hasReport && <Button variant="secondary" disabled={exporting || deleting} onClick={() => void exportWord()}>{exporting ? "Preparing Word file…" : "Download Word"}</Button>}
       </div>
     </header>
+    {editable && hasReport && !needsClarification && <ResearchProblems brief={brief} reports={reports} disabled={modelDisabled || running || !!brief.needsResearch} onSelect={onSelect} onStart={selection => mutate("/run", { revision: brief.revision, newProblem: true, ...selection })} />}
     {pendingAction && <p role="status" aria-live="polite" className="flex items-center gap-3 border-2 border-foreground bg-attention/20 p-3"><span aria-hidden="true" className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-foreground/30 border-t-foreground motion-reduce:animate-none" />{pendingAction}</p>}
     {notice && <p role="alert" className="border-2 border-foreground bg-surface-subtle p-3 text-sm">{notice}</p>}
     {needsProblem && <section aria-label="Choose a research problem" className="space-y-4 border-2 border-foreground bg-surface-raised p-5">
@@ -267,7 +273,7 @@ function ResearchEditor({ id, configured, canWrite, blocked, onChange }: {
     {brief.status === "completed" && brief.warnings.some(warning => warning.endsWith("Some diagrams could not be generated within the remaining allowance.")) && <p role="status" className="border-2 border-foreground p-4">The written report is complete. Some diagrams could not be generated within the remaining allowance.</p>}
     {brief.status === "completed" && !hasReport && <p role="status">No report content was returned. Start a new brief to try again.</p>}
     <ResearchContent brief={brief} sourcePrefix={sourcePrefix} />
-    {editable && hasReport && !needsClarification && <ResearchFollowup key={brief.id} brief={brief} sourcePrefix={sourcePrefix} disabled={modelDisabled || running || !!brief.needsResearch} onAsk={question => mutate("/chat", { question })} />}
+    {editable && hasReport && !needsClarification && <ResearchFollowup key={brief.id} brief={brief} sourcePrefix={sourcePrefix} disabled={modelDisabled || running || !!brief.needsResearch} onAsk={question => mutate("/chat", { question })} onResearch={selection => mutate("/run", { revision: brief.revision, newProblem: true, ...selection })} />}
   </article>;
 }
 
