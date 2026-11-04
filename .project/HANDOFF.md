@@ -1,3 +1,12 @@
+## 2026-11-04 — Alternate problem research deployed to staging
+
+- Owner authorized pushing all changes and staging deployment. Runtime 1f0f13d; final candidate/image pin 41d018d on feature/pavun, pushed. No production, credential or database changes.
+- Reconciled newer live staging Edge aeccf9c3-0332-4f37-83fa-5d7afb189f7e through its deployed source map: preserved exactly the three Social Analytics source changes (supported metric count, content-free error classification, skip unused post detail fetching). Other source differences were the intended research update. 47 social checks and 66 research Edge checks pass on the final candidate.
+- Linux/amd64 image digest 8f4f1feacd40699f75ddba6936dd48729c089ba697316d0e469fc3d1a112f484; nine focused tests pass inside the image. Container application version 22 readback: one healthy, zero starting/failed, no errors.
+- Staging runner e621ac5f-4000-4de3-b95b-54d677e7f7c1, Edge 26156643-2b18-4060-9751-89ce510df9e5, Web b1afc1cd-b444-4919-b871-912a00aa8b34 all read back at 100% traffic. Research page/sign-in 200; anonymous research API and runner health 401. Live research JS contains the new full-research and report-reopen actions. Compiled and live public Clerk identity match the staging issuer.
+- Isolated OpenNext build passed with existing pinned Next 15.5.24; OpenNext now requires its unsupported-version override for this release. Framework upgrade is separate follow-up work; dependencies were not changed here. The preceding local real-provider/full-run and browser results remain the functional evidence; no new paid report was started on staging and signed-in owner acceptance remains to be tested.
+- Rollback receipts: Web e5e1a78b-a975-47c6-8d30-02a82eb212f6, Edge aeccf9c3-0332-4f37-83fa-5d7afb189f7e, runner 6f335d91-8576-4844-84ea-f5b17d818eb3/image 2135d47827103ef0c6b78d8d01ae7398763c3977737f9cb448998e9d8d421286. Exact temporary build copy removed after deployment; local test services and provider configuration retained.
+
 ## 2026-11-04 — Alternate problem reports and sensitive-topic follow-ups (local)
 
 - Owner requested local implementation/testing and authorized real APIs. Changes stay on feature/pavun, without push/deployment/shared-report regeneration.
