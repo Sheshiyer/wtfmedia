@@ -4,6 +4,10 @@ import { emptySocialAnswer, executeSocialPlan, type SocialWorkspace } from './so
 import { ZernioError, type SocialProvider } from './social-analytics-provider.ts';
 const record = (v: unknown): Record<string, unknown> => v && typeof v === 'object' && !Array.isArray(v) ? v as Record<string, unknown> : {};
 const refId = (v: unknown): v is string => typeof v === 'string' && /^[a-zA-Z0-9_-]{1,160}$/.test(v);
+function safeSocialAssistantErrorCode(error: unknown): string {
+    const code = error instanceof Error ? error.message : '';
+    return /^(?:invalid_plan|invalid_intent|invalid_platform|invalid_metric|invalid_dates|invalid_comparison_dates|invalid_post|invalid_limit|invalid_basis|invalid_order|invalid_target|unresolved_post|request_deadline)$/.test(code) ? code : safeClaudeErrorCode(error);
+}
 export function validateSocialPlan(value: unknown, scope: SocialScope): SocialQueryPlan {
     const p = record(value);
     const intents = ['summary', 'platform_comparison', 'period_comparison', 'post_comparison', 'ranking', 'trend', 'clarification'];
@@ -13,7 +17,7 @@ export function validateSocialPlan(value: unknown, scope: SocialScope): SocialQu
     const metrics = p.metrics ?? ['impressions', 'views', 'likes', 'comments', 'shares', 'followersGained'];
     if (!Array.isArray(platforms) || !platforms.length || platforms.length > SOCIAL_PLATFORMS.length || !platforms.every(isSocialPlatform))
         throw Error('invalid_platform');
-    if (!Array.isArray(metrics) || !metrics.length || metrics.length > 10 || !metrics.every(m => SOCIAL_METRICS.includes(m)))
+    if (!Array.isArray(metrics) || !metrics.length || metrics.length > SOCIAL_METRICS.length || !metrics.every(m => SOCIAL_METRICS.includes(m)))
         throw Error('invalid_metric');
     const fromDate = p.fromDate ?? scope.fromDate, toDate = p.toDate ?? scope.toDate;
     if (typeof fromDate !== 'string' || typeof toDate !== 'string' || !validSocialRange(fromDate, toDate))
@@ -188,6 +192,7 @@ export async function handleSocialAnalyticsAssistant(request: Request, env: Clau
     if (typeof input.question !== 'string' || !input.question.trim() || input.question.length > 2000 || typeof s.fromDate !== 'string' || typeof s.toDate !== 'string' || !validSocialRange(s.fromDate, s.toDate) || (!isSocialPlatform(s.platform) && s.platform !== 'all'))
         return Response.json({ error: 'invalid_question_or_scope' }, { status: 400, headers });
     const fallback = { fromDate: s.fromDate, toDate: s.toDate, platforms: isSocialPlatform(s.platform) ? [s.platform] : [] };
+    let stage: 'interpretation' | 'evidence' = 'interpretation';
     try {
         const connected = SOCIAL_PLATFORMS.filter(platform => workspace.accounts.some(account => account.platform === platform && account.isActive && account.hasAnalyticsAccess !== false));
         if (!connected.length) return Response.json(emptySocialAnswer(fallback, 'Connect a social account with analytics access before asking about its metrics.'), { status: 409, headers });
@@ -199,6 +204,7 @@ export async function handleSocialAnalyticsAssistant(request: Request, env: Clau
             plan.platforms = isSocialPlatform(s.platform) && !asksForAll ? [s.platform] : connected;
             if (plan.platforms.length === 1 && plan.intent === 'platform_comparison') plan.intent = 'summary';
         }
+        stage = 'evidence';
         const result = await executeSocialPlan(provider, workspace, plan);
         result.summary = `${workspace.profileName ?? "Selected workspace"} · ${result.summary}`;
         if (/\bwhy\b|improve|recommend/i.test(input.question))
@@ -207,6 +213,7 @@ export async function handleSocialAnalyticsAssistant(request: Request, env: Clau
     }
     catch (error) {
         const providerError = error instanceof ZernioError;
-        return Response.json({ ...emptySocialAnswer(fallback, providerError ? error.message : 'I could not interpret this question safely. Try naming the metric, platform or post, and dates.', true), errorCode: providerError ? error.code : safeClaudeErrorCode(error) }, { status: 503, headers });
+        const summary = providerError ? error.message : stage === 'interpretation' ? 'I could not interpret this question safely. Try naming the metric, platform or post, and dates.' : 'I could not calculate this social analytics answer safely. Please try again.';
+        return Response.json({ ...emptySocialAnswer(fallback, summary, true), errorCode: providerError ? error.code : stage === 'interpretation' ? safeSocialAssistantErrorCode(error) : 'evidence_failed' }, { status: 503, headers });
     }
 }

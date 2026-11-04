@@ -148,7 +148,7 @@ export async function executeSocialPlan(provider: SocialProvider, workspace: Soc
                 try {
                     if (!available.includes(platform))
                         throw new ZernioError('Not connected or analytics permission missing.', 403, 'not_connected');
-                    results[index] = { entity, period, data: await provider.dashboard(workspace.profileId, { platform, ...period }) };
+                    results[index] = { entity, period, data: await provider.dashboard(workspace.profileId, { platform, ...period, includePostDetails: false }) };
                 }
                 catch (error) {
                     failures++;

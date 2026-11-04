@@ -208,6 +208,7 @@ export function createSocialProvider(env: SocialProviderEnv, fetcher: typeof fet
         platform: SocialPlatform | "all";
         fromDate: string;
         toDate: string;
+        includePostDetails?: boolean;
     }): Promise<SocialDashboard> {
         const query = new URLSearchParams({
             profileId,
@@ -229,7 +230,7 @@ export function createSocialProvider(env: SocialProviderEnv, fetcher: typeof fet
             return [{ postId: stringValue(post.postId) ?? 'unknown', platform: post.platform, publishedAt: stringValue(post.publishedAt), text: stringValue(post.text) ?? stringValue(post.caption), thumbnailUrl: null, postUrl: null, metrics: normalizeTotals(post.metrics) }];
         });
         let details = new Map<string, JsonRecord>();
-        if (summaries.length) {
+        if (summaries.length && input.includePostDetails !== false) {
             try {
                 const query = new URLSearchParams({ profileId, fromDate: input.fromDate, toDate: input.toDate, source: 'all', limit: '100', page: '1' });
                 if (input.platform !== 'all') query.set('platform', input.platform);
