@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { ProductionBoard } from "@/components/patterns/ProductionBoard";
 import { ProductionCalendar } from "@/components/patterns/ProductionCalendar";
 import { ProductionDetails } from "@/components/domain/ops/production/ProductionDetails";
@@ -55,12 +55,14 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
+  const requestSeq = useRef(0);
   const refresh = useCallback(async (signal?: AbortSignal) => {
+    const seq = ++requestSeq.current;
     const response = await fetcher("/beta/api/production", { cache: "no-store", signal });
     if (!response.ok) throw new Error(errorForStatus(response.status));
     const body: unknown = await response.json();
     if (!isProductionSnapshot(body)) throw new Error("The production API returned an incomplete calendar response.");
-    setSnapshot(body);
+    if (seq === requestSeq.current && !signal?.aborted) setSnapshot(body);
   }, [fetcher]);
 
   useEffect(() => {
@@ -72,6 +74,18 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
   }, [refresh]);
+
+  const syncActive = Boolean(snapshot?.sheetSync);
+  useEffect(() => {
+    if (!syncActive || busy || creating) return;
+    const controller = new AbortController();
+    const poll = () => {
+      if (document.visibilityState === "visible") void refresh(controller.signal).catch(() => {});
+    };
+    const timer = window.setInterval(poll, 30000);
+    document.addEventListener("visibilitychange", poll);
+    return () => { controller.abort(); window.clearInterval(timer); document.removeEventListener("visibilitychange", poll); };
+  }, [syncActive, busy, creating, refresh]);
 
   const onAction = useCallback(async (action: ProductionAction, data: Record<string, unknown>) => {
     if (!snapshot || (action === "create_ip" || action === "update_ip" || action === "update_ip_target" ? !snapshot.canManage : !snapshot.canEdit)) return false;
@@ -154,6 +168,7 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
         {openBlockers > 0 && <span><strong className="text-editorial">{openBlockers}</strong> open {openBlockers === 1 ? "blocker" : "blockers"}</span>}
       </div>}
 
+      {snapshot.sheetSync && <p className="font-body text-sm text-secondary">Google Sheets · last successful check {new Date(snapshot.sheetSync.checkedAt).toLocaleString()}{snapshot.sheetSync.reviewCount > 0 && ` · ${snapshot.sheetSync.reviewCount} source matches need review`}</p>}
       {error && <div role="alert" className="border-l-4 border-editorial bg-surface-raised px-4 py-3 font-body text-sm">{error}</div>}
       {notice && <p role="status" className="border-l-4 border-live bg-surface-raised px-4 py-3 font-body text-sm">{notice}</p>}
 
@@ -176,7 +191,7 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
         {view === "board" && <span className="ml-auto font-label text-xs text-secondary">{boardItems.length} episodes</span>}
       </div>}
 
-      {view === "source" ? <ProductionSourceView fetcher={fetcher} sheets={snapshot.sourceSheets} summary={snapshot.sourceSummary} /> : (
+      {view === "source" ? <ProductionSourceView changedAt={snapshot.sheetSync?.changedAt} fetcher={fetcher} sheets={snapshot.sourceSheets} summary={snapshot.sourceSummary} /> : (
         <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="min-w-0 space-y-5">
             {view === "month" && <ProductionCalendar year={year} month={month} selectedDay={selectedDay} events={filteredEvents} items={filteredItems} ips={snapshot.ips} onSelectDay={(day) => { setSelectedDay(day); setSelectedEventId(null); }} onSelectEvent={selectEvent} onShift={shift} />}

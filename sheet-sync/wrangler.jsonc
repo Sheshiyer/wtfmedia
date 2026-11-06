@@ -1,0 +1,11 @@
+{
+  "name": "wtfmedia-production-sheet-sync-staging",
+  "account_id": "8f380cb5640467030b647e12773efb46",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-15",
+  "workers_dev": false,
+  "preview_urls": false,
+  "triggers": {"crons":["* * * * *"]},
+  "observability":{"enabled":true},
+  "d1_databases":[{"binding":"DB","database_name":"wtfmedia-ops-staging","database_id":"441f29af-9ac9-4a37-88bf-481a17d2f343"}]
+}

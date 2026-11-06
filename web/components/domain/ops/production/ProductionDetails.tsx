@@ -60,6 +60,9 @@ export function ProductionDetails({
   const item = snapshot.items.find((record) => record.id === selectedItemId);
   const selectedEvent = snapshot.events.find((record) => record.id === selectedEventId);
   const dayEvents = snapshot.events.filter((event) => event.day === selectedDay && isCalendarActionEvent(event));
+  const podSource = !!snapshot.sheetSync && !!item?.sourceRef?.startsWith("Production Tracker Podcast!");
+  const ipSource = !!snapshot.sheetSync && !!item?.sourceRef?.startsWith("WTF & Nikhil Kamath IPs!");
+  const sourceDate = !!snapshot.sheetSync && /^(Production Tracker Podcast|WTF & Nikhil Kamath IPs)!/.test(selectedEvent?.sourceRef ?? "");
   const [dubbingOpen, setDubbingOpen] = useState(item?.sourceRef?.startsWith("Dubbing Tracker!") === true || snapshot.dubbing.some((entry) => entry.itemId === item?.id));
   const [blockersOpen, setBlockersOpen] = useState(snapshot.blockers.some((blocker) => blocker.itemId === selectedItemId && blocker.status !== "resolved"));
   const [title, setTitle] = useState("");
@@ -93,7 +96,7 @@ export function ProductionDetails({
     setOwner(item?.owner ?? "");
     setNotes(item?.notes ?? "");
     setShootLocation(item?.shootLocation ?? "");
-  }, [item, snapshot.ips]);
+  }, [item?.id, item?.title, item?.ipId, item?.format, item?.stage, item?.owner, item?.notes, item?.shootLocation]);
 
   useEffect(() => {
     setEventKind(selectedEvent?.kind ?? "shoot");
@@ -147,6 +150,7 @@ export function ProductionDetails({
         <p className="font-label text-[11px] font-bold uppercase tracking-[0.1em]">{item ? "Episode details" : creating ? "New episode" : showDayEvents ? "Selected day" : "Episode details"}</p>
         <h2 className="break-words font-heading text-xl leading-tight">{item?.title ?? (creating ? "Add an episode" : showDayEvents ? dayLabel(selectedDay, { weekday: "long" }) : "Select an episode")}</h2>
       </div>
+      {item?.sheetReview && <p className="px-4 pt-4 text-sm">The sheet entry needs review. This record retains its earlier details and team notes.</p>}
       <div className={standalone ? "space-y-5 p-4 sm:p-6" : "space-y-5 p-4"}>
         {showDayEvents && <section aria-label="Events on selected day">
           <div className="flex items-center justify-between gap-2">
@@ -175,16 +179,16 @@ export function ProductionDetails({
             <p className="mt-2 font-body text-sm text-secondary">Select a calendar mark or board card to view and update its episode. Use Add episode to create a new one.</p>
           ) : (
             <form className="mt-3 space-y-3" onSubmit={(event) => { event.preventDefault(); void saveItem(); }}>
-              <Field label="Title"><input className={fieldClass} value={title} onChange={(event) => setTitle(event.target.value)} maxLength={240} disabled={!snapshot.canEdit || busy} autoFocus={creating && standalone} required /></Field>
+              <Field label="Title"><input className={fieldClass} value={title} onChange={(event) => setTitle(event.target.value)} maxLength={240} disabled={!snapshot.canEdit || busy || podSource || ipSource} autoFocus={creating && standalone} required /></Field>
               <div className="grid grid-cols-2 gap-2">
-                <Field label="IP"><select className={fieldClass} value={ipId} onChange={(event) => setIpId(event.target.value)} disabled={!snapshot.canEdit || busy} required={!item}><option value="">{item ? "Needs IP review" : "Choose IP"}</option>{snapshot.ips.filter((ip) => ip.active || ip.id === ipId).map((ip) => <option key={ip.id} value={ip.id}>{ip.name}</option>)}</select></Field>
+                <Field label="IP"><select className={fieldClass} value={ipId} onChange={(event) => setIpId(event.target.value)} disabled={!snapshot.canEdit || busy || ipSource} required={!item}><option value="">{item ? "Needs IP review" : "Choose IP"}</option>{snapshot.ips.filter((ip) => ip.active || ip.id === ipId).map((ip) => <option key={ip.id} value={ip.id}>{ip.name}</option>)}</select></Field>
                 <Field label="Format"><input className={fieldClass} value={format} onChange={(event) => setFormat(event.target.value)} maxLength={80} disabled={!snapshot.canEdit || busy} placeholder="Panel, clip…" /></Field>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <Field label="Stage"><select className={fieldClass} value={stage} onChange={(event) => setStage(event.target.value)} disabled={!snapshot.canEdit || busy}>{productionStages.map((choice) => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></Field>
-                <Field label="Owner"><input className={fieldClass} value={owner} onChange={(event) => setOwner(event.target.value)} maxLength={120} disabled={!snapshot.canEdit || busy} placeholder="Unassigned" /></Field>
+                <Field label="Stage"><select className={fieldClass} value={stage} onChange={(event) => setStage(event.target.value)} disabled={!snapshot.canEdit || busy || podSource}>{productionStages.map((choice) => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></Field>
+                <Field label="Owner"><input className={fieldClass} value={owner} onChange={(event) => setOwner(event.target.value)} maxLength={120} disabled={!snapshot.canEdit || busy || ipSource} placeholder="Unassigned" /></Field>
               </div>
-              <Field label="Location of shoot"><input className={fieldClass} value={shootLocation} onChange={(event) => setShootLocation(event.target.value)} maxLength={300} disabled={!snapshot.canEdit || busy} placeholder="Not entered" /></Field>
+              <Field label="Location of shoot"><input className={fieldClass} value={shootLocation} onChange={(event) => setShootLocation(event.target.value)} maxLength={300} disabled={!snapshot.canEdit || busy || podSource} placeholder="Not entered" /></Field>
               <Field label="Notes"><textarea className={`${fieldClass} min-h-20`} value={notes} onChange={(event) => setNotes(event.target.value)} maxLength={2000} disabled={!snapshot.canEdit || busy} /></Field>
               {!item && <label className="flex items-center gap-2 font-label text-sm"><input type="checkbox" checked={trackDubbing} onChange={(event) => setTrackDubbing(event.target.checked)} disabled={!snapshot.canEdit || busy} /> Track dubbing for this episode</label>}
               {item?.sourceMarker === "not-live" && <p className="font-label text-xs text-secondary">⭕️ Not Live in the source workbook; no release date was entered.</p>}
@@ -198,8 +202,8 @@ export function ProductionDetails({
           <>
             {sourceChecks.length > 0 && <section className="border-t border-foreground/30 pt-4" aria-label="Production tracker checkboxes">
               <h3 className="font-heading text-lg">Production tracker rows</h3>
-              <p className="mt-1 font-body text-xs text-secondary">Guest names, roles, boxes and notes follow the workbook rows. A tick is shown as a tick; it does not replace an adjacent written note. Changes here stay local and leave the imported workbook unchanged.</p>
-              <div className="mt-2 space-y-2">{sourceChecks.map((check) => <SourceCheckRow key={check.sourceRow} check={check} canEdit={snapshot.canEdit} busy={busy} onAction={onAction} />)}</div>
+              <p className="mt-1 font-body text-xs text-secondary">Guest names, roles, boxes and notes follow the workbook rows. A tick is shown as a tick; it does not replace an adjacent written note. Update synced guest fields in Google Sheets.</p>
+              <div className="mt-2 space-y-2">{sourceChecks.map((check) => <SourceCheckRow key={check.sourceRow} check={check} canEdit={snapshot.canEdit && !snapshot.sheetSync} busy={busy} onAction={onAction} />)}</div>
             </section>}
             <section className="border-t border-foreground/30 pt-4" aria-label="Dates for selected item">
               <div className="flex items-center justify-between gap-2"><h3 className="font-heading text-lg">Dates</h3>{selectedEvent && <button type="button" onClick={() => onSelectEvent(null)} className="font-label text-xs font-bold underline underline-offset-2">New date</button>}</div>
@@ -213,8 +217,8 @@ export function ProductionDetails({
               </div>
               <form className="mt-3 space-y-2 border border-foreground/30 bg-canvas p-3" onSubmit={(event) => { event.preventDefault(); void saveEvent(); }}>
                 <h4 className="font-label text-sm font-bold">{selectedEvent ? "Edit date" : "Add date"}</h4>
-                <div className="grid grid-cols-2 gap-2"><Field label="Type"><select className={fieldClass} value={eventKind} onChange={(event) => setEventKind(event.target.value)} disabled={!snapshot.canEdit || busy}>{productionEventKinds.map((choice) => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></Field><Field label="Day"><input type="date" className={fieldClass} value={eventDay} onChange={(event) => setEventDay(event.target.value)} disabled={!snapshot.canEdit || busy} required /></Field></div>
-                <div className="grid grid-cols-2 gap-2"><Field label="Date state"><select className={fieldClass} value={eventState} onChange={(event) => setEventState(event.target.value)} disabled={!snapshot.canEdit || busy}>{dateStates.map((choice) => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></Field><Field label="Owner"><input className={fieldClass} value={eventOwner} onChange={(event) => setEventOwner(event.target.value)} disabled={!snapshot.canEdit || busy} /></Field></div>
+                <div className="grid grid-cols-2 gap-2"><Field label="Type"><select className={fieldClass} value={eventKind} onChange={(event) => setEventKind(event.target.value)} disabled={!snapshot.canEdit || busy || sourceDate}>{productionEventKinds.map((choice) => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></Field><Field label="Day"><input type="date" className={fieldClass} value={eventDay} onChange={(event) => setEventDay(event.target.value)} disabled={!snapshot.canEdit || busy || sourceDate} required /></Field></div>
+                <div className="grid grid-cols-2 gap-2"><Field label="Date state"><select className={fieldClass} value={eventState} onChange={(event) => setEventState(event.target.value)} disabled={!snapshot.canEdit || busy || sourceDate}>{dateStates.map((choice) => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></Field><Field label="Owner"><input className={fieldClass} value={eventOwner} onChange={(event) => setEventOwner(event.target.value)} disabled={!snapshot.canEdit || busy} /></Field></div>
                 <Field label="Context"><textarea className={`${fieldClass} min-h-16`} value={eventNotes} onChange={(event) => setEventNotes(event.target.value)} disabled={!snapshot.canEdit || busy} maxLength={1000} /></Field>
                 {selectedEvent?.sourceRef && <p className="font-label text-xs text-secondary">Workbook source: {selectedEvent.sourceRef}</p>}
                 {snapshot.canEdit && <Button type="submit" variant="secondary" loading={busy} disabled={!eventDay}>{selectedEvent ? "Save date" : "Add date"}</Button>}

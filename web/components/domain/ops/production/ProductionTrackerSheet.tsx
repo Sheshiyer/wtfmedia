@@ -31,7 +31,7 @@ export function ProductionTrackerSheet({ snapshot, itemIds, busy, onSelectItem, 
 }) {
   const groups: TrackerGroup[] = snapshot.items
     .filter((item) => itemIds.has(item.id) && Number.isFinite(sourceRow(item)))
-    .map((item) => ({ item, checks: snapshot.sourceChecks.filter((check) => check.itemId === item.id && check.sourceRow < 17).sort((a, b) => a.sourceRow - b.sourceRow) }))
+    .map((item) => ({ item, checks: snapshot.sourceChecks.filter((check) => check.itemId === item.id).sort((a, b) => a.sourceRow - b.sourceRow) }))
     .filter((group) => group.checks.length > 0)
     .sort((a, b) => sourceRow(a.item) - sourceRow(b.item));
   const stageSpans = new Map<number, number>();
@@ -49,7 +49,7 @@ export function ProductionTrackerSheet({ snapshot, itemIds, busy, onSelectItem, 
   return <section aria-label="Production Tracker Podcast" className="border-2 border-foreground bg-canvas">
     <div className="border-b-2 border-foreground bg-surface-raised p-4">
       <h2 className="font-heading text-xl">Production Tracker · Podcast</h2>
-      <p className="mt-1 font-body text-sm text-secondary">Workbook column order and source boxes are kept here. A checked box stays checked even when an adjacent note adds context. Unnamed rows 17–19 are omitted.</p>
+      <p className="mt-1 font-body text-sm text-secondary">Workbook column order and source boxes are kept here. A checked box stays checked even when an adjacent note adds context.</p>
     </div>
     <div className="max-w-full overflow-x-auto">
       <table className="w-full min-w-[1420px] border-collapse text-left font-body text-xs">
@@ -70,9 +70,9 @@ export function ProductionTrackerSheet({ snapshot, itemIds, busy, onSelectItem, 
               {isGroupStart && <td rowSpan={group.checks.length} className="min-w-40 border border-foreground/50 p-2">{group.item.shootLocation ?? ""}</td>}
               {isGroupStart && <td rowSpan={group.checks.length} className="min-w-32 border border-foreground/50 p-2">{shoot ? dayLabel(shoot.day) : ""}</td>}
               {isGroupStart && <td rowSpan={group.checks.length} className="min-w-32 border border-foreground/50 p-2">{release ? dayLabel(release.day) : ""}</td>}
-              <td className="min-w-32 whitespace-pre-wrap border border-foreground/50 p-2"><SourceBox check={check} field="guest_agreement" state={check.guestAgreement} canEdit={snapshot.canEdit} busy={busy} onAction={onAction} /></td>
-              <td className="min-w-24 border border-foreground/50 p-2"><SourceBox check={check} field="dubbing" state={check.dubbing} canEdit={snapshot.canEdit} busy={busy} onAction={onAction} /></td>
-              <td className="min-w-32 border border-foreground/50 p-2"><SourceBox check={check} field="hindi_live" state={check.hindiLive} canEdit={snapshot.canEdit} busy={busy} onAction={onAction} /></td>
+              <td className="min-w-32 whitespace-pre-wrap border border-foreground/50 p-2"><SourceBox check={check} field="guest_agreement" state={check.guestAgreement} canEdit={snapshot.canEdit && !snapshot.sheetSync} busy={busy} onAction={onAction} /></td>
+              <td className="min-w-24 border border-foreground/50 p-2"><SourceBox check={check} field="dubbing" state={check.dubbing} canEdit={snapshot.canEdit && !snapshot.sheetSync} busy={busy} onAction={onAction} /></td>
+              <td className="min-w-32 border border-foreground/50 p-2"><SourceBox check={check} field="hindi_live" state={check.hindiLive} canEdit={snapshot.canEdit && !snapshot.sheetSync} busy={busy} onAction={onAction} /></td>
             </tr>;
           });
         })}</tbody>

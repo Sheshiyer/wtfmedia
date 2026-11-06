@@ -22,7 +22,8 @@ function sourceCellValue(sheet: string, ref: string, value: ProductionSourceRow[
   return value == null ? "(blank)" : String(value);
 }
 
-export function ProductionSourceView({ sheets, summary, fetcher }: {
+export function ProductionSourceView({ sheets, summary, fetcher, changedAt }: {
+  changedAt?: string;
   fetcher: typeof fetch;
   sheets: readonly ProductionSourceSheet[];
   summary: { sheets: number; cells: number; review: number } | null;
@@ -57,7 +58,7 @@ export function ProductionSourceView({ sheets, summary, fetcher }: {
       })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [fetcher, sheet, offset]);
+  }, [fetcher, sheet, offset, changedAt]);
 
   if (!sheets.length) return <section className="border-2 border-foreground bg-canvas p-5 font-body text-sm">No workbook import is available yet.</section>;
 
@@ -77,7 +78,7 @@ export function ProductionSourceView({ sheets, summary, fetcher }: {
         </label>
       </div>
       <div className="border-b border-foreground/30 px-4 py-2 font-label text-xs text-secondary">
-        {summary ? `${summary.sheets} sheets · ${summary.cells} preserved cells (including formatted blanks) · ${summary.review} import review issues` : "Import summary unavailable"}
+        {summary ? `${summary.sheets} sheets · ${summary.cells} source cells · ${summary.review} import review issues` : "Import summary unavailable"}
       </div>
       {error && <p role="alert" className="m-4 border-l-4 border-editorial bg-surface-subtle p-3 font-body text-sm">{error}</p>}
       {loading ? <p className="p-5 font-body text-sm">Loading source rows…</p> : rows.length ? (

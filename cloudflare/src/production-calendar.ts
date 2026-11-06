@@ -1,8 +1,9 @@
+import { readSheetState, sheetRows, sheetSummary } from "./production-sheet-state.ts";
 import { decide } from "./auth/policy.ts";
 import type { OperatorContext } from "./auth/operator-context.ts";
 import type { DB } from "./db.ts";
 
-type ProductionEnv = { DB: DB };
+type ProductionEnv = { DB: DB; PRODUCTION_SHEET_SYNC_ENABLED?: string };
 type Data = Record<string, unknown>;
 type Mutation = { action?: unknown; data?: unknown };
 
@@ -74,6 +75,12 @@ async function sourceRows(request: Request, env: ProductionEnv, context: Operato
   const sheet = url.searchParams.get("sourceSheet");
   if (!sheet || !productionSourceSheets.has(sheet)) return json({ error: "invalid_sheet" }, 400);
   const offset = Math.max(0, Math.min(100000, Number.parseInt(url.searchParams.get("offset") ?? "0", 10) || 0));
+  const live=await readSheetState(env);
+  if(live?.sheets[sheet]){
+    const all=sheetRows(live.sheets[sheet]);
+    return json({sourceRows:all.slice(offset,offset+25).map(([rowNumber,cells])=>({sheet,rowNumber,cells})),
+      sourceSheets:sheetSummary(live),total:all.length});
+  }
   // The owner excluded unnamed Production Tracker rows 17–19 from the working
   // platform. Keep their imported cells in the private archive for fidelity.
   const visibleRows = sheet === "Production Tracker Podcast" ? " AND row_number NOT BETWEEN 17 AND 19" : "";
@@ -104,6 +111,10 @@ async function snapshot(env: ProductionEnv, context: OperatorContext): Promise<R
     db.prepare("SELECT item_id AS itemId, source_row AS sourceRow, guest_name AS guestName, guest_role AS guestRole, guest_agreement AS guestAgreement, dubbing, hindi_live AS hindiLive, agreement_note AS agreementNote FROM production_source_checks ORDER BY source_row").all(),
     db.prepare("SELECT cell_ref AS cellRef, raw_value AS rawValue FROM production_source_cells WHERE sheet = 'Dubbing Tracker' AND substr(cell_ref, 1, 1) IN ('A', 'E', 'F', 'G', 'H')").all<{ cellRef: string; rawValue: string | null }>(),
   ]);
+  const live=await readSheetState(env);
+  const sourceList=live ? sheetSummary(live) : sourceSheets.results;
+  const hiddenEvents=new Set(live?.review.inactiveEvents);
+  const stale=new Set(live?.review.stale);
   const dubbingSourceCells = new Map(dubbingCells.results.map((cell) => [cell.cellRef, cell.rawValue]));
   const dubbingRow = (sourceRef: string | null | undefined): number | null => {
     const match = /^Dubbing Tracker![A-H](\d+)(?::[A-H]\d+)?$/u.exec(sourceRef ?? "");
@@ -132,8 +143,9 @@ async function snapshot(env: ProductionEnv, context: OperatorContext): Promise<R
     items: items.results.map((item) => {
       const sourceRef = (item as { sourceRef?: string }).sourceRef ?? "";
       const row = /^WTF & Nikhil Kamath IPs!A(\d+):F\1$/u.exec(sourceRef)?.[1];
-      return { ...item, sourceMarker: row && notLiveCells.has(`D${row}`) ? "not-live" : null };
-    }), events: events.results,
+      const marker = row && (live ? String(live.sheets["WTF & Nikhil Kamath IPs"]?.["D"+row]?.[0]??"").includes("Not Live") : notLiveCells.has("D"+row));
+      return { ...item, sourceMarker: marker ? "not-live" : null, sheetReview:stale.has(String(item.id)) };
+    }), events: events.results.filter(e=>!hiddenEvents.has(String(e.id))),
     guests: guests.results.map((entry) => {
       const guest = entry as { name: string };
       const sourceNameNeedsReview = guest.name.includes("@");
@@ -167,8 +179,9 @@ async function snapshot(env: ProductionEnv, context: OperatorContext): Promise<R
         ...(canManage(context) ? { sourceContact: sourceRow === null ? null : dubbingSourceCells.get(`E${sourceRow}`) ?? null } : {}),
       };
     }), blockers: blockers.results, sourceChecks: sourceChecks.results,
-    sourceSheets: canManage(context) ? sourceSheets.results : [],
-    sourceSummary: sourceSheets.results.length ? { sheets: sourceSheets.results.length, cells: sourceSheets.results.reduce((sum, entry) => sum + Number((entry as { cells: number }).cells), 0), review: review?.review ?? 0 } : null,
+    sheetSync:live ? { checkedAt:live.checked_at, changedAt:live.changed_at, reviewCount:live.review.refs.length+stale.size } : null,
+    sourceSheets: canManage(context) ? sourceList : [],
+    sourceSummary: sourceList.length ? { sheets: sourceList.length, cells: sourceList.reduce((sum, entry) => sum + Number((entry as { cells: number }).cells), 0), review: review?.review ?? 0 } : null,
     canEdit: canEdit(context), canManage: canManage(context),
   });
 }
@@ -182,6 +195,9 @@ async function mutate(env: ProductionEnv, context: OperatorContext, body: Mutati
   let entityType = "";
   let entityId = "";
   try {
+    if (env.PRODUCTION_SHEET_SYNC_ENABLED === "1" && ["update_source_check","update_source_role"].includes(action)) {
+      return json({error:"edit_tracker_fields_in_google_sheets"},409);
+    }
     if (action === "create_item") {
       const ipId = string(data.ipId, 80);
       const title = string(data.title, 300);
@@ -210,8 +226,16 @@ async function mutate(env: ProductionEnv, context: OperatorContext, body: Mutati
       const notes = optionalString(data.notes, 4000);
       const shootLocation = optionalString(data.shootLocation, 300);
       if (!entityId || (data.ipId !== null && !ipId) || !title || !format || !stage || owner === undefined || notes === undefined || shootLocation === undefined) return json({ error: "invalid_item" }, 400);
-      const result = await db.prepare("UPDATE production_items SET ip_id = ?, title = ?, format = ?, stage = ?, owner = ?, notes = ?, shoot_location = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?")
-        .bind(ipId, title, format, stage, owner, notes ?? "", shootLocation, entityId).run();
+      const live = env.PRODUCTION_SHEET_SYNC_ENABLED === "1";
+      const locked = live ? "substr(source_ref,1,instr(source_ref,'!')-1)" : "''";
+      const result = await db.prepare(`UPDATE production_items SET
+        ip_id=CASE WHEN ${locked}='WTF & Nikhil Kamath IPs' THEN ip_id ELSE ? END,
+        title=CASE WHEN ${locked} IN ('Production Tracker Podcast','WTF & Nikhil Kamath IPs') THEN title ELSE ? END,
+        format=?, stage=CASE WHEN ${locked}='Production Tracker Podcast' THEN stage ELSE ? END,
+        owner=CASE WHEN ${locked}='WTF & Nikhil Kamath IPs' THEN owner ELSE ? END, notes=?,
+        shoot_location=CASE WHEN ${locked}='Production Tracker Podcast' THEN shoot_location ELSE ? END,
+        updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?`)
+        .bind(ipId,title,format,stage,owner,notes ?? "",shootLocation,entityId).run();
       if (!result.meta.changes) return json({ error: "not_found" }, 404);
     } else if (action === "create_event" || action === "update_event") {
       const itemId = string(data.itemId, 90);
@@ -229,8 +253,12 @@ async function mutate(env: ProductionEnv, context: OperatorContext, body: Mutati
       } else {
         entityId = string(data.id, 90) ?? "";
         if (!entityId) return json({ error: "invalid_event" }, 400);
-        const result = await db.prepare("UPDATE production_events SET item_id = ?, kind = ?, day = ?, date_state = ?, owner = ?, notes = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?")
-          .bind(itemId, kind, day, dateState, owner, notes ?? "", entityId).run();
+        const managed = env.PRODUCTION_SHEET_SYNC_ENABLED === "1" ?
+          "substr(source_ref,1,instr(source_ref,'!')-1) IN ('Production Tracker Podcast','WTF & Nikhil Kamath IPs')" : "0";
+        const result = await db.prepare(`UPDATE production_events SET item_id=CASE WHEN ${managed} THEN item_id ELSE ? END,
+          kind=CASE WHEN ${managed} THEN kind ELSE ? END,day=CASE WHEN ${managed} THEN day ELSE ? END,
+          date_state=CASE WHEN ${managed} THEN date_state ELSE ? END, owner=?,notes=?,updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?`)
+          .bind(itemId,kind,day,dateState,owner,notes ?? "",entityId).run();
         if (!result.meta.changes) return json({ error: "not_found" }, 404);
       }
     } else if (action === "create_ip" || action === "update_ip") {

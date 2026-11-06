@@ -19,6 +19,7 @@ export type ProductionItem = {
   shootLocation: string | null;
   sourceStatus: string;
   sourceRef: string | null;
+  sheetReview?: boolean;
   sourceMarker?: string | null;
 };
 
@@ -94,6 +95,7 @@ export type ProductionSnapshot = {
   permissions: ProductionPermission[];
   blockers: ProductionBlocker[];
   sourceChecks: ProductionSourceCheck[];
+  sheetSync?: {checkedAt:string; changedAt:string; reviewCount:number} | null;
   sourceSummary: { sheets: number; cells: number; review: number } | null;
   sourceSheets: ProductionSourceSheet[];
   canEdit: boolean;
