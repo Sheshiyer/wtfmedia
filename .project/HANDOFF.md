@@ -1,3 +1,8 @@
+## 2026-11-06 — Source workbook stays read-only
+
+- Supersedes the hidden-ID setup: replace the earlier pasted script before running. Candidate 0d46d52, staging Edge e06ba390-e078-423d-9142-c17ea469db9a. Script reads four tabs, never writes or hides cells/columns. Staging accepts snapshots without IDs and returns title/coordinate candidates for review. Rollback f4b5756d-8dc2-4e46-9342-4e572a269c5f.
+- 18 Production checks passed including a read-only Sheets harness. Two authenticated submissions with zero IDs on every tab matched the reference workbook differences. Shared spreadsheet was not accessed or changed during testing.
+
 ## 2026-11-06 — Authenticated four-tab sheet preview on staging
 
 - Staging Edge candidate 4a6a708, deployed version f4b5756d-8dc2-4e46-9342-4e572a269c5f. Previous Edge 26156643-2b18-4060-9751-89ce510df9e5. Existing staging Web forwards the dedicated POST path through its Edge binding. Receiver validates preview credential, expected workbook, four allowed tabs and UUIDs and runs SELECT queries only.
