@@ -67,9 +67,9 @@ export function ProductionSourceView({ sheets, summary, fetcher, changedAt }: {
       <div className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-foreground bg-surface-raised p-4">
         <div>
           <p className="font-label text-[11px] font-bold uppercase tracking-[0.1em] text-secondary">Restricted source view</p>
-          <h2 className="font-heading text-2xl">Workbook rows</h2>
+          <h2 className="font-heading text-2xl">{changedAt ? "Live sheet rows" : "Workbook rows"}</h2>
           <p className="mt-1 font-body text-sm text-secondary">Original cells stay unchanged here. Past dated shoot, post, and dubbed-live marks are actuals in the tracker; ambiguous values remain source-only.</p>
-          {sheet === "Production Tracker Podcast" && <p className="mt-1 font-body text-xs text-secondary">Unnamed rows 17–19 are omitted from the working view as requested. The private import retains the original workbook cells.</p>}
+          {!changedAt && sheet === "Production Tracker Podcast" && <p className="mt-1 font-body text-xs text-secondary">Unnamed rows 17–19 are omitted from the working view as requested. The private import retains the original workbook cells.</p>}
         </div>
         <label className="grid min-w-56 gap-1 font-label text-xs font-bold" htmlFor="source-sheet">Sheet
           <select id="source-sheet" value={sheet} onChange={(event) => { setSheet(event.target.value); setOffset(0); }} className="min-h-11 border-2 border-foreground bg-canvas px-2 font-body text-sm">
