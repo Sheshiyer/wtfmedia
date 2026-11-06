@@ -1,3 +1,8 @@
+## 2026-11-06 — Three-tab service account staging preview
+
+- Confirmed live Google API access using a locally held service account with Sheets read-only scope. The live podcast tracker has brackets in its name; normalize it to the Excel import name for comparisons. Only that tracker, WTF & Nikhil Kamath IPs and Calendar are fetched. The calendar includes a formula referring to dubbing in the source workbook.
+- Staging Edge 4b09d22d-710e-42f2-b587-140fbef8e4e9 accepted the three-tab preview and rejected an extra dubbing tab. Returned cell differences (added/changed/removed) 10/15/1, 10/34/7 and 0/43/0. No Sheet or Production record writes. Scheduled server-side application of approved mappings remains pending. Rollback e06ba390-e078-423d-9142-c17ea469db9a.
+
 ## 2026-11-06 — Source workbook stays read-only
 
 - Supersedes the hidden-ID setup: replace the earlier pasted script before running. Candidate 0d46d52, staging Edge e06ba390-e078-423d-9142-c17ea469db9a. Script reads four tabs, never writes or hides cells/columns. Staging accepts snapshots without IDs and returns title/coordinate candidates for review. Rollback f4b5756d-8dc2-4e46-9342-4e572a269c5f.
