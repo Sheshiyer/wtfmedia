@@ -164,9 +164,9 @@ editor's Run button. Save these Script Properties under Project Settings:
 - `WTF_TRACKER_SPREADSHEET_ID`: the file ID between /d/ and /edit in the Sheet URL.
 - `WTF_STAGING_PREVIEW_TOKEN`: the staging-only preview credential supplied privately.
 
-Run `previewProductionStaging` in the editor during a quiet editing window
-and authorize the requested access. It prepares and hides persistent UUIDs
-in the three trackers, posts only the four allowlisted tabs to the staging
+Run `previewProductionStaging` in the editor and authorize the requested access.
+It reads the four approved tabs without editing any spreadsheet cells or columns,
+then posts the snapshot to the staging
 receiver and displays its cell differences and candidate matches in a dialog
 in the spreadsheet. The Calendar is an evaluated view, without row IDs.
 The staging endpoint issues only SELECT queries. It does not retain uploads

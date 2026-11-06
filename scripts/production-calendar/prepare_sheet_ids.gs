@@ -2,63 +2,6 @@
 
 // Bound staging preview. All outbound requests go to the fixed staging receiver.
 // Set the Apps Script property WTF_TRACKER_SPREADSHEET_ID to the intended file ID first.
-function prepareProductionPreviewIds() {
-  const book = SpreadsheetApp.getActiveSpreadsheet();
-  if (book.getId() !== PropertiesService.getScriptProperties().getProperty('WTF_TRACKER_SPREADSHEET_ID')) {
-    throw new Error('Set WTF_TRACKER_SPREADSHEET_ID to the intended spreadsheet before running.');
-  }
-  const lock = LockService.getDocumentLock();
-  lock.waitLock(30000);
-  try {
-    const configs = [
-      {name: 'Production Tracker Podcast', headers: ['Status', 'Thought Leaders', 'Role', 'Ep Name'], key: [1, 3]},
-      {name: 'WTF & Nikhil Kamath IPs', headers: ['IP', 'Episode No', 'Episode Name', 'Release Date'], key: [2, 3]},
-      {name: 'Dubbing Tracker', headers: ['Episode Name', 'Original Video Date', 'Dub Episode Schedule', 'Guest'], key: [0, 3]}
-    ];
-    const seen = new Set();
-    const plans = configs.map(config => {
-      const sheet = book.getSheetByName(config.name);
-      if (!sheet) throw new Error('Missing approved tab: ' + config.name);
-      const grid = sheet.getDataRange().getValues();
-      const header = grid[0].map(value => String(value).trim());
-      if (!config.headers.every((v, i) => v === header[i])) throw new Error('Check headers on ' + config.name);
-      const idHeader = '_wtf_row_id';
-      const index = header.indexOf(idHeader);
-      if (index !== header.lastIndexOf(idHeader)) throw new Error('Duplicate ID column on ' + config.name);
-      const pending = [];
-      const formulas = index < 0 ? [] : sheet.getRange(1, index+1, grid.length, 1).getFormulas();
-      grid.slice(1).forEach((row, offset) => {
-        if (index >= 0 && formulas[offset+1][0]) throw new Error('ID must be stored as text');
-        const id = index < 0 ? '' : String(row[index]);
-        if (id) {
-          if (!/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id) || seen.has(id.toLowerCase())) {
-            throw new Error('Invalid or duplicate ID on ' + config.name + ' row ' + (offset+2));
-          }
-          seen.add(id.toLowerCase());
-        } else if (config.key.some(i => row[i] !== '' && row[i] != null)) {
-          if (config.name === 'Dubbing Tracker' && /^(solos|panels)$/i.test(String(row[0]).trim()) &&
-              row.slice(1, 8).every(v => v === '' || v == null)) return;
-          // IDs label source rows, including panel guest rows. They do not imply an episode.
-          pending.push(offset+2);
-        }
-      });
-      return {sheet, pending, col: (index < 0 ? header.length : index)+1, create: index < 0};
-    });
-    for (const plan of plans) {
-      if (plan.create) {
-        if (plan.col > plan.sheet.getMaxColumns()) plan.sheet.insertColumnAfter(plan.sheet.getMaxColumns());
-        plan.sheet.getRange(1, plan.col).setValue('_wtf_row_id');
-      }
-      for (const row of plan.pending) plan.sheet.getRange(row, plan.col).setValue(Utilities.getUuid());
-      plan.sheet.hideColumns(plan.col);
-    }
-    SpreadsheetApp.flush();
-    return plans.map(plan => ({tab: plan.sheet.getName(), assigned: plan.pending.length}));
-  } finally {
-    lock.releaseLock();
-  }
-}
-
 const PREVIEW_TABS = ['Production Tracker Podcast', 'WTF & Nikhil Kamath IPs', 'Calendar', 'Dubbing Tracker'];
 const PREVIEW_URL = 'https://beta-staging.wtfhq.in/beta/api/production-sheet-preview';
 
@@ -89,16 +32,15 @@ function stagingSnapshot_(book) {
     const range = sheet.getDataRange();
     const values = range.getValues(), formulas = range.getFormulas();
     const idIndex = values[0].indexOf('_wtf_row_id');
-    if (name !== 'Calendar' && idIndex < 0) throw new Error('Missing IDs: ' + name);
-    const cells = {}, ids = {};
+
+    const cells = {};
     values.forEach((row, ri) => row.forEach((v, ci) => {
-      if (ci === idIndex) {
-        if (ri && v !== '') ids[String(ri + 1)] = v;
-      } else if (v !== '' && v !== null || formulas[ri][ci]) {
+      if (ci === idIndex) return;
+      if ((v !== '' && v !== null) || formulas[ri][ci]) {
         cells[sheetColumn_(ci+1) + (ri+1)] = [sheetScalar_(v, book.getSpreadsheetTimeZone()), formulas[ri][ci] || ''];
       }
     }));
-    tabs[name] = {cells,ids};
+    tabs[name] = {cells};
   }
   return {version:1,sheetId:book.getId(),tabs};
 }
@@ -106,8 +48,11 @@ function stagingSnapshot_(book) {
 function fetchStagingPreview_() {
   const token = PropertiesService.getScriptProperties().getProperty('WTF_STAGING_PREVIEW_TOKEN');
   if (!token || !/^[a-f0-9]{64}$/.test(token)) throw Error('Set WTF_STAGING_PREVIEW_TOKEN in Script Properties.');
-  prepareProductionPreviewIds();
-  const snapshot = stagingSnapshot_(SpreadsheetApp.getActiveSpreadsheet());
+  const book = SpreadsheetApp.getActiveSpreadsheet();
+  if (book.getId() !== PropertiesService.getScriptProperties().getProperty('WTF_TRACKER_SPREADSHEET_ID')) {
+    throw Error('Check WTF_TRACKER_SPREADSHEET_ID in Script Properties.');
+  }
+  const snapshot = stagingSnapshot_(book);
   const response = UrlFetchApp.fetch(PREVIEW_URL, {
     method:'post', contentType:'application/json', headers:{Authorization:'Bearer '+token},
     payload:JSON.stringify(snapshot), followRedirects:false, muteHttpExceptions:true
@@ -123,7 +68,7 @@ function previewProductionStaging() {
   const result = fetchStagingPreview_();
   const lines = [];
   for (const s of result.sheets) {
-    lines.push(s.tab, 'Source rows with IDs: '+s.sourceRowsWithIds);
+    lines.push(s.tab);
     for (const kind of ['added','changed','removed']) {
       lines.push(kind+' cells ('+s.delta[kind].length+'): '+s.delta[kind].join(', '));
     }

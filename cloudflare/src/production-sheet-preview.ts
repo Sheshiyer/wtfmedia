@@ -8,7 +8,7 @@ type Tab = keyof typeof titleColumns;
 const tabs = Object.keys(titleColumns) as Tab[];
 type Scalar = string | number | boolean | null;
 type Cell = [Scalar, string];
-interface Snapshot { cells: Record<string, Cell>; ids: Record<string, string> }
+interface Snapshot { cells: Record<string, Cell>; ids?: Record<string, string> }
 interface Baseline { sheet: Tab; cell_ref: string; raw_value: string; formula: string | null;
   cached_value: string | null; raw_ooxml: string | null }
 const maxBytes = 2 * 1024 * 1024;
@@ -38,7 +38,7 @@ async function readSnapshot(request: Request, expectedSheet: string): Promise<Re
   const seen = new Set<string>();
   for (const tab of tabs) {
     const sheet = data.tabs[tab];
-    if (!sheet || !object(sheet.cells) || !object(sheet.ids) || Object.keys(sheet.cells).length > 25000) reject();
+    if (!sheet || !object(sheet.cells) || (sheet.ids !== undefined && !object(sheet.ids)) || Object.keys(sheet.cells).length > 25000) reject();
     for (const [ref, cell] of Object.entries(sheet.cells)) {
       if (!/^[A-Z]{1,3}[1-9]\d{0,4}$/.test(ref) || !Array.isArray(cell) || cell.length !== 2 ||
           !(cell[0] === null || ["number","string","boolean"].includes(typeof cell[0])) || typeof cell[1] !== "string") reject();
@@ -46,15 +46,7 @@ async function readSnapshot(request: Request, expectedSheet: string): Promise<Re
     const first = {"Production Tracker Podcast":"Status", "WTF & Nikhil Kamath IPs":"IP",
       "Calendar":"Month", "Dubbing Tracker":"Episode Name"}[tab];
     if (sheet.cells.A1?.[0] !== first) reject();
-    const keys = {"Production Tracker Podcast":["B","D"], "WTF & Nikhil Kamath IPs":["C","D"],
-      Calendar:[], "Dubbing Tracker":["A","D"]}[tab];
-    for (const [ref,cell] of Object.entries(sheet.cells) as [string, Cell][]) {
-      const [,col,row] = /^([A-Z]+)(\d+)$/.exec(ref)!;
-      if (!keys.includes(col) || row === "1" || cell[0] == null || cell[0] === "") continue;
-      if (tab === "Dubbing Tracker" && col === "A" && /^(solos|panels)$/i.test(String(cell[0]).trim())) continue;
-      if (!Object.hasOwn(sheet.ids,row)) reject();
-    }
-    for (const [row, id] of Object.entries(sheet.ids)) {
+    for (const [row, id] of Object.entries(sheet.ids ?? {})) {
       if (tab === "Calendar" || !/^[1-9]\d{0,4}$/.test(row) || Number(row)<2 || typeof id !== "string" ||
           !/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id) || seen.has(id.toLowerCase())) reject();
       seen.add((id as string).toLowerCase());
@@ -87,7 +79,7 @@ export async function previewSheet(request: Request, db: DB, tokenDigest?: strin
     const summaries = tabs.map(tab => {
       const old = new Map(archived.results.filter(r => r.sheet === tab).map(r => [r.cell_ref, archivedCell(r)]));
       if (!old.size) throw Error("missing_baseline");
-      const {cells,ids} = source[tab];
+      const {cells,ids = {}} = source[tab];
       const delta = {added:[] as string[],changed:[] as string[],removed:[] as string[]};
       for (const [ref, cell] of Object.entries(cells)) {
         const previous = old.get(ref);
