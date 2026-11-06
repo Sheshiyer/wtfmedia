@@ -1,3 +1,9 @@
+## 2026-11-06 — Production research model access
+
+- The reported production Elon Musk run failed at resolve with Anthropic HTTP 403. The serving instance was in hkg11. The same configured credential and model returned HTTP 200 in a minimal direct call. Placement is the likely explanation; the provider response body was not retained.
+- Applied a US jurisdiction constraint to the production research container. Worker version 445383b7-18ee-469f-a617-258d3a19e894, application version 2. Cloudflare readback confirmed the constraint and zero failed instances. To reverse placement, redeploy the previous container configuration; a Worker-only version rollback does not revert the application constraint.
+- Verified actual local discovery for Elon Musk with live search and model APIs: six proposed questions and 35 sources. The production trial is still pending; the saved failed brief is terminal.
+
 ## 2026-11-06 — Research on the production apex
 
 - Added Research to the production analytics frontend and authenticated Edge API. Production Edge 62e22d19-9c43-468e-b218-63a68c3b2173 and Web 52ca2df7-3364-4714-b3d8-b7482e169ce4 received 100% traffic. Rollback versions are Edge 6b0a93eb-e95a-489f-9b9a-ae1f0c207b41 and Web 1df88d2d-ad7f-4b4a-b20e-6f66813abb6e. All 31 pre-existing Edge and six Web bindings matched before promotion. Existing triggers were preserved using version deployment.

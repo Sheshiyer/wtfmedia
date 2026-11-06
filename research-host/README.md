@@ -5,7 +5,7 @@ Staging and production use separate Workers, container applications and Durable 
 budget reservations and deletion tombstones. The container never falls back to
 local storage when remote configuration is present. Each environment stores its briefs in its own D1 database.
 
-Staging uses `wrangler.jsonc`. Production uses `wrangler.production.jsonc` with the production singleton and the same verified image digest. The production Edge connects to the production runner using a separate runner token.
+Staging uses `wrangler.jsonc`. Production uses `wrangler.production.jsonc` with the production singleton and the same verified image digest. The production container uses US placement to keep provider requests in an Anthropic-supported region across restarts. The production Edge connects to the production runner using a separate runner token.
 
 Required Worker secrets: `RESEARCH_RUNNER_TOKEN`, `RESEARCH_STATE_TOKEN`,
 `RESEARCH_STATE_URL`, `TREG_TOKEN`, `ANTHROPIC_API_KEY`.
