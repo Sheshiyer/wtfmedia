@@ -1,4 +1,4 @@
-"""Read-only, four-tab source comparison against the latest staging import.
+"""Read-only, three-tab source comparison against the latest staging import.
 
 Only coordinates and counts are returned. Source coordinates describe differences
 between snapshots, not entity identity or a list of safe database updates.
@@ -20,9 +20,9 @@ from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.datetime import to_excel
 
-from import_workbook import SHEET_PRODUCTION, SHEET_OTHER_IPS, SHEET_DUBBING, SHEET_CALENDAR
+from import_workbook import SHEET_PRODUCTION, SHEET_OTHER_IPS, SHEET_CALENDAR
 
-TABS = (SHEET_PRODUCTION, SHEET_OTHER_IPS, SHEET_CALENDAR, SHEET_DUBBING)
+TABS = (SHEET_PRODUCTION, SHEET_OTHER_IPS, SHEET_CALENDAR)
 ID_HEADER = "_wtf_row_id"
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -56,13 +56,32 @@ def workbook_source(path):
         cache.close()
 
 
+def readonly_token():
+    path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+    if path:
+        from google.auth.transport.requests import Request as TokenRequest
+        from google.oauth2.service_account import Credentials
+        info = json.loads(Path(path).read_text())
+        if info.get("type") != "service_account" or info.get("token_uri") != "https://oauth2.googleapis.com/token":
+            raise ValueError("Expected a Google service account credential")
+        credential = Credentials.from_service_account_info(info, scopes=[
+            "https://www.googleapis.com/auth/spreadsheets.readonly"])
+        credential.refresh(TokenRequest())
+        return credential.token
+    token = os.environ.get("WTF_SHEETS_ACCESS_TOKEN")
+    if not token:
+        raise ValueError("Set GOOGLE_APPLICATION_CREDENTIALS to the private credential path")
+    return token
+
+
 def live_source(sheet_id):
     if not re.fullmatch(r"[A-Za-z0-9_-]+", sheet_id):
         raise ValueError("Invalid spreadsheet identifier")
-    token = os.environ.get("WTF_SHEETS_ACCESS_TOKEN")
-    if not token:
-        raise ValueError("Provide a Sheets-authorized access token through WTF_SHEETS_ACCESS_TOKEN")
-    query = urlencode([("ranges", "'" + tab + "'") for tab in TABS] + [
+    token = readonly_token()
+    # Excel strips square brackets from worksheet names on export.
+    live_names = {"Production Tracker [Podcast]": SHEET_PRODUCTION,
+                  SHEET_OTHER_IPS: SHEET_OTHER_IPS, SHEET_CALENDAR: SHEET_CALENDAR}
+    query = urlencode([("ranges", "'" + name + "'") for name in live_names] + [
         ("fields", "sheets(properties(title),data(startColumn,startRow,rowData(values(userEnteredValue,effectiveValue))))")])
     req = Request(f"https://sheets.googleapis.com/v4/spreadsheets/{sheet_id}?{query}",
                   headers={"Authorization": "Bearer " + token})
@@ -70,7 +89,7 @@ def live_source(sheet_id):
         sheets = json.load(response)["sheets"]
     result = {}
     for sheet in sheets:
-        tab = sheet["properties"]["title"]
+        tab = live_names.get(sheet["properties"]["title"])
         if tab not in TABS or tab in result:
             raise ValueError("Unexpected sheet response")
         cells = result[tab] = {}
@@ -120,8 +139,8 @@ def baseline():
 def item_preview(data):
     # Exact unique titles can suggest matches. Never bind on coordinates alone.
     # Missing or ambiguous titles require owner review, particularly on panel rows.
-    columns = {SHEET_PRODUCTION: "D", SHEET_OTHER_IPS: "C", SHEET_DUBBING: "A"}
-    refs = staging_select("SELECT source_ref, title FROM production_items WHERE source_ref IS NOT NULL")
+    columns = {SHEET_PRODUCTION: "D", SHEET_OTHER_IPS: "C"}
+    refs = staging_select("SELECT source_ref, title FROM production_items WHERE substr(source_ref,1,instr(source_ref,'!')-1) IN ('Production Tracker Podcast','WTF & Nikhil Kamath IPs')")
     report = {}
     for tab, col in columns.items():
         titles = Counter(cell[1] for coord, cell in data[tab].items()

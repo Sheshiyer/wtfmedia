@@ -2,7 +2,7 @@
 
 // Bound staging preview. All outbound requests go to the fixed staging receiver.
 // Set the Apps Script property WTF_TRACKER_SPREADSHEET_ID to the intended file ID first.
-const PREVIEW_TABS = ['Production Tracker Podcast', 'WTF & Nikhil Kamath IPs', 'Calendar', 'Dubbing Tracker'];
+const PREVIEW_TABS = ['Production Tracker Podcast', 'WTF & Nikhil Kamath IPs', 'Calendar'];
 const PREVIEW_URL = 'https://beta-staging.wtfhq.in/beta/api/production-sheet-preview';
 
 function sheetColumn_(n) {
@@ -27,7 +27,7 @@ function sheetScalar_(v, tz) {
 function stagingSnapshot_(book) {
   const tabs = {};
   for (const name of PREVIEW_TABS) {
-    const sheet = book.getSheetByName(name);
+    const sheet = book.getSheetByName(name) || (name === 'Production Tracker Podcast' && book.getSheetByName('Production Tracker [Podcast]'));
     if (!sheet) throw new Error('Missing approved tab: ' + name);
     const range = sheet.getDataRange();
     const values = range.getValues(), formulas = range.getFormulas();
@@ -84,13 +84,7 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu('WTF Production').addItem('Preview staging changes','previewProductionStaging').addToUi();
 }
 
-// Optional preview-only schedule. Run manually after checking the first preview.
-function enableStagingPreviewSchedule() {
-  fetchStagingPreview_();
-  const exists = ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'scheduledStagingPreview');
-  if (!exists) ScriptApp.newTrigger('scheduledStagingPreview').timeBased().everyMinutes(5).create();
-}
-
+// For an optional later schedule, select this function in the Apps Script Triggers UI.
 function scheduledStagingPreview() {
   const result = fetchStagingPreview_();
   const summary = result.sheets.map(s => ({

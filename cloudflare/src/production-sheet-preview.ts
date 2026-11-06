@@ -2,7 +2,7 @@ import type { DB } from "./db.ts";
 
 const titleColumns = {
   "Production Tracker Podcast": "D", "WTF & Nikhil Kamath IPs": "C",
-  "Calendar": null, "Dubbing Tracker": "A",
+  "Calendar": null,
 } as const;
 type Tab = keyof typeof titleColumns;
 const tabs = Object.keys(titleColumns) as Tab[];
@@ -44,7 +44,7 @@ async function readSnapshot(request: Request, expectedSheet: string): Promise<Re
           !(cell[0] === null || ["number","string","boolean"].includes(typeof cell[0])) || typeof cell[1] !== "string") reject();
     }
     const first = {"Production Tracker Podcast":"Status", "WTF & Nikhil Kamath IPs":"IP",
-      "Calendar":"Month", "Dubbing Tracker":"Episode Name"}[tab];
+      "Calendar":"Month"}[tab];
     if (sheet.cells.A1?.[0] !== first) reject();
     for (const [row, id] of Object.entries(sheet.ids ?? {})) {
       if (tab === "Calendar" || !/^[1-9]\d{0,4}$/.test(row) || Number(row)<2 || typeof id !== "string" ||
@@ -74,8 +74,8 @@ export async function previewSheet(request: Request, db: DB, tokenDigest?: strin
   catch (e) { return reply({error:e instanceof Error && e.message === "snapshot_too_large" ? "snapshot_too_large" : "invalid_sheet_snapshot"}, e instanceof Error && e.message === "snapshot_too_large" ? 413 : 400); }
   try {
     const archived = await db.prepare(`SELECT sheet,cell_ref,raw_value,raw_ooxml,formula,cached_value FROM production_source_cells
-      WHERE sheet IN (?,?,?,?) AND raw_value IS NOT NULL AND import_id=(SELECT id FROM production_imports ORDER BY imported_at DESC,id DESC LIMIT 1)`).bind(...tabs).all<Baseline>();
-    const records = await db.prepare("SELECT source_ref,title FROM production_items WHERE source_ref IS NOT NULL").all<{source_ref:string;title:string}>();
+      WHERE sheet IN (?,?,?) AND raw_value IS NOT NULL AND import_id=(SELECT id FROM production_imports ORDER BY imported_at DESC,id DESC LIMIT 1)`).bind(...tabs).all<Baseline>();
+    const records = await db.prepare("SELECT source_ref,title FROM production_items WHERE substr(source_ref,1,instr(source_ref,'!')-1) IN ('Production Tracker Podcast','WTF & Nikhil Kamath IPs')").all<{source_ref:string;title:string}>();
     const summaries = tabs.map(tab => {
       const old = new Map(archived.results.filter(r => r.sheet === tab).map(r => [r.cell_ref, archivedCell(r)]));
       if (!old.size) throw Error("missing_baseline");

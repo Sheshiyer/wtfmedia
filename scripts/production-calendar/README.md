@@ -141,12 +141,10 @@ The import's private JSON additionally retains each complete reconstructed
 month grid. Review issues should be resolved with the WTF team before any
 remote migration.
 
-## Four-tab staging preview
+## Three-tab staging preview
 
 Run `preview_staging.py --reference-xlsx <export>` with the pinned workbook
-reader and an authorized Wrangler session. For live reads, use
-`--live-sheet-id <spreadsheet-id>` and a short-lived Sheets-authorized
-`WTF_SHEETS_ACCESS_TOKEN` supplied privately to the process. The preview runs
+reader and an authorized Wrangler session. For live reads, set `GOOGLE_APPLICATION_CREDENTIALS` to the private service account JSON path and pass `--live-sheet-id <spreadsheet-id>`. The reader requests only the podcast tracker, IP tracker, and Calendar with the Sheets read-only scope. The preview runs
 SELECT against the staging D1 only. Its output is a field-value/formula
 comparison against the last imported source snapshot; coordinate differences
 are not entity actions. A missing row requires review. Calendar differences
@@ -165,7 +163,7 @@ editor's Run button. Save these Script Properties under Project Settings:
 - `WTF_STAGING_PREVIEW_TOKEN`: the staging-only preview credential supplied privately.
 
 Run `previewProductionStaging` in the editor and authorize the requested access.
-It reads the four approved tabs without editing any spreadsheet cells or columns,
+It reads the three approved tabs without editing any spreadsheet cells or columns,
 then posts the snapshot to the staging
 receiver and displays its cell differences and candidate matches in a dialog
 in the spreadsheet. The Calendar is an evaluated view, without row IDs.
@@ -175,7 +173,7 @@ relative to the last imported staging source baseline, so the same preview
 can be repeated. Spreadsheet editors have access to the bound script and
 should be trusted with its preview credential.
 
-Optional: run `enableStagingPreviewSchedule` once to install a five-minute
-**preview-only** trigger. Review runs in Apps Script Executions or reopen the
+After the manual preview succeeds, an editor may optionally create a five-minute
+**preview-only** trigger for `scheduledStagingPreview` in the Apps Script Triggers UI. Review runs in Apps Script Executions or reopen the
 WTF Production menu for the full interactive preview. Removing the trigger
 stops these previews. Applying approved matches is a separate operation.
