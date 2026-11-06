@@ -1,3 +1,8 @@
+## 2026-11-06 — Research page alignment (local)
+
+- Widened the desktop saved-briefs panel, bounded long previews, aligned the report header and made problem cards respond to the available width. The research action follows the choices in normal page flow.
+- Local Chrome fixture checks with ten saved briefs at 1600, 820 and 320 px passed. Long previews occupied two lines, desktop columns shared a top edge and all three sizes fit without horizontal scrolling. Web typecheck passed.
+
 ## 2026-11-04 — Alternate problem research deployed to staging
 
 - Owner authorized pushing all changes and staging deployment. Runtime 1f0f13d; final candidate/image pin 41d018d on feature/pavun, pushed. No production, credential or database changes.
