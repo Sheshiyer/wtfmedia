@@ -1,10 +1,11 @@
-# Staging research hosting
+# Research hosting
 
-This Worker is staging-only. `ResearchContainer` runs the existing Python engine;
+Staging and production use separate Workers, container applications and Durable Object namespaces. `ResearchContainer` runs the existing Python engine;
 `ResearchState` owns transactional SQLite job state, leases, provider receipts,
 budget reservations and deletion tombstones. The container never falls back to
-local storage when remote configuration is present. Existing app briefs remain
-in staging D1. No Alpha corpus binding or production resources are introduced.
+local storage when remote configuration is present. Each environment stores its briefs in its own D1 database.
+
+Staging uses `wrangler.jsonc`. Production uses `wrangler.production.jsonc` with the production singleton and the same verified image digest. The production Edge connects to the production runner using a separate runner token.
 
 Required Worker secrets: `RESEARCH_RUNNER_TOKEN`, `RESEARCH_STATE_TOKEN`,
 `RESEARCH_STATE_URL`, `TREG_TOKEN`, `ANTHROPIC_API_KEY`.

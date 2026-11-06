@@ -3,6 +3,7 @@ import { DurableObject } from 'cloudflare:workers';
 import { dispatch, initialize, methods, StoreError } from './store.js';
 
 interface Env {
+  RESEARCH_NAMESPACE?: string;
   RUNNER: DurableObjectNamespace<ResearchContainer>;
   STATE: DurableObjectNamespace<ResearchState>;
   RESEARCH_RUNNER_TOKEN: string;
@@ -73,17 +74,17 @@ export default {
     const path=new URL(request.url).pathname;
     if(path==='/state') {
       if(request.method!=='POST'||!await authorized(request,env.RESEARCH_STATE_TOKEN))return json({error:'unauthorized'},401);
-      return env.STATE.getByName('staging').fetch(request);
+      return env.STATE.getByName(env.RESEARCH_NAMESPACE ?? 'staging').fetch(request);
     }
     if(!await authorized(request,env.RESEARCH_RUNNER_TOKEN))return json({error:'unauthorized'},401);
     if(!((path==='/health'&&request.method==='GET')||(path==='/jobs'&&request.method==='POST')||(path==='/chat'&&request.method==='POST')||(/^\/jobs\/rrun_[0-9a-f-]{36}$/.test(path)&&['GET','DELETE'].includes(request.method))||(/^\/jobs\/rrun_[0-9a-f-]{36}\/cancel$/.test(path)&&request.method==='POST')))return json({error:'not_found'},404);
-    try{return await getContainer(env.RUNNER,'staging').fetch(request);}
+    try{return await getContainer(env.RUNNER,env.RESEARCH_NAMESPACE ?? 'staging').fetch(request);}
     catch{return json({error:'runner_unavailable'},503);}
   },
   async scheduled(_event:ScheduledController,env:Env,ctx:ExecutionContext) {
     ctx.waitUntil((async()=>{
-      if(await env.STATE.getByName('staging').active()) {
-        const response=await getContainer(env.RUNNER,'staging').fetch(new Request('http://runner/health',{headers:{authorization:'Bearer '+env.RESEARCH_RUNNER_TOKEN}}));
+      if(await env.STATE.getByName(env.RESEARCH_NAMESPACE ?? 'staging').active()) {
+        const response=await getContainer(env.RUNNER,env.RESEARCH_NAMESPACE ?? 'staging').fetch(new Request('http://runner/health',{headers:{authorization:'Bearer '+env.RESEARCH_RUNNER_TOKEN}}));
         await response.body?.cancel();
       }
     })());

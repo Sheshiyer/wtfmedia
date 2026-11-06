@@ -7,13 +7,14 @@ import { createRequire } from 'node:module';
 import { resolve, dirname } from 'node:path';
 import { mkdirSync, readFileSync, writeFileSync, cpSync, existsSync } from 'node:fs';
 const [baselinePath, outputPath, mode] = process.argv.slice(2);
-assert(!mode || mode === '--frontend-only');
+const researchFrontend = mode === '--research-frontend';
+assert(!mode || mode === '--frontend-only' || researchFrontend);
 assert(baselinePath && outputPath, 'usage: node scripts/prepare-production-youtube-multi.mjs LIVE_EDGE_JS OUTPUT_DIRECTORY');
 const root = process.cwd(), output = resolve(outputPath);
 assert(!existsSync(output), 'Output must be new');
 const hash = value => createHash('sha256').update(value).digest('hex');
 const baseline = readFileSync(baselinePath, 'utf8');
-assert.equal(hash(baseline), mode === '--frontend-only' ? '4dffbe6eda077bc69f29cd74a1689b468e83995079436e23606dad486ba1a963' : '60b21716310d7a3ed8a6d3737f96ffa2229c2c63bf1f88cc8cbb9334bb4ece3e', 'Production Edge baseline changed');
+assert.equal(hash(baseline), researchFrontend ? '279dec8ff5e650929e8cffa4dbc5b58092dde263a2ad379884fc4fee3412154a' : mode === '--frontend-only' ? '4dffbe6eda077bc69f29cd74a1689b468e83995079436e23606dad486ba1a963' : '60b21716310d7a3ed8a6d3737f96ffa2229c2c63bf1f88cc8cbb9334bb4ece3e', 'Production Edge baseline changed');
 const productionAncestor = 'ded0b4c8285996092bf4d3b410e8a52a5b268a89';
 mkdirSync(output, { recursive: true });
 execFileSync('tar', ['-x', '-C', output], { input: execFileSync('git', ['archive', productionAncestor], { maxBuffer: 150 * 1024 * 1024 }) });
@@ -90,7 +91,7 @@ writeFileSync(channelPage, readFileSync(channelPage, 'utf8').replaceAll('isBetaD
 // No research or new Production Calendar routes enter this frontend assembly.
 assert(!existsSync(resolve(output, 'web/app/beta/research')));
 
-if (mode === '--frontend-only') process.exit(0);
+if (researchFrontend || mode === '--frontend-only') process.exit(0);
 
 const require = createRequire(resolve(root, 'cloudflare/package.json'));
 const bundled = await require('esbuild').build({

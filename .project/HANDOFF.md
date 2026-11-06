@@ -1,3 +1,10 @@
+## 2026-11-06 — Research on the production apex
+
+- Added Research to the production analytics frontend and authenticated Edge API. Production Edge 62e22d19-9c43-468e-b218-63a68c3b2173 and Web 52ca2df7-3364-4714-b3d8-b7482e169ce4 received 100% traffic. Rollback versions are Edge 6b0a93eb-e95a-489f-9b9a-ae1f0c207b41 and Web 1df88d2d-ad7f-4b4a-b20e-6f66813abb6e. All 31 pre-existing Edge and six Web bindings matched before promotion. Existing triggers were preserved using version deployment.
+- Dedicated production runner wtfmedia-research version f17fb769-9633-42eb-87f7-d0c400738c8b uses the tested staging image with separate Durable Object namespaces, container and internal credentials. Authenticated health returned configured=true; unauthenticated health returned 401. Only migration 0023_research.sql applied to production after obtaining its recovery bookmark.
+- Verified the production Research page and JS bundle, research/principal APIs rejecting unsigned requests, and existing sign-in, social and YouTube analytics routes. 66 focused research tests and seven host tests passed, host typecheck and isolated production OpenNext build passed. No signed-in production report generation was exercised.
+- The supplied Payments episode already had one production YouTube identity, its published ingest receipt with 223 timestamped chunks, and five live filtered retrieval matches. No duplicate import. Connections continues to use its separate topic snapshot.
+
 ## 2026-11-06 — Automatic Production sheet sync on staging
 
 - Authorized staging-only application and polling. Dedicated scheduled Worker 43b42e41-1d56-4444-a6c0-da4300659f6e has only staging D1, its private Google credentials and workbook ID, no public route. Cloudflare verified the every-minute trigger. Google Sheets read-only API requests cover the podcast tracker, IP tracker and Calendar. No Apps Script or source workbook mutations.
