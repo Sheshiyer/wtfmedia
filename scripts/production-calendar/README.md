@@ -140,3 +140,42 @@ reconstructed from the dated source rows and shown in the month calendar.
 The import's private JSON additionally retains each complete reconstructed
 month grid. Review issues should be resolved with the WTF team before any
 remote migration.
+
+## Four-tab staging preview
+
+Run `preview_staging.py --reference-xlsx <export>` with the pinned workbook
+reader and an authorized Wrangler session. For live reads, use
+`--live-sheet-id <spreadsheet-id>` and a short-lived Sheets-authorized
+`WTF_SHEETS_ACCESS_TOKEN` supplied privately to the process. The preview runs
+SELECT against the staging D1 only. Its output is a field-value/formula
+comparison against the last imported source snapshot; coordinate differences
+are not entity actions. A missing row requires review. Calendar differences
+are derived view changes. Effective dates use spreadsheet serials.
+No blockers, team notes, contact values or full cell text are output.
+
+### Staging Apps Script setup
+
+Use a team Google account with Editor access. Add a script file in the bound
+spreadsheet's **Extensions → Apps Script** project and paste the full contents
+of `prepare_sheet_ids.gs`. Preserve any existing project code. If an
+`onOpen` function already exists, merge its menu registration or use the
+editor's Run button. Save these Script Properties under Project Settings:
+
+- `WTF_TRACKER_SPREADSHEET_ID`: the file ID between /d/ and /edit in the Sheet URL.
+- `WTF_STAGING_PREVIEW_TOKEN`: the staging-only preview credential supplied privately.
+
+Run `previewProductionStaging` in the editor during a quiet editing window
+and authorize the requested access. It prepares and hides persistent UUIDs
+in the three trackers, posts only the four allowlisted tabs to the staging
+receiver and displays its cell differences and candidate matches in a dialog
+in the spreadsheet. The Calendar is an evaluated view, without row IDs.
+The staging endpoint issues only SELECT queries. It does not retain uploads
+or write production items, blockers, or team notes. Preview differences are
+relative to the last imported staging source baseline, so the same preview
+can be repeated. Spreadsheet editors have access to the bound script and
+should be trusted with its preview credential.
+
+Optional: run `enableStagingPreviewSchedule` once to install a five-minute
+**preview-only** trigger. Review runs in Apps Script Executions or reopen the
+WTF Production menu for the full interactive preview. Removing the trigger
+stops these previews. Applying approved matches is a separate operation.

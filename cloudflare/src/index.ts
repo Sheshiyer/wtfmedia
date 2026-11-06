@@ -1,3 +1,4 @@
+import { previewSheet } from "./production-sheet-preview.ts";
 import {
   getOperatorByEmail,
   listOperators,
@@ -43,6 +44,8 @@ export interface Env extends OpsEnv {
   DB: DB;
   ALLOWED_ORIGIN: string;
   RATE_LIMIT_PER_MINUTE: string;
+  SHEET_PREVIEW_TOKEN_SHA256?: string;
+  SHEET_PREVIEW_ID_SHA256?: string;
   DEPLOYMENT_ENVIRONMENT: "production" | "staging" | "local";
   SERVICE_NAME: string;
   CATALOGUE_INDEX_NAME: string;
@@ -268,6 +271,12 @@ export default {
     }
     if (url.pathname === "/ops" || url.pathname.startsWith("/ops/") || url.pathname === "/api/ops" || url.pathname.startsWith("/api/ops/")) {
       return handleOpsRequest(request, env);
+    }
+    if (url.pathname === "/beta/api/production-sheet-preview") {
+      if (env.DEPLOYMENT_ENVIRONMENT !== "staging" || url.hostname !== "beta-staging.wtfhq.in") {
+        return reply(request, env, { error: "not_found" }, 404);
+      }
+      return previewSheet(request, env.DB, env.SHEET_PREVIEW_TOKEN_SHA256, env.SHEET_PREVIEW_ID_SHA256);
     }
     if (url.pathname.startsWith("/beta/api/")) return handleMemberRequest(request, env);
     if (url.pathname === "/v1/calendar" || url.pathname.startsWith("/v1/calendar/")) {

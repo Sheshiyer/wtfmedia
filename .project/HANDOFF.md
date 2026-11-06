@@ -1,3 +1,8 @@
+## 2026-11-06 — Four-tab Production sheet preview
+
+- Compared the owner-confirmed current XLSX against the latest staging source import using SELECT only. Differences (added/changed/removed cells): podcast 10/1/1, IP 10/34/7, Calendar 0/43/0, dubbing 0/0/0. Of 79 existing tracker-backed items, 44 have unique exact title candidates; these are review suggestions only. Coordinate changes are not record changes.
+- Added four-tab preview and bound Apps Script ID setup. Simulated ID assignment, repeat, reorder and duplicate detection using workbook row occupancy. The live Google identity lacked Sheets scope; no live ID changes, staging writes, deployment or automated sync. Private review output is in ignored .local/production-preview.
+
 ## 2026-11-06 — Research page alignment (staging)
 
 - Candidate 1b0f7ce on feature/pavun deployed to staging Web ac9decd5-7e56-49e9-a195-1352c068fcf6 at 100%. Verified the live research route references the byte-identical built layout bundle and live sign-in uses the staging Clerk issuer. Earlier desktop/mobile checks used local fixtures. Rollback Web b1afc1cd-b444-4919-b871-912a00aa8b34. Built with the established OpenNext unsupported-version override for pinned Next 15.5.24.

@@ -105,6 +105,8 @@
       // Analytics question planning only; transcript inference remains with Alpha.
       "ai": { "binding": "AI" },
       "vars": {
+        "SHEET_PREVIEW_TOKEN_SHA256": "e2d5408c62c4a340b7474a5bc4470054e162194ee4e8ce289105155b893cc2ff",
+        "SHEET_PREVIEW_ID_SHA256": "fa99b1a071a3268879a32a85f3a8702930d6be9adb2a0e603620b3a79692d953",
         "SOCIAL_ANALYTICS_ENABLED": "1",
         "RESEARCH_BUDGET_POLICY_VERSION": "1",
         "ALLOWED_ORIGIN": "https://beta-staging.wtfhq.in",
