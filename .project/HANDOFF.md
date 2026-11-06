@@ -1,5 +1,6 @@
-## 2026-11-06 — Research page alignment (local)
+## 2026-11-06 — Research page alignment (staging)
 
+- Candidate 1b0f7ce on feature/pavun deployed to staging Web ac9decd5-7e56-49e9-a195-1352c068fcf6 at 100%. Verified the live research route references the byte-identical built layout bundle and live sign-in uses the staging Clerk issuer. Earlier desktop/mobile checks used local fixtures. Rollback Web b1afc1cd-b444-4919-b871-912a00aa8b34. Built with the established OpenNext unsupported-version override for pinned Next 15.5.24.
 - Widened the desktop saved-briefs panel, bounded long previews, aligned the report header and made problem cards respond to the available width. The research action follows the choices in normal page flow.
 - Local Chrome fixture checks with ten saved briefs at 1600, 820 and 320 px passed. Long previews occupied two lines, desktop columns shared a top edge and all three sizes fit without horizontal scrolling. Web typecheck passed.
 
