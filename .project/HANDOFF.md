@@ -1,3 +1,8 @@
+## 2026-11-06 — Authenticated four-tab sheet preview on staging
+
+- Staging Edge candidate 4a6a708, deployed version f4b5756d-8dc2-4e46-9342-4e572a269c5f. Previous Edge 26156643-2b18-4060-9751-89ce510df9e5. Existing staging Web forwards the dedicated POST path through its Edge binding. Receiver validates preview credential, expected workbook, four allowed tabs and UUIDs and runs SELECT queries only.
+- 16 Production tests passed. Ran the complete script payload builder twice in a local Apps Script service harness against the supplied workbook. Posted that payload to the deployed staging URL twice with identical results: podcast 10/1/1, IP 10/34/7, Calendar 0/43/0, dubbing 0/0/0 cells added/changed/removed. Hidden IDs in the simulation: 16/14/0/111. Unsigned request returned 401 and malformed authorized request 400. Google-side editor authorization, actual Sheet ID writes and trigger installation remain owner setup. No live tracker records were changed.
+
 ## 2026-11-06 — Four-tab Production sheet preview
 
 - Compared the owner-confirmed current XLSX against the latest staging source import using SELECT only. Differences (added/changed/removed cells): podcast 10/1/1, IP 10/34/7, Calendar 0/43/0, dubbing 0/0/0. Of 79 existing tracker-backed items, 44 have unique exact title candidates; these are review suggestions only. Coordinate changes are not record changes.
