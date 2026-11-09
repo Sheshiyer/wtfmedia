@@ -1,3 +1,9 @@
+## 2026-11-09 — Workbook reference removed from staging
+
+- Owner requested the same Production-page cleanup on staging. Deployed existing candidate e471d21 (runtime UI change from 8cc1d53); no additional feature edits. Workbook reference entry point is removed and the page header no longer mentions Dubbing.
+- STAGING-DEPLOYED: Web b3171775-5d0c-4f87-a4d4-fe00400bf324 at 100%, preserving all ten bindings and compatibility settings. Edge remains 96a61783-35f4-47ad-bf49-ee941a6402f6. Production, data and both sheet schedulers unchanged. Web rollback is 4128d703-f697-463b-914b-1e95b2308956.
+- VERIFIED: isolated staging OpenNext build including lint/type checks; live custom-domain/version readback, byte-identical Production page bundle without Workbook reference, correct staging Clerk identity, and unsigned Production/principal APIs returning 401. Existing desktop/mobile component checks for this exact UI change passed during the apex promotion; no new signed-in shared-data writes. Temporary isolated build removed after verification. Changes remain local; no push requested.
+
 ## 2026-11-09 — Production calendar promoted to apex
 
 - Owner authorized moving the accepted Production page to wtfhq.in and reusing the same sheet service account in production and staging. Candidate 8cc1d53 removes the Workbook reference entry point and obsolete Dubbing wording. Calendar/Board and the shared create-episode popup remain. Changes remain local on feature/pavun; no push requested.
