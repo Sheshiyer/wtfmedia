@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
 import { ProductionBoard } from "@/components/patterns/ProductionBoard";
 import { ProductionCalendar } from "@/components/patterns/ProductionCalendar";
 import { ProductionDetails } from "@/components/domain/ops/production/ProductionDetails";
@@ -9,20 +10,16 @@ import { ProductionSourceView } from "@/components/domain/ops/production/Product
 import { Button } from "@/components/ui/Button";
 import { isoDate, shiftMonth } from "@/lib/ops/production";
 import {
-  dayLabel,
-  dubbingStatuses,
   isCalendarActionEvent,
   isProductionBoardItem,
   isProductionSnapshot,
-  optionLabel,
   productionStages,
-  safeIpColor,
   type ProductionAction,
   type ProductionEvent,
   type ProductionSnapshot,
 } from "@/lib/ops/production-data";
 
-type View = "month" | "board" | "dubbing" | "source";
+type View = "month" | "board" | "source";
 
 const filterClass = "min-h-11 min-w-[10rem] rounded-control border-2 border-foreground bg-canvas px-2.5 font-body text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention";
 
@@ -54,6 +51,16 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+
+  const createTrigger = useRef<HTMLElement | null>(null);
+  const startCreate = (day = selectedDay) => {
+    if (!snapshot?.canEdit || busy) return;
+    createTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setSelectedDay(day);
+    setCreating(true);
+    setError("");
+    setNotice("");
+  };
 
   const requestSeq = useRef(0);
   const refresh = useCallback(async (signal?: AbortSignal) => {
@@ -156,31 +163,23 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
         <div>
           <p className="font-label text-[11px] font-bold uppercase tracking-[0.1em] text-secondary">WTF production</p>
           <h2 className="font-heading text-2xl leading-tight">Calendar and production board</h2>
-          <p className="mt-1 font-body text-sm text-secondary">Shoots, releases and dubbing in one place. Select an entry to update it.</p>
+          <p className="mt-1 font-body text-sm text-secondary">Shoots and releases in one place. Select an entry to update it.</p>
         </div>
-        {snapshot.canEdit && (creating
-          ? <Button type="button" variant="ghost" onClick={() => setCreating(false)}>Cancel</Button>
-          : <Button type="button" variant="attention" onClick={() => { setSelectedItemId(null); setSelectedEventId(null); setCreating(true); setError(""); setNotice(""); }}>Add episode</Button>)}
+        {snapshot.canEdit && <Button type="button" variant="attention" onClick={() => startCreate()}>Add new episode</Button>}
       </div>
 
-      {!creating && (view === "month" || openBlockers > 0) && <div className="flex flex-wrap gap-4 border-b border-foreground/25 pb-3 font-label text-xs text-secondary">
+      {(view === "month" || openBlockers > 0) && <div className="flex flex-wrap gap-4 border-b border-foreground/25 pb-3 font-label text-xs text-secondary">
         {view === "month" && <span><strong className="text-foreground">{monthMarks}</strong> dated {monthMarks === 1 ? "mark" : "marks"} in {new Intl.DateTimeFormat("en-IN", { month: "long", year: "numeric" }).format(new Date(Date.UTC(year, month, 1)))}</span>}
-        {openBlockers > 0 && <span><strong className="text-editorial">{openBlockers}</strong> open {openBlockers === 1 ? "blocker" : "blockers"}</span>}
+        {openBlockers > 0 && <span><strong className="text-editorial">{openBlockers}</strong> active {openBlockers === 1 ? "restriction" : "restrictions"}</span>}
       </div>}
 
       {snapshot.sheetSync && <p className="font-body text-sm text-secondary">Google Sheets · last successful check {new Date(snapshot.sheetSync.checkedAt).toLocaleString()}{snapshot.sheetSync.reviewCount > 0 && ` · ${snapshot.sheetSync.reviewCount} source matches need review`}</p>}
       {error && <div role="alert" className="border-l-4 border-editorial bg-surface-raised px-4 py-3 font-body text-sm">{error}</div>}
       {notice && <p role="status" className="border-l-4 border-live bg-surface-raised px-4 py-3 font-body text-sm">{notice}</p>}
 
-      {creating ? (
-        <div className="max-w-2xl">
-          <ProductionDetails key="creating" snapshot={snapshot} selectedDay={selectedDay} selectedItemId={null} selectedEventId={null} showDayEvents={false} creating creatingDubbing={view === "dubbing"} busy={busy} standalone onSelectItem={setSelectedItemId} onSelectEvent={setSelectedEventId} onStartCreate={() => setCreating(true)} onCreated={(trackedDubbing) => { setCreating(false); setView(trackedDubbing ? "dubbing" : "board"); setIpFilter("all"); setFormatFilter("all"); setStageFilter("all"); setNotice(trackedDubbing ? "Dubbing episode saved. Add guest permissions, notes, and a confirmed go-live date in its details." : "Episode saved. Add dates and details in the selected episode panel."); }} onAction={onAction} />
-        </div>
-      ) : <>
       <nav aria-label="Production views" className="flex flex-wrap items-center gap-2">
         <Button type="button" variant={view === "month" ? "attention" : "ghost"} pressed={view === "month"} onClick={() => setView("month")}>Calendar</Button>
         <Button type="button" variant={view === "board" ? "attention" : "ghost"} pressed={view === "board"} onClick={() => setView("board")}>Board</Button>
-        <Button type="button" variant={view === "dubbing" ? "attention" : "ghost"} pressed={view === "dubbing"} onClick={() => setView("dubbing")}>Dubbing</Button>
         {snapshot.canManage && <button type="button" onClick={() => setView(view === "source" ? "month" : "source")} className="ml-auto font-label text-xs font-bold text-secondary underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention">{view === "source" ? "Back to calendar" : "Workbook reference"}</button>}
       </nav>
 
@@ -194,57 +193,31 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
       {view === "source" ? <ProductionSourceView changedAt={snapshot.sheetSync?.changedAt} fetcher={fetcher} sheets={snapshot.sourceSheets} summary={snapshot.sourceSummary} /> : (
         <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="min-w-0 space-y-5">
-            {view === "month" && <ProductionCalendar year={year} month={month} selectedDay={selectedDay} events={filteredEvents} items={filteredItems} ips={snapshot.ips} onSelectDay={(day) => { setSelectedDay(day); setSelectedEventId(null); }} onSelectEvent={selectEvent} onShift={shift} />}
+            {view === "month" && <ProductionCalendar year={year} month={month} selectedDay={selectedDay} events={filteredEvents} items={filteredItems} ips={snapshot.ips} onSelectDay={(day) => { setSelectedDay(day); setSelectedEventId(null); }} onCreateEpisode={snapshot.canEdit ? startCreate : undefined} onSelectEvent={selectEvent} onShift={shift} />}
             {view === "board" && <ProductionBoard items={boardItems} ips={snapshot.ips} events={filteredEvents} blockers={snapshot.blockers} today={todayInIndia()} onSelectItem={(id) => { setSelectedItemId(id); setSelectedEventId(null); setCreating(false); }} />}
-            {view === "dubbing" && <ProductionDubbingList snapshot={snapshot} itemIds={filteredIds} onSelectItem={(id) => { setSelectedItemId(id); setSelectedEventId(null); setCreating(false); }} />}
             <ProductionLegend ips={snapshot.ips} items={snapshot.items} canManage={snapshot.canManage} busy={busy} onAction={onAction} />
           </div>
-          <ProductionDetails key={selectedItemId ?? "new"} snapshot={snapshot} selectedDay={selectedDay} selectedItemId={selectedItemId} selectedEventId={selectedEventId} showDayEvents={view === "month"} creating={false} busy={busy} onSelectItem={(id) => { setSelectedItemId(id); setSelectedEventId(null); }} onSelectEvent={setSelectedEventId} onStartCreate={() => setCreating(true)} onAction={onAction} />
+          <ProductionDetails key={selectedItemId ?? "new"} snapshot={snapshot} selectedDay={selectedDay} selectedItemId={selectedItemId} selectedEventId={selectedEventId} showDayEvents={view === "month"} creating={false} busy={busy} onSelectItem={(id) => { setSelectedItemId(id); setSelectedEventId(null); }} onSelectEvent={setSelectedEventId} onStartCreate={() => startCreate()} onAction={onAction} />
         </div>
       )}
-      </>}
+      <Dialog.Root open={creating} onOpenChange={(open) => { if (!busy) setCreating(open); }}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-[70] bg-overlay/50" />
+          <Dialog.Content
+            className="fixed left-1/2 top-1/2 z-[71] max-h-[90dvh] w-[calc(100%_-_2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto border-2 border-foreground bg-surface-raised p-4 shadow-xl sm:p-6"
+            onCloseAutoFocus={(event) => { event.preventDefault(); createTrigger.current?.focus(); }}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <Dialog.Title className="font-heading text-2xl">Create new episode</Dialog.Title>
+              <Dialog.Close asChild><Button type="button" variant="ghost" disabled={busy} aria-label="Close create episode">×</Button></Dialog.Close>
+            </div>
+            <Dialog.Description className="mt-2 font-body text-sm text-secondary">Add an episode and its first calendar date. This saves to the app; Google Sheets is unchanged.</Dialog.Description>
+            {error && <p role="alert" className="mt-4 font-body text-sm text-editorial">{error}</p>}
+            <ProductionDetails key={`create-${selectedDay}`} snapshot={snapshot} selectedDay={selectedDay} selectedItemId={null} selectedEventId={null} showDayEvents={false} creating busy={busy} standalone onSelectItem={setSelectedItemId} onSelectEvent={setSelectedEventId} onStartCreate={() => startCreate()} onCreated={(day) => { if (day) { setSelectedDay(day); setYear(Number(day.slice(0, 4))); setMonth(Number(day.slice(5, 7)) - 1); setView("month"); } else { setView("board"); } setCreating(false); setSelectedEventId(null); setIpFilter("all"); setFormatFilter("all"); setStageFilter("all"); }} onAction={onAction} />
+            <Button type="button" variant="ghost" disabled={busy} onClick={() => setCreating(false)}>Cancel</Button>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
-  );
-}
-
-function ProductionDubbingList({ snapshot, itemIds, onSelectItem }: {
-  snapshot: ProductionSnapshot;
-  itemIds: ReadonlySet<string>;
-  onSelectItem: (id: string) => void;
-}) {
-  const [lane, setLane] = useState("all");
-  const rows = snapshot.items.filter((item) => itemIds.has(item.id) && (item.sourceRef?.startsWith("Dubbing Tracker!") || item.sourceRef === null && snapshot.dubbing.some((entry) => entry.itemId === item.id))).map((item) => {
-    const dub = snapshot.dubbing.find((entry) => entry.itemId === item.id);
-    const blockers = snapshot.blockers.filter((entry) => entry.itemId === item.id && entry.status !== "resolved");
-    const guestCount = snapshot.itemGuests.filter((entry) => entry.itemId === item.id).length;
-    const approvedGuests = snapshot.itemGuests.filter((entry) => entry.itemId === item.id && snapshot.permissions.find((permission) => permission.itemId === item.id && permission.guestId === entry.guestId)?.status === "approved").length;
-    return { item, dub, blockers, guestCount, approvedGuests };
-  }).sort((a, b) => (a.dub?.sourceRow ?? 1000) - (b.dub?.sourceRow ?? 1000) || a.item.title.localeCompare(b.item.title));
-  const visibleRows = lane === "all" ? rows : rows.filter((row) => lane === "permissions" ? row.guestCount === 0 || row.approvedGuests < row.guestCount : lane === "blocked" ? row.blockers.length > 0 || row.dub?.status === "blocked" : row.dub?.publicationStatus === lane);
-  const sourceRows = rows.filter((row) => row.dub?.sourceRow !== null && row.dub?.sourceRow !== undefined);
-  const publishedCount = rows.filter((row) => row.dub?.publicationStatus === "published").length;
-  const checkedCount = sourceRows.filter((row) => row.dub?.sourcePostedCheck === "checked").length;
-  const uncheckedCount = sourceRows.filter((row) => row.dub?.sourcePostedCheck === "unchecked").length;
-  const lanes = [{ id: "all", label: "All" }, { id: "not-published", label: "Not published" }, { id: "published", label: "Published" }, { id: "permissions", label: "Needs permission" }, { id: "blocked", label: "Blocked" }];
-  return (
-    <section aria-label="Dubbing pipeline" className="border-2 border-foreground bg-canvas">
-      <div className="border-b-2 border-foreground bg-surface-raised px-4 py-3">
-        <h2 className="font-heading text-xl">Dubbed episodes</h2>
-        <p className="font-body text-sm text-secondary">A dubbed episode is live only when a go-live date is recorded. Guest permissions and dubbing work are tracked separately in each episode.</p>
-        <div className="mt-3 flex flex-wrap gap-3 font-label text-xs"><span><strong>{publishedCount}</strong> live</span><span><strong>{rows.length - publishedCount}</strong> not published</span><span>Workbook Posted? <strong>{checkedCount}</strong> ☑ / <strong>{uncheckedCount}</strong> ☐{sourceRows.length - checkedCount - uncheckedCount > 0 ? ` / ${sourceRows.length - checkedCount - uncheckedCount} no box` : ""}</span></div>
-        <p className="mt-1 font-body text-xs text-secondary">The workbook checkbox is shown exactly as recorded. Publication comes from an actual dubbed go-live date, so a checked box with no date remains not published.</p>
-        <div className="mt-3 flex flex-wrap gap-1.5" aria-label="Dubbing views">{lanes.map((choice) => <Button key={choice.id} type="button" variant={lane === choice.id ? "attention" : "ghost"} pressed={lane === choice.id} onClick={() => setLane(choice.id)}>{choice.label}</Button>)}</div>
-      </div>
-      <div className="divide-y divide-foreground/20">
-        {visibleRows.length ? visibleRows.map(({ item, dub, blockers, guestCount, approvedGuests }) => {
-          const ip = snapshot.ips.find((candidate) => candidate.id === item.ipId);
-          const publication = dub?.publicationStatus === "published" ? `🎙️ Live ${dub.publishedOn ? dayLabel(dub.publishedOn) : ""}` : "Not published";
-          return <button type="button" key={item.id} onClick={() => onSelectItem(item.id)} className="grid w-full gap-2 border-l-[5px] px-4 py-3 text-left hover:bg-attention/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention sm:grid-cols-[minmax(12rem,1.7fr)_minmax(9rem,1fr)] sm:items-center" style={{ borderLeftColor: safeIpColor(ip?.color) } as CSSProperties}>
-            <span><span className="block font-body text-sm font-semibold">{item.title}</span><span className="font-label text-xs text-secondary">{ip?.name ?? "IP not recorded"}{dub?.sourceSection ? ` · ${dub.sourceSection === "solo" ? "Solo" : "Panel"}` : ""}</span></span>
-            <span className="font-label text-xs"><span className="block font-bold">{publication}</span>{dub?.sourceRow && <span className="block text-secondary">Workbook Posted? {dub.sourcePostedCheck === "checked" ? "☑ checked" : dub.sourcePostedCheck === "unchecked" ? "☐ unchecked" : "— no box recorded"}</span>}<span className="block text-secondary">{guestCount ? `${approvedGuests} of ${guestCount} guest permissions approved` : "Guest not identified"} · Dubbing {optionLabel(dubbingStatuses, dub?.status ?? "unknown")}</span>{dub && (dub.notes || dub.sourceNotes.length) ? <span className="block text-secondary">Notes available in episode details</span> : null}{blockers[0] && <span className="block text-editorial">Blocked: {blockers[0].reason}</span>}</span>
-          </button>;
-        }) : <p className="p-6 font-body text-sm text-secondary">No items match this dubbing view.</p>}
-      </div>
-    </section>
   );
 }

@@ -211,11 +211,17 @@ async function mutate(env: ProductionEnv, context: OperatorContext, body: Mutati
       entityId = `pitem_${crypto.randomUUID()}`; entityType = "item";
       const insertItem = db.prepare("INSERT INTO production_items (id, ip_id, title, format, stage, owner, notes, shoot_location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
         .bind(entityId, ipId, title, format, stage, owner, notes ?? "", shootLocation ?? null);
-      if (trackDubbing) {
-        await db.batch([insertItem, db.prepare("INSERT INTO production_dubbing (item_id, target_language, status, notes) VALUES (?, 'Hindi', 'pending', '')").bind(entityId)]);
-      } else {
-        await insertItem.run();
+      const initialEvent = data.initialEvent === undefined ? null : record(data.initialEvent);
+      if (data.initialEvent !== undefined && (!initialEvent || !validDay(initialEvent.day)
+        || !choice(initialEvent.kind, eventKinds) || !choice(initialEvent.dateState ?? "planned", dateStates))) {
+        return json({ error: "invalid_event" }, 400);
       }
+      const statements = [insertItem];
+      if (trackDubbing) statements.push(db.prepare("INSERT INTO production_dubbing (item_id, target_language, status, notes) VALUES (?, 'Hindi', 'pending', '')").bind(entityId));
+      if (initialEvent) statements.push(db.prepare("INSERT INTO production_events (id, item_id, kind, day, date_state, owner, notes) VALUES (?, ?, ?, ?, ?, ?, ?)")
+        .bind(`pevt_${crypto.randomUUID()}`, entityId, initialEvent.kind, initialEvent.day, initialEvent.dateState ?? "planned", owner, ""));
+      // D1 batches are transactional: the first date cannot outlive a failed episode save.
+      await db.batch(statements);
     } else if (action === "update_item") {
       entityId = string(data.id, 90) ?? ""; entityType = "item";
       const ipId = data.ipId === null ? null : string(data.ipId, 80);

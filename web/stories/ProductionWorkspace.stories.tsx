@@ -18,8 +18,7 @@ export const EmptyChrome: Story = {
     await expect(canvas.queryByText("Workbook reference")).not.toBeInTheDocument();
     await userEvent.click(canvas.getByRole("button", { name: "Board", exact: true }));
     await expect(canvas.getByText("0 episodes", { exact: true })).toBeVisible();
-    await userEvent.click(canvas.getByRole("button", { name: "Dubbing", exact: true }));
-    await expect(canvas.getByRole("button", { name: "Dubbing", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await expect(canvas.queryByRole("button", { name: "Dubbing", exact: true })).not.toBeInTheDocument();
   },
   render: () => (
     <div className="bg-canvas p-6">

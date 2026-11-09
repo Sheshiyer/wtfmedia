@@ -20,6 +20,7 @@ type CalendarProps = {
   items: readonly ProductionItem[];
   ips: readonly ProductionIp[];
   onSelectDay: (day: string) => void;
+  onCreateEpisode?: (day: string) => void;
   onSelectEvent: (event: ProductionEvent) => void;
   onShift: (delta: number) => void;
 };
@@ -32,6 +33,7 @@ export function ProductionCalendar({
   items,
   ips,
   onSelectDay,
+  onCreateEpisode,
   onSelectEvent,
   onShift,
 }: CalendarProps) {
@@ -79,6 +81,7 @@ export function ProductionCalendar({
                 itemById={itemById}
                 ipById={ipById}
                 onSelectDay={onSelectDay}
+                onCreateEpisode={onCreateEpisode}
                 onSelectEvent={onSelectEvent}
               />
             ))}
@@ -96,6 +99,7 @@ function CalendarDay({
   itemById,
   ipById,
   onSelectDay,
+  onCreateEpisode,
   onSelectEvent,
 }: {
   cell: MonthCell;
@@ -104,6 +108,7 @@ function CalendarDay({
   itemById: ReadonlyMap<string, ProductionItem>;
   ipById: ReadonlyMap<string, ProductionIp>;
   onSelectDay: (day: string) => void;
+  onCreateEpisode?: (day: string) => void;
   onSelectEvent: (event: ProductionEvent) => void;
 }) {
   const shown = events.slice(0, 3);
@@ -115,14 +120,14 @@ function CalendarDay({
     ].join(" ")}>
       <button
         type="button"
-        onClick={() => onSelectDay(cell.iso)}
-        aria-label={`${cell.iso}, ${events.length} production ${events.length === 1 ? "event" : "events"}`}
+        onClick={() => { onSelectDay(cell.iso); onCreateEpisode?.(cell.iso); }}
+        aria-label={`${onCreateEpisode ? "Add episode on " : ""}${cell.iso}, ${events.length} production ${events.length === 1 ? "event" : "events"}`}
         aria-pressed={selected}
-        className="flex min-h-8 min-w-8 items-center justify-center rounded-control font-heading text-lg tabular-nums text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention hover:bg-surface-subtle"
+        className="absolute inset-0 flex items-start justify-start p-2 font-heading text-lg tabular-nums text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-attention hover:bg-attention/10"
       >
         {cell.day}
       </button>
-      <div className="mt-1 space-y-1">
+      <div className="pointer-events-none relative mt-8 space-y-1 [&_button]:pointer-events-auto">
         {shown.map((event) => {
           const item = itemById.get(event.itemId);
           const ip = item?.ipId ? ipById.get(item.ipId) : undefined;

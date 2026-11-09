@@ -77,7 +77,7 @@ export function ProductionBoard({
                     {item.sourceMarker === "not-live" && <span className="mt-1 block font-label text-xs text-secondary">⭕️ Not Live in the workbook</span>}
                     {highlight && <span className="mt-2 block font-label text-xs text-secondary"><ProductionActionBadge kind={highlight.kind} /> · {dayLabel(highlight.day)}</span>}
                     {item.owner && <span className="mt-1 block font-label text-xs text-secondary" title={item.owner}>Lead: {item.owner}</span>}
-                    {openBlocks.length > 0 && <span className="mt-2 inline-block border border-editorial px-1.5 py-0.5 font-label text-[11px] font-bold text-editorial">{openBlocks.length} {openBlocks.length === 1 ? "blocker" : "blockers"}</span>}
+                    {openBlocks.length > 0 && <span className="mt-2 inline-block border border-editorial px-1.5 py-0.5 font-label text-[11px] font-bold text-editorial">{openBlocks.length} {openBlocks.length === 1 ? "restriction" : "restrictions"}</span>}
                   </button>
                 );
               })}

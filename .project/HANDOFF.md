@@ -1,3 +1,10 @@
+## 2026-11-09 — Production episode popup and simplified controls
+
+- Owner requested staging deployment. Local feature/pavun changes remove the Dubbing view and episode dubbing/permission editor, rename visible blocker/stage labels to Restricted/restrictions, and preserve stored dubbing data and existing source calendar history.
+- Calendar date cells and Add new episode open the same accessible modal. Selected dates are prefilled, date type is selectable, and an empty date permits an unscheduled episode. Existing event cards still select their episode; read-only users cannot open creation. Errors retain the form; cancellation does not save. Focus returns to the opener.
+- Optional first date is validated before writes and saved with the episode in a transactional D1 batch. Existing create_item clients remain compatible. App-created episodes do not write to Google Sheets. No migrations or sync scheduler changes.
+- VERIFIED-SOURCE: full Edge suite 634/634, web typecheck and lint, four isolated Chrome desktop/mobile checks pass. Checks cover real component interactions with mocked API responses, not signed-in staging acceptance. Staging build/deployment receipt follows.
+
 ## 2026-11-06 — Production research model access
 
 - The reported production Elon Musk run failed at resolve with Anthropic HTTP 403. The serving instance was in hkg11. The same configured credential and model returned HTTP 200 in a minimal direct call. Placement is the likely explanation; the provider response body was not retained.

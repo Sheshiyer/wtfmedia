@@ -183,14 +183,14 @@ export const productionStages = [
   { id: "post-production", label: "Post-production" },
   { id: "ready", label: "Ready" },
   { id: "published", label: "Published" },
-  { id: "blocked", label: "Blocked" },
+  { id: "blocked", label: "Restricted" },
   { id: "archived", label: "Archived" },
 ] as const;
 
 export const dubbingStatuses = [
   { id: "unknown", label: "Unknown" },
   { id: "pending", label: "Pending" },
-  { id: "blocked", label: "Blocked" },
+  { id: "blocked", label: "Restricted" },
   { id: "ready", label: "Ready to dub" },
   { id: "in-progress", label: "In progress" },
   { id: "dubbed", label: "Dubbed" },

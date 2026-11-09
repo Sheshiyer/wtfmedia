@@ -260,3 +260,27 @@ test("contact-shaped guest fields are flagged without disclosing the raw value t
   const managerView = await (await handleProductionCalendarRequest(request(), env, admin)).json();
   assert.equal(managerView.guests.find((guest) => guest.id === "contact-guest").name, "person@example.com");
 });
+
+test("episode creation includes a validated first date in one transaction", async () => {
+  const data = { ipId: "wtf-is", title: "Calendar popup episode", format: "panel", stage: "planned", owner: "Editor", notes: "", shootLocation: null, initialEvent: { kind: "shoot", day: "2026-11-09", dateState: "planned" } };
+  const response = await handleProductionCalendarRequest(request("POST", { action: "create_item", data }), env, editor);
+  assert.equal(response.status, 201);
+  const { id } = await response.json();
+  const event = database.prepare("SELECT kind, day, date_state, owner FROM production_events WHERE item_id=?").get(id);
+  assert.deepEqual({ ...event }, { kind: "shoot", day: "2026-11-09", date_state: "planned", owner: "Editor" });
+  assert.equal(database.prepare("SELECT source_ref FROM production_items WHERE id=?").get(id).source_ref, null);
+
+  const count = database.prepare("SELECT COUNT(*) AS n FROM production_items").get().n;
+  for (const initialEvent of [null, {}, { ...data.initialEvent, day: "2026-02-30" }, { ...data.initialEvent, kind: "invalid" }]) {
+    const invalid = await handleProductionCalendarRequest(request("POST", { action: "create_item", data: { ...data, initialEvent } }), env, editor);
+    assert.equal(invalid.status, 400);
+    assert.equal(database.prepare("SELECT COUNT(*) AS n FROM production_items").get().n, count);
+  }
+
+  database.exec("CREATE TEMP TRIGGER reject_initial_date BEFORE INSERT ON production_events WHEN NEW.day='2026-11-10' BEGIN SELECT RAISE(ABORT, 'test event failure'); END");
+  try {
+    const failed = await handleProductionCalendarRequest(request("POST", { action: "create_item", data: { ...data, initialEvent: { ...data.initialEvent, day: "2026-11-10" } } }), env, editor);
+    assert.equal(failed.status, 500);
+    assert.equal(database.prepare("SELECT COUNT(*) AS n FROM production_items").get().n, count);
+  } finally { database.exec("DROP TRIGGER reject_initial_date"); }
+});
