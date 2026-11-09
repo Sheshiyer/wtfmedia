@@ -6,11 +6,11 @@
   "properties": {
     "local": {
       "type": "object",
-      "required": ["d1_binding", "access_application_ref", "access_audience_ref", "origin_proof_secret_ref", "cache_namespace_ref", "protected_backend"],
+      "required": ["d1_binding", "clerk_instance_ref", "clerk_authorized_parties_ref", "origin_proof_secret_ref", "cache_namespace_ref", "protected_backend"],
       "properties": {
         "d1_binding": { "const": "OPS_DB_LOCAL" },
-        "access_application_ref": { "const": "OPS_ACCESS_APPLICATION_LOCAL" },
-        "access_audience_ref": { "const": "OPS_ACCESS_AUDIENCE_LOCAL" },
+        "clerk_instance_ref": { "const": "OPS_CLERK_INSTANCE_LOCAL" },
+        "clerk_authorized_parties_ref": { "const": "OPS_CLERK_AUTHORIZED_PARTIES_LOCAL" },
         "origin_proof_secret_ref": { "const": "OPS_ORIGIN_PROOF_LOCAL" },
         "cache_namespace_ref": { "const": "OPS_CACHE_LOCAL" },
         "protected_backend": { "const": true }
@@ -18,11 +18,11 @@
     },
     "staging": {
       "type": "object",
-      "required": ["d1_binding", "access_application_ref", "access_audience_ref", "origin_proof_secret_ref", "cache_namespace_ref", "protected_backend"],
+      "required": ["d1_binding", "clerk_instance_ref", "clerk_authorized_parties_ref", "origin_proof_secret_ref", "cache_namespace_ref", "protected_backend"],
       "properties": {
         "d1_binding": { "const": "OPS_DB_STAGING" },
-        "access_application_ref": { "const": "OPS_ACCESS_APPLICATION_STAGING" },
-        "access_audience_ref": { "const": "OPS_ACCESS_AUDIENCE_STAGING" },
+        "clerk_instance_ref": { "const": "OPS_CLERK_INSTANCE_STAGING" },
+        "clerk_authorized_parties_ref": { "const": "OPS_CLERK_AUTHORIZED_PARTIES_STAGING" },
         "origin_proof_secret_ref": { "const": "OPS_ORIGIN_PROOF_STAGING" },
         "cache_namespace_ref": { "const": "OPS_CACHE_STAGING" },
         "protected_backend": { "const": true }
@@ -30,11 +30,11 @@
     },
     "production": {
       "type": "object",
-      "required": ["d1_binding", "access_application_ref", "access_audience_ref", "origin_proof_secret_ref", "cache_namespace_ref", "protected_backend"],
+      "required": ["d1_binding", "clerk_instance_ref", "clerk_authorized_parties_ref", "origin_proof_secret_ref", "cache_namespace_ref", "protected_backend"],
       "properties": {
         "d1_binding": { "const": "OPS_DB_PRODUCTION" },
-        "access_application_ref": { "const": "OPS_ACCESS_APPLICATION_PRODUCTION" },
-        "access_audience_ref": { "const": "OPS_ACCESS_AUDIENCE_PRODUCTION" },
+        "clerk_instance_ref": { "const": "OPS_CLERK_INSTANCE_PRODUCTION" },
+        "clerk_authorized_parties_ref": { "const": "OPS_CLERK_AUTHORIZED_PARTIES_PRODUCTION" },
         "origin_proof_secret_ref": { "const": "OPS_ORIGIN_PROOF_PRODUCTION" },
         "cache_namespace_ref": { "const": "OPS_CACHE_PRODUCTION" },
         "protected_backend": { "const": true }

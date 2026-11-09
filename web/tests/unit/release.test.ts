@@ -3,12 +3,12 @@ import {
   parseAuthenticatedChatRelease,
   releaseControlAccess,
 } from "@/lib/ops/release";
-import { accessLoginUrl } from "@/lib/ops/access-url";
+import { clerkLoginUrl } from "@/lib/ops/clerk-url";
 
 describe("authenticated chat release projection", () => {
-  it("returns a fixed same-origin Access login target for Beta", () => {
-    expect(accessLoginUrl()).toBe(
-      "/cdn-cgi/access/login?redirect_url=%2Fops%2Fsettings%3FreleaseTrack%3Dbeta",
+  it("returns a fixed same-origin Clerk login target for Beta", () => {
+    expect(clerkLoginUrl()).toBe(
+      "/sign-in?redirect_url=%2Fops%2Fsettings%3FreleaseTrack%3Dbeta",
     );
   });
 

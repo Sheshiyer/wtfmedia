@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useOperatorContext } from "./OperatorContextProvider";
+import { formatOpsRole, formatVerifiedTime } from "@/lib/ops/display";
 
 export function OperatorAdministrationPanel() {
   const context = useOperatorContext();
@@ -31,6 +32,56 @@ export function OperatorAdministrationPanel() {
         </span>
       </div>
 
+      <section
+        className="mt-5 border-2 border-foreground bg-canvas p-4 sm:p-5"
+        aria-labelledby="operator-access-context-title"
+        data-operator-access-context
+      >
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b-2 border-foreground/20 pb-3">
+          <div>
+            <p className="font-label text-[10px] font-bold uppercase tracking-[0.14em] text-muted">
+              verified request
+            </p>
+            <h3 id="operator-access-context-title" className="mt-1 font-heading text-xl font-bold lowercase">
+              access boundary
+            </h3>
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground/30 bg-surface-subtle px-2 py-1 font-label text-[9px] font-bold uppercase tracking-[0.1em] text-secondary">
+            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-live" />
+            server readback
+          </span>
+        </div>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-secondary">
+          This is the verified identity and scope used to admit this operator surface. It is kept with access evidence, not repeated in the settings directory.
+        </p>
+        <dl className="mt-4 grid gap-x-5 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <dt className="font-label text-[10px] font-bold uppercase tracking-[0.12em] text-muted">environment</dt>
+            <dd className="mt-1 font-body text-sm font-semibold lowercase text-foreground">{context.environment}</dd>
+          </div>
+          <div>
+            <dt className="font-label text-[10px] font-bold uppercase tracking-[0.12em] text-muted">workspace</dt>
+            <dd className="mt-1 font-body text-sm font-semibold lowercase text-foreground">{context.workspace}</dd>
+          </div>
+          <div>
+            <dt className="font-label text-[10px] font-bold uppercase tracking-[0.12em] text-muted">organization scope</dt>
+            <dd className="mt-1">
+              <span className="inline-flex min-h-7 items-center border-2 border-foreground/40 bg-surface-raised px-1.5 font-label text-[10px] font-bold uppercase tracking-[0.08em] text-secondary">
+                {context.organizationScope}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt className="font-label text-[10px] font-bold uppercase tracking-[0.12em] text-muted">effective role</dt>
+            <dd className="mt-1 font-body text-sm font-semibold lowercase text-foreground">{formatOpsRole(context.role)}</dd>
+          </div>
+          <div>
+            <dt className="font-label text-[10px] font-bold uppercase tracking-[0.12em] text-muted">last verified</dt>
+            <dd className="mt-1 font-body text-sm font-semibold tabular-nums text-foreground">{formatVerifiedTime(context.lastVerifiedAt)}</dd>
+          </div>
+        </dl>
+      </section>
+
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
         <div className="border-2 border-foreground bg-canvas p-4">
           <p className="font-label text-[11px] font-bold uppercase tracking-[0.1em] text-muted">roster read</p>
@@ -49,7 +100,7 @@ export function OperatorAdministrationPanel() {
       <p className="mt-5 border-l-4 border-information bg-canvas px-4 py-3 text-sm leading-relaxed text-secondary">
         {verified
           ? "Open the protected operator workspace for the live roster, role, deactivation, and single-super-admin readbacks. Every mutation must return a server readback and audit event."
-          : "Sign in through the approved Cloudflare Access path to reveal roster details. Public-link mode intentionally shows no operator records or mutation controls."}
+          : "Sign in through the approved Clerk path to reveal roster details. Public-link mode intentionally shows no operator records or mutation controls."}
       </p>
 
       <Link href="/ops/operators" className="mt-5 inline-flex min-h-11 items-center border-2 border-foreground bg-canvas px-4 py-3 font-label text-sm font-bold lowercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-information">

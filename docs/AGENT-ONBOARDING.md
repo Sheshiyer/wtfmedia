@@ -31,13 +31,20 @@ The web app uses the App Router with two audience surfaces:
 | Surface | Routes | Auth |
 |---|---|---|
 | Public | `/`, `/chat`, `/episodes`, `/connections` | None |
-| Operator | `/ops/*`, `/api/ops/*` | Cloudflare Access |
+| Operator | `/ops/*`, `/api/ops/*` | Clerk session + D1 operator roster |
 | Recovery | `/sign-in`, `/request-access`, `/ops/recover` | None |
 
 Middleware (`web/middleware.ts`) injects auth headers (`x-wtf-ops-context`,
 `x-wtf-ops-proof`) for operator routes and tags each request with
 `x-wtf-route-kind` so the root layout can choose between the public shell and
 operator shell.
+
+Clerk owns the browser session for the operator Beta. The edge Worker verifies
+the Clerk JWT from the `Authorization` header or `__session` cookie against the
+configured issuer and JWKS, then requires the existing normalized-email match
+to an active D1 operator row before applying the unchanged RBAC policy. The
+credential is stripped before the origin handoff; no Clerk role claim or
+browser state is treated as authorization. The public Alpha remains anonymous.
 
 ## Current production surface
 
@@ -112,6 +119,14 @@ resolved and receipted.
 The beta track adds authenticated features (server-side RAG, persisted chat,
 consolidation panels) that do not regress the public production path. The
 alpha track adds retrieval and UI improvements to the public surface.
+
+The invite-only company member Beta is a separate, staging-only `/beta` lane:
+it requires both Clerk verification and an active D1 member invitation record.
+Bangalore is the first cohort in one shared company workspace. Members own
+their private archive-only chat and explicit saved memory; the operator roster
+may manage membership lifecycle but never exposes member content. Its dedicated
+member-Beta manifest begins paused, cannot enable production, and does not
+change anonymous `/chat` or `/api/chat`.
 
 ## Ingest safety rule
 

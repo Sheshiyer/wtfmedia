@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export type AuditLedgerRow = {
   timestamp: string;
   subject: string;
@@ -83,7 +85,11 @@ export function AuditLedger({
                 <td className="p-3">{row.subject}</td>
                 <td className="p-3">{row.role}</td>
                 <td className="p-3">{row.action}</td>
-                <td className="p-3">{row.entityType}:{row.entityId}</td>
+                <td className="p-3">
+                  {row.action === "protected_search" && row.entityId.startsWith("cnv_") ? (
+                    <Link href={`/chat/${encodeURIComponent(row.entityId)}-operator`} className="underline underline-offset-2">{row.entityType}:{row.entityId}</Link>
+                  ) : `${row.entityType}:${row.entityId}`}
+                </td>
                 <td className="p-3">{row.outcome}</td>
                 <td className="p-3">{row.environment}</td>
                 <td className="p-3 font-mono text-xs">{row.correlationId}</td>

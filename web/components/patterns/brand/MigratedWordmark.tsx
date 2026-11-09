@@ -20,6 +20,13 @@ const sizeClass: Record<WordmarkSize, string> = {
   xl: "h-24 w-auto sm:h-28",
 };
 
+const sizeAttributes: Record<WordmarkSize, { width: number; height: number }> = {
+  mini: { width: 110, height: 40 },
+  md: { width: 155, height: 56 },
+  lg: { width: 220, height: 80 },
+  xl: { width: 310, height: 112 },
+};
+
 export function MigratedWordmark({
   className = "",
   size = "xl",
@@ -33,7 +40,9 @@ export function MigratedWordmark({
   plate?: boolean;
   size?: WordmarkSize | string;
 }) {
-  const height = sizeClass[size as WordmarkSize] ?? sizeClass.xl;
+  const resolvedSize = (size as WordmarkSize) in sizeClass ? size as WordmarkSize : "xl";
+  const height = sizeClass[resolvedSize];
+  const dimensions = sizeAttributes[resolvedSize];
   void withSparkles;
   const image = (
     // The authored public URL is a Storybook contract for this brand raster.
@@ -42,6 +51,8 @@ export function MigratedWordmark({
       data-wtfos-wordmark
       src={WORDMARK_SRC}
       alt={WORDMARK_ALT}
+      width={dimensions.width}
+      height={dimensions.height}
       className={`select-none ${height} ${className}`}
     />
   );
@@ -64,6 +75,8 @@ export function MigratedWordmarkMini({
       data-wtfos-wordmark-mini
       src={WORDMARK_SRC}
       alt={WORDMARK_ALT}
+      width={sizeAttributes.mini.width}
+      height={sizeAttributes.mini.height}
       className={`h-9 w-auto select-none sm:h-10 ${className}`}
     />
   );

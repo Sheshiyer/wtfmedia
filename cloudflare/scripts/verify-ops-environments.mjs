@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 const schemaPath = resolve(import.meta.dirname, "../config/ops-environments.schema.json");
 const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
 const environments = ["local", "staging", "production"];
-const fields = ["d1_binding", "access_application_ref", "access_audience_ref", "origin_proof_secret_ref", "cache_namespace_ref"];
+const fields = ["d1_binding", "clerk_instance_ref", "clerk_authorized_parties_ref", "origin_proof_secret_ref", "cache_namespace_ref"];
 const values = new Set();
 
 for (const environment of environments) {

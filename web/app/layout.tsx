@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { ClerkProvider } from "@clerk/nextjs";
 import { appUiVariant, themeForAppUiVariant } from "@/lib/public/public-ui-variant";
 import { LegacyPublicShell } from "@/components/legacy/public/LegacyPublicShell";
 import { PublicShell } from "@/components/patterns/PublicShell";
@@ -48,7 +49,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const Shell = variant === "wtfos" ? PublicShell : LegacyPublicShell;
   const requestHeaders = await headers();
   const routeKind = requestHeaders.get("x-wtf-route-kind");
-  const isOperatorRoute = routeKind === "ops" || routeKind === "ops-recovery";
+  const isOperatorRoute = routeKind === "ops" || routeKind === "ops-recovery" || routeKind === "beta";
+  const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim();
+  const page = isOperatorRoute ? (
+    children
+  ) : (
+    <>
+      {variant === "wtfos" && <WtfOsBoot />}
+      <Shell>{children}</Shell>
+    </>
+  );
 
   return (
     <html
@@ -57,14 +67,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       data-wtf-theme={themeForAppUiVariant(variant)}
     >
       <body className="min-h-screen flex flex-col overflow-x-hidden">
-        {isOperatorRoute ? (
-          children
-        ) : (
-          <>
-            {variant === "wtfos" && <WtfOsBoot />}
-            <Shell>{children}</Shell>
-          </>
-        )}
+        {clerkPublishableKey ? <ClerkProvider publishableKey={clerkPublishableKey}>{page}</ClerkProvider> : page}
       </body>
     </html>
   );

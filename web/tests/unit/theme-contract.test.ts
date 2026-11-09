@@ -18,7 +18,11 @@ const APP_SHELL = read("components/shells/AppShell.tsx");
 const BOOT = read("components/patterns/brand/WtfOsBoot.tsx");
 const WORDMARK = read("components/patterns/brand/MigratedWordmark.tsx");
 const APP_RAIL = read("components/shells/AppRail.tsx");
+const THEME_TOGGLE = read("components/patterns/ThemeToggle.tsx");
 const ACCESS_RECOVERY = read("components/domain/ops/AccessRecovery.tsx");
+const AUTH_FRAME = read("components/domain/ops/OperatorAuthFrame.tsx");
+const STAGGERED_TEXT = read("components/patterns/brand/WtfStaggeredText.tsx");
+const MOTION_LIST = read("components/patterns/brand/WtfMotionList.tsx");
 const GLOBALS = read("app/globals.css");
 
 type Rgb = { r: number; g: number; b: number };
@@ -175,6 +179,16 @@ describe("adaptive WTF OS theme contract", () => {
     expect(MOTION).not.toContain("data-public-ui-variant");
   });
 
+  it("keeps the user theme control deterministic, accessible, and client-persisted", () => {
+    expect(APP_RAIL).toContain("ThemeToggle");
+    expect(THEME_TOGGLE).toContain('data-theme-toggle');
+    expect(THEME_TOGGLE).toContain('data-theme-option="light"');
+    expect(THEME_TOGGLE).toContain('data-theme-option="dark"');
+    expect(THEME_TOGGLE).toContain("aria-pressed");
+    expect(THEME_TOGGLE).toContain("localStorage");
+    expect(THEME_TOGGLE).toContain("document.documentElement.dataset.wtfTheme");
+  });
+
   it("maps semantic Tailwind colors through RGB channels so alpha utilities compile", () => {
     for (const [utility, variable] of [
       ["canvas", "canvas"],
@@ -218,6 +232,7 @@ describe("adaptive WTF OS theme contract", () => {
   it("uses the approved transparent wordmark rather than an opaque splash video", () => {
     expect(BOOT).toContain('<MigratedWordmark size="xl" plate />');
     expect(BOOT).toContain("skip");
+    expect(BOOT).toContain("receipts become actions");
     expect(BOOT).toContain("BOOT_STORAGE_KEY");
     expect(BOOT).toContain("wtfos-bg-still.jpg");
     expect(BOOT).not.toContain("<video");
@@ -228,11 +243,22 @@ describe("adaptive WTF OS theme contract", () => {
   it("gives the opaque wordmark letters a contrasting plate on every structural surface", () => {
     expect(WORDMARK).toContain("wtf-wordmark-plate");
     expect(APP_RAIL).toContain("<MigratedWordmarkMini plate />");
-    expect(ACCESS_RECOVERY).toContain('<MigratedWordmark size="lg" plate />');
+    expect(AUTH_FRAME).toContain('<MigratedWordmark size="md" plate />');
+    expect(ACCESS_RECOVERY).toContain("<OperatorAuthFrame");
     expect(block(GLOBALS, ".wtf-wordmark-plate")).toContain(
       "background: var(--wtf-surface-raised);",
     );
     expect(GLOBALS).toContain('html[data-wtf-theme="dark"] .wtf-wordmark-plate');
     expect(GLOBALS).toContain(".wtf-wordmark-plate");
+  });
+
+  it("keeps the operator handoff explicit and motion-safe", () => {
+    expect(AUTH_FRAME).toContain("data-operator-auth");
+    expect(AUTH_FRAME).toContain("server-resolved role");
+    expect(AUTH_FRAME).toContain("public alpha");
+    expect(STAGGERED_TEXT).toContain("useReducedMotion");
+    expect(MOTION_LIST).toContain("useReducedMotion");
+    expect(STAGGERED_TEXT).toContain("translateY");
+    expect(MOTION_LIST).toContain("translateX");
   });
 });

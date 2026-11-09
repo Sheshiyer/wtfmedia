@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useOperatorContext } from "@/components/domain/ops/OperatorContextProvider";
-import { accessLoginUrl } from "@/lib/ops/access-url";
+import { clerkLoginUrl } from "@/lib/ops/clerk-url";
 import {
   authenticatedChatReleaseStates,
   authenticatedChatReleaseTracks,
@@ -270,7 +270,7 @@ export function ReleaseControl() {
           <Button
             type="button"
             variant="attention"
-            onClick={() => window.location.assign(accessLoginUrl())}
+            onClick={() => window.location.assign(clerkLoginUrl())}
             data-release-beta-login
           >
             sign in for beta

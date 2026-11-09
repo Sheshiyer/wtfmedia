@@ -4,14 +4,14 @@
 
 This is an additive mini-phase under the `03-00` release-safe integration
 gate. Its local implementation is authorized and remains feature-off. It does
-not authorize an Access policy change, remote D1 migration, deployment,
+not authorize a Clerk policy/configuration change, remote D1 migration, deployment,
 production data write, or public-route change. Existing `03-01`–`03-06` plans
 remain retained and unchanged.
 
 ## Goal
 
-An approved WTF operator can sign in through the Cloudflare Zero Trust Access
-application, use the authenticated `/ops` operator system and its
+An approved WTF operator can sign in through the Clerk operator Beta, use the
+authenticated `/ops` operator system and its
 `/chat/{conversation_id}-{username}` conversation deep link, and return later
 to the same conversation history. Every conversation and message is owned by
 the server-resolved operator identity. Anonymous `/chat` and `/api/chat` remain
@@ -20,12 +20,12 @@ citation contracts.
 
 ## Current repository evidence
 
-- `cloudflare/src/auth/access.ts` verifies the Access JWT assertion's issuer,
-  audience, signature, expiry, and normalized email.
+- `cloudflare/src/auth/clerk.ts` verifies the Clerk session JWT's issuer,
+  signature, expiry, authorized party, and normalized email.
 - `cloudflare/src/ops-router.ts` resolves that verified identity against the
   active D1 operator roster and applies deny-by-default policy before origin
   handoff.
-- `web/lib/auth/session.ts` correctly treats Cloudflare Access as the
+- `web/lib/auth/session.ts` correctly treats Clerk as the
   authentication authority and does not issue a WTF application auth cookie.
 - `web/app/api/chat/route.ts` currently forwards only the public chat question,
   source mode, and optional episode scope to the edge service; it persists no
@@ -35,41 +35,39 @@ citation contracts.
   wave; local migration `0006` now provides conversation/message history and
   local migration `0007` provides the staging/local release manifest.
 
-Therefore Access is integrated as a source-level operator boundary, and this
+Therefore Clerk is integrated as a source-level operator boundary, and this
 bounded wave adds feature-off local persistence plus the local/staging release
 control contract without live verification. The mini-phase remains incomplete
 until authenticated API coverage, browser evidence, staging rollback, and live
-Access precedence are proven; public routes remain unchanged.
+Clerk session/MFA precedence are proven; public routes remain unchanged.
 
 ## Proposed boundary
 
 ### Authentication and identity
 
 Protect the `/chat/{conversation_id}-{username}` deep link and
-`/ops/api/chat/*` with the existing Cloudflare Access self-hosted application
-path. The Worker validates
-`Cf-Access-Jwt-Assertion`; client-supplied identity headers, email fields,
+`/ops/api/chat/*` with the Clerk operator session. The Worker validates the
+Clerk bearer credential or `__session` cookie; client-supplied identity headers, email fields,
 role fields, and conversation owner fields are never authority. The verified
 identity resolves to an active D1 operator and the application stores the
 server-owned `operator_id`, not a browser token.
 
-The exact application path shape is owner-approved; the external Access
-hostname, allowlist expression, and deployed policy receipt remain activation
-evidence and are not configured by this local wave. The recognized active D1
+The exact authorized-party value, Clerk instance, and deployed policy receipt
+remain activation evidence and are not configured by this local wave. The recognized active D1
 operator roles remain `super_admin`, `admin`, and `editor`, subject to the
 existing deny-by-default capability policy.
 
-Owner decision: target a 720-hour (30-day) Cloudflare Access application and
-matching policy session. Global or MFA-specific Access settings must not reduce
+Owner decision: target a 720-hour (30-day) Clerk session and matching
+instance policy. Global or MFA-specific Clerk settings must not reduce
 this to a daily OTP cycle without an explicit activation exception. “Long
-horizon” means conversation history survives Access logout and later
+horizon” means conversation history survives Clerk logout and later
 reauthentication; it does not mean creating a long-lived WTF auth token or
-extending a cookie beyond the owner's Access policy.
+extending a cookie beyond the owner's Clerk instance policy.
 
 The owner-facing authenticated conversation deep link is
 `/chat/{conversation_id}-{username}`, reached through the existing `/ops`
 authorization system. The conversation ID and username slug are navigation
-identifiers only; server-resolved Access/D1 identity owns authorization. The
+identifiers only; server-resolved Clerk/D1 identity owns authorization. The
 anonymous `/chat` root remains public and stateless.
 
 ### Conversation persistence
@@ -81,12 +79,12 @@ Use the existing D1 operator database for relational conversation history:
 - `chat_messages`: stable message ID, conversation foreign key, monotonic
   sequence, `user`/`assistant` role, bounded content, source metadata,
   model/fallback metadata, request id, and timestamps.
-- Optional pseudonymous Access subject digest may strengthen identity binding;
+- Optional pseudonymous Clerk subject digest may strengthen identity binding;
   raw JWTs, cookies, and bearer tokens are never stored.
 
 Owner decision: the browser may retain a local client cache for authenticated
 chat and synchronize changes to the server at each activity epoch. D1 is the
-canonical durable record; synchronization is Access-authenticated and
+canonical durable record; synchronization is Clerk-authenticated and
 idempotent. Browser storage is never an authority for identity, authorization,
 or rollout.
 
@@ -124,7 +122,7 @@ manifest immediately disables authenticated history without a forced client
 update. The public `/chat` and `/api/chat` path remains outside the manifest
 and is probed unchanged in every state.
 
-Staging has separate Access, D1, secret, and cache namespaces and must not
+Staging has separate Clerk, D1, secret, and cache namespaces and must not
 receive production data. Release-state mutation is `super_admin`-only for
 this bounded wave by default; `admin` can test the authorized chat and
 cross-operator content/export/archive paths. The exact staging evidence must
@@ -156,14 +154,14 @@ audit-ledger policy.
 - No admin access to raw operator conversations solely by implication of role;
   the owner-approved visibility must still be enforced through explicit,
   server-side capability checks.
-- No production Access policy, D1 migration, deployment, or data backfill in
+- No production Clerk policy/configuration, D1 migration, deployment, or data backfill in
   the planning step.
 
 ## Research baseline
 
 Cloudflare's current documentation supports protecting a self-hosted
-application by hostname and path, setting Access session duration, and
-validating the Access JWT at the origin. D1 is the relational choice for
+application by hostname and path, setting Clerk session duration, and
+validating the Clerk JWT at the edge. D1 is the relational choice for
 foreign-keyed conversation history; SQLite-backed Durable Objects remain an
 optional later choice for single-writer coordination rather than a default.
 

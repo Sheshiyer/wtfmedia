@@ -440,9 +440,9 @@ test("endpoints: POST /ops/api/assets/upload-intent validates inputs and returns
     OPS_ORIGIN: "https://origin.local.test",
     OPS_ORIGIN_PROOF: "test-proof",
     OPS_ENVIRONMENT: "local",
-    ACCESS_ISSUER: "https://issuer.test",
-    ACCESS_AUDIENCE: "audience",
-    ACCESS_JWKS_URL: "https://issuer.test/certs",
+    CLERK_ISSUER: "https://clerk.example.test",
+    CLERK_JWKS_URL: "https://clerk.example.test/.well-known/jwks.json",
+    CLERK_AUTHORIZED_PARTIES: "https://ops.local.test",
     EDGE_SHARED_SECRET: MOCK_SECRET,
   };
 
@@ -491,9 +491,9 @@ test("endpoints: POST /ops/api/assets/upload-intent rejects non-existent episode
     OPS_ORIGIN: "https://origin.local.test",
     OPS_ORIGIN_PROOF: "test-proof",
     OPS_ENVIRONMENT: "local",
-    ACCESS_ISSUER: "https://issuer.test",
-    ACCESS_AUDIENCE: "audience",
-    ACCESS_JWKS_URL: "https://issuer.test/certs",
+    CLERK_ISSUER: "https://clerk.example.test",
+    CLERK_JWKS_URL: "https://clerk.example.test/.well-known/jwks.json",
+    CLERK_AUTHORIZED_PARTIES: "https://ops.local.test",
     EDGE_SHARED_SECRET: MOCK_SECRET,
   };
 
@@ -535,9 +535,9 @@ test("endpoints: PUT /ops/api/assets/upload-stream processes direct streaming up
     OPS_ORIGIN: "https://origin.local.test",
     OPS_ORIGIN_PROOF: "test-proof",
     OPS_ENVIRONMENT: "local",
-    ACCESS_ISSUER: "https://issuer.test",
-    ACCESS_AUDIENCE: "audience",
-    ACCESS_JWKS_URL: "https://issuer.test/certs",
+    CLERK_ISSUER: "https://clerk.example.test",
+    CLERK_JWKS_URL: "https://clerk.example.test/.well-known/jwks.json",
+    CLERK_AUTHORIZED_PARTIES: "https://ops.local.test",
     EDGE_SHARED_SECRET: MOCK_SECRET,
   };
 
@@ -589,9 +589,9 @@ test("endpoints: PUT /ops/api/assets/upload-stream rejects a ticket issued to an
     OPS_ORIGIN: "https://origin.local.test",
     OPS_ORIGIN_PROOF: "test-proof",
     OPS_ENVIRONMENT: "local",
-    ACCESS_ISSUER: "https://issuer.test",
-    ACCESS_AUDIENCE: "audience",
-    ACCESS_JWKS_URL: "https://issuer.test/certs",
+    CLERK_ISSUER: "https://clerk.example.test",
+    CLERK_JWKS_URL: "https://clerk.example.test/.well-known/jwks.json",
+    CLERK_AUTHORIZED_PARTIES: "https://ops.local.test",
     EDGE_SHARED_SECRET: MOCK_SECRET,
   };
   const bytes = new TextEncoder().encode("operator-bound upload ticket");
@@ -630,9 +630,9 @@ test("endpoints: PUT /ops/api/assets/upload-stream preserves a canonical object 
     OPS_ORIGIN: "https://origin.local.test",
     OPS_ORIGIN_PROOF: "test-proof",
     OPS_ENVIRONMENT: "local",
-    ACCESS_ISSUER: "https://issuer.test",
-    ACCESS_AUDIENCE: "audience",
-    ACCESS_JWKS_URL: "https://issuer.test/certs",
+    CLERK_ISSUER: "https://clerk.example.test",
+    CLERK_JWKS_URL: "https://clerk.example.test/.well-known/jwks.json",
+    CLERK_AUTHORIZED_PARTIES: "https://ops.local.test",
     EDGE_SHARED_SECRET: MOCK_SECRET,
   };
 
@@ -682,9 +682,9 @@ test("endpoints: PUT /ops/api/assets/upload-stream preserves a canonical object 
     OPS_ORIGIN: "https://origin.local.test",
     OPS_ORIGIN_PROOF: "test-proof",
     OPS_ENVIRONMENT: "local",
-    ACCESS_ISSUER: "https://issuer.test",
-    ACCESS_AUDIENCE: "audience",
-    ACCESS_JWKS_URL: "https://issuer.test/certs",
+    CLERK_ISSUER: "https://clerk.example.test",
+    CLERK_JWKS_URL: "https://clerk.example.test/.well-known/jwks.json",
+    CLERK_AUTHORIZED_PARTIES: "https://ops.local.test",
     EDGE_SHARED_SECRET: MOCK_SECRET,
   };
   const targetKey = "episodes/ep_01TESTEPISODE000000000001/metadata/manifest_existing.json";
@@ -729,9 +729,9 @@ test("endpoints: POST /ops/api/assets/confirm-upload registers source_assets and
     OPS_ORIGIN: "https://origin.local.test",
     OPS_ORIGIN_PROOF: "test-proof",
     OPS_ENVIRONMENT: "local",
-    ACCESS_ISSUER: "https://issuer.test",
-    ACCESS_AUDIENCE: "audience",
-    ACCESS_JWKS_URL: "https://issuer.test/certs",
+    CLERK_ISSUER: "https://clerk.example.test",
+    CLERK_JWKS_URL: "https://clerk.example.test/.well-known/jwks.json",
+    CLERK_AUTHORIZED_PARTIES: "https://ops.local.test",
     EDGE_SHARED_SECRET: MOCK_SECRET,
   };
 
@@ -809,9 +809,9 @@ test("endpoints: POST /ops/api/assets/confirm-upload rejects a same-size object 
     OPS_ORIGIN: "https://origin.local.test",
     OPS_ORIGIN_PROOF: "test-proof",
     OPS_ENVIRONMENT: "local",
-    ACCESS_ISSUER: "https://issuer.test",
-    ACCESS_AUDIENCE: "audience",
-    ACCESS_JWKS_URL: "https://issuer.test/certs",
+    CLERK_ISSUER: "https://clerk.example.test",
+    CLERK_JWKS_URL: "https://clerk.example.test/.well-known/jwks.json",
+    CLERK_AUTHORIZED_PARTIES: "https://ops.local.test",
     EDGE_SHARED_SECRET: MOCK_SECRET,
   };
   const payloadBytes = new TextEncoder().encode("same-sized different object");
@@ -858,14 +858,14 @@ test("endpoints: complete upload lifecycle routed through handleOpsRequest Zero 
     OPS_ORIGIN: "https://origin.local.test",
     OPS_ORIGIN_PROOF: "test-proof",
     OPS_ENVIRONMENT: "local",
-    ACCESS_ISSUER: "https://issuer.test",
-    ACCESS_AUDIENCE: "audience",
-    ACCESS_JWKS_URL: "https://issuer.test/certs",
+    CLERK_ISSUER: "https://clerk.example.test",
+    CLERK_JWKS_URL: "https://clerk.example.test/.well-known/jwks.json",
+    CLERK_AUTHORIZED_PARTIES: "https://ops.local.test",
     EDGE_SHARED_SECRET: MOCK_SECRET,
   };
 
   const deps = {
-    verifyAccess: async () => ({ ok: true, email: "operator@example.test" }),
+    verifyClerk: async () => ({ ok: true, email: "operator@example.test", userId: "user_test_123" }),
   };
 
   const payload = new TextEncoder().encode("full lifecycle audio bytes");
@@ -875,7 +875,7 @@ test("endpoints: complete upload lifecycle routed through handleOpsRequest Zero 
   const intentReq = new Request("https://ops.local.test/ops/api/assets/upload-intent", {
     method: "POST",
     headers: {
-      "cf-access-jwt-assertion": "valid-token",
+      authorization: "Bearer valid-token",
       "x-request-id": "corr-lifecycle-001",
       "Content-Type": "application/json",
     },
@@ -898,7 +898,7 @@ test("endpoints: complete upload lifecycle routed through handleOpsRequest Zero 
   const streamReq = new Request("https://ops.local.test/ops/api/assets/upload-stream", {
     method: "PUT",
     headers: {
-      "cf-access-jwt-assertion": "valid-token",
+      authorization: "Bearer valid-token",
       "x-request-id": "corr-lifecycle-002",
       "X-Upload-Ticket": uploadTicket,
     },
@@ -915,7 +915,7 @@ test("endpoints: complete upload lifecycle routed through handleOpsRequest Zero 
   const confirmReq = new Request("https://ops.local.test/ops/api/assets/confirm-upload", {
     method: "POST",
     headers: {
-      "cf-access-jwt-assertion": "valid-token",
+      authorization: "Bearer valid-token",
       "x-request-id": "corr-lifecycle-003",
       "Content-Type": "application/json",
     },

@@ -13,7 +13,9 @@ export interface PolicyRule {
 export const POLICIES: PolicyRule[] = [
   { pattern: /^\/ops\/operators/, resource: "operators", action: "read", adminOnly: true },
   { pattern: /^\/ops\/audit/, resource: "audit", action: "read", adminOnly: true },
-  { pattern: /^\/ops\/settings/, resource: "settings", action: "read", adminOnly: true },
+  { pattern: /^\/ops\/settings\/access/, resource: "operators", action: "read", adminOnly: true },
+  { pattern: /^\/ops\/profile(?:\/|$)/, resource: "settings", action: "read" },
+  { pattern: /^\/ops\/settings/, resource: "settings", action: "read" },
   { pattern: /^\/ops\/analytics/, resource: "analytics", action: "read" },
   { pattern: /^\/ops\/production/, resource: "episodes", action: "read" },
   { pattern: /^\/ops\/chat/, resource: "chat", action: "read" },

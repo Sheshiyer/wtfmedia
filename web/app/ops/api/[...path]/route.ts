@@ -13,8 +13,8 @@ function unavailable() {
 
 /**
  * Keep the browser-facing operator API same-origin while making the edge
- * Worker the only authority for Access, release, role, and history checks.
- * The request URL and Access assertion are intentionally preserved so the
+ * Worker the only authority for Clerk, release, role, and history checks.
+ * The request URL and Clerk session credential are intentionally preserved so the
  * edge can enforce its configured hostname and verify the per-request JWT.
  */
 async function proxy(request: Request): Promise<Response> {

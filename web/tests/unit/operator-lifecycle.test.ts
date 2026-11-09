@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { accessLogoutUrl, validatedReturnTo } from "@/lib/ops/return-to";
+import { validatedReturnTo } from "@/lib/ops/return-to";
 import { activatedOpsNavigation, canAccessOpsPath } from "@/lib/ops/policy";
 import { fetchEdgeVerifiedOpsContext, verifyTrustedOpsContext } from "@/lib/ops/context";
 import { opsEnvironmentForHost, ungatedReleaseContextDto } from "@/lib/ops/dto";
@@ -11,14 +11,6 @@ describe("operator lifecycle", () => {
   it("redirect corpus accepts only canonical /ops destinations", () => {
     expect(validatedReturnTo("/ops/operators")).toBe("/ops/operators");
     for (const unsafe of ["https://evil.test", "//evil.test", "/%2f%2fevil.test", "/chat", "/ops?next=/chat", "/ops/%2e%2e/chat"]) expect(validatedReturnTo(unsafe)).toBe("/ops");
-  });
-
-  it("normalizes the confirmed Cloudflare team domain for logout", () => {
-    const previous = process.env.CF_ACCESS_TEAM_DOMAIN;
-    process.env.CF_ACCESS_TEAM_DOMAIN = "connect2nikhai.cloudflareaccess.com";
-    expect(accessLogoutUrl("/ops")).toBe("https://connect2nikhai.cloudflareaccess.com/cdn-cgi/access/logout?returnTo=%2Fops");
-    if (previous === undefined) delete process.env.CF_ACCESS_TEAM_DOMAIN;
-    else process.env.CF_ACCESS_TEAM_DOMAIN = previous;
   });
 
   it("requires a signed unexpired edge context instead of headers or decoded JWT", () => {
@@ -34,12 +26,12 @@ describe("operator lifecycle", () => {
     expect(ungatedReleaseContextDto("staging").environment).toBe("staging");
   });
 
-  it("asks the edge binding to verify Access for server-rendered pages", async () => {
+  it("asks the edge binding to verify Clerk for server-rendered pages", async () => {
     let forwarded: Request | null = null;
     const context = await fetchEdgeVerifiedOpsContext(
       new Headers({
         host: "wtfmedia-web-staging.connect2nikhai.workers.dev",
-        "cf-access-jwt-assertion": "access-assertion",
+        authorization: "Bearer clerk-assertion",
         "x-request-id": "corr-context-1",
       }),
       async (request) => {
@@ -52,7 +44,7 @@ describe("operator lifecycle", () => {
     expect(forwarded).not.toBeNull();
     const request = forwarded as unknown as Request;
     expect(new URL(request.url).pathname).toBe("/ops/api/operator-context");
-    expect(request.headers.get("cf-access-jwt-assertion")).toBe("access-assertion");
+    expect(request.headers.get("authorization")).toBe("Bearer clerk-assertion");
     expect(request.headers.get("x-request-id")).toBe("corr-context-1");
   });
 
@@ -68,6 +60,7 @@ describe("operator lifecycle", () => {
     expect(formatOpsRole("super_admin")).toBe("super admin");
     expect(formatOpsRole("editor")).toBe("editor");
     expect(formatVerifiedTime("not-a-date")).toBe("not observed");
+    expect(formatVerifiedTime("2026-09-08T17:08:00.000Z")).toBe("5:08 PM UTC");
   });
 
   it("signs a loopback development context that the origin verifier accepts", async () => {

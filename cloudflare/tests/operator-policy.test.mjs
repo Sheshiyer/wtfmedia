@@ -1,15 +1,22 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { canAccessPath, decide, navigationFor } from "../src/auth/policy.ts";
+import { canAccessPath, decide, navigationFor, policyForPath } from "../src/auth/policy.ts";
 import { transferSuperAdmin } from "../src/operators.ts";
 
 test("matrix grants only activated role capabilities", () => {
   for (const role of ["super_admin", "admin", "editor"]) assert.equal(canAccessPath(role, "/ops"), true);
+  for (const role of ["super_admin", "admin", "editor"]) assert.equal(canAccessPath(role, "/ops/profile"), true);
   for (const role of ["super_admin", "admin"]) {
     assert.equal(canAccessPath(role, "/ops/operators"), true);
     assert.equal(canAccessPath(role, "/ops/audit"), true);
   }
   assert.equal(canAccessPath("editor", "/ops/production"), true);
+  assert.equal(canAccessPath("editor", "/ops/settings/ai"), true);
+  assert.equal(canAccessPath("editor", "/ops/settings/access"), false);
+  assert.equal(canAccessPath("admin", "/ops/settings/access"), true);
+  assert.deepEqual(policyForPath("/ops/settings/analytics"), ["control_room", "read"]);
+  assert.deepEqual(policyForPath("/ops/settings/access"), ["operators", "read"]);
+  assert.deepEqual(policyForPath("/ops/api/profile"), ["control_room", "read"]);
   assert.equal(canAccessPath("editor", "/ops/operators"), false);
   assert.equal(canAccessPath("editor", "/ops/audit"), false);
   assert.equal(decide("super_admin", "operators", "transfer"), true);

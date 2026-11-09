@@ -50,8 +50,7 @@ export type ChatConversationResponse = {
 export const CHAT_API_ROOT = "/ops/api/chat";
 export const CHAT_ACTIVITY_EVENT = "wtfmedia:authenticated-chat-activity";
 
-const CACHE_PREFIX = "wtfmedia:authenticated-chat:v1:";
-const EPOCH_KEY = `${CACHE_PREFIX}activity-epoch`;
+const EPOCH_KEY = "wtfmedia:authenticated-chat:activity-epoch";
 
 function browserStorage(): Storage | null {
   if (typeof window === "undefined") return null;
@@ -163,33 +162,6 @@ export function parseChatConversationResponse(value: unknown): ChatConversationR
   const conversation = parseConversation({ ...rawConversation, ...(messages ? { messages } : {}) });
   if (!conversation) return null;
   return { conversation, policy: parsePolicy(body.policy) };
-}
-
-export function chatCacheKey(view: ChatView, conversationId?: string): string {
-  return `${view}:${conversationId ?? "history"}`;
-}
-
-export function readChatCache<T>(key: string): T | null {
-  const storage = browserStorage();
-  if (!storage) return null;
-  try {
-    const raw = storage.getItem(`${CACHE_PREFIX}${key}`);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as { value?: T };
-    return parsed && Object.prototype.hasOwnProperty.call(parsed, "value") ? parsed.value ?? null : null;
-  } catch {
-    return null;
-  }
-}
-
-export function writeChatCache<T>(key: string, value: T): void {
-  const storage = browserStorage();
-  if (!storage) return;
-  try {
-    storage.setItem(`${CACHE_PREFIX}${key}`, JSON.stringify({ epoch: readChatActivityEpoch(), value }));
-  } catch {
-    // A full or disabled browser cache must never make the server projection fail.
-  }
 }
 
 export function readChatActivityEpoch(): number {

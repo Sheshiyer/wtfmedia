@@ -316,9 +316,9 @@ function createTestEnv(db) {
     OPS_ORIGIN: "https://origin.local.test",
     OPS_ORIGIN_PROOF: "test-proof",
     OPS_ENVIRONMENT: "local",
-    ACCESS_ISSUER: "https://issuer.test",
-    ACCESS_AUDIENCE: "audience",
-    ACCESS_JWKS_URL: "https://issuer.test/certs",
+    CLERK_ISSUER: "https://clerk.example.test",
+    CLERK_JWKS_URL: "https://clerk.example.test/.well-known/jwks.json",
+    CLERK_AUTHORIZED_PARTIES: "https://ops.local.test",
     EDGE_SHARED_SECRET: MOCK_SECRET,
   };
 }
@@ -509,13 +509,13 @@ test("provenance_router: handleOpsRequest routes all Phase 3 endpoints through Z
   const db = createMockProvenanceDb();
   const env = createTestEnv(db);
   const deps = {
-    verifyAccess: async () => ({ ok: true, email: "operator@example.test" }),
+    verifyClerk: async () => ({ ok: true, email: "operator@example.test", userId: "user_test_123" }),
   };
 
   // Route 1: GET /ops/api/episodes
   const epReq = new Request("https://ops.local.test/ops/api/episodes", {
     method: "GET",
-    headers: { "cf-access-jwt-assertion": "valid-token", "x-request-id": "corr-rtr-01" },
+    headers: { authorization: "Bearer valid-token", "x-request-id": "corr-rtr-01" },
   });
   const epRes = await handleOpsRequest(epReq, env, deps);
   assert.equal(epRes.status, 200);
@@ -523,7 +523,7 @@ test("provenance_router: handleOpsRequest routes all Phase 3 endpoints through Z
   // Route 2: GET /ops/api/episodes/:id/provenance
   const provReq = new Request("https://ops.local.test/ops/api/episodes/ep_01J6G7M8N9P0Q1R2S3T4U5V6W1/provenance", {
     method: "GET",
-    headers: { "cf-access-jwt-assertion": "valid-token", "x-request-id": "corr-rtr-02" },
+    headers: { authorization: "Bearer valid-token", "x-request-id": "corr-rtr-02" },
   });
   const provRes = await handleOpsRequest(provReq, env, deps);
   assert.equal(provRes.status, 200);
@@ -531,7 +531,7 @@ test("provenance_router: handleOpsRequest routes all Phase 3 endpoints through Z
   // Route 3: POST /ops/api/ingest/youtube-sync
   const syncReq = new Request("https://ops.local.test/ops/api/ingest/youtube-sync", {
     method: "POST",
-    headers: { "cf-access-jwt-assertion": "valid-token", "x-request-id": "corr-rtr-03", "Content-Type": "application/json" },
+    headers: { authorization: "Bearer valid-token", "x-request-id": "corr-rtr-03", "Content-Type": "application/json" },
     body: JSON.stringify({ channelId: "UC_WTF_MAIN" }),
   });
   const syncRes = await handleOpsRequest(syncReq, env, deps);

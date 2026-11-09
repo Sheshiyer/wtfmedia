@@ -11,7 +11,7 @@ const copy: Record<ChatUnavailableReason, { eyebrow: string; heading: string; bo
   unauthorized: {
     eyebrow: "operator access",
     heading: "operator chat unavailable",
-    body: "sign in through the approved operator access path to continue.",
+    body: "sign in through the approved Clerk operator path to continue.",
   },
   unavailable: {
     eyebrow: "authenticated ask wtf",

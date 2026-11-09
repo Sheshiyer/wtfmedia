@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Grainient from "./Grainient";
 import { MigratedWordmark } from "./MigratedWordmark";
+import { WtfStaggeredText } from "./WtfStaggeredText";
 import { Button } from "@/components/ui/Button";
 import {
   BOOT_MS,
@@ -72,8 +73,18 @@ export function WtfOsBoot() {
           <Grainient />
         )}
       </div>
-      <div className="relative z-10 grid h-full place-items-center px-6">
+      <div className="relative z-10 flex h-full flex-col items-center justify-center gap-6 px-6 text-center">
         <MigratedWordmark size="xl" plate />
+        <div className="grid justify-items-center gap-3">
+          <p
+            data-wtf-os-boot-status
+            aria-live="polite"
+            className="font-label text-[11px] font-bold uppercase tracking-[0.2em] text-foreground"
+          >
+            <WtfStaggeredText text="receipts become actions" />
+          </p>
+          <span aria-hidden="true" className="h-px w-32 bg-foreground/30" />
+        </div>
       </div>
       <div className="absolute bottom-8 left-0 right-0 z-10 flex justify-center px-4">
         <Button type="button" variant="ghost" onClick={dismiss} className="bg-canvas/80">

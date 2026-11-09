@@ -32,7 +32,7 @@ export default async function AuthenticatedChatConversationPage({ params }: { pa
         size="page"
         eyebrow="operator conversation"
         title="authenticated ask wtf"
-        summary="the URL slug is a navigation identifier. server-resolved Access identity owns the conversation."
+        summary="the URL slug is a navigation identifier. server-resolved Clerk identity owns the conversation."
         accent="knowledge"
       />
       <div className="mx-auto max-w-[var(--wtf-content-max)] px-4 py-8 sm:px-8 xl:px-12">{content}</div>

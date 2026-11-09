@@ -23,7 +23,7 @@ export type Action =
 
 export const CAPABILITIES: Record<Role, Partial<Record<Resource, Action[]>>> = {
   super_admin: {
-    episodes: ["read", "write", "delete"], connections: ["read", "write"], chat: ["read", "write", "export"], analytics: ["read", "export"], operators: ["read", "write", "invite", "deactivate", "reactivate"], settings: [], audit: ["read", "export"],
+    episodes: ["read", "write", "delete"], connections: ["read", "write"], chat: ["read", "write", "export"], analytics: ["read", "export"], operators: ["read", "write", "invite", "deactivate", "reactivate"], settings: ["read", "write"], audit: ["read", "export"],
   },
   admin: {
     episodes: ["read", "write", "delete"],
@@ -40,7 +40,7 @@ export const CAPABILITIES: Record<Role, Partial<Record<Resource, Action[]>>> = {
     chat: ["read", "write"],
     analytics: ["read"],
     operators: [],
-    settings: [],
+    settings: ["read"],
     audit: [],
   },
 } as const;

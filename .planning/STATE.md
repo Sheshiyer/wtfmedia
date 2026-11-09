@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 status: active
 stopped_at: Episode-scoped Ask WTF production slice complete; broader Phase 3/4 acceptance remains planned
-last_updated: "2026-09-01T00:00:00.000Z"
-last_activity: 2026-09-01
+last_updated: "2026-09-09T00:00:00.000Z"
+last_activity: 2026-09-09
 progress:
   total_phases: 10
   completed_phases: 2
@@ -119,7 +119,11 @@ authorized Phase 1/2 plans. The ten-phase milestone remains **ACTIVE** at 2 of
 - [Phase 02]: Plan 02-12 staging preflight executed under exact target parameters, hash-bound owner approval recorded in phase2-approval.json, read-only exact-host production smoke verified against wtfmedia.vercel.app, and Phase 2 closed with full 35/35 threat mitigation.
 - [Current inventory 2026-08-29]: Repository Phase 1 is a public compatibility/proof release and is explicitly independent of Cloudflare Zero Trust, Access Applications, Access policies, and D1 operator provisioning. Its acceptance remains local, credential-free, and network-independent; the operator boundary is a later workstream.
 - [Current inventory 2026-08-29]: The operator UI, role/seat model, JWT verifier, D1 authorization design, and loopback-only local development context exist in source, but this checkout does not prove a live Access Application, policy, protected hostname, Access issuer/audience/JWKS, environment binding, or real seat assignment. Historical Phase 2 closure language is retained as record, not current runtime proof. See `docs/architecture/architecture.html`.
-- [Current release 2026-08-30]: The owner temporarily authorizes an ungated public URL. Anonymous visitors may view WTF OS and list/create/update production-calendar records; anonymous delete, ingestion control, transcript activation, provider configuration, secrets, and release approval remain outside the exception. Cloudflare Access and fine-grained RBAC move to the next release.
+- [Current release 2026-08-30]: The owner temporarily authorizes an ungated public URL. Anonymous visitors may view WTF OS and list/create/update production-calendar records; anonymous delete, ingestion control, transcript activation, provider configuration, secrets, and release approval remain outside the exception. The later Clerk-backed operator Beta decision is recorded below; it does not change anonymous Alpha behavior.
+- [Current beta auth decision 2026-09-08]: The owner authorized Clerk for the operator Beta while preserving anonymous public Alpha. Clerk verifies the session at the edge; the existing normalized-email-to-active-D1-operator mapping and deny-by-default RBAC remain authoritative. The linked Clerk development instance is configured for the staging integration; production policy, deployment, and secret cutover remain separately gated.
+- [PR #53 issue reconciliation 2026-09-09]: PR #53 merged `20d4da9` into `release/beta`, not `main`, as a verified related Beta slice. It preserves anonymous public `/chat` and `/api/chat`, operator-scoped archive-only history, and explicit-save memory. Issues #50, #51, and #52 remain open because their public-authentication, destructive-history, and automatic-memory criteria are not complete and in places conflict with the release-safe policy; criterion-level comments record the remaining work.
+- [Invite-only company Beta source checkpoint 2026-09-09]: The locally implemented member slice adds a separate D1 membership/invitation authority, admin-only company-user lifecycle controls, Clerk invitation delivery, and a private `/beta` chat with explicit saved memory. Bangalore is rollout metadata inside one shared company workspace. Alpha remains anonymous and `/ops` remains operator-only. The distinct `member_beta_releases` gate defaults paused and rejects production. This is source/test evidence only: staging migration, deployment, Clerk instance invite-only mode, and real multi-account acceptance remain open.
+- [Staging read-only beta inventory 2026-09-09]: `wtfmedia-ops-staging` contains no local `0009_saved_memory.sql`, no `0010_member_beta.sql`, no member tables, and no release-manifest row. Its migration receipt has a distinct historical `0009_temporary_super_admin_roster.sql`; do not overwrite or infer number-only equivalence. The staging Worker secret list lacks `CLERK_SECRET_KEY`. No staging mutation occurred; all facts remain explicit release gates.
 - [Cloudflare migration 2026-08-30]: Live evidence resolves three accounts: `9d9d` is the retained read/copy source, repository-bound `wtfmedia` is the target that owns `wtfhq.in`, and `default` is unrelated and untouched. The initial target foundation wave is complete: R2 reconciles at 99 objects / 13,204,194 bytes with all-object hash equality; KV reconciles at 55 keys with value equality and no logged values; Vectorize reconciles at 5,742 unique matching IDs, 1,024 dimensions, and cosine; both queue shells exist; and D1 has migrations `0001`–`0005` applied. Target Workers, queue bindings, the calendar migration, secrets, domain/DNS, final delta, and cutover remain gated. See `.planning/inputs/2026-08-30-9d9d-cloudflare-migration-inventory.md`.
 - [Episode-scoped Ask WTF release 2026-08-31]: Owner-approved production receipt confirms 55/55 published and 49/49 mapped uncut KV memberships, 11,948 Vectorize vectors with `source_mode` and `video_id` indexes, queue backlog 0, DLQ baseline 18, and grounded live `published`, `uncut`, and `both` chat for mapped episodes. Web version `90099f42-13b6-4a4e-8d97-bd93b9f953fa` and edge version `75b96e1f-6fa6-4182-bbdd-99047399de64` are the final deployed versions. This is a bounded production slice, not proof of trusted timeline alignment or synchronized uncut playback.
 
@@ -150,10 +154,10 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
    workspace, source/version inspection, ten-episode trusted alignment
    evaluation, twenty-query editorial search evaluation, hybrid filters, and
    synchronized playback as separate owner-authorized work.
-3. **Broader platform and analytics work** — Access/RBAC, daily YouTube
-   analytics, research, production operations, source adapters, reporting,
-   clip intelligence, and migration closure remain planned/inactive. Do not
-   infer their completion from the episode release.
+3. **Broader platform and analytics work** — Live Clerk/RBAC cutover, daily
+  YouTube analytics, research, production operations, source adapters,
+  reporting, clip intelligence, and migration closure remain planned/inactive.
+  Do not infer their completion from the episode release.
 
 ### Blockers/Concerns
 
@@ -169,15 +173,15 @@ Phase 1 and Phase 2 are complete. Future roadmap execution:
   Unrelated Phase 3–10 scope remains inactive.
 - The episode-scoped web and edge deployments are now complete and verified;
   the final versions and rollback targets are recorded in `.project/HANDOFF.md`.
-  DNS, Access/RBAC, secrets, ingest credentials, and unrelated Workers remain
-  outside this release and require separate authority.
+  DNS, live Clerk/RBAC cutover, secrets, ingest credentials, and unrelated
+  Workers remain outside this release and require separate authority.
 - The approved corpus receipt is reconciled for 55 published and 49 mapped
   uncut assets. Do not broaden the claim to deferred sheet rows or treat
   episode membership as timeline alignment.
 - Trusted timeline alignment and synchronized uncut playback remain blocked on
   authoritative alignment data and the ten-episode evaluation set. Hybrid
   search quality remains blocked on the twenty-query editorial evaluation set.
-- Cloudflare Access/RBAC is deliberately deferred and is not a blocker for the
+- Live Clerk/RBAC cutover is deliberately deferred and is not a blocker for the
   short-lived public-link release.
 
 ## Deferred Items

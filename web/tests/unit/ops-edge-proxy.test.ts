@@ -23,12 +23,12 @@ describe("same-origin operator API edge proxy", () => {
     }));
   });
 
-  it("forwards the original URL, method, body, and Access assertion", async () => {
+  it("forwards the original URL, method, body, and Clerk credential", async () => {
     const request = new Request("https://wtfmedia-web-staging.connect2nikhai.workers.dev/ops/api/chat/conversations", {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "cf-access-jwt-assertion": "verified-by-access",
+        authorization: "Bearer verified-by-clerk",
       },
       body: JSON.stringify({ question: "hello" }),
     });
@@ -39,7 +39,7 @@ describe("same-origin operator API edge proxy", () => {
     expect(response.status).toBe(200);
     expect(new URL(forwarded.url).hostname).toBe("wtfmedia-web-staging.connect2nikhai.workers.dev");
     expect(forwarded.method).toBe("POST");
-    expect(forwarded.headers.get("cf-access-jwt-assertion")).toBe("verified-by-access");
+    expect(forwarded.headers.get("authorization")).toBe("Bearer verified-by-clerk");
     expect(await forwarded.json()).toEqual({ question: "hello" });
   });
 

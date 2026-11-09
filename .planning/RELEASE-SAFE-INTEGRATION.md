@@ -16,8 +16,8 @@ baseline commit, but this document does not independently certify production.
 The owner re-authorized repository-local reconciliation and a bounded local
 implementation wave. The following decisions remain binding:
 
-- Cloudflare Zero Trust Access is the sole authentication/session authority.
-- The Worker resolves the normalized Access identity to one active D1 operator
+- Clerk is the sole authentication/session authority for the operator Beta.
+- The Worker resolves the normalized Clerk identity to one active D1 operator
   with a recognized role before protected capability access.
 - The shared server policy is deny-by-default; UI visibility never grants
   authority; no WTF authentication cookie or long-lived application token is
@@ -26,10 +26,27 @@ implementation wave. The following decisions remain binding:
   authorization system, with a `/chat/{conversation_id}-{username}` deep link
   and `/ops/api/chat/*` API; the public `/chat` root and `/api/chat` remain
   anonymous, stateless, and contract-compatible.
-- Production Access configuration, remote D1 migration, deployment, queue or
+- Production Clerk configuration, remote D1 migration, deployment, queue or
   ingest mutation, secrets, DNS, and live activation remain out of scope.
 
-The owner has set a 720-hour (30-day) Access application/policy session target,
+### Invite-only company member Beta — 2026-09-09
+
+The member Beta is a separate staging-only lane: one shared company workspace,
+with Bangalore as the first rollout cohort and office recorded as rollout
+metadata rather than a privilege boundary. `/chat` and `/api/chat` remain the
+anonymous public Alpha contract. `/ops` remains operator-only. `/beta` and
+`/beta/api/*` require both a verified Clerk session and an active D1 member
+record created through the administrator invite flow.
+
+Member conversations, messages, and explicitly saved memory are private to
+their D1 member owner. Operators may manage minimal membership lifecycle
+records but cannot read, export, archive, or otherwise project member content.
+Chat history and saved memory are archive-only; memory is explicit-save only
+and is never automatically extracted. A distinct `member_beta_releases`
+manifest begins paused and rejects production unconditionally; it does not
+inherit the operator authenticated-chat release flag.
+
+The owner has set a 720-hour (30-day) Clerk session target,
 approved browser-local caching with idempotent activity-epoch synchronization,
 and approved authorized-admin visibility of conversation metadata, content, and
 call history. Global/MFA Access precedence still requires activation proof.
@@ -53,7 +70,7 @@ chat release. The toggle is a control-plane projection, not the authority:
   alive after a pause;
 - the staging manifest has explicit `paused`, `preview`, `stable`, and
   `rolled_back` states, with `paused` as the safe default; and
-- staging uses its own Access application/policy, D1 database, secrets, and
+- staging uses its own Clerk instance/authorized-party configuration, D1 database, secrets, and
   cache namespace. No production manifest, public route, or production data
   is part of this toggle.
 
@@ -113,8 +130,8 @@ receipt for each state transition, plus the public-route invariance probe.
 
 ### Wave 4 — auth, RBAC, sessions, history, and memory
 
-Cloudflare Access authenticates; D1 authorizes operators and records allowlisted
-audit metadata. The additive `03-07` mini-phase may add an Access-protected
+Clerk authenticates; D1 authorizes operators and records allowlisted audit
+metadata. The additive `03-07` mini-phase may add a Clerk-protected
 `/ops/chat` history shell plus a `/chat/{conversation_id}-{username}`
 conversation deep link, with conversations keyed to server-resolved operator
 IDs and persisted in D1. Separate auth session, conversation session, agent

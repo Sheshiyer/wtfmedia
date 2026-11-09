@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AskComposer } from "./AskComposer";
 import { ConversationThread, type Message, type Source } from "./ConversationThread";
@@ -172,10 +173,13 @@ function ChatInner() {
         accent="knowledge"
         size="page"
         context={
-          <div className="hidden flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary sm:flex">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 font-label text-[11px] font-bold uppercase tracking-[0.12em] text-secondary">
             <span>{episodeId ? "episode scope" : "catalogue scope"}</span>
             <span>source-backed answers</span>
             <span>mapped time only</span>
+            <Link href="/ops/chat" className="text-knowledge underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-knowledge">
+              sign in for account sessions
+            </Link>
           </div>
         }
       />
