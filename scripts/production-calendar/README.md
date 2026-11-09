@@ -94,18 +94,11 @@ The IP legend shows editable workbook targets and named-item progress: BTS
 12, Stitched 20+, POV 15, and Animated IP 20. Empty numbered slots do not
 count toward progress.
 
-The working UI uses Calendar, Board, and Dubbing views instead of copying the
-Production Tracker grid into the primary navigation. A manager-only workbook
-reference and each episode's details preserve source rows, fills, boxes, and
-notes for verification. `Payments EP` belongs to WTF Is by owner confirmation.
-The Dubbing view shows the workbook's Posted? checkbox separately from the
-confirmed dubbed go-live state: among 57 imported jobs, 29 are checked, 25
-unchecked, and 3 have no box; 11 checked jobs still have no column-C date and
-are therefore not published. Authenticated editors can read the imported
-column-H follow-up notes in episode details and add a separate team note;
-private source contacts remain manager-only. Add episode from the Dubbing view
-creates an episode and dubbing job together. A confirmed go-live date is
-entered in the dubbing detail panel, not inferred from the source checkbox.
+The working UI uses Calendar and Board. Dubbing controls and the Workbook
+reference button are removed; existing archived source data is retained.
+Calendar dates and Add new episode open the same modal with an optional first
+date. Creation writes only to the application database, never to Google Sheets.
+Visible blocker controls use Restricted/restriction labels.
 Shoot location and per-source-row guest role are structured working fields;
 the raw workbook remains unchanged. Unnamed Production Tracker rows 17–19 are
 omitted from operational records and the working source-row view, but their
@@ -129,12 +122,8 @@ fetch helper and `/beta/api/production`. No local auth bypass is supported.
 A production or staging migration/import/deployment is a separate authorized
 operation. Private workbook data stays outside Git and this source merge.
 
-The manager-only workbook reference shows the Production Tracker, Calendar,
-Dubbing Tracker, and IP worksheets with their original cell references,
-formulas, cached display values, and fills. The other two pipeline sheets are
-kept in the private archive for the separate future page, not surfaced in this
-production area. Ambiguous IPs, permissions, and undated dubbing progress are
-not guessed.
+Live synchronization reads only the podcast tracker, IP tracker and Calendar.
+Dubbing and both pipeline sheets are excluded. Ambiguous matches require review.
 The twelve month selector states from April 2026 to March 2027 are
 reconstructed from the dated source rows and shown in the month calendar.
 The import's private JSON additionally retains each complete reconstructed
@@ -177,3 +166,17 @@ After the manual preview succeeds, an editor may optionally create a five-minute
 **preview-only** trigger for `scheduledStagingPreview` in the Apps Script Triggers UI. Review runs in Apps Script Executions or reopen the
 WTF Production menu for the full interactive preview. Removing the trigger
 stops these previews. Applying approved matches is a separate operation.
+
+## Production promotion
+
+`prepare-production-calendar.mjs` assembles the calendar on the recorded apex
+release, preserving the live Edge module outside explicit calendar policy and
+API dispatch changes. It checks both release baselines before assembling. The
+existing analytics, research and Alpha inference implementations remain intact.
+
+Production sync uses `sheet-sync/wrangler.production.jsonc`; staging continues
+using `sheet-sync/wrangler.jsonc`. Each has its own D1 binding and minute cron.
+Both use the same owner-provided service account through the private
+`GOOGLE_SHEETS_CREDENTIAL` secret and `SPREADSHEET_ID` variable. Neither has a
+public endpoint or writes to the sheet. Provision migrations 0025–0028 and 0030
+before enabling the scheduler. Record a D1 recovery bookmark before changes.

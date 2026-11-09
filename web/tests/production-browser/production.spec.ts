@@ -3,7 +3,7 @@ import type { ProductionSnapshot } from "@/lib/ops/production-data";
 
 const empty = (): ProductionSnapshot => ({
   ips: [{ id: "wtf-is", name: "WTF", parent: null, color: "#F3B72B", active: true, targetCount: null, targetPlus: false }],
-  items: [], events: [], guests: [], itemGuests: [], dubbing: [], permissions: [], blockers: [], sourceChecks: [], sourceSheets: [], sourceSummary: null, canEdit: true, canManage: false,
+  items: [], events: [], guests: [], itemGuests: [], dubbing: [], permissions: [], blockers: [], sourceChecks: [], sourceSheets: [], sourceSummary: null, canEdit: true, canManage: true,
 });
 
 test("calendar and header share a dated popup with safe save, failure and cancel", async ({ page }) => {
@@ -23,6 +23,7 @@ test("calendar and header share a dated popup with safe save, failure and cancel
     await route.fulfill({ status: 201, json: { ok: true, id: "pitem_test" } });
   });
   await page.goto("/");
+  await expect(page.getByRole("button", { name: "Workbook reference", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Dubbing", exact: true })).toHaveCount(0);
   await page.getByLabel("Jump to month").fill("2026-11");
   const date = page.getByRole("button", { name: "Add episode on 2026-11-17, 0 production events", exact: true });
@@ -60,6 +61,7 @@ test("calendar and header share a dated popup with safe save, failure and cancel
 test("read-only users select dates without a create action", async ({ page }) => {
   await page.route("**/beta/api/production", (route) => route.fulfill({ json: { ...empty(), canEdit: false } }));
   await page.goto("/");
+  await expect(page.getByRole("button", { name: "Workbook reference", exact: true })).toHaveCount(0);
   await page.getByLabel("Jump to month").fill("2026-11");
   await page.getByRole("button", { name: "2026-11-17, 0 production events", exact: true }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);

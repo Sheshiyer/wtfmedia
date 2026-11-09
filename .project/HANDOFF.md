@@ -1,3 +1,10 @@
+## 2026-11-09 — Apex Production page promotion candidate
+
+- Owner authorized moving the accepted Production page to wtfhq.in and reusing the same sheet service account in both environments. Removed the Workbook reference entry point and obsolete Dubbing wording from the page header. Calendar/Board and the shared create-episode modal remain.
+- Production currently has no Production calendar tables. Reviewed additive prerequisites are migrations 0025–0028 and 0030 only. Fresh local import of the three approved live tabs gives 24 items, 21 dated events, 19 source checks, zero review matches, and stable identity on repeated sync. Spreadsheet data remains read-only; staging and production keep separate D1 records.
+- VERIFIED-SOURCE: Edge 634/634, web typecheck/lint, four desktop/mobile popup checks (including manager absence of Workbook reference), isolated apex OpenNext build, and unchanged unrelated runtime route/capability checks pass. Production assembly pins the live Edge baseline and preserves it outside calendar dispatch and authorization changes. This is not a signed-in production acceptance receipt.
+- Separate production minute scheduler configuration added. A Cloudflare recovery bookmark is retained privately; full production export was rejected by automatic review and not performed. Deployment and sync readbacks will be recorded after activation. No push requested.
+
 ## 2026-11-09 — Production episode popup and simplified controls
 
 - Owner requested staging deployment. Local feature/pavun changes remove the Dubbing view and episode dubbing/permission editor, rename visible blocker/stage labels to Restricted/restrictions, and preserve stored dubbing data and existing source calendar history.

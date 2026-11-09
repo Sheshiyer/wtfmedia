@@ -6,7 +6,6 @@ import { ProductionBoard } from "@/components/patterns/ProductionBoard";
 import { ProductionCalendar } from "@/components/patterns/ProductionCalendar";
 import { ProductionDetails } from "@/components/domain/ops/production/ProductionDetails";
 import { ProductionLegend } from "@/components/domain/ops/production/ProductionLegend";
-import { ProductionSourceView } from "@/components/domain/ops/production/ProductionSourceView";
 import { Button } from "@/components/ui/Button";
 import { isoDate, shiftMonth } from "@/lib/ops/production";
 import {
@@ -19,7 +18,7 @@ import {
   type ProductionSnapshot,
 } from "@/lib/ops/production-data";
 
-type View = "month" | "board" | "source";
+type View = "month" | "board";
 
 const filterClass = "min-h-11 min-w-[10rem] rounded-control border-2 border-foreground bg-canvas px-2.5 font-body text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention";
 
@@ -180,17 +179,15 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
       <nav aria-label="Production views" className="flex flex-wrap items-center gap-2">
         <Button type="button" variant={view === "month" ? "attention" : "ghost"} pressed={view === "month"} onClick={() => setView("month")}>Calendar</Button>
         <Button type="button" variant={view === "board" ? "attention" : "ghost"} pressed={view === "board"} onClick={() => setView("board")}>Board</Button>
-        {snapshot.canManage && <button type="button" onClick={() => setView(view === "source" ? "month" : "source")} className="ml-auto font-label text-xs font-bold text-secondary underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention">{view === "source" ? "Back to calendar" : "Workbook reference"}</button>}
       </nav>
 
-      {view !== "source" && <div className="flex flex-wrap items-end gap-3 border border-foreground/35 bg-surface-raised p-3">
+      <div className="flex flex-wrap items-end gap-3 border border-foreground/35 bg-surface-raised p-3">
         <label className="grid gap-1 font-label text-xs font-bold">IP<select className={filterClass} value={ipFilter} onChange={(event) => setIpFilter(event.target.value)}><option value="all">All IPs</option><option value="unclassified">Needs IP review</option>{snapshot.ips.map((ip) => <option key={ip.id} value={ip.id}>{ip.name}</option>)}</select></label>
         <details className="group"><summary className="min-h-11 cursor-pointer border border-foreground/40 px-3 py-3 font-label text-xs font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention">More filters{formatFilter !== "all" || stageFilter !== "all" ? " · active" : ""}</summary><div className="mt-2 flex flex-wrap gap-3"><label className="grid gap-1 font-label text-xs font-bold">Format<select className={filterClass} value={formatFilter} onChange={(event) => setFormatFilter(event.target.value)}><option value="all">All formats</option>{formats.map((format) => <option key={format} value={format}>{format}</option>)}</select></label><label className="grid gap-1 font-label text-xs font-bold">Stage<select className={filterClass} value={stageFilter} onChange={(event) => setStageFilter(event.target.value)}><option value="all">All stages</option>{productionStages.map((stage) => <option key={stage.id} value={stage.id}>{stage.label}</option>)}</select></label></div></details>
         {view === "month" && <label className="grid gap-1 font-label text-xs font-bold">Jump to month<input type="month" className={filterClass} value={`${year}-${String(month + 1).padStart(2, "0")}`} onChange={(event) => { const [nextYear, nextMonth] = event.target.value.split("-").map(Number); if (nextYear && nextMonth) { setYear(nextYear); setMonth(nextMonth - 1); setSelectedDay(isoDate(nextYear, nextMonth - 1, 1)); } }} /></label>}
         {view === "board" && <span className="ml-auto font-label text-xs text-secondary">{boardItems.length} episodes</span>}
-      </div>}
+      </div>
 
-      {view === "source" ? <ProductionSourceView changedAt={snapshot.sheetSync?.changedAt} fetcher={fetcher} sheets={snapshot.sourceSheets} summary={snapshot.sourceSummary} /> : (
         <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="min-w-0 space-y-5">
             {view === "month" && <ProductionCalendar year={year} month={month} selectedDay={selectedDay} events={filteredEvents} items={filteredItems} ips={snapshot.ips} onSelectDay={(day) => { setSelectedDay(day); setSelectedEventId(null); }} onCreateEpisode={snapshot.canEdit ? startCreate : undefined} onSelectEvent={selectEvent} onShift={shift} />}
@@ -199,7 +196,6 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
           </div>
           <ProductionDetails key={selectedItemId ?? "new"} snapshot={snapshot} selectedDay={selectedDay} selectedItemId={selectedItemId} selectedEventId={selectedEventId} showDayEvents={view === "month"} creating={false} busy={busy} onSelectItem={(id) => { setSelectedItemId(id); setSelectedEventId(null); }} onSelectEvent={setSelectedEventId} onStartCreate={() => startCreate()} onAction={onAction} />
         </div>
-      )}
       <Dialog.Root open={creating} onOpenChange={(open) => { if (!busy) setCreating(open); }}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-[70] bg-overlay/50" />
