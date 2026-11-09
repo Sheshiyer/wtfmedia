@@ -189,8 +189,11 @@ deferred corpus rows, and gated actions.
 
 ### WTF production calendar
 
-Production lives at `/beta/workspace/production`, with calendar, board, dubbing
-and manager-only source review using `/beta/api/production`. It uses the common
+Production lives at `/beta/workspace/production`, with calendar, board
+and manager-only source review using `/beta/api/production`. Calendar dates and
+Add new episode open a shared popup that saves the episode and its first date
+together. Restrictions and team notes stay in the app; the source Sheet is
+read-only. Dubbing editing controls are hidden; existing records are retained. It uses the common
 Beta session and capability checks. The former `/ops/production` page redirects
 to Beta; no separate preview login or Production API is needed.
 
