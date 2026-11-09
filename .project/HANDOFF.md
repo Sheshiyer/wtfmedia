@@ -1,3 +1,10 @@
+## 2026-11-09 — Confirmed deletion of app-created Production episodes
+
+- Owner requested deletion controls and redeployment to staging and production. Added a shared confirmation dialog from Board cards and selected Calendar episode details; cancel is initially focused, errors keep the dialog open, and successful deletion clears the selection and calendar/board data even if refresh fails.
+- Existing production:write authorization is required. The API only deletes manual records without sheet, corpus or import-review linkage. A guarded transaction records the actor/action and cascades episode-owned dates, restrictions and notes; shared guests, source workbook and corpus remain intact. No migration or live user-record deletion is needed.
+- VERIFIED-SOURCE: Edge 636/636, web typecheck/lint and six desktop/mobile browser checks pass. Checks cover denied roles, protected source records, missing confirmation, repeat requests, audit failure rollback, cancel, failed request recovery and both entry points. Isolated browser fixtures are not a live persona acceptance claim.
+- Production assembly refreshes only the pinned released calendar overlay; all other Edge runtime bytes remain identical. Staging and production rollout receipts pending. Changes local on feature/pavun; no push requested this turn.
+
 ## 2026-11-09 — Workbook reference removed from staging
 
 - Owner requested the same Production-page cleanup on staging. Deployed existing candidate e471d21 (runtime UI change from 8cc1d53); no additional feature edits. Workbook reference entry point is removed and the page header no longer mentions Dubbing.

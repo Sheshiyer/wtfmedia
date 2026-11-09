@@ -7,6 +7,9 @@ type ProductionEnv = { DB: DB; PRODUCTION_SHEET_SYNC_ENABLED?: string };
 type Data = Record<string, unknown>;
 type Mutation = { action?: unknown; data?: unknown };
 
+// App-owned records only: imported/corpus-linked items stay under their source authority.
+const deletableItemSql = "source_status = 'manual' AND source_ref IS NULL AND episode_id IS NULL AND NOT EXISTS (SELECT 1 FROM production_import_reviews r WHERE r.mapped_item_id = production_items.id)";
+
 const headers = { "cache-control": "private, no-store", "x-content-type-options": "nosniff" };
 const colorPattern = /^#[0-9A-Fa-f]{6}$/u;
 const dayPattern = /^\d{4}-\d{2}-\d{2}$/u;
@@ -98,7 +101,7 @@ async function snapshot(env: ProductionEnv, context: OperatorContext): Promise<R
   const db = env.DB;
   const [ips, items, events, guests, itemGuests, dubbing, permissions, blockers, sourceSheets, review, sourceMarkers, sourceChecks, dubbingCells] = await Promise.all([
     db.prepare("SELECT id, name, parent, color, active, target_count AS targetCount, target_plus AS targetPlus, sort_order AS sortOrder FROM production_ips ORDER BY sort_order, name").all(),
-    db.prepare("SELECT id, episode_id AS episodeId, ip_id AS ipId, title, format, stage, owner, notes, shoot_location AS shootLocation, source_status AS sourceStatus, source_ref AS sourceRef FROM production_items ORDER BY created_at, id").all(),
+    db.prepare(`SELECT (${deletableItemSql}) AS deletable, id, episode_id AS episodeId, ip_id AS ipId, title, format, stage, owner, notes, shoot_location AS shootLocation, source_status AS sourceStatus, source_ref AS sourceRef FROM production_items ORDER BY created_at, id`).all(),
     db.prepare("SELECT id, item_id AS itemId, kind, day, date_state AS dateState, owner, notes, source_ref AS sourceRef FROM production_events ORDER BY day, id").all(),
     db.prepare("SELECT id, name FROM production_guests ORDER BY name").all(),
     db.prepare("SELECT item_id AS itemId, guest_id AS guestId, agreement_status AS agreementStatus FROM production_item_guests ORDER BY item_id, guest_id").all(),
@@ -144,7 +147,8 @@ async function snapshot(env: ProductionEnv, context: OperatorContext): Promise<R
       const sourceRef = (item as { sourceRef?: string }).sourceRef ?? "";
       const row = /^WTF & Nikhil Kamath IPs!A(\d+):F\1$/u.exec(sourceRef)?.[1];
       const marker = row && (live ? String(live.sheets["WTF & Nikhil Kamath IPs"]?.["D"+row]?.[0]??"").includes("Not Live") : notLiveCells.has("D"+row));
-      return { ...item, sourceMarker: marker ? "not-live" : null, sheetReview:stale.has(String(item.id)) };
+      const { deletable, ...fields } = item;
+      return { ...fields, canDelete: canEdit(context) && deletable === 1, sourceMarker: marker ? "not-live" : null, sheetReview:stale.has(String(item.id)) };
     }), events: events.results.filter(e=>!hiddenEvents.has(String(e.id))),
     guests: guests.results.map((entry) => {
       const guest = entry as { name: string };
@@ -197,6 +201,26 @@ async function mutate(env: ProductionEnv, context: OperatorContext, body: Mutati
   try {
     if (env.PRODUCTION_SHEET_SYNC_ENABLED === "1" && ["update_source_check","update_source_role"].includes(action)) {
       return json({error:"edit_tracker_fields_in_google_sheets"},409);
+    }
+    if (action === "delete_item") {
+      const id = string(data.id, 80);
+      if (!id || data.confirm !== true) return json({ error: "delete_confirmation_required" }, 400);
+      const item = await db.prepare(`SELECT (${deletableItemSql}) AS deletable FROM production_items WHERE id = ?`).bind(id).first<{ deletable: number }>();
+      if (!item) return json({ error: "item_not_found" }, 404);
+      if (item.deletable !== 1) return json({ error: "only_app_created_episodes_can_be_deleted" }, 409);
+      // D1 batches are transactional. A failed delete or audit write rolls back
+      // both; cascading children are removed, shared guests and corpus are kept.
+      const auditId = `pchg_${crypto.randomUUID()}`;
+      const results = await db.batch([
+        db.prepare(`INSERT INTO production_change_log (id, actor_operator_id, action, entity_type, entity_id, after_json)
+          SELECT ?, ?, 'delete_item', 'item', id, '{"deleted":true}' FROM production_items WHERE id = ? AND ${deletableItemSql}`)
+          .bind(auditId, context.operatorId, id),
+        db.prepare(`DELETE FROM production_items WHERE id = ? AND ${deletableItemSql}
+          AND EXISTS (SELECT 1 FROM production_change_log WHERE id = ?)`)
+          .bind(id, auditId),
+      ]);
+      if (results[1].meta.changes !== 1) return json({ error: "episode_changed_refresh_before_deleting" }, 409);
+      return json({ ok: true, id });
     }
     if (action === "create_item") {
       const ipId = string(data.ipId, 80);

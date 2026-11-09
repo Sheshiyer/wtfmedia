@@ -27,6 +27,8 @@ export function ProductionBoard({
   blockers,
   today,
   onSelectItem,
+  onDeleteItem,
+  busy = false,
 }: {
   items: readonly ProductionItem[];
   ips: readonly ProductionIp[];
@@ -34,6 +36,8 @@ export function ProductionBoard({
   blockers: readonly ProductionBlocker[];
   today: string;
   onSelectItem: (itemId: string) => void;
+  onDeleteItem?: (itemId: string) => void;
+  busy?: boolean;
 }) {
   const ipById = new Map(ips.map((ip) => [ip.id, ip]));
   const eventsByItem = new Map<string, ProductionEvent[]>();
@@ -65,12 +69,11 @@ export function ProductionBoard({
                 const highlight = timeline.find((event) => event.day > today) ?? timeline.at(-1);
                 const openBlocks = blockers.filter((blocker) => blocker.itemId === item.id && blocker.status !== "resolved");
                 return (
+                  <div key={item.id} className="min-w-0 border border-foreground/50 border-l-[6px] bg-surface-raised" style={{ borderLeftColor: safeIpColor(ip?.color) } as CSSProperties}>
                   <button
-                    key={item.id}
                     type="button"
                     onClick={() => onSelectItem(item.id)}
-                    className="min-w-0 w-full border border-foreground/50 border-l-[6px] bg-surface-raised p-3 text-left hover:bg-attention/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
-                    style={{ borderLeftColor: safeIpColor(ip?.color) } as CSSProperties}
+                    className="min-w-0 w-full p-3 text-left hover:bg-attention/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention"
                   >
                     <span className="font-label text-[11px] font-bold uppercase tracking-[0.06em] text-secondary">{ip?.name ?? "IP not recorded"}</span>
                     <span className="mt-1 block font-body text-sm font-semibold leading-snug text-foreground">{item.title}</span>
@@ -79,6 +82,8 @@ export function ProductionBoard({
                     {item.owner && <span className="mt-1 block font-label text-xs text-secondary" title={item.owner}>Lead: {item.owner}</span>}
                     {openBlocks.length > 0 && <span className="mt-2 inline-block border border-editorial px-1.5 py-0.5 font-label text-[11px] font-bold text-editorial">{openBlocks.length} {openBlocks.length === 1 ? "restriction" : "restrictions"}</span>}
                   </button>
+                  {item.canDelete && onDeleteItem && <div className="border-t border-foreground/20 px-3"><button type="button" disabled={busy} aria-label={`Delete episode ${item.title}`} onClick={() => onDeleteItem(item.id)} className="min-h-11 font-label text-xs font-bold text-editorial underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention disabled:opacity-50">Delete episode</button></div>}
+                  </div>
                 );
               })}
             </div>

@@ -284,3 +284,53 @@ test("episode creation includes a validated first date in one transaction", asyn
     assert.equal(database.prepare("SELECT COUNT(*) AS n FROM production_items").get().n, count);
   } finally { database.exec("DROP TRIGGER reject_initial_date"); }
 });
+
+test("confirmed deletion cascades app records and retains audit and shared guests", async () => {
+  database.exec("PRAGMA foreign_keys = ON");
+  const created = await handleProductionCalendarRequest(request("POST", { action: "create_item", data: {
+    ipId: "pov", title: "Delete fixture", owner: "", notes: "", shootLocation: "", trackDubbing: true,
+    initialEvent: { kind: "shoot", day: "2026-11-09", dateState: "planned" },
+  } }), env, editor);
+  assert.equal(created.status, 201);
+  const { id } = await created.json();
+  database.prepare("INSERT INTO production_guests(id,name) VALUES ('delete-guest','Shared guest')").run();
+  database.prepare("INSERT INTO production_item_guests(item_id,guest_id) VALUES (?, 'delete-guest')").run(id);
+  database.prepare("INSERT INTO production_permissions(item_id,guest_id) VALUES (?, 'delete-guest')").run(id);
+  database.prepare("INSERT INTO production_blockers(id,item_id,reason) VALUES ('delete-blocker',?,'test')").run(id);
+  const post = (data, context = editor) => handleProductionCalendarRequest(request("POST", { action: "delete_item", data }), env, context);
+  assert.equal((await post({ id })).status, 400);
+  assert.equal((await post({ id, confirm: true }, { ...editor, role: "member" })).status, 403);
+  const before = await (await handleProductionCalendarRequest(request(), env, editor)).json();
+  assert.equal(before.items.find(i => i.id === id).canDelete, true);
+  assert.equal((await post({ id, confirm: true })).status, 200);
+  assert.equal(database.prepare("SELECT COUNT(*) AS n FROM production_items WHERE id=?").get(id).n, 0);
+  for (const table of ['production_events','production_item_guests','production_permissions','production_dubbing','production_blockers'])
+    assert.equal(database.prepare(`SELECT COUNT(*) AS n FROM ${table} WHERE item_id=?`).get(id).n, 0);
+  assert.equal(database.prepare("SELECT COUNT(*) AS n FROM production_guests WHERE id='delete-guest'").get().n, 1);
+  const audit = database.prepare("SELECT actor_operator_id,after_json FROM production_change_log WHERE entity_id=? AND action='delete_item'").get(id);
+  assert.equal(audit.actor_operator_id, editor.operatorId);
+  assert.deepEqual(JSON.parse(audit.after_json), { deleted: true });
+  assert.equal((await post({ id, confirm: true })).status, 404);
+});
+
+test("deletion rejects source-managed and corpus-linked episodes and rolls back audit failures", async () => {
+  database.prepare("INSERT INTO episodes(id) VALUES ('delete-corpus')").run();
+  for (const [id, status, ref, episode] of [
+    ['delete-sheet', 'manual', 'Calendar!A1', null],
+    ['delete-import', 'verified', null, null],
+    ['delete-linked', 'manual', null, 'delete-corpus'],
+  ]) {
+    database.prepare("INSERT INTO production_items(id,title,source_status,source_ref,episode_id) VALUES (?, 'Protected', ?, ?, ?)").run(id,status,ref,episode);
+    const response = await handleProductionCalendarRequest(request("POST", { action: "delete_item", data: { id, confirm: true } }), env, admin);
+    assert.equal(response.status, 409);
+    const snapshot = await (await handleProductionCalendarRequest(request(), env, admin)).json();
+    assert.equal(snapshot.items.find(i=>i.id===id).canDelete, false);
+  }
+  database.exec("INSERT INTO production_items(id,title) VALUES ('delete-rollback','Keep'); CREATE TRIGGER fail_delete_audit BEFORE INSERT ON production_change_log WHEN NEW.action='delete_item' BEGIN SELECT RAISE(ABORT,'audit unavailable'); END");
+  try {
+    const response = await handleProductionCalendarRequest(request("POST", { action: "delete_item", data: { id: 'delete-rollback', confirm: true } }), env, editor);
+    assert.equal(response.status, 500);
+    assert.ok(database.prepare("SELECT id FROM production_items WHERE id='delete-rollback'").get());
+    assert.equal(database.prepare("SELECT COUNT(*) AS n FROM production_change_log WHERE entity_id='delete-rollback'").get().n, 0);
+  } finally { database.exec("DROP TRIGGER fail_delete_audit"); }
+});

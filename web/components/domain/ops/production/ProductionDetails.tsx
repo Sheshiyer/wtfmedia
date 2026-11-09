@@ -37,6 +37,7 @@ export function ProductionDetails({
   onSelectEvent,
   onStartCreate,
   onCreated,
+  onDeleteItem,
   onAction,
 }: {
   snapshot: ProductionSnapshot;
@@ -51,6 +52,7 @@ export function ProductionDetails({
   onSelectEvent: (eventId: string | null) => void;
   onStartCreate: () => void;
   onCreated?: (day: string) => void;
+  onDeleteItem?: (id: string) => void;
   onAction: Action;
 }) {
   const item = snapshot.items.find((record) => record.id === selectedItemId);
@@ -144,6 +146,7 @@ export function ProductionDetails({
             <h3 className="font-heading text-lg">{item ? "Episode" : creating ? "New episode" : "Details"}</h3>
             {item && snapshot.canEdit && <button type="button" onClick={() => { onSelectItem(null); onSelectEvent(null); onStartCreate(); }} className="font-label text-xs font-bold underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-attention">Add episode</button>}
           </div>}
+          {item?.canDelete && snapshot.canEdit && onDeleteItem && <Button type="button" variant="ghost" className="mt-3 text-editorial" disabled={busy} onClick={() => onDeleteItem(item.id)}>Delete episode</Button>}
           {!item && (!creating || !snapshot.canEdit) ? (
             <p className="mt-2 font-body text-sm text-secondary">Select a calendar mark or board card to view and update its episode. Use Add episode to create a new one.</p>
           ) : (

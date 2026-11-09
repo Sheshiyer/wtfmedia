@@ -19,6 +19,7 @@ export type ProductionItem = {
   shootLocation: string | null;
   sourceStatus: string;
   sourceRef: string | null;
+  canDelete?: boolean;
   sheetReview?: boolean;
   sourceMarker?: string | null;
 };
@@ -107,6 +108,7 @@ export type ProductionAction =
   | "update_ip"
   | "update_ip_target"
   | "create_item"
+  | "delete_item"
   | "update_item"
   | "create_event"
   | "update_event"

@@ -15,6 +15,7 @@ import {
   productionStages,
   type ProductionAction,
   type ProductionEvent,
+  type ProductionItem,
   type ProductionSnapshot,
 } from "@/lib/ops/production-data";
 
@@ -51,6 +52,19 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
+  const [deleting, setDeleting] = useState<ProductionItem | null>(null);
+  const deleteTrigger = useRef<HTMLElement | null>(null);
+  const cancelDelete = useRef<HTMLButtonElement | null>(null);
+  const addEpisode = useRef<HTMLButtonElement | null>(null);
+  const startDelete = (id: string) => {
+    const item = snapshot?.items.find((entry) => entry.id === id);
+    if (!snapshot?.canEdit || !item?.canDelete || busy) return;
+    deleteTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setDeleting(item);
+    setError("");
+    setNotice("");
+  };
+
   const createTrigger = useRef<HTMLElement | null>(null);
   const startCreate = (day = selectedDay) => {
     if (!snapshot?.canEdit || busy) return;
@@ -83,7 +97,7 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
 
   const syncActive = Boolean(snapshot?.sheetSync);
   useEffect(() => {
-    if (!syncActive || busy || creating) return;
+    if (!syncActive || busy || creating || deleting) return;
     const controller = new AbortController();
     const poll = () => {
       if (document.visibilityState === "visible") void refresh(controller.signal).catch(() => {});
@@ -91,7 +105,7 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
     const timer = window.setInterval(poll, 30000);
     document.addEventListener("visibilitychange", poll);
     return () => { controller.abort(); window.clearInterval(timer); document.removeEventListener("visibilitychange", poll); };
-  }, [syncActive, busy, creating, refresh]);
+  }, [syncActive, busy, creating, deleting, refresh]);
 
   const onAction = useCallback(async (action: ProductionAction, data: Record<string, unknown>) => {
     if (!snapshot || (action === "create_ip" || action === "update_ip" || action === "update_ip_target" ? !snapshot.canManage : !snapshot.canEdit)) return false;
@@ -107,18 +121,29 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
       });
       if (!response.ok) {
         const body = await response.json().catch(() => null) as { error?: string } | null;
-        throw new Error(body?.error ? `Save failed: ${body.error.replaceAll("_", " ")}.` : errorForStatus(response.status));
+        throw new Error(body?.error ? `${action === "delete_item" ? "Delete" : "Save"} failed: ${body.error.replaceAll("_", " ")}.` : errorForStatus(response.status));
       }
       const body = await response.json() as { ok?: boolean; id?: unknown };
       if (body.ok !== true) throw new Error("Save was not confirmed by the production API.");
       saved = true;
+      if (action === "delete_item") {
+        // Clear removed entities even if the following network refresh fails.
+        ++requestSeq.current;
+        setSelectedItemId(null);
+        setSelectedEventId(null);
+        setSnapshot((current) => current ? {
+          ...current, items: current.items.filter((item) => item.id !== data.id),
+          ...Object.fromEntries((["events", "itemGuests", "dubbing", "permissions", "blockers", "sourceChecks"] as const)
+            .map((key) => [key, current[key].filter((entry) => entry.itemId !== data.id)])),
+        } : current);
+      }
       await refresh();
       if (action === "create_item" && typeof body.id === "string") setSelectedItemId(body.id);
-      setNotice("Production changes saved.");
+      setNotice(action === "delete_item" ? "Episode deleted." : "Production changes saved.");
       return true;
     } catch (cause) {
       if (saved) {
-        setError("Saved, but the page could not refresh. Reload before making another change.");
+        setError(`${action === "delete_item" ? "Deleted" : "Saved"}, but the page could not refresh. Reload before making another change.`);
         return true;
       }
       setError(cause instanceof Error ? cause.message : "The production change could not be saved.");
@@ -164,7 +189,7 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
           <h2 className="font-heading text-2xl leading-tight">Calendar and production board</h2>
           <p className="mt-1 font-body text-sm text-secondary">Shoots and releases in one place. Select an entry to update it.</p>
         </div>
-        {snapshot.canEdit && <Button type="button" variant="attention" onClick={() => startCreate()}>Add new episode</Button>}
+        {snapshot.canEdit && <Button ref={addEpisode} type="button" variant="attention" onClick={() => startCreate()}>Add new episode</Button>}
       </div>
 
       {(view === "month" || openBlockers > 0) && <div className="flex flex-wrap gap-4 border-b border-foreground/25 pb-3 font-label text-xs text-secondary">
@@ -191,11 +216,27 @@ export function ProductionWorkspaceView({ fetcher }: { fetcher: typeof fetch }) 
         <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="min-w-0 space-y-5">
             {view === "month" && <ProductionCalendar year={year} month={month} selectedDay={selectedDay} events={filteredEvents} items={filteredItems} ips={snapshot.ips} onSelectDay={(day) => { setSelectedDay(day); setSelectedEventId(null); }} onCreateEpisode={snapshot.canEdit ? startCreate : undefined} onSelectEvent={selectEvent} onShift={shift} />}
-            {view === "board" && <ProductionBoard items={boardItems} ips={snapshot.ips} events={filteredEvents} blockers={snapshot.blockers} today={todayInIndia()} onSelectItem={(id) => { setSelectedItemId(id); setSelectedEventId(null); setCreating(false); }} />}
+            {view === "board" && <ProductionBoard busy={busy} onDeleteItem={snapshot.canEdit ? startDelete : undefined} items={boardItems} ips={snapshot.ips} events={filteredEvents} blockers={snapshot.blockers} today={todayInIndia()} onSelectItem={(id) => { setSelectedItemId(id); setSelectedEventId(null); setCreating(false); }} />}
             <ProductionLegend ips={snapshot.ips} items={snapshot.items} canManage={snapshot.canManage} busy={busy} onAction={onAction} />
           </div>
-          <ProductionDetails key={selectedItemId ?? "new"} snapshot={snapshot} selectedDay={selectedDay} selectedItemId={selectedItemId} selectedEventId={selectedEventId} showDayEvents={view === "month"} creating={false} busy={busy} onSelectItem={(id) => { setSelectedItemId(id); setSelectedEventId(null); }} onSelectEvent={setSelectedEventId} onStartCreate={() => startCreate()} onAction={onAction} />
+          <ProductionDetails onDeleteItem={startDelete} key={selectedItemId ?? "new"} snapshot={snapshot} selectedDay={selectedDay} selectedItemId={selectedItemId} selectedEventId={selectedEventId} showDayEvents={view === "month"} creating={false} busy={busy} onSelectItem={(id) => { setSelectedItemId(id); setSelectedEventId(null); }} onSelectEvent={setSelectedEventId} onStartCreate={() => startCreate()} onAction={onAction} />
         </div>
+      <Dialog.Root open={Boolean(deleting)} onOpenChange={(open) => { if (!open && !busy) setDeleting(null); }}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-[70] bg-overlay/50" />
+          <Dialog.Content className="fixed left-1/2 top-1/2 z-[71] max-h-[90dvh] w-[calc(100%_-_2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto border-2 border-foreground bg-surface-raised p-5 shadow-xl sm:p-6"
+            onOpenAutoFocus={(event) => { event.preventDefault(); cancelDelete.current?.focus(); }}
+            onCloseAutoFocus={(event) => { event.preventDefault(); (deleteTrigger.current?.isConnected ? deleteTrigger.current : addEpisode.current)?.focus(); }}>
+            <Dialog.Title className="font-heading text-2xl">Delete episode?</Dialog.Title>
+            <Dialog.Description className="mt-3 font-body text-sm [overflow-wrap:anywhere]">Permanently delete “{deleting?.title}” and its calendar dates, restrictions, and team notes? This cannot be undone. Google Sheets and the transcript knowledge base are unchanged.</Dialog.Description>
+            {error && <p role="alert" className="mt-4 font-body text-sm text-editorial">{error}</p>}
+            <div className="mt-5 flex flex-wrap justify-end gap-3">
+              <Button ref={cancelDelete} type="button" variant="ghost" disabled={busy} onClick={() => setDeleting(null)}>Cancel</Button>
+              <Button type="button" variant="attention" disabled={busy} onClick={() => { if (deleting && !busy) void onAction("delete_item", { id: deleting.id, confirm: true }).then((ok) => { if (ok) setDeleting(null); }); }}>{busy ? "Deleting…" : "Delete episode"}</Button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
       <Dialog.Root open={creating} onOpenChange={(open) => { if (!busy) setCreating(open); }}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-[70] bg-overlay/50" />

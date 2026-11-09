@@ -8,7 +8,9 @@ import {dirname,resolve} from 'node:path';
 const [livePath, researchBaselinePath, directory] = process.argv.slice(2);
 assert(livePath && researchBaselinePath && directory, 'Expected current Edge, pre-research Edge, and new output directory');
 const baseline=readFileSync(livePath,'utf8');
-assert.equal(createHash('sha256').update(baseline).digest('hex'),'368dd9a786998863de7d58499e6c916f2e0a57eb5573c9abad1682bc519450c6','Live production baseline changed');
+const baselineHash=createHash('sha256').update(baseline).digest('hex');
+const existingCalendar=baselineHash==='29fc14fdb28e4059bdbca9e58fbf4b5dc477325b9a231b7abfe625570e641324';
+assert(existingCalendar || baselineHash==='368dd9a786998863de7d58499e6c916f2e0a57eb5573c9abad1682bc519450c6','Live production baseline changed');
 execFileSync(process.execPath,['scripts/prepare-production-research.mjs',researchBaselinePath,directory],{stdio:'inherit'});
 const output=resolve(directory);
 for(const path of ['web/app/beta/workspace/production','web/components/domain/ops/ProductionWorkspace.tsx','web/components/domain/ops/ProductionWorkspaceView.tsx','web/components/domain/ops/production','web/components/patterns/ProductionCalendar.tsx','web/components/patterns/ProductionBoard.tsx','web/lib/ops/production.ts','web/lib/ops/production-data.ts']){
@@ -25,6 +27,19 @@ for(const [sig,check] of [['principalCanAccess(context: PrincipalContext, pathna
  edit('web/lib/beta/principal.ts',sig+' {',sig+' {\n  if (pathname === "/beta/workspace/production") return '+check+';');
 const require=createRequire(resolve('cloudflare/package.json'));
 const bundle=await require('esbuild').build({stdin:{contents:`export {handleProductionCalendarRequest} from './cloudflare/src/production-calendar.ts';\nexport {policyForPath,decide} from './cloudflare/src/auth/policy.ts';`,resolveDir:process.cwd(),loader:'ts'},bundle:true,format:'iife',globalName:'WTFProductionCalendar',platform:'browser',target:'es2022',write:false,legalComments:'none'});
+// Refresh the already released calendar overlay without replaying policy patches.
+// The remainder includes research, analytics, Alpha and the existing dispatch.
+if(existingCalendar){
+ const marker='\nvar WTFApexResearch = (() => {';
+ assert.equal(baseline.split(marker).length,2,'Non-unique released runtime boundary');
+ assert(baseline.startsWith('var WTFProductionCalendar = (() => {'));
+ const unchanged=baseline.slice(baseline.indexOf(marker));
+ const refreshed=bundle.outputFiles[0].text.trimEnd()+unchanged;
+ assert.equal(refreshed.slice(refreshed.indexOf(marker)),unchanged);
+ writeFileSync(resolve(output,'release/edge.js'),refreshed);
+ console.log('Production calendar refreshed; all runtime outside its overlay is byte-identical.');
+ process.exit(0);
+}
 let edge=baseline;const replacements=[];
 function patch(from,to){edge=replace(edge,from,to);replacements.push([from,to])}
 const policy='\nfunction policyForPath(pathname, method = "GET") {';
