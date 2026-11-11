@@ -1,3 +1,10 @@
+## 2026-11-11 — Production Admin access reconciliation
+
+- Owner authorized production Admin access for a reported active member and reconciliation of active staging admins with production. Read-only comparison found one additional staging admin absent from the production operator roster. Three other active admins and the Super Admin already matched.
+- Applied only two guarded production operator inserts for existing active, non-deleted members; both are active Admins with member_only=0. Added two operator_role_change audit receipts attributed honestly to owner-authorized maintenance, without impersonating an application session. Preserved member records/history, existing operators and Super Admin authority. Staging was read only.
+- VERIFIED-LIVE: readback confirms both Admin grants and succeeded audit receipts, and all four staging admins plus the separately approved account have active production Admin access; the existing Super Admin is unchanged. The deployed production policy permits Admin channel OAuth/selection/sync, social connection, Production, Research and user administration. No signed-in user browser session was impersonated or exercised; affected users should sign out and back in to refresh the cached principal.
+- No code deployment, credential rotation, email dispatch or channel connection was performed. Runtime versions remain those recorded below. Role updates take effect through the existing database authority; this is a one-time reconciliation, not automatic cross-environment role sync.
+
 ## 2026-11-09 — Confirmed deletion of app-created Production episodes
 
 - Owner requested deletion controls and redeployment to staging and production. Added a shared confirmation dialog from Board cards and selected Calendar episode details; cancel is initially focused, errors keep the dialog open, and successful deletion clears the selection and calendar/board data even if refresh fails.
