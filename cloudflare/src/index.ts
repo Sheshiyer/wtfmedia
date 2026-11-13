@@ -16,7 +16,7 @@ import {
 } from "./db.ts";
 import { handleOpsRequest, type OpsEnv } from "./ops-router.ts";
 import { handleMemberRequest } from "./member-router.ts";
-import { syncConfiguredAnalytics } from "./analytics-sync.ts";
+import { syncConfiguredAnalytics, syncConfiguredYouTubeReach } from "./analytics-sync.ts";
 import { createRemoteClerkVerifier } from "./auth/clerk.ts";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar.ts";
 import {
@@ -320,8 +320,8 @@ export default {
     }
   },
   async scheduled(event: { scheduledTime: number }, env: Env, context: { waitUntil(promise: Promise<unknown>): void }) {
-    // Source-only handler: a cron trigger is intentionally not declared until
-    // staging configuration and quota cadence receive separate owner approval.
-    context.waitUntil(syncConfiguredAnalytics(env, new Date(event.scheduledTime)));
+    context.waitUntil(env.OPS_ENVIRONMENT === "production"
+      ? syncConfiguredYouTubeReach(env, new Date(event.scheduledTime))
+      : syncConfiguredAnalytics(env, new Date(event.scheduledTime)));
   },
 };

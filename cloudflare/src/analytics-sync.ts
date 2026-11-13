@@ -217,7 +217,16 @@ async function recordActiveReachJob(env: AnalyticsEnv, connection: SyncConnectio
 
 async function ensureReachJob(env: AnalyticsEnv, connection: SyncConnection, accessToken: string, fetchGoogle: typeof fetch, now: string): Promise<string> {
   const stored = await env.DB.prepare("SELECT google_job_id FROM youtube_reporting_jobs WHERE connection_id = ? AND report_type_id = ? AND status = 'active'").bind(connection.id, reachJobKey(connection)).first<{ google_job_id: string }>();
-  if (stored?.google_job_id) return stored.google_job_id;
+  if (stored?.google_job_id) {
+    try {
+      const job = await googleJson(fetchGoogle, `https://youtubereporting.googleapis.com/v1/jobs/${encodeURIComponent(stored.google_job_id)}`, accessToken) as ReportingJob;
+      if (job.id === stored.google_job_id && (!job.expireTime || job.expireTime > now)) return job.id;
+    } catch (cause) {
+      // Only a missing/deleted job may be replaced. Permission and provider
+      // failures must not create another job under an uncertain identity.
+      if (![404, 410].includes((cause as { httpStatus?: number }).httpStatus ?? 0)) throw cause;
+    }
+  }
   if (!await hasReachReportType(fetchGoogle, accessToken)) {
     throw Object.assign(new Error("reach_report_type_unavailable"), { status: "failed", code: "reach_report_type_unavailable" });
   }
@@ -249,7 +258,10 @@ async function ensureReachJob(env: AnalyticsEnv, connection: SyncConnection, acc
 async function syncYouTubeReach(env: AnalyticsEnv, connection: SyncConnection, channelKey: string, accessToken: string, fetchGoogle: typeof fetch, startDate: string, endDate: string, now: string): Promise<number> {
   const jobId = await ensureReachJob(env, connection, accessToken, fetchGoogle, now);
   const reportsUrl = new URL(`https://youtubereporting.googleapis.com/v1/jobs/${encodeURIComponent(jobId)}/reports`);
-  reportsUrl.searchParams.set("startTimeAtOrAfter", `${startDate}T00:00:00Z`);
+  // New jobs may publish their 30-day historical backfill after the first
+  // core sync. Recheck a wide enough window to collect those delayed reports.
+  const backfillStart = isoDate(new Date(Date.parse(`${now.slice(0, 10)}T00:00:00Z`) - 35 * dayMs));
+  reportsUrl.searchParams.set("startTimeAtOrAfter", `${startDate < backfillStart ? startDate : backfillStart}T00:00:00Z`);
   reportsUrl.searchParams.set("startTimeBefore", `${endDate}T23:59:59Z`);
   reportsUrl.searchParams.set("pageSize", "100");
   const reports: ReportingReport[] = [];
@@ -274,8 +286,11 @@ async function syncYouTubeReach(env: AnalyticsEnv, connection: SyncConnection, c
     const statements: D1PreparedStatement[] = [];
     const daily = new Map<string, { impressions: number; clicks: number }>();
     let acceptedRows = 0;
-    const rejected = { date: 0, impressions: 0, ctr: 0 };
+    const rejected = { channel: 0, date: 0, impressions: 0, ctr: 0 };
     for (const row of rows) {
+      // A Reporting job is tied to the OAuth identity's channel, not the
+      // selected channel ID. Never attach another channel's reach to this one.
+      if (row.channel_id !== connection.selected_resource_id) { rejected.channel += 1; continue; }
       const metricDate = reportingDate(row.date);
       const videoId = row.video_id;
       const impressions = reportingNumber(row.video_thumbnail_impressions);
@@ -298,7 +313,10 @@ async function syncYouTubeReach(env: AnalyticsEnv, connection: SyncConnection, c
       importedRows += 1;
       acceptedRows += 1;
     }
-    if (rows.length > 0 && acceptedRows === 0) console.warn("YouTube reach report contained no usable metric rows", { rows: rows.length, rejected });
+    if (rows.length > 0 && acceptedRows === 0) {
+      console.warn("YouTube reach report contained no usable metric rows", { rows: rows.length, rejected });
+      if (rejected.channel === rows.length) throw Object.assign(new Error("report_channel_mismatch"), { status: "failed", code: "report_channel_mismatch" });
+    }
     for (const [metricDate, aggregate] of daily) {
       statements.push(env.DB.prepare("INSERT INTO youtube_channel_daily_metrics (channel_id, metric_date, thumbnail_impressions, thumbnail_impressions_ctr, raw_analytics_json, observed_at) VALUES (?, ?, ?, ?, '{}', ?) ON CONFLICT(channel_id, metric_date) DO UPDATE SET thumbnail_impressions = excluded.thumbnail_impressions, thumbnail_impressions_ctr = excluded.thumbnail_impressions_ctr, observed_at = excluded.observed_at").bind(channelKey, metricDate, aggregate.impressions, aggregate.impressions > 0 ? aggregate.clicks / aggregate.impressions : null, now));
     }
@@ -518,4 +536,34 @@ export async function syncConfiguredAnalytics(env: AnalyticsEnv, scheduledAt = n
   const summaries: SyncResult[] = [];
   for (const connection of [...result.results, ...youtube.results]) summaries.push(await syncAnalyticsConnection(env, connection, isoDate(start), isoDate(end), { ...dependencies, now: () => scheduledAt }));
   return summaries;
+}
+
+// Production's scheduled task only polls the optional YouTube reach reports.
+// It does not run core YouTube, GA4, Research, or any other ingestion pipeline.
+export async function syncConfiguredYouTubeReach(env: AnalyticsEnv, scheduledAt = new Date(), dependencies: AnalyticsDependencies = {}): Promise<SyncResult[]> {
+  // A terminated manual sync can leave an account in "syncing" indefinitely.
+  // Give an active request 30 minutes, then resume reach polling for that grant.
+  const staleSyncBefore = new Date(scheduledAt.getTime() - 30 * 60_000).toISOString();
+  const accounts = await env.DB.prepare("SELECT p.id, p.environment, p.provider, a.id AS account_id, a.status, a.encrypted_credentials, a.granted_scopes_json, a.token_expires_at, a.youtube_channel_id AS selected_resource_id, a.title AS selected_resource_name, c.id AS channel_key, c.reporting_timezone, a.last_attempted_refresh_at, a.last_successful_refresh_at, a.last_error_code FROM analytics_provider_connections p JOIN youtube_analytics_accounts a ON a.connection_id = p.id JOIN youtube_analytics_channels c ON c.connection_id = p.id AND c.youtube_channel_id = a.youtube_channel_id AND c.active = 1 WHERE p.environment = ? AND a.status IN ('connected','stale','provider_error','syncing') AND (a.status <> 'syncing' OR a.last_attempted_refresh_at IS NULL OR a.last_attempted_refresh_at < ?) AND a.encrypted_credentials IS NOT NULL ORDER BY a.created_at LIMIT 3")
+    .bind(env.OPS_ENVIRONMENT, staleSyncBefore).all<SyncConnection & { channel_key: string }>();
+  const now = scheduledAt.toISOString();
+  const startDate = isoDate(new Date(scheduledAt.getTime() - 35 * dayMs));
+  const endDate = isoDate(new Date(scheduledAt.getTime() - dayMs));
+  const results: SyncResult[] = [];
+  for (const connection of accounts.results) {
+    try {
+      const accessToken = await refreshAnalyticsAccessToken(connection, env, { ...dependencies, now: () => scheduledAt });
+      const rows = await syncYouTubeReach(env, connection, connection.channel_key, accessToken, dependencies.fetchGoogle ?? fetch, startDate, endDate, now);
+      results.push({ connectionId: connection.id, provider: "youtube", status: "completed", rows });
+    } catch (cause) {
+      const error = cause as { code?: string; message?: string; providerReason?: string };
+      const reason = error.providerReason?.toLowerCase() ?? "";
+      const code = ["service_disabled", "accessnotconfigured", "api_disabled"].includes(reason)
+        ? "reporting_api_disabled" : error.code ?? error.message ?? "reach_sync_failed";
+      await recordReachFailure(env, connection, code, now);
+      console.warn("Scheduled YouTube reach synchronization deferred", { code });
+      results.push({ connectionId: connection.id, provider: "youtube", status: "failed", rows: 0, errorCode: code });
+    }
+  }
+  return results;
 }

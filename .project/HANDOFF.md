@@ -244,6 +244,12 @@
 - Rollback targets: runner dfe6c6db-0004-4d83-ae27-5c765bf5aa5a/image 29f306a8985f3b571a320763f08095d41ba37cd4425f9cc20189d8f5649d25c9; Edge 0387d2ce-516b-47a8-bc63-afadd6e31272; Web 0578cb78-2500-471c-9313-4cd03cd2ce09. Do not roll back runner alone while new Edge fields are enabled.
 - No migrations, credential changes, production deployment, paid model calls, or saved-report regeneration. Real signed-in admission and full editorial/provider flow remain owner acceptance checks; no full persona matrix claimed.
 
+## 2026-11-13 — YouTube reach/CTR recovery PR
+
+- Production D1 read-only check: the existing reach job imported 29 reports on 2026-10-15, latest data day 2026-10-12, and had no later poll; two jobs created on 2026-11-12 had no imports yet. Two channels are connected; a third has been stuck in syncing since 2026-11-11. Core YouTube rows continued. No production data or configuration was changed.
+- The Edge production source had no declared analytics cron. This PR adds a daily production reach-only poll for up to three channels (including grants stuck syncing for more than 30 minutes), widens the report lookback for delayed 30-day backfills, validates cached job expiry, and rejects a report for a different channel. Core YouTube, GA4, Research, and staging scheduling remain separate.
+- Verified from latest `feature/pavun` tip: focused analytics tests 21/21, full Edge tests 635/635, Wrangler production/staging dry-run builds, and `git diff --check`. No authenticated production Google report was fetched; new Google Reporting jobs can take up to 48 hours to yield data. No deployment, secret change, or GitHub merge.
+
 ## 2026-11-03 — Staging candidate pushed; deployment awaiting login
 
 - Owner requested all changes pushed and staging deployed. Runtime candidate 990606f is pushed to origin/feature/pavun.
