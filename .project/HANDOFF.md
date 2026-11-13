@@ -1,3 +1,11 @@
+## 2026-11-13 — PR #91 reviewed and merged; reach release candidate
+
+- Owner requested Sarthak PR integration, staging/production deployment, and a push to `feature/pavun`. PR #91 head `89c8bcdb83c2a8759b9f8d9f3307eddffd3e3665` merged without conflicts; existing owner commits retained.
+- Review corrected inherited production cron: staging and local explicitly declare empty schedules. Wrangler configuration readback confirms only production has `0 8 * * *`.
+- VERIFIED-SOURCE: 638 Edge tests pass, including delayed report arrival, wrong-channel exclusion, and schedule isolation. No migrations or secret changes are required.
+- Production delivery uses the pinned, reversible `prepare-production-youtube-reach.mjs` overlay: update manual reach imports and scheduled reach polling only. Existing auth, Research, Production calendar, social analytics, and frontend remain released versions. Runtime outside the two explicit dispatch replacements is byte-identical; role and route policy comparison passes.
+- Deployment receipts follow after runtime verification. Source verification does not claim a live Google import or a signed-in browser acceptance run.
+
 ## 2026-11-11 — Production Admin access reconciliation
 
 - Owner authorized production Admin access for a reported active member and reconciliation of active staging admins with production. Read-only comparison found one additional staging admin absent from the production operator roster. Three other active admins and the Super Admin already matched.

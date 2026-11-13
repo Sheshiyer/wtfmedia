@@ -4,6 +4,14 @@ import test from "node:test";
 
 const configUrl = new URL("../wrangler.jsonc", import.meta.url);
 
+test("production reach cron is not inherited by staging or local development", async () => {
+  const config = await readFile(configUrl, "utf8");
+  assert.match(config.slice(0, config.indexOf('"env": {')), /"crons": \["0 8 \* \* \*"\]/);
+  for (const environment of ["local", "staging"]) {
+    assert.match(config, new RegExp(`"${environment}": \\{\\s*(?:"name": "[^"]+",\\s*)?"triggers": \\{ "crons": \\[\\] \\}`));
+  }
+});
+
 test("Beta staging retains Alpha corpus authority with analytics AI planning", async () => {
   const config = await readFile(configUrl, "utf8");
   const staging = config.slice(config.indexOf('"staging": {'));
