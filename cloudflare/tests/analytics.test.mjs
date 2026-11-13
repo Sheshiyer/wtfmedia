@@ -422,7 +422,14 @@ test("production reach poll imports a delayed report without another manual sync
   const db = {
     prepare(sql) {
       return statement({
-        async all() { return { results: sql.includes("FROM analytics_provider_connections p JOIN youtube_analytics_accounts") ? [connection] : [] }; },
+        async all() {
+          if (sql.includes("FROM analytics_provider_connections p JOIN youtube_analytics_accounts")) {
+            assert.match(sql, /a\.status IN \('connected','stale','provider_error','syncing'\)/u);
+            assert.match(this.values[1], /^2026-11-(?:13|14|15)T07:30:00\.000Z$/u);
+            return { results: [connection] };
+          }
+          return { results: [] };
+        },
         async first() {
           if (sql.includes("SELECT google_job_id")) return jobId ? { google_job_id: jobId } : null;
           if (sql.includes("SELECT 1 AS imported")) return imported.has(this.values[0]) ? { imported: 1 } : null;

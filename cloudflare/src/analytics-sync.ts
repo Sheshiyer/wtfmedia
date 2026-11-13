@@ -541,8 +541,11 @@ export async function syncConfiguredAnalytics(env: AnalyticsEnv, scheduledAt = n
 // Production's scheduled task only polls the optional YouTube reach reports.
 // It does not run core YouTube, GA4, Research, or any other ingestion pipeline.
 export async function syncConfiguredYouTubeReach(env: AnalyticsEnv, scheduledAt = new Date(), dependencies: AnalyticsDependencies = {}): Promise<SyncResult[]> {
-  const accounts = await env.DB.prepare("SELECT p.id, p.environment, p.provider, a.id AS account_id, a.status, a.encrypted_credentials, a.granted_scopes_json, a.token_expires_at, a.youtube_channel_id AS selected_resource_id, a.title AS selected_resource_name, c.id AS channel_key, c.reporting_timezone, a.last_attempted_refresh_at, a.last_successful_refresh_at, a.last_error_code FROM analytics_provider_connections p JOIN youtube_analytics_accounts a ON a.connection_id = p.id JOIN youtube_analytics_channels c ON c.connection_id = p.id AND c.youtube_channel_id = a.youtube_channel_id AND c.active = 1 WHERE p.environment = ? AND a.status IN ('connected','stale','provider_error') AND a.encrypted_credentials IS NOT NULL ORDER BY a.created_at LIMIT 3")
-    .bind(env.OPS_ENVIRONMENT).all<SyncConnection & { channel_key: string }>();
+  // A terminated manual sync can leave an account in "syncing" indefinitely.
+  // Give an active request 30 minutes, then resume reach polling for that grant.
+  const staleSyncBefore = new Date(scheduledAt.getTime() - 30 * 60_000).toISOString();
+  const accounts = await env.DB.prepare("SELECT p.id, p.environment, p.provider, a.id AS account_id, a.status, a.encrypted_credentials, a.granted_scopes_json, a.token_expires_at, a.youtube_channel_id AS selected_resource_id, a.title AS selected_resource_name, c.id AS channel_key, c.reporting_timezone, a.last_attempted_refresh_at, a.last_successful_refresh_at, a.last_error_code FROM analytics_provider_connections p JOIN youtube_analytics_accounts a ON a.connection_id = p.id JOIN youtube_analytics_channels c ON c.connection_id = p.id AND c.youtube_channel_id = a.youtube_channel_id AND c.active = 1 WHERE p.environment = ? AND a.status IN ('connected','stale','provider_error','syncing') AND (a.status <> 'syncing' OR a.last_attempted_refresh_at IS NULL OR a.last_attempted_refresh_at < ?) AND a.encrypted_credentials IS NOT NULL ORDER BY a.created_at LIMIT 3")
+    .bind(env.OPS_ENVIRONMENT, staleSyncBefore).all<SyncConnection & { channel_key: string }>();
   const now = scheduledAt.toISOString();
   const startDate = isoDate(new Date(scheduledAt.getTime() - 35 * dayMs));
   const endDate = isoDate(new Date(scheduledAt.getTime() - dayMs));
