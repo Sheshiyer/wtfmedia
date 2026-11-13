@@ -1,3 +1,11 @@
+## 2026-11-13 — PR #91 staging and production deployment receipts
+
+- Candidate `61f3504` deployed at 100%: staging Edge `1c726f4d-1d8e-454f-846d-2cccc7cd8ad7`; production Edge `ba573475-6860-4460-8c52-d68ade80dab1`. All 30 staging and 34 production bindings plus runtime compatibility settings match the prior releases.
+- Frontends unchanged: staging Web `a5e58902-823f-45db-9969-091b8fa5f2b9`, production Web `1e4ddafc-b8d3-4e34-8045-53311f450c7e`. Custom domains and paired Edge service bindings verified. Internal Alpha Web and Research runner untouched.
+- Live schedule readback: production `0 8 * * *` (13:30 IST), staging empty. Production's assembled scheduled handler was also exercised with an empty mocked database: only the YouTube reach account query runs, with no GA4/core/research invocation.
+- VERIFIED-RUNTIME: Analytics, Social Analytics, Production, Research, and sign-in page requests return 200 on both public hostnames. Unsigned principal/analytics reads and sync POST return 401. Deployed bundles contain the reach poll and channel mismatch guard. This verifies release wiring, not a signed-in browser matrix or a completed Google report import; no manual live import was run.
+- Rollback Edge targets: staging `f7bf8bc4-77e9-4014-a3f2-ccc4507d5f67`, production `0319a9e7-84af-4a6e-8122-1afaa2a86e42`. If production is rolled back, clear the newly enabled cron separately: schedules are not versioned and the old handler performs broader analytics sync. No migration, credential rotation, or sheet-sync changes were made.
+
 ## 2026-11-13 — PR #91 reviewed and merged; reach release candidate
 
 - Owner requested Sarthak PR integration, staging/production deployment, and a push to `feature/pavun`. PR #91 head `89c8bcdb83c2a8759b9f8d9f3307eddffd3e3665` merged without conflicts; existing owner commits retained.
