@@ -19,7 +19,7 @@ export function YouTubeAnalyticsWorkspace({ role, channelId = "all" }: { role: O
       setChannels((result.connections ?? []).filter(item => item.provider === "youtube" && item.resource && item.status !== "revoked").slice(0, 3));
     } catch { /* The embedded workspace shows the connection error. */ }
   }, [getToken]);
-  useEffect(() => { void loadChannels(); }, [loadChannels]);
+  useEffect(() => { void loadChannels(); const timer = setInterval(() => { if (!document.hidden) void loadChannels(); }, 30000); return () => clearInterval(timer); }, [loadChannels]);
   useEffect(() => () => observer.current?.disconnect(), []);
   const canManage = role === "admin" || role === "super_admin";
   const source = `/analytics-demo/index.html?mode=production&embedded=1&manage=${canManage ? "1" : "0"}&channel=${encodeURIComponent(channelId)}`;
@@ -28,7 +28,7 @@ export function YouTubeAnalyticsWorkspace({ role, channelId = "all" }: { role: O
     <nav className="mb-5 flex flex-wrap items-center gap-2 border-2 border-foreground bg-surface-raised p-3" aria-label="YouTube analytics channels">
       <a href="/beta/analytics" aria-current={channelId === "all" ? "page" : undefined} className={`rounded-control border-2 border-foreground px-4 py-2 text-sm font-bold ${channelId === "all" ? "bg-attention" : "bg-canvas"}`}>All channels</a>
       {channels.map(item => <a key={item.resource!.id} href={`/beta/analytics/channels/${encodeURIComponent(item.resource!.id)}`} aria-current={channelId === item.resource!.id ? "page" : undefined} className={`min-w-0 rounded-control border-2 border-foreground px-4 py-2 text-sm font-bold ${channelId === item.resource!.id ? "bg-attention" : "bg-canvas"}`}>{item.resource!.name || item.resource!.id}</a>)}
-      <span className="ml-auto font-label text-xs text-muted">{channels.length}/3 connected</span>
+      <span className="ml-auto font-label text-xs text-muted">{channels.filter(item => !["expired", "missing_scope", "revoked"].includes(item.status)).length}/{channels.length || 3} connected</span>
     </nav>
     <div className="min-w-0">
       <iframe

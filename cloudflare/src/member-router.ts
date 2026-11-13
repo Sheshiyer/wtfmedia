@@ -94,7 +94,7 @@ export async function handleMemberRequest(request: Request, env: OpsEnv, depende
     const channelId = typeof input?.channelId === "string" ? input.channelId : "";
     if (!provider || !validAnalyticsRange(startDate, endDate) || provider === "youtube" && !/^UC[A-Za-z0-9_-]{22}$/u.test(channelId)) return Response.json({ error: "invalid_sync_request" }, { status: 400, headers });
     const result = await syncSelectedAnalytics(env, provider, startDate, endDate, dependencies, channelId);
-    return Response.json({ sync: result }, { status: result.status === "completed" ? 200 : 409, headers });
+    return Response.json({ sync: result }, { status: result.status === "completed" ? 200 : result.status === "queued" || result.status === "running" ? 202 : 409, headers });
   }
   if (context.kind === "operator" && url.pathname === "/beta/api/analytics/youtube/retention" && request.method === "POST") {
     const input = await body(request);

@@ -2,13 +2,13 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { describe, expect, it, vi } from 'vitest';
 
-function controls(manage: boolean, serverManage = manage) {
+function controls(manage: boolean, serverManage = manage, all = false) {
   const nodes = new Map<string, { hidden: boolean; disabled: boolean; textContent: string; setAttribute: ReturnType<typeof vi.fn>; classList: { toggle: ReturnType<typeof vi.fn> } }>();
   const node = (selector: string) => {
     if (!nodes.has(selector)) nodes.set(selector, { hidden: false, disabled: false, textContent: '', setAttribute: vi.fn(), classList: { toggle: vi.fn() } });
     return nodes.get(selector)!;
   };
-  const context = vm.createContext({ URLSearchParams, window: { location: { search: `?manage=${manage ? 1 : 0}&channel=UC${"a".repeat(22)}` } },
+  const context = vm.createContext({ URLSearchParams, window: { location: { search: `?manage=${manage ? 1 : 0}&channel=${all ? "all" : `UC${"a".repeat(22)}`}` } },
     render: vi.fn(), weekly: [], episodes: [], state: {}, fetch: vi.fn().mockResolvedValue({ ok: true, json: async () => ({configured: true, canManage: serverManage, connections: []}) }), $: node, document: { querySelectorAll: () => [], querySelector: () => null } });
   const source = readFileSync('public/analytics-demo/production-bridge.js', 'utf8');
   vm.runInContext(source.replace('  configureRanges(today);', '  globalThis.testControls = { api, renderProductionStatus, loadStatus }; return;\n  configureRanges(today);'), context);
@@ -77,4 +77,41 @@ it('keeps sync control stable while exposing progress accessibly', () => {
   view.api.syncing = true;
   view.render();
   expect(view.node('#api-sync-production').setAttribute).toHaveBeenCalledWith('aria-busy', 'true');
+});
+
+
+it.each(['queued', 'running', 'recovering', 'retryable'])('keeps the Google connection usable while sync is %s', (status) => {
+  const view = controls(true);
+  view.api.connection = { status: 'syncing', resource: { id: 'channel', name: 'Channel' }, sync: { status, automaticRetry: true } };
+  view.render();
+  expect(view.node('#api-status-title').textContent).toContain('Connected');
+  expect(view.node('#api-status-copy').textContent).not.toContain('Reconnect Google');
+  expect(view.node('#api-sync-production').hidden).toBe(false);
+  expect(view.node('#api-sync-production').disabled).toBe(true);
+});
+it('allows a retry after failure without requiring Google reconnection', () => {
+  const view = controls(true);
+  view.api.connection = { status: 'provider_error', resource: { id: 'channel' }, sync: { status: 'failed', automaticRetry: false } };
+  view.render();
+  expect(view.node('#api-status-title').textContent).toBe('Connected · update incomplete');
+  expect(view.node('#api-sync-production').disabled).toBe(false);
+});
+it('summarizes all channel statuses instead of taking the first channel state', () => {
+  const view = controls(true, true, true);
+  view.api.connections = [
+    { status: 'syncing', resource: { id: 'a' }, sync: { status: 'recovering' } },
+    { status: 'connected', resource: { id: 'b' } },
+    { status: 'connected', resource: { id: 'c' } },
+  ];
+  view.api.connection = view.api.connections[0];
+  view.render();
+  expect(view.node('#api-status-title').textContent).toBe('3/3 channels connected');
+  expect(view.node('#api-status-copy').textContent).toContain('1 channel updating');
+  expect(view.node('#api-status-copy').textContent).not.toContain('Reconnect');
+});
+it('requests authorization only for a real authorization state', () => {
+  const view = controls(true);
+  view.api.connection = { status: 'expired', resource: { id: 'a' } };view.render();
+  expect(view.node('#api-status-title').textContent).toBe('Google authorization required');
+  expect(view.node('#api-sync-production').hidden).toBe(true);
 });

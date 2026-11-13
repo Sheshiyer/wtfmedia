@@ -1,3 +1,11 @@
+## 2026-11-13 — Durable YouTube sync recovery candidate
+
+- Owner authorized automatic sync recovery, staging/production deployment and a push to `feature/pavun`, with existing Google channel connections preserved. Read-only production diagnosis found the main channel's core sync still running since November 11 with partial observations; the original abort cause was not recorded. Hindi and Clips remained connected.
+- Sync POST now queues a durable request and returns 202. A five-minute cron claims one channel with an atomic ten-minute lease, retries interrupted/transient failures with backoff (five attempts maximum), and fences completion writes. Core imports persist sequential 200-video batches; optional daily reach polling remains separate. Google refresh grants and active channel records are retained; revoked grants are excluded. No schema change.
+- UI separates authorization from queued/running/recovering/retry/incomplete states, polls active jobs, retains update controls after failures and summarizes all channels. Existing credentials are never cleared by recovery; temporary token-refresh outages do not expire the account.
+- VERIFIED-SOURCE: 646 Edge tests, 14 focused frontend tests, web typecheck and lint pass. Real SQLite tests cover 2,001 videos, abandoned/concurrent runs, timeout/backoff, revoked accounts, transient token refresh, and 202 API acceptance. Production assembly preserves unrelated released runtime and passes route/role parity checks.
+- Deployment receipts and live recovery result will follow. No signed-in browser persona matrix is claimed by source tests.
+
 ## 2026-11-13 — PR #91 staging and production deployment receipts
 
 - Candidate `61f3504` deployed at 100%: staging Edge `1c726f4d-1d8e-454f-846d-2cccc7cd8ad7`; production Edge `ba573475-6860-4460-8c52-d68ade80dab1`. All 30 staging and 34 production bindings plus runtime compatibility settings match the prior releases.

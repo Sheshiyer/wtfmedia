@@ -136,20 +136,46 @@
     return payload;
   }
 
+  function isLinked(connection) {
+    return Boolean(connection?.resource && !['expired', 'missing_scope', 'revoked', 'disconnected'].includes(connection.status));
+  }
+
+  function syncState(connection) {
+    return connection?.sync?.status || (connection?.status === 'syncing' ? 'running' : connection?.status === 'provider_error' ? 'failed' : 'idle');
+  }
+
+  function syncPending(connection) {
+    const status = syncState(connection);
+    return ['queued', 'running', 'recovering'].includes(status) || status === 'retryable' && connection?.sync?.automaticRetry !== false;
+  }
+
   function connectionStatus() {
     const connection = api.connection;
     if (api.migrationRequired) return ['Connection unavailable', 'Channel connection is temporarily unavailable. Please contact your administrator.'];
     if (!api.configured) return ['Connection unavailable', 'Google connection is not available yet. Please contact your administrator.'];
     if (!connection) return ['Google not connected', 'Connect the Google account that manages your channel. Access is read-only.'];
     if (!connection.resource) return ['Select the channel', 'Google is connected. Select your YouTube channel to continue.'];
-    if (connection.status !== 'connected') return [String(connection.status).replaceAll('_', ' '), 'Reconnect Google before synchronizing provider observations.'];
-    if (channelId === 'all') return ['All connected channels', 'Combined observations from each connected YouTube channel. Open a channel page to update its data.'];
+    if (channelId === 'all') {
+      const channels = api.connections || [connection];
+      const linked = channels.filter(isLinked).length;
+      const pending = channels.filter(syncPending).length;
+      const failed = channels.filter(item => ['failed', 'retryable'].includes(syncState(item)) && !syncPending(item)).length;
+      const authorization = channels.length - linked;
+      return [`${linked}/${channels.length} channels connected`, `${pending ? `${pending} channel${pending === 1 ? '' : 's'} updating or awaiting automatic retry. ` : ''}${failed ? `${failed} sync${failed === 1 ? '' : 's'} need another attempt. ` : ''}${authorization ? `${authorization} channel${authorization === 1 ? '' : 's'} need Google authorization. ` : ''}Open a channel to see its sync status and update data.`];
+    }
+    if (!isLinked(connection)) return ['Google authorization required', 'This channel is still saved. Reconnect Google to restore permission to read its analytics.'];
+    const status = syncState(connection);
+    if (status === 'queued') return ['Connected · update queued', 'Your update is saved and will start automatically within five minutes. You can leave this page.'];
+    if (status === 'running') return ['Connected · updating data', 'The server is importing analytics. Your Google connection is preserved; you can leave this page.'];
+    if (status === 'recovering') return ['Connected · recovering update', 'An earlier update was interrupted. The server will retry automatically; no reconnection is needed.'];
+    if (status === 'retryable' && syncPending(connection)) return ['Connected · retry scheduled', 'The provider could not finish the update. An automatic retry is scheduled; saved data is retained.'];
+    if (status === 'failed' || status === 'retryable') return ['Connected · update incomplete', 'The last update could not finish. Use update data to try again; your Google connection is preserved.'];
     return [connection.resource.name || connection.resource.id, 'Your channel is connected. Update data to see the latest results.'];
   }
 
   function renderProductionStatus() {
     const [title, copy] = connectionStatus();
-    const connected = Boolean(api.connection?.resource && api.connection.status === 'connected');
+    const connected = channelId === 'all' ? (api.connections || [api.connection]).some(isLinked) : isLinked(api.connection);
     $('#api-status-dot').classList.toggle('connected', connected);
     $('#api-status-title').textContent = title;
     const needsAdmin = !canManage && api.configured && !api.migrationRequired && !connected;
@@ -187,10 +213,10 @@
     connect.disabled = !api.configured || api.reportLoading;
     connect.textContent = (active && channelId !== 'all') || api.accountCount >= 3 ? 'reconnect Google' : api.accountCount ? 'add another YouTube account' : 'connect Google';
     disconnect.disabled = api.reportLoading;
-    sync.disabled = !connected || api.reportLoading;
+    sync.disabled = !connected || api.reportLoading || syncPending(api.connection);
     sync.textContent = 'update data';
-    sync.setAttribute('aria-busy', String(api.syncing));
-    sync.setAttribute('aria-label', api.syncing ? 'Updating YouTube data' : 'Update YouTube data');
+    sync.setAttribute('aria-busy', String(api.syncing || syncPending(api.connection)));
+    sync.setAttribute('aria-label', api.syncing || syncPending(api.connection) ? 'Updating YouTube data' : 'Update YouTube data');
     if (!api.pendingYouTube || !canManage) form.hidden = true;
     document.querySelectorAll('.answer-confidence').forEach(node => { node.textContent = api.report ? 'CONFIDENCE · STORED PROVIDER OBSERVATIONS' : 'CONFIDENCE · PROVIDER DATA UNAVAILABLE'; });
     const episodeCopy = document.querySelector('#episodes .section-title > p');
@@ -211,6 +237,7 @@
       api.migrationRequired = Boolean(result.migrationRequired);
       const channels = Array.isArray(result.connections) ? result.connections.filter(item => item.provider === 'youtube' && item.resource && item.status !== 'revoked') : [];
       api.accountCount = channels.length;
+      api.connections = channels;
       api.connection = channelId === 'all' ? channels[0] || null : channels.find(item => item.resource.id === channelId) || null;
       api.pendingYouTube = result.pendingYouTube || null;
       if (canManage && api.pendingYouTube) {
@@ -260,7 +287,7 @@
       const query = new URLSearchParams({ channelId, startDate: selected.from, endDate: selected.to });
       const report = await request(`/beta/api/analytics/youtube?${query}`);
       applyReport(report);
-      api.notice = report.trends?.length ? 'Stored YouTube observations loaded.' : 'The selected channel is connected, but this date range has no synchronized observations.';
+      api.notice = report.status === 'partial' ? 'Some channels have incomplete coverage for these dates. Available channel data is retained; open a channel to view it.' : report.trends?.length ? 'Stored YouTube observations loaded.' : 'No stored observations are available for this date range yet.';
     } catch (error) {
       clearProviderData();
       api.notice = `Stored report unavailable · ${error.message}`;
@@ -335,7 +362,7 @@
         body: JSON.stringify({ provider: 'youtube', channelId, startDate: selected.from, endDate: selected.to }),
       });
       api.reportKey = '';
-      api.notice = `Synchronization ${result.sync?.status || 'completed'} · ${result.sync?.rows ?? 0} stored observations.`;
+      api.notice = result.sync?.status === 'queued' ? 'Update queued. The server will process it automatically; you can leave this page.' : `Synchronization ${result.sync?.status || 'completed'} · ${result.sync?.rows ?? 0} stored observations.`;
       api.reportLoading = false;
       api.syncing = false;
       await loadStatus();
@@ -468,4 +495,7 @@
   clearProviderData();
   render();
   void loadStatus();
+  setInterval(() => {
+    if (!document.hidden && !api.reportLoading && (api.connections || [api.connection]).some(syncPending)) void loadStatus();
+  }, 15000);
 })();

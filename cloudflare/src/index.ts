@@ -16,7 +16,7 @@ import {
 } from "./db.ts";
 import { handleOpsRequest, type OpsEnv } from "./ops-router.ts";
 import { handleMemberRequest } from "./member-router.ts";
-import { syncConfiguredAnalytics, syncConfiguredYouTubeReach } from "./analytics-sync.ts";
+import { runYouTubeMaintenance } from "./analytics-sync.ts";
 import { createRemoteClerkVerifier } from "./auth/clerk.ts";
 import { allowCalendarRequest, handleCalendarRequest } from "./calendar.ts";
 import {
@@ -319,9 +319,7 @@ export default {
       catch (error) { console.error("wtfmedia ingest failed", { message: error instanceof Error ? error.message : "unknown" }); message.retry(); }
     }
   },
-  async scheduled(event: { scheduledTime: number }, env: Env, context: { waitUntil(promise: Promise<unknown>): void }) {
-    context.waitUntil(env.OPS_ENVIRONMENT === "production"
-      ? syncConfiguredYouTubeReach(env, new Date(event.scheduledTime))
-      : syncConfiguredAnalytics(env, new Date(event.scheduledTime)));
+  async scheduled(event: { scheduledTime: number; cron?: string }, env: Env, context: { waitUntil(promise: Promise<unknown>): void }) {
+    context.waitUntil(runYouTubeMaintenance(env, new Date(event.scheduledTime), event.cron));
   },
 };

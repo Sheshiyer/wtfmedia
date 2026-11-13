@@ -142,6 +142,14 @@ async function body(request: Request): Promise<Record<string, unknown> | null> {
   return request.json().then((value) => value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null).catch(() => null);
 }
 
+export function analyticsSyncState(row: AnalyticsConnectionRow, run: { status: string; started_at?: string | null; next_retry_at?: string | null; last_error_code?: string | null; attempt_count?: number } | null, now = new Date()) {
+  const needsAuthorization = ["expired", "revoked", "missing_scope"].includes(row.status);
+  const startedAt = run?.started_at ?? row.last_attempted_refresh_at;
+  const interrupted = (run?.status === "running" || row.status === "syncing") && (!startedAt || now.getTime() - Date.parse(startedAt) > 10 * 60_000);
+  const status = needsAuthorization ? "authorization_required" : interrupted ? "recovering" : run?.status ?? (row.status === "syncing" ? "running" : row.last_successful_refresh_at ? "completed" : "idle");
+  return { status, startedAt, nextRetryAt: run?.next_retry_at ?? null, errorCode: run?.last_error_code ?? row.last_error_code, automaticRetry: status === "recovering" || status === "queued" || status === "retryable" && (run?.attempt_count ?? 0) < 5 };
+}
+
 function connectionDto(row: AnalyticsConnectionRow) {
   let grantedScopes: string[] = [];
   try {
@@ -197,7 +205,10 @@ async function status(env: AnalyticsEnv, canManage: boolean, operatorId?: number
     const accounts = base ? await youtubeAccounts(env) : [];
     const expanded = rows.flatMap(row => row.provider === 'youtube' && accounts.length ? accounts.map(account => channelConnection(row, account)) : [row]);
     const projected = await Promise.all(expanded.map(async (row) => {
-      if (!row.selected_resource_id || await hasActiveSelectedResource(env.DB, row)) return connectionDto(row);
+      if (!row.selected_resource_id || await hasActiveSelectedResource(env.DB, row)) {
+        const run = row.provider === "youtube" && row.selected_resource_id ? await env.DB.prepare("SELECT status, started_at, next_retry_at, last_error_code, attempt_count FROM analytics_sync_runs WHERE connection_id = ? AND resource_id = ? ORDER BY CASE WHEN status IN ('queued','running','retryable') AND attempt_count < 5 THEN 0 ELSE 1 END, updated_at DESC LIMIT 1").bind(row.id, row.selected_resource_id).first<{ status: string; started_at: string | null; next_retry_at: string | null; last_error_code: string | null; attempt_count: number }>() : null;
+        return { ...connectionDto(row), sync: analyticsSyncState(row, run, now) };
+      }
       // A reconnect can leave an older selection ID without an active provider
       // resource row. Never present that dangling ID as a usable connection:
       // the management UI will run ownership-validated selection again.
@@ -342,12 +353,13 @@ export async function refreshAnalyticsAccessToken(row: AnalyticsConnectionRow, e
   });
   const token = await response.json().catch(() => null) as { access_token?: string; expires_in?: number } | null;
   if (!response.ok || !token?.access_token || !token.expires_in) {
+    if (response.status === 429 || response.status >= 500 || response.ok) throw Object.assign(new Error("token_refresh_unavailable"), { status: "retryable", code: "token_refresh_unavailable" });
     await env.DB.prepare(row.account_id ? "UPDATE youtube_analytics_accounts SET status = 'expired', last_error_code = 'token_refresh_failed', updated_at = ? WHERE id = ?" : "UPDATE analytics_provider_connections SET status = 'expired', last_error_code = 'token_refresh_failed', updated_at = ? WHERE id = ?").bind(now.toISOString(), row.account_id ?? row.id).run();
     throw new Error("token_refresh_failed");
   }
   const expiresAt = new Date(now.getTime() + token.expires_in * 1_000).toISOString();
   const encrypted = await encryptAnalyticsCredentials({ accessToken: token.access_token, refreshToken: stored.refreshToken, expiresAt }, env.ANALYTICS_TOKEN_ENCRYPTION_KEY.trim());
-  await env.DB.prepare(row.account_id ? "UPDATE youtube_analytics_accounts SET encrypted_credentials = ?, token_expires_at = ?, status = 'connected', last_error_code = NULL, updated_at = ? WHERE id = ?" : "UPDATE analytics_provider_connections SET encrypted_credentials = ?, token_expires_at = ?, status = 'connected', last_error_code = NULL, updated_at = ? WHERE id = ?").bind(encrypted, expiresAt, now.toISOString(), row.account_id ?? row.id).run();
+  await env.DB.prepare(row.account_id ? "UPDATE youtube_analytics_accounts SET encrypted_credentials = ?, token_expires_at = ?, status = CASE WHEN status = 'syncing' THEN 'syncing' ELSE 'connected' END, last_error_code = NULL, updated_at = ? WHERE id = ? AND status <> 'revoked'" : "UPDATE analytics_provider_connections SET encrypted_credentials = ?, token_expires_at = ?, status = 'connected', last_error_code = NULL, updated_at = ? WHERE id = ?").bind(encrypted, expiresAt, now.toISOString(), row.account_id ?? row.id).run();
   return token.access_token;
 }
 

@@ -544,3 +544,18 @@ for (const role of ['member', 'editor', 'admin', 'super_admin']) {
     assert.equal((await response.json()).canManage, role === 'admin' || role === 'super_admin');
   });
 }
+
+test("operator sync accepts a durable YouTube job without waiting for Google",async()=>{
+ let queued=false;
+ const channelId=`UC${'a'.repeat(22)}`;
+ const db={prepare(sql){
+  if(sql.includes('member_beta_releases')) return statement({async first(){return {state:'stable'}}});
+  if(sql.includes('FROM operators')) return statement({async first(){return {id:7,email:'admin@example.test',display_name:'Admin',role:'admin',active:1}}});
+  if(sql.includes('JOIN youtube_analytics_accounts')) return statement({async first(){return {id:'acon_test',environment:'staging',provider:'youtube',status:'connected',selected_resource_id:channelId}}});
+  if(sql.startsWith('INSERT INTO analytics_sync_runs')) return statement({async run(){queued=true;return {success:true}}});
+  return statement();
+ }};
+ const env={DB:db,OPS_HOSTNAME:'ops.staging.test',OPS_ORIGIN:'https://ops.staging.test',OPS_ENVIRONMENT:'staging',CLERK_ISSUER:'https://clerk.example.test',CLERK_JWKS_URL:'https://clerk.example.test/.well-known/jwks.json',CLERK_AUTHORIZED_PARTIES:'https://ops.staging.test'};
+ const response=await handleMemberRequest(new Request('https://ops.staging.test/beta/api/analytics/sync',{method:'POST',headers:{origin:'https://ops.staging.test','content-type':'application/json'},body:JSON.stringify({provider:'youtube',channelId,startDate:'2026-11-01',endDate:'2026-11-12'})}),env,{verifyClerk:async()=>({ok:true,email:'admin@example.test',userId:'user_admin'}),fetchGoogle:async()=>{throw Error('must_not_call_google')}});
+ assert.equal(response.status,202);assert.equal((await response.json()).sync.status,'queued');assert.equal(queued,true);
+});

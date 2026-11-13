@@ -6,9 +6,9 @@
   "workers_dev": true,
   "preview_urls": false,
   "observability": { "enabled": true },
-  // Poll delayed YouTube reach reports daily; the scheduled handler limits
-  // production work to this read-only provider pull and D1 reach import.
-  "triggers": { "crons": ["0 8 * * *"] },
+  // Recover saved YouTube sync requests every five minutes; poll optional
+  // delayed reach reports on a separate daily tick. No GA4 or research jobs.
+  "triggers": { "crons": ["*/5 * * * *", "0 8 * * *"] },
   "vars": {
     "ALLOWED_ORIGIN": "https://wtfhq.in",
     "RATE_LIMIT_PER_MINUTE": "20",
@@ -106,7 +106,7 @@
     },
     "staging": {
       "name": "wtfmedia-edge-staging",
-      "triggers": { "crons": [] },
+      "triggers": { "crons": ["*/5 * * * *"] },
       // Analytics question planning only; transcript inference remains with Alpha.
       "ai": { "binding": "AI" },
       "vars": {
