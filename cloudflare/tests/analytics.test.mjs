@@ -7,7 +7,7 @@ import {
 } from "../src/analytics.ts";
 import { capabilitiesForRole, policyForPath } from "../src/auth/policy.ts";
 import { handleMemberRequest } from "../src/member-router.ts";
-import { syncAnalyticsConnection, syncConfiguredAnalytics } from "../src/analytics-sync.ts";
+import { syncAnalyticsConnection, syncConfiguredAnalytics, syncConfiguredYouTubeReach } from "../src/analytics-sync.ts";
 import { aggregateYouTubePeriod, impressionTier, performanceGroup, writtenInsights, YOUTUBE_FORMULA_VERSION } from "../src/analytics-derivations.ts";
 
 const operator = {
@@ -386,7 +386,7 @@ test("YouTube reach sync discovers the report type and preserves sub-1% CTR perc
       if (url.hostname === "youtubereporting.googleapis.com" && url.pathname.endsWith("/jobs") && !init?.method) return Response.json({ jobs: [{ id: "reach-job-1", reportTypeId: "channel_reach_basic_a1" }] });
       if (url.hostname === "youtubereporting.googleapis.com" && url.pathname.endsWith("/jobs") && init?.method === "POST") throw new Error("duplicate job must be adopted rather than recreated");
       if (url.hostname === "youtubereporting.googleapis.com" && url.pathname.endsWith("/jobs/reach-job-1/reports")) return Response.json({ reports: [{ id: "reach-report-1", downloadUrl: "https://reports.example.test/reach.csv" }] });
-      if (url.hostname === "reports.example.test") return new Response("\uFEFFdate,channel_id,video_id,video_thumbnail_impressions,video_thumbnail_impressions_ctr\n20261001,UC-test,video-id-01,1000,0.87\n2026-10-01,UC-test,,2000,4.5\n", { headers: { "content-type": "text/csv" } });
+      if (url.hostname === "reports.example.test") return new Response(`\uFEFFdate,channel_id,video_id,video_thumbnail_impressions,video_thumbnail_impressions_ctr\n20261001,UC${"a".repeat(22)},video-id-01,1000,0.87\n2026-10-01,UC${"a".repeat(22)},,2000,4.5\n2026-10-01,UC${"b".repeat(22)},video-id-02,5000,9\n`, { headers: { "content-type": "text/csv" } });
       throw new Error(`unexpected_provider_request:${url.hostname}${url.pathname}`);
     },
   });
@@ -399,6 +399,75 @@ test("YouTube reach sync discovers the report type and preserves sub-1% CTR perc
   assert.equal(reachWrites[0].values[2], 0.0087, "0.87% must remain below one percent");
   const channelReach = writes.find(({ sql }) => sql.startsWith("INSERT INTO youtube_channel_daily_metrics") && sql.includes("thumbnail_impressions"));
   assert.equal(channelReach.values[3], (1000 * 0.0087 + 2000 * 0.045) / 3000);
+});
+
+test("production reach poll imports a delayed report without another manual sync", async () => {
+  const secret = "test-scheduled-reach-key";
+  const channelId = `UC${"a".repeat(22)}`;
+  const encrypted = await encryptAnalyticsCredentials({ accessToken: "test-access", refreshToken: "test-refresh", expiresAt: "2026-12-01T00:00:00Z" }, secret);
+  const connection = {
+    id: "acon_scheduled", environment: "production", provider: "youtube", account_id: "yacc_scheduled",
+    status: "connected", encrypted_credentials: encrypted, granted_scopes_json: "[]", token_expires_at: "2026-12-01T00:00:00Z",
+    selected_resource_id: channelId, selected_resource_name: "Test channel", channel_key: "ytch_scheduled",
+    reporting_timezone: "UTC", last_attempted_refresh_at: null, last_successful_refresh_at: null, last_error_code: null,
+  };
+  let jobId = null;
+  let reportReady = false;
+  let reportId = "report-delayed";
+  let reportChannelId = channelId;
+  let createdJobs = 0;
+  const imported = new Set();
+  const writes = [];
+  const reportRequests = [];
+  const db = {
+    prepare(sql) {
+      return statement({
+        async all() { return { results: sql.includes("FROM analytics_provider_connections p JOIN youtube_analytics_accounts") ? [connection] : [] }; },
+        async first() {
+          if (sql.includes("SELECT google_job_id")) return jobId ? { google_job_id: jobId } : null;
+          if (sql.includes("SELECT 1 AS imported")) return imported.has(this.values[0]) ? { imported: 1 } : null;
+          return null;
+        },
+        async run() {
+          writes.push({ sql, values: this.values });
+          if (sql.startsWith("INSERT INTO youtube_reporting_jobs") && sql.includes("'active'")) jobId = this.values[2];
+          if (sql.startsWith("INSERT INTO youtube_reporting_imports")) imported.add(this.values[0]);
+          return { success: true };
+        },
+      });
+    },
+    async batch(statements) { for (const item of statements) await item.run(); },
+  };
+  const fetchGoogle = async (input, init) => {
+    const url = new URL(input);
+    if (url.pathname.endsWith("/reportTypes")) return Response.json({ reportTypes: [{ id: "channel_reach_basic_a1" }] });
+    if (url.pathname.endsWith("/jobs") && init?.method === "POST") { createdJobs += 1; return Response.json({ id: "job-scheduled" }); }
+    if (url.pathname.endsWith("/jobs")) return Response.json({ jobs: [] });
+    if (url.pathname.endsWith("/jobs/job-scheduled")) return Response.json({ id: "job-scheduled", reportTypeId: "channel_reach_basic_a1" });
+    if (url.pathname.endsWith("/jobs/job-scheduled/reports")) {
+      reportRequests.push(url);
+      return Response.json({ reports: reportReady ? [{ id: reportId, downloadUrl: "https://reports.example.test/delayed.csv" }] : [] });
+    }
+    if (url.hostname === "reports.example.test") return new Response(`date,channel_id,video_id,video_thumbnail_impressions,video_thumbnail_impressions_ctr\n20261111,${reportChannelId},,1250,0.72\n`);
+    throw new Error(`unexpected_provider_request:${url.hostname}${url.pathname}`);
+  };
+  const env = { DB: db, OPS_ENVIRONMENT: "production", ANALYTICS_TOKEN_ENCRYPTION_KEY: secret, GOOGLE_OAUTH_CLIENT_ID: "test-client", GOOGLE_OAUTH_CLIENT_SECRET: "test-secret" };
+  const first = await syncConfiguredYouTubeReach(env, new Date("2026-11-13T08:00:00Z"), { fetchGoogle });
+  assert.equal(first[0].status, "completed");
+  assert.equal(first[0].rows, 0);
+  reportReady = true;
+  const second = await syncConfiguredYouTubeReach(env, new Date("2026-11-14T08:00:00Z"), { fetchGoogle });
+  assert.equal(second[0].status, "completed");
+  assert.equal(second[0].rows, 1);
+  assert.equal(createdJobs, 1);
+  assert.equal(imported.size, 1);
+  assert.equal(reportRequests[0].searchParams.get("startTimeAtOrAfter"), "2026-10-09T00:00:00Z");
+  assert.ok(writes.some(({ sql, values }) => sql.startsWith("INSERT INTO youtube_channel_daily_metrics") && values[2] === 1250 && values[3] === 0.0072));
+  reportId = "report-wrong-channel";
+  reportChannelId = `UC${"b".repeat(22)}`;
+  const third = await syncConfiguredYouTubeReach(env, new Date("2026-11-15T08:00:00Z"), { fetchGoogle });
+  assert.equal(third[0].errorCode, "report_channel_mismatch");
+  assert.equal(imported.size, 1, "another channel's report must never be acknowledged or imported");
 });
 
 
